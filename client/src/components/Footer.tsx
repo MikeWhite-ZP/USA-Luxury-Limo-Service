@@ -1,0 +1,129 @@
+import { Twitter, Linkedin, Facebook } from "lucide-react";
+
+export default function Footer() {
+  const handleNavClick = (href: string) => {
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  return (
+    <footer className="bg-foreground text-background py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid md:grid-cols-4 gap-8 mb-8">
+          {/* Company Info */}
+          <div className="md:col-span-2">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-xl">UL</span>
+              </div>
+              <span className="text-xl font-bold" data-testid="footer-logo">USA Luxury Limo</span>
+            </div>
+            <p className="text-gray-300 mb-4 max-w-md" data-testid="footer-description">
+              Premium luxury transportation services across the United States. 
+              Experience comfort, reliability, and professionalism with every ride.
+            </p>
+            <div className="flex space-x-4">
+              <a href="#" className="text-gray-300 hover:text-primary transition-colors" data-testid="social-twitter">
+                <Twitter className="w-6 h-6" />
+              </a>
+              <a href="#" className="text-gray-300 hover:text-primary transition-colors" data-testid="social-facebook">
+                <Facebook className="w-6 h-6" />
+              </a>
+              <a href="#" className="text-gray-300 hover:text-primary transition-colors" data-testid="social-linkedin">
+                <Linkedin className="w-6 h-6" />
+              </a>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h4 className="text-lg font-semibold mb-4" data-testid="footer-quick-links-title">Quick Links</h4>
+            <ul className="space-y-2 text-gray-300">
+              <li>
+                <button 
+                  onClick={() => handleNavClick('#home')} 
+                  className="hover:text-primary transition-colors"
+                  data-testid="footer-link-home"
+                >
+                  Home
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleNavClick('#services')} 
+                  className="hover:text-primary transition-colors"
+                  data-testid="footer-link-services"
+                >
+                  Services
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleNavClick('#fleet')} 
+                  className="hover:text-primary transition-colors"
+                  data-testid="footer-link-fleet"
+                >
+                  Fleet
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleNavClick('#contact')} 
+                  className="hover:text-primary transition-colors"
+                  data-testid="footer-link-contact"
+                >
+                  Contact
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Support */}
+          <div>
+            <h4 className="text-lg font-semibold mb-4" data-testid="footer-support-title">Support</h4>
+            <ul className="space-y-2 text-gray-300">
+              <li>
+                <a href="#" className="hover:text-primary transition-colors" data-testid="footer-link-help">
+                  Help Center
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-primary transition-colors" data-testid="footer-link-privacy">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-primary transition-colors" data-testid="footer-link-terms">
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-primary transition-colors" data-testid="footer-link-cancellation">
+                  Cancellation Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-primary transition-colors" data-testid="footer-link-safety">
+                  Safety
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-gray-300 text-sm" data-testid="footer-copyright">
+            © 2024 USA Luxury Limo. All rights reserved.
+          </p>
+          <div className="flex items-center space-x-4 mt-4 md:mt-0">
+            <span className="text-gray-300 text-sm" data-testid="footer-powered-stripe">Powered by Stripe</span>
+            <span className="text-gray-300 text-sm">•</span>
+            <span className="text-gray-300 text-sm" data-testid="footer-powered-tomtom">TomTom Navigation</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
