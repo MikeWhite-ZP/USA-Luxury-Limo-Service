@@ -7,7 +7,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ObjectUploader } from "@/components/ObjectUploader";
+import { ObjectUploader } from "../components/ObjectUploader";
 import { DollarSign, MapPin, Clock, Star, Upload, CheckCircle, AlertCircle } from "lucide-react";
 
 interface DriverData {
@@ -260,7 +260,7 @@ export default function DriverDashboard() {
                           url: data.uploadURL,
                         };
                       }}
-                      onComplete={async (result) => {
+                      onComplete={async (result: { successful: Array<{ uploadURL: string }> }) => {
                         if (result.successful[0]) {
                           const uploadURL = result.successful[0].uploadURL;
                           // Update driver profile with document URL
@@ -304,7 +304,7 @@ export default function DriverDashboard() {
                           url: data.uploadURL,
                         };
                       }}
-                      onComplete={async (result) => {
+                      onComplete={async (result: { successful: Array<{ uploadURL: string }> }) => {
                         if (result.successful[0]) {
                           const uploadURL = result.successful[0].uploadURL;
                           // Update driver profile with document URL

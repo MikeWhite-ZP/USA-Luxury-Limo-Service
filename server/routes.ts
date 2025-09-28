@@ -9,9 +9,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -195,7 +193,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      let bookings;
+      let bookings: any[];
       if (user.role === 'driver') {
         const driver = await storage.getDriverByUserId(userId);
         if (driver) {
@@ -371,6 +369,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Payment intent error:', error);
       res.status(500).json({ message: "Error creating payment intent: " + error.message });
+    }
+  });
+
+  // n8n-style pricing calculation endpoint (mimics the Houston workflow)
+  app.post('/api/booking/pricing', async (req, res) => {
+    try {
+      const bookingData = req.body;
+      
+      if (!bookingData.service_type) {
+        return res.status(400).json({ error: 'Missing service_type' });
+      }
+
+      // Get vehicle types from database  
+      const vehicleTypes = await storage.getVehicleTypes();
+      
+      if (bookingData.service_type === 'hourly') {
+        // Hourly pricing calculation
+        const requestedDuration = parseInt(bookingData.duration) || 2;
+        
+        const vehicles = vehicleTypes.map(vehicle => {
+          const actualDuration = Math.max(requestedDuration, 2); // Minimum 2 hours
+          const totalPrice = actualDuration * vehicle.hourly_rate;
+          
+          return {
+            type: vehicle.name.toLowerCase().replace(/[\s-]/g, '_'),
+            name: vehicle.name,
+            price: '$' + totalPrice.toFixed(2),
+            hourly_rate: vehicle.hourly_rate,
+            passengers: vehicle.passenger_capacity,
+            luggage: vehicle.luggage_capacity,
+            category: 'Hourly service',
+            duration: actualDuration,
+            minimum_hours: 2
+          };
+        });
+
+        return res.json({
+          success: true,
+          data: {
+            service_type: 'hourly',
+            pickup_address: bookingData.pickup_address || 'Not specified',
+            requested_duration: requestedDuration,
+            datetime: bookingData.datetime || new Date().toISOString(),
+            vehicles: vehicles,
+            minimum_price: Math.min(...vehicles.map(v => parseFloat(v.price.replace('$', '')))),
+            booking_id: 'HOU_H' + Math.random().toString(36).substr(2, 9).toUpperCase()
+          }
+        });
+      } else if (bookingData.service_type === 'transfer') {
+        // Transfer pricing with distance calculation
+        if (!bookingData.from || !bookingData.to) {
+          return res.status(400).json({ error: 'Missing from and/or to addresses for transfer' });
+        }
+
+        // Calculate distance (simplified - you would integrate with TomTom here)
+        const estimatedDistance = 15; // Default distance in miles
+        
+        const vehicles = vehicleTypes.map(vehicle => {
+          const mileageCharge = estimatedDistance * vehicle.per_mile_rate;
+          const totalPrice = Math.max(mileageCharge, vehicle.minimum_fare);
+          
+          return {
+            type: vehicle.name.toLowerCase().replace(/[\s-]/g, '_'),
+            name: vehicle.name,
+            price: '$' + totalPrice.toFixed(2),
+            per_mile_rate: vehicle.per_mile_rate,
+            passengers: vehicle.passenger_capacity,
+            luggage: vehicle.luggage_capacity,
+            category: 'Transfer',
+            distance: estimatedDistance,
+            minimum_fare: vehicle.minimum_fare
+          };
+        });
+
+        return res.json({
+          success: true,
+          data: {
+            service_type: 'transfer',
+            from_address: bookingData.from,
+            to_address: bookingData.to,
+            distance_miles: estimatedDistance,
+            datetime: bookingData.datetime || new Date().toISOString(),
+            vehicles: vehicles,
+            minimum_price: Math.min(...vehicles.map(v => parseFloat(v.price.replace('$', '')))),
+            booking_id: 'HOU_T' + Math.random().toString(36).substr(2, 9).toUpperCase()
+          }
+        });
+      }
+
+      return res.status(400).json({ error: 'Invalid service_type. Must be "hourly" or "transfer"' });
+    } catch (error) {
+      console.error('Pricing calculation error:', error);
+      res.status(500).json({ error: 'Pricing calculation failed' });
     }
   });
 
