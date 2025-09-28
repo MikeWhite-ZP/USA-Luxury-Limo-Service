@@ -11,6 +11,60 @@ if (!process.env.STRIPE_SECRET_KEY) {
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+// TomTom API integration functions
+async function geocodeAddress(address: string): Promise<{lat: number, lon: number} | null> {
+  try {
+    const apiKey = process.env.TOMTOM_API_KEY;
+    if (!apiKey) {
+      console.warn('TomTom API key not configured');
+      return null;
+    }
+
+    const encodedAddress = encodeURIComponent(address);
+    const url = `https://api.tomtom.com/search/2/geocode/${encodedAddress}.json?key=${apiKey}&limit=1`;
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`TomTom geocoding failed: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    if (data.results && data.results.length > 0) {
+      const result = data.results[0];
+      return {
+        lat: result.position.lat,
+        lon: result.position.lon
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('Geocoding error:', error);
+    return null;
+  }
+}
+
+async function calculateRoute(fromCoords: {lat: number, lon: number}, toCoords: {lat: number, lon: number}): Promise<any> {
+  try {
+    const apiKey = process.env.TOMTOM_API_KEY;
+    if (!apiKey) {
+      console.warn('TomTom API key not configured');
+      return null;
+    }
+
+    const url = `https://api.tomtom.com/routing/1/calculateRoute/${fromCoords.lat},${fromCoords.lon}:${toCoords.lat},${toCoords.lon}/json?key=${apiKey}&routeType=fastest&traffic=true`;
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`TomTom routing failed: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Route calculation error:', error);
+    return null;
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
@@ -372,6 +426,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // TomTom geocoding API endpoint for frontend autocomplete
+  app.get('/api/geocode', async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      const limit = parseInt(req.query.limit as string) || 5;
+      
+      if (!query || query.length < 2) {
+        return res.json({ results: [] });
+      }
+
+      const apiKey = process.env.TOMTOM_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ error: 'TomTom API not configured' });
+      }
+
+      const encodedQuery = encodeURIComponent(query);
+      const url = `https://api.tomtom.com/search/2/geocode/${encodedQuery}.json?key=${apiKey}&limit=${limit}&countrySet=US`;
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`TomTom API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error('Geocoding API error:', error);
+      res.status(500).json({ error: 'Geocoding failed' });
+    }
+  });
+
   // n8n-style pricing calculation endpoint (mimics the Houston workflow)
   app.post('/api/booking/pricing', async (req, res) => {
     try {
@@ -390,15 +475,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const vehicles = vehicleTypes.map(vehicle => {
           const actualDuration = Math.max(requestedDuration, 2); // Minimum 2 hours
-          const totalPrice = actualDuration * vehicle.hourly_rate;
+          const totalPrice = actualDuration * parseFloat(vehicle.hourlyRate);
           
           return {
             type: vehicle.name.toLowerCase().replace(/[\s-]/g, '_'),
             name: vehicle.name,
             price: '$' + totalPrice.toFixed(2),
-            hourly_rate: vehicle.hourly_rate,
-            passengers: vehicle.passenger_capacity,
-            luggage: vehicle.luggage_capacity,
+            hourly_rate: parseFloat(vehicle.hourlyRate),
+            passengers: vehicle.passengerCapacity,
+            luggage: vehicle.luggageCapacity,
             category: 'Hourly service',
             duration: actualDuration,
             minimum_hours: 2
@@ -423,23 +508,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ error: 'Missing from and/or to addresses for transfer' });
         }
 
-        // Calculate distance (simplified - you would integrate with TomTom here)
-        const estimatedDistance = 15; // Default distance in miles
+        // Calculate real distance using TomTom API
+        let estimatedDistance = 15; // Default fallback distance in miles
+        let routeCalculationError = false;
+        
+        try {
+          // Geocode addresses to coordinates
+          const fromCoords = await geocodeAddress(bookingData.from);
+          const toCoords = await geocodeAddress(bookingData.to);
+          
+          if (fromCoords && toCoords) {
+            // Calculate driving distance using TomTom routing API
+            const routeData = await calculateRoute(fromCoords, toCoords);
+            if (routeData && routeData.routes && routeData.routes.length > 0) {
+              // Convert meters to miles
+              estimatedDistance = (routeData.routes[0].summary.lengthInMeters * 0.000621371);
+            }
+          }
+        } catch (error) {
+          console.error('TomTom distance calculation error:', error);
+          routeCalculationError = true;
+        }
         
         const vehicles = vehicleTypes.map(vehicle => {
-          const mileageCharge = estimatedDistance * vehicle.per_mile_rate;
-          const totalPrice = Math.max(mileageCharge, vehicle.minimum_fare);
+          const mileageCharge = estimatedDistance * parseFloat(vehicle.perMileRate || '0');
+          const totalPrice = Math.max(mileageCharge, parseFloat(vehicle.minimumFare || '0'));
           
           return {
             type: vehicle.name.toLowerCase().replace(/[\s-]/g, '_'),
             name: vehicle.name,
             price: '$' + totalPrice.toFixed(2),
-            per_mile_rate: vehicle.per_mile_rate,
-            passengers: vehicle.passenger_capacity,
-            luggage: vehicle.luggage_capacity,
+            per_mile_rate: parseFloat(vehicle.perMileRate || '0'),
+            passengers: vehicle.passengerCapacity,
+            luggage: vehicle.luggageCapacity,
             category: 'Transfer',
             distance: estimatedDistance,
-            minimum_fare: vehicle.minimum_fare
+            minimum_fare: parseFloat(vehicle.minimumFare || '0')
           };
         });
 
