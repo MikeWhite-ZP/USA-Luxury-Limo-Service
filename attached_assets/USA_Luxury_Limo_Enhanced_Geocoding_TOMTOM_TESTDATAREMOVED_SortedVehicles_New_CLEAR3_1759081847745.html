@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>USA Luxury Limo - Booking (TomTom Suggestions)</title>
+  <style>
+    /* (kept your original styles) */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, Helvetica, sans-serif; background-color: #ffff; color: #1a1a1a; min-height: 100vh; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .header { text-align: center; margin-bottom: 40px; }
+    .header h1 { font-size: 2.5em; color: #dc3545; margin-bottom: 10px; font-weight: 700; letter-spacing: 1px; }
+    .tab-container { background: #ffff; border-radius: 15px; padding: 30px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border: 1px solid #ddd; }
+    .tabs { display: flex; margin-bottom: 30px; border-bottom: 2px solid #ddd; }
+    .tab-button { flex: 1; padding: 15px 20px; background: transparent; border: none; color: #555; font-size: 18px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; border-bottom: 3px solid transparent; }
+    .tab-button.active { color: #dc3545; border-bottom-color: #dc3545; font-weight: 600; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .step { display: none; }
+    .step.active { display: block; }
+    .form-group { margin-bottom: 20px; position: relative; }
+    .form-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; }
+    .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; background: #ffff; color: #1a1a1a; font-size: 16px; transition: all 0.3s ease; }
+    .form-control:focus { outline: none; border-color: #dc3545; box-shadow: 0 0 10px rgba(220, 53, 69, 0.3); }
+    .form-row { display: flex; gap: 20px; }
+    .form-row .form-group { flex: 1; }
+    .btn { background: #dc3545; color: #ffff; border: none; padding: 15px 30px; font-size: 18px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; width: 100%; margin-top: 20px; }
+    .btn:hover { transform: translateY(-2px); background: #c82333; box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4); }
+    .btn:disabled { background: #666; cursor: not-allowed; transform: none; box-shadow: none; }
+    .trip-info { background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 30px; border: 1px solid #e9ecef; }
+    .trip-info h3 { color: #dc3545; margin-bottom: 15px; font-weight: 600; }
+    .trip-details { display: grid; gap: 10px; }
+    .detail-item { display: flex; justify-content: space-between; padding: 5px 0; }
+    .vehicles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .vehicle-card { background: #ffff; border: 2px solid #dc3545; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+    .vehicle-card:hover { border-color: #dc3545; transform: translateY(-5px); box-shadow: 0 5px 15px rgba(220, 53, 69, 0.2); }
+    .vehicle-card.selected { border-color: #dc3545; background: rgba(220, 53, 69, 0.1); }
+    .vehicle-card h4 { color: #dc3545; margin-bottom: 10px; font-weight: 600; }
+    .price { font-size: 24px; font-weight: 700; color: #dc3545; margin-bottom: 15px; }
+    .vehicle-features { text-align: left; margin-top: 15px; }
+    .includes-section { background: #f8f9fa; padding: 20px; border-radius: 10px; margin-top: 20px; border: 1px solid #e9ecef; }
+    .includes-section h4 { color: #dc3545; margin-bottom: 15px; font-weight: 600; }
+    .includes-list { list-style: none; padding-left: 0; }
+    .includes-list li { padding: 3px 0; }
+    .includes-list li:before { content: "✓ "; color: #dc3545; font-weight: 700; }
+    .warning { background: rgba(255, 165, 0, 0.1); border: 1px solid rgba(255, 165, 0, 0.3); padding: 15px; border-radius: 8px; margin-top: 15px; font-style: italic; }
+    .add-via-btn { background: #dc3545; color: #ffff; border: none; padding: 8px 16px; font-size: 14px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; }
+    .add-via-btn:hover { background: #c82333; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(220, 53, 69, 0.4); }
+    .add-via-btn:disabled { background: #666; cursor: not-allowed; transform: none; box-shadow: none; }
+    .via-point-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; animation: slideIn 0.3s ease-out; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
+    .via-point-input { flex: 1; }
+    .remove-via-btn { background: #dc3545; color: white; border: none; padding: 8px 12px; font-size: 12px; border-radius: 4px; cursor: pointer; transition: all 0.3s ease; }
+    .remove-via-btn:hover { background: #c82333; }
+    .login-options { display: flex; gap: 20px; margin-top: 20px; }
+    .login-btn { flex: 1; padding: 15px; border: 2px solid #dc3545; background: #ffff; color: #dc3545; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-weight: 500; }
+    .login-btn:hover { background: #dc3545; color: #ffff; }
+    .loading { opacity: 0.7; pointer-events: none; }
+    .loading .btn:after { content: "..."; animation: loading 1s infinite; }
+    @keyframes loading { 0%, 20% { content: ""; } 40% { content: "."; } 60% { content: ".."; } 80%, 100% { content: "..."; } }
+    .error { background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); padding: 15px; border-radius: 8px; margin-top: 15px; color: #dc3545; white-space: pre-line; }
+    .hourly-total { background: #e8f5e8; border: 1px solid #28a745; padding: 10px; border-radius: 5px; margin-top: 10px; font-weight: bold; color: #155724; }
+    .data-source-info { background: #e3f2fd; border: 1px solid #2196f3; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 12px; color: #1976d2; }
+
+    /* Address Suggestions Styles */
+    .address-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+
+    .suggestion-item {
+      padding: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.2s ease;
+    }
+
+    .suggestion-item:hover { background-color: #f8f9fa; }
+    .suggestion-main { font-weight: 600; color: #333; }
+    .suggestion-detail { font-size: 12px; color: #666; margin-top: 2px; }
+
+    .geocoding-status { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #666; }
+    .geocoding-loading { color: #dc3545; }
+    .geocoding-success { color: #28a745; }
+    .geocoding-error { color: #dc3545; }
+
+    /* Coordinates Display Styles */
+    .coordinates-display {
+      background: #f0f8f0;
+      border: 1px solid #28a745;
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-top: 5px;
+      font-size: 12px;
+      color: #155724;
+      display: none;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .coordinates-display.show {
+      display: block;
+    }
+    
+    .coordinates-label {
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    
+    .coordinates-values {
+      font-weight: normal;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+     <!--<h1>USA Luxury Limo</h1>--> 
+    <!--<p>Premium Transportation Services</p> -->
+    </div>
+
+    <div class="tab-container">
+      <div class="tabs">
+        <button class="tab-button active" onclick="switchTab('transfer')">Transfer Only</button>
+        <button class="tab-button" onclick="switchTab('hourly')">Hourly</button>
+      </div>
+
+      <!-- Transfer Tab -->
+      <div class="tab-content active" id="transfer-tab">
+        <div class="step active" id="step-1">
+          <h3 style="color: #dc3545; margin-bottom: 20px; font-weight: 600;">Book Your Transfer</h3>
+
+          <div class="form-group">
+            <label for="from">From *</label>
+            <input type="text" id="from" class="form-control address-input" placeholder="Pickup location" required autocomplete="off">
+            <div class="address-suggestions" id="from-suggestions"></div>
+            <div class="geocoding-status" id="from-status"></div>
+            <div class="coordinates-display" id="from-coordinates">
+              <span class="coordinates-label">📍 Location:</span>
+              <span class="coordinates-values" id="from-coords-values"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div id="via-points-section">
+              <div class="via-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <label style="margin: 0; color: #333; font-weight: 600;">+ Via Point (Optional)</label>
+                <button type="button" id="add-via-btn" class="add-via-btn" onclick="addViaPoint()">Add</button>
+              </div>
+              <div id="via-points-container"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="to">To *</label>
+            <input type="text" id="to" class="form-control address-input" placeholder="Destination" required autocomplete="off">
+            <div class="address-suggestions" id="to-suggestions"></div>
+            <div class="geocoding-status" id="to-status"></div>
+            <div class="coordinates-display" id="to-coordinates">
+              <span class="coordinates-label">📍 Location:</span>
+              <span class="coordinates-values" id="to-coords-values"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="date">Date *</label>
+              <input type="date" id="date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="time">Time *</label>
+              <input type="time" id="time" class="form-control" required>
+            </div>
+          </div>
+
+          <button class="btn" onclick="getQuote()">Get a Quote</button>
+          <div id="error-message" class="error" style="display: none;"></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step" id="step-2">
+          <div class="trip-info">
+            <h3>Trip Details</h3>
+            <div class="trip-details">
+              <div class="detail-item"><span><strong>Date & Time:</strong></span><span id="trip-datetime"></span></div>
+              <div class="detail-item"><span><strong>From:</strong></span><span id="trip-from"></span></div>
+              <div id="via-display-container"></div>
+              <div class="detail-item"><span><strong>To:</strong></span><span id="trip-to"></span></div>
+              <div class="detail-item"><span><strong>Duration:</strong></span><span id="trip-duration"></span></div>
+              <div class="detail-item"><span><strong>Distance:</strong></span><span id="trip-distance"></span></div>
+              <div id="data-source-display" class="data-source-info" style="display: none;"></div>
+            </div>
+          </div>
+
+          <h3 style="color: #dc3545; margin-bottom: 20px; font-weight: 600;">Select Your Vehicle</h3>
+          <div class="vehicles-grid" id="vehicles-container"></div>
+
+          <div class="includes-section">
+            <h4>All Classes Include:</h4>
+            <ul class="includes-list">
+              <li>Free cancellation up until 2 hours before pickup</li>
+              <li>Free 15 minutes of wait time in city pickups</li>
+              <li>Free 1 hour of wait time in airport pickups</li>
+              <li>Meet & Greet</li>
+              <li>Complimentary bottle of water</li>
+              <li>Complimentary in-vehicle WiFi</li>
+              <li>Tissues and sanitizer</li>
+              <li>Android and iPhone chargers</li>
+            </ul>
+            <div class="warning">
+              <p><strong>Guest/luggage capacities must be abided by for safety reasons. If you are unsure, select a larger class as chauffeurs may turn down service when they are exceeded.</strong></p>
+              <p><strong>The vehicle images above are examples. You may get a different vehicle of similar quality.</strong></p>
+            </div>
+          </div>
+
+          <button class="btn" onclick="continueBooking()" id="continue-btn" disabled>Continue</button>
+          <div id="vehicle-error" class="error" style="display: none;"></div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step" id="step-3">
+          <h3 style="color: #dc3545; margin-bottom: 20px; text-align: center; font-weight: 600;">Complete Your Booking</h3>
+          <p style="text-align: center; margin-bottom: 30px;">
+            Please login to your account or continue as a guest to finalize your reservation.
+          </p>
+          <div class="login-options">
+            <button class="login-btn" onclick="loginUser()">Login to Account</button>
+            <button class="login-btn" onclick="continueAsGuest()">Continue as Guest</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hourly Tab -->
+      <div class="tab-content" id="hourly-tab">
+        <h3 style="color: #dc3545; margin-bottom: 20px; font-weight: 600;">Hourly Service</h3>
+
+        <div class="form-group">
+          <label for="pickup-address">Pickup Address *</label>
+          <input type="text" id="pickup-address" class="form-control address-input" placeholder="Enter pickup location" required autocomplete="off">
+          <div class="address-suggestions" id="pickup-address-suggestions"></div>
+          <div class="geocoding-status" id="pickup-address-status"></div>
+          <div class="coordinates-display" id="pickup-address-coordinates">
+            <span class="coordinates-label">📍 Location:</span>
+            <span class="coordinates-values" id="pickup-address-coords-values"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="duration">Duration (2-24 hours) *</label>
+          <select id="duration" class="form-control" required>
+            <option value="">Select duration</option>
+            <option value="2">2 hours</option><option value="3">3 hours</option><option value="4">4 hours</option>
+            <option value="5">5 hours</option><option value="6">6 hours</option><option value="7">7 hours</option>
+            <option value="8">8 hours</option><option value="9">9 hours</option><option value="10">10 hours</option>
+            <option value="11">11 hours</option><option value="12">12 hours</option><option value="13">13 hours</option>
+            <option value="14">14 hours</option><option value="15">15 hours</option><option value="16">16 hours</option>
+            <option value="17">17 hours</option><option value="18">18 hours</option><option value="19">19 hours</option>
+            <option value="20">20 hours</option><option value="21">21 hours</option><option value="22">22 hours</option>
+            <option value="23">23 hours</option><option value="24">24 hours</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="hourly-date">Date *</label>
+            <input type="date" id="hourly-date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="hourly-time">Time *</label>
+            <input type="time" id="hourly-time" class="form-control" required>
+          </div>
+        </div>
+
+        <button class="btn" onclick="getHourlyQuote()">Get Hourly Quote</button>
+        <div id="hourly-error" class="error" style="display: none;"></div>
+
+        <div class="step" id="hourly-step-2" style="display:none;">
+          <div class="trip-info">
+            <h3>Service Details</h3>
+            <div class="trip-details">
+              <div class="detail-item"><span><strong>Date & Time:</strong></span><span id="hourly-trip-datetime"></span></div>
+              <div class="detail-item"><span><strong>Pickup Address:</strong></span><span id="hourly-trip-pickup"></span></div>
+              <div class="detail-item"><span><strong>Requested Duration:</strong></span><span id="hourly-trip-duration"></span></div>
+            </div>
+          </div>
+
+          <h3 style="color: #dc3545; margin-bottom: 20px; font-weight: 600;">Select Your Vehicle</h3>
+          <div class="vehicles-grid" id="hourly-vehicles-container"></div>
+
+          <button class="btn" onclick="continueHourlyBooking()" id="hourly-continue-btn" disabled>Continue</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ========= Configuration ========= */
+    // Replace with your TomTom key. For production, proxy these requests server-side to avoid exposing the key.
+    const TOMTOM_API_KEY = '7YLqhOSLDTWVpxJfVKAX0PJCxWtKg7R5';
+
+    // Your existing webhook (unchanged)
+    const WEBHOOK_URL = 'https://n8n.srv445523.hstgr.cloud/webhook/booking';
+
+    /* ========= Variables ========= */
+    let selectedVehicle = null;
+    let selectedHourlyVehicle = null;
+    let viaPointCount = 0;
+    let currentBookingData = null;
+    let currentHourlyData = null;
+    const maxViaPoints = 5;
+
+    // Suggestions cache & debounce
+    const suggestionTimeouts = new Map();
+    const suggestionsCache = new Map(); // keyed by query
+    const geocodingData = new Map(); // keyed by input id
+
+    /* ========= Helpers ========= */
+    function setMinDate() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('date').min = today;
+      document.getElementById('hourly-date').min = today;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setMinDate();
+      initializeAddressSuggestions();
+    });
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(tabName + '-tab').classList.add('active');
+      event.target.classList.add('active');
+      resetForms();
+    }
+
+    function resetForms() {
+      selectedVehicle = null;
+      selectedHourlyVehicle = null;
+      currentBookingData = null;
+      currentHourlyData = null;
+      document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+      if (document.getElementById('transfer-tab').classList.contains('active')) {
+        document.getElementById('step-1').classList.add('active');
+      }
+      document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
+      document.getElementById('continue-btn').disabled = true;
+      document.getElementById('hourly-continue-btn').disabled = true;
+      
+      // Hide all coordinate displays
+      document.querySelectorAll('.coordinates-display').forEach(display => {
+        display.classList.remove('show');
+      });
+      
+      // Clear geocoding data
+      geocodingData.clear();
+    }
+
+    function showError(elementId, message) {
+      const errorElement = document.getElementById(elementId);
+      errorElement.textContent = message;
+      errorElement.style.display = 'block';
+    }
+    function hideError(elementId) {
+      const errorElement = document.getElementById(elementId);
+      errorElement.style.display = 'none';
+    }
+    function setLoading(isLoading) {
+      const container = document.querySelector('.tab-container');
+      if (isLoading) container.classList.add('loading'); else container.classList.remove('loading');
+    }
+    function buildDatetime(date, time) {
+      return date + 'T' + time + ':00Z';
+    }
+    function formatPrice(price) {
+      if (price === null || price === undefined) return '';
+      if (typeof price === 'number') return `$${price.toFixed(2)}`;
+      if (typeof price === 'string' && price.includes('$')) return price;
+      if (typeof price === 'string') {
+        const numPrice = parseFloat(price);
+        if (!isNaN(numPrice)) return `$${numPrice.toFixed(2)}`;
+      }
+      return String(price);
+    }
+
+    // Extract numeric price for sorting
+    function extractNumericPrice(price) {
+      if (price === null || price === undefined) return 0;
+      if (typeof price === 'number') return price;
+      if (typeof price === 'string') {
+        // Remove $ and any commas, then parse
+        const cleaned = price.replace(/[$,]/g, '');
+        const numPrice = parseFloat(cleaned);
+        return isNaN(numPrice) ? 0 : numPrice;
+      }
+      return 0;
+    }
+
+    // Sort vehicles by price
+    function sortVehiclesByPrice(vehicles) {
+      if (!Array.isArray(vehicles)) return vehicles;
+      
+      return vehicles.sort((a, b) => {
+        const priceA = extractNumericPrice(a.price);
+        const priceB = extractNumericPrice(b.price);
+        return priceA - priceB; // ascending order (lowest to highest)
+      });
+    }
+
+    // Display coordinates under address input
+    function displayCoordinates(inputId, lat, lon, address = '') {
+      const coordsDisplay = document.getElementById(`${inputId}-coordinates`);
+      const coordsValues = document.getElementById(`${inputId}-coords-values`);
+      
+      if (coordsDisplay && coordsValues && lat !== null && lon !== null) {
+        const latFormatted = lat.toFixed(6);
+        const lonFormatted = lon.toFixed(6);
+        coordsValues.textContent = `Lat: ${latFormatted}, Lng: ${lonFormatted}`;
+        if (address) {
+          coordsValues.title = `Address: ${address}`;
+        }
+        coordsDisplay.classList.add('show');
+      }
+    }
+
+    // Hide coordinates display
+    function hideCoordinates(inputId) {
+      const coordsDisplay = document.getElementById(`${inputId}-coordinates`);
+      if (coordsDisplay) {
+        coordsDisplay.classList.remove('show');
+      }
+    }
+
+    /* ========= Address suggestion initializers ========= */
+    function initializeAddressSuggestions() {
+      const addressInputs = document.querySelectorAll('.address-input');
+      addressInputs.forEach(input => {
+        input.addEventListener('input', function() { handleAddressInput(this); });
+        input.addEventListener('blur', function() {
+          // allow click to select by delaying hide
+          setTimeout(() => hideSuggestions(this.id), 200);
+        });
+        input.addEventListener('focus', function() {
+          if (this.value.length >= 1) handleAddressInput(this);
+        });
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.form-group')) {
+          document.querySelectorAll('.address-suggestions').forEach(suggestions => suggestions.style.display = 'none');
+        }
+      });
+    }
+
+    function handleAddressInput(input) {
+      const query = input.value.trim();
+      const inputId = input.id;
+
+      // clear existing timeout
+      if (suggestionTimeouts.has(inputId)) clearTimeout(suggestionTimeouts.get(inputId));
+
+      if (query.length < 2) {
+        hideSuggestions(inputId);
+        hideCoordinates(inputId);
+        return;
+      }
+
+      // debounce
+      const t = setTimeout(() => fetchTomTomSuggestions(query, inputId), 300);
+      suggestionTimeouts.set(inputId, t);
+    }
+
+    async function fetchTomTomSuggestions(query, inputId) {
+      const cacheKey = query.toLowerCase();
+      if (suggestionsCache.has(cacheKey)) {
+        displaySuggestions(suggestionsCache.get(cacheKey), inputId);
+        return;
+      }
+
+      updateGeocodingStatus(inputId, 'loading', 'Searching...');
+
+      try {
+        // Use TomTom Search API instead of Autocomplete for better results
+        const url = `https://api.tomtom.com/search/2/search/${encodeURIComponent(query)}.json?key=${TOMTOM_API_KEY}&limit=6&countrySet=US&typeahead=true&minFuzzyLevel=1&maxFuzzyLevel=2`;
+
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+
+        let results = [];
+        if (Array.isArray(json.results) && json.results.length > 0) {
+          // Map TomTom Search results to a common shape used by the UI
+          results = json.results.map(r => {
+            // Extract the best display name
+            const freeformAddress = r.address?.freeformAddress || '';
+            const streetName = r.address?.streetName || '';
+            const streetNumber = r.address?.streetNumber || '';
+            const municipality = r.address?.municipality || '';
+            const countrySubdivision = r.address?.countrySubdivision || '';
+            const poiName = r.poi?.name || '';
+            
+            // Build display name preference: POI name or full address
+            let displayName = '';
+            if (poiName) {
+              displayName = poiName;
+            } else if (freeformAddress) {
+              displayName = freeformAddress;
+            } else {
+              // Build from parts
+              const parts = [];
+              if (streetNumber && streetName) {
+                parts.push(`${streetNumber} ${streetName}`);
+              } else if (streetName) {
+                parts.push(streetName);
+              }
+              if (municipality) parts.push(municipality);
+              if (countrySubdivision) parts.push(countrySubdivision);
+              displayName = parts.join(', ') || query;
+            }
+
+            // Build detail string for subtitle
+            let detail = '';
+            if (poiName && freeformAddress) {
+              detail = freeformAddress;
+            } else {
+              const detailParts = [];
+              if (municipality && !displayName.includes(municipality)) detailParts.push(municipality);
+              if (countrySubdivision && !displayName.includes(countrySubdivision)) detailParts.push(countrySubdivision);
+              detail = detailParts.join(', ');
+            }
+
+            return {
+              id: r.id || displayName,
+              display_name: displayName,
+              detail: detail,
+              address: r.address || {},
+              lat: r.position?.lat || null,
+              lon: r.position?.lon || null,
+              poi: r.poi || null,
+              raw: r
+            };
+          });
+        }
+
+        // Cache and display
+        suggestionsCache.set(cacheKey, results);
+        displaySuggestions(results, inputId);
+        updateGeocodingStatus(inputId, 'success', `${results.length} found`);
+      } catch (err) {
+        console.error('TomTom suggestions error:', err);
+        updateGeocodingStatus(inputId, 'error', 'Search failed');
+        hideSuggestions(inputId);
+      }
+    }
+
+    function displaySuggestions(suggestions, inputId) {
+      const container = document.getElementById(`${inputId}-suggestions`);
+      if (!container) return;
+      if (!suggestions || suggestions.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+      container.innerHTML = '';
+      suggestions.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+
+        const main = s.display_name || 'Unknown location';
+        const detail = s.detail || '';
+
+        item.innerHTML = `
+          <div class="suggestion-main">${escapeHtml(main)}</div>
+          ${detail ? `<div class="suggestion-detail">${escapeHtml(detail)}</div>` : ''}
+        `;
+
+        item.addEventListener('click', () => selectSuggestionTomTom(s, inputId));
+        container.appendChild(item);
+      });
+      container.style.display = 'block';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function selectSuggestionTomTom(suggestion, inputId) {
+      const input = document.getElementById(inputId);
+      const displayName = suggestion.display_name || '';
+      input.value = displayName;
+
+      // store geocode data
+      geocodingData.set(inputId, {
+        address: displayName,
+        lat: parseFloat(suggestion.lat) || null,
+        lon: parseFloat(suggestion.lon) || null,
+        raw: suggestion.raw || suggestion
+      });
+
+      // Display coordinates under the input
+      if (suggestion.lat !== null && suggestion.lon !== null) {
+        displayCoordinates(inputId, parseFloat(suggestion.lat), parseFloat(suggestion.lon), displayName);
+      }
+
+      hideSuggestions(inputId);
+      updateGeocodingStatus(inputId, 'success', '✓ Located');
+    }
+
+    function hideSuggestions(inputId) {
+      const container = document.getElementById(`${inputId}-suggestions`);
+      if (container) container.style.display = 'none';
+    }
+
+    function updateGeocodingStatus(inputId, status, message) {
+      const el = document.getElementById(`${inputId}-status`);
+      if (!el) return;
+      el.className = `geocoding-status geocoding-${status}`;
+      el.textContent = message;
+    }
+
+    /* ========= Background geocoding (if user typed but didn't pick suggestion) ========= */
+    async function geocodeAddress(address, inputId) {
+      // If already selected via suggestion, return stored data
+      if (geocodingData.has(inputId)) return geocodingData.get(inputId);
+
+      const cacheKey = address.toLowerCase();
+      if (suggestionsCache.has(cacheKey)) {
+        const cached = suggestionsCache.get(cacheKey);
+        if (Array.isArray(cached) && cached.length > 0) {
+          const first = cached[0];
+          const result = {
+            address: first.display_name || address,
+            lat: parseFloat(first.lat) || null,
+            lon: parseFloat(first.lon) || null,
+            raw: first.raw || first
+          };
+          geocodingData.set(inputId, result);
+          
+          // Display coordinates
+          if (result.lat !== null && result.lon !== null) {
+            displayCoordinates(inputId, result.lat, result.lon, result.address);
+          }
+          
+          return result;
+        }
+      }
+
+      // Fallback: use TomTom Search endpoint to geocode the free-text address
+      updateGeocodingStatus(inputId, 'loading', 'Locating...');
+
+      try {
+        const url = `https://api.tomtom.com/search/2/search/${encodeURIComponent(address)}.json?key=${TOMTOM_API_KEY}&limit=1&countrySet=US`;
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+
+        if (Array.isArray(json.results) && json.results.length > 0) {
+          const best = json.results[0];
+          const result = {
+            address: best.address?.freeformAddress || address,
+            lat: best.position?.lat ?? null,
+            lon: best.position?.lon ?? null,
+            raw: best
+          };
+          geocodingData.set(inputId, result);
+          updateGeocodingStatus(inputId, 'success', '✓ Located');
+          
+          // Display coordinates
+          if (result.lat !== null && result.lon !== null) {
+            displayCoordinates(inputId, result.lat, result.lon, result.address);
+          }
+          
+          return result;
+        } else {
+          updateGeocodingStatus(inputId, 'error', 'Not found');
+          hideCoordinates(inputId);
+          return null;
+        }
+      } catch (err) {
+        console.error('TomTom geocode error:', err);
+        updateGeocodingStatus(inputId, 'error', 'Location failed');
+        hideCoordinates(inputId);
+        return null;
+      }
+    }
+
+    /* ========= Via points management ========= */
+    function addViaPoint() {
+      if (viaPointCount >= maxViaPoints) return;
+      viaPointCount++;
+      const container = document.getElementById('via-points-container');
+      const viaRow = document.createElement('div');
+      viaRow.className = 'via-point-row';
+      viaRow.innerHTML = `
+        <div class="form-group" style="margin: 0; flex: 1; position: relative;">
+          <input type="text" class="form-control via-point-input address-input" placeholder="Via point ${viaPointCount}" id="via-${viaPointCount}" autocomplete="off">
+          <div class="address-suggestions" id="via-${viaPointCount}-suggestions"></div>
+          <div class="geocoding-status" id="via-${viaPointCount}-status"></div>
+          <div class="coordinates-display" id="via-${viaPointCount}-coordinates">
+            <span class="coordinates-label">📍 Location:</span>
+            <span class="coordinates-values" id="via-${viaPointCount}-coords-values"></span>
+          </div>
+        </div>
+        <button type="button" class="remove-via-btn" onclick="removeViaPoint(this, ${viaPointCount})">Remove</button>
+      `;
+      container.appendChild(viaRow);
+
+      // initialize input events
+      const newInput = viaRow.querySelector('.address-input');
+      newInput.addEventListener('input', function() { handleAddressInput(this); });
+      newInput.addEventListener('blur', function() { setTimeout(() => hideSuggestions(this.id), 200); });
+      newInput.addEventListener('focus', function() { if (this.value.length >= 2) handleAddressInput(this); });
+
+      updateViaButtonState();
+    }
+
+    function removeViaPoint(button, pointId) {
+      const row = button.parentElement;
+      const input = row.querySelector('.address-input');
+      
+      // Clean up geocoding data for this input
+      if (input && input.id) {
+        geocodingData.delete(input.id);
+      }
+      
+      row.style.animation = 'slideOut 0.3s ease-out';
+      setTimeout(() => {
+        row.remove();
+        viaPointCount--;
+        updateViaButtonState();
+        renumberViaPoints();
+      }, 300);
+    }
+
+    function renumberViaPoints() {
+      const viaInputs = document.querySelectorAll('.via-point-input');
+      viaInputs.forEach((input, index) => {
+        input.placeholder = `Via point ${index + 1}`;
+        const oldId = input.id;
+        const newId = `via-${index + 1}`;
+        input.id = newId;
+        
+        // Update associated elements
+        const suggestions = document.getElementById(`${oldId}-suggestions`);
+        const status = document.getElementById(`${oldId}-status`);
+        const coordinates = document.getElementById(`${oldId}-coordinates`);
+        const coordsValues = document.getElementById(`${oldId}-coords-values`);
+        
+        if (suggestions) suggestions.id = `${newId}-suggestions`;
+        if (status) status.id = `${newId}-status`;
+        if (coordinates) coordinates.id = `${newId}-coordinates`;
+        if (coordsValues) coordsValues.id = `${newId}-coords-values`;
+        
+        // Update geocoding data
+        if (geocodingData.has(oldId)) {
+          geocodingData.set(newId, geocodingData.get(oldId));
+          geocodingData.delete(oldId);
+        }
+      });
+    }
+
+    function updateViaButtonState() {
+      const addBtn = document.getElementById('add-via-btn');
+      if (viaPointCount >= maxViaPoints) {
+        addBtn.disabled = true;
+        addBtn.textContent = `Max ${maxViaPoints} points`;
+      } else {
+        addBtn.disabled = false;
+        addBtn.textContent = 'Add';
+      }
+    }
+
+    /* ========= Quote / Submit logic ========= */
+    async function getQuote() {
+      const from = document.getElementById('from').value.trim();
+      const to = document.getElementById('to').value.trim();
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+
+      if (!from || !to || !date || !time) {
+        showError('error-message', 'Please fill in all required fields');
+        return;
+      }
+
+      const viaPoints = [];
+      document.querySelectorAll('.via-point-input').forEach(input => { 
+        if (input.value.trim()) viaPoints.push(input.value.trim()); 
+      });
+
+      try {
+        setLoading(true);
+        hideError('error-message');
+
+        // Geocode addresses (use stored suggestion result if available)
+        const geocodePromises = [
+          geocodeAddress(from, 'from'),
+          geocodeAddress(to, 'to')
+        ];
+
+        document.querySelectorAll('.via-point-input').forEach(input => {
+          if (input.value.trim()) geocodePromises.push(geocodeAddress(input.value.trim(), input.id));
+        });
+
+        const [fromGeocode, toGeocode, ...viaGeocodes] = await Promise.all(geocodePromises);
+
+        // Build comprehensive coordinates data for workflow
+        const coordinatesData = {
+          from: fromGeocode ? {
+            address: fromGeocode.address,
+            latitude: fromGeocode.lat,
+            longitude: fromGeocode.lon,
+            coordinates: fromGeocode.lat && fromGeocode.lon ? `${fromGeocode.lat},${fromGeocode.lon}` : null
+          } : null,
+          to: toGeocode ? {
+            address: toGeocode.address,
+            latitude: toGeocode.lat,
+            longitude: toGeocode.lon,
+            coordinates: toGeocode.lat && toGeocode.lon ? `${toGeocode.lat},${toGeocode.lon}` : null
+          } : null,
+          via_points: viaGeocodes.filter(g => g !== null).map(via => ({
+            address: via.address,
+            latitude: via.lat,
+            longitude: via.lon,
+            coordinates: via.lat && via.lon ? `${via.lat},${via.lon}` : null
+          }))
+        };
+
+        const bookingData = {
+          service_type: 'transfer',
+          from,
+          to,
+          via_points: viaPoints,
+          date,
+          time,
+          datetime: buildDatetime(date, time),
+          geocoding: {
+            from: fromGeocode,
+            to: toGeocode,
+            via_points: viaGeocodes.filter(g => g !== null)
+          },
+          coordinates: coordinatesData
+        };
+
+        const response = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(bookingData)
+        });
+
+        if (!response.ok) {
+          const text = await response.text().catch(() => '');
+          throw new Error(`HTTP ${response.status}${text ? ` - ${text}` : ''}`);
+        }
+
+        const data = await response.json();
+
+        if (data && data.success) {
+          const tripData = data.data || {};
+          currentBookingData = { ...bookingData, ...tripData };
+          displayTripInfo(tripData, bookingData);
+          displayVehicles(tripData.vehicles || []);
+          document.getElementById('step-1').classList.remove('active');
+          document.getElementById('step-2').classList.add('active');
+        } else {
+          showError('error-message', (data && data.message) ? data.message : 'Failed to get quote. Please try again.');
+        }
+      } catch (err) {
+        showError('error-message', 'Network or server error. ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function getHourlyQuote() {
+      const pickupAddress = document.getElementById('pickup-address').value.trim();
+      const duration = document.getElementById('duration').value;
+      const date = document.getElementById('hourly-date').value;
+      const time = document.getElementById('hourly-time').value;
+
+      if (!pickupAddress || !duration || !date || !time) {
+        showError('hourly-error', 'Please fill in all required fields');
+        return;
+      }
+
+      try {
+        setLoading(true);
+        hideError('hourly-error');
+
+        const pickupGeocode = await geocodeAddress(pickupAddress, 'pickup-address');
+
+        // Build coordinates data for hourly service
+        const coordinatesData = {
+          pickup_address: pickupGeocode ? {
+            address: pickupGeocode.address,
+            latitude: pickupGeocode.lat,
+            longitude: pickupGeocode.lon,
+            coordinates: pickupGeocode.lat && pickupGeocode.lon ? `${pickupGeocode.lat},${pickupGeocode.lon}` : null
+          } : null
+        };
+
+        const bookingData = {
+          service_type: 'hourly',
+          pickup_address: pickupAddress,
+          duration: parseInt(duration, 10),
+          date,
+          time,
+          datetime: buildDatetime(date, time),
+          geocoding: { pickup_address: pickupGeocode },
+          coordinates: coordinatesData
+        };
+
+        const response = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(bookingData)
+        });
+
+        if (!response.ok) {
+          const text = await response.text().catch(() => '');
+          throw new Error(`HTTP ${response.status}${text ? ` - ${text}` : ''}`);
+        }
+
+        const data = await response.json();
+
+        if (data && data.success) {
+          const hourlyData = data.data || {};
+          currentHourlyData = { ...bookingData, ...hourlyData };
+          displayHourlyInfo(hourlyData, bookingData);
+          displayHourlyVehicles(hourlyData.vehicles || []);
+          const step2 = document.getElementById('hourly-step-2');
+          if (step2) step2.style.display = 'block';
+        } else {
+          showError('hourly-error', (data && data.message) ? data.message : 'Failed to get hourly quote. Please try again.');
+        }
+      } catch (err) {
+        showError('hourly-error', 'Network or server error. ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    /* ========= UI rendering functions ========= */
+
+    function displayTripInfo(tripData, originalBookingData = {}) {
+      const fromLocation = tripData.from || originalBookingData.from || 'Not specified';
+      const toLocation = tripData.to || originalBookingData.to || 'Not specified';
+      document.getElementById('trip-from').textContent = fromLocation;
+      document.getElementById('trip-to').textContent = toLocation;
+
+      let formattedDateTime = 'Not specified';
+      const datetimeToFormat = tripData.datetime || originalBookingData.datetime || (originalBookingData.date && originalBookingData.time ? `${originalBookingData.date}T${originalBookingData.time}:00` : null);
+      if (datetimeToFormat) {
+        try {
+          const date = new Date(datetimeToFormat);
+          if (!isNaN(date.getTime())) {
+            formattedDateTime = date.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+          }
+        } catch (e) { formattedDateTime = datetimeToFormat; }
+      }
+      document.getElementById('trip-datetime').textContent = formattedDateTime;
+
+      const duration = tripData.total_duration || tripData.duration || 'Calculating...';
+      const distance = tripData.total_distance || tripData.distance || 'Calculating...';
+      document.getElementById('trip-duration').textContent = duration;
+      document.getElementById('trip-distance').textContent = distance;
+
+      const dataSourceElement = document.getElementById('data-source-display');
+      if (tripData.data_source) {
+        dataSourceElement.textContent = `Data source: ${tripData.data_source}`;
+        dataSourceElement.style.display = 'block';
+      } else dataSourceElement.style.display = 'none';
+
+      const viaContainer = document.getElementById('via-display-container');
+      viaContainer.innerHTML = '';
+      const viaPoints = tripData.via_points || originalBookingData.via_points || [];
+      if (Array.isArray(viaPoints) && viaPoints.length > 0) {
+        viaPoints.forEach((point, index) => {
+          if (point && point.trim()) {
+            const viaDiv = document.createElement('div');
+            viaDiv.className = 'detail-item';
+            viaDiv.innerHTML = `<span><strong>Via ${index + 1}:</strong></span><span>${point}</span>`;
+            viaContainer.appendChild(viaDiv);
+          }
+        });
+      }
+    }
+
+    function displayHourlyInfo(hourlyData, originalBookingData = {}) {
+      const pickupAddress = hourlyData.pickup_address || originalBookingData.pickup_address || 'Not specified';
+      const duration = hourlyData.requested_duration || hourlyData.duration || originalBookingData.duration || '';
+      document.getElementById('hourly-trip-pickup').textContent = pickupAddress;
+      document.getElementById('hourly-trip-duration').textContent = `${duration} hours`;
+
+      let formattedDateTime = 'Not specified';
+      const datetimeToFormat = hourlyData.datetime || originalBookingData.datetime || (originalBookingData.date && originalBookingData.time ? `${originalBookingData.date}T${originalBookingData.time}:00` : null);
+      if (datetimeToFormat) {
+        try {
+          const date = new Date(datetimeToFormat);
+          if (!isNaN(date.getTime())) {
+            formattedDateTime = date.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+          }
+        } catch (e) { formattedDateTime = datetimeToFormat; }
+      }
+      document.getElementById('hourly-trip-datetime').textContent = formattedDateTime;
+    }
+
+    function displayVehicles(vehicles) {
+      const container = document.getElementById('vehicles-container');
+      container.innerHTML = '';
+      if (!vehicles || vehicles.length === 0) { 
+        container.innerHTML = '<p>No vehicles available for this route.</p>'; 
+        return; 
+      }
+
+      // Sort vehicles by price (ascending)
+      const sortedVehicles = sortVehiclesByPrice(vehicles);
+
+      sortedVehicles.forEach(vehicle => {
+        const vehicleCard = document.createElement('div');
+        vehicleCard.className = 'vehicle-card';
+        vehicleCard.setAttribute('data-vehicle', vehicle.type);
+        vehicleCard.onclick = () => selectVehicle(vehicle.type);
+        const priceStr = formatPrice(vehicle.price);
+        vehicleCard.innerHTML = `
+          <h4>${vehicle.name || ''}</h4>
+          <div class="price">${priceStr}</div>
+          <div class="vehicle-features">
+            <p>• Up to ${vehicle.passengers ?? ''} passengers</p>
+            <p>• ${vehicle.luggage ?? ''} suitcases</p>
+          </div>
+        `;
+        container.appendChild(vehicleCard);
+      });
+    }
+
+    function displayHourlyVehicles(vehicles) {
+      const container = document.getElementById('hourly-vehicles-container');
+      container.innerHTML = '';
+      if (!vehicles || vehicles.length === 0) { 
+        container.innerHTML = '<p>No vehicles available for hourly service.</p>'; 
+        return; 
+      }
+
+      // Sort vehicles by price (ascending)
+      const sortedVehicles = sortVehiclesByPrice(vehicles);
+
+      sortedVehicles.forEach(vehicle => {
+        const vehicleCard = document.createElement('div');
+        vehicleCard.className = 'vehicle-card';
+        vehicleCard.setAttribute('data-vehicle', vehicle.type);
+        vehicleCard.onclick = () => selectHourlyVehicle(vehicle.type);
+        const priceStr = formatPrice(vehicle.price);
+        let totalInfo = '';
+        if (vehicle.duration && vehicle.hourly_rate) {
+          const requestedHours = currentHourlyData?.requested_duration || currentHourlyData?.duration || 2;
+          const actualHours = vehicle.duration;
+          const hourlyRate = vehicle.hourly_rate;
+          totalInfo = `
+            <div class="hourly-total">
+              Total: ${actualHours} hours × ${hourlyRate}/hour = ${priceStr}
+              ${actualHours > requestedHours ? `<br><small>(Minimum ${vehicle.minimum_hours || actualHours} hours required)</small>` : ''}
+            </div>
+          `;
+        }
+        vehicleCard.innerHTML = `
+          <h4>${vehicle.name || ''}</h4>
+          <div class="price">${priceStr}</div>
+          <div class="vehicle-features">
+            <p>• Up to ${vehicle.passengers ?? ''} passengers</p>
+            <p>• ${vehicle.luggage ?? ''} suitcases</p>
+            <p>• ${vehicle.category ?? ''}</p>
+            <p>• Professional chauffeur</p>
+          </div>
+          ${totalInfo}
+        `;
+        container.appendChild(vehicleCard);
+      });
+    }
+
+    function selectVehicle(type) {
+      document.querySelectorAll('#vehicles-container .vehicle-card').forEach(card => card.classList.remove('selected'));
+      const selectedCard = document.querySelector(`#vehicles-container [data-vehicle="${type}"]`);
+      if (selectedCard) selectedCard.classList.add('selected');
+      selectedVehicle = type;
+      document.getElementById('continue-btn').disabled = false;
+      hideError('vehicle-error');
+    }
+
+    function selectHourlyVehicle(type) {
+      document.querySelectorAll('#hourly-vehicles-container .vehicle-card').forEach(card => card.classList.remove('selected'));
+      const selectedCard = document.querySelector(`#hourly-vehicles-container [data-vehicle="${type}"]`);
+      if (selectedCard) selectedCard.classList.add('selected');
+      selectedHourlyVehicle = type;
+      document.getElementById('hourly-continue-btn').disabled = false;
+    }
+
+    function continueBooking() {
+      if (!selectedVehicle) { showError('vehicle-error', 'Please select a vehicle'); return; }
+      document.getElementById('step-2').classList.remove('active');
+      document.getElementById('step-3').classList.add('active');
+    }
+
+    function continueHourlyBooking() {
+      if (!selectedHourlyVehicle) { alert('Please select a vehicle for your hourly service'); return; }
+      alert('Hourly booking would continue to payment/details page');
+    }
+
+    function loginUser() { 
+      // Gather all booking data
+      const bookingInfo = {
+        service_type: currentBookingData?.service_type || 'transfer',
+        from: currentBookingData?.from || document.getElementById('from')?.value || '',
+        to: currentBookingData?.to || document.getElementById('to')?.value || '',
+        via_points: currentBookingData?.via_points || [],
+        date: currentBookingData?.date || document.getElementById('date')?.value || '',
+        time: currentBookingData?.time || document.getElementById('time')?.value || '',
+        datetime: currentBookingData?.datetime || '',
+        selected_vehicle: selectedVehicle || '',
+        coordinates: currentBookingData?.coordinates || {},
+        trip_data: {
+          duration: currentBookingData?.total_duration || currentBookingData?.duration || '',
+          distance: currentBookingData?.total_distance || currentBookingData?.distance || '',
+          data_source: currentBookingData?.data_source || ''
+        }
+      };
+
+      // Convert to URL parameters
+      const params = new URLSearchParams();
+      params.set('booking_data', encodeURIComponent(JSON.stringify(bookingInfo)));
+      
+      // Redirect to login with booking data
+      window.location.href = `login.html?${params.toString()}`;
+    }
+    function continueAsGuest() { alert('Guest checkout would redirect to booking details form'); }
+  </script>
+</body>
+</html>
