@@ -45,6 +45,22 @@ export default function PassengerDashboard() {
     lon: ''
   });
 
+  // Check for payment success in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    
+    if (paymentStatus === 'success') {
+      toast({
+        title: "Payment Successful!",
+        description: "Your booking has been confirmed. You will receive a confirmation email shortly.",
+        duration: 5000,
+      });
+      // Clear the URL parameter
+      window.history.replaceState({}, '', '/passenger');
+    }
+  }, [toast]);
+
   // Redirect to home if not authenticated or not passenger
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || user?.role !== 'passenger')) {

@@ -11,17 +11,27 @@ if (!process.env.STRIPE_SECRET_KEY) {
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// TomTom API integration functions
-async function geocodeAddress(address: string): Promise<{lat: number, lon: number} | null> {
+// TomTom API integration functions with standardized key retrieval
+async function getTomTomApiKey(storage: any): Promise<string | null> {
   try {
-    const apiKey = process.env.TOMTOM_API_KEY;
+    const tomtomKey = process.env.TOMTOM_API_KEY || await storage.getSystemSetting('TOMTOM_API_KEY');
+    return typeof tomtomKey === 'string' ? tomtomKey : tomtomKey?.value || null;
+  } catch (error) {
+    console.error('Failed to retrieve TomTom API key:', error);
+    return null;
+  }
+}
+
+async function geocodeAddress(address: string, storage: any): Promise<{lat: number, lon: number} | null> {
+  try {
+    const apiKey = await getTomTomApiKey(storage);
     if (!apiKey) {
       console.warn('TomTom API key not configured');
       return null;
     }
 
     const encodedAddress = encodeURIComponent(address);
-    const url = `https://api.tomtom.com/search/2/geocode/${encodedAddress}.json?key=${apiKey}&limit=1`;
+    const url = `https://api.tomtom.com/search/2/geocode/${encodedAddress}.json?key=${apiKey}&limit=1&countrySet=US`;
     
     const response = await fetch(url);
     if (!response.ok) {
@@ -43,9 +53,9 @@ async function geocodeAddress(address: string): Promise<{lat: number, lon: numbe
   }
 }
 
-async function calculateRoute(fromCoords: {lat: number, lon: number}, toCoords: {lat: number, lon: number}): Promise<any> {
+async function calculateRoute(fromCoords: {lat: number, lon: number}, toCoords: {lat: number, lon: number}, storage: any): Promise<any> {
   try {
-    const apiKey = process.env.TOMTOM_API_KEY;
+    const apiKey = await getTomTomApiKey(storage);
     if (!apiKey) {
       console.warn('TomTom API key not configured');
       return null;
@@ -125,12 +135,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Distance calculation
+  // Distance calculation with proper coordinate validation
   app.post('/api/calculate-distance', async (req, res) => {
     const { origins, destinations } = req.body;
     
     if (!origins || !destinations) {
       return res.status(400).json({ error: 'Origins and destinations are required' });
+    }
+
+    // Validate coordinate format (lat,lon)
+    const validateCoordinates = (coords: string): boolean => {
+      const parts = coords.split(',');
+      if (parts.length !== 2) return false;
+      
+      const lat = parseFloat(parts[0]);
+      const lon = parseFloat(parts[1]);
+      
+      return !isNaN(lat) && !isNaN(lon) && 
+             lat >= -90 && lat <= 90 && 
+             lon >= -180 && lon <= 180;
+    };
+
+    if (!validateCoordinates(origins) || !validateCoordinates(destinations)) {
+      return res.status(400).json({ error: 'Invalid coordinate format. Expected: "lat,lon"' });
     }
 
     try {
@@ -141,8 +168,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const apiKey = typeof tomtomKey === 'string' ? tomtomKey : tomtomKey.value;
       
-      // Calculate route using TomTom Routing API
-      const routeUrl = `https://api.tomtom.com/routing/1/calculateRoute/${origins}:${destinations}/json?key=${apiKey}`;
+      // Calculate route using TomTom Routing API with consistent parameters
+      const routeUrl = `https://api.tomtom.com/routing/1/calculateRoute/${origins}:${destinations}/json?key=${apiKey}&routeType=fastest&traffic=true`;
       
       const response = await fetch(routeUrl);
       if (!response.ok) {
@@ -263,6 +290,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Get bookings error:', error);
       res.status(500).json({ message: 'Failed to fetch bookings' });
+    }
+  });
+
+  // Get single booking by ID for checkout page
+  app.get('/api/bookings/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const bookingId = req.params.id;
+      const userId = req.user.claims.sub;
+      
+      const booking = await storage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      // Check if user owns this booking or is admin/driver
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Allow access if:
+      // 1. User is the passenger who made the booking
+      // 2. User is an admin
+      // 3. User is the assigned driver
+      if (booking.passengerId !== userId && user.role !== 'admin') {
+        if (user.role === 'driver') {
+          const driver = await storage.getDriverByUserId(userId);
+          if (!driver || booking.driverId !== driver.id) {
+            return res.status(403).json({ message: "Access denied" });
+          }
+        } else {
+          return res.status(403).json({ message: "Access denied" });
+        }
+      }
+
+      res.json(booking);
+    } catch (error) {
+      console.error('Get booking error:', error);
+      res.status(500).json({ message: 'Failed to fetch booking' });
     }
   });
 
@@ -426,36 +492,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // TomTom geocoding API endpoint for frontend autocomplete
-  app.get('/api/geocode', async (req, res) => {
-    try {
-      const query = req.query.q as string;
-      const limit = parseInt(req.query.limit as string) || 5;
-      
-      if (!query || query.length < 2) {
-        return res.json({ results: [] });
-      }
-
-      const apiKey = process.env.TOMTOM_API_KEY;
-      if (!apiKey) {
-        return res.status(500).json({ error: 'TomTom API not configured' });
-      }
-
-      const encodedQuery = encodeURIComponent(query);
-      const url = `https://api.tomtom.com/search/2/geocode/${encodedQuery}.json?key=${apiKey}&limit=${limit}&countrySet=US`;
-      
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`TomTom API error: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      res.json(data);
-    } catch (error) {
-      console.error('Geocoding API error:', error);
-      res.status(500).json({ error: 'Geocoding failed' });
-    }
-  });
 
   // n8n-style pricing calculation endpoint (mimics the Houston workflow)
   app.post('/api/booking/pricing', async (req, res) => {
@@ -514,12 +550,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         try {
           // Geocode addresses to coordinates
-          const fromCoords = await geocodeAddress(bookingData.from);
-          const toCoords = await geocodeAddress(bookingData.to);
+          const fromCoords = await geocodeAddress(bookingData.from, storage);
+          const toCoords = await geocodeAddress(bookingData.to, storage);
           
           if (fromCoords && toCoords) {
             // Calculate driving distance using TomTom routing API
-            const routeData = await calculateRoute(fromCoords, toCoords);
+            const routeData = await calculateRoute(fromCoords, toCoords, storage);
             if (routeData && routeData.routes && routeData.routes.length > 0) {
               // Convert meters to miles
               estimatedDistance = (routeData.routes[0].summary.lengthInMeters * 0.000621371);
