@@ -109,9 +109,13 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-primary transition-colors" data-testid="footer-link-privacy">
+                <button 
+                  onClick={() => setLocation('/privacy-policy')}
+                  className="hover:text-primary transition-colors"
+                  data-testid="footer-link-privacy"
+                >
                   Privacy Policy
-                </a>
+                </button>
               </li>
               <li>
                 <button 
