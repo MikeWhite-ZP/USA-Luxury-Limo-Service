@@ -28,7 +28,7 @@ export default function ContactSection() {
     onSuccess: () => {
       toast({
         title: "Message Sent",
-        description: "Thank you for your message! We'll get back to you within 2 hours.",
+        description: "Thank you for your message! We'll get back to you within 12 hours.",
       });
       setFormData({
         firstName: '',
