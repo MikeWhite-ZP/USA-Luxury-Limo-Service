@@ -7,12 +7,25 @@ import logoImage from "@assets/logo_1759125364025.png";
 export default function Header() {
   const { user, isAuthenticated } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
 
   const handleNavClick = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // If we're on the booking page, navigate to home first then scroll
+    if (location === '/booking') {
+      setLocation('/');
+      // Use setTimeout to wait for navigation to complete before scrolling
+      setTimeout(() => {
+        const element = document.querySelector(href);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    } else {
+      // If we're on home/landing page, just scroll to the section
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   };
 
