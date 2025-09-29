@@ -131,9 +131,13 @@ export default function Footer() {
                 </button>
               </li>
               <li>
-                <a href="#" className="hover:text-primary transition-colors" data-testid="footer-link-safety">
+                <button 
+                  onClick={() => setLocation('/safety')}
+                  className="hover:text-primary transition-colors"
+                  data-testid="footer-link-safety"
+                >
                   Safety
-                </a>
+                </button>
               </li>
             </ul>
           </div>
