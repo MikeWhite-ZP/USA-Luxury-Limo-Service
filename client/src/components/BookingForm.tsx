@@ -662,7 +662,7 @@ export default function BookingForm() {
           <Button
             onClick={handleGetQuote}
             disabled={quoteMutation.isPending}
-            className="w-full py-6 px-8 text-xl font-bold bg-primary hover:bg-primary/90 text-white rounded-xl transition-all hover:transform hover:-translate-y-2 hover:shadow-2xl border-2 border-primary shadow-lg mt-8"
+            className="w-full py-6 px-8 text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 text-white rounded-xl transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl active:transform active:scale-95 border-2 border-red-600 hover:border-red-700 shadow-lg mt-8 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
             data-testid="button-get-quote"
           >
             {quoteMutation.isPending ? 'Calculating Quote...' : 'Get a Quote'}
@@ -760,7 +760,7 @@ export default function BookingForm() {
           <Button
             onClick={handleGetQuote}
             disabled={quoteMutation.isPending}
-            className="w-full py-6 px-8 text-xl font-bold bg-primary hover:bg-primary/90 text-white rounded-xl transition-all hover:transform hover:-translate-y-2 hover:shadow-2xl border-2 border-primary shadow-lg mt-8"
+            className="w-full py-6 px-8 text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 text-white rounded-xl transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl active:transform active:scale-95 border-2 border-red-600 hover:border-red-700 shadow-lg mt-8 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
             data-testid="button-get-quote"
           >
             {quoteMutation.isPending ? 'Calculating Quote...' : 'Get a Quote'}
