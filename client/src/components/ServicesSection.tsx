@@ -1,6 +1,7 @@
 import { Plane, Briefcase, Heart } from "lucide-react";
 import airportTransferBg from "@assets/67dc52e7ef277_1759125789879.webp";
 import corporateTravelBg from "@assets/corporate_1759126654203.webp";
+import specialEventsBg from "@assets/event_1759126933449.webp";
 
 export default function ServicesSection() {
   const services = [
@@ -40,34 +41,29 @@ export default function ServicesSection() {
           {services.map((service, index) => (
             <div 
               key={index}
-              className={`${
-                index === 0 || index === 1
-                  ? 'bg-cover bg-center bg-no-repeat relative rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-border overflow-hidden' 
-                  : 'bg-card rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-border'
-              }`}
+              className="bg-cover bg-center bg-no-repeat relative rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-border overflow-hidden"
               style={
                 index === 0 ? { backgroundImage: `url(${airportTransferBg})` } :
-                index === 1 ? { backgroundImage: `url(${corporateTravelBg})` } : {}
+                index === 1 ? { backgroundImage: `url(${corporateTravelBg})` } :
+                index === 2 ? { backgroundImage: `url(${specialEventsBg})` } : {}
               }
               data-testid={`service-card-${index}`}
             >
-              {(index === 0 || index === 1) && (
-                <div className="absolute inset-0 bg-black/50 rounded-xl"></div>
-              )}
-              <div className={`relative z-10`}>
-                <div className={`w-16 h-16 ${(index === 0 || index === 1) ? 'bg-white/20 backdrop-blur-sm' : 'bg-primary/10'} rounded-lg flex items-center justify-center mb-6`}>
-                  <service.icon className={`w-8 h-8 ${(index === 0 || index === 1) ? 'text-white' : 'text-primary'}`} />
+              <div className="absolute inset-0 bg-black/50 rounded-xl"></div>
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center mb-6">
+                  <service.icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className={`text-xl font-semibold mb-3 ${(index === 0 || index === 1) ? 'text-white' : 'text-card-foreground'}`} data-testid={`service-title-${index}`}>
+                <h3 className="text-xl font-semibold mb-3 text-white" data-testid={`service-title-${index}`}>
                   {service.title}
                 </h3>
-                <p className={`mb-4 ${(index === 0 || index === 1) ? 'text-white/90' : 'text-muted-foreground'}`} data-testid={`service-description-${index}`}>
+                <p className="mb-4 text-white/90" data-testid={`service-description-${index}`}>
                   {service.description}
                 </p>
-                <ul className={`space-y-2 text-sm ${(index === 0 || index === 1) ? 'text-white/80' : 'text-muted-foreground'}`}>
+                <ul className="space-y-2 text-sm text-white/80">
                   {service.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center" data-testid={`service-feature-${index}-${featureIndex}`}>
-                      <span className={`mr-2 ${(index === 0 || index === 1) ? 'text-white' : 'text-primary'}`}>✓</span>
+                      <span className="mr-2 text-white">✓</span>
                       {feature}
                     </li>
                   ))}
