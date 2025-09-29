@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import sedanImage from "@assets/sedan_1759127086645.webp";
 
 interface VehicleType {
   id: string;
@@ -18,7 +19,7 @@ export default function FleetSection() {
 
   const getVehicleImage = (vehicleName: string) => {
     if (vehicleName.toLowerCase().includes('sedan')) {
-      return 'https://images.unsplash.com/photo-1563720223185-11003d516935?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500';
+      return sedanImage;
     } else if (vehicleName.toLowerCase().includes('suv')) {
       return 'https://images.unsplash.com/photo-1549927681-0b673b922a77?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500';
     } else {
