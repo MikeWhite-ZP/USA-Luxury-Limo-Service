@@ -92,7 +92,7 @@ export default function ContactSection() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-foreground">Phone</h4>
-                  <p className="text-muted-foreground">+1 (832) 479-6515</p>
+                  <p className="text-muted-foreground">+1 (xxx) xxx-xxxx</p>
                   <p className="text-sm text-muted-foreground">Available 24/7 for bookings and support</p>
                 </div>
               </div>
