@@ -482,7 +482,7 @@ export default function BookingForm() {
           className={`flex-1 py-4 px-6 text-lg font-semibold transition-all border-b-4 ${
             activeTab === 'hourly'
               ? 'text-primary border-primary font-bold'
-              : 'text-gray-500 border-transparent hover:text-gray-700'
+              : 'text-gray-300 border-transparent hover:text-gray-500'
           }`}
           data-testid="tab-hourly"
         >
