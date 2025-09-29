@@ -94,19 +94,49 @@ export default function Locations() {
 
   const extendedAreas = [
     {
-      name: "College Station, TX",
-      description: "A Hub of Education and Culture. Home of Texas A&M University with a blend of rich history, cultural activities, and modern attractions.",
-      services: ["University Events", "Academic Transportation", "Research Facility Access"]
+      name: "NRG Stadium",
+      description: "Home of the Houston Texans NFL team and major events. Premier sports and entertainment venue hosting football games, concerts, and large-scale events.",
+      services: ["Game Day Transportation", "Concert Shuttles", "VIP Event Service"]
     },
     {
-      name: "Port Arthur, TX", 
-      description: "Where history meets the Gulf Coast. A charming waterfront city with rich cultural heritage and stunning natural beauty.",
-      services: ["Industrial Transportation", "Port Services", "Business Travel"]
+      name: "Toyota Center", 
+      description: "Downtown arena hosting Houston Rockets NBA games, concerts, and entertainment events. Premium venue requiring sophisticated transportation solutions.",
+      services: ["NBA Game Transport", "Concert Services", "Corporate Events"]
     },
     {
-      name: "Friendswood, TX",
-      description: "Top-tier black car and chauffeur services throughout Friendswood and the surrounding Greater Houston area.",
-      services: ["Airport Transfers", "Special Occasions", "Corporate Travel"]
+      name: "Daikin Park",
+      description: "Houston Dynamo FC soccer stadium and major sports venue. Modern facility hosting MLS games, tournaments, and special events.",
+      services: ["Soccer Game Transport", "Tournament Shuttles", "Special Events"]
+    },
+    {
+      name: "George R. Brown Convention Center",
+      description: "Houston's premier convention and exhibition facility. Major venue for trade shows, conferences, and large-scale business events.",
+      services: ["Convention Transport", "Trade Show Shuttles", "Business Events"]
+    },
+    {
+      name: "Houston Zoo",
+      description: "One of the most popular family destinations in Houston. World-class zoo featuring diverse exhibits and educational programs.",
+      services: ["Family Outings", "Group Tours", "Special Events"]
+    },
+    {
+      name: "Space Center Houston",
+      description: "NASA's official visitor center and Houston's premier space attraction. Interactive exhibits and tours showcasing space exploration.",
+      services: ["Educational Tours", "Group Transportation", "VIP Experiences"]
+    },
+    {
+      name: "Houston Museum District",
+      description: "Home to 19 museums including the Museum of Fine Arts, Natural Science Museum, and Children's Museum. Cultural hub of Houston.",
+      services: ["Cultural Tours", "Educational Transport", "Museum Events"]
+    },
+    {
+      name: "Rice University",
+      description: "Prestigious private university with beautiful campus and major academic and cultural events throughout the year.",
+      services: ["Academic Events", "Campus Tours", "Graduation Services"]
+    },
+    {
+      name: "Hermann Park",
+      description: "Houston's premier urban park featuring gardens, lake, golf course, and outdoor attractions. Popular destination for events and recreation.",
+      services: ["Event Transportation", "Recreation Shuttles", "Park Tours"]
     }
   ];
 
