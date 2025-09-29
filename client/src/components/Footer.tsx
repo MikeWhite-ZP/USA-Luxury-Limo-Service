@@ -1,11 +1,27 @@
 import { Twitter, Linkedin, Facebook } from "lucide-react";
+import { useLocation } from "wouter";
 import logoImage from "@assets/logo_1759125364025.png";
 
 export default function Footer() {
+  const [location, setLocation] = useLocation();
+  
   const handleNavClick = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // If we're on the home/landing page, scroll to section
+    if (location === '/') {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      // If we're on another page, navigate to home first, then scroll
+      setLocation('/');
+      // Use setTimeout to allow navigation to complete before scrolling
+      setTimeout(() => {
+        const element = document.querySelector(href);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     }
   };
 
@@ -98,9 +114,13 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-primary transition-colors" data-testid="footer-link-terms">
+                <button 
+                  onClick={() => setLocation('/terms-of-service')}
+                  className="hover:text-primary transition-colors"
+                  data-testid="footer-link-terms"
+                >
                   Terms of Service
-                </a>
+                </button>
               </li>
               <li>
                 <a href="#" className="hover:text-primary transition-colors" data-testid="footer-link-cancellation">

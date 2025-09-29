@@ -9,6 +9,7 @@ import Home from "@/pages/home";
 import Booking from "@/pages/booking";
 import VehicleDetail from "@/pages/VehicleDetail";
 import ServiceDetail from "@/pages/ServiceDetail";
+import TermsOfService from "@/pages/TermsOfService";
 import AdminDashboard from "@/pages/admin-dashboard";
 import DriverDashboard from "@/pages/driver-dashboard";
 import PassengerDashboard from "@/pages/passenger-dashboard";
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/booking" component={Booking} />
       <Route path="/vehicle/:id" component={VehicleDetail} />
       <Route path="/service/:id" component={ServiceDetail} />
+      <Route path="/terms-of-service" component={TermsOfService} />
       {!isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
