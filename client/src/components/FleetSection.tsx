@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import sedanImage from "@assets/sedan_1759127086645.webp";
 import suburbanImage from "@assets/suburban_1759127172845.webp";
+import cadillacImage from "@assets/cadillac_1759127253013.png";
 
 interface VehicleType {
   id: string;
@@ -23,8 +24,10 @@ export default function FleetSection() {
       return sedanImage;
     } else if (vehicleName.toLowerCase().includes('suv') || vehicleName.toLowerCase().includes('suburban')) {
       return suburbanImage;
+    } else if (vehicleName.toLowerCase().includes('cadillac') || vehicleName.toLowerCase().includes('escalade')) {
+      return cadillacImage;
     } else {
-      return 'https://images.unsplash.com/photo-1571949002740-10a9c2e2e1b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500';
+      return cadillacImage; // Default to Cadillac for premium vehicles
     }
   };
 
