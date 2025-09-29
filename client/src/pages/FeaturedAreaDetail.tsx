@@ -293,7 +293,7 @@ export default function FeaturedAreaDetail() {
               </Button>
               <a 
                 href="mailto:usaluxurylimo@gmail.com"
-                className="group border-2 border-white/50 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-primary transition-all duration-300 inline-flex items-center justify-center backdrop-blur-sm hover:border-white hover:shadow-xl hover:-translate-y-1"
+                className="group border-2 border-white/50 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-primary transition-all duration-300 inline-flex items-center justify-center backdrop-blur-sm hover:border-white shadow-xl hover:shadow-2xl hover:-translate-y-1"
                 data-testid="contact-email-button"
               >
                 <Mail className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
