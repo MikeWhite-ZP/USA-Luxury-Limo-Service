@@ -131,11 +131,6 @@ export default function Footer() {
                 </button>
               </li>
               <li>
-                <a href="#" className="hover:text-primary transition-colors" data-testid="footer-link-cancellation">
-                  Cancellation Policy
-                </a>
-              </li>
-              <li>
                 <a href="#" className="hover:text-primary transition-colors" data-testid="footer-link-safety">
                   Safety
                 </a>
