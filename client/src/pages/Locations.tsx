@@ -56,6 +56,12 @@ export default function Locations() {
       description: "Small-town charm meets luxury transportation. Known for its historic charm, family-friendly events, and warm sense of community.",
       icon: <Clock className="w-8 h-8" />,
       highlights: ["Historic Downtown", "Tomball Depot", "Spring Creek", "Klein Area"]
+    },
+    {
+      name: "Pearland, TX",
+      description: "A thriving city located just south of Houston, known for its friendly community, excellent amenities, and growing economy. Whether you're celebrating a wedding, planning a corporate event, or need a luxurious airport transfer, we provide premium transportation services.",
+      icon: <Building2 className="w-8 h-8" />,
+      highlights: ["Pearland Town Center", "South Houston", "Alvin Area", "Friendswood Border"]
     }
   ];
 
@@ -73,13 +79,6 @@ export default function Locations() {
       description: "The Galleria area represents Houston's premier shopping and business district, featuring luxury retail, fine dining, and corporate headquarters. This upscale area demands transportation that matches its sophisticated atmosphere.",
       features: ["Galleria Mall", "Uptown District", "Corporate Centers", "Fine Dining"],
       image: "🛍️"
-    },
-    {
-      name: "Pearland, TX",
-      title: "Luxury Transportation for All Occasions",
-      description: "Pearland, TX, a thriving city located just south of Houston, is known for its friendly community, excellent amenities, and growing economy. Whether you're celebrating a wedding, planning a corporate event, or need a luxurious airport transfer, we provide premium transportation services.",
-      features: ["Pearland Town Center", "South Houston", "Alvin Area", "Friendswood Border"],
-      image: "🌳"
     },
   ];
 
