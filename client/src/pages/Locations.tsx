@@ -71,14 +71,24 @@ export default function Locations() {
       title: "Luxury Transportation & Attractions",
       description: "Downtown Houston, TX, serves as the bustling heart of the city, offering a dynamic blend of cultural attractions, dining experiences, and vibrant entertainment options. From historic landmarks to modern skyscrapers, this district is a must-visit destination for locals and tourists alike.",
       features: ["Theater District", "Historic District", "Financial District", "Convention Center"],
-      image: "🏢"
+      image: "🏢",
+      slug: "downtown-houston"
     },
     {
       name: "The Galleria/Uptown",
       title: "Shopping & Business Hub", 
       description: "The Galleria area represents Houston's premier shopping and business district, featuring luxury retail, fine dining, and corporate headquarters. This upscale area demands transportation that matches its sophisticated atmosphere.",
       features: ["Galleria Mall", "Uptown District", "Corporate Centers", "Fine Dining"],
-      image: "🛍️"
+      image: "🛍️",
+      slug: "galleria-uptown"
+    },
+    {
+      name: "City Center Houston",
+      title: "Modern Urban Living & Entertainment",
+      description: "City Center Houston represents the pinnacle of modern urban development, featuring luxury high-rise living, premium shopping, world-class dining, and vibrant nightlife. This mixed-use development offers an unparalleled urban lifestyle experience in the heart of Houston.",
+      features: ["High-End Residences", "Premium Shopping", "Fine Dining", "Entertainment Venues"],
+      image: "🌆",
+      slug: "city-center"
     },
   ];
 
@@ -226,42 +236,51 @@ export default function Locations() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-10 max-w-7xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
               {featuredAreas.map((area, index) => (
-                <Card key={index} className="group overflow-hidden hover:shadow-2xl transition-all duration-500 border-0 bg-white/95 backdrop-blur-sm hover:-translate-y-1">
-                  <CardHeader className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 p-8">
+                <Card 
+                  key={index} 
+                  className="group overflow-hidden hover:shadow-2xl transition-all duration-500 border-0 bg-white/95 backdrop-blur-sm hover:-translate-y-1 cursor-pointer"
+                  onClick={() => setLocation(`/locations/${area.slug}`)}
+                  data-testid={`featured-area-card-${area.slug}`}
+                >
+                  <CardHeader className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 p-6">
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    <div className="relative flex items-center space-x-4 mb-4">
-                      <div className="text-4xl p-3 bg-white/50 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    <div className="relative flex items-center space-x-4 mb-3">
+                      <div className="text-3xl p-3 bg-white/50 rounded-xl group-hover:scale-110 transition-transform duration-300">
                         {area.image}
                       </div>
                       <div>
-                        <CardTitle className="text-2xl font-bold group-hover:text-primary transition-colors duration-300" data-testid={`featured-area-${index}-name`}>
+                        <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors duration-300" data-testid={`featured-area-${index}-name`}>
                           {area.name}
                         </CardTitle>
-                        <CardDescription className="font-semibold text-lg text-primary/80" data-testid={`featured-area-${index}-title`}>
+                        <CardDescription className="font-semibold text-base text-primary/80" data-testid={`featured-area-${index}-title`}>
                           {area.title}
                         </CardDescription>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="p-8">
-                    <p className="text-gray-600 dark:text-gray-300 mb-6 text-lg leading-relaxed" data-testid={`featured-area-${index}-description`}>
+                  <CardContent className="p-6">
+                    <p className="text-gray-600 dark:text-gray-300 mb-4 text-base leading-relaxed" data-testid={`featured-area-${index}-description`}>
                       {area.description}
                     </p>
-                    <div className="grid grid-cols-1 gap-3">
+                    <div className="grid grid-cols-1 gap-2">
                       {area.features.map((feature, featureIndex) => (
                         <div 
                           key={featureIndex}
-                          className="flex items-center space-x-3 p-3 bg-gradient-to-r from-primary/5 to-transparent rounded-lg hover:from-primary/10 transition-all duration-200"
+                          className="flex items-center space-x-2 p-2 bg-gradient-to-r from-primary/5 to-transparent rounded-lg hover:from-primary/10 transition-all duration-200"
                           data-testid={`featured-area-${index}-feature-${featureIndex}`}
                         >
                           <div className="p-1 bg-primary/20 rounded-full">
-                            <Star className="w-4 h-4 text-primary" />
+                            <Star className="w-3 h-3 text-primary" />
                           </div>
-                          <span className="font-medium">{feature}</span>
+                          <span className="font-medium text-sm">{feature}</span>
                         </div>
                       ))}
+                    </div>
+                    <div className="mt-4 flex items-center text-primary font-semibold text-sm group-hover:text-primary/80 transition-colors duration-300">
+                      <span>Click to explore</span>
+                      <ArrowLeft className="w-4 h-4 ml-2 rotate-180 group-hover:translate-x-1 transition-transform duration-300" />
                     </div>
                   </CardContent>
                 </Card>
