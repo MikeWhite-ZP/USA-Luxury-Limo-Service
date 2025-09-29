@@ -96,47 +96,65 @@ export default function Locations() {
     {
       name: "NRG Stadium",
       description: "Home of the Houston Texans NFL team and major events. Premier sports and entertainment venue hosting football games, concerts, and large-scale events.",
-      services: ["Game Day Transportation", "Concert Shuttles", "VIP Event Service"]
+      services: ["Game Day Transportation", "Concert Shuttles", "VIP Event Service"],
+      icon: "🏟️",
+      category: "Sports & Entertainment"
     },
     {
       name: "Toyota Center", 
       description: "Downtown arena hosting Houston Rockets NBA games, concerts, and entertainment events. Premium venue requiring sophisticated transportation solutions.",
-      services: ["NBA Game Transport", "Concert Services", "Corporate Events"]
+      services: ["NBA Game Transport", "Concert Services", "Corporate Events"],
+      icon: "🏀",
+      category: "Sports & Entertainment"
     },
     {
       name: "Daikin Park",
       description: "Houston Dynamo FC soccer stadium and major sports venue. Modern facility hosting MLS games, tournaments, and special events.",
-      services: ["Soccer Game Transport", "Tournament Shuttles", "Special Events"]
+      services: ["Soccer Game Transport", "Tournament Shuttles", "Special Events"],
+      icon: "⚽",
+      category: "Sports & Entertainment"
     },
     {
       name: "George R. Brown Convention Center",
       description: "Houston's premier convention and exhibition facility. Major venue for trade shows, conferences, and large-scale business events.",
-      services: ["Convention Transport", "Trade Show Shuttles", "Business Events"]
+      services: ["Convention Transport", "Trade Show Shuttles", "Business Events"],
+      icon: "🏢",
+      category: "Business & Events"
     },
     {
       name: "Houston Zoo",
       description: "One of the most popular family destinations in Houston. World-class zoo featuring diverse exhibits and educational programs.",
-      services: ["Family Outings", "Group Tours", "Special Events"]
+      services: ["Family Outings", "Group Tours", "Special Events"],
+      icon: "🦁",
+      category: "Family & Recreation"
     },
     {
       name: "Space Center Houston",
       description: "NASA's official visitor center and Houston's premier space attraction. Interactive exhibits and tours showcasing space exploration.",
-      services: ["Educational Tours", "Group Transportation", "VIP Experiences"]
+      services: ["Educational Tours", "Group Transportation", "VIP Experiences"],
+      icon: "🚀",
+      category: "Education & Culture"
     },
     {
       name: "Houston Museum District",
       description: "Home to 19 museums including the Museum of Fine Arts, Natural Science Museum, and Children's Museum. Cultural hub of Houston.",
-      services: ["Cultural Tours", "Educational Transport", "Museum Events"]
+      services: ["Cultural Tours", "Educational Transport", "Museum Events"],
+      icon: "🎨",
+      category: "Education & Culture"
     },
     {
       name: "Rice University",
       description: "Prestigious private university with beautiful campus and major academic and cultural events throughout the year.",
-      services: ["Academic Events", "Campus Tours", "Graduation Services"]
+      services: ["Academic Events", "Campus Tours", "Graduation Services"],
+      icon: "🎓",
+      category: "Education & Culture"
     },
     {
       name: "Hermann Park",
       description: "Houston's premier urban park featuring gardens, lake, golf course, and outdoor attractions. Popular destination for events and recreation.",
-      services: ["Event Transportation", "Recreation Shuttles", "Park Tours"]
+      services: ["Event Transportation", "Recreation Shuttles", "Park Tours"],
+      icon: "🌳",
+      category: "Family & Recreation"
     }
   ];
 
@@ -320,43 +338,81 @@ export default function Locations() {
         </section>
 
         {/* Extended Service Areas */}
-        <section className="py-20 bg-gradient-to-br from-gray-100/80 to-primary/5 dark:from-gray-900/80 dark:to-primary/10">
+        <section className="py-20 bg-gradient-to-br from-slate-50/90 via-blue-50/50 to-primary/10 dark:from-slate-900/90 dark:via-slate-800/50 dark:to-primary/20">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-full mb-6">
-                <Navigation className="w-6 h-6 text-primary" />
+              <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-primary/15 to-secondary/15 rounded-full mb-6 shadow-lg">
+                <Navigation className="w-7 h-7 text-primary" />
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-primary bg-clip-text text-transparent dark:from-white dark:to-primary" data-testid="extended-areas-title">
-                Extended Service Areas
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-slate-900 via-primary to-secondary bg-clip-text text-transparent dark:from-white dark:via-primary dark:to-secondary" data-testid="extended-areas-title">
+                Popular Houston Destinations
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                Additional locations we proudly serve with premium transportation services and luxury experiences
+                Premium luxury transportation to Houston's most sought-after venues and attractions
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
               {extendedAreas.map((area, index) => (
-                <Card key={index} className="text-center hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg" data-testid={`extended-area-${index}-name`}>
-                      {area.name}
-                    </CardTitle>
-                    <CardDescription data-testid={`extended-area-${index}-description`}>
+                <Card 
+                  key={index} 
+                  className="group relative overflow-hidden bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+                >
+                  {/* Category Badge */}
+                  <div className="absolute top-4 right-4 z-10">
+                    <span className="px-3 py-1 bg-gradient-to-r from-primary/90 to-secondary/90 text-white text-xs font-semibold rounded-full backdrop-blur-sm border border-white/20">
+                      {area.category}
+                    </span>
+                  </div>
+
+                  <CardHeader className="relative bg-gradient-to-br from-slate-100/80 via-blue-50/60 to-primary/5 dark:from-slate-700/80 dark:via-slate-600/60 dark:to-primary/20 p-6">
+                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <div className="relative flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="text-4xl p-3 bg-white/80 dark:bg-slate-700/80 rounded-2xl shadow-md group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 border border-white/30">
+                          {area.icon}
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors duration-300 mb-2" data-testid={`extended-area-${index}-name`}>
+                          {area.name}
+                        </CardTitle>
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="p-6">
+                    <CardDescription className="text-gray-600 dark:text-gray-300 mb-6 text-base leading-relaxed" data-testid={`extended-area-${index}-description`}>
                       {area.description}
                     </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {area.services.map((service, serviceIndex) => (
-                        <div 
-                          key={serviceIndex}
-                          className="flex items-center justify-center space-x-2 text-sm"
-                          data-testid={`extended-area-${index}-service-${serviceIndex}`}
-                        >
-                          <Navigation className="w-3 h-3 text-primary" />
-                          <span>{service}</span>
-                        </div>
-                      ))}
+                    
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 flex items-center mb-3">
+                        <div className="w-2 h-2 bg-gradient-to-r from-primary to-secondary rounded-full mr-3"></div>
+                        Transportation Services:
+                      </h4>
+                      <div className="space-y-2">
+                        {area.services.map((service, serviceIndex) => (
+                          <div 
+                            key={serviceIndex}
+                            className="flex items-center space-x-3 p-3 bg-gradient-to-r from-slate-50/80 to-blue-50/50 dark:from-slate-700/50 dark:to-slate-600/50 rounded-lg hover:from-primary/10 hover:to-secondary/10 dark:hover:from-primary/20 dark:hover:to-secondary/20 transition-all duration-200 group/service"
+                            data-testid={`extended-area-${index}-service-${serviceIndex}`}
+                          >
+                            <div className="flex-shrink-0 p-1.5 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full group-hover/service:scale-110 transition-transform duration-200">
+                              <Navigation className="w-3 h-3 text-primary" />
+                            </div>
+                            <span className="font-medium text-sm text-slate-700 dark:text-slate-300 group-hover/service:text-primary dark:group-hover/service:text-primary transition-colors duration-200">
+                              {service}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Visual Enhancement */}
+                    <div className="mt-6 flex items-center justify-center">
+                      <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent w-full"></div>
                     </div>
                   </CardContent>
                 </Card>
