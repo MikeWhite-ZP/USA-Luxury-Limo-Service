@@ -104,7 +104,7 @@ export default function ContactSection() {
                 <div>
                   <h4 className="font-semibold text-foreground">Email</h4>
                   <p className="text-muted-foreground">info@usaluxurylimo.com</p>
-                  <p className="text-sm text-muted-foreground">We'll respond within 2 hours</p>
+                  <p className="text-sm text-muted-foreground">Available 24/7 for bookings and support</p>
                 </div>
               </div>
 
