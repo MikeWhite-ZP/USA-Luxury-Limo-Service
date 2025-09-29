@@ -11,6 +11,7 @@ import VehicleDetail from "@/pages/VehicleDetail";
 import ServiceDetail from "@/pages/ServiceDetail";
 import TermsOfService from "@/pages/TermsOfService";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import HelpCenter from "@/pages/HelpCenter";
 import AdminDashboard from "@/pages/admin-dashboard";
 import DriverDashboard from "@/pages/driver-dashboard";
 import PassengerDashboard from "@/pages/passenger-dashboard";
@@ -35,6 +36,7 @@ function Router() {
       <Route path="/service/:id" component={ServiceDetail} />
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/help-center" component={HelpCenter} />
       {!isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (

@@ -104,9 +104,13 @@ export default function Footer() {
             <h4 className="text-lg font-semibold mb-4" data-testid="footer-support-title">Support</h4>
             <ul className="space-y-2 text-gray-300">
               <li>
-                <a href="#" className="hover:text-primary transition-colors" data-testid="footer-link-help">
+                <button 
+                  onClick={() => setLocation('/help-center')}
+                  className="hover:text-primary transition-colors"
+                  data-testid="footer-link-help"
+                >
                   Help Center
-                </a>
+                </button>
               </li>
               <li>
                 <button 
