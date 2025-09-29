@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import sedanImage from "@assets/sedan_1759127086645.webp";
 import suburbanImage from "@assets/suburban_1759127172845.webp";
-import cadillacImage from "@assets/cadillac_1759127253013.png";
+import cadillacImage from "@assets/cadillac_1759127629820.png";
 
 interface VehicleType {
   id: string;
