@@ -129,7 +129,7 @@ export default function Locations() {
       
       <main className="pt-24">
         {/* Hero Section */}
-        <section className="bg-gradient-to-r from-primary to-primary/80 text-white py-16">
+        <section className="from-primary to-primary/80 text-white py-16 bg-[#23252f]">
           <div className="container mx-auto px-4">
             <div className="text-center">
               <div className="flex items-center justify-center mb-6">
