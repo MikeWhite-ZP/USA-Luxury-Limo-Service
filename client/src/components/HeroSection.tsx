@@ -29,7 +29,7 @@ export default function HeroSection() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button 
-                className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all"
+                className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all pl-[20px] pr-[20px] pt-[5px] pb-[5px]"
                 onClick={() => document.getElementById('fleet')?.scrollIntoView({ behavior: 'smooth' })}
                 data-testid="button-view-fleet"
               >

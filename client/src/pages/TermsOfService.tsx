@@ -439,7 +439,6 @@ export default function TermsOfService() {
                 <div>
                   <h3 className="text-lg font-semibold text-foreground mb-4">USA Luxury Limo Service</h3>
                   <div className="space-y-2 text-muted-foreground">
-                    <p><strong>Address:</strong> 12026 Fairquarter Ln, Pinehurst, TX 77362</p>
                     <p><strong>Phone:</strong> <a href="tel:+18324796515" className="text-primary hover:underline" data-testid="link-phone">(832) 479-6515</a></p>
                     <p><strong>Email:</strong> <a href="mailto:usaluxurylimo@gmail.com" className="text-primary hover:underline" data-testid="link-email">usaluxurylimo@gmail.com</a></p>
                   </div>
