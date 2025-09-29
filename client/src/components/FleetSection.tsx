@@ -21,13 +21,24 @@ export default function FleetSection() {
   });
 
   const getVehicleImage = (vehicleName: string) => {
-    if (vehicleName.toLowerCase().includes('sedan')) {
+    const lowerName = vehicleName.toLowerCase();
+    
+    // Specific vehicle type matching for unique images
+    if (lowerName === 'business sedan') {
       return sedanImage;
-    } else if (vehicleName.toLowerCase().includes('suv') || vehicleName.toLowerCase().includes('suburban')) {
-      return suburbanImage;
-    } else if (vehicleName.toLowerCase().includes('van') || vehicleName.toLowerCase().includes('business')) {
+    } else if (lowerName === 'first-class sedan') {
+      return cadillacImage; // Use Cadillac for premium sedan
+    } else if (lowerName === 'business suv') {
+      return suburbanImage; // Suburban for business SUV
+    } else if (lowerName === 'first-class suv') {
+      return cadillacImage; // Cadillac for first-class SUV
+    } else if (lowerName.includes('van') || lowerName.includes('business van')) {
       return businessVanImage;
-    } else if (vehicleName.toLowerCase().includes('cadillac') || vehicleName.toLowerCase().includes('escalade')) {
+    } else if (lowerName.includes('sedan')) {
+      return sedanImage; // Fallback for other sedans
+    } else if (lowerName.includes('suv') || lowerName.includes('suburban')) {
+      return suburbanImage; // Fallback for other SUVs
+    } else if (lowerName.includes('cadillac') || lowerName.includes('escalade')) {
       return cadillacImage;
     } else {
       return cadillacImage; // Default to Cadillac for premium vehicles
