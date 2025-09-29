@@ -60,6 +60,13 @@ export default function Header() {
               About
             </button>
             <button 
+              onClick={() => setLocation('/locations')} 
+              className="nav-link text-foreground hover:text-primary font-medium"
+              data-testid="nav-locations"
+            >
+              Locations
+            </button>
+            <button 
               onClick={() => handleNavClick('#services')} 
               className="nav-link text-foreground hover:text-primary font-medium"
               data-testid="nav-services"

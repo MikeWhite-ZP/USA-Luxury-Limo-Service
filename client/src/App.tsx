@@ -14,6 +14,7 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import HelpCenter from "@/pages/HelpCenter";
 import Safety from "@/pages/Safety";
 import AboutUs from "@/pages/AboutUs";
+import Locations from "@/pages/Locations";
 import AdminDashboard from "@/pages/admin-dashboard";
 import DriverDashboard from "@/pages/driver-dashboard";
 import PassengerDashboard from "@/pages/passenger-dashboard";
@@ -41,6 +42,7 @@ function Router() {
       <Route path="/help-center" component={HelpCenter} />
       <Route path="/safety" component={Safety} />
       <Route path="/about-us" component={AboutUs} />
+      <Route path="/locations" component={Locations} />
       {!isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
