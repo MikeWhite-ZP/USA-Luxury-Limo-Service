@@ -659,7 +659,7 @@ export default function BookingForm() {
           <Button
             onClick={handleGetQuote}
             disabled={quoteMutation.isPending}
-            className="w-full py-6 px-8 text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 text-white rounded-xl transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl active:transform active:scale-95 border-2 border-red-600 hover:border-red-700 shadow-lg mt-8 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/90 h-10 w-full py-6 px-8 font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 text-white rounded-xl transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl active:transform active:scale-95 border-2 border-red-600 hover:border-red-700 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none mt-[10px] mb-[10px] pt-[5px] pb-[5px] text-[14px] pl-[10px] pr-[10px]"
             data-testid="button-get-quote"
           >
             {quoteMutation.isPending ? 'Calculating Quote...' : 'Get a Quote'}
@@ -757,7 +757,7 @@ export default function BookingForm() {
           <Button
             onClick={handleGetQuote}
             disabled={quoteMutation.isPending}
-            className="w-full py-6 px-8 text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 text-white rounded-xl transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl active:transform active:scale-95 border-2 border-red-600 hover:border-red-700 shadow-lg mt-8 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/90 h-10 w-full py-6 px-8 font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 text-white rounded-xl transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl active:transform active:scale-95 border-2 border-red-600 hover:border-red-700 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none mt-[10px] mb-[10px] pt-[5px] pb-[5px] text-[14px] pl-[10px] pr-[10px]"
             data-testid="button-get-quote"
           >
             {quoteMutation.isPending ? 'Calculating Quote...' : 'Get a Quote'}
