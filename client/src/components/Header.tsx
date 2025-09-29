@@ -67,6 +67,13 @@ export default function Header() {
               Locations
             </button>
             <button 
+              onClick={() => setLocation('/hotels')} 
+              className="nav-link text-foreground hover:text-primary font-medium"
+              data-testid="nav-hotels"
+            >
+              Hotels
+            </button>
+            <button 
               onClick={() => handleNavClick('#services')} 
               className="nav-link text-foreground hover:text-primary font-medium"
               data-testid="nav-services"

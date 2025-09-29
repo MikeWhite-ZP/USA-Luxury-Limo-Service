@@ -16,6 +16,7 @@ import Safety from "@/pages/Safety";
 import AboutUs from "@/pages/AboutUs";
 import Locations from "@/pages/Locations";
 import FeaturedAreaDetail from "@/pages/FeaturedAreaDetail";
+import Hotels from "@/pages/Hotels";
 import AdminDashboard from "@/pages/admin-dashboard";
 import DriverDashboard from "@/pages/driver-dashboard";
 import PassengerDashboard from "@/pages/passenger-dashboard";
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/about-us" component={AboutUs} />
       <Route path="/locations" component={Locations} />
       <Route path="/locations/:slug" component={FeaturedAreaDetail} />
+      <Route path="/hotels" component={Hotels} />
       {!isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
