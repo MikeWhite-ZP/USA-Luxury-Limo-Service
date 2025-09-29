@@ -17,6 +17,8 @@ import AboutUs from "@/pages/AboutUs";
 import Locations from "@/pages/Locations";
 import FeaturedAreaDetail from "@/pages/FeaturedAreaDetail";
 import Hotels from "@/pages/Hotels";
+import { RoleLogin } from "@/pages/RoleLogin";
+import { AdminLogin } from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/admin-dashboard";
 import DriverDashboard from "@/pages/driver-dashboard";
 import PassengerDashboard from "@/pages/passenger-dashboard";
@@ -36,6 +38,7 @@ function Router() {
 
   return (
     <Switch>
+      {/* Public routes */}
       <Route path="/booking" component={Booking} />
       <Route path="/vehicle/:id" component={VehicleDetail} />
       <Route path="/service/:id" component={ServiceDetail} />
@@ -47,6 +50,11 @@ function Router() {
       <Route path="/locations" component={Locations} />
       <Route path="/locations/:slug" component={FeaturedAreaDetail} />
       <Route path="/hotels" component={Hotels} />
+      
+      {/* Authentication routes */}
+      <Route path="/login" component={RoleLogin} />
+      <Route path="/admin-login/" component={AdminLogin} />
+      
       {!isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
@@ -58,6 +66,9 @@ function Router() {
           )}
           {user?.role === 'driver' && (
             <Route path="/driver" component={DriverDashboard} />
+          )}
+          {(user?.role === 'dispatcher') && (
+            <Route path="/dispatcher" component={DriverDashboard} />
           )}
           {user?.role === 'passenger' && (
             <Route path="/passenger" component={PassengerDashboard} />

@@ -26,7 +26,7 @@ export const sessions = pgTable(
 );
 
 // User roles enum
-export const userRoles = ["passenger", "driver", "admin"] as const;
+export const userRoles = ["passenger", "driver", "dispatcher", "admin"] as const;
 export type UserRole = typeof userRoles[number];
 
 // User storage table (required for Replit Auth)

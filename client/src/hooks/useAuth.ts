@@ -5,7 +5,7 @@ interface User {
   email: string;
   firstName?: string;
   lastName?: string;
-  role: 'passenger' | 'driver' | 'admin';
+  role: 'passenger' | 'driver' | 'dispatcher' | 'admin';
   profileImageUrl?: string;
   phone?: string;
   isActive: boolean;

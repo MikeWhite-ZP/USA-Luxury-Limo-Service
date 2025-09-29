@@ -114,7 +114,7 @@ export default function Header() {
             ) : (
               <>
                 <button 
-                  onClick={() => window.location.href = '/api/login'}
+                  onClick={() => setLocation('/login')}
                   className="text-foreground hover:text-primary font-medium"
                   data-testid="button-signin"
                 >
