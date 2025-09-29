@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import sedanImage from "@assets/first_class_sedan_1759128200010.webp";
+import sedanImage from "@assets/sedan_1759156477839.webp";
 import suburbanImage from "@assets/suburban_1759127172845.webp";
 import cadillacImage from "@assets/cadillac_1759128022490.png";
 import businessVanImage from "@assets/BusinessVAN_1759127962518.webp";
