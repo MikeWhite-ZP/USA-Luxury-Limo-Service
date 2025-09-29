@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import sedanImage from "@assets/sedan_1759156477839.webp";
+import firstClassSedanImage from "@assets/first_class_sedan_1759157052869.webp";
 import suburbanImage from "@assets/suburban_1759127172845.webp";
 import cadillacImage from "@assets/cadillac_1759128022490.png";
 import businessVanImage from "@assets/BusinessVAN_1759127962518.webp";
@@ -27,7 +28,7 @@ export default function FleetSection() {
     if (lowerName === 'business sedan') {
       return sedanImage;
     } else if (lowerName === 'first-class sedan') {
-      return cadillacImage; // Use Cadillac for premium sedan
+      return firstClassSedanImage; // Use Mercedes-Maybach for premium sedan
     } else if (lowerName === 'business suv') {
       return suburbanImage; // Suburban for business SUV
     } else if (lowerName === 'first-class suv') {
