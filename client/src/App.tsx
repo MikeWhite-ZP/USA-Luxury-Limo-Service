@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import Booking from "@/pages/booking";
+import VehicleDetail from "@/pages/VehicleDetail";
 import AdminDashboard from "@/pages/admin-dashboard";
 import DriverDashboard from "@/pages/driver-dashboard";
 import PassengerDashboard from "@/pages/passenger-dashboard";
@@ -27,6 +28,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/booking" component={Booking} />
+      <Route path="/vehicle/:id" component={VehicleDetail} />
       {!isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (

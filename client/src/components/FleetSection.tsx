@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { useLocation } from "wouter";
 import sedanImage from "@assets/sedan_1759156477839.webp";
 import firstClassSedanImage from "@assets/first_class_sedan_1759157052869.webp";
 import suburbanImage from "@assets/suburban_1759127172845.webp";
@@ -20,6 +21,7 @@ export default function FleetSection() {
   const { data: vehicleTypes, isLoading } = useQuery<VehicleType[]>({
     queryKey: ['/api/vehicle-types'],
   });
+  const [, setLocation] = useLocation();
 
   const getVehicleImage = (vehicleName: string) => {
     const lowerName = vehicleName.toLowerCase();
@@ -99,10 +101,10 @@ export default function FleetSection() {
                 </div>
                 <Button 
                   className="w-full"
-                  onClick={() => document.getElementById('hero-booking')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => setLocation(`/vehicle/${vehicle.id}`)}
                   data-testid={`button-select-vehicle-${index}`}
                 >
-                  Select Vehicle
+                  View Details
                 </Button>
               </div>
             </div>
