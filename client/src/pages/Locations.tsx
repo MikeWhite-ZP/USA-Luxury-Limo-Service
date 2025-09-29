@@ -147,7 +147,7 @@ export default function Locations() {
         </section>
 
         {/* Primary Service Areas */}
-        <section className="py-16 bg-gray-50 dark:bg-gray-900">
+        <section className="py-16 dark:bg-gray-900 bg-[#ffffff]">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4" data-testid="primary-locations-title">
