@@ -1,11 +1,13 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useLocation } from "wouter";
 import logoImage from "@assets/logo_1759125364025.png";
 
 export default function Header() {
   const { user, isAuthenticated } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
+  const [, setLocation] = useLocation();
 
   const handleNavClick = (href: string) => {
     const element = document.querySelector(href);
@@ -85,7 +87,7 @@ export default function Header() {
                   Sign In
                 </button>
                 <Button 
-                  onClick={() => handleNavClick('#hero-booking')}
+                  onClick={() => setLocation('/booking')}
                   className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors"
                   data-testid="button-book-now"
                 >
