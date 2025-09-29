@@ -72,7 +72,7 @@ export default function FleetSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="space-y-8 max-w-4xl mx-auto">
           {vehicleTypes?.map((vehicle, index) => (
             <div 
               key={vehicle.id}
