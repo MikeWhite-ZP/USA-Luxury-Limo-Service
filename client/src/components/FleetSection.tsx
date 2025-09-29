@@ -76,37 +76,37 @@ export default function FleetSection() {
           {vehicleTypes?.map((vehicle, index) => (
             <div 
               key={vehicle.id}
-              className="vehicle-card bg-card rounded-xl overflow-hidden shadow-lg"
+              className="vehicle-card bg-card rounded-xl p-6 shadow-lg flex items-center gap-6"
               data-testid={`vehicle-card-${index}`}
             >
+              {/* Small Image on Left */}
               <div 
-                className="aspect-video bg-cover bg-center"
+                className="w-24 h-16 bg-cover bg-center rounded-lg flex-shrink-0"
                 style={{
                   backgroundImage: `url('${vehicle.imageUrl || getVehicleImage(vehicle.name)}')`
                 }}
               />
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-card-foreground mb-4" data-testid={`vehicle-name-${index}`}>
+              
+              {/* Description in Middle */}
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-card-foreground mb-2" data-testid={`vehicle-name-${index}`}>
                   {vehicle.name}
                 </h3>
-                <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                  <div className="flex justify-between">
-                    <span>Passengers:</span>
-                    <span data-testid={`vehicle-passengers-${index}`}>Up to {vehicle.passengerCapacity}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Luggage:</span>
-                    <span data-testid={`vehicle-luggage-${index}`}>{vehicle.luggageCapacity}</span>
-                  </div>
+                <div className="flex gap-4 text-sm text-muted-foreground">
+                  <span data-testid={`vehicle-passengers-${index}`}>Up to {vehicle.passengerCapacity} passengers</span>
+                  <span>•</span>
+                  <span data-testid={`vehicle-luggage-${index}`}>{vehicle.luggageCapacity}</span>
                 </div>
-                <Button 
-                  className="w-full"
-                  onClick={() => setLocation(`/vehicle/${vehicle.id}`)}
-                  data-testid={`button-select-vehicle-${index}`}
-                >
-                  View Details
-                </Button>
               </div>
+              
+              {/* Small Button on Right */}
+              <Button 
+                size="sm"
+                onClick={() => setLocation(`/vehicle/${vehicle.id}`)}
+                data-testid={`button-select-vehicle-${index}`}
+              >
+                View Details
+              </Button>
             </div>
           ))}
         </div>
