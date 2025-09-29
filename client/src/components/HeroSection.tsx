@@ -29,13 +29,6 @@ export default function HeroSection() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button 
-                className="bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition-colors"
-                onClick={() => document.getElementById('hero-booking')?.scrollIntoView({ behavior: 'smooth' })}
-                data-testid="button-book-ride"
-              >
-                Book Your Ride
-              </button>
-              <button 
                 className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all"
                 onClick={() => document.getElementById('fleet')?.scrollIntoView({ behavior: 'smooth' })}
                 data-testid="button-view-fleet"
