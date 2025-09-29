@@ -1,4 +1,5 @@
 import { Twitter, Linkedin, Facebook } from "lucide-react";
+import logoImage from "@assets/logo_1759125364025.png";
 
 export default function Footer() {
   const handleNavClick = (href: string) => {
@@ -15,10 +16,12 @@ export default function Footer() {
           {/* Company Info */}
           <div className="md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">UL</span>
-              </div>
-              <span className="text-xl font-bold" data-testid="footer-logo">USA Luxury Limo</span>
+              <img 
+                src={logoImage} 
+                alt="USA Luxury Limo" 
+                className="h-12 w-auto object-contain"
+                data-testid="footer-logo"
+              />
             </div>
             <p className="text-gray-300 mb-4 max-w-md" data-testid="footer-description">
               Premium luxury transportation services across the United States. 
