@@ -84,12 +84,9 @@ export default function FleetSection() {
                 }}
               />
               <div className="p-6">
-                <h3 className="text-xl font-semibold text-card-foreground mb-2" data-testid={`vehicle-name-${index}`}>
+                <h3 className="text-xl font-semibold text-card-foreground mb-4" data-testid={`vehicle-name-${index}`}>
                   {vehicle.name}
                 </h3>
-                <p className="text-primary text-2xl font-bold mb-4" data-testid={`vehicle-price-${index}`}>
-                  ${vehicle.hourlyRate}/hour
-                </p>
                 <div className="space-y-2 text-sm text-muted-foreground mb-4">
                   <div className="flex justify-between">
                     <span>Passengers:</span>
