@@ -173,41 +173,39 @@ export default function BookingForm() {
   const quoteMutation = useMutation({
     mutationFn: async () => {
       if (activeTab === 'transfer') {
-        if (!fromCoords || !toCoords || !selectedVehicle) {
+        if (!fromCoords || !toCoords) {
           throw new Error('Please fill in all required fields');
         }
 
         // Calculate distance first
-        const distanceResponse = await apiRequest('POST', '/api/calculate-distance', {
-          origins: `${fromCoords.lat},${fromCoords.lon}`,
-          destinations: `${toCoords.lat},${toCoords.lon}`
+        const distanceResponse = await apiRequest('/api/calculate-distance', {
+          method: 'POST',
+          body: JSON.stringify({
+            origins: `${fromCoords.lat},${fromCoords.lon}`,
+            destinations: `${toCoords.lat},${toCoords.lon}`
+          })
         });
-        const distanceData = await distanceResponse.json();
 
-        // Get quote
-        const quoteResponse = await apiRequest('POST', '/api/calculate-quote', {
-          vehicleTypeId: selectedVehicle,
-          bookingType: 'transfer',
-          distance: distanceData.distance,
-          duration: distanceData.duration
-        });
-        return await quoteResponse.json();
+        return distanceResponse;
       } else {
-        if (!pickupCoords || !duration || !selectedVehicle) {
+        if (!pickupCoords || !duration) {
           throw new Error('Please fill in all required fields');
         }
 
-        const quoteResponse = await apiRequest('POST', '/api/calculate-quote', {
-          vehicleTypeId: selectedVehicle,
-          bookingType: 'hourly',
-          hours: duration
-        });
-        return await quoteResponse.json();
+        // For hourly service, just return duration info for step 2
+        return {
+          distanceKm: 0,
+          durationMinutes: parseInt(duration) * 60
+        };
       }
     },
     onSuccess: (data) => {
       setQuoteData(data);
       setStep(2);
+      toast({
+        title: "Quote Calculated",
+        description: "Please select your vehicle to see pricing.",
+      });
     },
     onError: (error: Error) => {
       toast({
@@ -277,14 +275,45 @@ export default function BookingForm() {
   });
 
   const handleGetQuote = () => {
-    if (!date || !time) {
-      toast({
-        title: "Missing Information",
-        description: "Please select date and time",
-        variant: "destructive",
-      });
-      return;
+    // Validation for step 1
+    if (activeTab === 'transfer') {
+      if (!fromAddress || !toAddress || !date || !time) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all required fields.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (!fromCoords || !toCoords) {
+        toast({
+          title: "Address Error",
+          description: "Please select valid addresses from the suggestions.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      if (!pickupAddress || !duration || !date || !time) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all required fields.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (!pickupCoords) {
+        toast({
+          title: "Address Error",
+          description: "Please select a valid pickup address from the suggestions.",
+          variant: "destructive",
+        });
+        return;
+      }
     }
+    
     quoteMutation.mutate();
   };
 
@@ -337,20 +366,79 @@ export default function BookingForm() {
           </div>
         </div>
 
-        {/* Vehicle Selection */}
+        {/* Vehicle Selection Grid */}
         <div>
-          <h4 className="font-semibold mb-3">Selected Vehicle</h4>
-          <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-            <h5 className="font-medium text-primary" data-testid="selected-vehicle-name">
-              {quoteData.vehicleType.name}
-            </h5>
-            <p className="text-2xl font-bold text-primary mt-2" data-testid="total-amount">
-              ${quoteData.totalAmount}
+          <h3 className="text-xl font-bold text-primary mb-6">Select Your Vehicle</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            {vehicleTypes?.map((vehicle) => (
+              <div
+                key={vehicle.id}
+                className={`p-5 rounded-xl cursor-pointer transition-all border-2 text-center ${
+                  selectedVehicle === vehicle.id 
+                    ? 'border-primary bg-primary/10 transform -translate-y-1 shadow-lg' 
+                    : 'border-primary/20 hover:border-primary hover:transform hover:-translate-y-1 hover:shadow-md'
+                }`}
+                onClick={() => setSelectedVehicle(vehicle.id)}
+                data-testid={`vehicle-${vehicle.id}`}
+              >
+                <h4 className="font-bold text-primary text-lg mb-2">{vehicle.name}</h4>
+                <p className="text-2xl font-bold text-primary mb-3">
+                  ${vehicle.hourlyRate}{activeTab === 'hourly' ? '/hour' : ''}
+                </p>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <div>Up to {vehicle.passengerCapacity} passengers</div>
+                  <div>{vehicle.luggageCapacity}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Service Includes Section */}
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
+          <h4 className="text-lg font-bold text-primary mb-4">All Classes Include:</h4>
+          <ul className="space-y-2 text-sm">
+            <li className="flex items-center">
+              <span className="text-primary mr-2 font-bold">✓</span>
+              Free cancellation up until 2 hours before pickup
+            </li>
+            <li className="flex items-center">
+              <span className="text-primary mr-2 font-bold">✓</span>
+              Free 15 minutes of wait time in city pickups
+            </li>
+            <li className="flex items-center">
+              <span className="text-primary mr-2 font-bold">✓</span>
+              Free 1 hour of wait time in airport pickups
+            </li>
+            <li className="flex items-center">
+              <span className="text-primary mr-2 font-bold">✓</span>
+              Meet & Greet service
+            </li>
+            <li className="flex items-center">
+              <span className="text-primary mr-2 font-bold">✓</span>
+              Complimentary bottle of water
+            </li>
+            <li className="flex items-center">
+              <span className="text-primary mr-2 font-bold">✓</span>
+              Complimentary in-vehicle WiFi
+            </li>
+            <li className="flex items-center">
+              <span className="text-primary mr-2 font-bold">✓</span>
+              Tissues and sanitizer
+            </li>
+            <li className="flex items-center">
+              <span className="text-primary mr-2 font-bold">✓</span>
+              Android and iPhone chargers
+            </li>
+          </ul>
+          
+          <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            <p className="text-sm text-orange-800 font-medium mb-2">
+              <strong>Guest/luggage capacities must be abided by for safety reasons. If you are unsure, select a larger class as chauffeurs may turn down service when they are exceeded.</strong>
             </p>
-            <div className="text-sm text-gray-600 mt-2">
-              <div>Passengers: Up to {quoteData.vehicleType.passengerCapacity}</div>
-              <div>Luggage: {quoteData.vehicleType.luggageCapacity}</div>
-            </div>
+            <p className="text-sm text-orange-800">
+              <strong>The vehicle images above are examples. You may get a different vehicle of similar quality.</strong>
+            </p>
           </div>
         </div>
 
@@ -366,7 +454,7 @@ export default function BookingForm() {
           </Button>
           <Button 
             onClick={handleContinueBooking}
-            disabled={bookingMutation.isPending}
+            disabled={bookingMutation.isPending || !selectedVehicle}
             className="flex-1"
             data-testid="button-continue-booking"
           >
@@ -570,38 +658,10 @@ export default function BookingForm() {
             </div>
           </div>
 
-          {/* Vehicle Selection */}
-          <div>
-            <Label className="text-base font-semibold text-gray-700">Select Vehicle *</Label>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-              {vehicleTypes?.map((vehicle) => (
-                <div
-                  key={vehicle.id}
-                  className={`p-5 rounded-xl cursor-pointer transition-all border-2 text-center ${
-                    selectedVehicle === vehicle.id 
-                      ? 'border-primary bg-primary/10 transform -translate-y-1 shadow-lg' 
-                      : 'border-primary/20 hover:border-primary hover:transform hover:-translate-y-1 hover:shadow-md'
-                  }`}
-                  onClick={() => setSelectedVehicle(vehicle.id)}
-                  data-testid={`vehicle-${vehicle.id}`}
-                >
-                  <h4 className="font-bold text-primary text-lg mb-2">{vehicle.name}</h4>
-                  <p className="text-2xl font-bold text-primary mb-3">
-                    ${vehicle.hourlyRate}{activeTab === 'hourly' ? '/hour' : ''}
-                  </p>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <div>Up to {vehicle.passengerCapacity} passengers</div>
-                    <div>{vehicle.luggageCapacity}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Get Quote Button */}
           <Button
             onClick={handleGetQuote}
-            disabled={quoteMutation.isPending || !selectedVehicle}
+            disabled={quoteMutation.isPending}
             className="w-full p-4 text-lg font-semibold bg-primary hover:bg-primary/90 text-white rounded-lg transition-all hover:transform hover:-translate-y-1 hover:shadow-lg"
             data-testid="button-get-quote"
           >
@@ -696,38 +756,10 @@ export default function BookingForm() {
             </div>
           </div>
 
-          {/* Vehicle Selection */}
-          <div>
-            <Label className="text-base font-semibold text-gray-700">Select Vehicle *</Label>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-              {vehicleTypes?.map((vehicle) => (
-                <div
-                  key={vehicle.id}
-                  className={`p-5 rounded-xl cursor-pointer transition-all border-2 text-center ${
-                    selectedVehicle === vehicle.id 
-                      ? 'border-primary bg-primary/10 transform -translate-y-1 shadow-lg' 
-                      : 'border-primary/20 hover:border-primary hover:transform hover:-translate-y-1 hover:shadow-md'
-                  }`}
-                  onClick={() => setSelectedVehicle(vehicle.id)}
-                  data-testid={`vehicle-${vehicle.id}`}
-                >
-                  <h4 className="font-bold text-primary text-lg mb-2">{vehicle.name}</h4>
-                  <p className="text-2xl font-bold text-primary mb-3">
-                    ${vehicle.hourlyRate}{activeTab === 'hourly' ? '/hour' : ''}
-                  </p>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <div>Up to {vehicle.passengerCapacity} passengers</div>
-                    <div>{vehicle.luggageCapacity}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Get Quote Button */}
           <Button
             onClick={handleGetQuote}
-            disabled={quoteMutation.isPending || !selectedVehicle}
+            disabled={quoteMutation.isPending}
             className="w-full p-4 text-lg font-semibold bg-primary hover:bg-primary/90 text-white rounded-lg transition-all hover:transform hover:-translate-y-1 hover:shadow-lg"
             data-testid="button-get-quote"
           >
@@ -735,54 +767,6 @@ export default function BookingForm() {
           </Button>
         </div>
       )}
-
-      {/* Includes Section */}
-      <div className="mt-8 p-6 bg-gray-50 border border-gray-200 rounded-xl">
-        <h4 className="text-lg font-bold text-primary mb-4">All Classes Include:</h4>
-        <ul className="space-y-2 text-sm">
-          <li className="flex items-center">
-            <span className="text-primary mr-2 font-bold">✓</span>
-            Free cancellation up until 2 hours before pickup
-          </li>
-          <li className="flex items-center">
-            <span className="text-primary mr-2 font-bold">✓</span>
-            Free 15 minutes of wait time in city pickups
-          </li>
-          <li className="flex items-center">
-            <span className="text-primary mr-2 font-bold">✓</span>
-            Free 1 hour of wait time in airport pickups
-          </li>
-          <li className="flex items-center">
-            <span className="text-primary mr-2 font-bold">✓</span>
-            Meet & Greet service
-          </li>
-          <li className="flex items-center">
-            <span className="text-primary mr-2 font-bold">✓</span>
-            Complimentary bottle of water
-          </li>
-          <li className="flex items-center">
-            <span className="text-primary mr-2 font-bold">✓</span>
-            Complimentary in-vehicle WiFi
-          </li>
-          <li className="flex items-center">
-            <span className="text-primary mr-2 font-bold">✓</span>
-            Tissues and sanitizer
-          </li>
-          <li className="flex items-center">
-            <span className="text-primary mr-2 font-bold">✓</span>
-            Android and iPhone chargers
-          </li>
-        </ul>
-        
-        <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-          <p className="text-sm text-orange-800 font-medium mb-2">
-            <strong>Guest/luggage capacities must be abided by for safety reasons. If you are unsure, select a larger class as chauffeurs may turn down service when they are exceeded.</strong>
-          </p>
-          <p className="text-sm text-orange-800">
-            <strong>The vehicle images above are examples. You may get a different vehicle of similar quality.</strong>
-          </p>
-        </div>
-      </div>
     </div>
   );
 }
