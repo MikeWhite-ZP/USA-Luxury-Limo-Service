@@ -46,7 +46,7 @@ export default function HeroSection() {
           </div>
 
           {/* Booking Form Widget */}
-          <div id="hero-booking" className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-2xl pl-[10px] pr-[10px] pt-[10px] pb-[10px] w-[70%] absolute right-[50px]">
+          <div id="hero-booking" className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-2xl pl-[10px] pr-[10px] pt-[10px] pb-[10px] w-[70%]">
             <h3 className="text-2xl font-bold text-gray-900 mb-6" data-testid="booking-form-title">
               Quick Booking
             </h3>
