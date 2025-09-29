@@ -178,12 +178,9 @@ export default function BookingForm() {
         }
 
         // Calculate distance first
-        const distanceResponse = await apiRequest('/api/calculate-distance', {
-          method: 'POST',
-          body: JSON.stringify({
-            origins: `${fromCoords.lat},${fromCoords.lon}`,
-            destinations: `${toCoords.lat},${toCoords.lon}`
-          })
+        const distanceResponse = await apiRequest('POST', '/api/calculate-distance', {
+          origins: `${fromCoords.lat},${fromCoords.lon}`,
+          destinations: `${toCoords.lat},${toCoords.lon}`
         });
 
         return distanceResponse;
