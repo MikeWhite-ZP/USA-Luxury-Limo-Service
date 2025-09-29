@@ -346,14 +346,14 @@ export default function Locations() {
               Contact us to book luxury transportation to any of our service locations. Available 24/7 for your convenience.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="tel:+18324796515"
-                className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center"
-                data-testid="contact-phone-button"
+              <Button 
+                onClick={() => setLocation('/booking')}
+                className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                data-testid="contact-booking-button"
               >
-                <Phone className="w-5 h-5 mr-2" />
-                Call (832) 479-6515
-              </a>
+                <Calendar className="w-5 h-5 mr-2" />
+                Book Now
+              </Button>
               <a 
                 href="mailto:usaluxurylimo@gmail.com"
                 className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition-colors inline-flex items-center justify-center"
