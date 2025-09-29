@@ -132,16 +132,6 @@ export default function Locations() {
         <section className="bg-gradient-to-r from-primary to-primary/80 text-white py-16">
           <div className="container mx-auto px-4">
             <div className="text-center">
-              <Button 
-                variant="ghost" 
-                onClick={() => setLocation('/')}
-                className="text-white hover:text-white hover:bg-white/20 mb-6"
-                data-testid="button-back-home"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-              
               <div className="flex items-center justify-center mb-6">
                 <MapPin className="w-16 h-16 text-white" />
               </div>
