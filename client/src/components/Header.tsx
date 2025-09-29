@@ -53,7 +53,7 @@ export default function Header() {
               Home
             </button>
             <button 
-              onClick={() => handleNavClick('#about')} 
+              onClick={() => setLocation('/about-us')} 
               className="nav-link text-foreground hover:text-primary font-medium"
               data-testid="nav-about"
             >
