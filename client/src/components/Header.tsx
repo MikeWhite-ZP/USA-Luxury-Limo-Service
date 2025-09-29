@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import logoImage from "@assets/logo_1759125364025.png";
 
 export default function Header() {
   const { user, isAuthenticated } = useAuth();
@@ -20,7 +21,7 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <img 
-              src="@assets/logo_1759125364025.png" 
+              src={logoImage} 
               alt="USA Luxury Limo" 
               className="h-12 w-auto object-contain"
               data-testid="logo"
