@@ -71,6 +71,15 @@ export default function Footer() {
               </li>
               <li>
                 <button 
+                  onClick={() => setLocation('/about-us')} 
+                  className="hover:text-primary transition-colors"
+                  data-testid="footer-link-about"
+                >
+                  About
+                </button>
+              </li>
+              <li>
+                <button 
                   onClick={() => handleNavClick('#services')} 
                   className="hover:text-primary transition-colors"
                   data-testid="footer-link-services"
