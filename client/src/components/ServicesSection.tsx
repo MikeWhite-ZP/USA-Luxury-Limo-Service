@@ -1,27 +1,40 @@
-import { Plane, Briefcase, Heart } from "lucide-react";
+import { Plane, Briefcase, Heart, Clock } from "lucide-react";
+import { useLocation } from "wouter";
 import airportTransferBg from "@assets/67dc52e7ef277_1759125789879.webp";
 import corporateTravelBg from "@assets/corporate_1759126654203.webp";
 import specialEventsBg from "@assets/event_1759126933449.webp";
 
 export default function ServicesSection() {
+  const [, setLocation] = useLocation();
+  
   const services = [
     {
+      id: "airport-transfer",
       icon: Plane,
       title: "Airport Transfer",
       description: "Reliable airport pickup and drop-off with flight tracking and meet & greet service.",
       features: ["Flight tracking", "Meet & greet", "Free waiting time"]
     },
     {
+      id: "corporate-travel",
       icon: Briefcase,
       title: "Corporate Travel",
       description: "Professional transportation for business meetings, events, and executive travel.",
       features: ["Business-class vehicles", "Professional chauffeurs", "Corporate billing"]
     },
     {
+      id: "special-events",
       icon: Heart,
       title: "Special Events",
       description: "Make your special occasions memorable with our luxury transportation services.",
       features: ["Wedding packages", "Prom & graduation", "Anniversary celebrations"]
+    },
+    {
+      id: "hourly-service",
+      icon: Clock,
+      title: "Hourly Service",
+      description: "Flexible hourly transportation for multiple stops, shopping trips, and extended travel needs.",
+      features: ["Flexible scheduling", "Multiple destinations", "Wait time included", "Customizable routes"]
     }
   ];
 
@@ -37,17 +50,27 @@ export default function ServicesSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {services.map((service, index) => (
             <div 
-              key={index}
-              className="bg-cover bg-center bg-no-repeat relative rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-border overflow-hidden"
+              key={service.id}
+              className="bg-cover bg-center bg-no-repeat relative rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-border overflow-hidden cursor-pointer"
               style={
                 index === 0 ? { backgroundImage: `url(${airportTransferBg})` } :
                 index === 1 ? { backgroundImage: `url(${corporateTravelBg})` } :
-                index === 2 ? { backgroundImage: `url(${specialEventsBg})` } : {}
+                index === 2 ? { backgroundImage: `url(${specialEventsBg})` } :
+                index === 3 ? { backgroundImage: `url(${corporateTravelBg})` } : {}
               }
-              data-testid={`service-card-${index}`}
+              onClick={() => setLocation(`/service/${service.id}`)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setLocation(`/service/${service.id}`);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              data-testid={`service-card-${service.id}`}
             >
               <div className="absolute inset-0 bg-black/50 rounded-xl"></div>
               <div className="relative z-10">
