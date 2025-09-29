@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import airportTransferBg from "@assets/67dc52e7ef277_1759125789879.webp";
 import corporateTravelBg from "@assets/corporate_1759126654203.webp";
 import specialEventsBg from "@assets/event_1759126933449.webp";
+import hourlyServiceBg from "@assets/hourly_1759159676580.png";
 
 export default function ServicesSection() {
   const [, setLocation] = useLocation();
@@ -59,7 +60,7 @@ export default function ServicesSection() {
                 index === 0 ? { backgroundImage: `url(${airportTransferBg})` } :
                 index === 1 ? { backgroundImage: `url(${corporateTravelBg})` } :
                 index === 2 ? { backgroundImage: `url(${specialEventsBg})` } :
-                index === 3 ? { backgroundImage: `url(${corporateTravelBg})` } : {}
+                index === 3 ? { backgroundImage: `url(${hourlyServiceBg})` } : {}
               }
               onClick={() => setLocation(`/service/${service.id}`)}
               onKeyDown={(e) => {
