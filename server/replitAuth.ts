@@ -54,8 +54,22 @@ function updateUserSession(
   user.expires_at = user.claims?.exp;
 }
 
+// Admin user validation - add authorized admin emails here
+function isAdminUser(email: string | undefined): boolean {
+  if (!email) return false;
+  
+  const adminEmails: string[] = [
+    // Add authorized admin email addresses here
+    // 'admin@usaluxurylimo.com',
+    // 'super.admin@usaluxurylimo.com'
+  ];
+  
+  return adminEmails.includes(email.toLowerCase());
+}
+
 async function upsertUser(
   claims: any,
+  role?: "passenger" | "driver" | "dispatcher" | "admin"
 ) {
   await storage.upsertUser({
     id: claims["sub"],
@@ -63,6 +77,7 @@ async function upsertUser(
     firstName: claims["first_name"],
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
+    role: role || "passenger", // Default to passenger if no role specified
   });
 }
 
@@ -74,13 +89,34 @@ export async function setupAuth(app: Express) {
 
   const config = await getOidcConfig();
 
-  const verify: VerifyFunction = async (
+  const verify = async (
+    req: any,
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
     const user = {};
     updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
+    
+    // Get role from session (more secure than query param)
+    const selectedRole = (req?.session as any)?.selectedRole;
+    
+    // Validate admin role access
+    const userEmail = tokens.claims()?.email as string | undefined;
+    const isAuthorizedAdmin = isAdminUser(userEmail);
+    
+    let role: "passenger" | "driver" | "dispatcher" | "admin";
+    
+    if (selectedRole === 'admin' && !isAuthorizedAdmin) {
+      // Prevent unauthorized admin access - fallback to passenger
+      role = 'passenger';
+    } else if (selectedRole === 'passenger' || selectedRole === 'driver' || 
+               selectedRole === 'dispatcher' || (selectedRole === 'admin' && isAuthorizedAdmin)) {
+      role = selectedRole;
+    } else {
+      role = 'passenger'; // Default fallback
+    }
+    
+    await upsertUser(tokens.claims(), role);
     verified(null, user);
   };
 
@@ -92,6 +128,7 @@ export async function setupAuth(app: Express) {
         config,
         scope: "openid email profile offline_access",
         callbackURL: `https://${domain}/api/callback`,
+        passReqToCallback: true, // Enable request object in verify function
       },
       verify,
     );
@@ -102,6 +139,11 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
+    // Store the selected role in session for use in callback
+    if (req.query.role) {
+      (req.session as any).selectedRole = req.query.role;
+    }
+    
     passport.authenticate(`replitauth:${req.hostname}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
@@ -110,9 +152,33 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/callback", (req, res, next) => {
     passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
-    })(req, res, next);
+      failureRedirect: "/login",
+    })(req, res, (err: any) => {
+      if (err) return next(err);
+      
+      // Get user role for redirect
+      const selectedRole = (req.session as any)?.selectedRole;
+      
+      // Clean up session data
+      delete (req.session as any).selectedRole;
+      
+      // Redirect based on role
+      switch (selectedRole) {
+        case 'admin':
+          res.redirect('/admin');
+          break;
+        case 'driver':
+          res.redirect('/driver');
+          break;
+        case 'dispatcher':
+          res.redirect('/dispatcher');
+          break;
+        case 'passenger':
+        default:
+          res.redirect('/passenger');
+          break;
+      }
+    });
   });
 
   app.get("/api/logout", (req, res) => {

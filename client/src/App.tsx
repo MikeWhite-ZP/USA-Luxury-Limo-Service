@@ -21,6 +21,7 @@ import { RoleLogin } from "@/pages/RoleLogin";
 import { AdminLogin } from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/admin-dashboard";
 import DriverDashboard from "@/pages/driver-dashboard";
+import DispatcherDashboard from "@/pages/DispatcherDashboard";
 import PassengerDashboard from "@/pages/passenger-dashboard";
 import Checkout from "@/pages/checkout";
 import NotFound from "@/pages/not-found";
@@ -68,7 +69,7 @@ function Router() {
             <Route path="/driver" component={DriverDashboard} />
           )}
           {(user?.role === 'dispatcher') && (
-            <Route path="/dispatcher" component={DriverDashboard} />
+            <Route path="/dispatcher" component={DispatcherDashboard} />
           )}
           {user?.role === 'passenger' && (
             <Route path="/passenger" component={PassengerDashboard} />
