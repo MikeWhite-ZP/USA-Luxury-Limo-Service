@@ -18,11 +18,13 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">UL</span>
-            </div>
-            <span className="text-xl font-bold text-foreground">USA Luxury Limo</span>
+          <div className="flex items-center">
+            <img 
+              src="@assets/logo_1759125364025.png" 
+              alt="USA Luxury Limo" 
+              className="h-12 w-auto object-contain"
+              data-testid="logo"
+            />
           </div>
 
           {/* Navigation */}
