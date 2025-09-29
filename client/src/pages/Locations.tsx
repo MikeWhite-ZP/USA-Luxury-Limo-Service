@@ -129,19 +129,27 @@ export default function Locations() {
       
       <main className="pt-24">
         {/* Hero Section */}
-        <section className="from-primary to-primary/80 text-white py-16 bg-[#23252f]">
-          <div className="container mx-auto px-4">
+        <section className="relative overflow-hidden from-primary to-primary/80 text-white py-20 bg-gradient-to-br bg-[#23252f]">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/30"></div>
+          <div className="relative container mx-auto px-4">
             <div className="text-center">
-              <div className="flex items-center justify-center mb-6">
-                <MapPin className="w-16 h-16 text-white" />
+              <div className="flex items-center justify-center mb-8 animate-pulse">
+                <div className="p-4 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+                  <MapPin className="w-20 h-20 text-white drop-shadow-lg" />
+                </div>
               </div>
               
-              <h1 className="text-4xl md:text-5xl font-bold mb-4" data-testid="locations-page-title">
+              <h1 className="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent drop-shadow-2xl" data-testid="locations-page-title">
                 Service Locations
               </h1>
-              <p className="text-xl text-white/90 max-w-3xl mx-auto" data-testid="locations-page-description">
+              <p className="text-2xl text-white/90 max-w-4xl mx-auto leading-relaxed font-light" data-testid="locations-page-description">
                 Serving Houston and Beyond with Premium Black Car & Chauffeur Services
               </p>
+              <div className="mt-8 flex items-center justify-center space-x-2">
+                <div className="w-3 h-3 bg-white/60 rounded-full animate-bounce"></div>
+                <div className="w-3 h-3 bg-white/60 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                <div className="w-3 h-3 bg-white/60 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              </div>
             </div>
           </div>
         </section>
@@ -158,30 +166,37 @@ export default function Locations() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {primaryLocations.map((location, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="text-center pb-4">
-                    <div className="flex justify-center mb-4">
-                      <div className="p-3 bg-primary/10 rounded-full text-primary">
-                        {location.icon}
+                <Card key={index} className="group relative overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 border-0 bg-white/95 backdrop-blur-sm">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                  <CardHeader className="text-center pb-6 relative">
+                    <div className="flex justify-center mb-6">
+                      <div className="relative p-4 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl text-primary group-hover:scale-110 transition-transform duration-300">
+                        <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-sm group-hover:blur-md transition-all duration-300"></div>
+                        <div className="relative z-10">
+                          {location.icon}
+                        </div>
                       </div>
                     </div>
-                    <CardTitle className="text-xl" data-testid={`primary-location-${index}-title`}>
+                    <CardTitle className="text-2xl font-bold group-hover:text-primary transition-colors duration-300" data-testid={`primary-location-${index}-title`}>
                       {location.name}
                     </CardTitle>
-                    <CardDescription data-testid={`primary-location-${index}-description`}>
+                    <CardDescription className="text-base leading-relaxed mt-3" data-testid={`primary-location-${index}-description`}>
                       {location.description}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">Key Areas:</h4>
+                  <CardContent className="pt-0">
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200 flex items-center">
+                        <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
+                        Key Areas:
+                      </h4>
                       <div className="flex flex-wrap gap-2">
                         {location.highlights.map((highlight, highlightIndex) => (
                           <span 
                             key={highlightIndex}
-                            className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
+                            className="px-3 py-2 bg-gradient-to-r from-primary/15 to-secondary/15 text-primary text-sm rounded-full font-medium hover:from-primary/25 hover:to-secondary/25 transition-all duration-200 cursor-default"
                             data-testid={`primary-location-${index}-highlight-${highlightIndex}`}
                           >
                             {highlight}
@@ -197,46 +212,54 @@ export default function Locations() {
         </section>
 
         {/* Featured Areas */}
-        <section className="py-16">
+        <section className="py-20 bg-gradient-to-br from-gray-50/50 to-primary/5 dark:from-gray-900/50 dark:to-primary/10">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4" data-testid="featured-areas-title">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-full mb-6">
+                <Star className="w-6 h-6 text-primary" />
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-primary bg-clip-text text-transparent dark:from-white dark:to-primary" data-testid="featured-areas-title">
                 Featured Areas
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                Specialized service areas with unique transportation needs
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
+                Specialized service areas with unique transportation needs and premium luxury experiences
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-10 max-w-7xl mx-auto">
               {featuredAreas.map((area, index) => (
-                <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <span className="text-2xl">{area.image}</span>
+                <Card key={index} className="group overflow-hidden hover:shadow-2xl transition-all duration-500 border-0 bg-white/95 backdrop-blur-sm hover:-translate-y-1">
+                  <CardHeader className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 p-8">
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="relative flex items-center space-x-4 mb-4">
+                      <div className="text-4xl p-3 bg-white/50 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        {area.image}
+                      </div>
                       <div>
-                        <CardTitle className="text-xl" data-testid={`featured-area-${index}-name`}>
+                        <CardTitle className="text-2xl font-bold group-hover:text-primary transition-colors duration-300" data-testid={`featured-area-${index}-name`}>
                           {area.name}
                         </CardTitle>
-                        <CardDescription className="font-medium" data-testid={`featured-area-${index}-title`}>
+                        <CardDescription className="font-semibold text-lg text-primary/80" data-testid={`featured-area-${index}-title`}>
                           {area.title}
                         </CardDescription>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="pt-6">
-                    <p className="text-gray-600 dark:text-gray-300 mb-4" data-testid={`featured-area-${index}-description`}>
+                  <CardContent className="p-8">
+                    <p className="text-gray-600 dark:text-gray-300 mb-6 text-lg leading-relaxed" data-testid={`featured-area-${index}-description`}>
                       {area.description}
                     </p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 gap-3">
                       {area.features.map((feature, featureIndex) => (
                         <div 
                           key={featureIndex}
-                          className="flex items-center space-x-2 text-sm"
+                          className="flex items-center space-x-3 p-3 bg-gradient-to-r from-primary/5 to-transparent rounded-lg hover:from-primary/10 transition-all duration-200"
                           data-testid={`featured-area-${index}-feature-${featureIndex}`}
                         >
-                          <Star className="w-3 h-3 text-primary" />
-                          <span>{feature}</span>
+                          <div className="p-1 bg-primary/20 rounded-full">
+                            <Star className="w-4 h-4 text-primary" />
+                          </div>
+                          <span className="font-medium">{feature}</span>
                         </div>
                       ))}
                     </div>
@@ -248,14 +271,17 @@ export default function Locations() {
         </section>
 
         {/* Extended Service Areas */}
-        <section className="py-16 bg-gray-50 dark:bg-gray-900">
+        <section className="py-20 bg-gradient-to-br from-gray-100/80 to-primary/5 dark:from-gray-900/80 dark:to-primary/10">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4" data-testid="extended-areas-title">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-full mb-6">
+                <Navigation className="w-6 h-6 text-primary" />
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-primary bg-clip-text text-transparent dark:from-white dark:to-primary" data-testid="extended-areas-title">
                 Extended Service Areas
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                Additional locations we proudly serve with premium transportation
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
+                Additional locations we proudly serve with premium transportation services and luxury experiences
               </p>
             </div>
 
@@ -291,30 +317,36 @@ export default function Locations() {
         </section>
 
         {/* Service Types */}
-        <section className="py-16">
+        <section className="py-20 bg-gradient-to-br from-white to-primary/5 dark:from-gray-950 dark:to-primary/10">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4" data-testid="service-types-title">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-full mb-6">
+                <Building2 className="w-6 h-6 text-primary" />
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-primary bg-clip-text text-transparent dark:from-white dark:to-primary" data-testid="service-types-title">
                 Transportation Services
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                Comprehensive luxury transportation services across all our locations
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
+                Comprehensive luxury transportation services across all our locations with premium amenities
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
               {serviceTypes.map((service, index) => (
-                <Card key={index} className="text-center hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-4">
-                    <div className="flex justify-center mb-3">
-                      <div className="p-3 bg-primary/10 rounded-full text-primary">
-                        {service.icon}
+                <Card key={index} className="group text-center hover:shadow-2xl transition-all duration-300 border-0 bg-white/95 backdrop-blur-sm hover:-translate-y-2">
+                  <CardHeader className="p-8">
+                    <div className="flex justify-center mb-6">
+                      <div className="relative p-4 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl text-primary group-hover:scale-110 transition-transform duration-300">
+                        <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-sm group-hover:blur-md transition-all duration-300"></div>
+                        <div className="relative z-10">
+                          {service.icon}
+                        </div>
                       </div>
                     </div>
-                    <CardTitle className="text-lg" data-testid={`service-type-${index}-title`}>
+                    <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors duration-300 mb-3" data-testid={`service-type-${index}-title`}>
                       {service.title}
                     </CardTitle>
-                    <CardDescription data-testid={`service-type-${index}-description`}>
+                    <CardDescription className="text-base leading-relaxed" data-testid={`service-type-${index}-description`}>
                       {service.description}
                     </CardDescription>
                   </CardHeader>
@@ -325,29 +357,38 @@ export default function Locations() {
         </section>
 
         {/* Contact for Service */}
-        <section className="py-16 bg-primary text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-4" data-testid="contact-service-title">
+        <section className="py-20 bg-gradient-to-br from-primary via-primary/90 to-secondary text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/20"></div>
+          <div className="absolute top-0 left-0 w-full h-full">
+            <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
+            <div className="absolute bottom-10 right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+            <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-white/8 rounded-full blur-lg"></div>
+          </div>
+          <div className="relative container mx-auto px-4 text-center">
+            <div className="inline-flex items-center justify-center p-3 bg-white/10 backdrop-blur-sm rounded-full mb-8">
+              <Calendar className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent" data-testid="contact-service-title">
               Ready to Book Your Ride?
             </h2>
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto" data-testid="contact-service-description">
+            <p className="text-2xl text-white/90 mb-12 max-w-4xl mx-auto leading-relaxed font-light" data-testid="contact-service-description">
               Contact us to book luxury transportation to any of our service locations. Available 24/7 for your convenience.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center max-w-2xl mx-auto">
               <Button 
                 onClick={() => setLocation('/booking')}
-                className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                className="group bg-white text-primary px-10 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1"
                 data-testid="contact-booking-button"
               >
-                <Calendar className="w-5 h-5 mr-2" />
+                <Calendar className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
                 Book Now
               </Button>
               <a 
                 href="mailto:usaluxurylimo@gmail.com"
-                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition-colors inline-flex items-center justify-center"
+                className="group border-2 border-white/50 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-primary transition-all duration-300 inline-flex items-center justify-center backdrop-blur-sm hover:border-white hover:shadow-xl hover:-translate-y-1"
                 data-testid="contact-email-button"
               >
-                <Mail className="w-5 h-5 mr-2" />
+                <Mail className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
                 Email Us
               </a>
             </div>
