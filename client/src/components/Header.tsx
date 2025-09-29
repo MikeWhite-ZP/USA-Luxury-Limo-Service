@@ -10,8 +10,8 @@ export default function Header() {
   const [location, setLocation] = useLocation();
 
   const handleNavClick = (href: string) => {
-    // If we're on the booking page, navigate to home first then scroll
-    if (location === '/booking') {
+    // If we're not on the home page (root "/"), navigate to home first then scroll
+    if (location !== '/') {
       setLocation('/');
       // Use setTimeout to wait for navigation to complete before scrolling
       setTimeout(() => {
