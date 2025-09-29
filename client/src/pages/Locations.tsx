@@ -50,6 +50,12 @@ export default function Locations() {
       description: "Explore Cypress with our luxury SUVs and black cars. Your comfort and safety are our top priorities on every ride.",
       icon: <MapPin className="w-8 h-8" />,
       highlights: ["Northwest Harris County", "Willowbrook", "Fairfield", "Bridgeland"]
+    },
+    {
+      name: "Tomball, TX",
+      description: "Small-town charm meets luxury transportation. Known for its historic charm, family-friendly events, and warm sense of community.",
+      icon: <Clock className="w-8 h-8" />,
+      highlights: ["Historic Downtown", "Tomball Depot", "Spring Creek", "Klein Area"]
     }
   ];
 
@@ -75,20 +81,13 @@ export default function Locations() {
       features: ["Pearland Town Center", "South Houston", "Alvin Area", "Friendswood Border"],
       image: "🌳"
     },
-    {
-      name: "College Station, TX",
-      title: "A Hub of Education and Culture",
-      description: "College Station, TX, is a vibrant city known for being the proud home of Texas A&M University. With a blend of rich history, cultural activities, and modern attractions, it's a top destination for both visitors and residents.",
-      features: ["Texas A&M University", "George Bush Library", "Research Valley", "Historic Downtown"],
-      image: "🎓"
-    }
   ];
 
   const extendedAreas = [
     {
-      name: "Tomball, TX",
-      description: "Small-town charm meets luxury transportation. Known for its historic charm, family-friendly events, and warm sense of community.",
-      services: ["Wedding Transportation", "Airport Transfers", "Corporate Events"]
+      name: "College Station, TX",
+      description: "A Hub of Education and Culture. Home of Texas A&M University with a blend of rich history, cultural activities, and modern attractions.",
+      services: ["University Events", "Academic Transportation", "Research Facility Access"]
     },
     {
       name: "Port Arthur, TX", 
