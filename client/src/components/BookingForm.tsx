@@ -662,10 +662,10 @@ export default function BookingForm() {
           <Button
             onClick={handleGetQuote}
             disabled={quoteMutation.isPending}
-            className="w-full p-4 text-lg font-semibold bg-primary hover:bg-primary/90 text-white rounded-lg transition-all hover:transform hover:-translate-y-1 hover:shadow-lg"
+            className="w-full py-6 px-8 text-xl font-bold bg-primary hover:bg-primary/90 text-white rounded-xl transition-all hover:transform hover:-translate-y-2 hover:shadow-2xl border-2 border-primary shadow-lg mt-8"
             data-testid="button-get-quote"
           >
-            {quoteMutation.isPending ? 'Calculating...' : 'Get a Quote'}
+            {quoteMutation.isPending ? 'Calculating Quote...' : 'Get a Quote'}
           </Button>
         </div>
       )}
@@ -760,10 +760,10 @@ export default function BookingForm() {
           <Button
             onClick={handleGetQuote}
             disabled={quoteMutation.isPending}
-            className="w-full p-4 text-lg font-semibold bg-primary hover:bg-primary/90 text-white rounded-lg transition-all hover:transform hover:-translate-y-1 hover:shadow-lg"
+            className="w-full py-6 px-8 text-xl font-bold bg-primary hover:bg-primary/90 text-white rounded-xl transition-all hover:transform hover:-translate-y-2 hover:shadow-2xl border-2 border-primary shadow-lg mt-8"
             data-testid="button-get-quote"
           >
-            {quoteMutation.isPending ? 'Calculating...' : 'Get a Quote'}
+            {quoteMutation.isPending ? 'Calculating Quote...' : 'Get a Quote'}
           </Button>
         </div>
       )}
