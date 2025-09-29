@@ -79,13 +79,13 @@ export default function ContactSection() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Contact Information */}
+        <div className="space-y-12">
+          {/* Contact Information - On Top */}
           <div>
-            <h3 className="text-2xl font-semibold text-foreground mb-6" data-testid="contact-info-title">
+            <h3 className="text-2xl font-semibold text-foreground mb-8 text-center" data-testid="contact-info-title">
               Contact Information
             </h3>
-            <div className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <div className="flex items-start space-x-4" data-testid="contact-phone">
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Phone className="w-6 h-6 text-primary" />
@@ -107,12 +107,11 @@ export default function ContactSection() {
                   <p className="text-sm text-muted-foreground">We'll respond within 12 hours</p>
                 </div>
               </div>
-
             </div>
           </div>
 
-          {/* Contact Form */}
-          <div className="bg-card rounded-xl p-8 shadow-lg border border-border">
+          {/* Contact Form - Below */}
+          <div className="bg-card rounded-xl p-8 shadow-lg border border-border max-w-4xl mx-auto">
             <h3 className="text-2xl font-semibold text-card-foreground mb-6" data-testid="contact-form-title">
               Send us a Message
             </h3>
