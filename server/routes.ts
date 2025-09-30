@@ -12,10 +12,21 @@ if (!process.env.STRIPE_SECRET_KEY) {
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // TomTom API integration functions with standardized key retrieval
+// Priority: Database settings first, then environment variables as fallback
 async function getTomTomApiKey(storage: any): Promise<string | null> {
   try {
-    const tomtomKey = process.env.TOMTOM_API_KEY || await storage.getSystemSetting('TOMTOM_API_KEY');
-    return typeof tomtomKey === 'string' ? tomtomKey : tomtomKey?.value || null;
+    // Check database first (admin-configured settings)
+    const dbSetting = await storage.getSystemSetting('TOMTOM_API_KEY');
+    if (dbSetting?.value) {
+      return dbSetting.value;
+    }
+    
+    // Fall back to environment variable
+    if (process.env.TOMTOM_API_KEY) {
+      return process.env.TOMTOM_API_KEY;
+    }
+    
+    return null;
   } catch (error) {
     console.error('Failed to retrieve TomTom API key:', error);
     return null;
@@ -114,12 +125,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const tomtomKey = process.env.TOMTOM_API_KEY || await storage.getSystemSetting('TOMTOM_API_KEY');
-      if (!tomtomKey) {
+      const apiKey = await getTomTomApiKey(storage);
+      if (!apiKey) {
         return res.status(500).json({ error: 'TomTom API key not configured' });
       }
 
-      const apiKey = typeof tomtomKey === 'string' ? tomtomKey : tomtomKey.value;
       const url = `https://api.tomtom.com/search/2/search/${encodeURIComponent(q)}.json?key=${apiKey}&limit=${limit}&countrySet=US&typeahead=true`;
 
       const response = await fetch(url);
@@ -161,12 +171,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const tomtomKey = process.env.TOMTOM_API_KEY || await storage.getSystemSetting('TOMTOM_API_KEY');
-      if (!tomtomKey) {
+      const apiKey = await getTomTomApiKey(storage);
+      if (!apiKey) {
         return res.status(500).json({ error: 'TomTom API key not configured' });
       }
-
-      const apiKey = typeof tomtomKey === 'string' ? tomtomKey : tomtomKey.value;
       
       // Calculate route using TomTom Routing API with consistent parameters
       const routeUrl = `https://api.tomtom.com/routing/1/calculateRoute/${origins}:${destinations}/json?key=${apiKey}&routeType=fastest&traffic=true`;
@@ -449,19 +457,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Admin access required' });
       }
 
-      // Fetch all required settings
+      // Fetch all required settings from database
       const stripeSecret = await storage.getSystemSetting('STRIPE_SECRET_KEY');
       const stripePublic = await storage.getSystemSetting('STRIPE_PUBLIC_KEY');
       const tomtomKey = await storage.getSystemSetting('TOMTOM_API_KEY');
 
+      // Check for environment variable fallbacks
+      const hasStripeSecretEnv = !!process.env.STRIPE_SECRET_KEY;
+      const hasStripePublicEnv = !!process.env.STRIPE_PUBLIC_KEY;
+      const hasTomtomKeyEnv = !!process.env.TOMTOM_API_KEY;
+
       // Return settings with masked values for security
+      // Use masked value for database-stored keys, empty string for env-only keys
       res.json({
         STRIPE_SECRET_KEY: stripeSecret?.value ? '••••••••' : '',
         STRIPE_PUBLIC_KEY: stripePublic?.value ? '••••••••' : '',
         TOMTOM_API_KEY: tomtomKey?.value ? '••••••••' : '',
-        hasStripeSecret: !!stripeSecret?.value,
-        hasStripePublic: !!stripePublic?.value,
-        hasTomtomKey: !!tomtomKey?.value,
+        hasStripeSecret: !!stripeSecret?.value || hasStripeSecretEnv,
+        hasStripePublic: !!stripePublic?.value || hasStripePublicEnv,
+        hasTomtomKey: !!tomtomKey?.value || hasTomtomKeyEnv,
+        usesEnvStripeSecret: !stripeSecret?.value && hasStripeSecretEnv,
+        usesEnvStripePublic: !stripePublic?.value && hasStripePublicEnv,
+        usesEnvTomtom: !tomtomKey?.value && hasTomtomKeyEnv,
       });
     } catch (error) {
       console.error('Get settings error:', error);

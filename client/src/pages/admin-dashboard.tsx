@@ -66,6 +66,9 @@ export default function AdminDashboard() {
     hasStripeSecret: boolean;
     hasStripePublic: boolean;
     hasTomtomKey: boolean;
+    usesEnvStripeSecret?: boolean;
+    usesEnvStripePublic?: boolean;
+    usesEnvTomtom?: boolean;
   }>({
     queryKey: ['/api/admin/settings'],
     retry: false,
@@ -344,7 +347,14 @@ export default function AdminDashboard() {
                     />
                     {existingSettings?.hasTomtomKey && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        ✓ API key is configured. Enter a new key to update.
+                        ✓ API key is configured {existingSettings?.usesEnvTomtom 
+                          ? '(from environment variable - enter new key to override)' 
+                          : '(from database - enter new key to update)'}.
+                      </p>
+                    )}
+                    {!existingSettings?.hasTomtomKey && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        No TomTom API key configured
                       </p>
                     )}
                   </div>
