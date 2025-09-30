@@ -90,6 +90,27 @@ export const vehicleTypes = pgTable("vehicle_types", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Pricing rules (admin-configurable)
+export const vehicleTypeEnum = ["business_sedan", "business_suv", "first_class_sedan", "first_class_suv", "business_van"] as const;
+export const serviceTypeEnum = ["transfer", "hourly"] as const;
+
+export const pricingRules = pgTable("pricing_rules", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  vehicleType: varchar("vehicle_type", { enum: vehicleTypeEnum }).notNull(),
+  serviceType: varchar("service_type", { enum: serviceTypeEnum }).notNull(),
+  // Transfer pricing
+  baseRate: decimal("base_rate", { precision: 10, scale: 2 }),
+  perMileRate: decimal("per_mile_rate", { precision: 10, scale: 2 }),
+  // Hourly pricing  
+  hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }),
+  minimumHours: integer("minimum_hours"),
+  // Common
+  minimumFare: decimal("minimum_fare", { precision: 10, scale: 2 }),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Individual vehicles
 export const vehicles = pgTable("vehicles", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -235,6 +256,12 @@ export const insertSavedAddressSchema = createInsertSchema(savedAddresses).omit(
   createdAt: true,
 });
 
+export const insertPricingRuleSchema = createInsertSchema(pricingRules).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -246,9 +273,11 @@ export type SavedAddress = typeof savedAddresses.$inferSelect;
 export type SystemSetting = typeof systemSettings.$inferSelect;
 export type Invoice = typeof invoices.$inferSelect;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+export type PricingRule = typeof pricingRules.$inferSelect;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertDriver = z.infer<typeof insertDriverSchema>;
 export type InsertBooking = z.infer<typeof insertBookingSchema>;
 export type InsertContact = z.infer<typeof insertContactSchema>;
 export type InsertSavedAddress = z.infer<typeof insertSavedAddressSchema>;
+export type InsertPricingRule = z.infer<typeof insertPricingRuleSchema>;
