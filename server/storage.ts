@@ -8,6 +8,7 @@ import {
   systemSettings,
   invoices,
   contactSubmissions,
+  pricingRules,
   type User,
   type UpsertUser,
   type Driver,
@@ -18,10 +19,12 @@ import {
   type SystemSetting,
   type Invoice,
   type ContactSubmission,
+  type PricingRule,
   type InsertDriver,
   type InsertBooking,
   type InsertContact,
   type InsertSavedAddress,
+  type InsertPricingRule,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -86,6 +89,14 @@ export interface IStorage {
   // Stripe customer management
   updateStripeCustomerId(userId: string, customerId: string): Promise<User>;
   updateUserStripeInfo(userId: string, stripeInfo: { customerId: string; subscriptionId: string }): Promise<User>;
+  
+  // Pricing rules (admin-configurable)
+  getPricingRules(): Promise<PricingRule[]>;
+  getPricingRule(id: string): Promise<PricingRule | undefined>;
+  getPricingRuleByType(vehicleType: string, serviceType: string): Promise<PricingRule | undefined>;
+  createPricingRule(rule: InsertPricingRule): Promise<PricingRule>;
+  updatePricingRule(id: string, rule: Partial<InsertPricingRule>): Promise<PricingRule>;
+  deletePricingRule(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -383,6 +394,48 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId))
       .returning();
     return user;
+  }
+
+  // Pricing rules methods
+  async getPricingRules(): Promise<PricingRule[]> {
+    return await db.select().from(pricingRules).orderBy(pricingRules.vehicleType, pricingRules.serviceType);
+  }
+
+  async getPricingRule(id: string): Promise<PricingRule | undefined> {
+    const [rule] = await db.select().from(pricingRules).where(eq(pricingRules.id, id));
+    return rule;
+  }
+
+  async getPricingRuleByType(vehicleType: string, serviceType: string): Promise<PricingRule | undefined> {
+    const [rule] = await db
+      .select()
+      .from(pricingRules)
+      .where(
+        and(
+          sql`${pricingRules.vehicleType} = ${vehicleType}`,
+          sql`${pricingRules.serviceType} = ${serviceType}`,
+          eq(pricingRules.isActive, true)
+        )
+      );
+    return rule;
+  }
+
+  async createPricingRule(rule: InsertPricingRule): Promise<PricingRule> {
+    const [newRule] = await db.insert(pricingRules).values(rule).returning();
+    return newRule;
+  }
+
+  async updatePricingRule(id: string, rule: Partial<InsertPricingRule>): Promise<PricingRule> {
+    const [updatedRule] = await db
+      .update(pricingRules)
+      .set({ ...rule, updatedAt: new Date() })
+      .where(eq(pricingRules.id, id))
+      .returning();
+    return updatedRule;
+  }
+
+  async deletePricingRule(id: string): Promise<void> {
+    await db.delete(pricingRules).where(eq(pricingRules.id, id));
   }
 }
 
