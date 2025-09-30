@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign } from "lucide-react";
+import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 
 interface DashboardStats {
   totalRevenue: string;
@@ -238,6 +239,31 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Pricing Management Quick Link */}
+        <Card data-testid="pricing-management-link">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <DollarSign className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Pricing Management</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Configure pricing rules for all vehicle types and service options
+                  </p>
+                </div>
+              </div>
+              <Link href="/admin-pricing">
+                <Button data-testid="button-manage-pricing">
+                  Manage Pricing
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* System Configuration */}
         <Card data-testid="system-config">

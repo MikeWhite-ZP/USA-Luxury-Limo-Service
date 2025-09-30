@@ -20,6 +20,7 @@ import Hotels from "@/pages/Hotels";
 import { RoleLogin } from "@/pages/RoleLogin";
 import { AdminLogin } from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/admin-dashboard";
+import AdminPricing from "@/pages/admin-pricing";
 import DriverDashboard from "@/pages/driver-dashboard";
 import DispatcherDashboard from "@/pages/DispatcherDashboard";
 import PassengerDashboard from "@/pages/passenger-dashboard";
@@ -63,7 +64,11 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/checkout" component={Checkout} />
           {user?.role === 'admin' && (
-            <Route path="/admin" component={AdminDashboard} />
+            <>
+              <Route path="/admin-dashboard" component={AdminDashboard} />
+              <Route path="/admin-pricing" component={AdminPricing} />
+              <Route path="/admin" component={AdminDashboard} />
+            </>
           )}
           {user?.role === 'driver' && (
             <Route path="/driver" component={DriverDashboard} />
