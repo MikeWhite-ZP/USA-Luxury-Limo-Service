@@ -299,3 +299,11 @@ export function setupAuth(app: Express) {
     res.json(req.user);
   });
 }
+
+// Middleware to check if user is authenticated
+export function isAuthenticated(req: any, res: any, next: any) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ message: "Not authenticated" });
+}
