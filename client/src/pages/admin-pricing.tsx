@@ -484,13 +484,13 @@ export default function AdminPricing() {
                     Add Pricing Rule
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-[#e2e3e8] text-[12px]" data-testid="dialog-pricing-form">
-                  <DialogHeader>
+                <DialogContent className="max-w-4xl max-h-[90vh] bg-[#e2e3e8] text-[12px] flex flex-col" data-testid="dialog-pricing-form">
+                  <DialogHeader className="flex-shrink-0">
                     <DialogTitle data-testid="dialog-title">
                       {editingRule ? "Edit Pricing Rule" : "Create New Pricing Rule"}
                     </DialogTitle>
                   </DialogHeader>
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto flex-1 pr-2">
                     {/* Basic Configuration */}
                     <div className="space-y-4">
                       <h3 className="font-semibold text-lg">Basic Configuration</h3>
@@ -504,7 +504,7 @@ export default function AdminPricing() {
                             <SelectTrigger data-testid="select-vehicle-type">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-[#333333]">
                               {vehicleTypes.map((type) => (
                                 <SelectItem key={type.value} value={type.value}>
                                   {type.label}
@@ -523,7 +523,7 @@ export default function AdminPricing() {
                             <SelectTrigger data-testid="select-service-type">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-[#333333]">
                               {serviceTypes.map((type) => (
                                 <SelectItem key={type.value} value={type.value}>
                                   {type.label}
@@ -688,7 +688,7 @@ export default function AdminPricing() {
                                   <SelectTrigger data-testid={`select-day-${index}`}>
                                     <SelectValue />
                                   </SelectTrigger>
-                                  <SelectContent>
+                                  <SelectContent className="bg-[#333333]">
                                     {daysOfWeek.map((day) => (
                                       <SelectItem key={day.value} value={day.value.toString()}>
                                         {day.label}
@@ -890,7 +890,7 @@ export default function AdminPricing() {
                       </div>
                     </div>
 
-                    <div className="flex justify-end space-x-2">
+                    <div className="flex justify-end space-x-2 pt-4 mt-4 border-t border-gray-300 sticky bottom-0 bg-[#e2e3e8]">
                       <Button
                         type="button"
                         variant="outline"
