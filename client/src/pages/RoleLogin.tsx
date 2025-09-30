@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useAuth, type LoginData, type RegisterData } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { UserCircle, Car, Users, User } from "lucide-react";
+import { UserCircle, Car, Users, User, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const roles = [
@@ -362,6 +362,24 @@ export function RoleLogin() {
                 </Card>
               </div>
             )}
+
+            {/* Admin Dashboard Link */}
+            <div className="mt-16 text-center">
+              <Link href="/admin">
+                <div 
+                  className="inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
+                  data-testid="link-admin-dashboard"
+                >
+                  <div className="flex items-center justify-center w-12 h-12 bg-white/10 rounded-lg">
+                    <Shield className="w-7 h-7" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-semibold">Admin Access</div>
+                    <div className="text-xs text-gray-300">Dashboard Login</div>
+                  </div>
+                </div>
+              </Link>
+            </div>
           </div>
         </div>
       </main>
