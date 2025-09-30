@@ -28,9 +28,13 @@ import { eq, and, desc, like, sql } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 export interface IStorage {
-  // User operations (required for Replit Auth)
+  // User operations
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByOAuth(provider: string, oauthId: string): Promise<User | undefined>;
+  createUser(userData: Partial<User>): Promise<User>;
   
   // Driver operations
   createDriver(driver: InsertDriver): Promise<Driver>;
@@ -101,6 +105,35 @@ export class DatabaseStorage implements IStorage {
           updatedAt: new Date(),
         },
       })
+      .returning();
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async getUserByOAuth(provider: string, oauthId: string): Promise<User | undefined> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(and(
+        eq(users.oauthProvider, provider as "local" | "google" | "apple"), 
+        eq(users.oauthId, oauthId)
+      ));
+    return user;
+  }
+
+  async createUser(userData: Partial<User>): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData as any)
       .returning();
     return user;
   }
