@@ -704,7 +704,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 
-  // n8n-style pricing calculation endpoint (mimics the Houston workflow)
+  // n8n-style pricing calculation endpoint (uses admin-configured pricing rules)
   app.post('/api/booking/pricing', async (req, res) => {
     try {
       const bookingData = req.body;
@@ -713,29 +713,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Missing service_type' });
       }
 
-      // Get vehicle types from database  
+      // Get vehicle types for metadata (passengers, luggage, names)
       const vehicleTypes = await storage.getVehicleTypes();
       
+      // Get all active pricing rules
+      const pricingRules = await storage.getPricingRules();
+      const activePricingRules = pricingRules.filter(rule => rule.isActive);
+      
       if (bookingData.service_type === 'hourly') {
-        // Hourly pricing calculation
+        // Hourly pricing calculation using pricing_rules
         const requestedDuration = parseInt(bookingData.duration) || 2;
         
         const vehicles = vehicleTypes.map(vehicle => {
-          const actualDuration = Math.max(requestedDuration, 2); // Minimum 2 hours
-          const totalPrice = actualDuration * parseFloat(vehicle.hourlyRate);
+          // Map vehicle name to enum type
+          const vehicleTypeEnum = vehicle.name.toLowerCase().replace(/[\s-]/g, '_');
+          
+          // Find matching pricing rule
+          const pricingRule = activePricingRules.find(
+            rule => rule.vehicleType === vehicleTypeEnum && rule.serviceType === 'hourly'
+          );
+          
+          if (!pricingRule || !pricingRule.hourlyRate || !pricingRule.minimumHours) {
+            console.warn(`No pricing rule found for ${vehicleTypeEnum} hourly service`);
+            return null;
+          }
+          
+          const actualDuration = Math.max(requestedDuration, pricingRule.minimumHours);
+          const hourlyRate = parseFloat(pricingRule.hourlyRate);
+          let totalPrice = actualDuration * hourlyRate;
+          
+          // Apply minimum fare if set
+          if (pricingRule.minimumFare) {
+            totalPrice = Math.max(totalPrice, parseFloat(pricingRule.minimumFare));
+          }
           
           return {
-            type: vehicle.name.toLowerCase().replace(/[\s-]/g, '_'),
+            type: vehicleTypeEnum,
             name: vehicle.name,
             price: '$' + totalPrice.toFixed(2),
-            hourly_rate: parseFloat(vehicle.hourlyRate),
+            hourly_rate: hourlyRate,
             passengers: vehicle.passengerCapacity,
             luggage: vehicle.luggageCapacity,
             category: 'Hourly service',
             duration: actualDuration,
-            minimum_hours: 2
+            minimum_hours: pricingRule.minimumHours
           };
-        });
+        }).filter(v => v !== null);
+
+        if (vehicles.length === 0) {
+          return res.status(500).json({ error: 'No pricing rules configured for hourly service' });
+        }
 
         return res.json({
           success: true,
@@ -750,7 +777,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         });
       } else if (bookingData.service_type === 'transfer') {
-        // Transfer pricing with distance calculation
+        // Transfer pricing with distance calculation using pricing_rules
         if (!bookingData.from || !bookingData.to) {
           return res.status(400).json({ error: 'Missing from and/or to addresses for transfer' });
         }
@@ -778,21 +805,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         const vehicles = vehicleTypes.map(vehicle => {
-          const mileageCharge = estimatedDistance * parseFloat(vehicle.perMileRate || '0');
-          const totalPrice = Math.max(mileageCharge, parseFloat(vehicle.minimumFare || '0'));
+          // Map vehicle name to enum type
+          const vehicleTypeEnum = vehicle.name.toLowerCase().replace(/[\s-]/g, '_');
+          
+          // Find matching pricing rule
+          const pricingRule = activePricingRules.find(
+            rule => rule.vehicleType === vehicleTypeEnum && rule.serviceType === 'transfer'
+          );
+          
+          if (!pricingRule || !pricingRule.baseRate || !pricingRule.perMileRate) {
+            console.warn(`No pricing rule found for ${vehicleTypeEnum} transfer service`);
+            return null;
+          }
+          
+          const baseRate = parseFloat(pricingRule.baseRate);
+          const perMileRate = parseFloat(pricingRule.perMileRate);
+          const distanceCharge = estimatedDistance * perMileRate;
+          let totalPrice = baseRate + distanceCharge;
+          
+          // Apply minimum fare if set
+          if (pricingRule.minimumFare) {
+            totalPrice = Math.max(totalPrice, parseFloat(pricingRule.minimumFare));
+          }
           
           return {
-            type: vehicle.name.toLowerCase().replace(/[\s-]/g, '_'),
+            type: vehicleTypeEnum,
             name: vehicle.name,
             price: '$' + totalPrice.toFixed(2),
-            per_mile_rate: parseFloat(vehicle.perMileRate || '0'),
+            base_rate: baseRate,
+            per_mile_rate: perMileRate,
             passengers: vehicle.passengerCapacity,
             luggage: vehicle.luggageCapacity,
             category: 'Transfer',
             distance: estimatedDistance,
-            minimum_fare: parseFloat(vehicle.minimumFare || '0')
+            minimum_fare: pricingRule.minimumFare ? parseFloat(pricingRule.minimumFare) : 0
           };
-        });
+        }).filter(v => v !== null);
+
+        if (vehicles.length === 0) {
+          return res.status(500).json({ error: 'No pricing rules configured for transfer service' });
+        }
 
         return res.json({
           success: true,
