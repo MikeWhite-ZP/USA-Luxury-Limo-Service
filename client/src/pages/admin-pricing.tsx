@@ -543,34 +543,150 @@ export default function AdminPricing() {
                       </TabsList>
                       
                       <TabsContent value="transfer" className="space-y-6">
-                        {/* Base Transfer Pricing */}
+                        {/* Pricing Method Tabs */}
                         <div className="space-y-4">
-                          <h3 className="font-semibold">Base Transfer Pricing</h3>
+                          <Tabs defaultValue="distance-breakdown" className="w-full">
+                            <TabsList className="grid w-full grid-cols-2">
+                              <TabsTrigger value="distance-breakdown">Distance Breakdown/Fix Rate</TabsTrigger>
+                              <TabsTrigger value="per-mile">Per Mile Rate</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="distance-breakdown" className="space-y-4 mt-4">
+                              {/* Fix/Base Rate and Minimum Rate */}
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <Label htmlFor="baseRate">Fix/Base Rate ($)</Label>
+                                  <Input
+                                    id="baseRate"
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="113.49"
+                                    value={formData.baseRate}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, baseRate: e.target.value }))}
+                                    data-testid="input-base-rate"
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor="minimumFareInline">Minimum Rate ($)</Label>
+                                  <Input
+                                    id="minimumFareInline"
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="113.49"
+                                    value={formData.minimumFare}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, minimumFare: e.target.value }))}
+                                    data-testid="input-minimum-rate"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Distance Tiers */}
+                              <div className="space-y-2">
+                                <div className="flex justify-between items-center">
+                                  <div className="text-sm font-medium">Progressive Distance Pricing</div>
+                                  <div className="flex gap-2">
+                                    <Button type="button" size="sm" onClick={addDistanceTier} data-testid="button-add-tier">
+                                      <Plus className="w-4 h-4 mr-1" />
+                                      Add Tier
+                                    </Button>
+                                    {(!formData.distanceTiers.some(t => t.isRemaining)) && (
+                                      <Button type="button" size="sm" variant="outline" onClick={addRemainingTier} data-testid="button-add-remaining">
+                                        <Plus className="w-4 h-4 mr-1" />
+                                        Add Remaining
+                                      </Button>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                {formData.distanceTiers.map((tier, index) => (
+                                  <div key={index} className="flex items-center gap-2 bg-[#f5f5dc] p-2 rounded">
+                                    <div className="w-24 text-sm font-medium">{getTierLabel(index)}</div>
+                                    {!tier.isRemaining && (
+                                      <>
+                                        <Input
+                                          type="number"
+                                          step="0.01"
+                                          placeholder="20"
+                                          className="w-32"
+                                          value={tier.miles}
+                                          onChange={(e) => updateDistanceTier(index, 'miles', parseFloat(e.target.value) || 0)}
+                                          data-testid={`input-tier-miles-${index}`}
+                                        />
+                                        <span className="text-sm">mile</span>
+                                      </>
+                                    )}
+                                    <span className="text-sm">@</span>
+                                    <span className="text-sm font-bold bg-black text-white px-2 py-1 rounded">$</span>
+                                    <Input
+                                      type="number"
+                                      step="0.01"
+                                      placeholder="0"
+                                      className="w-32"
+                                      value={tier.ratePerMile}
+                                      onChange={(e) => updateDistanceTier(index, 'ratePerMile', parseFloat(e.target.value) || 0)}
+                                      data-testid={`input-tier-rate-${index}`}
+                                    />
+                                    <Button type="button" variant="destructive" size="sm" onClick={() => removeDistanceTier(index)}>
+                                      <X className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                ))}
+                                
+                                {formData.distanceTiers.length === 0 && (
+                                  <div className="text-sm text-muted-foreground italic p-2">
+                                    No tiers defined. Click "Add Tier" to create progressive pricing tiers.
+                                  </div>
+                                )}
+                              </div>
+                            </TabsContent>
+
+                            <TabsContent value="per-mile" className="space-y-4 mt-4">
+                              <div className="grid grid-cols-3 gap-4">
+                                <div>
+                                  <Label htmlFor="baseRateSimple">Base Rate ($)</Label>
+                                  <Input
+                                    id="baseRateSimple"
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="50.00"
+                                    value={formData.baseRate}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, baseRate: e.target.value }))}
+                                    data-testid="input-base-rate-simple"
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor="perMileRate">Per Mile Rate ($)</Label>
+                                  <Input
+                                    id="perMileRate"
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="2.50"
+                                    value={formData.perMileRate}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, perMileRate: e.target.value }))}
+                                    data-testid="input-per-mile-rate"
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor="minimumFareSimple">Minimum Fare ($)</Label>
+                                  <Input
+                                    id="minimumFareSimple"
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Optional"
+                                    value={formData.minimumFare}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, minimumFare: e.target.value }))}
+                                    data-testid="input-minimum-fare-simple"
+                                  />
+                                </div>
+                              </div>
+                            </TabsContent>
+                          </Tabs>
+                        </div>
+
+                        {/* Gratuity */}
+                        <div className="space-y-4">
+                          <h3 className="font-semibold">Gratuity</h3>
                           <div className="grid grid-cols-3 gap-4">
-                            <div>
-                              <Label htmlFor="baseRate">Base Rate * ($)</Label>
-                              <Input
-                                id="baseRate"
-                                type="number"
-                                step="0.01"
-                                placeholder="50.00"
-                                value={formData.baseRate}
-                                onChange={(e) => setFormData(prev => ({ ...prev, baseRate: e.target.value }))}
-                                data-testid="input-base-rate"
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="perMileRate">Per Mile Rate * ($)</Label>
-                              <Input
-                                id="perMileRate"
-                                type="number"
-                                step="0.01"
-                                placeholder="2.50"
-                                value={formData.perMileRate}
-                                onChange={(e) => setFormData(prev => ({ ...prev, perMileRate: e.target.value }))}
-                                data-testid="input-per-mile-rate"
-                              />
-                            </div>
                             <div>
                               <Label htmlFor="gratuityPercent">Gratuity (%)</Label>
                               <Input
@@ -733,66 +849,6 @@ export default function AdminPricing() {
                           ))}
                         </div>
 
-                        {/* Distance Tiers - Tiered Pricing */}
-                        <div className="space-y-4 border-t pt-6 mt-6">
-                          <div className="flex justify-between items-center">
-                            <h3 className="font-semibold text-lg text-primary">Distance Breakdown (Tiered Pricing)</h3>
-                            <div className="flex gap-2">
-                              <Button type="button" size="sm" onClick={addDistanceTier} data-testid="button-add-tier">
-                                <Plus className="w-4 h-4 mr-1" />
-                                Add Tier
-                              </Button>
-                              {(!formData.distanceTiers.some(t => t.isRemaining)) && (
-                                <Button type="button" size="sm" variant="outline" onClick={addRemainingTier} data-testid="button-add-remaining">
-                                  <Plus className="w-4 h-4 mr-1" />
-                                  Add Remaining
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            Define progressive pricing tiers (e.g., First 20 miles @ $0, Next 24.45 miles @ $4.45)
-                          </div>
-                          {formData.distanceTiers.map((tier, index) => (
-                            <div key={index} className="flex items-center gap-2">
-                              <div className="w-24 text-sm font-medium">{getTierLabel(index)}</div>
-                              {!tier.isRemaining && (
-                                <>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="Miles"
-                                    className="w-32"
-                                    value={tier.miles}
-                                    onChange={(e) => updateDistanceTier(index, 'miles', parseFloat(e.target.value) || 0)}
-                                    data-testid={`input-tier-miles-${index}`}
-                                  />
-                                  <span className="text-sm">mile{tier.miles !== 1 ? 's' : ''}</span>
-                                </>
-                              )}
-                              <span className="text-sm">@</span>
-                              <span className="text-sm font-bold">$</span>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                placeholder="Rate"
-                                className="w-32"
-                                value={tier.ratePerMile}
-                                onChange={(e) => updateDistanceTier(index, 'ratePerMile', parseFloat(e.target.value) || 0)}
-                                data-testid={`input-tier-rate-${index}`}
-                              />
-                              <span className="text-sm">per mile</span>
-                              <Button type="button" variant="destructive" size="sm" onClick={() => removeDistanceTier(index)}>
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          ))}
-                          {formData.distanceTiers.length === 0 && (
-                            <div className="text-sm text-muted-foreground italic">
-                              No tiers defined. Click "Add Tier" to create tiered pricing or use base rate + per mile rate for simple pricing.
-                            </div>
-                          )}
-                        </div>
                       </TabsContent>
                       
                       <TabsContent value="hourly" className="space-y-6">
@@ -842,20 +898,8 @@ export default function AdminPricing() {
 
                     {/* Common Fields */}
                     <div className="space-y-4">
-                      <h3 className="font-semibold text-lg">Common Settings</h3>
-                      <div className="grid grid-cols-3 gap-4">
-                        <div>
-                          <Label htmlFor="minimumFare">Minimum Fare ($)</Label>
-                          <Input
-                            id="minimumFare"
-                            type="number"
-                            step="0.01"
-                            placeholder="Optional minimum fare"
-                            value={formData.minimumFare}
-                            onChange={(e) => setFormData(prev => ({ ...prev, minimumFare: e.target.value }))}
-                            data-testid="input-minimum-fare"
-                          />
-                        </div>
+                      <h3 className="font-semibold text-lg">Schedule & Status</h3>
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="effectiveStart">Effective From</Label>
                           <Input
