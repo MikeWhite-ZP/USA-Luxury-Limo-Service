@@ -274,6 +274,7 @@ export default function PassengerDashboard() {
   const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearchingAddress, setIsSearchingAddress] = useState(false);
+  const [showAllBookings, setShowAllBookings] = useState(false);
 
   // Check for payment success in URL
   useEffect(() => {
@@ -719,7 +720,7 @@ export default function PassengerDashboard() {
               
               <Button
                 variant="outline"
-                onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => window.location.href = '/#contact'}
                 className="h-16 flex flex-col space-y-1"
                 data-testid="button-contact-support"
               >
@@ -729,12 +730,7 @@ export default function PassengerDashboard() {
               
               <Button
                 variant="outline"
-                onClick={() => {
-                  toast({
-                    title: "Ride History",
-                    description: "Full ride history view coming soon!",
-                  });
-                }}
+                onClick={() => setShowAllBookings(true)}
                 className="h-16 flex flex-col space-y-1"
                 data-testid="button-view-history"
               >
@@ -745,6 +741,61 @@ export default function PassengerDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Full Booking History Dialog */}
+      <Dialog open={showAllBookings} onOpenChange={setShowAllBookings}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Complete Ride History</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {bookingsLoading ? (
+              <div className="flex items-center justify-center p-8">
+                <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+              </div>
+            ) : bookings && bookings.length > 0 ? (
+              <div className="space-y-3">
+                {bookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="bg-muted rounded-lg p-4 flex justify-between items-center"
+                    data-testid={`history-booking-${booking.id}`}
+                  >
+                    <div className="space-y-1 flex-1">
+                      <p className="font-medium" data-testid={`history-booking-route-${booking.id}`}>
+                        {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
+                      </p>
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground flex-wrap gap-2">
+                        <span data-testid={`history-booking-date-${booking.id}`}>
+                          📅 {new Date(booking.scheduledDateTime).toLocaleDateString()}
+                        </span>
+                        <span>
+                          🕐 {new Date(booking.scheduledDateTime).toLocaleTimeString()}
+                        </span>
+                        <Badge variant="outline" data-testid={`history-booking-type-${booking.id}`}>
+                          {booking.bookingType}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="text-right space-y-1 ml-4">
+                      <p className="font-bold text-lg text-foreground" data-testid={`history-booking-total-${booking.id}`}>
+                        ${booking.totalAmount}
+                      </p>
+                      <Badge variant={getStatusColor(booking.status)} data-testid={`history-booking-status-${booking.id}`}>
+                        {booking.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center p-8 text-muted-foreground" data-testid="history-no-bookings">
+                No bookings found. Start your first ride with us!
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
