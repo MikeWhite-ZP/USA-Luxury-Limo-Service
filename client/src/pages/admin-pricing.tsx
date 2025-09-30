@@ -36,10 +36,9 @@ interface SurgePricing {
 }
 
 interface DistanceTier {
-  minMiles: number;
-  maxMiles?: number;
-  baseRate: number;
-  perMileRate: number;
+  miles: number;
+  ratePerMile: number;
+  isRemaining?: boolean;
 }
 
 interface PricingRule {
@@ -383,7 +382,14 @@ export default function AdminPricing() {
   const addDistanceTier = () => {
     setFormData(prev => ({
       ...prev,
-      distanceTiers: [...prev.distanceTiers, { minMiles: 0, baseRate: 0, perMileRate: 0 }]
+      distanceTiers: [...prev.distanceTiers, { miles: 0, ratePerMile: 0 }]
+    }));
+  };
+
+  const addRemainingTier = () => {
+    setFormData(prev => ({
+      ...prev,
+      distanceTiers: [...prev.distanceTiers, { miles: 0, ratePerMile: 0, isRemaining: true }]
     }));
   };
 
@@ -401,6 +407,12 @@ export default function AdminPricing() {
         i === index ? { ...tier, [field]: value } : tier
       )
     }));
+  };
+
+  const getTierLabel = (index: number) => {
+    if (formData.distanceTiers[index]?.isRemaining) return "Remaining";
+    if (index === 0) return "First";
+    return "Next";
   };
 
   const getVehicleTypeLabel = (type: string) => {
@@ -721,63 +733,65 @@ export default function AdminPricing() {
                           ))}
                         </div>
 
-                        {/* Distance Tiers */}
+                        {/* Distance Tiers - Tiered Pricing */}
                         <div className="space-y-4">
                           <div className="flex justify-between items-center">
-                            <h3 className="font-semibold">Distance Tiers (Progressive Pricing)</h3>
-                            <Button type="button" size="sm" onClick={addDistanceTier} data-testid="button-add-tier">
-                              <Plus className="w-4 h-4 mr-1" />
-                              Add Tier
-                            </Button>
+                            <h3 className="font-semibold">Distance Breakdown (Tiered Pricing)</h3>
+                            <div className="flex gap-2">
+                              <Button type="button" size="sm" onClick={addDistanceTier} data-testid="button-add-tier">
+                                <Plus className="w-4 h-4 mr-1" />
+                                Add Tier
+                              </Button>
+                              {(!formData.distanceTiers.some(t => t.isRemaining)) && (
+                                <Button type="button" size="sm" variant="outline" onClick={addRemainingTier} data-testid="button-add-remaining">
+                                  <Plus className="w-4 h-4 mr-1" />
+                                  Add Remaining
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Define progressive pricing tiers (e.g., First 20 miles @ $0, Next 24.45 miles @ $4.45)
                           </div>
                           {formData.distanceTiers.map((tier, index) => (
-                            <div key={index} className="grid grid-cols-5 gap-2 items-end">
-                              <div>
-                                <Label>Min Miles</Label>
-                                <Input
-                                  type="number"
-                                  step="0.1"
-                                  value={tier.minMiles}
-                                  onChange={(e) => updateDistanceTier(index, 'minMiles', parseFloat(e.target.value) || 0)}
-                                  data-testid={`input-min-miles-${index}`}
-                                />
-                              </div>
-                              <div>
-                                <Label>Max Miles</Label>
-                                <Input
-                                  type="number"
-                                  step="0.1"
-                                  placeholder="Optional"
-                                  value={tier.maxMiles || ""}
-                                  onChange={(e) => updateDistanceTier(index, 'maxMiles', e.target.value ? parseFloat(e.target.value) : undefined)}
-                                  data-testid={`input-max-miles-${index}`}
-                                />
-                              </div>
-                              <div>
-                                <Label>Base Rate ($)</Label>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  value={tier.baseRate}
-                                  onChange={(e) => updateDistanceTier(index, 'baseRate', parseFloat(e.target.value) || 0)}
-                                  data-testid={`input-tier-base-${index}`}
-                                />
-                              </div>
-                              <div>
-                                <Label>Per Mile ($)</Label>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  value={tier.perMileRate}
-                                  onChange={(e) => updateDistanceTier(index, 'perMileRate', parseFloat(e.target.value) || 0)}
-                                  data-testid={`input-tier-per-mile-${index}`}
-                                />
-                              </div>
+                            <div key={index} className="flex items-center gap-2">
+                              <div className="w-24 text-sm font-medium">{getTierLabel(index)}</div>
+                              {!tier.isRemaining && (
+                                <>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Miles"
+                                    className="w-32"
+                                    value={tier.miles}
+                                    onChange={(e) => updateDistanceTier(index, 'miles', parseFloat(e.target.value) || 0)}
+                                    data-testid={`input-tier-miles-${index}`}
+                                  />
+                                  <span className="text-sm">mile{tier.miles !== 1 ? 's' : ''}</span>
+                                </>
+                              )}
+                              <span className="text-sm">@</span>
+                              <span className="text-sm font-bold">$</span>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="Rate"
+                                className="w-32"
+                                value={tier.ratePerMile}
+                                onChange={(e) => updateDistanceTier(index, 'ratePerMile', parseFloat(e.target.value) || 0)}
+                                data-testid={`input-tier-rate-${index}`}
+                              />
+                              <span className="text-sm">per mile</span>
                               <Button type="button" variant="destructive" size="sm" onClick={() => removeDistanceTier(index)}>
                                 <X className="w-4 h-4" />
                               </Button>
                             </div>
                           ))}
+                          {formData.distanceTiers.length === 0 && (
+                            <div className="text-sm text-muted-foreground italic">
+                              No tiers defined. Click "Add Tier" to create tiered pricing or use base rate + per mile rate for simple pricing.
+                            </div>
+                          )}
                         </div>
                       </TabsContent>
                       

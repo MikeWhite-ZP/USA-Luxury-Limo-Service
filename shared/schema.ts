@@ -132,12 +132,12 @@ export const pricingRules = pgTable("pricing_rules", {
     multiplier: number; // e.g., 1.5 for 50% surge
   }>>().default(sql`'[]'::jsonb`),
   
-  // Distance tiers for progressive pricing: [{minMiles: number, maxMiles?: number, baseRate: number, perMileRate: number}]
+  // Distance tiers for progressive pricing: [{miles: number, ratePerMile: number, isRemaining?: boolean}]
+  // Example: First 20 miles @ $0, Next 24.45 miles @ $4.45, Remaining @ $3.75
   distanceTiers: jsonb("distance_tiers").$type<Array<{
-    minMiles: number;
-    maxMiles?: number;
-    baseRate: number;
-    perMileRate: number;
+    miles: number;
+    ratePerMile: number;
+    isRemaining?: boolean;
   }>>().default(sql`'[]'::jsonb`),
   
   // Overtime rate for hourly bookings (rate applied after minimum hours)
@@ -319,10 +319,9 @@ const surgePricingSchema = z.object({
 });
 
 const distanceTierSchema = z.object({
-  minMiles: z.number().min(0),
-  maxMiles: z.number().min(0).optional(),
-  baseRate: z.number().min(0),
-  perMileRate: z.number().min(0),
+  miles: z.number().min(0), // Number of miles in this tier (e.g., "First 20 miles" or "Next 24.45 miles")
+  ratePerMile: z.number().min(0), // Rate per mile for this tier
+  isRemaining: z.boolean().optional(), // If true, this applies to all remaining miles
 });
 
 export const insertPricingRuleSchema = createInsertSchema(pricingRules)
@@ -365,21 +364,17 @@ export const insertPricingRuleSchema = createInsertSchema(pricingRules)
   )
   .refine(
     (data) => {
-      // Validate distance tiers don't overlap (allow adjacent tiers where maxMiles === next.minMiles)
-      if (data.distanceTiers && data.distanceTiers.length > 1) {
-        const sorted = [...data.distanceTiers].sort((a, b) => a.minMiles - b.minMiles);
-        for (let i = 0; i < sorted.length - 1; i++) {
-          const current = sorted[i];
-          const next = sorted[i + 1];
-          if (current.maxMiles && current.maxMiles > next.minMiles) {
-            return false;
-          }
+      // Validate only one "remaining" tier exists and it's the last one
+      if (data.distanceTiers && data.distanceTiers.length > 0) {
+        const remainingIndex = data.distanceTiers.findIndex(t => t.isRemaining);
+        if (remainingIndex !== -1 && remainingIndex !== data.distanceTiers.length - 1) {
+          return false;
         }
       }
       return true;
     },
     {
-      message: "Distance tiers cannot overlap",
+      message: "Remaining tier must be the last tier",
       path: ["distanceTiers"],
     }
   )
