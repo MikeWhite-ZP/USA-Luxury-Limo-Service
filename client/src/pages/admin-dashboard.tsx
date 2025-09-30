@@ -58,6 +58,31 @@ export default function AdminDashboard() {
     }
   }, [isAuthenticated, user, isLoading, toast]);
 
+  // Fetch existing system settings
+  const { data: existingSettings } = useQuery<{
+    STRIPE_SECRET_KEY: string;
+    STRIPE_PUBLIC_KEY: string;
+    TOMTOM_API_KEY: string;
+    hasStripeSecret: boolean;
+    hasStripePublic: boolean;
+    hasTomtomKey: boolean;
+  }>({
+    queryKey: ['/api/admin/settings'],
+    retry: false,
+    enabled: isAuthenticated && user?.role === 'admin',
+  });
+
+  // Update form state when settings are loaded
+  useEffect(() => {
+    if (existingSettings) {
+      setSettings({
+        STRIPE_SECRET_KEY: existingSettings.STRIPE_SECRET_KEY,
+        STRIPE_PUBLIC_KEY: existingSettings.STRIPE_PUBLIC_KEY,
+        TOMTOM_API_KEY: existingSettings.TOMTOM_API_KEY,
+      });
+    }
+  }, [existingSettings]);
+
   // Fetch dashboard stats
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/admin/dashboard'],
@@ -79,6 +104,7 @@ export default function AdminDashboard() {
       return await response.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
       toast({
         title: "Settings Updated",
         description: "System configuration has been saved successfully.",
@@ -316,6 +342,11 @@ export default function AdminDashboard() {
                       onChange={(e) => setSettings(prev => ({ ...prev, TOMTOM_API_KEY: e.target.value }))}
                       data-testid="input-tomtom-key"
                     />
+                    {existingSettings?.hasTomtomKey && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        ✓ API key is configured. Enter a new key to update.
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label htmlFor="environment">Environment</Label>

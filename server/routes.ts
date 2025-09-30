@@ -440,6 +440,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/admin/settings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      // Fetch all required settings
+      const stripeSecret = await storage.getSystemSetting('STRIPE_SECRET_KEY');
+      const stripePublic = await storage.getSystemSetting('STRIPE_PUBLIC_KEY');
+      const tomtomKey = await storage.getSystemSetting('TOMTOM_API_KEY');
+
+      // Return settings with masked values for security
+      res.json({
+        STRIPE_SECRET_KEY: stripeSecret?.value ? '••••••••' : '',
+        STRIPE_PUBLIC_KEY: stripePublic?.value ? '••••••••' : '',
+        TOMTOM_API_KEY: tomtomKey?.value ? '••••••••' : '',
+        hasStripeSecret: !!stripeSecret?.value,
+        hasStripePublic: !!stripePublic?.value,
+        hasTomtomKey: !!tomtomKey?.value,
+      });
+    } catch (error) {
+      console.error('Get settings error:', error);
+      res.status(500).json({ message: 'Failed to fetch settings' });
+    }
+  });
+
   app.post('/api/admin/settings', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
@@ -452,7 +481,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { settings } = req.body;
       
       for (const [key, value] of Object.entries(settings)) {
-        await storage.updateSystemSetting(key, value as string, userId);
+        // Only update if value is provided and not the masked placeholder
+        if (value && typeof value === 'string' && value !== '••••••••') {
+          await storage.updateSystemSetting(key, value as string, userId);
+        }
       }
 
       res.json({ success: true });
