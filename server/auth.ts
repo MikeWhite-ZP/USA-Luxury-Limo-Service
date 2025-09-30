@@ -303,6 +303,14 @@ export function setupAuth(app: Express) {
     });
   });
 
+  // Logout via GET (for direct navigation) - redirects to home page
+  app.get("/api/logout", (req, res, next) => {
+    req.logout((err) => {
+      if (err) return next(err);
+      res.redirect("/");
+    });
+  });
+
   // Get current user
   app.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) {
