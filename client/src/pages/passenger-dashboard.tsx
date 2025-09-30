@@ -710,7 +710,7 @@ export default function PassengerDashboard() {
           <CardContent>
             <div className="grid md:grid-cols-3 gap-4">
               <Button
-                onClick={() => window.location.href = '/#hero-booking'}
+                onClick={() => window.location.href = '/'}
                 className="h-16 flex flex-col space-y-1"
                 data-testid="button-book-ride"
               >
