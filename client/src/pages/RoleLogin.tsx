@@ -366,7 +366,7 @@ export function RoleLogin() {
 
             {/* Admin Dashboard Link */}
             <div className="mt-16 text-center">
-              <Link href="/admin">
+              <Link href="/admin-login">
                 <div 
                   className="inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
                   data-testid="link-admin-dashboard"
