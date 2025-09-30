@@ -99,14 +99,54 @@ export const pricingRules = pgTable("pricing_rules", {
   id: uuid("id").defaultRandom().primaryKey(),
   vehicleType: varchar("vehicle_type", { enum: vehicleTypeEnum }).notNull(),
   serviceType: varchar("service_type", { enum: serviceTypeEnum }).notNull(),
-  // Transfer pricing
+  // Transfer pricing (basic)
   baseRate: decimal("base_rate", { precision: 10, scale: 2 }),
   perMileRate: decimal("per_mile_rate", { precision: 10, scale: 2 }),
-  // Hourly pricing  
+  // Hourly pricing (basic)
   hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }),
   minimumHours: integer("minimum_hours"),
   // Common
   minimumFare: decimal("minimum_fare", { precision: 10, scale: 2 }),
+  
+  // Advanced pricing features (n8n workflow)
+  gratuityPercent: decimal("gratuity_percent", { precision: 5, scale: 2 }).default("20.00"), // Default 20%
+  
+  // Airport fees: [{airportCode: string, fee: number, waiverMinutes?: number}]
+  airportFees: jsonb("airport_fees").$type<Array<{
+    airportCode: string;
+    fee: number;
+    waiverMinutes?: number;
+  }>>().default(sql`'[]'::jsonb`),
+  
+  // Meet & greet: {enabled: boolean, charge: number}
+  meetAndGreet: jsonb("meet_and_greet").$type<{
+    enabled: boolean;
+    charge: number;
+  }>().default(sql`'{"enabled": false, "charge": 0}'::jsonb`),
+  
+  // Surge pricing: [{dayOfWeek: number, startTime: string, endTime: string, multiplier: number}]
+  surgePricing: jsonb("surge_pricing").$type<Array<{
+    dayOfWeek: number; // 0-6 (Sunday-Saturday)
+    startTime: string; // HH:MM format
+    endTime: string; // HH:MM format
+    multiplier: number; // e.g., 1.5 for 50% surge
+  }>>().default(sql`'[]'::jsonb`),
+  
+  // Distance tiers for progressive pricing: [{minMiles: number, maxMiles?: number, baseRate: number, perMileRate: number}]
+  distanceTiers: jsonb("distance_tiers").$type<Array<{
+    minMiles: number;
+    maxMiles?: number;
+    baseRate: number;
+    perMileRate: number;
+  }>>().default(sql`'[]'::jsonb`),
+  
+  // Overtime rate for hourly bookings (rate applied after minimum hours)
+  overtimeRate: decimal("overtime_rate", { precision: 10, scale: 2 }),
+  
+  // Effective date range for phased pricing changes
+  effectiveStart: timestamp("effective_start"),
+  effectiveEnd: timestamp("effective_end"),
+  
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -259,11 +299,43 @@ export const insertSavedAddressSchema = createInsertSchema(savedAddresses).omit(
   createdAt: true,
 });
 
+// Zod schemas for advanced pricing features
+const airportFeeSchema = z.object({
+  airportCode: z.string().min(3).max(10),
+  fee: z.number().min(0),
+  waiverMinutes: z.number().min(0).optional(),
+});
+
+const meetAndGreetSchema = z.object({
+  enabled: z.boolean(),
+  charge: z.number().min(0),
+});
+
+const surgePricingSchema = z.object({
+  dayOfWeek: z.number().min(0).max(6), // 0-6 (Sunday-Saturday)
+  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/), // HH:MM format
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/), // HH:MM format
+  multiplier: z.number().min(1).max(5), // 1x to 5x surge
+});
+
+const distanceTierSchema = z.object({
+  minMiles: z.number().min(0),
+  maxMiles: z.number().min(0).optional(),
+  baseRate: z.number().min(0),
+  perMileRate: z.number().min(0),
+});
+
 export const insertPricingRuleSchema = createInsertSchema(pricingRules)
   .omit({
     id: true,
     createdAt: true,
     updatedAt: true,
+  })
+  .extend({
+    airportFees: z.array(airportFeeSchema).optional(),
+    meetAndGreet: meetAndGreetSchema.optional(),
+    surgePricing: z.array(surgePricingSchema).optional(),
+    distanceTiers: z.array(distanceTierSchema).optional(),
   })
   .refine(
     (data) => {
@@ -289,6 +361,39 @@ export const insertPricingRuleSchema = createInsertSchema(pricingRules)
     {
       message: "Hourly service type requires hourlyRate and minimumHours",
       path: ["serviceType"],
+    }
+  )
+  .refine(
+    (data) => {
+      // Validate distance tiers don't overlap (allow adjacent tiers where maxMiles === next.minMiles)
+      if (data.distanceTiers && data.distanceTiers.length > 1) {
+        const sorted = [...data.distanceTiers].sort((a, b) => a.minMiles - b.minMiles);
+        for (let i = 0; i < sorted.length - 1; i++) {
+          const current = sorted[i];
+          const next = sorted[i + 1];
+          if (current.maxMiles && current.maxMiles > next.minMiles) {
+            return false;
+          }
+        }
+      }
+      return true;
+    },
+    {
+      message: "Distance tiers cannot overlap",
+      path: ["distanceTiers"],
+    }
+  )
+  .refine(
+    (data) => {
+      // Validate effectiveEnd is after effectiveStart when both are provided
+      if (data.effectiveStart && data.effectiveEnd) {
+        return new Date(data.effectiveEnd) > new Date(data.effectiveStart);
+      }
+      return true;
+    },
+    {
+      message: "Effective end date must be after effective start date",
+      path: ["effectiveEnd"],
     }
   );
 
