@@ -330,7 +330,7 @@ export default function AdminPricing() {
                     Add Pricing Rule
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl" data-testid="dialog-pricing-form">
+                <DialogContent className="max-w-2xl bg-[#e2e3e8] text-[12px]" data-testid="dialog-pricing-form">
                   <DialogHeader>
                     <DialogTitle data-testid="dialog-title">
                       {editingRule ? "Edit Pricing Rule" : "Create New Pricing Rule"}
