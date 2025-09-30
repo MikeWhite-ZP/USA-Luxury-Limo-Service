@@ -14,7 +14,8 @@ import { Home, Building, MapPin, Plus, Trash2, CreditCard } from "lucide-react";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+const stripePromise = STRIPE_PUBLIC_KEY ? loadStripe(STRIPE_PUBLIC_KEY) : null;
 
 interface SavedAddress {
   id: string;
@@ -173,6 +174,19 @@ function PaymentMethodsList() {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  // Check if Stripe is configured
+  if (!stripePromise) {
+    return (
+      <div className="text-center p-8 border border-dashed border-border rounded-lg" data-testid="stripe-not-configured">
+        <CreditCard className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+        <p className="text-muted-foreground mb-2">Payment methods not available</p>
+        <p className="text-sm text-muted-foreground">
+          Stripe integration needs to be configured to manage payment methods.
+        </p>
       </div>
     );
   }
