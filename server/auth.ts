@@ -307,7 +307,13 @@ export function setupAuth(app: Express) {
   app.get("/api/logout", (req, res, next) => {
     req.logout((err) => {
       if (err) return next(err);
-      res.redirect("/");
+      req.session.destroy((destroyErr) => {
+        if (destroyErr) {
+          console.error('Session destroy error:', destroyErr);
+        }
+        res.clearCookie('connect.sid');
+        res.redirect("/");
+      });
     });
   });
 
