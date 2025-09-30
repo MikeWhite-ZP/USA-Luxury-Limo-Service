@@ -734,9 +734,9 @@ export default function AdminPricing() {
                         </div>
 
                         {/* Distance Tiers - Tiered Pricing */}
-                        <div className="space-y-4">
+                        <div className="space-y-4 border-t pt-6 mt-6">
                           <div className="flex justify-between items-center">
-                            <h3 className="font-semibold">Distance Breakdown (Tiered Pricing)</h3>
+                            <h3 className="font-semibold text-lg text-primary">Distance Breakdown (Tiered Pricing)</h3>
                             <div className="flex gap-2">
                               <Button type="button" size="sm" onClick={addDistanceTier} data-testid="button-add-tier">
                                 <Plus className="w-4 h-4 mr-1" />
