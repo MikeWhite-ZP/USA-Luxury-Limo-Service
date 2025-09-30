@@ -29,9 +29,16 @@ export const sessions = pgTable(
 export const userRoles = ["passenger", "driver", "dispatcher", "admin"] as const;
 export type UserRole = typeof userRoles[number];
 
-// User storage table (required for Replit Auth)
+// User storage table
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Local auth fields
+  username: varchar("username").unique(),
+  password: varchar("password"), // hashed password for local auth
+  // OAuth fields
+  oauthProvider: varchar("oauth_provider", { enum: ["local", "google", "apple"] }).default("local"),
+  oauthId: varchar("oauth_id"), // ID from OAuth provider
+  // User info
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
