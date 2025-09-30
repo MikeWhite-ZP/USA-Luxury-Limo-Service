@@ -67,7 +67,9 @@ export interface IStorage {
   
   // System settings
   getSystemSetting(key: string): Promise<SystemSetting | undefined>;
+  getAllSystemSettings(): Promise<SystemSetting[]>;
   updateSystemSetting(key: string, value: string, userId: string): Promise<void>;
+  deleteSystemSetting(key: string): Promise<void>;
   
   // Contact submissions
   createContactSubmission(contact: InsertContact): Promise<ContactSubmission>;
@@ -283,6 +285,10 @@ export class DatabaseStorage implements IStorage {
     return setting;
   }
 
+  async getAllSystemSettings(): Promise<SystemSetting[]> {
+    return await db.select().from(systemSettings);
+  }
+
   async updateSystemSetting(key: string, value: string, userId: string): Promise<void> {
     await db
       .insert(systemSettings)
@@ -291,6 +297,10 @@ export class DatabaseStorage implements IStorage {
         target: systemSettings.key,
         set: { value, updatedBy: userId, updatedAt: new Date() },
       });
+  }
+
+  async deleteSystemSetting(key: string): Promise<void> {
+    await db.delete(systemSettings).where(eq(systemSettings.key, key));
   }
 
   async createContactSubmission(contactData: InsertContact): Promise<ContactSubmission> {

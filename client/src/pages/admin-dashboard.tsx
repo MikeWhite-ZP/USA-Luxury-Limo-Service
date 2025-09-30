@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight } from "lucide-react";
+import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X } from "lucide-react";
 import { Link } from "wouter";
 
 interface DashboardStats {
@@ -43,6 +43,11 @@ export default function AdminDashboard() {
     TOMTOM_API_KEY: ''
   });
 
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [newKeyName, setNewKeyName] = useState('');
+  const [newKeyValue, setNewKeyValue] = useState('');
+  const [isAddingNew, setIsAddingNew] = useState(false);
+
   // Redirect to home if not authenticated or not admin
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || user?.role !== 'admin')) {
@@ -59,32 +64,19 @@ export default function AdminDashboard() {
   }, [isAuthenticated, user, isLoading, toast]);
 
   // Fetch existing system settings
-  const { data: existingSettings } = useQuery<{
-    STRIPE_SECRET_KEY: string;
-    STRIPE_PUBLIC_KEY: string;
-    TOMTOM_API_KEY: string;
-    hasStripeSecret: boolean;
-    hasStripePublic: boolean;
-    hasTomtomKey: boolean;
-    usesEnvStripeSecret?: boolean;
-    usesEnvStripePublic?: boolean;
-    usesEnvTomtom?: boolean;
+  const { data: settingsData } = useQuery<{
+    credentials: Array<{
+      key: string;
+      hasValue: boolean;
+      usesEnv: boolean;
+      canDelete: boolean;
+      updatedAt?: string;
+    }>;
   }>({
     queryKey: ['/api/admin/settings'],
     retry: false,
     enabled: isAuthenticated && user?.role === 'admin',
   });
-
-  // Update form state when settings are loaded
-  useEffect(() => {
-    if (existingSettings) {
-      setSettings({
-        STRIPE_SECRET_KEY: existingSettings.STRIPE_SECRET_KEY,
-        STRIPE_PUBLIC_KEY: existingSettings.STRIPE_PUBLIC_KEY,
-        TOMTOM_API_KEY: existingSettings.TOMTOM_API_KEY,
-      });
-    }
-  }, [existingSettings]);
 
   // Fetch dashboard stats
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
@@ -100,17 +92,54 @@ export default function AdminDashboard() {
     enabled: isAuthenticated && user?.role === 'admin',
   });
 
-  // Update settings mutation
-  const settingsMutation = useMutation({
-    mutationFn: async (settingsData: typeof settings) => {
-      const response = await apiRequest('POST', '/api/admin/settings', { settings: settingsData });
+  // Update single credential mutation
+  const updateCredentialMutation = useMutation({
+    mutationFn: async ({ key, value }: { key: string; value: string }) => {
+      const response = await apiRequest('POST', '/api/admin/settings', { settings: { [key]: value } });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
+      setEditingKey(null);
+      setNewKeyValue('');
+      setIsAddingNew(false);
+      setNewKeyName('');
+      toast({
+        title: "Credential Updated",
+        description: "Credential has been saved successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update credential.",
+          variant: "destructive",
+        });
+      }
+    },
+  });
+
+  // Delete credential mutation
+  const deleteCredentialMutation = useMutation({
+    mutationFn: async (key: string) => {
+      const response = await apiRequest('DELETE', `/api/admin/settings/${key}`);
       return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
       toast({
-        title: "Settings Updated",
-        description: "System configuration has been saved successfully.",
+        title: "Credential Deleted",
+        description: "Credential has been removed successfully.",
       });
     },
     onError: (error: Error) => {
@@ -155,17 +184,68 @@ export default function AdminDashboard() {
     },
   });
 
-  const handleSaveSettings = () => {
-    if (!settings.STRIPE_SECRET_KEY || !settings.TOMTOM_API_KEY) {
+  const handleUpdateCredential = (key: string) => {
+    if (!newKeyValue) {
       toast({
-        title: "Missing Keys",
-        description: "Please provide both Stripe and TomTom API keys",
+        title: "Missing Value",
+        description: "Please provide a value for the credential",
         variant: "destructive",
       });
       return;
     }
-    settingsMutation.mutate(settings);
+    updateCredentialMutation.mutate({ key, value: newKeyValue });
   };
+
+  const handleAddNewCredential = () => {
+    if (!newKeyName || !newKeyValue) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide both credential name and value",
+        variant: "destructive",
+      });
+      return;
+    }
+    updateCredentialMutation.mutate({ key: newKeyName.toUpperCase().replace(/\s+/g, '_'), value: newKeyValue });
+  };
+
+  const handleDeleteCredential = (key: string) => {
+    if (confirm(`Are you sure you want to delete the ${key} credential?`)) {
+      deleteCredentialMutation.mutate(key);
+    }
+  };
+
+  // Credential metadata mapping for better UI display
+  const credentialMetadata: Record<string, { label: string; description: string; category: string }> = {
+    'STRIPE_SECRET_KEY': { 
+      label: 'Stripe Secret Key',
+      description: 'Used for processing payments',
+      category: 'Payment'
+    },
+    'STRIPE_PUBLIC_KEY': { 
+      label: 'Stripe Publishable Key',
+      description: 'Client-side Stripe integration',
+      category: 'Payment'
+    },
+    'TOMTOM_API_KEY': { 
+      label: 'TomTom API Key',
+      description: 'Geocoding and routing services',
+      category: 'Maps'
+    },
+  };
+
+  // Build enhanced credentials list from API data
+  const credentials = (settingsData?.credentials || []).map(cred => {
+    const meta = credentialMetadata[cred.key] || {
+      label: cred.key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      description: 'Custom API credential',
+      category: 'Custom'
+    };
+    
+    return {
+      ...cred,
+      ...meta,
+    };
+  });
 
   if (isLoading) {
     return (
@@ -294,93 +374,183 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* System Configuration */}
-        <Card data-testid="system-config">
+        {/* API Credentials Management */}
+        <Card data-testid="credentials-management">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Settings className="w-5 h-5" />
-              <span>System Configuration</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold">Stripe API Keys</h4>
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="stripe-secret">Secret Key *</Label>
-                    <Input
-                      id="stripe-secret"
-                      type="password"
-                      placeholder="sk_test_..."
-                      value={settings.STRIPE_SECRET_KEY}
-                      onChange={(e) => setSettings(prev => ({ ...prev, STRIPE_SECRET_KEY: e.target.value }))}
-                      data-testid="input-stripe-secret"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="stripe-public">Publishable Key</Label>
-                    <Input
-                      id="stripe-public"
-                      type="password"
-                      placeholder="pk_test_..."
-                      value={settings.STRIPE_PUBLIC_KEY}
-                      onChange={(e) => setSettings(prev => ({ ...prev, STRIPE_PUBLIC_KEY: e.target.value }))}
-                      data-testid="input-stripe-public"
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold">TomTom API Configuration</h4>
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="tomtom-key">TomTom API Key *</Label>
-                    <Input
-                      id="tomtom-key"
-                      type="password"
-                      placeholder="Your TomTom API key"
-                      value={settings.TOMTOM_API_KEY}
-                      onChange={(e) => setSettings(prev => ({ ...prev, TOMTOM_API_KEY: e.target.value }))}
-                      data-testid="input-tomtom-key"
-                    />
-                    {existingSettings?.hasTomtomKey && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        ✓ API key is configured {existingSettings?.usesEnvTomtom 
-                          ? '(from environment variable - enter new key to override)' 
-                          : '(from database - enter new key to update)'}.
-                      </p>
-                    )}
-                    {!existingSettings?.hasTomtomKey && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        No TomTom API key configured
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="environment">Environment</Label>
-                    <Select defaultValue="production">
-                      <SelectTrigger data-testid="select-environment">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="production">Production Environment</SelectItem>
-                        <SelectItem value="test">Test Environment</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Key className="w-5 h-5" />
+                <span>API Credentials</span>
+              </CardTitle>
+              <Button
+                onClick={() => setIsAddingNew(true)}
+                variant="outline"
+                size="sm"
+                data-testid="button-add-credential"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Credential
+              </Button>
             </div>
-            
-            <Button 
-              onClick={handleSaveSettings}
-              disabled={settingsMutation.isPending}
-              data-testid="button-save-settings"
-            >
-              {settingsMutation.isPending ? 'Saving...' : 'Save Configuration'}
-            </Button>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Existing Credentials */}
+            <div className="space-y-3">
+              {credentials.map((credential) => (
+                <div
+                  key={credential.key}
+                  className="border rounded-lg p-4"
+                  data-testid={`credential-${credential.key.toLowerCase()}`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold" data-testid={`credential-label-${credential.key.toLowerCase()}`}>
+                          {credential.label}
+                        </h4>
+                        <Badge variant="outline" className="text-xs">
+                          {credential.category}
+                        </Badge>
+                        {credential.hasValue && (
+                          <Badge 
+                            variant={credential.usesEnv ? "secondary" : "default"}
+                            className="text-xs"
+                            data-testid={`credential-status-${credential.key.toLowerCase()}`}
+                          >
+                            {credential.usesEnv ? 'ENV' : 'DB'}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {credential.description}
+                      </p>
+                      
+                      {editingKey === credential.key ? (
+                        <div className="mt-3 space-y-2">
+                          <Input
+                            type="password"
+                            placeholder="Enter new value"
+                            value={newKeyValue}
+                            onChange={(e) => setNewKeyValue(e.target.value)}
+                            data-testid={`input-edit-${credential.key.toLowerCase()}`}
+                          />
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleUpdateCredential(credential.key)}
+                              disabled={updateCredentialMutation.isPending}
+                              data-testid={`button-save-${credential.key.toLowerCase()}`}
+                            >
+                              <Check className="w-4 h-4 mr-1" />
+                              Save
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setEditingKey(null);
+                                setNewKeyValue('');
+                              }}
+                              data-testid={`button-cancel-${credential.key.toLowerCase()}`}
+                            >
+                              <X className="w-4 h-4 mr-1" />
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          {credential.hasValue 
+                            ? `Configured ${credential.usesEnv ? '(from environment variable)' : '(from database)'}`
+                            : 'Not configured'}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {editingKey !== credential.key && (
+                      <div className="flex gap-2 ml-4">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingKey(credential.key);
+                            setNewKeyValue('');
+                          }}
+                          data-testid={`button-edit-${credential.key.toLowerCase()}`}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        {credential.canDelete && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteCredential(credential.key)}
+                            disabled={deleteCredentialMutation.isPending}
+                            data-testid={`button-delete-${credential.key.toLowerCase()}`}
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Add New Credential Form */}
+            {isAddingNew && (
+              <div className="border border-dashed rounded-lg p-4 space-y-3" data-testid="add-credential-form">
+                <h4 className="font-semibold">Add New Credential</h4>
+                <div className="space-y-2">
+                  <div>
+                    <Label htmlFor="new-key-name">Credential Name</Label>
+                    <Input
+                      id="new-key-name"
+                      placeholder="e.g., MAILGUN_API_KEY"
+                      value={newKeyName}
+                      onChange={(e) => setNewKeyName(e.target.value)}
+                      data-testid="input-new-credential-name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="new-key-value">Credential Value</Label>
+                    <Input
+                      id="new-key-value"
+                      type="password"
+                      placeholder="Enter credential value"
+                      value={newKeyValue}
+                      onChange={(e) => setNewKeyValue(e.target.value)}
+                      data-testid="input-new-credential-value"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={handleAddNewCredential}
+                    disabled={updateCredentialMutation.isPending}
+                    data-testid="button-save-new-credential"
+                  >
+                    <Check className="w-4 h-4 mr-1" />
+                    Add Credential
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setIsAddingNew(false);
+                      setNewKeyName('');
+                      setNewKeyValue('');
+                    }}
+                    data-testid="button-cancel-new-credential"
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

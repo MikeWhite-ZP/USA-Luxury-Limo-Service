@@ -457,29 +457,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Admin access required' });
       }
 
-      // Fetch all required settings from database
-      const stripeSecret = await storage.getSystemSetting('STRIPE_SECRET_KEY');
-      const stripePublic = await storage.getSystemSetting('STRIPE_PUBLIC_KEY');
-      const tomtomKey = await storage.getSystemSetting('TOMTOM_API_KEY');
+      // Fetch all system settings from database
+      const allSettings = await storage.getAllSystemSettings();
 
-      // Check for environment variable fallbacks
-      const hasStripeSecretEnv = !!process.env.STRIPE_SECRET_KEY;
-      const hasStripePublicEnv = !!process.env.STRIPE_PUBLIC_KEY;
-      const hasTomtomKeyEnv = !!process.env.TOMTOM_API_KEY;
-
-      // Return settings with masked values for security
-      // Use masked value for database-stored keys, empty string for env-only keys
-      res.json({
-        STRIPE_SECRET_KEY: stripeSecret?.value ? '••••••••' : '',
-        STRIPE_PUBLIC_KEY: stripePublic?.value ? '••••••••' : '',
-        TOMTOM_API_KEY: tomtomKey?.value ? '••••••••' : '',
-        hasStripeSecret: !!stripeSecret?.value || hasStripeSecretEnv,
-        hasStripePublic: !!stripePublic?.value || hasStripePublicEnv,
-        hasTomtomKey: !!tomtomKey?.value || hasTomtomKeyEnv,
-        usesEnvStripeSecret: !stripeSecret?.value && hasStripeSecretEnv,
-        usesEnvStripePublic: !stripePublic?.value && hasStripePublicEnv,
-        usesEnvTomtom: !tomtomKey?.value && hasTomtomKeyEnv,
+      // Build a map of database credentials
+      const dbCredentials: Record<string, { value: string; updatedAt?: Date }> = {};
+      allSettings.forEach(setting => {
+        dbCredentials[setting.key] = { value: setting.value, updatedAt: setting.updatedAt };
       });
+
+      // Known environment variables to check
+      const envKeys = ['STRIPE_SECRET_KEY', 'STRIPE_PUBLIC_KEY', 'TOMTOM_API_KEY'];
+      
+      // Build credentials list with metadata
+      const credentials: Array<{
+        key: string;
+        hasValue: boolean;
+        usesEnv: boolean;
+        canDelete: boolean;
+        updatedAt?: string;
+      }> = [];
+
+      // Add all database credentials
+      allSettings.forEach(setting => {
+        const hasEnv = !!process.env[setting.key];
+        credentials.push({
+          key: setting.key,
+          hasValue: true,
+          usesEnv: false,
+          canDelete: true,
+          updatedAt: setting.updatedAt?.toISOString(),
+        });
+      });
+
+      // Add env-only credentials
+      envKeys.forEach(key => {
+        if (process.env[key] && !dbCredentials[key]) {
+          credentials.push({
+            key,
+            hasValue: true,
+            usesEnv: true,
+            canDelete: false,
+          });
+        }
+      });
+
+      res.json({ credentials });
     } catch (error) {
       console.error('Get settings error:', error);
       res.status(500).json({ message: 'Failed to fetch settings' });
@@ -508,6 +531,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Update settings error:', error);
       res.status(500).json({ message: 'Failed to update settings' });
+    }
+  });
+
+  app.delete('/api/admin/settings/:key', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { key } = req.params;
+      await storage.deleteSystemSetting(key);
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete setting error:', error);
+      res.status(500).json({ message: 'Failed to delete setting' });
     }
   });
 
