@@ -308,8 +308,11 @@
 
   <script>
     /* ========= Configuration ========= */
-    // Replace with your TomTom key. For production, proxy these requests server-side to avoid exposing the key.
-    const TOMTOM_API_KEY = '7YLqhOSLDTWVpxJfVKAX0PJCxWtKg7R5';
+    // SECURITY WARNING: Never hardcode API keys in client-side code!
+    // For production, create a backend endpoint to proxy TomTom API requests.
+    // The API key should be stored as an environment variable on the server.
+    // Example: Create /api/geocode endpoint that calls TomTom API server-side.
+    const TOMTOM_API_KEY = ''; // TODO: Remove client-side API calls and use backend proxy
 
     // Your existing webhook (unchanged)
     const WEBHOOK_URL = 'https://n8n.srv445523.hstgr.cloud/webhook/booking';
