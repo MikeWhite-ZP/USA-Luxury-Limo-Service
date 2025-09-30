@@ -525,8 +525,7 @@ export default function BookingForm() {
               </div>
             )}
             {fromCoords && (
-              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-700 font-mono" data-testid="from-coordinates">
-                <span className="font-semibold">📍 Location: </span>
+              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-[8px] text-green-700 font-mono" data-testid="from-coordinates">
                 <span>Lat: {fromCoords.lat.toFixed(6)}, Lng: {fromCoords.lon.toFixed(6)}</span>
               </div>
             )}
@@ -573,8 +572,7 @@ export default function BookingForm() {
                     </div>
                   )}
                   {viaCoords && viaCoords[index] && (
-                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-700 font-mono" data-testid={`via-${index}-coordinates`}>
-                      <span className="font-semibold">📍 Location: </span>
+                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-[8px] text-green-700 font-mono" data-testid={`via-${index}-coordinates`}>
                       <span>Lat: {viaCoords[index].lat.toFixed(6)}, Lng: {viaCoords[index].lon.toFixed(6)}</span>
                     </div>
                   )}
@@ -621,8 +619,7 @@ export default function BookingForm() {
               </div>
             )}
             {toCoords && (
-              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-700 font-mono" data-testid="to-coordinates">
-                <span className="font-semibold">📍 Location: </span>
+              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-[8px] text-green-700 font-mono" data-testid="to-coordinates">
                 <span>Lat: {toCoords.lat.toFixed(6)}, Lng: {toCoords.lon.toFixed(6)}</span>
               </div>
             )}
@@ -702,8 +699,7 @@ export default function BookingForm() {
               </div>
             )}
             {pickupCoords && (
-              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-700 font-mono" data-testid="pickup-coordinates">
-                <span className="font-semibold">📍 Location: </span>
+              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-[8px] text-green-700 font-mono" data-testid="pickup-coordinates">
                 <span>Lat: {pickupCoords.lat.toFixed(6)}, Lng: {pickupCoords.lon.toFixed(6)}</span>
               </div>
             )}
