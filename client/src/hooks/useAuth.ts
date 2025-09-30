@@ -1,6 +1,5 @@
 import { useQuery, useMutation, UseMutationResult } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "../lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
 
 interface User {
   id: string;
@@ -18,12 +17,12 @@ interface User {
   updatedAt: string;
 }
 
-interface LoginData {
+export interface LoginData {
   username: string;
   password: string;
 }
 
-interface RegisterData {
+export interface RegisterData {
   username: string;
   password: string;
   email: string;
@@ -33,7 +32,6 @@ interface RegisterData {
 }
 
 export function useAuth() {
-  const { toast } = useToast();
   
   const { data: user, isLoading, error } = useQuery<User | null>({
     queryKey: ["/api/user"],
@@ -66,17 +64,6 @@ export function useAuth() {
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
-      toast({
-        title: "Welcome back!",
-        description: `Logged in as ${user.firstName || user.username || user.email}`,
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Login failed",
-        description: error.message || "Invalid username or password",
-        variant: "destructive",
-      });
     },
   });
 
@@ -87,17 +74,6 @@ export function useAuth() {
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
-      toast({
-        title: "Account created!",
-        description: `Welcome, ${user.firstName || user.username || user.email}`,
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Registration failed",
-        description: error.message || "Could not create account",
-        variant: "destructive",
-      });
     },
   });
 
@@ -107,17 +83,6 @@ export function useAuth() {
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
-      toast({
-        title: "Logged out",
-        description: "You have been logged out successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Logout failed",
-        description: error.message || "Could not log out",
-        variant: "destructive",
-      });
     },
   });
 
