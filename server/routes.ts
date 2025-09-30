@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
-import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema } from "@shared/schema";
+import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema } from "@shared/schema";
 import Stripe from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -459,6 +459,124 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Update settings error:', error);
       res.status(500).json({ message: 'Failed to update settings' });
+    }
+  });
+
+  // Pricing rules management (admin only)
+  app.get('/api/admin/pricing-rules', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const rules = await storage.getPricingRules();
+      res.json(rules);
+    } catch (error) {
+      console.error('Get pricing rules error:', error);
+      res.status(500).json({ message: 'Failed to fetch pricing rules' });
+    }
+  });
+
+  app.get('/api/admin/pricing-rules/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const rule = await storage.getPricingRule(req.params.id);
+      if (!rule) {
+        return res.status(404).json({ message: 'Pricing rule not found' });
+      }
+      res.json(rule);
+    } catch (error) {
+      console.error('Get pricing rule error:', error);
+      res.status(500).json({ message: 'Failed to fetch pricing rule' });
+    }
+  });
+
+  app.post('/api/admin/pricing-rules', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const validatedData = insertPricingRuleSchema.parse(req.body);
+      const newRule = await storage.createPricingRule(validatedData);
+      res.json(newRule);
+    } catch (error: any) {
+      console.error('Create pricing rule error:', error);
+      
+      // Handle unique constraint violation (duplicate vehicle type + service type combination)
+      if (error.code === '23505' || error.message?.includes('unique')) {
+        return res.status(409).json({ 
+          message: `A pricing rule already exists for ${req.body.vehicleType} with ${req.body.serviceType} service type` 
+        });
+      }
+      
+      res.status(400).json({ message: error.message || 'Failed to create pricing rule' });
+    }
+  });
+
+  app.put('/api/admin/pricing-rules/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      // For updates, validate the complete rule if serviceType is being changed
+      // Otherwise just pass the partial update
+      if (req.body.serviceType || req.body.baseRate || req.body.perMileRate || req.body.hourlyRate || req.body.minimumHours) {
+        // Get existing rule to merge with updates
+        const existingRule = await storage.getPricingRule(req.params.id);
+        if (!existingRule) {
+          return res.status(404).json({ message: 'Pricing rule not found' });
+        }
+        
+        // Merge existing with updates and validate
+        const mergedData = { ...existingRule, ...req.body };
+        const validatedData = insertPricingRuleSchema.parse(mergedData);
+        const updatedRule = await storage.updatePricingRule(req.params.id, req.body);
+        res.json(updatedRule);
+      } else {
+        // Simple update (e.g., just isActive flag)
+        const updatedRule = await storage.updatePricingRule(req.params.id, req.body);
+        if (!updatedRule) {
+          return res.status(404).json({ message: 'Pricing rule not found' });
+        }
+        res.json(updatedRule);
+      }
+    } catch (error: any) {
+      console.error('Update pricing rule error:', error);
+      res.status(400).json({ message: error.message || 'Failed to update pricing rule' });
+    }
+  });
+
+  app.delete('/api/admin/pricing-rules/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      await storage.deletePricingRule(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete pricing rule error:', error);
+      res.status(500).json({ message: 'Failed to delete pricing rule' });
     }
   });
 

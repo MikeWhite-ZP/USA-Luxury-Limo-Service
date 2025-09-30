@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   index,
+  uniqueIndex,
   jsonb,
   pgTable,
   timestamp,
@@ -109,7 +110,9 @@ export const pricingRules = pgTable("pricing_rules", {
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => ({
+  uniqueVehicleService: uniqueIndex("unique_vehicle_service").on(table.vehicleType, table.serviceType),
+}));
 
 // Individual vehicles
 export const vehicles = pgTable("vehicles", {
@@ -256,11 +259,38 @@ export const insertSavedAddressSchema = createInsertSchema(savedAddresses).omit(
   createdAt: true,
 });
 
-export const insertPricingRuleSchema = createInsertSchema(pricingRules).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const insertPricingRuleSchema = createInsertSchema(pricingRules)
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .refine(
+    (data) => {
+      if (data.serviceType === "transfer") {
+        return data.baseRate !== undefined && data.baseRate !== null && 
+               data.perMileRate !== undefined && data.perMileRate !== null;
+      }
+      return true;
+    },
+    {
+      message: "Transfer service type requires baseRate and perMileRate",
+      path: ["serviceType"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.serviceType === "hourly") {
+        return data.hourlyRate !== undefined && data.hourlyRate !== null && 
+               data.minimumHours !== undefined && data.minimumHours !== null;
+      }
+      return true;
+    },
+    {
+      message: "Hourly service type requires hourlyRate and minimumHours",
+      path: ["serviceType"],
+    }
+  );
 
 // Types
 export type UpsertUser = typeof users.$inferInsert;

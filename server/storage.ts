@@ -95,7 +95,7 @@ export interface IStorage {
   getPricingRule(id: string): Promise<PricingRule | undefined>;
   getPricingRuleByType(vehicleType: string, serviceType: string): Promise<PricingRule | undefined>;
   createPricingRule(rule: InsertPricingRule): Promise<PricingRule>;
-  updatePricingRule(id: string, rule: Partial<InsertPricingRule>): Promise<PricingRule>;
+  updatePricingRule(id: string, rule: Partial<InsertPricingRule>): Promise<PricingRule | undefined>;
   deletePricingRule(id: string): Promise<void>;
 }
 
@@ -425,7 +425,7 @@ export class DatabaseStorage implements IStorage {
     return newRule;
   }
 
-  async updatePricingRule(id: string, rule: Partial<InsertPricingRule>): Promise<PricingRule> {
+  async updatePricingRule(id: string, rule: Partial<InsertPricingRule>): Promise<PricingRule | undefined> {
     const [updatedRule] = await db
       .update(pricingRules)
       .set({ ...rule, updatedAt: new Date() })
