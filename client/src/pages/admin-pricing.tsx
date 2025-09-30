@@ -12,8 +12,35 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Plus, Edit, Trash2, ArrowLeft } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DollarSign, Plus, Edit, Trash2, ArrowLeft, X } from "lucide-react";
 import { Link } from "wouter";
+
+// TypeScript interfaces for advanced pricing
+interface AirportFee {
+  airportCode: string;
+  fee: number;
+  waiverMinutes?: number;
+}
+
+interface MeetAndGreet {
+  enabled: boolean;
+  charge: number;
+}
+
+interface SurgePricing {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  multiplier: number;
+}
+
+interface DistanceTier {
+  minMiles: number;
+  maxMiles?: number;
+  baseRate: number;
+  perMileRate: number;
+}
 
 interface PricingRule {
   id: string;
@@ -24,6 +51,14 @@ interface PricingRule {
   hourlyRate: string | null;
   minimumHours: number | null;
   minimumFare: string | null;
+  gratuityPercent: string | null;
+  airportFees: AirportFee[];
+  meetAndGreet: MeetAndGreet;
+  surgePricing: SurgePricing[];
+  distanceTiers: DistanceTier[];
+  overtimeRate: string | null;
+  effectiveStart: string | null;
+  effectiveEnd: string | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -37,6 +72,14 @@ interface PricingFormData {
   hourlyRate: string;
   minimumHours: string;
   minimumFare: string;
+  gratuityPercent: string;
+  airportFees: AirportFee[];
+  meetAndGreet: MeetAndGreet;
+  surgePricing: SurgePricing[];
+  distanceTiers: DistanceTier[];
+  overtimeRate: string;
+  effectiveStart: string;
+  effectiveEnd: string;
   isActive: boolean;
 }
 
@@ -51,6 +94,16 @@ const vehicleTypes = [
 const serviceTypes = [
   { value: "transfer", label: "Transfer (Point-to-Point)" },
   { value: "hourly", label: "Hourly Service" }
+];
+
+const daysOfWeek = [
+  { value: 0, label: "Sunday" },
+  { value: 1, label: "Monday" },
+  { value: 2, label: "Tuesday" },
+  { value: 3, label: "Wednesday" },
+  { value: 4, label: "Thursday" },
+  { value: 5, label: "Friday" },
+  { value: 6, label: "Saturday" }
 ];
 
 export default function AdminPricing() {
@@ -68,6 +121,14 @@ export default function AdminPricing() {
     hourlyRate: "",
     minimumHours: "",
     minimumFare: "",
+    gratuityPercent: "20",
+    airportFees: [],
+    meetAndGreet: { enabled: false, charge: 0 },
+    surgePricing: [],
+    distanceTiers: [],
+    overtimeRate: "",
+    effectiveStart: "",
+    effectiveEnd: "",
     isActive: true
   });
 
@@ -104,6 +165,14 @@ export default function AdminPricing() {
         hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null,
         minimumHours: data.minimumHours ? parseInt(data.minimumHours) : null,
         minimumFare: data.minimumFare ? parseFloat(data.minimumFare) : null,
+        gratuityPercent: data.gratuityPercent ? parseFloat(data.gratuityPercent) : 20,
+        airportFees: data.airportFees || [],
+        meetAndGreet: data.meetAndGreet || { enabled: false, charge: 0 },
+        surgePricing: data.surgePricing || [],
+        distanceTiers: data.distanceTiers || [],
+        overtimeRate: data.overtimeRate ? parseFloat(data.overtimeRate) : null,
+        effectiveStart: data.effectiveStart || null,
+        effectiveEnd: data.effectiveEnd || null,
         isActive: data.isActive ?? true
       };
       const response = await apiRequest('POST', '/api/admin/pricing-rules', payload);
@@ -149,6 +218,14 @@ export default function AdminPricing() {
         hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null,
         minimumHours: data.minimumHours ? parseInt(data.minimumHours) : null,
         minimumFare: data.minimumFare ? parseFloat(data.minimumFare) : null,
+        gratuityPercent: data.gratuityPercent ? parseFloat(data.gratuityPercent) : 20,
+        airportFees: data.airportFees || [],
+        meetAndGreet: data.meetAndGreet || { enabled: false, charge: 0 },
+        surgePricing: data.surgePricing || [],
+        distanceTiers: data.distanceTiers || [],
+        overtimeRate: data.overtimeRate ? parseFloat(data.overtimeRate) : null,
+        effectiveStart: data.effectiveStart || null,
+        effectiveEnd: data.effectiveEnd || null,
         isActive: data.isActive ?? true
       };
       const response = await apiRequest('PUT', `/api/admin/pricing-rules/${id}`, payload);
@@ -176,14 +253,13 @@ export default function AdminPricing() {
   // Delete pricing rule mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiRequest('DELETE', `/api/admin/pricing-rules/${id}`);
-      return await response.json();
+      await apiRequest('DELETE', `/api/admin/pricing-rules/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/pricing-rules'] });
       toast({
         title: "Pricing Rule Deleted",
-        description: "Pricing rule has been removed successfully.",
+        description: "Pricing rule has been deleted successfully.",
       });
     },
     onError: (error: any) => {
@@ -204,6 +280,14 @@ export default function AdminPricing() {
       hourlyRate: "",
       minimumHours: "",
       minimumFare: "",
+      gratuityPercent: "20",
+      airportFees: [],
+      meetAndGreet: { enabled: false, charge: 0 },
+      surgePricing: [],
+      distanceTiers: [],
+      overtimeRate: "",
+      effectiveStart: "",
+      effectiveEnd: "",
       isActive: true
     });
     setEditingRule(null);
@@ -219,46 +303,104 @@ export default function AdminPricing() {
       hourlyRate: rule.hourlyRate || "",
       minimumHours: rule.minimumHours?.toString() || "",
       minimumFare: rule.minimumFare || "",
+      gratuityPercent: rule.gratuityPercent || "20",
+      airportFees: rule.airportFees || [],
+      meetAndGreet: rule.meetAndGreet || { enabled: false, charge: 0 },
+      surgePricing: rule.surgePricing || [],
+      distanceTiers: rule.distanceTiers || [],
+      overtimeRate: rule.overtimeRate || "",
+      effectiveStart: rule.effectiveStart || "",
+      effectiveEnd: rule.effectiveEnd || "",
       isActive: rule.isActive
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this pricing rule?")) {
-      deleteMutation.mutate(id);
+      await deleteMutation.mutateAsync(id);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate required fields based on service type
-    if (formData.serviceType === "transfer") {
-      if (!formData.baseRate || !formData.perMileRate) {
-        toast({
-          title: "Validation Error",
-          description: "Base rate and per-mile rate are required for transfer service",
-          variant: "destructive",
-        });
-        return;
-      }
-    } else if (formData.serviceType === "hourly") {
-      if (!formData.hourlyRate || !formData.minimumHours) {
-        toast({
-          title: "Validation Error",
-          description: "Hourly rate and minimum hours are required for hourly service",
-          variant: "destructive",
-        });
-        return;
-      }
-    }
-
     if (editingRule) {
       updateMutation.mutate({ id: editingRule.id, data: formData });
     } else {
       createMutation.mutate(formData);
     }
+  };
+
+  // Airport fee management
+  const addAirportFee = () => {
+    setFormData(prev => ({
+      ...prev,
+      airportFees: [...prev.airportFees, { airportCode: "", fee: 0 }]
+    }));
+  };
+
+  const removeAirportFee = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      airportFees: prev.airportFees.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateAirportFee = (index: number, field: keyof AirportFee, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      airportFees: prev.airportFees.map((fee, i) => 
+        i === index ? { ...fee, [field]: value } : fee
+      )
+    }));
+  };
+
+  // Surge pricing management
+  const addSurgePricing = () => {
+    setFormData(prev => ({
+      ...prev,
+      surgePricing: [...prev.surgePricing, { dayOfWeek: 0, startTime: "00:00", endTime: "00:00", multiplier: 1.5 }]
+    }));
+  };
+
+  const removeSurgePricing = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      surgePricing: prev.surgePricing.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateSurgePricing = (index: number, field: keyof SurgePricing, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      surgePricing: prev.surgePricing.map((surge, i) => 
+        i === index ? { ...surge, [field]: value } : surge
+      )
+    }));
+  };
+
+  // Distance tier management
+  const addDistanceTier = () => {
+    setFormData(prev => ({
+      ...prev,
+      distanceTiers: [...prev.distanceTiers, { minMiles: 0, baseRate: 0, perMileRate: 0 }]
+    }));
+  };
+
+  const removeDistanceTier = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      distanceTiers: prev.distanceTiers.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateDistanceTier = (index: number, field: keyof DistanceTier, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      distanceTiers: prev.distanceTiers.map((tier, i) => 
+        i === index ? { ...tier, [field]: value } : tier
+      )
+    }));
   };
 
   const getVehicleTypeLabel = (type: string) => {
@@ -294,9 +436,9 @@ export default function AdminPricing() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold" data-testid="pricing-title">Pricing Management</h1>
+              <h1 className="text-2xl font-bold" data-testid="pricing-title">Advanced Pricing Management</h1>
               <p className="text-primary-foreground/80" data-testid="pricing-subtitle">
-                Configure pricing rules for all services
+                Configure sophisticated pricing rules with gratuity, fees, and surge pricing
               </p>
             </div>
           </div>
@@ -316,7 +458,7 @@ export default function AdminPricing() {
             <div className="flex justify-between items-center">
               <CardTitle className="flex items-center space-x-2">
                 <DollarSign className="w-5 h-5" />
-                <span>Pricing Rules</span>
+                <span>Pricing Rules (n8n-Style)</span>
               </CardTitle>
               <Dialog open={isDialogOpen} onOpenChange={(open) => {
                 setIsDialogOpen(open);
@@ -330,133 +472,408 @@ export default function AdminPricing() {
                     Add Pricing Rule
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl bg-[#e2e3e8] text-[12px]" data-testid="dialog-pricing-form">
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-[#e2e3e8] text-[12px]" data-testid="dialog-pricing-form">
                   <DialogHeader>
                     <DialogTitle data-testid="dialog-title">
                       {editingRule ? "Edit Pricing Rule" : "Create New Pricing Rule"}
                     </DialogTitle>
                   </DialogHeader>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="vehicleType">Vehicle Type *</Label>
-                        <Select
-                          value={formData.vehicleType}
-                          onValueChange={(value) => setFormData(prev => ({ ...prev, vehicleType: value }))}
-                        >
-                          <SelectTrigger data-testid="select-vehicle-type">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {vehicleTypes.map((type) => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Basic Configuration */}
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-lg">Basic Configuration</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="vehicleType">Vehicle Type *</Label>
+                          <Select
+                            value={formData.vehicleType}
+                            onValueChange={(value) => setFormData(prev => ({ ...prev, vehicleType: value }))}
+                          >
+                            <SelectTrigger data-testid="select-vehicle-type">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {vehicleTypes.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                      <div>
-                        <Label htmlFor="serviceType">Service Type *</Label>
-                        <Select
-                          value={formData.serviceType}
-                          onValueChange={(value) => setFormData(prev => ({ ...prev, serviceType: value }))}
-                        >
-                          <SelectTrigger data-testid="select-service-type">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {serviceTypes.map((type) => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div>
+                          <Label htmlFor="serviceType">Service Type *</Label>
+                          <Select
+                            value={formData.serviceType}
+                            onValueChange={(value) => setFormData(prev => ({ ...prev, serviceType: value }))}
+                          >
+                            <SelectTrigger data-testid="select-service-type">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {serviceTypes.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     </div>
 
-                    {formData.serviceType === "transfer" && (
-                      <div className="grid grid-cols-2 gap-4">
+                    {/* Service-specific pricing */}
+                    <Tabs value={formData.serviceType} className="w-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="transfer" data-testid="tab-transfer">Transfer Service</TabsTrigger>
+                        <TabsTrigger value="hourly" data-testid="tab-hourly">Hourly Service</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="transfer" className="space-y-6">
+                        {/* Base Transfer Pricing */}
+                        <div className="space-y-4">
+                          <h3 className="font-semibold">Base Transfer Pricing</h3>
+                          <div className="grid grid-cols-3 gap-4">
+                            <div>
+                              <Label htmlFor="baseRate">Base Rate * ($)</Label>
+                              <Input
+                                id="baseRate"
+                                type="number"
+                                step="0.01"
+                                placeholder="50.00"
+                                value={formData.baseRate}
+                                onChange={(e) => setFormData(prev => ({ ...prev, baseRate: e.target.value }))}
+                                data-testid="input-base-rate"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="perMileRate">Per Mile Rate * ($)</Label>
+                              <Input
+                                id="perMileRate"
+                                type="number"
+                                step="0.01"
+                                placeholder="2.50"
+                                value={formData.perMileRate}
+                                onChange={(e) => setFormData(prev => ({ ...prev, perMileRate: e.target.value }))}
+                                data-testid="input-per-mile-rate"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="gratuityPercent">Gratuity (%)</Label>
+                              <Input
+                                id="gratuityPercent"
+                                type="number"
+                                step="0.01"
+                                placeholder="20.00"
+                                value={formData.gratuityPercent}
+                                onChange={(e) => setFormData(prev => ({ ...prev, gratuityPercent: e.target.value }))}
+                                data-testid="input-gratuity"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Airport Fees */}
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-semibold">Airport Fees</h3>
+                            <Button type="button" size="sm" onClick={addAirportFee} data-testid="button-add-airport-fee">
+                              <Plus className="w-4 h-4 mr-1" />
+                              Add Airport
+                            </Button>
+                          </div>
+                          {formData.airportFees.map((fee, index) => (
+                            <div key={index} className="grid grid-cols-4 gap-2 items-end">
+                              <div>
+                                <Label>Airport Code</Label>
+                                <Input
+                                  placeholder="IAH"
+                                  value={fee.airportCode}
+                                  onChange={(e) => updateAirportFee(index, 'airportCode', e.target.value)}
+                                  data-testid={`input-airport-code-${index}`}
+                                />
+                              </div>
+                              <div>
+                                <Label>Fee ($)</Label>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  value={fee.fee}
+                                  onChange={(e) => updateAirportFee(index, 'fee', parseFloat(e.target.value) || 0)}
+                                  data-testid={`input-airport-fee-${index}`}
+                                />
+                              </div>
+                              <div>
+                                <Label>Waiver (min)</Label>
+                                <Input
+                                  type="number"
+                                  placeholder="Optional"
+                                  value={fee.waiverMinutes || ""}
+                                  onChange={(e) => updateAirportFee(index, 'waiverMinutes', e.target.value ? parseInt(e.target.value) : undefined)}
+                                  data-testid={`input-waiver-${index}`}
+                                />
+                              </div>
+                              <Button type="button" variant="destructive" size="sm" onClick={() => removeAirportFee(index)}>
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Meet & Greet */}
+                        <div className="space-y-4">
+                          <h3 className="font-semibold">Meet & Greet</h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                id="meetGreetEnabled"
+                                checked={formData.meetAndGreet.enabled}
+                                onChange={(e) => setFormData(prev => ({ 
+                                  ...prev, 
+                                  meetAndGreet: { ...prev.meetAndGreet, enabled: e.target.checked }
+                                }))}
+                                className="w-4 h-4"
+                                data-testid="checkbox-meet-greet"
+                              />
+                              <Label htmlFor="meetGreetEnabled">Enable Meet & Greet</Label>
+                            </div>
+                            <div>
+                              <Label>Charge ($)</Label>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                value={formData.meetAndGreet.charge}
+                                onChange={(e) => setFormData(prev => ({ 
+                                  ...prev, 
+                                  meetAndGreet: { ...prev.meetAndGreet, charge: parseFloat(e.target.value) || 0 }
+                                }))}
+                                disabled={!formData.meetAndGreet.enabled}
+                                data-testid="input-meet-greet-charge"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Surge Pricing */}
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-semibold">Surge Pricing</h3>
+                            <Button type="button" size="sm" onClick={addSurgePricing} data-testid="button-add-surge">
+                              <Plus className="w-4 h-4 mr-1" />
+                              Add Surge Period
+                            </Button>
+                          </div>
+                          {formData.surgePricing.map((surge, index) => (
+                            <div key={index} className="grid grid-cols-5 gap-2 items-end">
+                              <div>
+                                <Label>Day of Week</Label>
+                                <Select
+                                  value={surge.dayOfWeek.toString()}
+                                  onValueChange={(value) => updateSurgePricing(index, 'dayOfWeek', parseInt(value))}
+                                >
+                                  <SelectTrigger data-testid={`select-day-${index}`}>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {daysOfWeek.map((day) => (
+                                      <SelectItem key={day.value} value={day.value.toString()}>
+                                        {day.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label>Start Time</Label>
+                                <Input
+                                  type="time"
+                                  value={surge.startTime}
+                                  onChange={(e) => updateSurgePricing(index, 'startTime', e.target.value)}
+                                  data-testid={`input-start-time-${index}`}
+                                />
+                              </div>
+                              <div>
+                                <Label>End Time</Label>
+                                <Input
+                                  type="time"
+                                  value={surge.endTime}
+                                  onChange={(e) => updateSurgePricing(index, 'endTime', e.target.value)}
+                                  data-testid={`input-end-time-${index}`}
+                                />
+                              </div>
+                              <div>
+                                <Label>Multiplier</Label>
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  placeholder="1.5"
+                                  value={surge.multiplier}
+                                  onChange={(e) => updateSurgePricing(index, 'multiplier', parseFloat(e.target.value) || 1)}
+                                  data-testid={`input-multiplier-${index}`}
+                                />
+                              </div>
+                              <Button type="button" variant="destructive" size="sm" onClick={() => removeSurgePricing(index)}>
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Distance Tiers */}
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-semibold">Distance Tiers (Progressive Pricing)</h3>
+                            <Button type="button" size="sm" onClick={addDistanceTier} data-testid="button-add-tier">
+                              <Plus className="w-4 h-4 mr-1" />
+                              Add Tier
+                            </Button>
+                          </div>
+                          {formData.distanceTiers.map((tier, index) => (
+                            <div key={index} className="grid grid-cols-5 gap-2 items-end">
+                              <div>
+                                <Label>Min Miles</Label>
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  value={tier.minMiles}
+                                  onChange={(e) => updateDistanceTier(index, 'minMiles', parseFloat(e.target.value) || 0)}
+                                  data-testid={`input-min-miles-${index}`}
+                                />
+                              </div>
+                              <div>
+                                <Label>Max Miles</Label>
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  placeholder="Optional"
+                                  value={tier.maxMiles || ""}
+                                  onChange={(e) => updateDistanceTier(index, 'maxMiles', e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  data-testid={`input-max-miles-${index}`}
+                                />
+                              </div>
+                              <div>
+                                <Label>Base Rate ($)</Label>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  value={tier.baseRate}
+                                  onChange={(e) => updateDistanceTier(index, 'baseRate', parseFloat(e.target.value) || 0)}
+                                  data-testid={`input-tier-base-${index}`}
+                                />
+                              </div>
+                              <div>
+                                <Label>Per Mile ($)</Label>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  value={tier.perMileRate}
+                                  onChange={(e) => updateDistanceTier(index, 'perMileRate', parseFloat(e.target.value) || 0)}
+                                  data-testid={`input-tier-per-mile-${index}`}
+                                />
+                              </div>
+                              <Button type="button" variant="destructive" size="sm" onClick={() => removeDistanceTier(index)}>
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="hourly" className="space-y-6">
+                        {/* Hourly Pricing */}
+                        <div className="space-y-4">
+                          <h3 className="font-semibold">Hourly Service Pricing</h3>
+                          <div className="grid grid-cols-3 gap-4">
+                            <div>
+                              <Label htmlFor="hourlyRate">Hourly Rate * ($)</Label>
+                              <Input
+                                id="hourlyRate"
+                                type="number"
+                                step="0.01"
+                                placeholder="75.00"
+                                value={formData.hourlyRate}
+                                onChange={(e) => setFormData(prev => ({ ...prev, hourlyRate: e.target.value }))}
+                                data-testid="input-hourly-rate"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="minimumHours">Minimum Hours *</Label>
+                              <Input
+                                id="minimumHours"
+                                type="number"
+                                placeholder="2"
+                                value={formData.minimumHours}
+                                onChange={(e) => setFormData(prev => ({ ...prev, minimumHours: e.target.value }))}
+                                data-testid="input-minimum-hours"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="overtimeRate">Overtime Rate ($)</Label>
+                              <Input
+                                id="overtimeRate"
+                                type="number"
+                                step="0.01"
+                                placeholder="Optional"
+                                value={formData.overtimeRate}
+                                onChange={(e) => setFormData(prev => ({ ...prev, overtimeRate: e.target.value }))}
+                                data-testid="input-overtime-rate"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+
+                    {/* Common Fields */}
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-lg">Common Settings</h3>
+                      <div className="grid grid-cols-3 gap-4">
                         <div>
-                          <Label htmlFor="baseRate">Base Rate * ($)</Label>
+                          <Label htmlFor="minimumFare">Minimum Fare ($)</Label>
                           <Input
-                            id="baseRate"
+                            id="minimumFare"
                             type="number"
                             step="0.01"
-                            placeholder="50.00"
-                            value={formData.baseRate}
-                            onChange={(e) => setFormData(prev => ({ ...prev, baseRate: e.target.value }))}
-                            data-testid="input-base-rate"
+                            placeholder="Optional minimum fare"
+                            value={formData.minimumFare}
+                            onChange={(e) => setFormData(prev => ({ ...prev, minimumFare: e.target.value }))}
+                            data-testid="input-minimum-fare"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="perMileRate">Per Mile Rate * ($)</Label>
+                          <Label htmlFor="effectiveStart">Effective From</Label>
                           <Input
-                            id="perMileRate"
-                            type="number"
-                            step="0.01"
-                            placeholder="2.50"
-                            value={formData.perMileRate}
-                            onChange={(e) => setFormData(prev => ({ ...prev, perMileRate: e.target.value }))}
-                            data-testid="input-per-mile-rate"
+                            id="effectiveStart"
+                            type="date"
+                            value={formData.effectiveStart}
+                            onChange={(e) => setFormData(prev => ({ ...prev, effectiveStart: e.target.value }))}
+                            data-testid="input-effective-start"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="effectiveEnd">Effective Until</Label>
+                          <Input
+                            id="effectiveEnd"
+                            type="date"
+                            value={formData.effectiveEnd}
+                            onChange={(e) => setFormData(prev => ({ ...prev, effectiveEnd: e.target.value }))}
+                            data-testid="input-effective-end"
                           />
                         </div>
                       </div>
-                    )}
-
-                    {formData.serviceType === "hourly" && (
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="hourlyRate">Hourly Rate * ($)</Label>
-                          <Input
-                            id="hourlyRate"
-                            type="number"
-                            step="0.01"
-                            placeholder="75.00"
-                            value={formData.hourlyRate}
-                            onChange={(e) => setFormData(prev => ({ ...prev, hourlyRate: e.target.value }))}
-                            data-testid="input-hourly-rate"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="minimumHours">Minimum Hours *</Label>
-                          <Input
-                            id="minimumHours"
-                            type="number"
-                            placeholder="2"
-                            value={formData.minimumHours}
-                            onChange={(e) => setFormData(prev => ({ ...prev, minimumHours: e.target.value }))}
-                            data-testid="input-minimum-hours"
-                          />
-                        </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="isActive"
+                          checked={formData.isActive}
+                          onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                          className="w-4 h-4"
+                          data-testid="checkbox-is-active"
+                        />
+                        <Label htmlFor="isActive">Active</Label>
                       </div>
-                    )}
-
-                    <div>
-                      <Label htmlFor="minimumFare">Minimum Fare ($)</Label>
-                      <Input
-                        id="minimumFare"
-                        type="number"
-                        step="0.01"
-                        placeholder="Optional minimum fare"
-                        value={formData.minimumFare}
-                        onChange={(e) => setFormData(prev => ({ ...prev, minimumFare: e.target.value }))}
-                        data-testid="input-minimum-fare"
-                      />
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="isActive"
-                        checked={formData.isActive}
-                        onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-                        className="w-4 h-4"
-                        data-testid="checkbox-is-active"
-                      />
-                      <Label htmlFor="isActive">Active</Label>
                     </div>
 
                     <div className="flex justify-end space-x-2">
@@ -500,11 +917,10 @@ export default function AdminPricing() {
                     <TableRow>
                       <TableHead>Vehicle Type</TableHead>
                       <TableHead>Service Type</TableHead>
-                      <TableHead>Base Rate</TableHead>
-                      <TableHead>Per Mile</TableHead>
-                      <TableHead>Hourly Rate</TableHead>
-                      <TableHead>Min Hours</TableHead>
-                      <TableHead>Min Fare</TableHead>
+                      <TableHead>Base/Hourly Rate</TableHead>
+                      <TableHead>Gratuity</TableHead>
+                      <TableHead>Airport Fees</TableHead>
+                      <TableHead>Surge Rules</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -518,20 +934,18 @@ export default function AdminPricing() {
                         <TableCell data-testid={`service-type-${rule.id}`}>
                           {getServiceTypeLabel(rule.serviceType)}
                         </TableCell>
-                        <TableCell data-testid={`base-rate-${rule.id}`}>
-                          {rule.baseRate ? `$${rule.baseRate}` : '-'}
+                        <TableCell data-testid={`rate-${rule.id}`}>
+                          {rule.serviceType === 'transfer' && rule.baseRate ? `$${rule.baseRate}` : 
+                           rule.serviceType === 'hourly' && rule.hourlyRate ? `$${rule.hourlyRate}/hr` : '-'}
                         </TableCell>
-                        <TableCell data-testid={`per-mile-${rule.id}`}>
-                          {rule.perMileRate ? `$${rule.perMileRate}` : '-'}
+                        <TableCell data-testid={`gratuity-${rule.id}`}>
+                          {rule.gratuityPercent ? `${rule.gratuityPercent}%` : '-'}
                         </TableCell>
-                        <TableCell data-testid={`hourly-rate-${rule.id}`}>
-                          {rule.hourlyRate ? `$${rule.hourlyRate}` : '-'}
+                        <TableCell data-testid={`airport-fees-${rule.id}`}>
+                          {rule.airportFees?.length || 0} airports
                         </TableCell>
-                        <TableCell data-testid={`min-hours-${rule.id}`}>
-                          {rule.minimumHours || '-'}
-                        </TableCell>
-                        <TableCell data-testid={`min-fare-${rule.id}`}>
-                          {rule.minimumFare ? `$${rule.minimumFare}` : '-'}
+                        <TableCell data-testid={`surge-rules-${rule.id}`}>
+                          {rule.surgePricing?.length || 0} periods
                         </TableCell>
                         <TableCell data-testid={`status-${rule.id}`}>
                           <Badge variant={rule.isActive ? "default" : "secondary"}>
