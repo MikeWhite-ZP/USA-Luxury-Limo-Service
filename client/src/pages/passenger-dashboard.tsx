@@ -257,6 +257,9 @@ export default function PassengerDashboard() {
     lat: '',
     lon: ''
   });
+  const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false);
 
   // Check for payment success in URL
   useEffect(() => {
@@ -360,6 +363,55 @@ export default function PassengerDashboard() {
     },
   });
 
+  // TomTom address search with debouncing
+  const searchAddress = async (query: string) => {
+    if (query.length < 3) {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    setIsSearchingAddress(true);
+    try {
+      const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}&limit=5`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.results && data.results.length > 0) {
+          setAddressSuggestions(data.results);
+          setShowSuggestions(true);
+        } else {
+          setAddressSuggestions([]);
+          setShowSuggestions(false);
+        }
+      }
+    } catch (error) {
+      console.error('Address search error:', error);
+    } finally {
+      setIsSearchingAddress(false);
+    }
+  };
+
+  // Debounced address search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (newAddress.address) {
+        searchAddress(newAddress.address);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [newAddress.address]);
+
+  const handleAddressSelect = (suggestion: any) => {
+    const address = suggestion.address.freeformAddress;
+    const lat = suggestion.position.lat.toString();
+    const lon = suggestion.position.lon.toString();
+    
+    setNewAddress(prev => ({ ...prev, address, lat, lon }));
+    setShowSuggestions(false);
+    setAddressSuggestions([]);
+  };
+
   const handleQuickBook = (address: SavedAddress) => {
     // Scroll to booking form and pre-fill the address
     const bookingForm = document.getElementById('hero-booking');
@@ -462,15 +514,53 @@ export default function PassengerDashboard() {
                         data-testid="input-address-label"
                       />
                     </div>
-                    <div>
+                    <div className="relative">
                       <Label htmlFor="address-text">Address</Label>
                       <Input
                         id="address-text"
                         placeholder="123 Main Street, City, State"
                         value={newAddress.address}
                         onChange={(e) => setNewAddress(prev => ({ ...prev, address: e.target.value }))}
+                        onFocus={() => {
+                          if (addressSuggestions.length > 0) {
+                            setShowSuggestions(true);
+                          }
+                        }}
                         data-testid="input-address-text"
+                        autoComplete="off"
                       />
+                      {isSearchingAddress && (
+                        <div className="absolute right-3 top-9 pointer-events-none">
+                          <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+                        </div>
+                      )}
+                      {showSuggestions && addressSuggestions.length > 0 && (
+                        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                          {addressSuggestions.map((suggestion, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              className="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-0 transition-colors"
+                              onClick={() => handleAddressSelect(suggestion)}
+                              data-testid={`suggestion-${index}`}
+                            >
+                              <div className="flex items-start space-x-2">
+                                <MapPin className="w-4 h-4 mt-1 text-primary flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                                    {suggestion.address.freeformAddress}
+                                  </p>
+                                  {suggestion.address.country && (
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                      {suggestion.address.countrySubdivision}, {suggestion.address.country}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <Button
                       onClick={() => addAddressMutation.mutate(newAddress)}

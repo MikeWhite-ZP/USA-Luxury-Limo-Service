@@ -82,7 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -250,7 +250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create booking
   app.post('/api/bookings', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const bookingData = insertBookingSchema.parse({
         ...req.body,
         passengerId: userId,
@@ -267,7 +267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user bookings
   app.get('/api/bookings', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -297,7 +297,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/bookings/:id', isAuthenticated, async (req: any, res) => {
     try {
       const bookingId = req.params.id;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       const booking = await storage.getBooking(bookingId);
       if (!booking) {
@@ -337,7 +337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { status } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       const user = await storage.getUser(userId);
       if (!user || (user.role !== 'driver' && user.role !== 'admin')) {
@@ -355,7 +355,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Saved addresses
   app.get('/api/saved-addresses', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const addresses = await storage.getSavedAddressesByUser(userId);
       res.json(addresses);
     } catch (error) {
@@ -366,7 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/saved-addresses', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const addressData = insertSavedAddressSchema.parse({
         ...req.body,
         userId,
@@ -382,7 +382,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/saved-addresses/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { id } = req.params;
       
       await storage.deleteSavedAddress(id, userId);
@@ -408,7 +408,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin routes
   app.get('/api/admin/dashboard', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
@@ -425,7 +425,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/contacts', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
@@ -442,7 +442,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/settings', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'admin') {
@@ -476,7 +476,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currency: "usd",
         metadata: {
           bookingId: bookingId || '',
-          userId: req.user.claims.sub,
+          userId: req.user.id,
         },
       });
 
@@ -495,7 +495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Payment methods management
   app.get('/api/payment-methods', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -522,7 +522,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/payment-methods', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { paymentMethodId } = req.body;
       
       if (!paymentMethodId) {
