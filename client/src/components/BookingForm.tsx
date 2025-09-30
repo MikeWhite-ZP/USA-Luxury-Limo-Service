@@ -366,28 +366,61 @@ export default function BookingForm() {
         {/* Vehicle Selection Grid */}
         <div>
           <h3 className="text-xl font-bold text-primary mb-6">Select Your Vehicle</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-            {vehicleTypes?.map((vehicle) => (
-              <div
-                key={vehicle.id}
-                className={`p-5 rounded-xl cursor-pointer transition-all border-2 text-center ${
-                  selectedVehicle === vehicle.id 
-                    ? 'border-primary bg-primary/10 transform -translate-y-1 shadow-lg' 
-                    : 'border-primary/20 hover:border-primary hover:transform hover:-translate-y-1 hover:shadow-md'
-                }`}
-                onClick={() => setSelectedVehicle(vehicle.id)}
-                data-testid={`vehicle-${vehicle.id}`}
-              >
-                <h4 className="font-bold text-primary text-lg mb-2">{vehicle.name}</h4>
-                <p className="text-2xl font-bold text-primary mb-3">
-                  ${vehicle.hourlyRate}{activeTab === 'hourly' ? '/hour' : ''}
-                </p>
-                <div className="text-sm text-gray-600 space-y-1">
-                  <div>Up to {vehicle.passengerCapacity} passengers</div>
-                  <div>{vehicle.luggageCapacity}</div>
-                </div>
-              </div>
-            ))}
+          <div className="space-y-3 mb-6">
+            {vehicleTypes
+              ?.sort((a, b) => parseFloat(a.hourlyRate) - parseFloat(b.hourlyRate))
+              .map((vehicle) => {
+                // Customize descriptions based on vehicle type
+                let capacityText = `Up to ${vehicle.passengerCapacity} passengers`;
+                let luggageText = vehicle.luggageCapacity;
+                
+                if (vehicle.name.toLowerCase().includes('sedan')) {
+                  capacityText = '3 passengers';
+                  luggageText = '2 large bags';
+                } else if (vehicle.name.toLowerCase().includes('suv')) {
+                  capacityText = '6 passengers';
+                  luggageText = '4-5 bags';
+                }
+                
+                return (
+                  <div
+                    key={vehicle.id}
+                    className={`p-4 rounded-xl cursor-pointer transition-all border-2 flex items-center gap-4 ${
+                      selectedVehicle === vehicle.id 
+                        ? 'border-primary bg-primary/10 shadow-lg' 
+                        : 'border-primary/20 hover:border-primary hover:shadow-md'
+                    }`}
+                    onClick={() => setSelectedVehicle(vehicle.id)}
+                    data-testid={`vehicle-${vehicle.id}`}
+                  >
+                    {/* Vehicle Image */}
+                    {vehicle.imageUrl && (
+                      <div className="w-20 h-16 flex-shrink-0">
+                        <img 
+                          src={vehicle.imageUrl} 
+                          alt={vehicle.name}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Vehicle Info */}
+                    <div className="flex-1">
+                      <h4 className="font-bold text-primary text-lg">{vehicle.name}</h4>
+                      <div className="text-sm text-gray-600 mt-1">
+                        {capacityText} • {luggageText}
+                      </div>
+                    </div>
+                    
+                    {/* Price */}
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-primary">
+                        ${vehicle.hourlyRate}{activeTab === 'hourly' ? '/hour' : ''}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         </div>
 
