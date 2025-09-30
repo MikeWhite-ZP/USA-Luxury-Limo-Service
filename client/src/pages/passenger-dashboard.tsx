@@ -11,6 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Home, Building, MapPin, Plus, Trash2, CreditCard } from "lucide-react";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 interface SavedAddress {
   id: string;
@@ -30,6 +34,215 @@ interface Booking {
   scheduledDateTime: string;
   totalAmount: string;
   createdAt: string;
+}
+
+interface PaymentMethod {
+  id: string;
+  card: {
+    brand: string;
+    last4: string;
+    exp_month: number;
+    exp_year: number;
+  };
+}
+
+function AddPaymentMethodForm({ onSuccess }: { onSuccess: () => void }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const cardElement = elements.getElement(CardElement);
+      if (!cardElement) {
+        throw new Error("Card element not found");
+      }
+
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const response = await apiRequest('POST', '/api/payment-methods', {
+        paymentMethodId: paymentMethod.id,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add payment method');
+      }
+
+      toast({
+        title: "Success",
+        description: "Payment method added successfully",
+      });
+
+      onSuccess();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add payment method",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="p-4 border rounded-lg">
+        <CardElement
+          options={{
+            style: {
+              base: {
+                fontSize: '16px',
+                color: '#424770',
+                '::placeholder': {
+                  color: '#aab7c4',
+                },
+              },
+              invalid: {
+                color: '#9e2146',
+              },
+            },
+          }}
+        />
+      </div>
+      <Button type="submit" disabled={!stripe || isProcessing} className="w-full">
+        {isProcessing ? 'Adding...' : 'Add Payment Method'}
+      </Button>
+    </form>
+  );
+}
+
+function PaymentMethodsList() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [addPaymentOpen, setAddPaymentOpen] = useState(false);
+
+  const { data: paymentMethods, isLoading } = useQuery<PaymentMethod[]>({
+    queryKey: ['/api/payment-methods'],
+    retry: false,
+  });
+
+  const removePaymentMutation = useMutation({
+    mutationFn: async (paymentMethodId: string) => {
+      const response = await apiRequest('DELETE', `/api/payment-methods/${paymentMethodId}`);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/payment-methods'] });
+      toast({
+        title: "Payment Method Removed",
+        description: "The payment method has been removed successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove payment method",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const getBrandColor = (brand: string) => {
+    switch (brand.toLowerCase()) {
+      case 'visa': return 'bg-blue-600';
+      case 'mastercard': return 'bg-red-600';
+      case 'amex': return 'bg-green-600';
+      default: return 'bg-gray-600';
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {paymentMethods && paymentMethods.length > 0 ? (
+        <div className="space-y-3">
+          {paymentMethods.map((pm) => (
+            <div
+              key={pm.id}
+              className="flex items-center justify-between p-4 bg-background rounded-lg border border-border"
+            >
+              <div className="flex items-center space-x-3">
+                <div className={`w-10 h-10 ${getBrandColor(pm.card.brand)} rounded text-white text-xs flex items-center justify-center font-bold`}>
+                  {pm.card.brand.toUpperCase().slice(0, 4)}
+                </div>
+                <div>
+                  <p className="font-medium" data-testid={`card-number-${pm.id}`}>
+                    •••• •••• •••• {pm.card.last4}
+                  </p>
+                  <p className="text-sm text-muted-foreground" data-testid={`card-expiry-${pm.id}`}>
+                    Expires {pm.card.exp_month}/{pm.card.exp_year}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => removePaymentMutation.mutate(pm.id)}
+                disabled={removePaymentMutation.isPending}
+                data-testid={`button-remove-card-${pm.id}`}
+              >
+                {removePaymentMutation.isPending ? 'Removing...' : 'Remove'}
+              </Button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center p-8 text-muted-foreground" data-testid="no-payment-methods">
+          No payment methods saved yet. Add a payment method to get started.
+        </div>
+      )}
+
+      <Dialog open={addPaymentOpen} onOpenChange={setAddPaymentOpen}>
+        <DialogTrigger asChild>
+          <button
+            className="w-full border-2 border-dashed border-border text-muted-foreground py-4 rounded-lg hover:border-primary hover:text-primary transition-colors"
+            data-testid="button-add-payment"
+          >
+            <Plus className="w-5 h-5 mx-auto mb-2" />
+            Add New Payment Method
+          </button>
+        </DialogTrigger>
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#dcdee3] text-[12px]">
+          <DialogHeader>
+            <DialogTitle>Add Payment Method</DialogTitle>
+          </DialogHeader>
+          <Elements stripe={stripePromise}>
+            <AddPaymentMethodForm
+              onSuccess={() => {
+                setAddPaymentOpen(false);
+                queryClient.invalidateQueries({ queryKey: ['/api/payment-methods'] });
+              }}
+            />
+          </Elements>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
 
 export default function PassengerDashboard() {
@@ -234,7 +447,7 @@ export default function PassengerDashboard() {
                     Add Address
                   </Button>
                 </DialogTrigger>
-                <DialogContent data-testid="add-address-dialog">
+                <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#dcdee3] text-[12px]" data-testid="add-address-dialog">
                   <DialogHeader>
                     <DialogTitle>Add New Address</DialogTitle>
                   </DialogHeader>
@@ -380,34 +593,7 @@ export default function PassengerDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-background rounded-lg border border-border">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">
-                  VISA
-                </div>
-                <div>
-                  <p className="font-medium" data-testid="card-number">•••• •••• •••• 4242</p>
-                  <p className="text-sm text-muted-foreground" data-testid="card-expiry">Expires 12/25</p>
-                </div>
-              </div>
-              <Button variant="outline" size="sm" data-testid="button-remove-card">
-                Remove
-              </Button>
-            </div>
-            
-            <button
-              className="w-full border-2 border-dashed border-border text-muted-foreground py-4 rounded-lg hover:border-primary hover:text-primary transition-colors"
-              onClick={() => {
-                toast({
-                  title: "Add Payment Method",
-                  description: "Payment method management coming soon!",
-                });
-              }}
-              data-testid="button-add-payment"
-            >
-              <Plus className="w-5 h-5 mx-auto mb-2" />
-              Add New Payment Method
-            </button>
+            <PaymentMethodsList />
           </CardContent>
         </Card>
 

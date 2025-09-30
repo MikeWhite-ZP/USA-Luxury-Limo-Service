@@ -492,6 +492,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Payment methods management
+  app.get('/api/payment-methods', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // If user doesn't have a Stripe customer ID, return empty array
+      if (!user.stripeCustomerId) {
+        return res.json([]);
+      }
+
+      // Retrieve payment methods from Stripe
+      const paymentMethods = await stripe.paymentMethods.list({
+        customer: user.stripeCustomerId,
+        type: 'card',
+      });
+
+      res.json(paymentMethods.data);
+    } catch (error: any) {
+      console.error('Get payment methods error:', error);
+      res.status(500).json({ message: 'Failed to fetch payment methods' });
+    }
+  });
+
+  app.post('/api/payment-methods', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { paymentMethodId } = req.body;
+      
+      if (!paymentMethodId) {
+        return res.status(400).json({ message: 'Payment method ID is required' });
+      }
+
+      let user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Create Stripe customer if doesn't exist
+      if (!user.stripeCustomerId) {
+        const customerParams: Stripe.CustomerCreateParams = {
+          email: user.email || undefined,
+          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || undefined,
+          metadata: {
+            userId: userId,
+          },
+        };
+        const customer = await stripe.customers.create(customerParams);
+
+        // Update user with Stripe customer ID
+        await storage.updateStripeCustomerId(userId, customer.id);
+        user = await storage.getUser(userId);
+      }
+
+      // Attach payment method to customer
+      await stripe.paymentMethods.attach(paymentMethodId, {
+        customer: user!.stripeCustomerId!,
+      });
+
+      // Set as default payment method
+      await stripe.customers.update(user!.stripeCustomerId!, {
+        invoice_settings: {
+          default_payment_method: paymentMethodId,
+        },
+      });
+
+      const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
+      res.json(paymentMethod);
+    } catch (error: any) {
+      console.error('Add payment method error:', error);
+      res.status(500).json({ message: error.message || 'Failed to add payment method' });
+    }
+  });
+
+  app.delete('/api/payment-methods/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Detach payment method from customer
+      await stripe.paymentMethods.detach(id);
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Remove payment method error:', error);
+      res.status(500).json({ message: error.message || 'Failed to remove payment method' });
+    }
+  });
+
 
   // n8n-style pricing calculation endpoint (mimics the Houston workflow)
   app.post('/api/booking/pricing', async (req, res) => {

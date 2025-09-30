@@ -226,14 +226,26 @@ export function setupAuth(app: Express) {
 
   // Local login
   app.post("/api/login", (req, res, next) => {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ message: "Username and password are required" });
+    }
+    
     passport.authenticate("local", (err: any, user: any, info: any) => {
-      if (err) return next(err);
+      if (err) {
+        console.error("Login error:", err);
+        return next(err);
+      }
       if (!user) {
         return res.status(401).json({ message: info?.message || "Invalid credentials" });
       }
       
       req.login(user, (err) => {
-        if (err) return next(err);
+        if (err) {
+          console.error("Session error:", err);
+          return next(err);
+        }
         res.status(200).json(user);
       });
     })(req, res, next);
