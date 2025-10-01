@@ -504,7 +504,7 @@ export default function AdminPricing() {
                             <SelectTrigger data-testid="select-vehicle-type">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-[#333333]">
+                            <SelectContent className="bg-[#d3d3d3]">
                               {vehicleTypes.map((type) => (
                                 <SelectItem key={type.value} value={type.value}>
                                   {type.label}
@@ -523,7 +523,7 @@ export default function AdminPricing() {
                             <SelectTrigger data-testid="select-service-type">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-[#333333]">
+                            <SelectContent className="bg-[#d3d3d3]">
                               {serviceTypes.map((type) => (
                                 <SelectItem key={type.value} value={type.value}>
                                   {type.label}
@@ -804,7 +804,7 @@ export default function AdminPricing() {
                                   <SelectTrigger data-testid={`select-day-${index}`}>
                                     <SelectValue />
                                   </SelectTrigger>
-                                  <SelectContent className="bg-[#333333]">
+                                  <SelectContent className="bg-[#d3d3d3]">
                                     {daysOfWeek.map((day) => (
                                       <SelectItem key={day.value} value={day.value.toString()}>
                                         {day.label}
