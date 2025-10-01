@@ -738,6 +738,7 @@ export default function AdminPricing() {
                                 <Input
                                   type="number"
                                   placeholder="Optional"
+                                  className="bg-[#ffffff]"
                                   value={fee.waiverMinutes || ""}
                                   onChange={(e) => updateAirportFee(index, 'waiverMinutes', e.target.value ? parseInt(e.target.value) : undefined)}
                                   data-testid={`input-waiver-${index}`}
