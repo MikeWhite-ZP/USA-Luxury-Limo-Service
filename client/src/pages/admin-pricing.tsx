@@ -323,6 +323,51 @@ export default function AdminPricing() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('=== FORM SUBMISSION ===');
+    console.log('Service Type:', formData.serviceType);
+    console.log('Base Rate:', formData.baseRate);
+    console.log('Per Mile Rate:', formData.perMileRate);
+    console.log('Distance Tiers:', formData.distanceTiers);
+    console.log('Distance Tiers Count:', formData.distanceTiers.length);
+    console.log('Hourly Rate:', formData.hourlyRate);
+    console.log('Minimum Hours:', formData.minimumHours);
+    console.log('======================');
+    
+    // Validate based on service type
+    if (formData.serviceType === 'transfer') {
+      if (!formData.baseRate) {
+        toast({
+          title: "Validation Error",
+          description: "Base rate is required for transfer service",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Check if using distance breakdown or per-mile method
+      const hasPerMileRate = formData.perMileRate && formData.perMileRate.trim() !== '';
+      const hasDistanceTiers = formData.distanceTiers && formData.distanceTiers.length > 0;
+      
+      if (!hasPerMileRate && !hasDistanceTiers) {
+        toast({
+          title: "Validation Error", 
+          description: "For transfer service, you must either:\n1. Add distance tiers (Distance Breakdown method), OR\n2. Enter a per mile rate (Per Mile Rate method)",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else if (formData.serviceType === 'hourly') {
+      if (!formData.hourlyRate || !formData.minimumHours) {
+        toast({
+          title: "Validation Error",
+          description: "Hourly rate and minimum hours are required for hourly service",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
     if (editingRule) {
       updateMutation.mutate({ id: editingRule.id, data: formData });
     } else {

@@ -623,6 +623,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Admin access required' });
       }
 
+      console.log('=== CREATE PRICING RULE PAYLOAD ===');
+      console.log('Service Type:', req.body.serviceType);
+      console.log('Base Rate:', req.body.baseRate, 'Type:', typeof req.body.baseRate);
+      console.log('Per Mile Rate:', req.body.perMileRate, 'Type:', typeof req.body.perMileRate);
+      console.log('Distance Tiers:', JSON.stringify(req.body.distanceTiers));
+      console.log('Distance Tiers Length:', req.body.distanceTiers?.length);
+      console.log('Full Payload:', JSON.stringify(req.body, null, 2));
+      console.log('===================================');
+
       const validatedData = insertPricingRuleSchema.parse(req.body);
       const newRule = await storage.createPricingRule(validatedData);
       res.json(newRule);
