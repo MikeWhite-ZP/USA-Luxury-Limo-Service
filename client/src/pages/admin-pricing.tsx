@@ -607,7 +607,7 @@ export default function AdminPricing() {
                                           type="number"
                                           step="0.01"
                                           placeholder="20"
-                                          className="w-32"
+                                          className="w-32 bg-[#ffffff] pl-[8px] pr-[8px] pt-[4px] pb-[4px]"
                                           value={tier.miles}
                                           onChange={(e) => updateDistanceTier(index, 'miles', parseFloat(e.target.value) || 0)}
                                           data-testid={`input-tier-miles-${index}`}
