@@ -607,7 +607,7 @@ export default function AdminPricing() {
                                           type="number"
                                           step="0.01"
                                           placeholder="20"
-                                          className="w-32 pl-[8px] pr-[8px] pt-[4px] pb-[4px] mt-[0px] mb-[0px]"
+                                          className="w-32 pl-[8px] pr-[8px] pt-[4px] pb-[4px] mt-[0px] mb-[0px] bg-[#ffffff]"
                                           value={tier.miles}
                                           onChange={(e) => updateDistanceTier(index, 'miles', parseFloat(e.target.value) || 0)}
                                           data-testid={`input-tier-miles-${index}`}
@@ -773,6 +773,7 @@ export default function AdminPricing() {
                               <Input
                                 type="number"
                                 step="0.01"
+                                className="bg-[#ffffff]"
                                 value={formData.meetAndGreet.charge}
                                 onChange={(e) => setFormData(prev => ({ 
                                   ...prev, 
@@ -906,6 +907,7 @@ export default function AdminPricing() {
                           <Input
                             id="effectiveStart"
                             type="date"
+                            className="bg-[#ffffff]"
                             value={formData.effectiveStart}
                             onChange={(e) => setFormData(prev => ({ ...prev, effectiveStart: e.target.value }))}
                             data-testid="input-effective-start"
@@ -916,6 +918,7 @@ export default function AdminPricing() {
                           <Input
                             id="effectiveEnd"
                             type="date"
+                            className="bg-[#ffffff]"
                             value={formData.effectiveEnd}
                             onChange={(e) => setFormData(prev => ({ ...prev, effectiveEnd: e.target.value }))}
                             data-testid="input-effective-end"
