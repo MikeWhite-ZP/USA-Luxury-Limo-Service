@@ -621,7 +621,7 @@ export default function AdminPricing() {
                                       type="number"
                                       step="0.01"
                                       placeholder="0"
-                                      className="w-32"
+                                      className="w-32 bg-[#ffffff] pt-[4px] pb-[4px] pl-[8px] pr-[8px]"
                                       value={tier.ratePerMile}
                                       onChange={(e) => updateDistanceTier(index, 'ratePerMile', parseFloat(e.target.value) || 0)}
                                       data-testid={`input-tier-rate-${index}`}
