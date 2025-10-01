@@ -599,7 +599,7 @@ export default function AdminPricing() {
                                 </div>
                                 
                                 {formData.distanceTiers.map((tier, index) => (
-                                  <div key={index} className="flex items-center gap-2 bg-[#f5f5dc] p-2 rounded">
+                                  <div key={index} className="flex items-center gap-2 bg-[#f5f5dc] p-2 rounded pl-[4px] pr-[4px] pt-[3px] pb-[3px] mt-[2px] mb-[2px]">
                                     <div className="w-24 text-sm font-medium">{getTierLabel(index)}</div>
                                     {!tier.isRemaining && (
                                       <>
