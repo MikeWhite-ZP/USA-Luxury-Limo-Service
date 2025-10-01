@@ -461,7 +461,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const allSettings = await storage.getAllSystemSettings();
 
       // Build a map of database credentials
-      const dbCredentials: Record<string, { value: string; updatedAt?: Date }> = {};
+      const dbCredentials: Record<string, { value: string | null; updatedAt: Date | null }> = {};
       allSettings.forEach(setting => {
         dbCredentials[setting.key] = { value: setting.value, updatedAt: setting.updatedAt };
       });
@@ -531,6 +531,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Update settings error:', error);
       res.status(500).json({ message: 'Failed to update settings' });
+    }
+  });
+
+  app.get('/api/admin/settings/:key/value', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { key } = req.params;
+      const setting = await storage.getSystemSetting(key);
+
+      if (!setting) {
+        return res.status(404).json({ message: 'Credential not found' });
+      }
+
+      res.json({ value: setting.value });
+    } catch (error) {
+      console.error('Get setting value error:', error);
+      res.status(500).json({ message: 'Failed to fetch credential value' });
     }
   });
 

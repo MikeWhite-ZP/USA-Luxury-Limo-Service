@@ -47,6 +47,7 @@ export default function AdminDashboard() {
   const [newKeyName, setNewKeyName] = useState('');
   const [newKeyValue, setNewKeyValue] = useState('');
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [loadingValue, setLoadingValue] = useState(false);
 
   // Redirect to home if not authenticated or not admin
   useEffect(() => {
@@ -211,6 +212,60 @@ export default function AdminDashboard() {
   const handleDeleteCredential = (key: string) => {
     if (confirm(`Are you sure you want to delete the ${key} credential?`)) {
       deleteCredentialMutation.mutate(key);
+    }
+  };
+
+  const handleEditCredential = async (key: string) => {
+    setEditingKey(key);
+    setLoadingValue(true);
+    
+    try {
+      // Fetch the actual credential value from the database
+      const response = await fetch(`/api/admin/settings/${key}/value`, {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setNewKeyValue(data.value || '');
+      } else if (response.status === 404) {
+        // Credential not found in DB (env-only), show empty field
+        setNewKeyValue('');
+        toast({
+          title: "Environment Variable",
+          description: "This credential is from environment variables. Enter a new value to override it in the database.",
+        });
+      } else if (response.status === 401 || response.status === 403) {
+        // Unauthorized - redirect to login
+        setEditingKey(null);
+        setNewKeyValue('');
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+      } else {
+        // Other error
+        setNewKeyValue('');
+        toast({
+          title: "Error",
+          description: "Failed to load credential value",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch credential value:', error);
+      setNewKeyValue('');
+      toast({
+        title: "Error",
+        description: "Failed to load credential value",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingValue(false);
     }
   };
 
@@ -427,18 +482,25 @@ export default function AdminDashboard() {
                       
                       {editingKey === credential.key ? (
                         <div className="mt-3 space-y-2">
-                          <Input
-                            type="password"
-                            placeholder="Enter new value"
-                            value={newKeyValue}
-                            onChange={(e) => setNewKeyValue(e.target.value)}
-                            data-testid={`input-edit-${credential.key.toLowerCase()}`}
-                          />
+                          {loadingValue ? (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+                              Loading current value...
+                            </div>
+                          ) : (
+                            <Input
+                              type="text"
+                              placeholder="Enter new value"
+                              value={newKeyValue}
+                              onChange={(e) => setNewKeyValue(e.target.value)}
+                              data-testid={`input-edit-${credential.key.toLowerCase()}`}
+                            />
+                          )}
                           <div className="flex gap-2">
                             <Button
                               size="sm"
                               onClick={() => handleUpdateCredential(credential.key)}
-                              disabled={updateCredentialMutation.isPending}
+                              disabled={updateCredentialMutation.isPending || loadingValue}
                               data-testid={`button-save-${credential.key.toLowerCase()}`}
                             >
                               <Check className="w-4 h-4 mr-1" />
@@ -472,10 +534,7 @@ export default function AdminDashboard() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => {
-                            setEditingKey(credential.key);
-                            setNewKeyValue('');
-                          }}
+                          onClick={() => handleEditCredential(credential.key)}
                           data-testid={`button-edit-${credential.key.toLowerCase()}`}
                         >
                           <Edit2 className="w-4 h-4" />
