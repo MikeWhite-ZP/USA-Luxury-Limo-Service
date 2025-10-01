@@ -339,13 +339,17 @@ export const insertPricingRuleSchema = createInsertSchema(pricingRules)
   .refine(
     (data) => {
       if (data.serviceType === "transfer") {
-        return data.baseRate !== undefined && data.baseRate !== null && 
-               data.perMileRate !== undefined && data.perMileRate !== null;
+        const hasBaseRate = data.baseRate !== undefined && data.baseRate !== null;
+        const hasPerMileRate = data.perMileRate !== undefined && data.perMileRate !== null;
+        const hasDistanceTiers = data.distanceTiers && data.distanceTiers.length > 0;
+        
+        // Transfer requires baseRate AND (perMileRate OR distanceTiers)
+        return hasBaseRate && (hasPerMileRate || hasDistanceTiers);
       }
       return true;
     },
     {
-      message: "Transfer service type requires baseRate and perMileRate",
+      message: "Transfer service requires baseRate and either perMileRate or distance tiers",
       path: ["serviceType"],
     }
   )
