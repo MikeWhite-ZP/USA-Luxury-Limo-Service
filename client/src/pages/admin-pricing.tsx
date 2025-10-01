@@ -165,13 +165,13 @@ export default function AdminPricing() {
         minimumHours: data.minimumHours ? parseInt(String(data.minimumHours)) : null,
         minimumFare: data.minimumFare ? String(data.minimumFare) : null,
         gratuityPercent: data.gratuityPercent ? String(data.gratuityPercent) : "20",
-        airportFees: data.airportFees || [],
+        airportFees: (data.airportFees || []).filter(fee => fee.airportCode && fee.airportCode.trim().length >= 3),
         meetAndGreet: data.meetAndGreet || { enabled: false, charge: 0 },
         surgePricing: data.surgePricing || [],
         distanceTiers: data.distanceTiers || [],
         overtimeRate: data.overtimeRate ? String(data.overtimeRate) : null,
-        effectiveStart: data.effectiveStart ? new Date(data.effectiveStart) : null,
-        effectiveEnd: data.effectiveEnd ? new Date(data.effectiveEnd) : null,
+        effectiveStart: (data.effectiveStart && data.effectiveStart.trim() !== '') ? new Date(data.effectiveStart) : null,
+        effectiveEnd: (data.effectiveEnd && data.effectiveEnd.trim() !== '') ? new Date(data.effectiveEnd) : null,
         isActive: data.isActive ?? true
       };
       const response = await apiRequest('POST', '/api/admin/pricing-rules', payload);
@@ -218,13 +218,13 @@ export default function AdminPricing() {
         minimumHours: data.minimumHours ? parseInt(String(data.minimumHours)) : null,
         minimumFare: data.minimumFare ? String(data.minimumFare) : null,
         gratuityPercent: data.gratuityPercent ? String(data.gratuityPercent) : "20",
-        airportFees: data.airportFees || [],
+        airportFees: (data.airportFees || []).filter(fee => fee.airportCode && fee.airportCode.trim().length >= 3),
         meetAndGreet: data.meetAndGreet || { enabled: false, charge: 0 },
         surgePricing: data.surgePricing || [],
         distanceTiers: data.distanceTiers || [],
         overtimeRate: data.overtimeRate ? String(data.overtimeRate) : null,
-        effectiveStart: data.effectiveStart ? new Date(data.effectiveStart) : null,
-        effectiveEnd: data.effectiveEnd ? new Date(data.effectiveEnd) : null,
+        effectiveStart: (data.effectiveStart && data.effectiveStart.trim() !== '') ? new Date(data.effectiveStart) : null,
+        effectiveEnd: (data.effectiveEnd && data.effectiveEnd.trim() !== '') ? new Date(data.effectiveEnd) : null,
         isActive: data.isActive ?? true
       };
       const response = await apiRequest('PUT', `/api/admin/pricing-rules/${id}`, payload);
@@ -694,6 +694,7 @@ export default function AdminPricing() {
                                 type="number"
                                 step="0.01"
                                 placeholder="20.00"
+                                className="bg-[#ffffff]"
                                 value={formData.gratuityPercent}
                                 onChange={(e) => setFormData(prev => ({ ...prev, gratuityPercent: e.target.value }))}
                                 data-testid="input-gratuity"
