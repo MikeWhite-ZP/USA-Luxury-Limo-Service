@@ -164,14 +164,14 @@ export default function AdminPricing() {
         hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null,
         minimumHours: data.minimumHours ? parseInt(data.minimumHours) : null,
         minimumFare: data.minimumFare ? parseFloat(data.minimumFare) : null,
-        gratuityPercent: data.gratuityPercent ? parseFloat(data.gratuityPercent) : 20,
+        gratuityPercent: data.gratuityPercent || "20",
         airportFees: data.airportFees || [],
         meetAndGreet: data.meetAndGreet || { enabled: false, charge: 0 },
         surgePricing: data.surgePricing || [],
         distanceTiers: data.distanceTiers || [],
         overtimeRate: data.overtimeRate ? parseFloat(data.overtimeRate) : null,
-        effectiveStart: data.effectiveStart || null,
-        effectiveEnd: data.effectiveEnd || null,
+        effectiveStart: data.effectiveStart ? new Date(data.effectiveStart) : null,
+        effectiveEnd: data.effectiveEnd ? new Date(data.effectiveEnd) : null,
         isActive: data.isActive ?? true
       };
       const response = await apiRequest('POST', '/api/admin/pricing-rules', payload);
@@ -217,14 +217,14 @@ export default function AdminPricing() {
         hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null,
         minimumHours: data.minimumHours ? parseInt(data.minimumHours) : null,
         minimumFare: data.minimumFare ? parseFloat(data.minimumFare) : null,
-        gratuityPercent: data.gratuityPercent ? parseFloat(data.gratuityPercent) : 20,
+        gratuityPercent: data.gratuityPercent || "20",
         airportFees: data.airportFees || [],
         meetAndGreet: data.meetAndGreet || { enabled: false, charge: 0 },
         surgePricing: data.surgePricing || [],
         distanceTiers: data.distanceTiers || [],
         overtimeRate: data.overtimeRate ? parseFloat(data.overtimeRate) : null,
-        effectiveStart: data.effectiveStart || null,
-        effectiveEnd: data.effectiveEnd || null,
+        effectiveStart: data.effectiveStart ? new Date(data.effectiveStart) : null,
+        effectiveEnd: data.effectiveEnd ? new Date(data.effectiveEnd) : null,
         isActive: data.isActive ?? true
       };
       const response = await apiRequest('PUT', `/api/admin/pricing-rules/${id}`, payload);
