@@ -68,3 +68,36 @@ Preferred communication style: Simple, everyday language.
 - **Tailwind CSS**: Utility-first CSS framework
 - **Wouter**: Lightweight React routing
 - **React Hook Form**: Form state management and validation
+
+## Docker Deployment
+
+The application can be containerized and deployed using Docker:
+
+### Files
+- **Dockerfile**: Multi-stage build (builder + production) using Node 20 Alpine
+- **docker-compose.yml**: Service orchestration with environment variables
+- **.dockerignore**: Excludes node_modules, logs, and dev files from build context
+- **.env.example**: Template for required environment variables
+
+### Build Process
+1. Builder stage: Installs all dependencies and runs `npm run build`
+   - Frontend built to `dist/public/` via Vite
+   - Backend bundled to `dist/index.js` via esbuild
+2. Production stage: Copies built artifacts and production dependencies only
+
+### Running with Docker
+```bash
+# Build the image
+docker build -t usa-luxury-limo .
+
+# Run with docker-compose (recommended)
+docker-compose up -d
+
+# Or run directly
+docker run -p 5000:5000 --env-file .env usa-luxury-limo
+```
+
+### Environment Variables
+All environment variables must be provided via `.env` file or docker-compose environment section:
+- DATABASE_URL, STRIPE keys, Auth credentials, SESSION_SECRET, etc.
+- See `.env.example` for complete list
