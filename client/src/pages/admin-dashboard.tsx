@@ -32,6 +32,18 @@ interface ContactSubmission {
   createdAt: string;
 }
 
+interface PaymentSystem {
+  id: string;
+  provider: 'stripe' | 'paypal' | 'square';
+  isActive: boolean;
+  publicKey: string | null;
+  secretKey: string | null;
+  webhookSecret: string | null;
+  config: any;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function AdminDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -89,6 +101,13 @@ export default function AdminDashboard() {
   // Fetch contact submissions
   const { data: contacts, isLoading: contactsLoading } = useQuery<ContactSubmission[]>({
     queryKey: ['/api/admin/contacts'],
+    retry: false,
+    enabled: isAuthenticated && user?.role === 'admin',
+  });
+
+  // Fetch payment systems
+  const { data: paymentSystems = [], isLoading: paymentSystemsLoading } = useQuery<PaymentSystem[]>({
+    queryKey: ['/api/payment-systems'],
     retry: false,
     enabled: isAuthenticated && user?.role === 'admin',
   });
@@ -185,6 +204,70 @@ export default function AdminDashboard() {
     },
   });
 
+  // Payment system mutations
+  const updatePaymentSystemMutation = useMutation({
+    mutationFn: async ({ provider, updates }: { provider: string; updates: Partial<PaymentSystem> }) => {
+      const response = await apiRequest('PUT', `/api/payment-systems/${provider}`, updates);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/payment-systems'] });
+      toast({
+        title: "Payment System Updated",
+        description: "Payment system configuration has been saved.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update payment system",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const setActivePaymentSystemMutation = useMutation({
+    mutationFn: async (provider: string) => {
+      const response = await apiRequest('PUT', `/api/payment-systems/${provider}/activate`);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/payment-systems'] });
+      toast({
+        title: "Active Payment System Changed",
+        description: "The active payment system has been updated.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to change active payment system",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const createPaymentSystemMutation = useMutation({
+    mutationFn: async (system: Partial<PaymentSystem>) => {
+      const response = await apiRequest('POST', '/api/payment-systems', system);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/payment-systems'] });
+      toast({
+        title: "Payment System Created",
+        description: "Payment system has been added successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create payment system",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleUpdateCredential = (key: string) => {
     if (!newKeyValue) {
       toast({
@@ -269,18 +352,8 @@ export default function AdminDashboard() {
     }
   };
 
-  // Credential metadata mapping for better UI display
+  // Credential metadata mapping for better UI display (Stripe keys moved to Payment Systems section)
   const credentialMetadata: Record<string, { label: string; description: string; category: string }> = {
-    'STRIPE_SECRET_KEY': { 
-      label: 'Stripe Secret Key',
-      description: 'Used for processing payments',
-      category: 'Payment'
-    },
-    'STRIPE_PUBLIC_KEY': { 
-      label: 'Stripe Publishable Key',
-      description: 'Client-side Stripe integration',
-      category: 'Payment'
-    },
     'TOMTOM_API_KEY': { 
       label: 'TomTom API Key',
       description: 'Geocoding and routing services',
@@ -449,9 +522,9 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Existing Credentials */}
+            {/* Existing Credentials (excluding Stripe - moved to Payment Systems) */}
             <div className="space-y-3">
-              {credentials.map((credential) => (
+              {credentials.filter(c => !c.key.includes('STRIPE')).map((credential) => (
                 <div
                   key={credential.key}
                   className="border rounded-lg p-4"
@@ -607,6 +680,138 @@ export default function AdminDashboard() {
                     <X className="w-4 h-4 mr-1" />
                     Cancel
                   </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Payment Systems Configuration */}
+        <Card data-testid="payment-systems">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <DollarSign className="w-5 h-5" />
+              <span>Payment Systems</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {paymentSystemsLoading ? (
+              <div className="flex items-center justify-center p-8">
+                <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <p className="text-sm text-muted-foreground">
+                  Configure and manage payment providers. Only one provider can be active at a time for system-wide payments.
+                </p>
+
+                {/* Payment System Cards */}
+                <div className="grid gap-4">
+                  {['stripe', 'paypal', 'square'].map((provider) => {
+                    const system = paymentSystems.find(s => s.provider === provider);
+                    const isActive = system?.isActive || false;
+                    const providerLabels: Record<string, string> = {
+                      stripe: 'Stripe',
+                      paypal: 'PayPal',
+                      square: 'Square'
+                    };
+
+                    return (
+                      <div
+                        key={provider}
+                        className={`border rounded-lg p-4 ${isActive ? 'border-primary bg-primary/5' : ''}`}
+                        data-testid={`payment-system-${provider}`}
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <h4 className="font-semibold text-lg" data-testid={`payment-provider-${provider}`}>
+                              {providerLabels[provider]}
+                            </h4>
+                            {isActive && (
+                              <Badge className="bg-green-600" data-testid={`badge-active-${provider}`}>
+                                Active
+                              </Badge>
+                            )}
+                            {system && !isActive && (
+                              <Badge variant="outline" data-testid={`badge-configured-${provider}`}>
+                                Configured
+                              </Badge>
+                            )}
+                          </div>
+                          {!isActive && system && (
+                            <Button
+                              size="sm"
+                              onClick={() => setActivePaymentSystemMutation.mutate(provider)}
+                              disabled={setActivePaymentSystemMutation.isPending}
+                              data-testid={`button-activate-${provider}`}
+                            >
+                              Set as Active
+                            </Button>
+                          )}
+                        </div>
+
+                        {system ? (
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">Public Key:</span>
+                              <span className="font-mono text-xs">
+                                {system.publicKey ? '••••••••' : 'Not set'}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">Secret Key:</span>
+                              <span className="font-mono text-xs">
+                                {system.secretKey ? '••••••••' : 'Not set'}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">Webhook Secret:</span>
+                              <span className="font-mono text-xs">
+                                {system.webhookSecret ? '••••••••' : 'Not set'}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">
+                            Not configured. Add credentials to enable this payment provider.
+                          </div>
+                        )}
+
+                        {!system && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="mt-3"
+                            onClick={() => {
+                              const keys = prompt(
+                                `Enter ${providerLabels[provider]} credentials (format: publicKey|secretKey|webhookSecret):`
+                              );
+                              if (keys) {
+                                const [publicKey, secretKey, webhookSecret] = keys.split('|');
+                                createPaymentSystemMutation.mutate({
+                                  provider: provider as 'stripe' | 'paypal' | 'square',
+                                  publicKey: publicKey || null,
+                                  secretKey: secretKey || null,
+                                  webhookSecret: webhookSecret || null,
+                                  isActive: false,
+                                });
+                              }
+                            }}
+                            data-testid={`button-configure-${provider}`}
+                          >
+                            <Plus className="w-4 h-4 mr-1" />
+                            Configure {providerLabels[provider]}
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Help Text */}
+                <div className="text-xs text-muted-foreground mt-4 p-3 bg-muted rounded-lg">
+                  <strong>Note:</strong> Only one payment system can be active at a time. The active system will be used for all payment processing throughout the application.
+                  Set environment variables STRIPE_SECRET_KEY and STRIPE_PUBLIC_KEY for Stripe integration.
                 </div>
               </div>
             )}
