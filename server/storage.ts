@@ -364,7 +364,7 @@ export class DatabaseStorage implements IStorage {
     revenueGrowth: string;
     ratingImprovement: string;
   }> {
-    // Total revenue from completed bookings
+    // Total revenue from all completed bookings
     const [revenueResult] = await db
       .select({ 
         total: sql<string>`COALESCE(SUM(${bookings.totalAmount}), 0)` 
@@ -372,10 +372,23 @@ export class DatabaseStorage implements IStorage {
       .from(bookings)
       .where(eq(bookings.status, 'completed'));
 
-    // Revenue from last month (for growth calculation)
-    const oneMonthAgo = new Date();
-    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    // Calculate date boundaries for current and previous month
+    const now = new Date();
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     
+    // Revenue from current month
+    const [currentMonthRevenueResult] = await db
+      .select({ 
+        total: sql<string>`COALESCE(SUM(${bookings.totalAmount}), 0)` 
+      })
+      .from(bookings)
+      .where(and(
+        eq(bookings.status, 'completed'),
+        sql`${bookings.createdAt} >= ${currentMonthStart.toISOString()}`
+      ));
+
+    // Revenue from previous month
     const [lastMonthRevenueResult] = await db
       .select({ 
         total: sql<string>`COALESCE(SUM(${bookings.totalAmount}), 0)` 
@@ -383,15 +396,16 @@ export class DatabaseStorage implements IStorage {
       .from(bookings)
       .where(and(
         eq(bookings.status, 'completed'),
-        sql`${bookings.createdAt} < ${oneMonthAgo.toISOString()}`
+        sql`${bookings.createdAt} >= ${lastMonthStart.toISOString()}`,
+        sql`${bookings.createdAt} < ${currentMonthStart.toISOString()}`
       ));
 
     // Calculate revenue growth percentage
-    const currentRevenue = parseFloat(revenueResult?.total || '0');
+    const currentMonthRevenue = parseFloat(currentMonthRevenueResult?.total || '0');
     const lastMonthRevenue = parseFloat(lastMonthRevenueResult?.total || '0');
     let revenueGrowth = '0';
     if (lastMonthRevenue > 0) {
-      const growth = ((currentRevenue - lastMonthRevenue) / lastMonthRevenue) * 100;
+      const growth = ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100;
       revenueGrowth = growth.toFixed(1);
     }
 
@@ -427,7 +441,7 @@ export class DatabaseStorage implements IStorage {
       .from(drivers)
       .where(eq(drivers.verificationStatus, 'pending'));
 
-    // Average driver rating (current)
+    // Current average rating (all verified drivers)
     const [ratingResult] = await db
       .select({ 
         avg: sql<string>`COALESCE(AVG(${drivers.rating}), 0)` 
@@ -435,21 +449,48 @@ export class DatabaseStorage implements IStorage {
       .from(drivers)
       .where(eq(drivers.verificationStatus, 'verified'));
 
-    // Previous average rating (drivers updated before last month)
+    // Average rating from last 30 days (using bookings as proxy for recent performance)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+    // Get average rating from bookings in the last 30 days
+    const [recentRatingResult] = await db
+      .select({ 
+        avg: sql<string>`COALESCE(AVG(${drivers.rating}), 0)` 
+      })
+      .from(drivers)
+      .innerJoin(bookings, eq(bookings.driverId, drivers.id))
+      .where(and(
+        eq(drivers.verificationStatus, 'verified'),
+        eq(bookings.status, 'completed'),
+        sql`${bookings.createdAt} >= ${thirtyDaysAgo.toISOString()}`
+      ));
+
+    // Get average rating from bookings 30-60 days ago
     const [previousRatingResult] = await db
       .select({ 
         avg: sql<string>`COALESCE(AVG(${drivers.rating}), 0)` 
       })
       .from(drivers)
+      .innerJoin(bookings, eq(bookings.driverId, drivers.id))
       .where(and(
         eq(drivers.verificationStatus, 'verified'),
-        sql`${drivers.updatedAt} < ${oneMonthAgo.toISOString()}`
+        eq(bookings.status, 'completed'),
+        sql`${bookings.createdAt} >= ${sixtyDaysAgo.toISOString()}`,
+        sql`${bookings.createdAt} < ${thirtyDaysAgo.toISOString()}`
       ));
 
-    // Calculate rating improvement
-    const currentRating = parseFloat(ratingResult?.avg || '0');
+    // Calculate rating improvement (comparing recent 30 days vs previous 30 days)
+    const recentRating = parseFloat(recentRatingResult?.avg || '0');
     const previousRating = parseFloat(previousRatingResult?.avg || '0');
-    const ratingImprovement = (currentRating - previousRating).toFixed(1);
+    let ratingImprovement = '0';
+    // Only show improvement if we have data from both periods
+    if (recentRating > 0 && previousRating > 0) {
+      ratingImprovement = (recentRating - previousRating).toFixed(1);
+    }
 
     return {
       totalRevenue: revenueResult?.total || '0',
