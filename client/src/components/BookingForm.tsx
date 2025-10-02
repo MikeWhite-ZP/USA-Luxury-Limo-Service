@@ -74,6 +74,25 @@ export default function BookingForm() {
     queryKey: ['/api/vehicle-types'],
   });
 
+  // Fetch available pricing rules for current service type
+  const { data: pricingRules } = useQuery<Record<string, any>>({
+    queryKey: ['/api/pricing-rules/available', activeTab],
+    enabled: !!activeTab,
+  });
+
+  // Store calculated prices for each vehicle
+  const [calculatedPrices, setCalculatedPrices] = useState<Record<string, string>>({});
+
+  // Convert vehicle display name to pricing rule slug
+  const getVehicleSlug = (vehicleName: string): string => {
+    // Convert "Business Sedan" → "business_sedan", "First-Class Sedan" → "first_class_sedan", etc.
+    return vehicleName
+      .toLowerCase()
+      .replace(/-/g, '_')  // Replace hyphens with underscores
+      .replace(/\s+/g, '_') // Replace spaces with underscores
+      .replace(/[^a-z0-9_]/g, ''); // Remove any other special characters
+  };
+
   // Address geocoding with debounce
   const handleAddressInput = (inputId: string, value: string) => {
     if (suggestionTimeouts.current[inputId]) {
@@ -182,17 +201,84 @@ export default function BookingForm() {
           origins: `${fromCoords.lat},${fromCoords.lon}`,
           destinations: `${toCoords.lat},${toCoords.lon}`
         });
+        
+        const distanceData = await distanceResponse.json();
+        
+        // Get available vehicles with pricing rules
+        if (!pricingRules || Object.keys(pricingRules).length === 0) {
+          throw new Error('No pricing rules configured. Please contact support.');
+        }
 
-        return distanceResponse;
+        // Calculate prices for all available vehicles
+        const pricePromises = Object.keys(pricingRules).map(async (vehicleTypeSlug) => {
+          try {
+            const priceResponse = await apiRequest('POST', '/api/calculate-price', {
+              vehicleType: vehicleTypeSlug,
+              serviceType: 'transfer',
+              distance: distanceData.distance,
+              date,
+              time
+            });
+            const priceData = await priceResponse.json();
+            return { vehicleType: vehicleTypeSlug, price: priceData.price };
+          } catch (error) {
+            console.error(`Failed to calculate price for ${vehicleTypeSlug}:`, error);
+            return { vehicleType: vehicleTypeSlug, price: null };
+          }
+        });
+
+        const prices = await Promise.all(pricePromises);
+        const priceMap = prices.reduce((acc, { vehicleType, price }) => {
+          if (price) acc[vehicleType] = price;
+          return acc;
+        }, {} as Record<string, string>);
+
+        setCalculatedPrices(priceMap);
+
+        return {
+          ...distanceData,
+          prices: priceMap
+        };
       } else {
         if (!pickupCoords || !duration) {
           throw new Error('Please fill in all required fields');
         }
 
-        // For hourly service, just return duration info for step 2
+        // Get available vehicles with pricing rules
+        if (!pricingRules || Object.keys(pricingRules).length === 0) {
+          throw new Error('No pricing rules configured. Please contact support.');
+        }
+
+        // Calculate prices for all available vehicles (hourly service)
+        const pricePromises = Object.keys(pricingRules).map(async (vehicleTypeSlug) => {
+          try {
+            const priceResponse = await apiRequest('POST', '/api/calculate-price', {
+              vehicleType: vehicleTypeSlug,
+              serviceType: 'hourly',
+              hours: duration,
+              date,
+              time
+            });
+            const priceData = await priceResponse.json();
+            return { vehicleType: vehicleTypeSlug, price: priceData.price };
+          } catch (error) {
+            console.error(`Failed to calculate price for ${vehicleTypeSlug}:`, error);
+            return { vehicleType: vehicleTypeSlug, price: null };
+          }
+        });
+
+        const prices = await Promise.all(pricePromises);
+        const priceMap = prices.reduce((acc, { vehicleType, price }) => {
+          if (price) acc[vehicleType] = price;
+          return acc;
+        }, {} as Record<string, string>);
+
+        setCalculatedPrices(priceMap);
+
         return {
           distanceKm: 0,
-          durationMinutes: parseInt(duration) * 60
+          durationMinutes: parseInt(duration) * 60,
+          prices: priceMap
         };
       }
     },
@@ -368,8 +454,25 @@ export default function BookingForm() {
           <h3 className="text-xl font-bold text-primary mb-6">Select Your Vehicle</h3>
           <div className="space-y-3 mb-6">
             {vehicleTypes
-              ?.sort((a, b) => parseFloat(a.hourlyRate) - parseFloat(b.hourlyRate))
+              ?.filter(vehicle => {
+                // Only show vehicles that have pricing rules and calculated prices
+                const vehicleSlug = getVehicleSlug(vehicle.name);
+                const hasPricing = pricingRules && pricingRules[vehicleSlug];
+                const hasCalculatedPrice = calculatedPrices[vehicleSlug];
+                return hasPricing && hasCalculatedPrice;
+              })
+              .sort((a, b) => {
+                // Sort by calculated price
+                const slugA = getVehicleSlug(a.name);
+                const slugB = getVehicleSlug(b.name);
+                const priceA = parseFloat(calculatedPrices[slugA] || '0');
+                const priceB = parseFloat(calculatedPrices[slugB] || '0');
+                return priceA - priceB;
+              })
               .map((vehicle) => {
+                const vehicleSlug = getVehicleSlug(vehicle.name);
+                const calculatedPrice = calculatedPrices[vehicleSlug];
+                
                 // Customize descriptions based on vehicle type
                 let capacityText = `Up to ${vehicle.passengerCapacity} passengers`;
                 let luggageText = vehicle.luggageCapacity;
@@ -414,9 +517,10 @@ export default function BookingForm() {
                     
                     {/* Price */}
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-primary">
-                        ${vehicle.hourlyRate}{activeTab === 'hourly' ? '/hour' : ''}
+                      <p className="text-2xl font-bold text-primary" data-testid={`price-${vehicle.id}`}>
+                        ${calculatedPrice}
                       </p>
+                      <p className="text-xs text-gray-500">Total Price</p>
                     </div>
                   </div>
                 );

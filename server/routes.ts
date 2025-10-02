@@ -623,15 +623,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Admin access required' });
       }
 
-      console.log('=== CREATE PRICING RULE PAYLOAD ===');
-      console.log('Service Type:', req.body.serviceType);
-      console.log('Base Rate:', req.body.baseRate, 'Type:', typeof req.body.baseRate);
-      console.log('Per Mile Rate:', req.body.perMileRate, 'Type:', typeof req.body.perMileRate);
-      console.log('Distance Tiers:', JSON.stringify(req.body.distanceTiers));
-      console.log('Distance Tiers Length:', req.body.distanceTiers?.length);
-      console.log('Full Payload:', JSON.stringify(req.body, null, 2));
-      console.log('===================================');
-
       const validatedData = insertPricingRuleSchema.parse(req.body);
       const newRule = await storage.createPricingRule(validatedData);
       res.json(newRule);
@@ -700,6 +691,204 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Delete pricing rule error:', error);
       res.status(500).json({ message: 'Failed to delete pricing rule' });
+    }
+  });
+
+  // Public endpoint to get available pricing rules (for booking form)
+  app.get('/api/pricing-rules/available', async (req, res) => {
+    try {
+      const { serviceType } = req.query;
+      
+      if (!serviceType || (serviceType !== 'transfer' && serviceType !== 'hourly')) {
+        return res.status(400).json({ message: 'Valid serviceType (transfer or hourly) is required' });
+      }
+
+      const allRules = await storage.getPricingRules();
+      
+      // Filter for active rules matching the service type
+      const availableRules = allRules.filter(rule => 
+        rule.isActive && 
+        rule.serviceType === serviceType &&
+        (!rule.effectiveStart || new Date(rule.effectiveStart) <= new Date()) &&
+        (!rule.effectiveEnd || new Date(rule.effectiveEnd) >= new Date())
+      );
+
+      // Map rules to vehicle types with pricing info
+      const pricingByVehicle = availableRules.reduce((acc, rule) => {
+        acc[rule.vehicleType] = {
+          vehicleType: rule.vehicleType,
+          serviceType: rule.serviceType,
+          baseRate: rule.baseRate,
+          perMileRate: rule.perMileRate,
+          hourlyRate: rule.hourlyRate,
+          minimumHours: rule.minimumHours,
+          minimumFare: rule.minimumFare,
+          gratuityPercent: rule.gratuityPercent,
+          distanceTiers: rule.distanceTiers,
+          hasDistanceTiers: rule.distanceTiers && rule.distanceTiers.length > 0
+        };
+        return acc;
+      }, {} as Record<string, any>);
+
+      res.json(pricingByVehicle);
+    } catch (error) {
+      console.error('Get available pricing rules error:', error);
+      res.status(500).json({ message: 'Failed to fetch pricing rules' });
+    }
+  });
+
+  // Calculate price based on admin pricing rules
+  app.post('/api/calculate-price', async (req, res) => {
+    try {
+      const { vehicleType, serviceType, distance, hours, date, time, airportCode } = req.body;
+
+      if (!vehicleType || !serviceType) {
+        return res.status(400).json({ message: 'vehicleType and serviceType are required' });
+      }
+
+      // Get pricing rule for this vehicle type and service type
+      const allRules = await storage.getPricingRules();
+      const rule = allRules.find(r => 
+        r.vehicleType === vehicleType && 
+        r.serviceType === serviceType &&
+        r.isActive &&
+        (!r.effectiveStart || new Date(r.effectiveStart) <= new Date()) &&
+        (!r.effectiveEnd || new Date(r.effectiveEnd) >= new Date())
+      );
+
+      if (!rule) {
+        return res.status(404).json({ message: 'No active pricing rule found for this vehicle and service type' });
+      }
+
+      let basePrice = 0;
+      let breakdown: any = {
+        baseFare: 0,
+        distanceFare: 0,
+        timeFare: 0,
+        gratuity: 0,
+        airportFee: 0,
+        meetAndGreetFee: 0,
+        surgeMultiplier: 1,
+        subtotal: 0,
+        total: 0
+      };
+
+      if (serviceType === 'transfer') {
+        // Transfer pricing calculation
+        if (!distance) {
+          return res.status(400).json({ message: 'distance is required for transfer service' });
+        }
+
+        const distanceInMiles = parseFloat(distance);
+        
+        // Base rate
+        basePrice = parseFloat(rule.baseRate || '0');
+        breakdown.baseFare = basePrice;
+
+        // Calculate distance fare
+        if (rule.distanceTiers && rule.distanceTiers.length > 0) {
+          // Progressive distance pricing
+          let remainingDistance = distanceInMiles;
+          let distanceCost = 0;
+
+          for (const tier of rule.distanceTiers) {
+            if (tier.isRemaining) {
+              // All remaining miles
+              distanceCost += remainingDistance * parseFloat(String(tier.ratePerMile));
+              break;
+            } else {
+              const tierMiles = parseFloat(String(tier.miles));
+              const tilesUsed = Math.min(remainingDistance, tierMiles);
+              distanceCost += tilesUsed * parseFloat(String(tier.ratePerMile));
+              remainingDistance -= tilesUsed;
+              
+              if (remainingDistance <= 0) break;
+            }
+          }
+
+          breakdown.distanceFare = distanceCost;
+        } else if (rule.perMileRate) {
+          // Simple per-mile calculation
+          breakdown.distanceFare = distanceInMiles * parseFloat(rule.perMileRate);
+        }
+
+        // Calculate subtotal before fees
+        breakdown.subtotal = breakdown.baseFare + breakdown.distanceFare;
+
+        // Apply minimum fare if set
+        if (rule.minimumFare) {
+          const minFare = parseFloat(rule.minimumFare);
+          if (breakdown.subtotal < minFare) {
+            breakdown.subtotal = minFare;
+          }
+        }
+
+      } else if (serviceType === 'hourly') {
+        // Hourly pricing calculation
+        if (!hours) {
+          return res.status(400).json({ message: 'hours is required for hourly service' });
+        }
+
+        const requestedHours = parseInt(hours);
+        const hourlyRate = parseFloat(rule.hourlyRate || '0');
+        const minimumHours = parseInt(String(rule.minimumHours || '0'));
+
+        const billedHours = Math.max(requestedHours, minimumHours);
+        breakdown.timeFare = billedHours * hourlyRate;
+        breakdown.subtotal = breakdown.timeFare;
+      }
+
+      // Apply gratuity
+      if (rule.gratuityPercent) {
+        const gratuityPercent = parseFloat(rule.gratuityPercent);
+        breakdown.gratuity = breakdown.subtotal * (gratuityPercent / 100);
+      }
+
+      // Apply airport fee if applicable
+      if (airportCode && rule.airportFees) {
+        const airportFeeEntry = rule.airportFees.find((fee: any) => 
+          fee.airportCode.toUpperCase() === airportCode.toUpperCase()
+        );
+        if (airportFeeEntry) {
+          breakdown.airportFee = parseFloat(String(airportFeeEntry.fee));
+        }
+      }
+
+      // Apply meet & greet fee if enabled
+      if (rule.meetAndGreet && rule.meetAndGreet.enabled) {
+        breakdown.meetAndGreetFee = parseFloat(String(rule.meetAndGreet.charge || 0));
+      }
+
+      // Check for surge pricing if date and time provided
+      if (date && time && rule.surgePricing && rule.surgePricing.length > 0) {
+        const requestDate = new Date(`${date}T${time}`);
+        const dayOfWeek = requestDate.getDay();
+        const timeStr = time; // HH:MM format
+
+        for (const surge of rule.surgePricing) {
+          if (surge.dayOfWeek === dayOfWeek && 
+              timeStr >= surge.startTime && 
+              timeStr <= surge.endTime) {
+            breakdown.surgeMultiplier = parseFloat(String(surge.multiplier));
+            break;
+          }
+        }
+      }
+
+      // Calculate final total
+      breakdown.total = (breakdown.subtotal + breakdown.gratuity + breakdown.airportFee + breakdown.meetAndGreetFee) * breakdown.surgeMultiplier;
+
+      res.json({
+        vehicleType,
+        serviceType,
+        price: breakdown.total.toFixed(2),
+        breakdown,
+        ruleId: rule.id
+      });
+
+    } catch (error) {
+      console.error('Calculate price error:', error);
+      res.status(500).json({ message: 'Failed to calculate price' });
     }
   });
 
