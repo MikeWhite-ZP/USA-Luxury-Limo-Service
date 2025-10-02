@@ -587,7 +587,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const systems = await storage.getPaymentSystems();
-      res.json(systems);
+      
+      // Sanitize sensitive fields - mask keys but indicate if they exist
+      const sanitizedSystems = systems.map(system => ({
+        ...system,
+        publicKey: system.publicKey ? '••••••••' : null,
+        secretKey: system.secretKey ? '••••••••' : null,
+        webhookSecret: system.webhookSecret ? '••••••••' : null,
+      }));
+      
+      res.json(sanitizedSystems);
     } catch (error) {
       console.error('Get payment systems error:', error);
       res.status(500).json({ message: 'Failed to fetch payment systems' });
@@ -597,7 +606,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/payment-systems/active', async (req, res) => {
     try {
       const activeSystem = await storage.getActivePaymentSystem();
-      res.json(activeSystem || null);
+      if (!activeSystem) {
+        return res.json(null);
+      }
+      
+      // Return only non-sensitive data for public endpoint
+      res.json({
+        provider: activeSystem.provider,
+        isActive: activeSystem.isActive,
+      });
     } catch (error) {
       console.error('Get active payment system error:', error);
       res.status(500).json({ message: 'Failed to fetch active payment system' });
@@ -614,7 +631,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const newSystem = await storage.createPaymentSystem(req.body);
-      res.json(newSystem);
+      
+      // Sanitize response - never return raw credentials
+      const sanitizedSystem = {
+        ...newSystem,
+        publicKey: newSystem.publicKey ? '••••••••' : null,
+        secretKey: newSystem.secretKey ? '••••••••' : null,
+        webhookSecret: newSystem.webhookSecret ? '••••••••' : null,
+      };
+      
+      res.json(sanitizedSystem);
     } catch (error: any) {
       console.error('Create payment system error:', error);
       if (error.code === '23505') {
@@ -637,7 +663,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!updatedSystem) {
         return res.status(404).json({ message: 'Payment system not found' });
       }
-      res.json(updatedSystem);
+      
+      // Sanitize response - never return raw credentials
+      const sanitizedSystem = {
+        ...updatedSystem,
+        publicKey: updatedSystem.publicKey ? '••••••••' : null,
+        secretKey: updatedSystem.secretKey ? '••••••••' : null,
+        webhookSecret: updatedSystem.webhookSecret ? '••••••••' : null,
+      };
+      
+      res.json(sanitizedSystem);
     } catch (error) {
       console.error('Update payment system error:', error);
       res.status(500).json({ message: 'Failed to update payment system' });
