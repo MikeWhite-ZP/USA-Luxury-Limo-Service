@@ -112,6 +112,7 @@ export default function AdminPricing() {
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<PricingRule | null>(null);
+  const [pricingMethod, setPricingMethod] = useState<"distance-breakdown" | "per-mile">("distance-breakdown");
   const [formData, setFormData] = useState<PricingFormData>({
     vehicleType: "business_sedan",
     serviceType: "transfer",
@@ -290,10 +291,28 @@ export default function AdminPricing() {
       isActive: true
     });
     setEditingRule(null);
+    setPricingMethod("distance-breakdown");
+  };
+
+  const formatDateForInput = (dateString: string | null): string => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "";
+      return date.toISOString().split('T')[0];
+    } catch {
+      return "";
+    }
   };
 
   const handleEdit = (rule: PricingRule) => {
     setEditingRule(rule);
+    
+    // Determine which pricing method is being used
+    const hasPerMileRate = rule.perMileRate && rule.perMileRate.trim() !== '';
+    const hasDistanceTiers = rule.distanceTiers && rule.distanceTiers.length > 0;
+    setPricingMethod(hasPerMileRate ? "per-mile" : "distance-breakdown");
+    
     setFormData({
       vehicleType: rule.vehicleType,
       serviceType: rule.serviceType,
@@ -308,8 +327,8 @@ export default function AdminPricing() {
       surgePricing: rule.surgePricing || [],
       distanceTiers: rule.distanceTiers || [],
       overtimeRate: rule.overtimeRate || "",
-      effectiveStart: rule.effectiveStart || "",
-      effectiveEnd: rule.effectiveEnd || "",
+      effectiveStart: formatDateForInput(rule.effectiveStart),
+      effectiveEnd: formatDateForInput(rule.effectiveEnd),
       isActive: rule.isActive
     });
     setIsDialogOpen(true);
@@ -326,6 +345,7 @@ export default function AdminPricing() {
     
     console.log('=== FORM SUBMISSION ===');
     console.log('Service Type:', formData.serviceType);
+    console.log('Pricing Method:', pricingMethod);
     console.log('Base Rate:', formData.baseRate);
     console.log('Per Mile Rate:', formData.perMileRate);
     console.log('Distance Tiers:', formData.distanceTiers);
@@ -345,17 +365,26 @@ export default function AdminPricing() {
         return;
       }
       
-      // Check if using distance breakdown or per-mile method
-      const hasPerMileRate = formData.perMileRate && formData.perMileRate.trim() !== '';
-      const hasDistanceTiers = formData.distanceTiers && formData.distanceTiers.length > 0;
-      
-      if (!hasPerMileRate && !hasDistanceTiers) {
-        toast({
-          title: "Validation Error", 
-          description: "For transfer service, you must either:\n1. Add distance tiers (Distance Breakdown method), OR\n2. Enter a per mile rate (Per Mile Rate method)",
-          variant: "destructive",
-        });
-        return;
+      // Validate based on selected pricing method
+      if (pricingMethod === 'per-mile') {
+        if (!formData.perMileRate || formData.perMileRate.trim() === '') {
+          toast({
+            title: "Validation Error",
+            description: "Per mile rate is required when using Per Mile Rate method",
+            variant: "destructive",
+          });
+          return;
+        }
+      } else {
+        // distance-breakdown method
+        if (!formData.distanceTiers || formData.distanceTiers.length === 0) {
+          toast({
+            title: "Validation Error",
+            description: "At least one distance tier is required when using Distance Breakdown method",
+            variant: "destructive",
+          });
+          return;
+        }
       }
     } else if (formData.serviceType === 'hourly') {
       if (!formData.hourlyRate || !formData.minimumHours) {
@@ -368,10 +397,20 @@ export default function AdminPricing() {
       }
     }
     
+    // Prepare submission data, clearing opposite method's data based on pricingMethod
+    const submissionData = { ...formData };
+    if (formData.serviceType === 'transfer') {
+      if (pricingMethod === 'per-mile') {
+        submissionData.distanceTiers = [];
+      } else {
+        submissionData.perMileRate = "";
+      }
+    }
+    
     if (editingRule) {
-      updateMutation.mutate({ id: editingRule.id, data: formData });
+      updateMutation.mutate({ id: editingRule.id, data: submissionData });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(submissionData);
     }
   };
 
@@ -590,7 +629,13 @@ export default function AdminPricing() {
                       <TabsContent value="transfer" className="space-y-6">
                         {/* Pricing Method Tabs */}
                         <div className="space-y-4">
-                          <Tabs defaultValue="distance-breakdown" className="w-full">
+                          <Tabs 
+                            value={pricingMethod}
+                            onValueChange={(value) => {
+                              setPricingMethod(value as "distance-breakdown" | "per-mile");
+                            }}
+                            className="w-full"
+                          >
                             <TabsList className="grid w-full grid-cols-2">
                               <TabsTrigger value="distance-breakdown">Distance Breakdown/Fix Rate</TabsTrigger>
                               <TabsTrigger value="per-mile">Per Mile Rate</TabsTrigger>
