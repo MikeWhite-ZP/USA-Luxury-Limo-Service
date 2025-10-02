@@ -9,6 +9,7 @@ import {
   invoices,
   contactSubmissions,
   pricingRules,
+  paymentSystems,
   type User,
   type UpsertUser,
   type Driver,
@@ -20,11 +21,13 @@ import {
   type Invoice,
   type ContactSubmission,
   type PricingRule,
+  type PaymentSystem,
   type InsertDriver,
   type InsertBooking,
   type InsertContact,
   type InsertSavedAddress,
   type InsertPricingRule,
+  type InsertPaymentSystem,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -99,6 +102,15 @@ export interface IStorage {
   createPricingRule(rule: InsertPricingRule): Promise<PricingRule>;
   updatePricingRule(id: string, rule: Partial<InsertPricingRule>): Promise<PricingRule | undefined>;
   deletePricingRule(id: string): Promise<void>;
+  
+  // Payment Systems
+  getPaymentSystems(): Promise<PaymentSystem[]>;
+  getPaymentSystem(provider: string): Promise<PaymentSystem | undefined>;
+  getActivePaymentSystem(): Promise<PaymentSystem | undefined>;
+  createPaymentSystem(system: InsertPaymentSystem): Promise<PaymentSystem>;
+  updatePaymentSystem(provider: string, updates: Partial<InsertPaymentSystem>): Promise<PaymentSystem | undefined>;
+  setActivePaymentSystem(provider: string): Promise<void>;
+  deletePaymentSystem(provider: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -446,6 +458,44 @@ export class DatabaseStorage implements IStorage {
 
   async deletePricingRule(id: string): Promise<void> {
     await db.delete(pricingRules).where(eq(pricingRules.id, id));
+  }
+
+  // Payment Systems methods
+  async getPaymentSystems(): Promise<PaymentSystem[]> {
+    return await db.select().from(paymentSystems).orderBy(paymentSystems.provider);
+  }
+
+  async getPaymentSystem(provider: string): Promise<PaymentSystem | undefined> {
+    const [system] = await db.select().from(paymentSystems).where(eq(paymentSystems.provider, provider));
+    return system;
+  }
+
+  async getActivePaymentSystem(): Promise<PaymentSystem | undefined> {
+    const [system] = await db.select().from(paymentSystems).where(eq(paymentSystems.isActive, true));
+    return system;
+  }
+
+  async createPaymentSystem(system: InsertPaymentSystem): Promise<PaymentSystem> {
+    const [newSystem] = await db.insert(paymentSystems).values(system).returning();
+    return newSystem;
+  }
+
+  async updatePaymentSystem(provider: string, updates: Partial<InsertPaymentSystem>): Promise<PaymentSystem | undefined> {
+    const [updatedSystem] = await db
+      .update(paymentSystems)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(paymentSystems.provider, provider))
+      .returning();
+    return updatedSystem;
+  }
+
+  async setActivePaymentSystem(provider: string): Promise<void> {
+    await db.update(paymentSystems).set({ isActive: false });
+    await db.update(paymentSystems).set({ isActive: true }).where(eq(paymentSystems.provider, provider));
+  }
+
+  async deletePaymentSystem(provider: string): Promise<void> {
+    await db.delete(paymentSystems).where(eq(paymentSystems.provider, provider));
   }
 }
 

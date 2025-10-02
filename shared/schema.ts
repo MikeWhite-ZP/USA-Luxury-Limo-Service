@@ -242,6 +242,20 @@ export const systemSettings = pgTable("system_settings", {
   updatedBy: varchar("updated_by").references(() => users.id),
 });
 
+// Payment Systems Configuration
+export const paymentProviderEnum = ["stripe", "paypal", "square"] as const;
+export const paymentSystems = pgTable("payment_systems", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  provider: varchar("provider", { enum: paymentProviderEnum }).unique().notNull(),
+  isActive: boolean("is_active").default(false),
+  publicKey: text("public_key"),
+  secretKey: text("secret_key"),
+  webhookSecret: text("webhook_secret"),
+  config: jsonb("config"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Invoice/Receipt records
 export const invoices = pgTable("invoices", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -396,6 +410,12 @@ export const insertPricingRuleSchema = createInsertSchema(pricingRules)
     }
   );
 
+export const insertPaymentSystemSchema = createInsertSchema(paymentSystems).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -408,6 +428,7 @@ export type SystemSetting = typeof systemSettings.$inferSelect;
 export type Invoice = typeof invoices.$inferSelect;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 export type PricingRule = typeof pricingRules.$inferSelect;
+export type PaymentSystem = typeof paymentSystems.$inferSelect;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertDriver = z.infer<typeof insertDriverSchema>;
@@ -415,3 +436,4 @@ export type InsertBooking = z.infer<typeof insertBookingSchema>;
 export type InsertContact = z.infer<typeof insertContactSchema>;
 export type InsertSavedAddress = z.infer<typeof insertSavedAddressSchema>;
 export type InsertPricingRule = z.infer<typeof insertPricingRuleSchema>;
+export type InsertPaymentSystem = z.infer<typeof insertPaymentSystemSchema>;
