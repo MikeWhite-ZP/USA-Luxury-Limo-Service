@@ -18,6 +18,10 @@ interface DashboardStats {
   activeBookings: number;
   activeDrivers: number;
   averageRating: string;
+  pendingBookings: number;
+  pendingDrivers: number;
+  revenueGrowth: string;
+  ratingImprovement: string;
 }
 
 interface ContactSubmission {
@@ -425,7 +429,11 @@ export default function AdminDashboard() {
                   <p className="text-2xl font-bold" data-testid="total-revenue">
                     ${statsLoading ? '...' : stats?.totalRevenue || '0'}
                   </p>
-                  <p className="text-xs text-green-600">+12.5% from last month</p>
+                  {!statsLoading && stats && parseFloat(stats.revenueGrowth) !== 0 && (
+                    <p className={`text-xs ${parseFloat(stats.revenueGrowth) > 0 ? 'text-green-600' : 'text-red-600'}`} data-testid="revenue-growth">
+                      {parseFloat(stats.revenueGrowth) > 0 ? '+' : ''}{stats.revenueGrowth}% from last month
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -440,7 +448,11 @@ export default function AdminDashboard() {
                   <p className="text-2xl font-bold" data-testid="active-bookings">
                     {statsLoading ? '...' : stats?.activeBookings || 0}
                   </p>
-                  <p className="text-xs text-blue-600">8 pending approvals</p>
+                  {!statsLoading && stats && stats.pendingBookings > 0 && (
+                    <p className="text-xs text-blue-600" data-testid="pending-bookings">
+                      {stats.pendingBookings} pending approval{stats.pendingBookings !== 1 ? 's' : ''}
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -455,7 +467,11 @@ export default function AdminDashboard() {
                   <p className="text-2xl font-bold" data-testid="active-drivers">
                     {statsLoading ? '...' : stats?.activeDrivers || 0}
                   </p>
-                  <p className="text-xs text-primary">3 pending verification</p>
+                  {!statsLoading && stats && stats.pendingDrivers > 0 && (
+                    <p className="text-xs text-primary" data-testid="pending-drivers">
+                      {stats.pendingDrivers} pending verification
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -470,7 +486,11 @@ export default function AdminDashboard() {
                   <p className="text-2xl font-bold" data-testid="customer-satisfaction">
                     {statsLoading ? '...' : stats?.averageRating || '0'}/5
                   </p>
-                  <p className="text-xs text-green-600">+0.2 this month</p>
+                  {!statsLoading && stats && parseFloat(stats.ratingImprovement) !== 0 && (
+                    <p className={`text-xs ${parseFloat(stats.ratingImprovement) > 0 ? 'text-green-600' : 'text-red-600'}`} data-testid="rating-improvement">
+                      {parseFloat(stats.ratingImprovement) > 0 ? '+' : ''}{stats.ratingImprovement} this month
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>

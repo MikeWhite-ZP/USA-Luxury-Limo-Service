@@ -89,6 +89,10 @@ export interface IStorage {
     activeBookings: number;
     activeDrivers: number;
     averageRating: string;
+    pendingBookings: number;
+    pendingDrivers: number;
+    revenueGrowth: string;
+    ratingImprovement: string;
   }>;
   
   // Stripe customer management
@@ -355,6 +359,10 @@ export class DatabaseStorage implements IStorage {
     activeBookings: number;
     activeDrivers: number;
     averageRating: string;
+    pendingBookings: number;
+    pendingDrivers: number;
+    revenueGrowth: string;
+    ratingImprovement: string;
   }> {
     // Total revenue from completed bookings
     const [revenueResult] = await db
@@ -364,6 +372,29 @@ export class DatabaseStorage implements IStorage {
       .from(bookings)
       .where(eq(bookings.status, 'completed'));
 
+    // Revenue from last month (for growth calculation)
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    
+    const [lastMonthRevenueResult] = await db
+      .select({ 
+        total: sql<string>`COALESCE(SUM(${bookings.totalAmount}), 0)` 
+      })
+      .from(bookings)
+      .where(and(
+        eq(bookings.status, 'completed'),
+        sql`${bookings.createdAt} < ${oneMonthAgo.toISOString()}`
+      ));
+
+    // Calculate revenue growth percentage
+    const currentRevenue = parseFloat(revenueResult?.total || '0');
+    const lastMonthRevenue = parseFloat(lastMonthRevenueResult?.total || '0');
+    let revenueGrowth = '0';
+    if (lastMonthRevenue > 0) {
+      const growth = ((currentRevenue - lastMonthRevenue) / lastMonthRevenue) * 100;
+      revenueGrowth = growth.toFixed(1);
+    }
+
     // Active bookings count
     const [activeBookingsResult] = await db
       .select({ 
@@ -371,6 +402,14 @@ export class DatabaseStorage implements IStorage {
       })
       .from(bookings)
       .where(sql`${bookings.status} IN ('pending', 'confirmed', 'in_progress')`);
+
+    // Pending bookings count (status = 'pending')
+    const [pendingBookingsResult] = await db
+      .select({ 
+        count: sql<number>`COUNT(*)` 
+      })
+      .from(bookings)
+      .where(eq(bookings.status, 'pending'));
 
     // Active drivers count
     const [activeDriversResult] = await db
@@ -380,7 +419,15 @@ export class DatabaseStorage implements IStorage {
       .from(drivers)
       .where(and(eq(drivers.isAvailable, true), eq(drivers.verificationStatus, 'verified')));
 
-    // Average driver rating
+    // Pending driver verifications
+    const [pendingDriversResult] = await db
+      .select({ 
+        count: sql<number>`COUNT(*)` 
+      })
+      .from(drivers)
+      .where(eq(drivers.verificationStatus, 'pending'));
+
+    // Average driver rating (current)
     const [ratingResult] = await db
       .select({ 
         avg: sql<string>`COALESCE(AVG(${drivers.rating}), 0)` 
@@ -388,11 +435,31 @@ export class DatabaseStorage implements IStorage {
       .from(drivers)
       .where(eq(drivers.verificationStatus, 'verified'));
 
+    // Previous average rating (drivers updated before last month)
+    const [previousRatingResult] = await db
+      .select({ 
+        avg: sql<string>`COALESCE(AVG(${drivers.rating}), 0)` 
+      })
+      .from(drivers)
+      .where(and(
+        eq(drivers.verificationStatus, 'verified'),
+        sql`${drivers.updatedAt} < ${oneMonthAgo.toISOString()}`
+      ));
+
+    // Calculate rating improvement
+    const currentRating = parseFloat(ratingResult?.avg || '0');
+    const previousRating = parseFloat(previousRatingResult?.avg || '0');
+    const ratingImprovement = (currentRating - previousRating).toFixed(1);
+
     return {
       totalRevenue: revenueResult?.total || '0',
       activeBookings: activeBookingsResult?.count || 0,
       activeDrivers: activeDriversResult?.count || 0,
       averageRating: ratingResult?.avg || '0',
+      pendingBookings: pendingBookingsResult?.count || 0,
+      pendingDrivers: pendingDriversResult?.count || 0,
+      revenueGrowth,
+      ratingImprovement,
     };
   }
 
