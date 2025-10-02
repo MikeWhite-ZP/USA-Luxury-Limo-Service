@@ -462,11 +462,11 @@ export class DatabaseStorage implements IStorage {
 
   // Payment Systems methods
   async getPaymentSystems(): Promise<PaymentSystem[]> {
-    return await db.select().from(paymentSystems).orderBy(paymentSystems.provider);
+    return await db.select().from(paymentSystems).orderBy(sql`${paymentSystems.provider}`);
   }
 
   async getPaymentSystem(provider: string): Promise<PaymentSystem | undefined> {
-    const [system] = await db.select().from(paymentSystems).where(eq(paymentSystems.provider, provider));
+    const [system] = await db.select().from(paymentSystems).where(sql`${paymentSystems.provider} = ${provider}`);
     return system;
   }
 
@@ -484,18 +484,18 @@ export class DatabaseStorage implements IStorage {
     const [updatedSystem] = await db
       .update(paymentSystems)
       .set({ ...updates, updatedAt: new Date() })
-      .where(eq(paymentSystems.provider, provider))
+      .where(sql`${paymentSystems.provider} = ${provider}`)
       .returning();
     return updatedSystem;
   }
 
   async setActivePaymentSystem(provider: string): Promise<void> {
     await db.update(paymentSystems).set({ isActive: false });
-    await db.update(paymentSystems).set({ isActive: true }).where(eq(paymentSystems.provider, provider));
+    await db.update(paymentSystems).set({ isActive: true }).where(sql`${paymentSystems.provider} = ${provider}`);
   }
 
   async deletePaymentSystem(provider: string): Promise<void> {
-    await db.delete(paymentSystems).where(eq(paymentSystems.provider, provider));
+    await db.delete(paymentSystems).where(sql`${paymentSystems.provider} = ${provider}`);
   }
 }
 

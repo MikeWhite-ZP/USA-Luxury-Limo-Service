@@ -576,6 +576,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Payment Systems management (admin only)
+  app.get('/api/payment-systems', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const systems = await storage.getPaymentSystems();
+      res.json(systems);
+    } catch (error) {
+      console.error('Get payment systems error:', error);
+      res.status(500).json({ message: 'Failed to fetch payment systems' });
+    }
+  });
+
+  app.get('/api/payment-systems/active', async (req, res) => {
+    try {
+      const activeSystem = await storage.getActivePaymentSystem();
+      res.json(activeSystem || null);
+    } catch (error) {
+      console.error('Get active payment system error:', error);
+      res.status(500).json({ message: 'Failed to fetch active payment system' });
+    }
+  });
+
+  app.post('/api/payment-systems', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const newSystem = await storage.createPaymentSystem(req.body);
+      res.json(newSystem);
+    } catch (error: any) {
+      console.error('Create payment system error:', error);
+      if (error.code === '23505') {
+        return res.status(409).json({ message: 'Payment system already exists' });
+      }
+      res.status(500).json({ message: 'Failed to create payment system' });
+    }
+  });
+
+  app.put('/api/payment-systems/:provider', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const updatedSystem = await storage.updatePaymentSystem(req.params.provider, req.body);
+      if (!updatedSystem) {
+        return res.status(404).json({ message: 'Payment system not found' });
+      }
+      res.json(updatedSystem);
+    } catch (error) {
+      console.error('Update payment system error:', error);
+      res.status(500).json({ message: 'Failed to update payment system' });
+    }
+  });
+
+  app.put('/api/payment-systems/:provider/activate', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      await storage.setActivePaymentSystem(req.params.provider);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Set active payment system error:', error);
+      res.status(500).json({ message: 'Failed to set active payment system' });
+    }
+  });
+
+  app.delete('/api/payment-systems/:provider', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      await storage.deletePaymentSystem(req.params.provider);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete payment system error:', error);
+      res.status(500).json({ message: 'Failed to delete payment system' });
+    }
+  });
+
   // Pricing rules management (admin only)
   app.get('/api/admin/pricing-rules', isAuthenticated, async (req: any, res) => {
     try {
