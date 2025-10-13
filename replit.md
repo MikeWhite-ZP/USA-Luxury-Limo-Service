@@ -64,6 +64,19 @@ Preferred communication style: Simple, everyday language.
 - **Fleet Management**: Vehicle type definitions with capacity and pricing
 - **Booking Flow**: Multi-step booking process with real-time validation
 
+### Driver Document Management
+- **Document Types**: Four document types (Driver License, Limo License, Insurance Certificate, Vehicle Image)
+- **Status Tracking**: Three-tier status system (pending, approved, rejected) with visual badges
+- **Expiration Management**: 
+  - Driver License, Limo License, and Insurance Certificate include expiration date tracking
+  - Vehicle Image includes vehicle plate number instead of expiration date
+- **Upload Flow**:
+  - Initial upload: File + metadata → Status set to "pending" → Awaits admin review
+  - Re-upload: Updates existing document → Status resets to "pending" → Notifies admins
+- **Driver View**: Real-time status display with expiration dates, rejection reasons, and upload timestamps
+- **Admin Review**: Admins can approve/reject documents with optional rejection reasons
+- **Object Storage**: Files stored in Replit Object Storage under `driver-docs/{driverId}/` directory
+
 ## External Dependencies
 
 - **Stripe**: Payment processing and customer management

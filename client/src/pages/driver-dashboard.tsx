@@ -37,6 +37,16 @@ interface Booking {
   specialInstructions?: string;
 }
 
+interface DriverDocument {
+  id: string;
+  documentType: 'driver_license' | 'limo_license' | 'insurance_certificate' | 'vehicle_image';
+  documentUrl: string;
+  expirationDate?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  rejectionReason?: string;
+  uploadedAt: string;
+}
+
 export default function DriverDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -77,6 +87,13 @@ export default function DriverDashboard() {
   // Fetch driver bookings
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
     queryKey: ['/api/bookings'],
+    retry: false,
+    enabled: isAuthenticated && user?.role === 'driver',
+  });
+
+  // Fetch driver documents
+  const { data: documents, isLoading: documentsLoading } = useQuery<DriverDocument[]>({
+    queryKey: ['/api/driver/documents'],
     retry: false,
     enabled: isAuthenticated && user?.role === 'driver',
   });
@@ -192,6 +209,23 @@ export default function DriverDashboard() {
       case 'rejected': return <AlertCircle className="w-4 h-4 text-red-600" />;
       default: return <Clock className="w-4 h-4 text-gray-400" />;
     }
+  };
+
+  const getDocumentByType = (type: string) => {
+    return documents?.find(doc => doc.documentType === type);
+  };
+
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status) {
+      case 'approved': return 'default';
+      case 'pending': return 'secondary';
+      case 'rejected': return 'destructive';
+      default: return 'outline';
+    }
+  };
+
+  const formatDocumentLabel = (type: string) => {
+    return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
   const handleDocumentUpload = (documentType: string) => {
@@ -326,10 +360,41 @@ export default function DriverDashboard() {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Driver's License */}
               <div className="space-y-4">
-                <h4 className="font-semibold">Driver's License</h4>
+                <h4 className="font-semibold flex items-center justify-between">
+                  <span>Driver's License</span>
+                  {getDocumentByType('driver_license') && (
+                    <Badge variant={getStatusBadgeVariant(getDocumentByType('driver_license')!.status)} data-testid="status-driver-license">
+                      {getDocumentByType('driver_license')!.status}
+                    </Badge>
+                  )}
+                </h4>
+                
+                {getDocumentByType('driver_license') && (
+                  <div className="p-4 border rounded-lg bg-muted/50 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Expiration Date:</span>
+                      <span className="text-sm" data-testid="expiry-driver-license">
+                        {getDocumentByType('driver_license')!.expirationDate 
+                          ? new Date(getDocumentByType('driver_license')!.expirationDate!).toLocaleDateString()
+                          : 'N/A'}
+                      </span>
+                    </div>
+                    {getDocumentByType('driver_license')!.status === 'rejected' && getDocumentByType('driver_license')!.rejectionReason && (
+                      <div className="text-sm text-red-600 mt-2">
+                        <strong>Rejection Reason:</strong> {getDocumentByType('driver_license')!.rejectionReason}
+                      </div>
+                    )}
+                    <div className="text-xs text-muted-foreground">
+                      Uploaded: {new Date(getDocumentByType('driver_license')!.uploadedAt).toLocaleString()}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="driver-license-file">Upload Document (PDF/Image, max 2MB)</Label>
+                    <Label htmlFor="driver-license-file">
+                      {getDocumentByType('driver_license') ? 'Re-upload Document' : 'Upload Document'} (PDF/Image, max 2MB)
+                    </Label>
                     <Input
                       id="driver-license-file"
                       type="file"
@@ -360,17 +425,48 @@ export default function DriverDashboard() {
                     className="w-full"
                     data-testid="button-upload-driver-license"
                   >
-                    {uploadingDoc === 'driver_license' ? 'Uploading...' : 'Save & Upload'}
+                    {uploadingDoc === 'driver_license' ? 'Uploading...' : (getDocumentByType('driver_license') ? 'Update & Upload' : 'Save & Upload')}
                   </Button>
                 </div>
               </div>
 
               {/* Limo License */}
               <div className="space-y-4">
-                <h4 className="font-semibold">Limo License</h4>
+                <h4 className="font-semibold flex items-center justify-between">
+                  <span>Limo License</span>
+                  {getDocumentByType('limo_license') && (
+                    <Badge variant={getStatusBadgeVariant(getDocumentByType('limo_license')!.status)} data-testid="status-limo-license">
+                      {getDocumentByType('limo_license')!.status}
+                    </Badge>
+                  )}
+                </h4>
+                
+                {getDocumentByType('limo_license') && (
+                  <div className="p-4 border rounded-lg bg-muted/50 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Expiration Date:</span>
+                      <span className="text-sm" data-testid="expiry-limo-license">
+                        {getDocumentByType('limo_license')!.expirationDate 
+                          ? new Date(getDocumentByType('limo_license')!.expirationDate!).toLocaleDateString()
+                          : 'N/A'}
+                      </span>
+                    </div>
+                    {getDocumentByType('limo_license')!.status === 'rejected' && getDocumentByType('limo_license')!.rejectionReason && (
+                      <div className="text-sm text-red-600 mt-2">
+                        <strong>Rejection Reason:</strong> {getDocumentByType('limo_license')!.rejectionReason}
+                      </div>
+                    )}
+                    <div className="text-xs text-muted-foreground">
+                      Uploaded: {new Date(getDocumentByType('limo_license')!.uploadedAt).toLocaleString()}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="limo-license-file">Upload Document (PDF/Image, max 2MB)</Label>
+                    <Label htmlFor="limo-license-file">
+                      {getDocumentByType('limo_license') ? 'Re-upload Document' : 'Upload Document'} (PDF/Image, max 2MB)
+                    </Label>
                     <Input
                       id="limo-license-file"
                       type="file"
@@ -401,17 +497,48 @@ export default function DriverDashboard() {
                     className="w-full"
                     data-testid="button-upload-limo-license"
                   >
-                    {uploadingDoc === 'limo_license' ? 'Uploading...' : 'Save & Upload'}
+                    {uploadingDoc === 'limo_license' ? 'Uploading...' : (getDocumentByType('limo_license') ? 'Update & Upload' : 'Save & Upload')}
                   </Button>
                 </div>
               </div>
 
               {/* Insurance Certificate */}
               <div className="space-y-4">
-                <h4 className="font-semibold">Insurance Certificate</h4>
+                <h4 className="font-semibold flex items-center justify-between">
+                  <span>Insurance Certificate</span>
+                  {getDocumentByType('insurance_certificate') && (
+                    <Badge variant={getStatusBadgeVariant(getDocumentByType('insurance_certificate')!.status)} data-testid="status-insurance">
+                      {getDocumentByType('insurance_certificate')!.status}
+                    </Badge>
+                  )}
+                </h4>
+                
+                {getDocumentByType('insurance_certificate') && (
+                  <div className="p-4 border rounded-lg bg-muted/50 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Expiration Date:</span>
+                      <span className="text-sm" data-testid="expiry-insurance">
+                        {getDocumentByType('insurance_certificate')!.expirationDate 
+                          ? new Date(getDocumentByType('insurance_certificate')!.expirationDate!).toLocaleDateString()
+                          : 'N/A'}
+                      </span>
+                    </div>
+                    {getDocumentByType('insurance_certificate')!.status === 'rejected' && getDocumentByType('insurance_certificate')!.rejectionReason && (
+                      <div className="text-sm text-red-600 mt-2">
+                        <strong>Rejection Reason:</strong> {getDocumentByType('insurance_certificate')!.rejectionReason}
+                      </div>
+                    )}
+                    <div className="text-xs text-muted-foreground">
+                      Uploaded: {new Date(getDocumentByType('insurance_certificate')!.uploadedAt).toLocaleString()}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="insurance-file">Upload Document (PDF/Image, max 2MB)</Label>
+                    <Label htmlFor="insurance-file">
+                      {getDocumentByType('insurance_certificate') ? 'Re-upload Document' : 'Upload Document'} (PDF/Image, max 2MB)
+                    </Label>
                     <Input
                       id="insurance-file"
                       type="file"
@@ -442,20 +569,49 @@ export default function DriverDashboard() {
                     className="w-full"
                     data-testid="button-upload-insurance"
                   >
-                    {uploadingDoc === 'insurance_certificate' ? 'Uploading...' : 'Save & Upload'}
+                    {uploadingDoc === 'insurance_certificate' ? 'Uploading...' : (getDocumentByType('insurance_certificate') ? 'Update & Upload' : 'Save & Upload')}
                   </Button>
                 </div>
               </div>
 
               {/* Vehicle Image */}
               <div className="space-y-4">
-                <h4 className="font-semibold flex items-center space-x-2">
-                  <Car className="w-4 h-4" />
-                  <span>Vehicle Image</span>
+                <h4 className="font-semibold flex items-center justify-between">
+                  <span className="flex items-center space-x-2">
+                    <Car className="w-4 h-4" />
+                    <span>Vehicle Image</span>
+                  </span>
+                  {getDocumentByType('vehicle_image') && (
+                    <Badge variant={getStatusBadgeVariant(getDocumentByType('vehicle_image')!.status)} data-testid="status-vehicle-image">
+                      {getDocumentByType('vehicle_image')!.status}
+                    </Badge>
+                  )}
                 </h4>
+                
+                {getDocumentByType('vehicle_image') && (
+                  <div className="p-4 border rounded-lg bg-muted/50 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Vehicle Plate:</span>
+                      <span className="text-sm" data-testid="plate-vehicle-image">
+                        {getDocumentByType('vehicle_image')!.expirationDate || 'N/A'}
+                      </span>
+                    </div>
+                    {getDocumentByType('vehicle_image')!.status === 'rejected' && getDocumentByType('vehicle_image')!.rejectionReason && (
+                      <div className="text-sm text-red-600 mt-2">
+                        <strong>Rejection Reason:</strong> {getDocumentByType('vehicle_image')!.rejectionReason}
+                      </div>
+                    )}
+                    <div className="text-xs text-muted-foreground">
+                      Uploaded: {new Date(getDocumentByType('vehicle_image')!.uploadedAt).toLocaleString()}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="vehicle-image-file">Upload Image (JPG/PNG, max 2MB)</Label>
+                    <Label htmlFor="vehicle-image-file">
+                      {getDocumentByType('vehicle_image') ? 'Re-upload Image' : 'Upload Image'} (JPG/PNG, max 2MB)
+                    </Label>
                     <Input
                       id="vehicle-image-file"
                       type="file"
@@ -487,7 +643,7 @@ export default function DriverDashboard() {
                     className="w-full"
                     data-testid="button-upload-vehicle-image"
                   >
-                    {uploadingDoc === 'vehicle_image' ? 'Uploading...' : 'Save & Upload'}
+                    {uploadingDoc === 'vehicle_image' ? 'Uploading...' : (getDocumentByType('vehicle_image') ? 'Update & Upload' : 'Save & Upload')}
                   </Button>
                 </div>
               </div>
