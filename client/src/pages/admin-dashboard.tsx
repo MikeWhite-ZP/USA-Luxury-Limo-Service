@@ -637,7 +637,7 @@ export default function AdminDashboard() {
                     <ChevronDown className="w-4 h-4 ml-1" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="bg-background">
+                <DropdownMenuContent align="start" className="bg-[#ffffff]">
                   <DropdownMenuItem 
                     onClick={() => {
                       setVisibleCredentialsSection('api');
