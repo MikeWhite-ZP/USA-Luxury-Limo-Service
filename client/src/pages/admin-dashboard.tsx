@@ -79,6 +79,8 @@ export default function AdminDashboard() {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [loadingValue, setLoadingValue] = useState(false);
   const [visibleCredentialsSection, setVisibleCredentialsSection] = useState<'api' | 'payment' | null>(null);
+  const [selectedUserType, setSelectedUserType] = useState<'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin'>('all');
+  const [showUserManager, setShowUserManager] = useState(false);
 
   // Payment configuration dialog state
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
@@ -661,15 +663,76 @@ export default function AdminDashboard() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Button 
-                variant="ghost" 
-                className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
-                onClick={() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' })}
-                data-testid="nav-user-manager"
-              >
-                <Users className="w-4 h-4 mr-2" />
-                User Manager
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                    data-testid="nav-user-manager"
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    User Manager
+                    <ChevronDown className="w-4 h-4 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="bg-[#ffffff]">
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      setSelectedUserType('all');
+                      setShowUserManager(true);
+                      setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                    }}
+                    data-testid="nav-all-users"
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    All Users
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      setSelectedUserType('passenger');
+                      setShowUserManager(true);
+                      setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                    }}
+                    data-testid="nav-passengers"
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    Passengers
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      setSelectedUserType('driver');
+                      setShowUserManager(true);
+                      setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                    }}
+                    data-testid="nav-drivers"
+                  >
+                    <Car className="w-4 h-4 mr-2" />
+                    Drivers
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      setSelectedUserType('dispatcher');
+                      setShowUserManager(true);
+                      setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                    }}
+                    data-testid="nav-dispatchers"
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Dispatchers
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      setSelectedUserType('admin');
+                      setShowUserManager(true);
+                      setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                    }}
+                    data-testid="nav-admins"
+                  >
+                    <Star className="w-4 h-4 mr-2" />
+                    Admins
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button 
                 variant="ghost" 
                 className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
@@ -1152,11 +1215,17 @@ export default function AdminDashboard() {
         </Card>
 
         {/* User Accounts Management */}
-        <Card id="user-manager-section" data-testid="user-accounts">
+        {showUserManager && (
+          <Card id="user-manager-section" data-testid="user-accounts">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Users className="w-5 h-5" />
-              <span>User Accounts</span>
+              <span>
+                {selectedUserType === 'all' ? 'All Users' : 
+                 selectedUserType === 'passenger' ? 'Passengers' :
+                 selectedUserType === 'driver' ? 'Drivers' :
+                 selectedUserType === 'dispatcher' ? 'Dispatchers' : 'Admins'}
+              </span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -1178,7 +1247,7 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {allUsers.map((u) => (
+                      {allUsers.filter(u => selectedUserType === 'all' || u.role === selectedUserType).map((u) => (
                         <tr 
                           key={u.id}
                           className="border-t hover:bg-muted/20 transition-colors"
@@ -1266,7 +1335,9 @@ export default function AdminDashboard() {
               </div>
             )}
           </CardContent>
-        </Card>
+          </Card>
+        )}
+
       </div>
 
       {/* Payment Configuration Dialog */}
