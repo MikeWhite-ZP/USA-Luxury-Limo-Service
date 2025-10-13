@@ -734,31 +734,6 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Pricing Management Quick Link */}
-        <Card data-testid="pricing-management-link">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">Pricing Management</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Configure pricing rules for all vehicle types and service options
-                  </p>
-                </div>
-              </div>
-              <Link href="/admin-pricing">
-                <Button data-testid="button-manage-pricing">
-                  Manage Pricing
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* API Credentials Management */}
         <Card id="credentials-section" data-testid="credentials-management">
           <CardHeader>
