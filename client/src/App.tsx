@@ -22,6 +22,7 @@ import { AdminLogin } from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminPricing from "@/pages/admin-pricing";
 import DriverDashboard from "@/pages/driver-dashboard";
+import DriverDocuments from "@/pages/driver-documents";
 import DispatcherDashboard from "@/pages/DispatcherDashboard";
 import PassengerDashboard from "@/pages/passenger-dashboard";
 import Checkout from "@/pages/checkout";
@@ -71,7 +72,10 @@ function Router() {
             </>
           )}
           {user?.role === 'driver' && (
-            <Route path="/driver" component={DriverDashboard} />
+            <>
+              <Route path="/driver" component={DriverDashboard} />
+              <Route path="/driver/documents" component={DriverDocuments} />
+            </>
           )}
           {(user?.role === 'dispatcher') && (
             <Route path="/dispatcher" component={DispatcherDashboard} />

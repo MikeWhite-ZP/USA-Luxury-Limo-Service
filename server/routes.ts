@@ -2,14 +2,53 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
-import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, type User } from "@shared/schema";
+import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertDriverDocumentSchema, type User } from "@shared/schema";
+import { z } from "zod";
 import Stripe from "stripe";
+import multer from "multer";
+import { Client as ObjectStorageClient } from "@replit/object-storage";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// Initialize Object Storage client lazily (on first use) to avoid startup errors
+let objectStorage: ObjectStorageClient | null = null;
+
+function getObjectStorage(): ObjectStorageClient {
+  if (!objectStorage) {
+    objectStorage = new ObjectStorageClient();
+  }
+  return objectStorage;
+}
+
+// Configure Multer for file uploads (memory storage)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 2 * 1024 * 1024 // 2MB file size limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept PDF and common image formats
+    const allowedMimes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/jpg', 
+      'image/png',
+      'image/webp',
+      'image/heic',
+      'image/heif'
+    ];
+    
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only PDF and image files (JPEG, PNG, WEBP, HEIC) are allowed.'));
+    }
+  }
+});
 
 // TomTom API integration functions with standardized key retrieval
 // Priority: Database settings first, then environment variables as fallback
@@ -703,6 +742,339 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Delete user error:', error);
       res.status(500).json({ message: 'Failed to delete user' });
+    }
+  });
+
+  // Driver Documents Management
+  // Upload document (driver only)
+  app.post('/api/driver/documents/upload', isAuthenticated, upload.single('file'), async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      const { documentType, expirationDate, whatsappNumber } = req.body;
+      
+      // Validate with Zod schema
+      const docDataToValidate: any = {
+        driverId: driver.id,
+        documentType,
+        documentUrl: 'temp', // Will be replaced after upload
+        status: 'pending', // Explicitly set to pending, cannot be overridden
+      };
+
+      if (expirationDate) {
+        docDataToValidate.expirationDate = expirationDate;
+      }
+
+      if (whatsappNumber) {
+        docDataToValidate.whatsappNumber = whatsappNumber;
+      }
+
+      // Validate document data with schema
+      const validationResult = insertDriverDocumentSchema.safeParse(docDataToValidate);
+      
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: 'Invalid document data', 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const file = req.file;
+      const fileExtension = file.originalname.split('.').pop();
+      const fileName = `driver-docs/${driver.id}/${documentType}-${Date.now()}.${fileExtension}`;
+
+      // Upload to Object Storage
+      const { ok, error } = await getObjectStorage().uploadFromBytes(
+        fileName,
+        file.buffer
+      );
+
+      if (!ok) {
+        console.error('Upload to Object Storage failed:', error);
+        return res.status(500).json({ message: `Upload failed: ${error}` });
+      }
+
+      // Create validated document with actual URL
+      const validatedData = validationResult.data;
+      validatedData.documentUrl = fileName;
+
+      const document = await storage.createDriverDocument(validatedData);
+
+      res.json({
+        success: true,
+        document,
+        message: 'Document uploaded successfully'
+      });
+
+    } catch (error: any) {
+      console.error('Document upload error:', error);
+      
+      // Handle multer errors
+      if (error.message && error.message.includes('File too large')) {
+        return res.status(400).json({ message: 'File size exceeds 2MB limit' });
+      }
+      
+      if (error.message && error.message.includes('Invalid file type')) {
+        return res.status(400).json({ message: error.message });
+      }
+      
+      res.status(500).json({ message: 'Failed to upload document' });
+    }
+  });
+
+  // Get driver's documents
+  app.get('/api/driver/documents', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+
+      let driverId: string;
+
+      if (user.role === 'driver') {
+        const driver = await storage.getDriverByUserId(userId);
+        if (!driver) {
+          return res.status(404).json({ message: 'Driver profile not found' });
+        }
+        driverId = driver.id;
+      } else if (user.role === 'admin') {
+        // Admin can view any driver's documents
+        driverId = req.query.driverId as string;
+        if (!driverId) {
+          return res.status(400).json({ message: 'Driver ID required for admin' });
+        }
+      } else {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      const documents = await storage.getDriverDocuments(driverId);
+      res.json(documents);
+
+    } catch (error) {
+      console.error('Get driver documents error:', error);
+      res.status(500).json({ message: 'Failed to fetch documents' });
+    }
+  });
+
+  // Download/view document (generate temporary URL or stream)
+  app.get('/api/driver/documents/:id/download', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+
+      const { id } = req.params;
+      const document = await storage.getDriverDocument(id);
+
+      if (!document) {
+        return res.status(404).json({ message: 'Document not found' });
+      }
+
+      // Check authorization
+      if (user.role === 'driver') {
+        const driver = await storage.getDriverByUserId(userId);
+        if (!driver || driver.id !== document.driverId) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+      } else if (user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      // Download from object storage
+      const { ok, value, error } = await getObjectStorage().downloadAsBytes(document.documentUrl);
+
+      if (!ok) {
+        return res.status(404).json({ message: `File not found: ${error}` });
+      }
+
+      // Determine content type from file extension
+      const extension = document.documentUrl.split('.').pop()?.toLowerCase();
+      const contentTypeMap: Record<string, string> = {
+        'pdf': 'application/pdf',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'webp': 'image/webp',
+        'heic': 'image/heic',
+        'heif': 'image/heif'
+      };
+
+      const contentType = contentTypeMap[extension || ''] || 'application/octet-stream';
+      
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `inline; filename="${document.documentType}.${extension}"`);
+      res.send(value);
+
+    } catch (error) {
+      console.error('Document download error:', error);
+      res.status(500).json({ message: 'Failed to download document' });
+    }
+  });
+
+  // Delete document
+  app.delete('/api/driver/documents/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+
+      const { id } = req.params;
+      const document = await storage.getDriverDocument(id);
+
+      if (!document) {
+        return res.status(404).json({ message: 'Document not found' });
+      }
+
+      // Check authorization
+      if (user.role === 'driver') {
+        const driver = await storage.getDriverByUserId(userId);
+        if (!driver || driver.id !== document.driverId) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+      } else if (user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      // Delete from object storage
+      const { ok, error} = await getObjectStorage().delete(document.documentUrl);
+      if (!ok) {
+        console.error('Failed to delete from object storage:', error);
+      }
+
+      // Delete from database
+      await storage.deleteDriverDocument(id);
+
+      res.json({ success: true, message: 'Document deleted successfully' });
+
+    } catch (error) {
+      console.error('Delete document error:', error);
+      res.status(500).json({ message: 'Failed to delete document' });
+    }
+  });
+
+  // Admin: Get all driver documents (with driver info)
+  app.get('/api/admin/driver-documents', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      // Get all drivers
+      const drivers = await storage.getAllUsers();
+      const driverUsers = drivers.filter(u => u.role === 'driver');
+
+      // Get documents for all drivers
+      const allDocuments = [];
+      for (const driverUser of driverUsers) {
+        const driver = await storage.getDriverByUserId(driverUser.id);
+        if (driver) {
+          const docs = await storage.getDriverDocuments(driver.id);
+          // Attach driver info to each document
+          const docsWithDriver = docs.map(doc => ({
+            ...doc,
+            driverInfo: {
+              userId: driverUser.id,
+              firstName: driverUser.firstName,
+              lastName: driverUser.lastName,
+              email: driverUser.email,
+            }
+          }));
+          allDocuments.push(...docsWithDriver);
+        }
+      }
+
+      // Sort by upload date (newest first)
+      allDocuments.sort((a, b) => {
+        const dateA = a.uploadedAt ? new Date(a.uploadedAt).getTime() : 0;
+        const dateB = b.uploadedAt ? new Date(b.uploadedAt).getTime() : 0;
+        return dateB - dateA;
+      });
+
+      res.json(allDocuments);
+    } catch (error) {
+      console.error('Get all driver documents error:', error);
+      res.status(500).json({ message: 'Failed to fetch driver documents' });
+    }
+  });
+
+  // Admin: Update document status (approve/reject)
+  app.put('/api/admin/driver-documents/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const { status, rejectionReason } = req.body;
+
+      // Validate status update with Zod schema
+      const statusUpdateSchema = z.object({
+        status: z.enum(['pending', 'approved', 'rejected']),
+        rejectionReason: z.string().optional(),
+      }).refine(
+        (data) => data.status !== 'rejected' || (data.rejectionReason && data.rejectionReason.length > 0),
+        {
+          message: 'Rejection reason is required when rejecting a document',
+          path: ['rejectionReason'],
+        }
+      );
+
+      const validationResult = statusUpdateSchema.safeParse({ status, rejectionReason });
+      
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: 'Invalid status update data', 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const { status: validatedStatus, rejectionReason: validatedReason } = validationResult.data;
+
+      const updatedDoc = await storage.updateDriverDocumentStatus(
+        id,
+        validatedStatus,
+        validatedReason,
+        userId
+      );
+
+      if (!updatedDoc) {
+        return res.status(404).json({ message: 'Document not found' });
+      }
+
+      res.json(updatedDoc);
+
+    } catch (error) {
+      console.error('Update document status error:', error);
+      res.status(500).json({ message: 'Failed to update document status' });
     }
   });
 

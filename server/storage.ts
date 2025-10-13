@@ -28,6 +28,9 @@ import {
   type InsertSavedAddress,
   type InsertPricingRule,
   type InsertPaymentSystem,
+  type DriverDocument,
+  type InsertDriverDocument,
+  driverDocuments,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -118,6 +121,13 @@ export interface IStorage {
   updatePaymentSystem(provider: string, updates: Partial<InsertPaymentSystem>): Promise<PaymentSystem | undefined>;
   setActivePaymentSystem(provider: string): Promise<void>;
   deletePaymentSystem(provider: string): Promise<void>;
+  
+  // Driver Documents
+  createDriverDocument(doc: InsertDriverDocument): Promise<DriverDocument>;
+  getDriverDocuments(driverId: string): Promise<DriverDocument[]>;
+  getDriverDocument(id: string): Promise<DriverDocument | undefined>;
+  updateDriverDocumentStatus(id: string, status: string, rejectionReason?: string, reviewedBy?: string): Promise<DriverDocument | undefined>;
+  deleteDriverDocument(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -631,6 +641,52 @@ export class DatabaseStorage implements IStorage {
 
   async deletePaymentSystem(provider: string): Promise<void> {
     await db.delete(paymentSystems).where(sql`${paymentSystems.provider} = ${provider}`);
+  }
+
+  async createDriverDocument(doc: InsertDriverDocument): Promise<DriverDocument> {
+    const [newDoc] = await db.insert(driverDocuments).values(doc).returning();
+    return newDoc;
+  }
+
+  async getDriverDocuments(driverId: string): Promise<DriverDocument[]> {
+    return await db
+      .select()
+      .from(driverDocuments)
+      .where(eq(driverDocuments.driverId, driverId))
+      .orderBy(desc(driverDocuments.uploadedAt));
+  }
+
+  async getDriverDocument(id: string): Promise<DriverDocument | undefined> {
+    const [doc] = await db.select().from(driverDocuments).where(eq(driverDocuments.id, id));
+    return doc;
+  }
+
+  async updateDriverDocumentStatus(
+    id: string, 
+    status: string, 
+    rejectionReason?: string,
+    reviewedBy?: string
+  ): Promise<DriverDocument | undefined> {
+    const [updatedDoc] = await db
+      .update(driverDocuments)
+      .set({ 
+        status: status as any,
+        rejectionReason,
+        reviewedBy,
+        reviewedAt: new Date(),
+        updatedAt: new Date() 
+      })
+      .where(eq(driverDocuments.id, id))
+      .returning();
+    return updatedDoc;
+  }
+
+  async deleteDriverDocument(id: string): Promise<boolean> {
+    const result = await db
+      .delete(driverDocuments)
+      .where(eq(driverDocuments.id, id))
+      .returning();
+    return result.length > 0;
   }
 }
 
