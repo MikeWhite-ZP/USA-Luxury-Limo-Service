@@ -793,7 +793,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       if (expirationDate) {
-        docDataToValidate.expirationDate = expirationDate;
+        // Convert date string to Date object for timestamp validation
+        docDataToValidate.expirationDate = new Date(expirationDate);
       }
 
       if (whatsappNumber) {
@@ -1117,7 +1118,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       if (expirationDate) {
-        docDataToValidate.expirationDate = expirationDate;
+        // Convert date string to Date object for timestamp validation
+        docDataToValidate.expirationDate = new Date(expirationDate);
       }
 
       if (whatsappNumber) {
