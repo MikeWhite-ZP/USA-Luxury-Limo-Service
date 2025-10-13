@@ -1057,7 +1057,7 @@ export default function AdminDashboard() {
 
       {/* Payment Configuration Dialog */}
       <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
-        <DialogContent className="sm:max-w-[550px]">
+        <DialogContent className="sm:max-w-[550px] bg-[#fdfeff]">
           <DialogHeader>
             <DialogTitle>
               Configure {selectedProvider === 'stripe' ? 'Stripe' : selectedProvider === 'paypal' ? 'PayPal' : 'Square'} Payment
