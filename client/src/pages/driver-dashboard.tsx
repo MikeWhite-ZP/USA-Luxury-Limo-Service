@@ -47,7 +47,7 @@ export default function DriverDashboard() {
   const [documentForms, setDocumentForms] = useState({
     driver_license: { file: null as File | null, expirationDate: '' },
     limo_license: { file: null as File | null, expirationDate: '' },
-    insurance: { file: null as File | null, expirationDate: '' },
+    insurance_certificate: { file: null as File | null, expirationDate: '' },
     vehicle_image: { file: null as File | null, expirationDate: '' },
   });
   const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
@@ -418,7 +418,7 @@ export default function DriverDashboard() {
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) => setDocumentForms(prev => ({
                         ...prev,
-                        insurance: { ...prev.insurance, file: e.target.files?.[0] || null }
+                        insurance_certificate: { ...prev.insurance_certificate, file: e.target.files?.[0] || null }
                       }))}
                       data-testid="input-insurance-file"
                     />
@@ -428,21 +428,21 @@ export default function DriverDashboard() {
                     <Input
                       id="insurance-expiry"
                       type="date"
-                      value={documentForms.insurance.expirationDate}
+                      value={documentForms.insurance_certificate.expirationDate}
                       onChange={(e) => setDocumentForms(prev => ({
                         ...prev,
-                        insurance: { ...prev.insurance, expirationDate: e.target.value }
+                        insurance_certificate: { ...prev.insurance_certificate, expirationDate: e.target.value }
                       }))}
                       data-testid="input-insurance-expiry"
                     />
                   </div>
                   <Button
-                    onClick={() => handleDocumentUpload('insurance')}
-                    disabled={uploadingDoc === 'insurance'}
+                    onClick={() => handleDocumentUpload('insurance_certificate')}
+                    disabled={uploadingDoc === 'insurance_certificate'}
                     className="w-full"
                     data-testid="button-upload-insurance"
                   >
-                    {uploadingDoc === 'insurance' ? 'Uploading...' : 'Save & Upload'}
+                    {uploadingDoc === 'insurance_certificate' ? 'Uploading...' : 'Save & Upload'}
                   </Button>
                 </div>
               </div>

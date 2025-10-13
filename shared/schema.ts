@@ -77,7 +77,7 @@ export const drivers = pgTable("drivers", {
 });
 
 // Driver documents for verification
-export const documentTypeEnum = ["driver_license", "limo_license", "profile_photo"] as const;
+export const documentTypeEnum = ["driver_license", "limo_license", "insurance_certificate", "vehicle_image"] as const;
 
 export const driverDocuments = pgTable("driver_documents", {
   id: uuid("id").defaultRandom().primaryKey(),
