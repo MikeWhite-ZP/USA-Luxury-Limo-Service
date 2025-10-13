@@ -76,6 +76,27 @@ export const drivers = pgTable("drivers", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Driver documents for verification
+export const documentTypeEnum = ["driver_license", "limo_license", "profile_photo"] as const;
+
+export const driverDocuments = pgTable("driver_documents", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  driverId: uuid("driver_id").references(() => drivers.id).notNull(),
+  documentType: varchar("document_type", { enum: documentTypeEnum }).notNull(),
+  documentUrl: text("document_url").notNull(), // Object storage URL
+  expirationDate: timestamp("expiration_date"), // For licenses
+  status: varchar("status", { 
+    enum: ["pending", "approved", "rejected"] 
+  }).default("pending"),
+  rejectionReason: text("rejection_reason"),
+  whatsappNumber: varchar("whatsapp_number"), // Only for driver profile
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Vehicle types and pricing
 export const vehicleTypes = pgTable("vehicle_types", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -417,6 +438,14 @@ export const insertPaymentSystemSchema = createInsertSchema(paymentSystems).omit
   updatedAt: true,
 });
 
+export const insertDriverDocumentSchema = createInsertSchema(driverDocuments).omit({
+  id: true,
+  uploadedAt: true,
+  reviewedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -438,3 +467,5 @@ export type InsertContact = z.infer<typeof insertContactSchema>;
 export type InsertSavedAddress = z.infer<typeof insertSavedAddressSchema>;
 export type InsertPricingRule = z.infer<typeof insertPricingRuleSchema>;
 export type InsertPaymentSystem = z.infer<typeof insertPaymentSystemSchema>;
+export type DriverDocument = typeof driverDocuments.$inferSelect;
+export type InsertDriverDocument = z.infer<typeof insertDriverDocumentSchema>;
