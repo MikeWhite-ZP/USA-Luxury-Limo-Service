@@ -76,7 +76,7 @@ export default function BookingForm() {
 
   // Fetch available pricing rules for current service type
   const { data: pricingRules } = useQuery<Record<string, any>>({
-    queryKey: ['/api/pricing-rules/available', activeTab],
+    queryKey: [`/api/pricing-rules/available?serviceType=${activeTab}`],
     enabled: !!activeTab,
   });
 
