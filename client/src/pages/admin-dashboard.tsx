@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X } from "lucide-react";
 import { Link } from "wouter";
 
@@ -64,6 +65,20 @@ export default function AdminDashboard() {
   const [newKeyValue, setNewKeyValue] = useState('');
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [loadingValue, setLoadingValue] = useState(false);
+
+  // Payment configuration dialog state
+  const [configDialogOpen, setConfigDialogOpen] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<'stripe' | 'paypal' | 'square' | null>(null);
+  const [paymentCredentials, setPaymentCredentials] = useState({
+    publicKey: '',
+    secretKey: '',
+    webhookSecret: '',
+    clientId: '', // For PayPal
+    clientSecret: '', // For PayPal
+    applicationId: '', // For Square
+    accessToken: '', // For Square
+    locationId: '', // For Square
+  });
 
   // Redirect to home if not authenticated or not admin
   useEffect(() => {
@@ -216,6 +231,18 @@ export default function AdminDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/payment-systems'] });
+      setConfigDialogOpen(false);
+      setSelectedProvider(null);
+      setPaymentCredentials({
+        publicKey: '',
+        secretKey: '',
+        webhookSecret: '',
+        clientId: '',
+        clientSecret: '',
+        applicationId: '',
+        accessToken: '',
+        locationId: '',
+      });
       toast({
         title: "Payment System Updated",
         description: "Payment system configuration has been saved.",
@@ -258,6 +285,18 @@ export default function AdminDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/payment-systems'] });
+      setConfigDialogOpen(false);
+      setSelectedProvider(null);
+      setPaymentCredentials({
+        publicKey: '',
+        secretKey: '',
+        webhookSecret: '',
+        clientId: '',
+        clientSecret: '',
+        applicationId: '',
+        accessToken: '',
+        locationId: '',
+      });
       toast({
         title: "Payment System Created",
         description: "Payment system has been added successfully.",
@@ -271,6 +310,116 @@ export default function AdminDashboard() {
       });
     },
   });
+
+  // Open configuration dialog for a provider
+  const openConfigDialog = (provider: 'stripe' | 'paypal' | 'square') => {
+    setSelectedProvider(provider);
+    
+    // Check if system already exists and prefill form
+    const existingSystem = paymentSystems.find(s => s.provider === provider);
+    if (existingSystem) {
+      // Prefill based on provider type
+      if (provider === 'stripe') {
+        setPaymentCredentials({
+          publicKey: existingSystem.publicKey || '',
+          secretKey: '', // Don't prefill secrets
+          webhookSecret: '',
+          clientId: '',
+          clientSecret: '',
+          applicationId: '',
+          accessToken: '',
+          locationId: '',
+        });
+      } else if (provider === 'paypal') {
+        setPaymentCredentials({
+          publicKey: '',
+          secretKey: '',
+          webhookSecret: '',
+          clientId: existingSystem.publicKey || '', // clientId stored as publicKey
+          clientSecret: '', // Don't prefill secret
+          applicationId: '',
+          accessToken: '',
+          locationId: '',
+        });
+      } else if (provider === 'square') {
+        setPaymentCredentials({
+          publicKey: '',
+          secretKey: '',
+          webhookSecret: '',
+          clientId: '',
+          clientSecret: '',
+          applicationId: existingSystem.publicKey || '', // applicationId stored as publicKey
+          accessToken: '', // Don't prefill token
+          locationId: existingSystem.config?.locationId || '',
+        });
+      }
+    }
+    
+    setConfigDialogOpen(true);
+  };
+
+  // Handle payment configuration submission
+  const handlePaymentConfig = () => {
+    if (!selectedProvider) return;
+
+    const existingSystem = paymentSystems.find(s => s.provider === selectedProvider);
+    let systemData: Partial<PaymentSystem> = {};
+
+    // Configure based on provider type
+    if (selectedProvider === 'stripe') {
+      if (!existingSystem && (!paymentCredentials.publicKey || !paymentCredentials.secretKey)) {
+        toast({
+          title: "Missing Credentials",
+          description: "Please provide both Publishable Key and Secret Key for Stripe.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (paymentCredentials.publicKey) systemData.publicKey = paymentCredentials.publicKey;
+      if (paymentCredentials.secretKey) systemData.secretKey = paymentCredentials.secretKey;
+      if (paymentCredentials.webhookSecret) systemData.webhookSecret = paymentCredentials.webhookSecret;
+    } else if (selectedProvider === 'paypal') {
+      if (!existingSystem && (!paymentCredentials.clientId || !paymentCredentials.clientSecret)) {
+        toast({
+          title: "Missing Credentials",
+          description: "Please provide both Client ID and Client Secret for PayPal.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (paymentCredentials.clientId) systemData.publicKey = paymentCredentials.clientId;
+      if (paymentCredentials.clientSecret) systemData.secretKey = paymentCredentials.clientSecret;
+      if (paymentCredentials.webhookSecret) systemData.webhookSecret = paymentCredentials.webhookSecret;
+    } else if (selectedProvider === 'square') {
+      if (!existingSystem && (!paymentCredentials.applicationId || !paymentCredentials.accessToken)) {
+        toast({
+          title: "Missing Credentials",
+          description: "Please provide both Application ID and Access Token for Square.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (paymentCredentials.applicationId) systemData.publicKey = paymentCredentials.applicationId;
+      if (paymentCredentials.accessToken) systemData.secretKey = paymentCredentials.accessToken;
+      if (paymentCredentials.locationId) {
+        systemData.config = { locationId: paymentCredentials.locationId };
+      }
+    }
+
+    // Use update if system exists, create if new
+    if (existingSystem) {
+      updatePaymentSystemMutation.mutate({ 
+        provider: selectedProvider, 
+        updates: systemData 
+      });
+    } else {
+      createPaymentSystemMutation.mutate({
+        provider: selectedProvider,
+        isActive: false,
+        ...systemData
+      });
+    }
+  };
 
   const handleUpdateCredential = (key: string) => {
     if (!newKeyValue) {
@@ -797,32 +946,25 @@ export default function AdminDashboard() {
                           </div>
                         )}
 
-                        {!system && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="mt-3"
-                            onClick={() => {
-                              const keys = prompt(
-                                `Enter ${providerLabels[provider]} credentials (format: publicKey|secretKey|webhookSecret):`
-                              );
-                              if (keys) {
-                                const [publicKey, secretKey, webhookSecret] = keys.split('|');
-                                createPaymentSystemMutation.mutate({
-                                  provider: provider as 'stripe' | 'paypal' | 'square',
-                                  publicKey: publicKey || null,
-                                  secretKey: secretKey || null,
-                                  webhookSecret: webhookSecret || null,
-                                  isActive: false,
-                                });
-                              }
-                            }}
-                            data-testid={`button-configure-${provider}`}
-                          >
-                            <Plus className="w-4 h-4 mr-1" />
-                            Configure {providerLabels[provider]}
-                          </Button>
-                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="mt-3"
+                          onClick={() => openConfigDialog(provider as 'stripe' | 'paypal' | 'square')}
+                          data-testid={`button-configure-${provider}`}
+                        >
+                          {system ? (
+                            <>
+                              <Edit2 className="w-4 h-4 mr-1" />
+                              Edit Configuration
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-4 h-4 mr-1" />
+                              Configure {providerLabels[provider]}
+                            </>
+                          )}
+                        </Button>
                       </div>
                     );
                   })}
@@ -912,6 +1054,188 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Payment Configuration Dialog */}
+      <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>
+              Configure {selectedProvider === 'stripe' ? 'Stripe' : selectedProvider === 'paypal' ? 'PayPal' : 'Square'} Payment
+            </DialogTitle>
+            <DialogDescription>
+              Enter your {selectedProvider === 'stripe' ? 'Stripe' : selectedProvider === 'paypal' ? 'PayPal' : 'Square'} platform credentials. These will be securely stored.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {selectedProvider === 'stripe' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="stripe-public-key">Publishable Key *</Label>
+                  <Input
+                    id="stripe-public-key"
+                    placeholder="pk_live_..."
+                    value={paymentCredentials.publicKey}
+                    onChange={(e) => setPaymentCredentials({ ...paymentCredentials, publicKey: e.target.value })}
+                    data-testid="input-stripe-public-key"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Found in Stripe Dashboard → Developers → API keys
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="stripe-secret-key">Secret Key *</Label>
+                  <Input
+                    id="stripe-secret-key"
+                    type="password"
+                    placeholder="sk_live_..."
+                    value={paymentCredentials.secretKey}
+                    onChange={(e) => setPaymentCredentials({ ...paymentCredentials, secretKey: e.target.value })}
+                    data-testid="input-stripe-secret-key"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Keep this secure - never share publicly
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="stripe-webhook-secret">Webhook Signing Secret (Optional)</Label>
+                  <Input
+                    id="stripe-webhook-secret"
+                    type="password"
+                    placeholder="whsec_..."
+                    value={paymentCredentials.webhookSecret}
+                    onChange={(e) => setPaymentCredentials({ ...paymentCredentials, webhookSecret: e.target.value })}
+                    data-testid="input-stripe-webhook-secret"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    For webhook event verification (recommended for production)
+                  </p>
+                </div>
+              </>
+            )}
+
+            {selectedProvider === 'paypal' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="paypal-client-id">Client ID *</Label>
+                  <Input
+                    id="paypal-client-id"
+                    placeholder="AYSq3RDGsmBLJE-otTkBtM-jBRd1TCQwFf9RGfwddNXWz0uFU9ztymylOhRS..."
+                    value={paymentCredentials.clientId}
+                    onChange={(e) => setPaymentCredentials({ ...paymentCredentials, clientId: e.target.value })}
+                    data-testid="input-paypal-client-id"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Found in PayPal Developer Dashboard → My Apps & Credentials
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="paypal-client-secret">Client Secret *</Label>
+                  <Input
+                    id="paypal-client-secret"
+                    type="password"
+                    placeholder="Enter your PayPal client secret..."
+                    value={paymentCredentials.clientSecret}
+                    onChange={(e) => setPaymentCredentials({ ...paymentCredentials, clientSecret: e.target.value })}
+                    data-testid="input-paypal-client-secret"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Keep this secure - never share publicly
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="paypal-webhook-secret">Webhook ID (Optional)</Label>
+                  <Input
+                    id="paypal-webhook-secret"
+                    placeholder="Enter webhook ID..."
+                    value={paymentCredentials.webhookSecret}
+                    onChange={(e) => setPaymentCredentials({ ...paymentCredentials, webhookSecret: e.target.value })}
+                    data-testid="input-paypal-webhook-id"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    For webhook event verification
+                  </p>
+                </div>
+              </>
+            )}
+
+            {selectedProvider === 'square' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="square-app-id">Application ID *</Label>
+                  <Input
+                    id="square-app-id"
+                    placeholder="sq0idp-..."
+                    value={paymentCredentials.applicationId}
+                    onChange={(e) => setPaymentCredentials({ ...paymentCredentials, applicationId: e.target.value })}
+                    data-testid="input-square-app-id"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Found in Square Developer Dashboard → Applications
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="square-access-token">Access Token *</Label>
+                  <Input
+                    id="square-access-token"
+                    type="password"
+                    placeholder="Enter your Square access token..."
+                    value={paymentCredentials.accessToken}
+                    onChange={(e) => setPaymentCredentials({ ...paymentCredentials, accessToken: e.target.value })}
+                    data-testid="input-square-access-token"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Personal Access Token or Production Access Token
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="square-location-id">Location ID (Optional)</Label>
+                  <Input
+                    id="square-location-id"
+                    placeholder="Enter location ID..."
+                    value={paymentCredentials.locationId}
+                    onChange={(e) => setPaymentCredentials({ ...paymentCredentials, locationId: e.target.value })}
+                    data-testid="input-square-location-id"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Specific location for payments (if applicable)
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setConfigDialogOpen(false);
+                setSelectedProvider(null);
+                setPaymentCredentials({
+                  publicKey: '',
+                  secretKey: '',
+                  webhookSecret: '',
+                  clientId: '',
+                  clientSecret: '',
+                  applicationId: '',
+                  accessToken: '',
+                  locationId: '',
+                });
+              }}
+              data-testid="button-cancel-config"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handlePaymentConfig}
+              disabled={createPaymentSystemMutation.isPending}
+              data-testid="button-save-config"
+            >
+              {createPaymentSystemMutation.isPending ? 'Saving...' : 'Save Configuration'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
