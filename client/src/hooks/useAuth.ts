@@ -11,6 +11,7 @@ interface User {
   profileImageUrl?: string;
   phone?: string;
   isActive: boolean;
+  payLaterEnabled?: boolean;
   oauthProvider?: 'local' | 'google' | 'apple';
   stripeCustomerId?: string;
   createdAt: string;

@@ -30,7 +30,7 @@ interface VehicleType {
 
 export default function BookingForm() {
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [, setLocation] = useLocation();
   
   const [activeTab, setActiveTab] = useState<'transfer' | 'hourly'>('transfer');
@@ -335,7 +335,18 @@ export default function BookingForm() {
       return await response.json();
     },
     onSuccess: (booking) => {
-      setLocation(`/checkout?bookingId=${booking.id}&amount=${quoteData.totalAmount}`);
+      // Check if user has pay later enabled
+      if (user?.payLaterEnabled && user.role === 'passenger') {
+        // Pay later enabled - skip payment and go to bookings
+        toast({
+          title: "Booking Confirmed",
+          description: "Your booking has been confirmed. You can pay after the trip is completed.",
+        });
+        setLocation('/bookings');
+      } else {
+        // Regular flow - proceed to payment
+        setLocation(`/checkout?bookingId=${booking.id}&amount=${quoteData.totalAmount}`);
+      }
     },
     onError: (error: Error) => {
       if (error.message.includes('sign in')) {

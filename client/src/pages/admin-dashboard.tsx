@@ -49,6 +49,18 @@ interface PaymentSystem {
   updatedAt: string;
 }
 
+interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  role: 'passenger' | 'driver' | 'dispatcher' | 'admin';
+  isActive: boolean;
+  payLaterEnabled: boolean;
+  createdAt: string;
+}
+
 export default function AdminDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -127,6 +139,13 @@ export default function AdminDashboard() {
   // Fetch payment systems
   const { data: paymentSystems = [], isLoading: paymentSystemsLoading } = useQuery<PaymentSystem[]>({
     queryKey: ['/api/payment-systems'],
+    retry: false,
+    enabled: isAuthenticated && user?.role === 'admin',
+  });
+
+  // Fetch all users
+  const { data: allUsers = [], isLoading: usersLoading } = useQuery<User[]>({
+    queryKey: ['/api/admin/users'],
     retry: false,
     enabled: isAuthenticated && user?.role === 'admin',
   });
@@ -218,6 +237,28 @@ export default function AdminDashboard() {
       toast({
         title: "Error",
         description: error.message || "Failed to update contact status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update user mutation
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<User> }) => {
+      const response = await apiRequest('PUT', `/api/admin/users/${id}`, updates);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      toast({
+        title: "User Updated",
+        description: "User account has been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update user",
         variant: "destructive",
       });
     },
@@ -1049,6 +1090,123 @@ export default function AdminDashboard() {
             ) : (
               <div className="text-center p-8 text-muted-foreground" data-testid="no-contacts">
                 No contact submissions yet.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* User Accounts Management */}
+        <Card data-testid="user-accounts">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Users className="w-5 h-5" />
+              <span>User Accounts</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {usersLoading ? (
+              <div className="flex items-center justify-center p-8">
+                <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+              </div>
+            ) : allUsers && allUsers.length > 0 ? (
+              <div className="space-y-4">
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-3 text-sm font-semibold">User</th>
+                        <th className="text-left p-3 text-sm font-semibold">Email</th>
+                        <th className="text-left p-3 text-sm font-semibold">Role</th>
+                        <th className="text-left p-3 text-sm font-semibold">Status</th>
+                        <th className="text-left p-3 text-sm font-semibold">Pay Later</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allUsers.map((u) => (
+                        <tr 
+                          key={u.id}
+                          className="border-t hover:bg-muted/20 transition-colors"
+                          data-testid={`user-row-${u.id}`}
+                        >
+                          <td className="p-3">
+                            <div>
+                              <p className="font-medium" data-testid={`user-name-${u.id}`}>
+                                {u.firstName} {u.lastName}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Joined {new Date(u.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <p className="text-sm" data-testid={`user-email-${u.id}`}>{u.email}</p>
+                            {u.phone && (
+                              <p className="text-xs text-muted-foreground">{u.phone}</p>
+                            )}
+                          </td>
+                          <td className="p-3">
+                            <Select
+                              value={u.role}
+                              onValueChange={(role) => updateUserMutation.mutate({ id: u.id, updates: { role: role as 'passenger' | 'driver' | 'dispatcher' | 'admin' } })}
+                              disabled={updateUserMutation.isPending}
+                            >
+                              <SelectTrigger className="w-32" data-testid={`select-role-${u.id}`}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="passenger">Passenger</SelectItem>
+                                <SelectItem value="driver">Driver</SelectItem>
+                                <SelectItem value="dispatcher">Dispatcher</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </td>
+                          <td className="p-3">
+                            <Select
+                              value={u.isActive ? 'active' : 'inactive'}
+                              onValueChange={(value) => updateUserMutation.mutate({ id: u.id, updates: { isActive: value === 'active' } })}
+                              disabled={updateUserMutation.isPending}
+                            >
+                              <SelectTrigger className="w-28" data-testid={`select-status-${u.id}`}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="inactive">Inactive</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </td>
+                          <td className="p-3">
+                            {u.role === 'passenger' ? (
+                              <Select
+                                value={u.payLaterEnabled ? 'enabled' : 'disabled'}
+                                onValueChange={(value) => updateUserMutation.mutate({ id: u.id, updates: { payLaterEnabled: value === 'enabled' } })}
+                                disabled={updateUserMutation.isPending}
+                              >
+                                <SelectTrigger className="w-28" data-testid={`select-paylater-${u.id}`}>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="enabled">Enabled</SelectItem>
+                                  <SelectItem value="disabled">Disabled</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">N/A</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="text-xs text-muted-foreground p-3 bg-muted rounded-lg">
+                  <strong>Pay Later Ability:</strong> When enabled for a passenger, they can complete trips and pay afterwards instead of at booking time. This option is only available for passenger accounts.
+                </div>
+              </div>
+            ) : (
+              <div className="text-center p-8 text-muted-foreground" data-testid="no-users">
+                No users found.
               </div>
             )}
           </CardContent>
