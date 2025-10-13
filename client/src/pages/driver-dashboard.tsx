@@ -468,16 +468,17 @@ export default function DriverDashboard() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="vehicle-image-expiry">Expiration Date (Optional)</Label>
+                    <Label htmlFor="vehicle-image-plate">Vehicle Plate</Label>
                     <Input
-                      id="vehicle-image-expiry"
-                      type="date"
+                      id="vehicle-image-plate"
+                      type="text"
                       value={documentForms.vehicle_image.expirationDate}
                       onChange={(e) => setDocumentForms(prev => ({
                         ...prev,
                         vehicle_image: { ...prev.vehicle_image, expirationDate: e.target.value }
                       }))}
                       data-testid="input-vehicle-image-expiry"
+                      placeholder="Enter vehicle plate number"
                     />
                   </div>
                   <Button
