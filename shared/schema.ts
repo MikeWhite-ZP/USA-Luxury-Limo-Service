@@ -47,6 +47,7 @@ export const users = pgTable("users", {
   phone: varchar("phone"),
   role: varchar("role", { enum: userRoles }).default("passenger"),
   isActive: boolean("is_active").default(true),
+  payLaterEnabled: boolean("pay_later_enabled").default(false),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   createdAt: timestamp("created_at").defaultNow(),
