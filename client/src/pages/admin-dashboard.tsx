@@ -11,7 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, ChevronDown } from "lucide-react";
 import { Link } from "wouter";
 
 interface DashboardStats {
@@ -77,6 +78,7 @@ export default function AdminDashboard() {
   const [newKeyValue, setNewKeyValue] = useState('');
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [loadingValue, setLoadingValue] = useState(false);
+  const [visibleCredentialsSection, setVisibleCredentialsSection] = useState<'api' | 'payment' | null>(null);
 
   // Payment configuration dialog state
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
@@ -622,15 +624,43 @@ export default function AdminDashboard() {
                   Pricing
                 </Button>
               </Link>
-              <Button 
-                variant="ghost" 
-                className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
-                onClick={() => document.getElementById('credentials-section')?.scrollIntoView({ behavior: 'smooth' })}
-                data-testid="nav-credentials"
-              >
-                <Key className="w-4 h-4 mr-2" />
-                Credentials
-              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                    data-testid="nav-credentials"
+                  >
+                    <Key className="w-4 h-4 mr-2" />
+                    Credentials
+                    <ChevronDown className="w-4 h-4 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="bg-background">
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      setVisibleCredentialsSection('api');
+                      setTimeout(() => document.getElementById('credentials-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                    }}
+                    data-testid="nav-api-credentials"
+                  >
+                    <Key className="w-4 h-4 mr-2" />
+                    API Credentials
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      setVisibleCredentialsSection('payment');
+                      setTimeout(() => document.getElementById('payment-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                    }}
+                    data-testid="nav-payment-systems"
+                  >
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    Payment Systems
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Button 
                 variant="ghost" 
                 className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
@@ -735,7 +765,8 @@ export default function AdminDashboard() {
         </div>
 
         {/* API Credentials Management */}
-        <Card id="credentials-section" data-testid="credentials-management">
+        {visibleCredentialsSection === 'api' && (
+          <Card id="credentials-section" data-testid="credentials-management">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
@@ -916,10 +947,12 @@ export default function AdminDashboard() {
               </div>
             )}
           </CardContent>
-        </Card>
+          </Card>
+        )}
 
         {/* Payment Systems Configuration */}
-        <Card data-testid="payment-systems">
+        {visibleCredentialsSection === 'payment' && (
+          <Card id="payment-section" data-testid="payment-systems">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <DollarSign className="w-5 h-5" />
@@ -1041,7 +1074,8 @@ export default function AdminDashboard() {
               </div>
             )}
           </CardContent>
-        </Card>
+          </Card>
+        )}
 
         {/* Contact Submissions */}
         <Card id="contact-section" data-testid="contact-submissions">
