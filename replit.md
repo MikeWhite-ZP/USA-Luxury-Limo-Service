@@ -39,10 +39,18 @@ Preferred communication style: Simple, everyday language.
 - **Security**: bcrypt for password hashing, secure session cookies
 
 ### Payment Processing
-- **Provider**: Stripe integration for secure payment processing
-- **Implementation**: Stripe Elements for PCI-compliant card collection
-- **Features**: Customer creation, payment intents, tokenized card storage
-- **Security**: No raw card data storage, tokenization-only approach
+- **Multi-Provider Support**: Configurable payment systems for Stripe, PayPal, and Square
+- **Implementation**: Dialog-based credential configuration with provider-specific fields
+- **Configuration Flow**: 
+  - Create new systems with full credential validation
+  - Update existing systems with partial credential updates
+  - Prefill non-secret fields when editing (publicKey, clientId, applicationId, locationId)
+  - Never expose or prefill secret fields for security
+- **Provider Mapping**:
+  - Stripe: publicKey (pk_live_*), secretKey (sk_live_*), webhookSecret (whsec_*)
+  - PayPal: clientId (→publicKey), clientSecret (→secretKey), webhookId (→webhookSecret)
+  - Square: applicationId (→publicKey), accessToken (→secretKey), locationId (→config.locationId)
+- **Security**: No raw credential storage in frontend, password-type inputs for secrets, server-side credential masking
 
 ### Geolocation Services
 - **Provider**: TomTom API for address geocoding and suggestions
