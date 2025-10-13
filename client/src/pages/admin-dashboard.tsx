@@ -575,6 +575,27 @@ export default function AdminDashboard() {
     },
   });
 
+  const backfillDriversMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('POST', '/api/admin/backfill-drivers');
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      toast({
+        title: "Driver Records Updated",
+        description: data.message || `${data.created} driver records created`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to backfill driver records",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSaveUser = () => {
     if (!userFormData.firstName || !userFormData.email) {
       toast({
@@ -1336,14 +1357,30 @@ export default function AdminDashboard() {
                    selectedUserType === 'dispatcher' ? 'Dispatchers' : 'Admins'}
                 </span>
               </CardTitle>
-              <Button
-                onClick={openAddUserDialog}
-                size="sm"
-                data-testid="button-add-user"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add User
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => backfillDriversMutation.mutate()}
+                  disabled={backfillDriversMutation.isPending}
+                  variant="outline"
+                  size="sm"
+                  data-testid="button-backfill-drivers"
+                >
+                  {backfillDriversMutation.isPending ? (
+                    <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full mr-2" />
+                  ) : (
+                    <Check className="w-4 h-4 mr-2" />
+                  )}
+                  Fix Driver Records
+                </Button>
+                <Button
+                  onClick={openAddUserDialog}
+                  size="sm"
+                  data-testid="button-add-user"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add User
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>

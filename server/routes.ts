@@ -666,6 +666,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!updatedUser) {
         return res.status(404).json({ message: 'User not found' });
       }
+
+      // If role is changed to 'driver', create driver record if it doesn't exist
+      if (role === 'driver') {
+        const existingDriver = await storage.getDriverByUserId(id);
+        if (!existingDriver) {
+          await storage.createDriver({
+            userId: id,
+          });
+        }
+      }
       
       res.json({ ...updatedUser, password: undefined });
     } catch (error) {
@@ -708,6 +718,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isActive: isActive !== undefined ? isActive : true,
         payLaterEnabled: payLaterEnabled || false,
       });
+
+      // If creating a user with 'driver' role, create driver record
+      if (role === 'driver') {
+        await storage.createDriver({
+          userId: newUser.id,
+        });
+      }
       
       res.json({ ...newUser, password: undefined });
     } catch (error) {
@@ -972,6 +989,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Delete document error:', error);
       res.status(500).json({ message: 'Failed to delete document' });
+    }
+  });
+
+  // Admin: Backfill missing driver records for users with 'driver' role
+  app.post('/api/admin/backfill-drivers', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      // Get all users with 'driver' role
+      const allUsers = await storage.getAllUsers();
+      const driverUsers = allUsers.filter(u => u.role === 'driver');
+      
+      let created = 0;
+      let existing = 0;
+
+      for (const driverUser of driverUsers) {
+        const existingDriver = await storage.getDriverByUserId(driverUser.id);
+        if (!existingDriver) {
+          await storage.createDriver({
+            userId: driverUser.id,
+          });
+          created++;
+        } else {
+          existing++;
+        }
+      }
+
+      res.json({ 
+        success: true, 
+        message: `Backfill complete: ${created} driver records created, ${existing} already existed`,
+        created,
+        existing,
+        total: driverUsers.length
+      });
+    } catch (error) {
+      console.error('Backfill drivers error:', error);
+      res.status(500).json({ message: 'Failed to backfill driver records' });
     }
   });
 
