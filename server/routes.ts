@@ -19,7 +19,11 @@ let objectStorage: ObjectStorageClient | null = null;
 
 function getObjectStorage(): ObjectStorageClient {
   if (!objectStorage) {
-    objectStorage = new ObjectStorageClient();
+    const bucketId = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID;
+    if (!bucketId) {
+      throw new Error('Object Storage bucket ID not found. Please set up Object Storage.');
+    }
+    objectStorage = new ObjectStorageClient({ bucketId });
   }
   return objectStorage;
 }
