@@ -1082,6 +1082,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Upload document on behalf of driver
+  app.post('/api/admin/driver-documents/upload', isAuthenticated, upload.single('file'), async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      const { userId: driverUserId, documentType, expirationDate, whatsappNumber } = req.body;
+      
+      if (!driverUserId) {
+        return res.status(400).json({ message: 'Driver user ID is required' });
+      }
+
+      // Get driver from user ID
+      const driver = await storage.getDriverByUserId(driverUserId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver not found' });
+      }
+
+      // Validate with Zod schema
+      const docDataToValidate: any = {
+        driverId: driver.id,
+        documentType,
+        documentUrl: 'temp', // Will be replaced after upload
+        status: 'pending', // Explicitly set to pending
+      };
+
+      if (expirationDate) {
+        docDataToValidate.expirationDate = expirationDate;
+      }
+
+      if (whatsappNumber) {
+        docDataToValidate.whatsappNumber = whatsappNumber;
+      }
+
+      // Validate document data with schema
+      const validationResult = insertDriverDocumentSchema.safeParse(docDataToValidate);
+      
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: 'Invalid document data', 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const file = req.file;
+      const fileExtension = file.originalname.split('.').pop();
+      const fileName = `driver-docs/${driver.id}/${documentType}-${Date.now()}.${fileExtension}`;
+
+      // Upload to Object Storage
+      const { ok, error } = await getObjectStorage().uploadFromBytes(
+        fileName,
+        file.buffer
+      );
+
+      if (!ok) {
+        console.error('Upload to Object Storage failed:', error);
+        return res.status(500).json({ message: `Upload failed: ${error}` });
+      }
+
+      // Create validated document with actual URL
+      const validatedData = validationResult.data;
+      validatedData.documentUrl = fileName;
+
+      const document = await storage.createDriverDocument(validatedData);
+
+      res.json({
+        success: true,
+        document,
+      });
+    } catch (error) {
+      console.error('Admin document upload error:', error);
+      res.status(500).json({ message: 'Failed to upload document' });
+    }
+  });
+
   // Admin: Update document status (approve/reject)
   app.put('/api/admin/driver-documents/:id/status', isAuthenticated, async (req: any, res) => {
     try {

@@ -227,7 +227,7 @@ export default function DriverDashboard() {
         </div>
 
         {/* Document Verification */}
-        <Card data-testid="document-verification">
+        <Card data-testid="document-verification" className="rounded-lg border shadow-sm bg-[#ffffff] text-[#23252f]">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Upload className="w-5 h-5" />

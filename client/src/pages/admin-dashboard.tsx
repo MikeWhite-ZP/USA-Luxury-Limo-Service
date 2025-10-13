@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, ChevronDown, Pencil } from "lucide-react";
+import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, ChevronDown, Pencil, FileText } from "lucide-react";
 import { Link } from "wouter";
 
 interface DashboardStats {
@@ -62,6 +62,26 @@ interface User {
   createdAt: string;
 }
 
+interface DriverDocument {
+  id: string;
+  driverId: string;
+  documentType: 'driver_license' | 'limo_license' | 'profile_photo';
+  documentUrl: string;
+  expirationDate: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  rejectionReason: string | null;
+  whatsappNumber: string | null;
+  uploadedAt: string;
+  reviewedAt: string | null;
+  reviewedBy: string | null;
+  driverInfo?: {
+    userId: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
 export default function AdminDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -108,6 +128,17 @@ export default function AdminDashboard() {
     applicationId: '', // For Square
     accessToken: '', // For Square
     locationId: '', // For Square
+  });
+
+  // Driver documents dialog state
+  const [documentsDialogOpen, setDocumentsDialogOpen] = useState(false);
+  const [selectedDriverForDocs, setSelectedDriverForDocs] = useState<User | null>(null);
+  const [uploadingForDriver, setUploadingForDriver] = useState(false);
+  const [uploadFormData, setUploadFormData] = useState({
+    file: null as File | null,
+    documentType: 'driver_license' as 'driver_license' | 'limo_license' | 'profile_photo',
+    expirationDate: '',
+    whatsappNumber: '',
   });
 
   // Redirect to home if not authenticated or not admin
@@ -166,6 +197,12 @@ export default function AdminDashboard() {
     queryKey: ['/api/admin/users'],
     retry: false,
     enabled: isAuthenticated && user?.role === 'admin',
+  });
+
+  // Fetch all driver documents
+  const { data: allDriverDocuments = [], isLoading: documentsLoading } = useQuery<DriverDocument[]>({
+    queryKey: ['/api/admin/driver-documents'],
+    enabled: !!user && user.role === 'admin' && documentsDialogOpen,
   });
 
   // Update single credential mutation
@@ -592,6 +629,81 @@ export default function AdminDashboard() {
       toast({
         title: "Error",
         description: error.message || "Failed to backfill driver records",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateDocumentStatusMutation = useMutation({
+    mutationFn: async ({ documentId, status, rejectionReason }: { documentId: string; status: string; rejectionReason?: string }) => {
+      const response = await apiRequest('PUT', `/api/admin/driver-documents/${documentId}/status`, {
+        status,
+        rejectionReason,
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/driver-documents'] });
+      toast({
+        title: "Document Updated",
+        description: "Document status has been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update document status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const adminUploadDocumentMutation = useMutation({
+    mutationFn: async ({ userId, file, documentType, expirationDate, whatsappNumber }: {
+      userId: string;
+      file: File;
+      documentType: string;
+      expirationDate?: string;
+      whatsappNumber?: string;
+    }) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('userId', userId);
+      formData.append('documentType', documentType);
+      if (expirationDate) formData.append('expirationDate', expirationDate);
+      if (whatsappNumber) formData.append('whatsappNumber', whatsappNumber);
+
+      const response = await fetch('/api/admin/driver-documents/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Upload failed');
+      }
+
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/driver-documents'] });
+      toast({
+        title: "Document Uploaded",
+        description: "Document uploaded successfully for the driver.",
+      });
+      setUploadingForDriver(false);
+      setUploadFormData({
+        file: null,
+        documentType: 'driver_license',
+        expirationDate: '',
+        whatsappNumber: '',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -1504,6 +1616,20 @@ export default function AdminDashboard() {
                           </td>
                           <td className="p-3">
                             <div className="flex items-center gap-2">
+                              {u.role === 'driver' && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedDriverForDocs(u);
+                                    setDocumentsDialogOpen(true);
+                                  }}
+                                  data-testid={`button-documents-${u.id}`}
+                                >
+                                  <FileText className="w-3 h-3 mr-1" />
+                                  Documents
+                                </Button>
+                              )}
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -1860,6 +1986,228 @@ export default function AdminDashboard() {
               data-testid="button-save-user"
             >
               {(createUserMutation.isPending || updateUserMutation.isPending) ? 'Saving...' : editingUser ? 'Update User' : 'Create User'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Driver Documents Dialog */}
+      <Dialog open={documentsDialogOpen} onOpenChange={setDocumentsDialogOpen}>
+        <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto bg-[#fdfeff]">
+          <DialogHeader>
+            <DialogTitle>
+              Driver Documents - {selectedDriverForDocs?.firstName} {selectedDriverForDocs?.lastName}
+            </DialogTitle>
+            <DialogDescription>
+              View and manage driver verification documents
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Upload Form for Admin */}
+            <Card className="bg-muted/20">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm">Upload Document for Driver</CardTitle>
+                  <Button
+                    size="sm"
+                    variant={uploadingForDriver ? "default" : "outline"}
+                    onClick={() => setUploadingForDriver(!uploadingForDriver)}
+                    data-testid="button-toggle-upload"
+                  >
+                    <Plus className="w-3 h-3 mr-1" />
+                    {uploadingForDriver ? 'Cancel' : 'Upload New'}
+                  </Button>
+                </div>
+              </CardHeader>
+              {uploadingForDriver && (
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label>Document Type</Label>
+                      <Select
+                        value={uploadFormData.documentType}
+                        onValueChange={(value) => setUploadFormData({ ...uploadFormData, documentType: value as typeof uploadFormData.documentType })}
+                      >
+                        <SelectTrigger data-testid="select-doc-type">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="driver_license">Driver License</SelectItem>
+                          <SelectItem value="limo_license">Limo License</SelectItem>
+                          <SelectItem value="profile_photo">Profile Photo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>File</Label>
+                      <Input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(e) => setUploadFormData({ ...uploadFormData, file: e.target.files?.[0] || null })}
+                        data-testid="input-doc-file"
+                      />
+                    </div>
+
+                    {uploadFormData.documentType !== 'profile_photo' && (
+                      <div className="space-y-2">
+                        <Label>Expiration Date</Label>
+                        <Input
+                          type="date"
+                          value={uploadFormData.expirationDate}
+                          onChange={(e) => setUploadFormData({ ...uploadFormData, expirationDate: e.target.value })}
+                          data-testid="input-expiration-date"
+                        />
+                      </div>
+                    )}
+
+                    {uploadFormData.documentType === 'profile_photo' && (
+                      <div className="space-y-2">
+                        <Label>WhatsApp Number</Label>
+                        <Input
+                          type="tel"
+                          placeholder="+1234567890"
+                          value={uploadFormData.whatsappNumber}
+                          onChange={(e) => setUploadFormData({ ...uploadFormData, whatsappNumber: e.target.value })}
+                          data-testid="input-whatsapp"
+                        />
+                      </div>
+                    )}
+
+                    <Button
+                      onClick={() => {
+                        if (!uploadFormData.file || !selectedDriverForDocs) {
+                          toast({
+                            title: "Missing Information",
+                            description: "Please select a file to upload",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        adminUploadDocumentMutation.mutate({
+                          userId: selectedDriverForDocs.id,
+                          file: uploadFormData.file,
+                          documentType: uploadFormData.documentType,
+                          expirationDate: uploadFormData.expirationDate || undefined,
+                          whatsappNumber: uploadFormData.whatsappNumber || undefined,
+                        });
+                      }}
+                      disabled={adminUploadDocumentMutation.isPending || !uploadFormData.file}
+                      className="w-full"
+                      data-testid="button-submit-upload"
+                    >
+                      {adminUploadDocumentMutation.isPending ? 'Uploading...' : 'Upload Document'}
+                    </Button>
+                  </div>
+                </CardContent>
+              )}
+            </Card>
+
+            {/* Existing Documents */}
+            {documentsLoading ? (
+              <div className="flex items-center justify-center p-8">
+                <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+              </div>
+            ) : allDriverDocuments && allDriverDocuments.length > 0 ? (
+              <>
+                {allDriverDocuments
+                  .filter(doc => doc.driverInfo?.userId === selectedDriverForDocs?.id)
+                  .map((doc) => (
+                    <Card key={doc.id} data-testid={`document-card-${doc.id}`}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-2 flex-1">
+                            <div className="flex items-center gap-2">
+                              <FileText className="w-4 h-4" />
+                              <h3 className="font-semibold capitalize">
+                                {doc.documentType.replace('_', ' ')}
+                              </h3>
+                              <Badge
+                                variant={
+                                  doc.status === 'approved' ? 'default' :
+                                  doc.status === 'rejected' ? 'destructive' :
+                                  'secondary'
+                                }
+                                data-testid={`document-status-${doc.id}`}
+                              >
+                                {doc.status}
+                              </Badge>
+                            </div>
+                            
+                            <div className="text-sm text-muted-foreground space-y-1">
+                              {doc.expirationDate && (
+                                <p>Expires: {new Date(doc.expirationDate).toLocaleDateString()}</p>
+                              )}
+                              {doc.whatsappNumber && (
+                                <p>WhatsApp: {doc.whatsappNumber}</p>
+                              )}
+                              <p>Uploaded: {new Date(doc.uploadedAt).toLocaleDateString()}</p>
+                              {doc.rejectionReason && (
+                                <p className="text-destructive">Rejection Reason: {doc.rejectionReason}</p>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2 mt-3">
+                              {doc.status !== 'approved' && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => updateDocumentStatusMutation.mutate({ 
+                                    documentId: doc.id, 
+                                    status: 'approved' 
+                                  })}
+                                  disabled={updateDocumentStatusMutation.isPending}
+                                  data-testid={`button-approve-${doc.id}`}
+                                >
+                                  <Check className="w-3 h-3 mr-1" />
+                                  Approve
+                                </Button>
+                              )}
+                              {doc.status !== 'rejected' && (
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => {
+                                    const reason = prompt('Enter rejection reason:');
+                                    if (reason) {
+                                      updateDocumentStatusMutation.mutate({ 
+                                        documentId: doc.id, 
+                                        status: 'rejected',
+                                        rejectionReason: reason
+                                      });
+                                    }
+                                  }}
+                                  disabled={updateDocumentStatusMutation.isPending}
+                                  data-testid={`button-reject-${doc.id}`}
+                                >
+                                  <X className="w-3 h-3 mr-1" />
+                                  Reject
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </>
+            ) : (
+              <div className="text-center p-8 text-muted-foreground" data-testid="no-documents">
+                No documents uploaded yet.
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDocumentsDialogOpen(false);
+                setSelectedDriverForDocs(null);
+              }}
+              data-testid="button-close-documents"
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
