@@ -5,10 +5,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ObjectUploader } from "../components/ObjectUploader";
-import { DollarSign, MapPin, Clock, Star, Upload, CheckCircle, AlertCircle } from "lucide-react";
+import { DollarSign, MapPin, Clock, Star, Upload, CheckCircle, AlertCircle, FileText, Car } from "lucide-react";
 
 interface DriverData {
   id: string;
@@ -40,6 +42,15 @@ export default function DriverDashboard() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const [todayEarnings] = useState(485); // This would come from API
+  
+  // Document upload state with expiration dates
+  const [documentForms, setDocumentForms] = useState({
+    driver_license: { file: null as File | null, expirationDate: '' },
+    limo_license: { file: null as File | null, expirationDate: '' },
+    insurance: { file: null as File | null, expirationDate: '' },
+    vehicle_image: { file: null as File | null, expirationDate: '' },
+  });
+  const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
 
   // Redirect to home if not authenticated or not driver
   useEffect(() => {
@@ -68,6 +79,54 @@ export default function DriverDashboard() {
     queryKey: ['/api/bookings'],
     retry: false,
     enabled: isAuthenticated && user?.role === 'driver',
+  });
+
+  // Document upload mutation
+  const uploadDocumentMutation = useMutation({
+    mutationFn: async ({ documentType, file, expirationDate }: {
+      documentType: string;
+      file: File;
+      expirationDate?: string;
+    }) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('documentType', documentType);
+      if (expirationDate) formData.append('expirationDate', expirationDate);
+
+      const response = await fetch('/api/driver/documents/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Upload failed');
+      }
+
+      return await response.json();
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/driver/documents'] });
+      toast({
+        title: "Document Uploaded",
+        description: `Your ${variables.documentType.replace('_', ' ')} has been uploaded successfully.`,
+      });
+      setUploadingDoc(null);
+      // Clear form
+      setDocumentForms(prev => ({
+        ...prev,
+        [variables.documentType]: { file: null, expirationDate: '' }
+      }));
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      setUploadingDoc(null);
+    },
   });
 
   // Update booking status mutation
@@ -133,6 +192,35 @@ export default function DriverDashboard() {
       case 'rejected': return <AlertCircle className="w-4 h-4 text-red-600" />;
       default: return <Clock className="w-4 h-4 text-gray-400" />;
     }
+  };
+
+  const handleDocumentUpload = (documentType: string) => {
+    const form = documentForms[documentType as keyof typeof documentForms];
+    
+    if (!form.file) {
+      toast({
+        title: "Missing File",
+        description: "Please select a file to upload",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!form.expirationDate && documentType !== 'vehicle_image') {
+      toast({
+        title: "Missing Expiration Date",
+        description: "Please provide an expiration date",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingDoc(documentType);
+    uploadDocumentMutation.mutate({
+      documentType,
+      file: form.file,
+      expirationDate: form.expirationDate || undefined,
+    });
   };
 
   if (isLoading || driverLoading) {
@@ -230,98 +318,177 @@ export default function DriverDashboard() {
         <Card data-testid="document-verification" className="rounded-lg border shadow-sm bg-[#ffffff] text-[#23252f]">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Upload className="w-5 h-5" />
+              <FileText className="w-5 h-5" />
               <span>Document Verification</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 gap-6">
+              {/* Driver's License */}
               <div className="space-y-4">
-                <h4 className="font-semibold flex items-center space-x-2">
-                  <span>Driver's License</span>
-                  {driver?.licenseDocumentUrl && getVerificationStatusIcon('verified')}
-                </h4>
-                {driver?.licenseDocumentUrl ? (
-                  <div className="border-2 border-green-200 bg-green-50 rounded-lg p-4 text-center">
-                    <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                    <p className="text-sm text-green-700">Document Uploaded</p>
-                    <p className="text-xs text-green-600 mt-1">✓ Verified</p>
+                <h4 className="font-semibold">Driver's License</h4>
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="driver-license-file">Upload Document (PDF/Image, max 2MB)</Label>
+                    <Input
+                      id="driver-license-file"
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={(e) => setDocumentForms(prev => ({
+                        ...prev,
+                        driver_license: { ...prev.driver_license, file: e.target.files?.[0] || null }
+                      }))}
+                      data-testid="input-driver-license-file"
+                    />
                   </div>
-                ) : (
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                    <ObjectUploader
-                      maxNumberOfFiles={1}
-                      maxFileSize={10485760}
-                      onGetUploadParameters={async () => {
-                        const response = await apiRequest('POST', '/api/objects/upload');
-                        const data = await response.json();
-                        return {
-                          method: 'PUT' as const,
-                          url: data.uploadURL,
-                        };
-                      }}
-                      onComplete={async (result: { successful: Array<{ uploadURL: string }> }) => {
-                        if (result.successful[0]) {
-                          const uploadURL = result.successful[0].uploadURL;
-                          // Update driver profile with document URL
-                          await apiRequest('PUT', '/api/driver/license', { licenseDocumentUrl: uploadURL });
-                          queryClient.invalidateQueries({ queryKey: ['/api/driver/profile'] });
-                        }
-                      }}
-                      buttonClassName="w-full"
-                      data-testid="upload-license"
-                    >
-                      <div className="flex flex-col items-center space-y-2">
-                        <Upload className="w-6 h-6" />
-                        <span>Upload Driver's License</span>
-                      </div>
-                    </ObjectUploader>
+                  <div>
+                    <Label htmlFor="driver-license-expiry">Expiration Date</Label>
+                    <Input
+                      id="driver-license-expiry"
+                      type="date"
+                      value={documentForms.driver_license.expirationDate}
+                      onChange={(e) => setDocumentForms(prev => ({
+                        ...prev,
+                        driver_license: { ...prev.driver_license, expirationDate: e.target.value }
+                      }))}
+                      data-testid="input-driver-license-expiry"
+                    />
                   </div>
-                )}
+                  <Button
+                    onClick={() => handleDocumentUpload('driver_license')}
+                    disabled={uploadingDoc === 'driver_license'}
+                    className="w-full"
+                    data-testid="button-upload-driver-license"
+                  >
+                    {uploadingDoc === 'driver_license' ? 'Uploading...' : 'Save & Upload'}
+                  </Button>
+                </div>
               </div>
 
+              {/* Limo License */}
+              <div className="space-y-4">
+                <h4 className="font-semibold">Limo License</h4>
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="limo-license-file">Upload Document (PDF/Image, max 2MB)</Label>
+                    <Input
+                      id="limo-license-file"
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={(e) => setDocumentForms(prev => ({
+                        ...prev,
+                        limo_license: { ...prev.limo_license, file: e.target.files?.[0] || null }
+                      }))}
+                      data-testid="input-limo-license-file"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="limo-license-expiry">Expiration Date</Label>
+                    <Input
+                      id="limo-license-expiry"
+                      type="date"
+                      value={documentForms.limo_license.expirationDate}
+                      onChange={(e) => setDocumentForms(prev => ({
+                        ...prev,
+                        limo_license: { ...prev.limo_license, expirationDate: e.target.value }
+                      }))}
+                      data-testid="input-limo-license-expiry"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleDocumentUpload('limo_license')}
+                    disabled={uploadingDoc === 'limo_license'}
+                    className="w-full"
+                    data-testid="button-upload-limo-license"
+                  >
+                    {uploadingDoc === 'limo_license' ? 'Uploading...' : 'Save & Upload'}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Insurance Certificate */}
+              <div className="space-y-4">
+                <h4 className="font-semibold">Insurance Certificate</h4>
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="insurance-file">Upload Document (PDF/Image, max 2MB)</Label>
+                    <Input
+                      id="insurance-file"
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={(e) => setDocumentForms(prev => ({
+                        ...prev,
+                        insurance: { ...prev.insurance, file: e.target.files?.[0] || null }
+                      }))}
+                      data-testid="input-insurance-file"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="insurance-expiry">Expiration Date</Label>
+                    <Input
+                      id="insurance-expiry"
+                      type="date"
+                      value={documentForms.insurance.expirationDate}
+                      onChange={(e) => setDocumentForms(prev => ({
+                        ...prev,
+                        insurance: { ...prev.insurance, expirationDate: e.target.value }
+                      }))}
+                      data-testid="input-insurance-expiry"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleDocumentUpload('insurance')}
+                    disabled={uploadingDoc === 'insurance'}
+                    className="w-full"
+                    data-testid="button-upload-insurance"
+                  >
+                    {uploadingDoc === 'insurance' ? 'Uploading...' : 'Save & Upload'}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Vehicle Image */}
               <div className="space-y-4">
                 <h4 className="font-semibold flex items-center space-x-2">
-                  <span>Insurance Certificate</span>
-                  {driver?.insuranceDocumentUrl && getVerificationStatusIcon('pending')}
+                  <Car className="w-4 h-4" />
+                  <span>Vehicle Image</span>
                 </h4>
-                {driver?.insuranceDocumentUrl ? (
-                  <div className="border-2 border-amber-200 bg-amber-50 rounded-lg p-4 text-center">
-                    <Clock className="w-8 h-8 text-amber-600 mx-auto mb-2" />
-                    <p className="text-sm text-amber-700">Document Uploaded</p>
-                    <p className="text-xs text-amber-600 mt-1">⏳ Pending Review</p>
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="vehicle-image-file">Upload Image (JPG/PNG, max 2MB)</Label>
+                    <Input
+                      id="vehicle-image-file"
+                      type="file"
+                      accept=".jpg,.jpeg,.png"
+                      onChange={(e) => setDocumentForms(prev => ({
+                        ...prev,
+                        vehicle_image: { ...prev.vehicle_image, file: e.target.files?.[0] || null }
+                      }))}
+                      data-testid="input-vehicle-image-file"
+                    />
                   </div>
-                ) : (
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                    <ObjectUploader
-                      maxNumberOfFiles={1}
-                      maxFileSize={10485760}
-                      onGetUploadParameters={async () => {
-                        const response = await apiRequest('POST', '/api/objects/upload');
-                        const data = await response.json();
-                        return {
-                          method: 'PUT' as const,
-                          url: data.uploadURL,
-                        };
-                      }}
-                      onComplete={async (result: { successful: Array<{ uploadURL: string }> }) => {
-                        if (result.successful[0]) {
-                          const uploadURL = result.successful[0].uploadURL;
-                          // Update driver profile with document URL
-                          await apiRequest('PUT', '/api/driver/insurance', { insuranceDocumentUrl: uploadURL });
-                          queryClient.invalidateQueries({ queryKey: ['/api/driver/profile'] });
-                        }
-                      }}
-                      buttonClassName="w-full"
-                      data-testid="upload-insurance"
-                    >
-                      <div className="flex flex-col items-center space-y-2">
-                        <Upload className="w-6 h-6" />
-                        <span>Upload Insurance Certificate</span>
-                      </div>
-                    </ObjectUploader>
+                  <div>
+                    <Label htmlFor="vehicle-image-expiry">Expiration Date (Optional)</Label>
+                    <Input
+                      id="vehicle-image-expiry"
+                      type="date"
+                      value={documentForms.vehicle_image.expirationDate}
+                      onChange={(e) => setDocumentForms(prev => ({
+                        ...prev,
+                        vehicle_image: { ...prev.vehicle_image, expirationDate: e.target.value }
+                      }))}
+                      data-testid="input-vehicle-image-expiry"
+                    />
                   </div>
-                )}
+                  <Button
+                    onClick={() => handleDocumentUpload('vehicle_image')}
+                    disabled={uploadingDoc === 'vehicle_image'}
+                    className="w-full"
+                    data-testid="button-upload-vehicle-image"
+                  >
+                    {uploadingDoc === 'vehicle_image' ? 'Uploading...' : 'Save & Upload'}
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
