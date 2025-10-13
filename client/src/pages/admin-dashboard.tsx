@@ -81,6 +81,7 @@ export default function AdminDashboard() {
   const [visibleCredentialsSection, setVisibleCredentialsSection] = useState<'api' | 'payment' | null>(null);
   const [selectedUserType, setSelectedUserType] = useState<'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin'>('all');
   const [showUserManager, setShowUserManager] = useState(false);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
   
   // User dialog state
   const [userDialogOpen, setUserDialogOpen] = useState(false);
@@ -1390,6 +1391,18 @@ export default function AdminDashboard() {
               </div>
             ) : allUsers && allUsers.length > 0 ? (
               <div className="space-y-4">
+                {/* Search Input */}
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Search by name, email, or phone..."
+                    value={userSearchQuery}
+                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                    className="max-w-md"
+                    data-testid="input-search-users"
+                  />
+                </div>
+                
                 <div className="border rounded-lg overflow-hidden">
                   <table className="w-full">
                     <thead className="bg-muted/50">
@@ -1403,7 +1416,20 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {allUsers.filter(u => selectedUserType === 'all' || u.role === selectedUserType).map((u) => (
+                      {allUsers
+                        .filter(u => selectedUserType === 'all' || u.role === selectedUserType)
+                        .filter(u => {
+                          if (!userSearchQuery) return true;
+                          const query = userSearchQuery.toLowerCase();
+                          return (
+                            u.firstName?.toLowerCase().includes(query) ||
+                            u.lastName?.toLowerCase().includes(query) ||
+                            u.email?.toLowerCase().includes(query) ||
+                            u.phone?.toLowerCase().includes(query) ||
+                            `${u.firstName} ${u.lastName}`.toLowerCase().includes(query)
+                          );
+                        })
+                        .map((u) => (
                         <tr 
                           key={u.id}
                           className="border-t hover:bg-muted/20 transition-colors"
