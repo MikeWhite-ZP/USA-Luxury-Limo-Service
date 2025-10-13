@@ -1,0 +1,101 @@
+Build a responsive and modern Admin User Dashboard for a transportation management web app using React (frontend) and Node.js + Express (backend) with MongoDB as the database.
+
+🔧 Features and Requirements:
+1. Dashboard Layout
+
+Create a clean and professional admin dashboard UI with a tabbed navigation bar.
+
+Tabs: Passengers, Drivers, Dispatchers, Admins.
+
+Use TailwindCSS or Bootstrap for styling and responsiveness.
+
+2. User Management (Tabbed Control)
+
+Each tab represents a user type and should display a data table with:
+
+ID
+
+Name
+
+Email
+
+Phone
+
+Role (auto-detected from tab)
+
+Status (Active / Inactive)
+
+Action buttons (Add, Edit, Delete, View)
+
+Each tab must load initial demo accounts (seed data) for easy testing.
+
+3. CRUD Functionality
+
+Implement full account control for the admin via the dashboard:
+
+Add new user (popup form/modal)
+
+Edit existing user
+
+Delete user
+
+View user details
+
+All CRUD operations should connect to the MongoDB database using RESTful API endpoints.
+
+4. Passenger-Specific Feature
+
+In the Passengers tab, include a toggle or dropdown field for “Pay Later” status (true/false).
+
+This status should be editable by the admin and stored in the database.
+
+5. Authentication & Roles
+
+Implement admin login with email/password.
+
+Only logged-in admins can access the user management dashboard.
+
+Role-based access control (RBAC):
+
+Admin → Full control
+
+Dispatcher → Read-only access to all user tabs
+
+6. Backend API
+
+Create REST endpoints:
+
+GET /api/users?role=passenger
+
+POST /api/users
+
+PUT /api/users/:id
+
+DELETE /api/users/:id
+
+Include authentication middleware (JWT-based preferred).
+
+7. Data Model Example (MongoDB)
+{
+  _id: ObjectId,
+  name: String,
+  email: String,
+  phone: String,
+  role: String, // passenger, driver, dispatcher, admin
+  status: String, // active, inactive
+  payLater: Boolean, // only for passengers
+  createdAt: Date
+}
+
+8. Bonus (Optional but Preferred)
+
+Add a search bar and filter by role or status.
+
+Include pagination or lazy loading for large datasets.
+
+Responsive design for desktop, tablet, and mobile.
+
+🧠 Goal:
+Build a fully functional Admin User Management System with tabbed user control, CRUD features, role-based permissions, and a “Pay Later” functionality for passenger accounts — ready to integrate into a limo/ride-booking platform.
+
+Output both frontend and backend code in a working structure that can run on Replit (Node.js + React full-stack app).
