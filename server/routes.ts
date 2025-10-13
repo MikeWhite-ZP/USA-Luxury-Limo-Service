@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
-import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema } from "@shared/schema";
+import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, type User } from "@shared/schema";
 import Stripe from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -611,12 +611,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id } = req.params;
-      const { role, isActive, payLaterEnabled } = req.body;
+      const { role, isActive, payLaterEnabled, firstName, lastName, email, phone } = req.body;
       
       const updates: Partial<User> = {};
       if (role !== undefined) updates.role = role;
       if (isActive !== undefined) updates.isActive = isActive;
       if (payLaterEnabled !== undefined) updates.payLaterEnabled = payLaterEnabled;
+      if (firstName !== undefined) updates.firstName = firstName;
+      if (lastName !== undefined) updates.lastName = lastName;
+      if (email !== undefined) updates.email = email;
+      if (phone !== undefined) updates.phone = phone;
       
       const updatedUser = await storage.updateUser(id, updates);
       
@@ -628,6 +632,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Update user error:', error);
       res.status(500).json({ message: 'Failed to update user' });
+    }
+  });
+
+  app.post('/api/admin/users', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { firstName, lastName, email, phone, role, isActive, payLaterEnabled } = req.body;
+      
+      if (!firstName || !email) {
+        return res.status(400).json({ message: 'First name and email are required' });
+      }
+
+      // Check if user with this email already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: 'User with this email already exists' });
+      }
+
+      // Create temporary password (user should reset)
+      const tempPassword = Math.random().toString(36).slice(-10);
+      
+      const newUser = await storage.createUser({
+        email,
+        password: tempPassword,
+        firstName,
+        lastName: lastName || '',
+        phone: phone || '',
+        role: role || 'passenger',
+        isActive: isActive !== undefined ? isActive : true,
+        payLaterEnabled: payLaterEnabled || false,
+      });
+      
+      res.json({ ...newUser, password: undefined });
+    } catch (error) {
+      console.error('Create user error:', error);
+      res.status(500).json({ message: 'Failed to create user' });
+    }
+  });
+
+  app.delete('/api/admin/users/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      
+      // Prevent admin from deleting themselves
+      if (id === userId) {
+        return res.status(400).json({ message: 'You cannot delete your own account' });
+      }
+      
+      const deleted = await storage.deleteUser(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete user error:', error);
+      res.status(500).json({ message: 'Failed to delete user' });
     }
   });
 

@@ -43,6 +43,7 @@ export interface IStorage {
   createUser(userData: Partial<User>): Promise<User>;
   getAllUsers(): Promise<User[]>;
   updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
+  deleteUser(id: string): Promise<boolean>;
   
   // Driver operations
   createDriver(driver: InsertDriver): Promise<Driver>;
@@ -183,6 +184,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    const result = await db
+      .delete(users)
+      .where(eq(users.id, id))
+      .returning();
+    return result.length > 0;
   }
 
   async createDriver(driverData: InsertDriver): Promise<Driver> {

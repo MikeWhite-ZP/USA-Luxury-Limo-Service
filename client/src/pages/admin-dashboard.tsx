@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, ChevronDown } from "lucide-react";
+import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, ChevronDown, Pencil } from "lucide-react";
 import { Link } from "wouter";
 
 interface DashboardStats {
@@ -81,6 +81,19 @@ export default function AdminDashboard() {
   const [visibleCredentialsSection, setVisibleCredentialsSection] = useState<'api' | 'payment' | null>(null);
   const [selectedUserType, setSelectedUserType] = useState<'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin'>('all');
   const [showUserManager, setShowUserManager] = useState(false);
+  
+  // User dialog state
+  const [userDialogOpen, setUserDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userFormData, setUserFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    role: 'passenger' as 'passenger' | 'driver' | 'dispatcher' | 'admin',
+    isActive: true,
+    payLaterEnabled: false,
+  });
 
   // Payment configuration dialog state
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
@@ -488,6 +501,101 @@ export default function AdminDashboard() {
       return;
     }
     updateCredentialMutation.mutate({ key: newKeyName.toUpperCase().replace(/\s+/g, '_'), value: newKeyValue });
+  };
+
+  // User management functions
+  const openAddUserDialog = () => {
+    setEditingUser(null);
+    setUserFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      role: selectedUserType !== 'all' ? selectedUserType : 'passenger',
+      isActive: true,
+      payLaterEnabled: false,
+    });
+    setUserDialogOpen(true);
+  };
+
+  const openEditUserDialog = (user: User) => {
+    setEditingUser(user);
+    setUserFormData({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone || '',
+      role: user.role,
+      isActive: user.isActive,
+      payLaterEnabled: user.payLaterEnabled,
+    });
+    setUserDialogOpen(true);
+  };
+
+  const createUserMutation = useMutation({
+    mutationFn: async (userData: typeof userFormData) => {
+      const response = await apiRequest('POST', '/api/admin/users', userData);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      setUserDialogOpen(false);
+      toast({
+        title: "User Created",
+        description: "The user has been successfully created.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create user",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await apiRequest('DELETE', `/api/admin/users/${userId}`);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      toast({
+        title: "User Deleted",
+        description: "The user has been successfully deleted.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete user",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSaveUser = () => {
+    if (!userFormData.firstName || !userFormData.email) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide at least first name and email",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (editingUser) {
+      // Update existing user
+      updateUserMutation.mutate({ 
+        id: editingUser.id, 
+        updates: userFormData 
+      });
+      setUserDialogOpen(false);
+    } else {
+      // Create new user
+      createUserMutation.mutate(userFormData);
+    }
   };
 
   const handleDeleteCredential = (key: string) => {
@@ -1218,15 +1326,25 @@ export default function AdminDashboard() {
         {showUserManager && (
           <Card id="user-manager-section" data-testid="user-accounts">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Users className="w-5 h-5" />
-              <span>
-                {selectedUserType === 'all' ? 'All Users' : 
-                 selectedUserType === 'passenger' ? 'Passengers' :
-                 selectedUserType === 'driver' ? 'Drivers' :
-                 selectedUserType === 'dispatcher' ? 'Dispatchers' : 'Admins'}
-              </span>
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Users className="w-5 h-5" />
+                <span>
+                  {selectedUserType === 'all' ? 'All Users' : 
+                   selectedUserType === 'passenger' ? 'Passengers' :
+                   selectedUserType === 'driver' ? 'Drivers' :
+                   selectedUserType === 'dispatcher' ? 'Dispatchers' : 'Admins'}
+                </span>
+              </CardTitle>
+              <Button
+                onClick={openAddUserDialog}
+                size="sm"
+                data-testid="button-add-user"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add User
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {usersLoading ? (
@@ -1244,6 +1362,7 @@ export default function AdminDashboard() {
                         <th className="text-left p-3 text-sm font-semibold">Role</th>
                         <th className="text-left p-3 text-sm font-semibold">Status</th>
                         <th className="text-left p-3 text-sm font-semibold">Pay Later</th>
+                        <th className="text-left p-3 text-sm font-semibold">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1319,6 +1438,33 @@ export default function AdminDashboard() {
                             ) : (
                               <span className="text-sm text-muted-foreground">N/A</span>
                             )}
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openEditUserDialog(u)}
+                                data-testid={`button-edit-user-${u.id}`}
+                              >
+                                <Pencil className="w-3 h-3 mr-1" />
+                                Edit
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  if (confirm(`Are you sure you want to delete ${u.firstName} ${u.lastName}?`)) {
+                                    deleteUserMutation.mutate(u.id);
+                                  }
+                                }}
+                                disabled={deleteUserMutation.isPending}
+                                data-testid={`button-delete-user-${u.id}`}
+                              >
+                                <Trash2 className="w-3 h-3 mr-1" />
+                                Delete
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -1517,6 +1663,140 @@ export default function AdminDashboard() {
               data-testid="button-save-config"
             >
               {createPaymentSystemMutation.isPending ? 'Saving...' : 'Save Configuration'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add/Edit User Dialog */}
+      <Dialog open={userDialogOpen} onOpenChange={setUserDialogOpen}>
+        <DialogContent className="sm:max-w-[500px] bg-[#fdfeff]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingUser ? 'Edit User' : 'Add New User'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingUser ? 'Update user information and settings.' : 'Create a new user account with role and permissions.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="user-first-name">First Name *</Label>
+                <Input
+                  id="user-first-name"
+                  placeholder="John"
+                  value={userFormData.firstName}
+                  onChange={(e) => setUserFormData({ ...userFormData, firstName: e.target.value })}
+                  data-testid="input-user-first-name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="user-last-name">Last Name</Label>
+                <Input
+                  id="user-last-name"
+                  placeholder="Doe"
+                  value={userFormData.lastName}
+                  onChange={(e) => setUserFormData({ ...userFormData, lastName: e.target.value })}
+                  data-testid="input-user-last-name"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="user-email">Email *</Label>
+              <Input
+                id="user-email"
+                type="email"
+                placeholder="user@example.com"
+                value={userFormData.email}
+                onChange={(e) => setUserFormData({ ...userFormData, email: e.target.value })}
+                data-testid="input-user-email"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="user-phone">Phone Number</Label>
+              <Input
+                id="user-phone"
+                placeholder="+1 234 567 8900"
+                value={userFormData.phone}
+                onChange={(e) => setUserFormData({ ...userFormData, phone: e.target.value })}
+                data-testid="input-user-phone"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="user-role">Role *</Label>
+              <Select
+                value={userFormData.role}
+                onValueChange={(value) => setUserFormData({ ...userFormData, role: value as typeof userFormData.role })}
+              >
+                <SelectTrigger id="user-role" data-testid="select-user-role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="passenger">Passenger</SelectItem>
+                  <SelectItem value="driver">Driver</SelectItem>
+                  <SelectItem value="dispatcher">Dispatcher</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="user-status">Status</Label>
+              <Select
+                value={userFormData.isActive ? 'active' : 'inactive'}
+                onValueChange={(value) => setUserFormData({ ...userFormData, isActive: value === 'active' })}
+              >
+                <SelectTrigger id="user-status" data-testid="select-user-status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {userFormData.role === 'passenger' && (
+              <div className="space-y-2">
+                <Label htmlFor="user-paylater">Pay Later Ability</Label>
+                <Select
+                  value={userFormData.payLaterEnabled ? 'enabled' : 'disabled'}
+                  onValueChange={(value) => setUserFormData({ ...userFormData, payLaterEnabled: value === 'enabled' })}
+                >
+                  <SelectTrigger id="user-paylater" data-testid="select-user-paylater">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="enabled">Enabled</SelectItem>
+                    <SelectItem value="disabled">Disabled</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Allow passenger to complete trips and pay afterwards
+                </p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setUserDialogOpen(false)}
+              data-testid="button-cancel-user"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveUser}
+              disabled={createUserMutation.isPending || updateUserMutation.isPending}
+              data-testid="button-save-user"
+            >
+              {(createUserMutation.isPending || updateUserMutation.isPending) ? 'Saving...' : editingUser ? 'Update User' : 'Create User'}
             </Button>
           </DialogFooter>
         </DialogContent>
