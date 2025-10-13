@@ -584,26 +584,73 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-primary text-primary-foreground p-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-              <span className="text-lg font-bold">A</span>
+      <header className="bg-primary text-primary-foreground">
+        <div className="max-w-7xl mx-auto p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                <span className="text-lg font-bold">A</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold" data-testid="admin-title">Admin Control Panel</h1>
+                <p className="text-primary-foreground/80" data-testid="admin-subtitle">
+                  Welcome, {user?.firstName || user?.email}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold" data-testid="admin-title">Admin Control Panel</h1>
-              <p className="text-primary-foreground/80" data-testid="admin-subtitle">
-                Welcome, {user?.firstName || user?.email}
-              </p>
-            </div>
+            <Button 
+              onClick={() => window.location.href = '/api/logout'}
+              variant="secondary"
+              data-testid="button-logout"
+            >
+              Sign Out
+            </Button>
           </div>
-          <Button 
-            onClick={() => window.location.href = '/api/logout'}
-            variant="secondary"
-            data-testid="button-logout"
-          >
-            Sign Out
-          </Button>
+        </div>
+        
+        {/* Navigation Menu */}
+        <div className="border-t border-white/20">
+          <div className="max-w-7xl mx-auto px-6">
+            <nav className="flex space-x-1" data-testid="admin-nav">
+              <Link href="/admin-pricing">
+                <Button 
+                  variant="ghost" 
+                  className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                  data-testid="nav-pricing"
+                >
+                  <DollarSign className="w-4 h-4 mr-2" />
+                  Pricing
+                </Button>
+              </Link>
+              <Button 
+                variant="ghost" 
+                className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                onClick={() => document.getElementById('credentials-section')?.scrollIntoView({ behavior: 'smooth' })}
+                data-testid="nav-credentials"
+              >
+                <Key className="w-4 h-4 mr-2" />
+                Credentials
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                onClick={() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' })}
+                data-testid="nav-user-manager"
+              >
+                <Users className="w-4 h-4 mr-2" />
+                User Manager
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                onClick={() => document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' })}
+                data-testid="nav-bookings"
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Bookings
+              </Button>
+            </nav>
+          </div>
         </div>
       </header>
 
@@ -713,7 +760,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* API Credentials Management */}
-        <Card data-testid="credentials-management">
+        <Card id="credentials-section" data-testid="credentials-management">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
@@ -1022,7 +1069,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Contact Submissions */}
-        <Card data-testid="contact-submissions">
+        <Card id="contact-section" data-testid="contact-submissions">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <MessageSquare className="w-5 h-5" />
@@ -1096,7 +1143,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* User Accounts Management */}
-        <Card data-testid="user-accounts">
+        <Card id="user-manager-section" data-testid="user-accounts">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Users className="w-5 h-5" />
