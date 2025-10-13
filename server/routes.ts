@@ -576,6 +576,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User Management (admin only)
+  app.get('/api/admin/users', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const users = await storage.getAllUsers();
+      
+      // Remove sensitive data from response
+      const sanitizedUsers = users.map(u => ({
+        ...u,
+        password: undefined,
+      }));
+      
+      res.json(sanitizedUsers);
+    } catch (error) {
+      console.error('Get users error:', error);
+      res.status(500).json({ message: 'Failed to fetch users' });
+    }
+  });
+
+  app.put('/api/admin/users/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const { role, isActive, payLaterEnabled } = req.body;
+      
+      const updates: Partial<User> = {};
+      if (role !== undefined) updates.role = role;
+      if (isActive !== undefined) updates.isActive = isActive;
+      if (payLaterEnabled !== undefined) updates.payLaterEnabled = payLaterEnabled;
+      
+      const updatedUser = await storage.updateUser(id, updates);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      res.json({ ...updatedUser, password: undefined });
+    } catch (error) {
+      console.error('Update user error:', error);
+      res.status(500).json({ message: 'Failed to update user' });
+    }
+  });
+
   // Payment Systems management (admin only)
   app.get('/api/payment-systems', isAuthenticated, async (req: any, res) => {
     try {
