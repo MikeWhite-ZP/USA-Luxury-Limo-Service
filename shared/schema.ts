@@ -334,6 +334,10 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  scheduledDateTime: z.union([z.date(), z.string()]).transform((val) => {
+    return typeof val === 'string' ? new Date(val) : val;
+  }),
 });
 
 export const insertContactSchema = createInsertSchema(contactSubmissions).omit({
