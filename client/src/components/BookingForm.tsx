@@ -136,6 +136,26 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
     }
   }, [toast]);
 
+  // Track if we've auto-filled on initial entry to step 3
+  const [hasAutoFilled, setHasAutoFilled] = useState(false);
+
+  // Auto-fill passenger details with logged-in user's information when reaching step 3
+  useEffect(() => {
+    if (step === 3 && isAuthenticated && user && !hasAutoFilled) {
+      // Only auto-fill if fields are empty and bookingFor is 'self' (default)
+      if (!passengerName && !passengerPhone && !passengerEmail && bookingFor === 'self') {
+        setPassengerName(`${user.firstName || ''} ${user.lastName || ''}`.trim());
+        setPassengerPhone(user.phone || '');
+        setPassengerEmail(user.email || '');
+        setHasAutoFilled(true); // Prevent re-running
+      }
+    }
+    // Reset flag when leaving step 3
+    if (step !== 3) {
+      setHasAutoFilled(false);
+    }
+  }, [step, isAuthenticated, user, hasAutoFilled, passengerName, passengerPhone, passengerEmail, bookingFor]);
+
   // Fetch vehicle types
   const { data: vehicleTypes } = useQuery<VehicleType[]>({
     queryKey: ['/api/vehicle-types'],
