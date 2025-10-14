@@ -481,14 +481,47 @@ export class DatabaseStorage implements IStorage {
       })
       .from(drivers);
 
-    // Active drivers count (based on user's isActive status)
+    // Active drivers count (user active + all documents approved and not expired)
     const [activeDriversResult] = await db
       .select({ 
-        count: sql<number>`COUNT(*)` 
+        count: sql<number>`COUNT(DISTINCT ${drivers.id})` 
       })
       .from(drivers)
       .innerJoin(users, eq(users.id, drivers.userId))
-      .where(eq(users.isActive, true));
+      .leftJoin(driverDocuments, eq(driverDocuments.driverId, drivers.id))
+      .where(
+        and(
+          eq(users.isActive, true),
+          // Check that driver has all 4 required approved documents
+          sql`EXISTS (
+            SELECT 1 FROM ${driverDocuments} dd1 
+            WHERE dd1.driver_id = ${drivers.id} 
+            AND dd1.document_type = 'driver_license' 
+            AND dd1.status = 'approved'
+            AND (dd1.expiration_date IS NULL OR dd1.expiration_date >= NOW())
+          )`,
+          sql`EXISTS (
+            SELECT 1 FROM ${driverDocuments} dd2 
+            WHERE dd2.driver_id = ${drivers.id} 
+            AND dd2.document_type = 'limo_license' 
+            AND dd2.status = 'approved'
+            AND (dd2.expiration_date IS NULL OR dd2.expiration_date >= NOW())
+          )`,
+          sql`EXISTS (
+            SELECT 1 FROM ${driverDocuments} dd3 
+            WHERE dd3.driver_id = ${drivers.id} 
+            AND dd3.document_type = 'insurance_certificate' 
+            AND dd3.status = 'approved'
+            AND (dd3.expiration_date IS NULL OR dd3.expiration_date >= NOW())
+          )`,
+          sql`EXISTS (
+            SELECT 1 FROM ${driverDocuments} dd4 
+            WHERE dd4.driver_id = ${drivers.id} 
+            AND dd4.document_type = 'vehicle_image' 
+            AND dd4.status = 'approved'
+          )`
+        )
+      );
 
     // Pending driver verifications
     const [pendingDriversResult] = await db

@@ -1550,7 +1550,7 @@ export default function AdminDashboard() {
                         <th className="text-left p-3 text-sm font-semibold">Email</th>
                         <th className="text-left p-3 text-sm font-semibold">Role</th>
                         <th className="text-left p-3 text-sm font-semibold">Status</th>
-                        <th className="text-left p-3 text-sm font-semibold">Pay Later</th>
+                        <th className="text-left p-3 text-sm font-semibold">Star Rating</th>
                         <th className="text-left p-3 text-sm font-semibold">Actions</th>
                       </tr>
                     </thead>
