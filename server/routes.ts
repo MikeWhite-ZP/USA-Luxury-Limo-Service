@@ -619,6 +619,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // System Commission Settings
+  app.get('/api/admin/system-commission', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const setting = await storage.getSystemSetting('SYSTEM_COMMISSION_PERCENTAGE');
+      
+      res.json({ 
+        percentage: setting?.value ? parseFloat(setting.value) : 0,
+        description: 'System commission percentage applied to ride total costs for driver payments'
+      });
+    } catch (error) {
+      console.error('Get system commission error:', error);
+      res.status(500).json({ message: 'Failed to fetch system commission' });
+    }
+  });
+
+  app.put('/api/admin/system-commission', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { percentage } = req.body;
+      
+      // Validate percentage
+      if (percentage === undefined || percentage === null) {
+        return res.status(400).json({ message: 'Percentage is required' });
+      }
+
+      const numPercentage = parseFloat(percentage);
+      if (isNaN(numPercentage) || numPercentage < 0 || numPercentage > 100) {
+        return res.status(400).json({ message: 'Percentage must be between 0 and 100' });
+      }
+
+      await storage.updateSystemSetting(
+        'SYSTEM_COMMISSION_PERCENTAGE', 
+        numPercentage.toString(), 
+        userId
+      );
+
+      res.json({ 
+        success: true,
+        percentage: numPercentage 
+      });
+    } catch (error) {
+      console.error('Update system commission error:', error);
+      res.status(500).json({ message: 'Failed to update system commission' });
+    }
+  });
+
   // User Management (admin only)
   app.get('/api/admin/users', isAuthenticated, async (req: any, res) => {
     try {
