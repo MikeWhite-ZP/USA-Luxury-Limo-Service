@@ -28,7 +28,11 @@ interface VehicleType {
   imageUrl?: string;
 }
 
-export default function BookingForm() {
+interface BookingFormProps {
+  isQuickBooking?: boolean; // True when used in hero section
+}
+
+export default function BookingForm({ isQuickBooking = false }: BookingFormProps = {}) {
   const { toast } = useToast();
   const { isAuthenticated, user } = useAuth();
   const [, setLocation] = useLocation();
@@ -123,6 +127,9 @@ export default function BookingForm() {
           title: "Booking Restored",
           description: "Your booking details have been restored. Please continue with your booking.",
         });
+        
+        // Clear the saved data after successful restoration to prevent unintended future auto-population
+        localStorage.removeItem('pendingBookingData');
       } catch (error) {
         console.error('Error restoring booking data:', error);
       }
@@ -344,11 +351,47 @@ export default function BookingForm() {
     },
     onSuccess: (data) => {
       setQuoteData(data);
-      setStep(2);
-      toast({
-        title: "Quote Calculated",
-        description: "Please select your vehicle to see pricing.",
-      });
+      setCalculatedPrices(data.prices || {});
+      
+      // If this is quick booking from hero section, save state and redirect to full booking page
+      if (isQuickBooking) {
+        const bookingDataToSave = {
+          activeTab,
+          step: 2, // Move to step 2 on the full page
+          fromAddress,
+          toAddress,
+          pickupAddress,
+          date,
+          time,
+          duration,
+          selectedVehicle: '',
+          viaPoints,
+          viaCoords,
+          fromCoords,
+          toCoords,
+          pickupCoords,
+          quoteData: data,
+          calculatedPrices: data.prices || {}, // Use fresh prices from data, not stale state
+        };
+        localStorage.setItem('pendingBookingData', JSON.stringify(bookingDataToSave));
+        
+        toast({
+          title: "Quote Calculated",
+          description: "Redirecting to booking page...",
+        });
+        
+        // Small delay for toast to show
+        setTimeout(() => {
+          setLocation('/booking');
+        }, 500);
+      } else {
+        // Normal flow for full booking page
+        setStep(2);
+        toast({
+          title: "Quote Calculated",
+          description: "Please select your vehicle to see pricing.",
+        });
+      }
     },
     onError: (error: Error) => {
       toast({
