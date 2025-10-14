@@ -92,6 +92,7 @@ export interface IStorage {
   // Admin dashboard data
   getAdminDashboardStats(): Promise<{
     totalRevenue: string;
+    totalCommission: string;
     activeBookings: number;
     activeDrivers: number;
     averageRating: string;
@@ -393,6 +394,7 @@ export class DatabaseStorage implements IStorage {
 
   async getAdminDashboardStats(): Promise<{
     totalRevenue: string;
+    totalCommission: string;
     activeBookings: number;
     activeDrivers: number;
     averageRating: string;
@@ -401,6 +403,10 @@ export class DatabaseStorage implements IStorage {
     revenueGrowth: string;
     ratingImprovement: string;
   }> {
+    // Get system commission percentage
+    const commissionSetting = await this.getSystemSetting('SYSTEM_COMMISSION_PERCENTAGE');
+    const commissionPercentage = parseFloat(commissionSetting?.value || '0');
+
     // Total revenue from all completed bookings
     const [revenueResult] = await db
       .select({ 
@@ -408,6 +414,10 @@ export class DatabaseStorage implements IStorage {
       })
       .from(bookings)
       .where(eq(bookings.status, 'completed'));
+
+    // Calculate total commission based on system commission percentage
+    const totalRevenue = parseFloat(revenueResult?.total || '0');
+    const totalCommission = (totalRevenue * (commissionPercentage / 100)).toFixed(2);
 
     // Calculate date boundaries for current and previous month
     const now = new Date();
@@ -531,6 +541,7 @@ export class DatabaseStorage implements IStorage {
 
     return {
       totalRevenue: revenueResult?.total || '0',
+      totalCommission,
       activeBookings: activeBookingsResult?.count || 0,
       activeDrivers: activeDriversResult?.count || 0,
       averageRating: ratingResult?.avg || '0',

@@ -924,7 +924,7 @@ export default function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto p-6 space-y-8">
         {/* Dashboard Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <Card data-testid="stat-revenue">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
@@ -939,6 +939,20 @@ export default function AdminDashboard() {
                       {parseFloat(stats.revenueGrowth) > 0 ? '+' : ''}{stats.revenueGrowth}% from last month
                     </p>
                   )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card data-testid="stat-commission">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-2">
+                <DollarSign className="w-8 h-8 text-purple-600" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Commission</p>
+                  <p className="text-2xl font-bold" data-testid="total-commission">
+                    ${statsLoading ? '...' : stats?.totalCommission || '0'}
+                  </p>
                 </div>
               </div>
             </CardContent>

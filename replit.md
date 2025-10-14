@@ -64,6 +64,7 @@ Preferred communication style: Simple, everyday language.
 - **Service Types**: Transfer (point-to-point) and hourly booking options
 - **Fleet Management**: Vehicle type definitions with capacity and pricing
 - **Booking Flow**: Multi-step booking process with real-time validation
+- **Commission System**: Configurable system commission percentage for calculating company earnings from completed bookings, displayed in admin dashboard alongside total revenue
 
 ### Driver Document Management
 - **Document Types**: Four document types (Driver License, Limo License, Insurance Certificate, Vehicle Image)
