@@ -9,7 +9,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
-import { CreditCard, Clock } from "lucide-react";
+import { CreditCard, Clock, Search, Plane } from "lucide-react";
 
 interface AddressSuggestion {
   id: string;
@@ -76,6 +76,13 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   const [luggageCount, setLuggageCount] = useState(0);
   const [babySeat, setBabySeat] = useState(false);
   const [specialInstructions, setSpecialInstructions] = useState('');
+  
+  // Flight search state
+  const [flightSearchInput, setFlightSearchInput] = useState('');
+  const [selectedFlight, setSelectedFlight] = useState<any>(null);
+  const [flightResults, setFlightResults] = useState<any[]>([]);
+  const [showFlightDialog, setShowFlightDialog] = useState(false);
+  const [isSearchingFlight, setIsSearchingFlight] = useState(false);
   
   // Payment options dialog state
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
@@ -461,6 +468,15 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         luggageCount,
         babySeat,
         specialInstructions: specialInstructions || undefined,
+        // Flight information if selected
+        ...(selectedFlight && {
+          flightNumber: selectedFlight.flightNumber,
+          flightAirline: selectedFlight.airline,
+          flightDeparture: selectedFlight.departure,
+          flightArrival: selectedFlight.arrival,
+          flightOrigin: selectedFlight.origin,
+          flightDestination: selectedFlight.destination,
+        }),
       };
 
       const response = await apiRequest('POST', '/api/bookings', bookingData);
@@ -523,6 +539,80 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       }
     },
   });
+
+  // Flight search handler
+  const handleFlightSearch = async () => {
+    if (!flightSearchInput.trim()) {
+      toast({
+        title: "Flight Number Required",
+        description: "Please enter a flight number (e.g., UA2346, DL3427)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!date) {
+      toast({
+        title: "Date Required",
+        description: "Please select a booking date first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSearchingFlight(true);
+    
+    try {
+      // Mock flight search - in production, this would call a real flight API
+      // For now, we'll simulate a search with mock data
+      const flightNumber = flightSearchInput.trim().toUpperCase();
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock flight data based on flight number pattern
+      const mockFlights = [
+        {
+          id: 1,
+          flightNumber: flightNumber,
+          airline: flightNumber.substring(0, 2),
+          departure: "10:30 AM",
+          arrival: "2:45 PM",
+          origin: "Los Angeles (LAX)",
+          destination: "New York (JFK)",
+          aircraft: "Boeing 737",
+          terminal: "Terminal 3",
+        },
+      ];
+      
+      // Check if searching for a common flight that might have multiple results
+      if (flightNumber.includes('UA') || flightNumber.includes('DL')) {
+        mockFlights.push({
+          id: 2,
+          flightNumber: flightNumber,
+          airline: flightNumber.substring(0, 2),
+          departure: "6:15 PM",
+          arrival: "10:30 PM",
+          origin: "Los Angeles (LAX)",
+          destination: "Boston (BOS)",
+          aircraft: "Airbus A320",
+          terminal: "Terminal 5",
+        });
+      }
+      
+      setFlightResults(mockFlights);
+      setShowFlightDialog(true);
+      
+    } catch (error) {
+      toast({
+        title: "Search Failed",
+        description: "Unable to search for flights. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSearchingFlight(false);
+    }
+  };
 
   const handleGetQuote = () => {
     // Validation for step 1
@@ -929,6 +1019,70 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </div>
         </div>
 
+        {/* Flight Search */}
+        <div data-testid="flight-search-section">
+          <h4 className="font-semibold mb-3">Flight Information (Optional)</h4>
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <Input
+                placeholder="Enter flight number (e.g., UA2346, DL3427)"
+                value={flightSearchInput}
+                onChange={(e) => setFlightSearchInput(e.target.value.toUpperCase())}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleFlightSearch();
+                  }
+                }}
+                className="text-base"
+                data-testid="input-flight-search"
+              />
+            </div>
+            <Button
+              onClick={handleFlightSearch}
+              disabled={isSearchingFlight || !flightSearchInput.trim()}
+              className="bg-primary hover:bg-primary/90 text-white px-6"
+              data-testid="button-find-flight"
+            >
+              {isSearchingFlight ? (
+                <>Searching...</>
+              ) : (
+                <>
+                  <Search className="w-4 h-4 mr-2" />
+                  Find Flight
+                </>
+              )}
+            </Button>
+          </div>
+          {selectedFlight && (
+            <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg" data-testid="selected-flight-info">
+              <div className="flex items-start gap-3">
+                <Plane className="w-5 h-5 text-green-600 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-semibold text-green-800">
+                    {selectedFlight.airline} {selectedFlight.flightNumber}
+                  </p>
+                  <p className="text-sm text-green-700">
+                    {selectedFlight.origin} → {selectedFlight.destination}
+                  </p>
+                  <p className="text-sm text-green-600">
+                    Departure: {selectedFlight.departure} • Arrival: {selectedFlight.arrival}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedFlight(null);
+                    setFlightSearchInput('');
+                  }}
+                  className="text-green-600 hover:text-green-800 text-sm font-medium"
+                  data-testid="button-clear-flight"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Passenger Count */}
         <div data-testid="passenger-count-section">
           <div className="flex justify-between items-center">
@@ -1328,6 +1482,67 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </Button>
         </div>
       )}
+
+      {/* Flight Selection Dialog */}
+      <Dialog open={showFlightDialog} onOpenChange={setShowFlightDialog}>
+        <DialogContent className="sm:max-w-2xl" data-testid="flight-selection-dialog">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Select Your Flight</DialogTitle>
+            <DialogDescription>
+              {flightResults.length > 1 
+                ? `We found ${flightResults.length} flights matching "${flightSearchInput}" on ${date}`
+                : `Flight information for ${flightSearchInput}`
+              }
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3 mt-4">
+            {flightResults.map((flight) => (
+              <button
+                key={flight.id}
+                onClick={() => {
+                  setSelectedFlight(flight);
+                  setShowFlightDialog(false);
+                  toast({
+                    title: "Flight Selected",
+                    description: `${flight.airline} ${flight.flightNumber} has been added to your booking`,
+                  });
+                }}
+                className="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-all text-left group"
+                data-testid={`flight-option-${flight.id}`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center">
+                    <Plane className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-bold text-lg text-gray-900">
+                          {flight.airline} {flight.flightNumber}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {flight.aircraft} • {flight.terminal}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-primary">{flight.departure}</p>
+                        <p className="text-xs text-gray-500">Departure</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700">{flight.origin}</span>
+                      <span className="text-gray-400">→</span>
+                      <span className="text-sm font-medium text-gray-700">{flight.destination}</span>
+                      <span className="ml-auto text-sm text-gray-500">Arrives {flight.arrival}</span>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Payment Options Dialog */}
       <Dialog open={showPaymentOptions} onOpenChange={setShowPaymentOptions}>
