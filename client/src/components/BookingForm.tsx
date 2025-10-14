@@ -943,12 +943,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
         {/* Flight Details */}
         <div data-testid="flight-details-section">
-          <div className="flex justify-between items-center mb-3">
-            <h4 className="font-semibold">Flight Details</h4>
-            <button className="text-sm text-red-600 font-medium" data-testid="button-check-flight">
-              check flight
-            </button>
-          </div>
+          <h4 className="font-semibold mb-3">Flight Details</h4>
           <div className="grid grid-cols-2 gap-3 mb-2">
             <Input
               placeholder="Enter Flight Number"
