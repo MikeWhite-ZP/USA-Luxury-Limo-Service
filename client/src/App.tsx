@@ -27,6 +27,7 @@ import DriverDocuments from "@/pages/driver-documents";
 import DispatcherDashboard from "@/pages/DispatcherDashboard";
 import PassengerDashboard from "@/pages/passenger-dashboard";
 import Checkout from "@/pages/checkout";
+import AccountPage from "@/pages/account";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -64,6 +65,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
+          <Route path="/account" component={AccountPage} />
           <Route path="/checkout" component={Checkout} />
           {user?.role === 'admin' && (
             <>
