@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ObjectUploader } from "../components/ObjectUploader";
-import { DollarSign, MapPin, Clock, Star, Upload, CheckCircle, AlertCircle, FileText, Car } from "lucide-react";
+import { DollarSign, MapPin, Clock, Star, Upload, CheckCircle, AlertCircle, FileText, Car, Home, Settings, Briefcase } from "lucide-react";
 
 interface DriverData {
   id: string;
@@ -27,6 +27,7 @@ interface DriverData {
 
 interface Booking {
   id: string;
+  driverId?: string;
   bookingType: 'transfer' | 'hourly';
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
   pickupAddress: string;
@@ -53,6 +54,7 @@ export default function DriverDashboard() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const [todayEarnings] = useState(485); // This would come from API
+  const [activeTab, setActiveTab] = useState<'home' | 'documents' | 'assigned-jobs' | 'settings'>('home');
   
   // Document upload state with expiration dates
   const [documentForms, setDocumentForms] = useState({
@@ -281,6 +283,7 @@ export default function DriverDashboard() {
   const completedRides = bookings?.filter(b => b.status === 'completed').length || 0;
   const pendingBookings = bookings?.filter(b => b.status === 'pending') || [];
   const activeBooking = bookings?.find(b => b.status === 'in_progress');
+  const assignedBookings = bookings?.filter(b => b.status === 'confirmed' || b.status === 'in_progress') || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -315,50 +318,153 @@ export default function DriverDashboard() {
             </Button>
           </div>
         </div>
+
+        {/* Navigation Menu */}
+        <div className="max-w-7xl mx-auto mt-4 flex space-x-1 bg-white/10 rounded-lg p-1">
+          <Button
+            variant={activeTab === 'home' ? 'secondary' : 'ghost'}
+            className={`flex-1 ${activeTab === 'home' ? 'bg-white text-blue-600' : 'text-white hover:bg-white/20'}`}
+            onClick={() => setActiveTab('home')}
+            data-testid="nav-home"
+          >
+            <Home className="w-4 h-4 mr-2" />
+            Home
+          </Button>
+          <Button
+            variant={activeTab === 'documents' ? 'secondary' : 'ghost'}
+            className={`flex-1 ${activeTab === 'documents' ? 'bg-white text-blue-600' : 'text-white hover:bg-white/20'}`}
+            onClick={() => setActiveTab('documents')}
+            data-testid="nav-documents"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Documents
+          </Button>
+          <Button
+            variant={activeTab === 'assigned-jobs' ? 'secondary' : 'ghost'}
+            className={`flex-1 ${activeTab === 'assigned-jobs' ? 'bg-white text-blue-600' : 'text-white hover:bg-white/20'}`}
+            onClick={() => setActiveTab('assigned-jobs')}
+            data-testid="nav-assigned-jobs"
+          >
+            <Briefcase className="w-4 h-4 mr-2" />
+            Assigned Jobs
+          </Button>
+          <Button
+            variant={activeTab === 'settings' ? 'secondary' : 'ghost'}
+            className={`flex-1 ${activeTab === 'settings' ? 'bg-white text-blue-600' : 'text-white hover:bg-white/20'}`}
+            onClick={() => setActiveTab('settings')}
+            data-testid="nav-settings"
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Account Settings
+          </Button>
+        </div>
       </header>
 
       <div className="max-w-7xl mx-auto p-6 space-y-8">
-        {/* Performance Stats */}
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card data-testid="stat-earnings">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <DollarSign className="w-8 h-8 text-green-600" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Today's Earnings</p>
-                  <p className="text-xl font-bold" data-testid="today-earnings">${todayEarnings}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* HOME TAB */}
+        {activeTab === 'home' && (
+          <>
+            {/* Performance Stats */}
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card data-testid="stat-earnings">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <DollarSign className="w-8 h-8 text-green-600" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Today's Earnings</p>
+                      <p className="text-xl font-bold" data-testid="today-earnings">${todayEarnings}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-          <Card data-testid="stat-rides">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <MapPin className="w-8 h-8 text-blue-600" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Completed Rides</p>
-                  <p className="text-xl font-bold" data-testid="completed-rides">{completedRides}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              <Card data-testid="stat-rides">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <MapPin className="w-8 h-8 text-blue-600" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Completed Rides</p>
+                      <p className="text-xl font-bold" data-testid="completed-rides">{completedRides}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-          <Card data-testid="stat-rating">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <Star className="w-8 h-8 text-yellow-500" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Rating</p>
-                  <p className="text-xl font-bold" data-testid="driver-rating">{driver?.rating || '0'}/5</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              <Card data-testid="stat-rating">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <Star className="w-8 h-8 text-yellow-500" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Rating</p>
+                      <p className="text-xl font-bold" data-testid="driver-rating">{driver?.rating || '0'}/5</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-        {/* Document Verification */}
-        <Card data-testid="document-verification" className="rounded-lg border shadow-sm bg-[#ffffff] text-[#23252f]">
+            {/* Accepted/Assigned Jobs */}
+            <Card data-testid="accepted-jobs">
+              <CardHeader>
+                <CardTitle>Accepted Jobs</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {assignedBookings && assignedBookings.length > 0 ? (
+                  <div className="space-y-4">
+                    {assignedBookings.map((booking) => (
+                      <div 
+                        key={booking.id}
+                        className="border rounded-lg p-4 space-y-3"
+                        data-testid={`accepted-job-${booking.id}`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-1 text-sm">
+                            <div data-testid={`accepted-pickup-${booking.id}`}>
+                              <strong>Pickup:</strong> {booking.pickupAddress}
+                            </div>
+                            {booking.destinationAddress && (
+                              <div data-testid={`accepted-destination-${booking.id}`}>
+                                <strong>Destination:</strong> {booking.destinationAddress}
+                              </div>
+                            )}
+                            <div data-testid={`accepted-time-${booking.id}`}>
+                              <strong>Scheduled:</strong> {new Date(booking.scheduledDateTime).toLocaleString()}
+                            </div>
+                            <div data-testid={`accepted-amount-${booking.id}`}>
+                              <strong>Fare:</strong> ${booking.totalAmount}
+                            </div>
+                          </div>
+                          <Badge variant="default" data-testid={`accepted-status-${booking.id}`}>
+                            {booking.status}
+                          </Badge>
+                        </div>
+                        {booking.status === 'in_progress' && (
+                          <div className="flex space-x-2">
+                            <Button 
+                              onClick={() => handleCompleteRide(booking.id)}
+                              disabled={updateBookingMutation.isPending}
+                              data-testid={`button-complete-${booking.id}`}
+                            >
+                              Complete Ride
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center p-8 text-muted-foreground" data-testid="no-accepted-jobs">
+                    No accepted jobs yet.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
+
+        {/* DOCUMENTS TAB */}
+        {activeTab === 'documents' && (
+          <Card data-testid="document-verification" className="rounded-lg border shadow-sm bg-[#ffffff] text-[#23252f]">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <FileText className="w-5 h-5" />
@@ -659,154 +765,104 @@ export default function DriverDashboard() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Current Assignment */}
-        {activeBooking && (
-          <Card data-testid="current-assignment" className="border-primary/20 bg-primary/5">
-            <CardHeader>
-              <CardTitle className="text-primary">Current Assignment</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="text-sm space-y-1">
-                <div data-testid="assignment-pickup">
-                  <strong>Pickup:</strong> {activeBooking.pickupAddress}
-                </div>
-                {activeBooking.destinationAddress && (
-                  <div data-testid="assignment-destination">
-                    <strong>Destination:</strong> {activeBooking.destinationAddress}
-                  </div>
-                )}
-                <div data-testid="assignment-time">
-                  <strong>Scheduled:</strong> {new Date(activeBooking.scheduledDateTime).toLocaleString()}
-                </div>
-                <div data-testid="assignment-passengers">
-                  <strong>Passengers:</strong> {activeBooking.passengerCount}
-                </div>
-                {activeBooking.specialInstructions && (
-                  <div data-testid="assignment-instructions">
-                    <strong>Special Instructions:</strong> {activeBooking.specialInstructions}
-                  </div>
-                )}
-              </div>
-              <div className="flex space-x-2">
-                <Button 
-                  onClick={() => handleCompleteRide(activeBooking.id)}
-                  disabled={updateBookingMutation.isPending}
-                  data-testid="button-complete-ride"
-                >
-                  Complete Ride
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         )}
 
-        {/* Pending Bookings */}
-        {pendingBookings.length > 0 && (
-          <Card data-testid="pending-bookings">
+        {/* ASSIGNED JOBS TAB */}
+        {activeTab === 'assigned-jobs' && (
+          <Card data-testid="assigned-jobs-tab">
             <CardHeader>
-              <CardTitle>Pending Assignments ({pendingBookings.length})</CardTitle>
+              <CardTitle>My Assigned Jobs</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {pendingBookings.map((booking) => (
-                <div 
-                  key={booking.id}
-                  className="border rounded-lg p-4 space-y-3"
-                  data-testid={`pending-booking-${booking.id}`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1 text-sm">
-                      <div data-testid={`booking-pickup-${booking.id}`}>
-                        <strong>Pickup:</strong> {booking.pickupAddress}
-                      </div>
-                      {booking.destinationAddress && (
-                        <div data-testid={`booking-destination-${booking.id}`}>
-                          <strong>Destination:</strong> {booking.destinationAddress}
-                        </div>
-                      )}
-                      <div data-testid={`booking-time-${booking.id}`}>
-                        <strong>Scheduled:</strong> {new Date(booking.scheduledDateTime).toLocaleString()}
-                      </div>
-                      <div data-testid={`booking-amount-${booking.id}`}>
-                        <strong>Fare:</strong> ${booking.totalAmount}
-                      </div>
-                    </div>
-                    <Badge variant={getStatusColor(booking.status)} data-testid={`booking-status-${booking.id}`}>
-                      {booking.status}
-                    </Badge>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button 
-                      size="sm"
-                      onClick={() => handleAcceptRide(booking.id)}
-                      disabled={updateBookingMutation.isPending}
-                      data-testid={`button-accept-${booking.id}`}
-                    >
-                      Accept
-                    </Button>
-                    <Button 
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleDeclineRide(booking.id)}
-                      disabled={updateBookingMutation.isPending}
-                      data-testid={`button-decline-${booking.id}`}
-                    >
-                      Decline
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Recent Completed Rides */}
-        <Card data-testid="recent-rides">
-          <CardHeader>
-            <CardTitle>Recent Rides</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {bookingsLoading ? (
-              <div className="flex items-center justify-center p-8">
-                <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
-              </div>
-            ) : bookings && bookings.length > 0 ? (
-              <div className="space-y-3">
-                {bookings
-                  .filter(b => b.status === 'completed')
-                  .slice(0, 5)
-                  .map((booking) => (
+            <CardContent>
+              {assignedBookings && assignedBookings.length > 0 ? (
+                <div className="space-y-4">
+                  {assignedBookings.map((booking) => (
                     <div 
                       key={booking.id}
-                      className="flex justify-between items-center p-3 bg-muted rounded-lg"
-                      data-testid={`completed-ride-${booking.id}`}
+                      className="border rounded-lg p-4 space-y-3"
+                      data-testid={`assigned-booking-${booking.id}`}
                     >
-                      <div>
-                        <p className="font-medium" data-testid={`ride-route-${booking.id}`}>
-                          {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
-                        </p>
-                        <p className="text-sm text-muted-foreground" data-testid={`ride-date-${booking.id}`}>
-                          {new Date(booking.scheduledDateTime).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-green-600" data-testid={`ride-amount-${booking.id}`}>
-                          ${booking.totalAmount}
-                        </p>
-                        <Badge variant="secondary" data-testid={`ride-type-${booking.id}`}>
-                          {booking.bookingType}
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-1 text-sm">
+                          <div data-testid={`assigned-pickup-${booking.id}`}>
+                            <strong>Pickup:</strong> {booking.pickupAddress}
+                          </div>
+                          {booking.destinationAddress && (
+                            <div data-testid={`assigned-destination-${booking.id}`}>
+                              <strong>Destination:</strong> {booking.destinationAddress}
+                            </div>
+                          )}
+                          <div data-testid={`assigned-time-${booking.id}`}>
+                            <strong>Scheduled:</strong> {new Date(booking.scheduledDateTime).toLocaleString()}
+                          </div>
+                          <div data-testid={`assigned-amount-${booking.id}`}>
+                            <strong>Fare:</strong> ${booking.totalAmount}
+                          </div>
+                        </div>
+                        <Badge variant="default" data-testid={`assigned-status-${booking.id}`}>
+                          {booking.status}
                         </Badge>
                       </div>
+                      {booking.status === 'in_progress' && (
+                        <div className="flex space-x-2">
+                          <Button 
+                            onClick={() => handleCompleteRide(booking.id)}
+                            disabled={updateBookingMutation.isPending}
+                            data-testid={`button-complete-${booking.id}`}
+                          >
+                            Complete Ride
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ))}
+                </div>
+              ) : (
+                <div className="text-center p-8 text-muted-foreground" data-testid="no-assigned-jobs-tab">
+                  No assigned jobs.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* SETTINGS TAB */}
+        {activeTab === 'settings' && (
+          <Card data-testid="account-settings">
+            <CardHeader>
+              <CardTitle>Account Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <Label>Driver ID</Label>
+                  <Input value={driver?.id || ''} disabled data-testid="setting-driver-id" />
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <Input value={user?.email || ''} disabled data-testid="setting-email" />
+                </div>
+                <div>
+                  <Label>Name</Label>
+                  <Input value={`${user?.firstName || ''} ${user?.lastName || ''}`} disabled data-testid="setting-name" />
+                </div>
+                <div>
+                  <Label>License Number</Label>
+                  <Input value={driver?.licenseNumber || 'Not provided'} disabled data-testid="setting-license" />
+                </div>
+                <div>
+                  <Label>Rating</Label>
+                  <Input value={`${driver?.rating || '0'}/5`} disabled data-testid="setting-rating" />
+                </div>
+                <div>
+                  <Label>Total Rides</Label>
+                  <Input value={driver?.totalRides?.toString() || '0'} disabled data-testid="setting-total-rides" />
+                </div>
               </div>
-            ) : (
-              <div className="text-center p-8 text-muted-foreground" data-testid="no-rides">
-                No completed rides yet.
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
+
       </div>
     </div>
   );
