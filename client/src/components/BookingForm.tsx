@@ -63,11 +63,45 @@ export default function BookingForm() {
   
   const suggestionTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
-  // Set minimum date to today
+  // Set minimum date to today and restore saved booking data
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
     setDate(today);
-  }, []);
+    
+    // Check for saved booking data from localStorage
+    const savedBookingData = localStorage.getItem('pendingBookingData');
+    if (savedBookingData) {
+      try {
+        const data = JSON.parse(savedBookingData);
+        
+        // Restore all form state
+        setActiveTab(data.activeTab);
+        setStep(data.step);
+        setFromAddress(data.fromAddress || '');
+        setToAddress(data.toAddress || '');
+        setPickupAddress(data.pickupAddress || '');
+        setDate(data.date || today);
+        setTime(data.time || '');
+        setDuration(data.duration || '');
+        setSelectedVehicle(data.selectedVehicle || '');
+        setViaPoints(data.viaPoints || []);
+        setViaCoords(data.viaCoords || null);
+        setFromCoords(data.fromCoords || null);
+        setToCoords(data.toCoords || null);
+        setPickupCoords(data.pickupCoords || null);
+        setQuoteData(data.quoteData || null);
+        setCalculatedPrices(data.calculatedPrices || {});
+        
+        // Show success message
+        toast({
+          title: "Booking Restored",
+          description: "Your booking details have been restored. Please continue with your booking.",
+        });
+      } catch (error) {
+        console.error('Error restoring booking data:', error);
+      }
+    }
+  }, [toast]);
 
   // Fetch vehicle types
   const { data: vehicleTypes } = useQuery<VehicleType[]>({
@@ -335,6 +369,9 @@ export default function BookingForm() {
       return await response.json();
     },
     onSuccess: (booking) => {
+      // Clear saved booking data from localStorage after successful booking
+      localStorage.removeItem('pendingBookingData');
+      
       // Check if user has pay later enabled
       if (user?.payLaterEnabled && user.role === 'passenger') {
         // Pay later enabled - skip payment and go to bookings
@@ -350,6 +387,27 @@ export default function BookingForm() {
     },
     onError: (error: Error) => {
       if (error.message.includes('sign in')) {
+        // Save booking data to localStorage before redirecting to login
+        const bookingDataToSave = {
+          activeTab,
+          step,
+          fromAddress,
+          toAddress,
+          pickupAddress,
+          date,
+          time,
+          duration,
+          selectedVehicle,
+          viaPoints,
+          viaCoords,
+          fromCoords,
+          toCoords,
+          pickupCoords,
+          quoteData,
+          calculatedPrices,
+        };
+        localStorage.setItem('pendingBookingData', JSON.stringify(bookingDataToSave));
+        
         toast({
           title: "Authentication Required",
           description: "Please sign in to complete your booking",

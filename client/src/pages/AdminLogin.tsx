@@ -35,11 +35,19 @@ export function AdminLogin() {
 
   // Redirect if already authenticated
   if (user) {
-    const redirectPath = user.role === 'admin' ? '/admin' :
-                        user.role === 'driver' ? '/driver' :
-                        user.role === 'dispatcher' ? '/dispatcher' :
-                        '/passenger';
-    setLocation(redirectPath);
+    // Check if user has pending booking data
+    const pendingBookingData = localStorage.getItem('pendingBookingData');
+    if (pendingBookingData) {
+      // Redirect to booking page to complete the booking
+      setLocation('/booking');
+    } else {
+      // Redirect to role-specific dashboard
+      const redirectPath = user.role === 'admin' ? '/admin' :
+                          user.role === 'driver' ? '/driver' :
+                          user.role === 'dispatcher' ? '/dispatcher' :
+                          '/passenger';
+      setLocation(redirectPath);
+    }
     return null;
   }
 
@@ -62,7 +70,15 @@ export function AdminLogin() {
         description: "Welcome to the admin dashboard",
       });
       
-      setLocation('/admin');
+      // Check if user has pending booking data
+      const pendingBookingData = localStorage.getItem('pendingBookingData');
+      if (pendingBookingData) {
+        // Redirect to booking page to complete the booking
+        setLocation('/booking');
+      } else {
+        // Redirect to admin dashboard
+        setLocation('/admin');
+      }
     } catch (error: any) {
       toast({
         title: "Authentication Failed",
@@ -104,7 +120,15 @@ export function AdminLogin() {
         description: `Welcome, ${signupForm.firstName || signupForm.username}!`,
       });
       
-      setLocation('/admin');
+      // Check if user has pending booking data
+      const pendingBookingData = localStorage.getItem('pendingBookingData');
+      if (pendingBookingData) {
+        // Redirect to booking page to complete the booking
+        setLocation('/booking');
+      } else {
+        // Redirect to admin dashboard
+        setLocation('/admin');
+      }
     } catch (error: any) {
       toast({
         title: "Registration Failed",

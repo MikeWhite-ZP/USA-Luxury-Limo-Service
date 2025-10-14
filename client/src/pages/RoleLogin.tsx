@@ -61,11 +61,19 @@ export function RoleLogin() {
 
   // Redirect if already authenticated
   if (user) {
-    const redirectPath = user.role === 'admin' ? '/admin' :
-                        user.role === 'driver' ? '/driver' :
-                        user.role === 'dispatcher' ? '/dispatcher' :
-                        '/passenger';
-    setLocation(redirectPath);
+    // Check if user has pending booking data
+    const pendingBookingData = localStorage.getItem('pendingBookingData');
+    if (pendingBookingData) {
+      // Redirect to booking page to complete the booking
+      setLocation('/booking');
+    } else {
+      // Redirect to role-specific dashboard
+      const redirectPath = user.role === 'admin' ? '/admin' :
+                          user.role === 'driver' ? '/driver' :
+                          user.role === 'dispatcher' ? '/dispatcher' :
+                          '/passenger';
+      setLocation(redirectPath);
+    }
     return null;
   }
 
@@ -88,11 +96,18 @@ export function RoleLogin() {
         description: "You have been logged in successfully",
       });
       
-      // Redirect will happen automatically via useAuth
-      const redirectPath = selectedRole === 'driver' ? '/driver' :
-                          selectedRole === 'dispatcher' ? '/dispatcher' :
-                          '/passenger';
-      setLocation(redirectPath);
+      // Check if user has pending booking data
+      const pendingBookingData = localStorage.getItem('pendingBookingData');
+      if (pendingBookingData) {
+        // Redirect to booking page to complete the booking
+        setLocation('/booking');
+      } else {
+        // Redirect to role-specific dashboard
+        const redirectPath = selectedRole === 'driver' ? '/driver' :
+                            selectedRole === 'dispatcher' ? '/dispatcher' :
+                            '/passenger';
+        setLocation(redirectPath);
+      }
     } catch (error: any) {
       toast({
         title: "Login Failed",
@@ -134,11 +149,18 @@ export function RoleLogin() {
         description: `Welcome to USA Luxury Limo, ${signupForm.firstName || signupForm.username}!`,
       });
       
-      // Redirect will happen automatically via useAuth
-      const redirectPath = selectedRole === 'driver' ? '/driver' :
-                          selectedRole === 'dispatcher' ? '/dispatcher' :
-                          '/passenger';
-      setLocation(redirectPath);
+      // Check if user has pending booking data
+      const pendingBookingData = localStorage.getItem('pendingBookingData');
+      if (pendingBookingData) {
+        // Redirect to booking page to complete the booking
+        setLocation('/booking');
+      } else {
+        // Redirect to role-specific dashboard
+        const redirectPath = selectedRole === 'driver' ? '/driver' :
+                            selectedRole === 'dispatcher' ? '/dispatcher' :
+                            '/passenger';
+        setLocation(redirectPath);
+      }
     } catch (error: any) {
       toast({
         title: "Registration Failed",
