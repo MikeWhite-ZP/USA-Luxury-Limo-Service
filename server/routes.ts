@@ -302,26 +302,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/bookings', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      
-      // Transform data to match schema expectations
-      const transformedData = {
+      const bookingData = insertBookingSchema.parse({
         ...req.body,
         passengerId: userId,
-        // Convert number coordinates to strings (decimal type in Postgres)
-        pickupLat: req.body.pickupLat?.toString(),
-        pickupLon: req.body.pickupLon?.toString(),
-        destinationLat: req.body.destinationLat?.toString(),
-        destinationLon: req.body.destinationLon?.toString(),
-        // Convert string to Date object
-        scheduledDateTime: new Date(req.body.scheduledDateTime),
-        // Convert numeric values to strings for decimal fields
-        baseFare: req.body.baseFare?.toString(),
-        distanceFare: req.body.distanceFare?.toString(),
-        totalAmount: req.body.totalAmount?.toString(),
-        estimatedDistance: req.body.estimatedDistance?.toString(),
-      };
-      
-      const bookingData = insertBookingSchema.parse(transformedData);
+      });
 
       const booking = await storage.createBooking(bookingData);
       res.status(201).json(booking);
