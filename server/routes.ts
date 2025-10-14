@@ -148,6 +148,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update user profile
+  app.patch('/api/user/profile', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const updateSchema = z.object({
+        firstName: z.string().min(1, "First name is required"),
+        lastName: z.string().min(1, "Last name is required"),
+        email: z.string().email("Invalid email address"),
+        phone: z.string().optional(),
+      });
+
+      const validatedData = updateSchema.parse(req.body);
+      
+      // Check if email is already in use by another user
+      const existingUser = await storage.getUserByEmail(validatedData.email);
+      if (existingUser && existingUser.id !== userId) {
+        return res.status(400).json({ message: "Email is already in use" });
+      }
+
+      const updatedUser = await storage.updateUser(userId, validatedData);
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json(updatedUser);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0].message });
+      }
+      console.error("Error updating user profile:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
   // Vehicle types (public)
   app.get('/api/vehicle-types', async (req, res) => {
     try {
