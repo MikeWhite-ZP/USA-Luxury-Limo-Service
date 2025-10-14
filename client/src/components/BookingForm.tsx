@@ -530,6 +530,18 @@ export default function BookingForm() {
   };
   
   const handleProceedToPayment = () => {
+    // Validation for step 3
+    if (bookingFor === 'someone_else') {
+      if (!passengerName || !passengerPhone || !passengerEmail) {
+        toast({
+          title: "Missing Information",
+          description: "Please provide passenger name, phone, and email when booking for someone else.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
     bookingMutation.mutate();
   };
 
