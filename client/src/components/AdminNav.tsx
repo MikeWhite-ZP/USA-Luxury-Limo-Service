@@ -84,6 +84,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     onCredentialsClick?.('api');
                   }}
+                  className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-api-credentials"
                 >
                   <Key className="w-4 h-4 mr-2" />
@@ -96,6 +97,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     onCredentialsClick?.('payment');
                   }}
+                  className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-payment-systems"
                 >
                   <DollarSign className="w-4 h-4 mr-2" />
@@ -124,6 +126,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     onUserManagerClick?.('all');
                   }}
+                  className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-all-users"
                 >
                   <Users className="w-4 h-4 mr-2" />
@@ -136,6 +139,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     onUserManagerClick?.('passenger');
                   }}
+                  className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-passengers"
                 >
                   <Users className="w-4 h-4 mr-2" />
@@ -148,6 +152,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     onUserManagerClick?.('driver');
                   }}
+                  className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-drivers"
                 >
                   <Car className="w-4 h-4 mr-2" />
@@ -160,6 +165,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     onUserManagerClick?.('dispatcher');
                   }}
+                  className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-dispatchers"
                 >
                   <SettingsIcon className="w-4 h-4 mr-2" />
@@ -172,6 +178,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     onUserManagerClick?.('admin');
                   }}
+                  className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-admins"
                 >
                   <Star className="w-4 h-4 mr-2" />
@@ -200,6 +207,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     onSettingsClick?.('commission');
                   }}
+                  className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-system-commission"
                 >
                   <Percent className="w-4 h-4 mr-2" />
