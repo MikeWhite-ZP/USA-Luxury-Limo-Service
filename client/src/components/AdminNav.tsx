@@ -32,7 +32,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
   const { logoutMutation } = useAuth();
 
   const handleLogout = () => {
-    logoutMutation.mutate();
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        window.location.href = '/';
+      }
+    });
   };
 
   return (
