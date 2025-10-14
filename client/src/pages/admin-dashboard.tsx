@@ -98,9 +98,11 @@ export default function AdminDashboard() {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [loadingValue, setLoadingValue] = useState(false);
   const [visibleCredentialsSection, setVisibleCredentialsSection] = useState<'api' | 'payment' | null>(null);
+  const [visibleSettingsSection, setVisibleSettingsSection] = useState<'commission' | null>(null);
   const [selectedUserType, setSelectedUserType] = useState<'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin'>('all');
   const [showUserManager, setShowUserManager] = useState(false);
   const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [commissionPercentage, setCommissionPercentage] = useState<string>('');
   
   // User dialog state
   const [userDialogOpen, setUserDialogOpen] = useState(false);
@@ -203,6 +205,23 @@ export default function AdminDashboard() {
     queryKey: ['/api/admin/driver-documents'],
     enabled: !!user && user.role === 'admin' && documentsDialogOpen,
   });
+
+  // Fetch system commission
+  const { data: systemCommission, isLoading: commissionLoading } = useQuery<{
+    percentage: number;
+    description: string;
+  }>({
+    queryKey: ['/api/admin/system-commission'],
+    retry: false,
+    enabled: isAuthenticated && user?.role === 'admin',
+  });
+
+  // Update system commission when data is loaded
+  useEffect(() => {
+    if (systemCommission) {
+      setCommissionPercentage(systemCommission.percentage.toString());
+    }
+  }, [systemCommission]);
 
   // Update single credential mutation
   const updateCredentialMutation = useMutation({
@@ -708,6 +727,43 @@ export default function AdminDashboard() {
     },
   });
 
+  // Update system commission mutation
+  const updateCommissionMutation = useMutation({
+    mutationFn: async (percentage: string) => {
+      const response = await apiRequest('PUT', '/api/admin/system-commission', { 
+        percentage: parseFloat(percentage) 
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/system-commission'] });
+      toast({
+        title: "Commission Updated",
+        description: "System commission percentage has been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update commission",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleUpdateCommission = () => {
+    const percentage = parseFloat(commissionPercentage);
+    if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+      toast({
+        title: "Invalid Percentage",
+        description: "Please enter a percentage between 0 and 100",
+        variant: "destructive",
+      });
+      return;
+    }
+    updateCommissionMutation.mutate(commissionPercentage);
+  };
+
   const handleSaveUser = () => {
     if (!userFormData.firstName || !userFormData.email) {
       toast({
@@ -831,6 +887,7 @@ export default function AdminDashboard() {
       <AdminNav 
         onCredentialsClick={(section) => {
           setVisibleCredentialsSection(section);
+          setVisibleSettingsSection(null);
           setTimeout(() => {
             const targetId = section === 'api' ? 'credentials-section' : 'payment-section';
             document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
@@ -843,6 +900,13 @@ export default function AdminDashboard() {
         }}
         onBookingsClick={() => {
           document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' });
+        }}
+        onSettingsClick={(section) => {
+          setVisibleSettingsSection(section);
+          setVisibleCredentialsSection(null);
+          setTimeout(() => {
+            document.getElementById('settings-section')?.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
         }}
       />
 
@@ -1236,6 +1300,79 @@ export default function AdminDashboard() {
               </div>
             )}
           </CardContent>
+          </Card>
+        )}
+
+        {/* System Settings */}
+        {visibleSettingsSection === 'commission' && (
+          <Card id="settings-section" data-testid="system-settings">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Settings className="w-5 h-5" />
+                <span>System Commission Settings</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {commissionLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    {systemCommission?.description || 'Configure the commission percentage applied to ride total costs for driver payments when prices are not manually updated during dispatching.'}
+                  </p>
+
+                  <div className="max-w-md space-y-3">
+                    <div>
+                      <Label htmlFor="commission-percentage">Commission Percentage (%)</Label>
+                      <Input
+                        id="commission-percentage"
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        value={commissionPercentage}
+                        onChange={(e) => setCommissionPercentage(e.target.value)}
+                        placeholder="Enter percentage (0-100)"
+                        data-testid="input-commission-percentage"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Current value: {systemCommission?.percentage || 0}%
+                      </p>
+                    </div>
+
+                    <Button
+                      onClick={handleUpdateCommission}
+                      disabled={updateCommissionMutation.isPending}
+                      data-testid="button-update-commission"
+                    >
+                      {updateCommissionMutation.isPending ? (
+                        <>
+                          <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                          Updating...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4 mr-2" />
+                          Update Commission
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  <div className="mt-6 p-4 bg-muted rounded-lg">
+                    <h4 className="font-semibold text-sm mb-2">How it works:</h4>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• When a booking is created, the system calculates the total ride cost</li>
+                      <li>• The commission percentage is applied to determine the driver's payment</li>
+                      <li>• Admins and dispatchers can manually override this during dispatching</li>
+                      <li>• This setting provides a default when manual updates aren't made</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </CardContent>
           </Card>
         )}
 
