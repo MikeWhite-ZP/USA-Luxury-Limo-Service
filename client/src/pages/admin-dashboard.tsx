@@ -791,7 +791,7 @@ export default function AdminDashboard() {
       pickupAddress: booking.pickupAddress || '',
       destinationAddress: booking.destinationAddress || '',
       scheduledDateTime: formattedDateTime,
-      totalAmount: booking.totalAmount.toString(),
+      totalAmount: booking.totalAmount?.toString() || '',
       vehicleTypeId: booking.vehicleTypeId || '',
       bookingType: booking.bookingType || 'transfer',
       status: booking.status || 'pending',
