@@ -563,6 +563,41 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   };
 
   const handleContinueBooking = () => {
+    // Check if user is logged in before proceeding to step 3
+    if (!isAuthenticated || !user) {
+      // Save booking data to localStorage before redirecting to login
+      const bookingDataToSave = {
+        activeTab,
+        step: 3, // Will resume at step 3 after login
+        fromAddress,
+        toAddress,
+        pickupAddress,
+        date,
+        time,
+        duration,
+        selectedVehicle,
+        viaPoints,
+        viaCoords,
+        fromCoords,
+        toCoords,
+        pickupCoords,
+        quoteData,
+        calculatedPrices,
+      };
+      localStorage.setItem('pendingBookingData', JSON.stringify(bookingDataToSave));
+      
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to continue with your booking",
+        variant: "destructive",
+      });
+      
+      setTimeout(() => {
+        setLocation('/login');
+      }, 1000);
+      return;
+    }
+    
     // Pre-fill step 3 data with user info if booking for self
     if (user && bookingFor === 'self') {
       setPassengerName(`${user.firstName || ''} ${user.lastName || ''}`.trim());
