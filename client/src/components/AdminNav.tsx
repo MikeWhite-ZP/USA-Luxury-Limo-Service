@@ -16,7 +16,9 @@ import {
   MessageSquare,
   ChevronDown,
   Percent,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AdminNavProps {
   onCredentialsClick?: (section: 'api' | 'payment') => void;
@@ -27,6 +29,11 @@ interface AdminNavProps {
 
 export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onSettingsClick }: AdminNavProps) {
   const [location] = useLocation();
+  const { logoutMutation } = useAuth();
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
 
   return (
     <header className="bg-primary text-primary-foreground sticky top-0 z-50">
@@ -210,6 +217,19 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
             >
               <MessageSquare className="w-4 h-4 mr-2" />
               Bookings
+            </Button>
+            
+            <div className="flex-grow" />
+            
+            <Button 
+              variant="ghost" 
+              className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+              onClick={handleLogout}
+              disabled={logoutMutation.isPending}
+              data-testid="nav-logout"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
             </Button>
           </nav>
         </div>
