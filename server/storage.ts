@@ -481,13 +481,14 @@ export class DatabaseStorage implements IStorage {
       })
       .from(drivers);
 
-    // Active drivers count
+    // Active drivers count (based on user's isActive status)
     const [activeDriversResult] = await db
       .select({ 
         count: sql<number>`COUNT(*)` 
       })
       .from(drivers)
-      .where(and(eq(drivers.isAvailable, true), eq(drivers.verificationStatus, 'verified')));
+      .innerJoin(users, eq(users.id, drivers.userId))
+      .where(eq(users.isActive, true));
 
     // Pending driver verifications
     const [pendingDriversResult] = await db
