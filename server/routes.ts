@@ -543,10 +543,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updatedBooking = await storage.updateBookingStatus(id, status);
-      res.json(updatedBooking);
+      return res.json(updatedBooking);
     } catch (error) {
       console.error('Update booking status error:', error);
-      res.status(500).json({ error: 'Failed to update booking status' });
+      return res.status(500).json({ error: 'Failed to update booking status' });
     }
   });
 
