@@ -521,7 +521,24 @@ export default function AdminPricing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AdminNav />
+      <AdminNav 
+        onCredentialsClick={(section) => {
+          // Navigate to admin dashboard credentials section
+          window.location.href = '/admin';
+        }}
+        onUserManagerClick={(type) => {
+          // Navigate to admin dashboard user manager
+          window.location.href = '/admin';
+        }}
+        onBookingsClick={() => {
+          // Navigate to admin dashboard bookings
+          window.location.href = '/admin';
+        }}
+        onSettingsClick={(section) => {
+          // Navigate to admin dashboard settings
+          window.location.href = '/admin';
+        }}
+      />
 
       <div className="max-w-7xl mx-auto p-6">
         <Card data-testid="pricing-rules-card">
