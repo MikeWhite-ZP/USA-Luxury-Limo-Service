@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,8 +31,9 @@ export default function AccountPage() {
       }
       return await response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+    onSuccess: (updatedUser) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      queryClient.setQueryData(['/api/auth/user'], updatedUser);
       toast({
         title: "Profile Updated",
         description: "Your profile has been updated successfully",
@@ -76,8 +77,13 @@ export default function AccountPage() {
     });
   };
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setLocation('/login');
+    }
+  }, [isAuthenticated, setLocation]);
+
   if (!isAuthenticated) {
-    setLocation('/login');
     return null;
   }
 
