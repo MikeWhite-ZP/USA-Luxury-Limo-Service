@@ -3,6 +3,14 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import logoImage from "@assets/logo_1759125364025.png";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User, LogOut, ChevronDown } from "lucide-react";
 
 export default function Header() {
   const { user, isAuthenticated } = useAuth();
@@ -99,18 +107,49 @@ export default function Header() {
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
             {isAuthenticated && user ? (
-              <div className="flex items-center space-x-4">
-                <span className="text-foreground font-medium" data-testid="user-welcome">
-                  Welcome, {user.firstName || user.email}
-                </span>
-                <Button 
-                  onClick={() => window.location.href = '/api/logout'}
-                  variant="outline"
-                  data-testid="button-logout"
-                >
-                  Sign Out
-                </Button>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center gap-2"
+                    data-testid="button-account-menu"
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="hidden md:inline">{user.firstName || user.email}</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-2 py-1.5">
+                    <p className="text-sm font-medium" data-testid="menu-user-name">
+                      {user.firstName && user.lastName 
+                        ? `${user.firstName} ${user.lastName}` 
+                        : user.firstName || user.email}
+                    </p>
+                    <p className="text-xs text-muted-foreground" data-testid="menu-user-email">
+                      {user.email}
+                    </p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => setLocation('/account')}
+                    className="cursor-pointer"
+                    data-testid="menu-account"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Account Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => window.location.href = '/api/logout'}
+                    className="cursor-pointer text-red-600 focus:text-red-600"
+                    data-testid="menu-logout"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
                 <button 
