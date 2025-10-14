@@ -13,8 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DollarSign, Plus, Edit, Trash2, ArrowLeft, X } from "lucide-react";
-import { Link } from "wouter";
+import { DollarSign, Plus, Edit, Trash2, X } from "lucide-react";
+import { AdminNav } from "@/components/AdminNav";
 
 // TypeScript interfaces for advanced pricing
 interface AirportFee {
@@ -521,32 +521,7 @@ export default function AdminPricing() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-primary text-primary-foreground p-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link href="/admin-dashboard">
-              <Button variant="secondary" size="sm" data-testid="button-back-dashboard">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Dashboard
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold" data-testid="pricing-title">Advanced Pricing Management</h1>
-              <p className="text-primary-foreground/80" data-testid="pricing-subtitle">
-                Configure sophisticated pricing rules with gratuity, fees, and surge pricing
-              </p>
-            </div>
-          </div>
-          <Button 
-            onClick={() => window.location.href = '/api/logout'}
-            variant="secondary"
-            data-testid="button-logout"
-          >
-            Sign Out
-          </Button>
-        </div>
-      </header>
+      <AdminNav />
 
       <div className="max-w-7xl mx-auto p-6">
         <Card data-testid="pricing-rules-card">

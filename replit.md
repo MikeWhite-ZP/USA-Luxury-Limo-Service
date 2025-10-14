@@ -17,6 +17,7 @@ Preferred communication style: Simple, everyday language.
 - **State Management**: TanStack Query (React Query) for server state management
 - **Routing**: Wouter for lightweight client-side routing
 - **Form Handling**: React Hook Form with Zod validation
+- **Admin Navigation**: Reusable AdminNav component provides consistent navigation across all admin pages (pricing, credentials, user management, bookings)
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js framework

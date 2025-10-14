@@ -11,9 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, ChevronDown, Pencil, FileText } from "lucide-react";
-import { Link } from "wouter";
+import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, Pencil, FileText } from "lucide-react";
+import { AdminNav } from "@/components/AdminNav";
 
 interface DashboardStats {
   totalRevenue: string;
@@ -829,165 +828,23 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-primary text-primary-foreground">
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                <span className="text-lg font-bold">A</span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold" data-testid="admin-title">Admin Control Panel</h1>
-                <p className="text-primary-foreground/80" data-testid="admin-subtitle">
-                  Welcome, {user?.firstName || user?.email}
-                </p>
-              </div>
-            </div>
-            <Button 
-              onClick={() => window.location.href = '/api/logout'}
-              variant="secondary"
-              data-testid="button-logout"
-            >
-              Sign Out
-            </Button>
-          </div>
-        </div>
-        
-        {/* Navigation Menu */}
-        <div className="border-t border-white/20">
-          <div className="max-w-7xl mx-auto px-6">
-            <nav className="flex space-x-1" data-testid="admin-nav">
-              <Link href="/admin-pricing">
-                <Button 
-                  variant="ghost" 
-                  className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
-                  data-testid="nav-pricing"
-                >
-                  <DollarSign className="w-4 h-4 mr-2" />
-                  Pricing
-                </Button>
-              </Link>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
-                    data-testid="nav-credentials"
-                  >
-                    <Key className="w-4 h-4 mr-2" />
-                    Credentials
-                    <ChevronDown className="w-4 h-4 ml-1" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="bg-[#ffffff]">
-                  <DropdownMenuItem 
-                    onClick={() => {
-                      setVisibleCredentialsSection('api');
-                      setTimeout(() => document.getElementById('credentials-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
-                    }}
-                    data-testid="nav-api-credentials"
-                  >
-                    <Key className="w-4 h-4 mr-2" />
-                    API Credentials
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => {
-                      setVisibleCredentialsSection('payment');
-                      setTimeout(() => document.getElementById('payment-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
-                    }}
-                    data-testid="nav-payment-systems"
-                  >
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    Payment Systems
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
-                    data-testid="nav-user-manager"
-                  >
-                    <Users className="w-4 h-4 mr-2" />
-                    User Manager
-                    <ChevronDown className="w-4 h-4 ml-1" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="bg-[#ffffff]">
-                  <DropdownMenuItem 
-                    onClick={() => {
-                      setSelectedUserType('all');
-                      setShowUserManager(true);
-                      setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
-                    }}
-                    data-testid="nav-all-users"
-                  >
-                    <Users className="w-4 h-4 mr-2" />
-                    All Users
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => {
-                      setSelectedUserType('passenger');
-                      setShowUserManager(true);
-                      setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
-                    }}
-                    data-testid="nav-passengers"
-                  >
-                    <Users className="w-4 h-4 mr-2" />
-                    Passengers
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => {
-                      setSelectedUserType('driver');
-                      setShowUserManager(true);
-                      setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
-                    }}
-                    data-testid="nav-drivers"
-                  >
-                    <Car className="w-4 h-4 mr-2" />
-                    Drivers
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => {
-                      setSelectedUserType('dispatcher');
-                      setShowUserManager(true);
-                      setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
-                    }}
-                    data-testid="nav-dispatchers"
-                  >
-                    <Settings className="w-4 h-4 mr-2" />
-                    Dispatchers
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => {
-                      setSelectedUserType('admin');
-                      setShowUserManager(true);
-                      setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
-                    }}
-                    data-testid="nav-admins"
-                  >
-                    <Star className="w-4 h-4 mr-2" />
-                    Admins
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button 
-                variant="ghost" 
-                className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
-                onClick={() => document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' })}
-                data-testid="nav-bookings"
-              >
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Bookings
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <AdminNav 
+        onCredentialsClick={(section) => {
+          setVisibleCredentialsSection(section);
+          setTimeout(() => {
+            const targetId = section === 'api' ? 'credentials-section' : 'payment-section';
+            document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        }}
+        onUserManagerClick={(type) => {
+          setSelectedUserType(type);
+          setShowUserManager(true);
+          setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
+        }}
+        onBookingsClick={() => {
+          document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' });
+        }}
+      />
 
       <div className="max-w-7xl mx-auto p-6 space-y-8">
         {/* Dashboard Stats */}
