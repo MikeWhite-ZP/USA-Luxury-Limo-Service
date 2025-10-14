@@ -16,7 +16,9 @@ import { AdminNav } from "@/components/AdminNav";
 
 interface DashboardStats {
   totalRevenue: string;
+  totalCommission: string;
   activeBookings: number;
+  totalDrivers: number;
   activeDrivers: number;
   averageRating: string;
   pendingBookings: number;
@@ -982,9 +984,12 @@ export default function AdminDashboard() {
               <div className="flex items-center space-x-2">
                 <Car className="w-8 h-8 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Active Drivers</p>
+                  <p className="text-sm text-muted-foreground">Drivers</p>
                   <p className="text-2xl font-bold" data-testid="active-drivers">
-                    {statsLoading ? '...' : stats?.activeDrivers || 0}
+                    {statsLoading ? '...' : `${stats?.activeDrivers || 0}/${stats?.totalDrivers || 0}`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Active/Total
                   </p>
                   {!statsLoading && stats && stats.pendingDrivers > 0 && (
                     <p className="text-xs text-primary" data-testid="pending-drivers">

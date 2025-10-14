@@ -94,6 +94,7 @@ export interface IStorage {
     totalRevenue: string;
     totalCommission: string;
     activeBookings: number;
+    totalDrivers: number;
     activeDrivers: number;
     averageRating: string;
     pendingBookings: number;
@@ -396,6 +397,7 @@ export class DatabaseStorage implements IStorage {
     totalRevenue: string;
     totalCommission: string;
     activeBookings: number;
+    totalDrivers: number;
     activeDrivers: number;
     averageRating: string;
     pendingBookings: number;
@@ -472,6 +474,13 @@ export class DatabaseStorage implements IStorage {
       .from(bookings)
       .where(eq(bookings.status, 'pending'));
 
+    // Total drivers count
+    const [totalDriversResult] = await db
+      .select({ 
+        count: sql<number>`COUNT(*)` 
+      })
+      .from(drivers);
+
     // Active drivers count
     const [activeDriversResult] = await db
       .select({ 
@@ -543,6 +552,7 @@ export class DatabaseStorage implements IStorage {
       totalRevenue: revenueResult?.total || '0',
       totalCommission,
       activeBookings: activeBookingsResult?.count || 0,
+      totalDrivers: totalDriversResult?.count || 0,
       activeDrivers: activeDriversResult?.count || 0,
       averageRating: ratingResult?.avg || '0',
       pendingBookings: pendingBookingsResult?.count || 0,
