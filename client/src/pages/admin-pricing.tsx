@@ -546,7 +546,7 @@ export default function AdminPricing() {
             <div className="flex justify-between items-center">
               <CardTitle className="flex items-center space-x-2">
                 <DollarSign className="w-5 h-5" />
-                <span>Pricing Rules (n8n-Style)</span>
+                <span>Pricing Rules</span>
               </CardTitle>
               <Dialog open={isDialogOpen} onOpenChange={(open) => {
                 setIsDialogOpen(open);
