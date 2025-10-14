@@ -72,9 +72,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   const [passengerName, setPassengerName] = useState('');
   const [passengerPhone, setPassengerPhone] = useState('');
   const [passengerEmail, setPassengerEmail] = useState('');
-  const [flightNumber, setFlightNumber] = useState('');
-  const [flightName, setFlightName] = useState('');
-  const [noFlightInfo, setNoFlightInfo] = useState(false);
   const [passengerCount, setPassengerCount] = useState(1);
   const [luggageCount, setLuggageCount] = useState(0);
   const [babySeat, setBabySeat] = useState(false);
@@ -120,9 +117,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         if (data.passengerName) setPassengerName(data.passengerName);
         if (data.passengerPhone) setPassengerPhone(data.passengerPhone);
         if (data.passengerEmail) setPassengerEmail(data.passengerEmail);
-        if (data.flightNumber) setFlightNumber(data.flightNumber);
-        if (data.flightName) setFlightName(data.flightName);
-        if (data.noFlightInfo !== undefined) setNoFlightInfo(data.noFlightInfo);
         if (data.passengerCount) setPassengerCount(data.passengerCount);
         if (data.luggageCount !== undefined) setLuggageCount(data.luggageCount);
         if (data.babySeat !== undefined) setBabySeat(data.babySeat);
@@ -463,9 +457,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         passengerName: passengerName || undefined,
         passengerPhone: passengerPhone || undefined,
         passengerEmail: passengerEmail || undefined,
-        flightNumber: flightNumber || undefined,
-        flightName: flightName || undefined,
-        noFlightInfo,
         passengerCount,
         luggageCount,
         babySeat,
@@ -508,9 +499,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           passengerName,
           passengerPhone,
           passengerEmail,
-          flightNumber,
-          flightName,
-          noFlightInfo,
           passengerCount,
           luggageCount,
           babySeat,
@@ -939,47 +927,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               data-testid="input-passenger-email"
             />
           </div>
-        </div>
-
-        {/* Flight Details */}
-        <div data-testid="flight-details-section">
-          <div className="flex justify-between items-center mb-3">
-            <h4 className="font-semibold">Flight Details</h4>
-            <button className="text-sm text-red-600 font-medium" data-testid="button-check-flight">
-              check flight
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-3 mb-2">
-            <Input
-              placeholder="Enter Flight Number"
-              value={flightNumber}
-              onChange={(e) => setFlightNumber(e.target.value)}
-              disabled={noFlightInfo}
-              data-testid="input-flight-number"
-            />
-            <Input
-              placeholder="Enter Flight Name"
-              value={flightName}
-              onChange={(e) => setFlightName(e.target.value)}
-              disabled={noFlightInfo}
-              data-testid="input-flight-name"
-            />
-          </div>
-          <label className="flex items-center gap-2 text-sm text-gray-600">
-            <input
-              type="checkbox"
-              checked={noFlightInfo}
-              onChange={(e) => {
-                setNoFlightInfo(e.target.checked);
-                if (e.target.checked) {
-                  setFlightNumber('');
-                  setFlightName('');
-                }
-              }}
-              data-testid="checkbox-no-flight-info"
-            />
-            I don't have flight information.
-          </label>
         </div>
 
         {/* Passenger Count */}
