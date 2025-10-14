@@ -85,6 +85,7 @@ export const driverDocuments = pgTable("driver_documents", {
   documentType: varchar("document_type", { enum: documentTypeEnum }).notNull(),
   documentUrl: text("document_url").notNull(), // Object storage URL
   expirationDate: timestamp("expiration_date"), // For licenses
+  vehiclePlate: varchar("vehicle_plate"), // For vehicle images
   status: varchar("status", { 
     enum: ["pending", "approved", "rejected"] 
   }).default("pending"),

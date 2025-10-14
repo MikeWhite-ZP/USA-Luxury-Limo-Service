@@ -42,6 +42,7 @@ interface DriverDocument {
   documentType: 'driver_license' | 'limo_license' | 'insurance_certificate' | 'vehicle_image';
   documentUrl: string;
   expirationDate?: string;
+  vehiclePlate?: string;
   status: 'pending' | 'approved' | 'rejected';
   rejectionReason?: string;
   uploadedAt: string;
@@ -108,7 +109,15 @@ export default function DriverDashboard() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('documentType', documentType);
-      if (expirationDate) formData.append('expirationDate', expirationDate);
+      
+      // For vehicle_image, send as vehiclePlate; for others, send as expirationDate
+      if (expirationDate) {
+        if (documentType === 'vehicle_image') {
+          formData.append('vehiclePlate', expirationDate);
+        } else {
+          formData.append('expirationDate', expirationDate);
+        }
+      }
 
       const response = await fetch('/api/driver/documents/upload', {
         method: 'POST',
@@ -593,7 +602,7 @@ export default function DriverDashboard() {
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">Vehicle Plate:</span>
                       <span className="text-sm" data-testid="plate-vehicle-image">
-                        {getDocumentByType('vehicle_image')!.expirationDate || 'N/A'}
+                        {getDocumentByType('vehicle_image')!.vehiclePlate || 'N/A'}
                       </span>
                     </div>
                     {getDocumentByType('vehicle_image')!.status === 'rejected' && getDocumentByType('vehicle_image')!.rejectionReason && (

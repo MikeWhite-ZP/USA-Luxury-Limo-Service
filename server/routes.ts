@@ -786,7 +786,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'No file uploaded' });
       }
 
-      const { documentType, expirationDate, whatsappNumber } = req.body;
+      const { documentType, expirationDate, vehiclePlate, whatsappNumber } = req.body;
       
       // Validate with Zod schema
       const docDataToValidate: any = {
@@ -796,9 +796,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: 'pending', // Explicitly set to pending, cannot be overridden
       };
 
-      if (expirationDate) {
+      // Handle expiration date for documents that have one
+      if (expirationDate && documentType !== 'vehicle_image') {
         // Convert date string to Date object for timestamp validation
         docDataToValidate.expirationDate = new Date(expirationDate);
+      }
+
+      // Handle vehicle plate for vehicle images
+      if (vehiclePlate && documentType === 'vehicle_image') {
+        docDataToValidate.vehiclePlate = vehiclePlate;
       }
 
       if (whatsappNumber) {
@@ -1101,7 +1107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'No file uploaded' });
       }
 
-      const { userId: driverUserId, documentType, expirationDate, whatsappNumber } = req.body;
+      const { userId: driverUserId, documentType, expirationDate, vehiclePlate, whatsappNumber } = req.body;
       
       if (!driverUserId) {
         return res.status(400).json({ message: 'Driver user ID is required' });
@@ -1121,9 +1127,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: 'pending', // Explicitly set to pending
       };
 
-      if (expirationDate) {
+      // Handle expiration date for documents that have one
+      if (expirationDate && documentType !== 'vehicle_image') {
         // Convert date string to Date object for timestamp validation
         docDataToValidate.expirationDate = new Date(expirationDate);
+      }
+
+      // Handle vehicle plate for vehicle images
+      if (vehiclePlate && documentType === 'vehicle_image') {
+        docDataToValidate.vehiclePlate = vehiclePlate;
       }
 
       if (whatsappNumber) {
