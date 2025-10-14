@@ -63,7 +63,13 @@ Preferred communication style: Simple, everyday language.
 - **Pricing Engine**: Complex fare calculation based on n8n workflow specifications
 - **Service Types**: Transfer (point-to-point) and hourly booking options
 - **Fleet Management**: Vehicle type definitions with capacity and pricing
-- **Booking Flow**: Multi-step booking process with real-time validation
+- **Booking Flow**: Multi-step booking process with real-time validation and payment options dialog
+  - Step 1: Enter trip details (addresses, date, time)
+  - Step 2: Select vehicle from calculated pricing options
+  - Step 3: Enter passenger information (auto-fills for logged-in users booking for themselves)
+  - Payment Options: After booking creation, users choose "Pay Now" or "Pay Later" (if enabled)
+    - Pay Now: Redirects to payment processor (Stripe/PayPal/Square)
+    - Pay Later: Only available for passengers with payLaterEnabled flag, confirms booking without immediate payment
 - **Commission System**: Configurable system commission percentage for calculating company earnings from completed bookings, displayed in admin dashboard alongside total revenue
 
 ### Driver Document Management
@@ -78,6 +84,14 @@ Preferred communication style: Simple, everyday language.
 - **Driver View**: Real-time status display with expiration dates, rejection reasons, and upload timestamps
 - **Admin Review**: Admins can approve/reject documents with optional rejection reasons
 - **Object Storage**: Files stored in Replit Object Storage under `driver-docs/{driverId}/` directory
+
+### User Account Management
+- **Account Settings Page**: Dedicated /account route for authenticated users to manage profile
+- **Profile Editing**: Users can update firstName, lastName, email, and phone number
+- **API Endpoint**: PATCH /api/user/profile with validation and email uniqueness check
+- **Real-time Updates**: Profile changes immediately reflected in Header and across application via TanStack Query cache invalidation
+- **Header Dropdown**: Account menu with user info, "Account Settings" link, and "Sign Out" button
+- **Security**: Server-side validation prevents duplicate emails, authenticated endpoint ensures user can only edit own profile
 
 ### Progressive Web Application (PWA)
 - **Installability**: App can be installed on any device (iOS, Android, Desktop) via browser prompt
