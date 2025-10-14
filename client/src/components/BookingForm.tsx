@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
+import { CreditCard, Clock } from "lucide-react";
 
 interface AddressSuggestion {
   id: string;
@@ -77,6 +79,10 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   const [luggageCount, setLuggageCount] = useState(0);
   const [babySeat, setBabySeat] = useState(false);
   const [specialInstructions, setSpecialInstructions] = useState('');
+  
+  // Payment options dialog state
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+  const [createdBooking, setCreatedBooking] = useState<any>(null);
   
   const suggestionTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
@@ -473,18 +479,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       // Clear saved booking data from localStorage after successful booking
       localStorage.removeItem('pendingBookingData');
       
-      // Check if user has pay later enabled
-      if (user?.payLaterEnabled && user.role === 'passenger') {
-        // Pay later enabled - skip payment and go to bookings
-        toast({
-          title: "Booking Confirmed",
-          description: "Your booking has been confirmed. You can pay after the trip is completed.",
-        });
-        setLocation('/bookings');
-      } else {
-        // Regular flow - proceed to payment
-        setLocation(`/checkout?bookingId=${booking.id}&amount=${quoteData.totalAmount}`);
-      }
+      // Store booking and show payment options dialog
+      setCreatedBooking(booking);
+      setShowPaymentOptions(true);
     },
     onError: (error: Error) => {
       if (error.message.includes('sign in')) {
@@ -1384,6 +1381,70 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </Button>
         </div>
       )}
+
+      {/* Payment Options Dialog */}
+      <Dialog open={showPaymentOptions} onOpenChange={setShowPaymentOptions}>
+        <DialogContent className="sm:max-w-md" data-testid="payment-options-dialog">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Choose Payment Option</DialogTitle>
+            <DialogDescription>
+              Select how you would like to complete your booking
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            {/* Pay Now Option */}
+            <button
+              onClick={() => {
+                setShowPaymentOptions(false);
+                if (createdBooking) {
+                  setLocation(`/checkout?bookingId=${createdBooking.id}&amount=${quoteData.totalAmount}`);
+                }
+              }}
+              className="w-full p-6 border-2 border-primary rounded-lg hover:bg-primary/5 transition-all group"
+              data-testid="button-pay-now"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <CreditCard className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-left flex-1">
+                  <h3 className="text-lg font-bold text-primary">Pay Now</h3>
+                  <p className="text-sm text-gray-600">Complete payment to confirm your booking</p>
+                </div>
+              </div>
+            </button>
+
+            {/* Pay Later Option - Only show if user has pay later enabled */}
+            {user?.payLaterEnabled && user.role === 'passenger' && (
+              <button
+                onClick={() => {
+                  setShowPaymentOptions(false);
+                  toast({
+                    title: "Booking Confirmed",
+                    description: "Your booking has been confirmed. You can pay after the trip is completed.",
+                  });
+                  setTimeout(() => {
+                    setLocation('/passenger');
+                  }, 1000);
+                }}
+                className="w-full p-6 border-2 border-gray-300 rounded-lg hover:border-primary hover:bg-primary/5 transition-all group"
+                data-testid="button-pay-later"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gray-100 group-hover:bg-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-all">
+                    <Clock className="w-6 h-6 text-gray-600 group-hover:text-primary" />
+                  </div>
+                  <div className="text-left flex-1">
+                    <h3 className="text-lg font-bold text-gray-800 group-hover:text-primary">Pay Later</h3>
+                    <p className="text-sm text-gray-600">Pay after your trip is completed</p>
+                  </div>
+                </div>
+              </button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
