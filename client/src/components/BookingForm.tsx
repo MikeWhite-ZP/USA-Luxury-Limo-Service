@@ -356,7 +356,7 @@ export default function BookingForm() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = '/api/login';
+          setLocation('/login');
         }, 1000);
       } else {
         toast({
