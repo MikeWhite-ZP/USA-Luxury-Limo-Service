@@ -733,7 +733,7 @@ export default function BookingForm() {
             className="flex-1"
             data-testid="button-continue-booking"
           >
-            {bookingMutation.isPending ? 'Processing...' : 'Continue to Payment'}
+            {bookingMutation.isPending ? 'Processing...' : 'Continue'}
           </Button>
         </div>
       </div>
