@@ -309,15 +309,15 @@ export default function BookingForm() {
       const bookingData = {
         vehicleTypeId: selectedVehicle,
         bookingType: activeTab,
-        scheduledDateTime: new Date(`${date}T${time}`).toISOString(),
+        scheduledDateTime: new Date(`${date}T${time}`),
         totalAmount: parseFloat(quoteData.totalAmount),
         ...(activeTab === 'transfer' ? {
           pickupAddress: fromAddress,
-          pickupLat: fromCoords?.lat,
-          pickupLon: fromCoords?.lon,
+          pickupLat: fromCoords?.lat.toString(),
+          pickupLon: fromCoords?.lon.toString(),
           destinationAddress: toAddress,
-          destinationLat: toCoords?.lat,
-          destinationLon: toCoords?.lon,
+          destinationLat: toCoords?.lat.toString(),
+          destinationLon: toCoords?.lon.toString(),
           // Include via points if they exist
           ...(viaPoints.length > 0 && {
             viaPoints: viaPoints.filter(point => point.trim() !== ''),
@@ -325,8 +325,8 @@ export default function BookingForm() {
           }),
         } : {
           pickupAddress,
-          pickupLat: pickupCoords?.lat,
-          pickupLon: pickupCoords?.lon,
+          pickupLat: pickupCoords?.lat.toString(),
+          pickupLon: pickupCoords?.lon.toString(),
           requestedHours: parseInt(duration),
         }),
       };
