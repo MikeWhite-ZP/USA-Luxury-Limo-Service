@@ -89,7 +89,6 @@ export default function BookingForm() {
         
         // Restore all form state - Step 1 & 2
         setActiveTab(data.activeTab);
-        setStep(data.step);
         setFromAddress(data.fromAddress || '');
         setToAddress(data.toAddress || '');
         setPickupAddress(data.pickupAddress || '');
@@ -117,6 +116,19 @@ export default function BookingForm() {
         if (data.luggageCount !== undefined) setLuggageCount(data.luggageCount);
         if (data.babySeat !== undefined) setBabySeat(data.babySeat);
         if (data.specialInstructions) setSpecialInstructions(data.specialInstructions);
+        
+        // If user was on step 2 and is now authenticated, proceed to step 3
+        // Pre-fill passenger info if booking for self
+        if (isAuthenticated && data.step === 2) {
+          if (user && data.bookingFor === 'self') {
+            setPassengerName(`${user.firstName || ''} ${user.lastName || ''}`.trim());
+            setPassengerPhone(user.phone || '');
+            setPassengerEmail(user.email || '');
+          }
+          setStep(3);
+        } else {
+          setStep(data.step);
+        }
         
         // Show success message
         toast({
@@ -520,7 +532,53 @@ export default function BookingForm() {
   };
 
   const handleContinueBooking = () => {
-    // Pre-fill step 3 data with user info if booking for self
+    // Check if user is authenticated before proceeding to step 3
+    if (!isAuthenticated) {
+      // Save booking data to localStorage before redirecting to login
+      const bookingDataToSave = {
+        activeTab,
+        step: 2, // Save as step 2 so user returns to vehicle selection
+        fromAddress,
+        toAddress,
+        pickupAddress,
+        date,
+        time,
+        duration,
+        selectedVehicle,
+        viaPoints,
+        viaCoords,
+        fromCoords,
+        toCoords,
+        pickupCoords,
+        quoteData,
+        calculatedPrices,
+        // Step 3 data (if any)
+        bookingFor,
+        passengerName,
+        passengerPhone,
+        passengerEmail,
+        flightNumber,
+        flightName,
+        noFlightInfo,
+        passengerCount,
+        luggageCount,
+        babySeat,
+        specialInstructions,
+      };
+      localStorage.setItem('pendingBookingData', JSON.stringify(bookingDataToSave));
+      
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to continue with your booking",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        setLocation('/login');
+      }, 1000);
+      return;
+    }
+    
+    // User is authenticated - Pre-fill step 3 data with user info if booking for self
     if (user && bookingFor === 'self') {
       setPassengerName(`${user.firstName || ''} ${user.lastName || ''}`.trim());
       setPassengerPhone(user.phone || '');
