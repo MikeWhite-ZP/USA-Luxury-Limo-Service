@@ -145,6 +145,15 @@ export default function AdminDashboard() {
     whatsappNumber: '',
   });
 
+  // Bookings management state
+  const [bookingStatusFilter, setBookingStatusFilter] = useState('all');
+  const [bookingDateFrom, setBookingDateFrom] = useState('');
+  const [bookingDateTo, setBookingDateTo] = useState('');
+  const [bookingSearch, setBookingSearch] = useState('');
+  const [assignDriverDialogOpen, setAssignDriverDialogOpen] = useState(false);
+  const [assigningBookingId, setAssigningBookingId] = useState<string | null>(null);
+  const [selectedDriverForAssignment, setSelectedDriverForAssignment] = useState('');
+
   // Redirect to home if not authenticated or not admin
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || user?.role !== 'admin')) {
@@ -185,6 +194,20 @@ export default function AdminDashboard() {
   // Fetch contact submissions
   const { data: contacts, isLoading: contactsLoading } = useQuery<ContactSubmission[]>({
     queryKey: ['/api/admin/contacts'],
+    retry: false,
+    enabled: isAuthenticated && user?.role === 'admin',
+  });
+
+  // Fetch all bookings
+  const { data: bookings, isLoading: bookingsLoading } = useQuery<any[]>({
+    queryKey: ['/api/admin/bookings'],
+    retry: false,
+    enabled: isAuthenticated && user?.role === 'admin',
+  });
+
+  // Fetch active drivers for assignment
+  const { data: activeDrivers } = useQuery<any[]>({
+    queryKey: ['/api/admin/active-drivers'],
     retry: false,
     enabled: isAuthenticated && user?.role === 'admin',
   });
@@ -316,6 +339,99 @@ export default function AdminDashboard() {
         variant: "destructive",
       });
     },
+  });
+
+  // Update booking status mutation
+  const updateBookingStatusMutation = useMutation({
+    mutationFn: async ({ bookingId, status }: { bookingId: string; status: string }) => {
+      const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/status`, { status });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update booking status');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      toast({
+        title: "Booking Updated",
+        description: "Booking status has been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update booking status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Assign driver mutation
+  const assignDriverMutation = useMutation({
+    mutationFn: async ({ bookingId, driverId }: { bookingId: string; driverId: string }) => {
+      const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/assign-driver`, { driverId });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to assign driver');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      setAssignDriverDialogOpen(false);
+      setAssigningBookingId(null);
+      setSelectedDriverForAssignment('');
+      toast({
+        title: "Driver Assigned",
+        description: "Driver has been successfully assigned to the booking.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to assign driver",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Filter bookings based on criteria
+  const filteredBookings = bookings?.filter((booking) => {
+    // Status filter
+    if (bookingStatusFilter !== 'all' && booking.status !== bookingStatusFilter) {
+      return false;
+    }
+
+    // Date range filter
+    if (bookingDateFrom) {
+      const bookingDate = new Date(booking.scheduledDateTime);
+      const fromDate = new Date(bookingDateFrom);
+      if (bookingDate < fromDate) return false;
+    }
+
+    if (bookingDateTo) {
+      const bookingDate = new Date(booking.scheduledDateTime);
+      const toDate = new Date(bookingDateTo);
+      toDate.setHours(23, 59, 59);
+      if (bookingDate > toDate) return false;
+    }
+
+    // Search filter
+    if (bookingSearch) {
+      const searchLower = bookingSearch.toLowerCase();
+      const matchesSearch = 
+        booking.id?.toLowerCase().includes(searchLower) ||
+        booking.passengerName?.toLowerCase().includes(searchLower) ||
+        booking.driverName?.toLowerCase().includes(searchLower) ||
+        booking.pickupAddress?.toLowerCase().includes(searchLower) ||
+        booking.destinationAddress?.toLowerCase().includes(searchLower);
+      
+      if (!matchesSearch) return false;
+    }
+
+    return true;
   });
 
   // Update user mutation
@@ -911,7 +1027,7 @@ export default function AdminDashboard() {
           setVisibleSettingsSection(null);
           setShowUserManager(false);
           setShowBookings(true);
-          setTimeout(() => document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
+          setTimeout(() => document.getElementById('bookings-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
         }}
         onSettingsClick={(section) => {
           setVisibleSettingsSection(section);
@@ -1407,81 +1523,248 @@ export default function AdminDashboard() {
           </Card>
         )}
 
-        {/* Contact Submissions */}
+        {/* Bookings Management */}
         {showBookings && (
-        <Card id="contact-section" data-testid="contact-submissions">
+        <Card id="bookings-section" data-testid="bookings-management">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <MessageSquare className="w-5 h-5" />
-              <span>Contact Submissions</span>
+              <span>Bookings Management</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {contactsLoading ? (
+            {/* Filters */}
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <Label>Status Filter</Label>
+                <Select value={bookingStatusFilter} onValueChange={setBookingStatusFilter}>
+                  <SelectTrigger data-testid="filter-booking-status">
+                    <SelectValue placeholder="All Statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="confirmed">Confirmed</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label>Date From</Label>
+                <Input
+                  type="date"
+                  value={bookingDateFrom}
+                  onChange={(e) => setBookingDateFrom(e.target.value)}
+                  data-testid="filter-date-from"
+                />
+              </div>
+              
+              <div>
+                <Label>Date To</Label>
+                <Input
+                  type="date"
+                  value={bookingDateTo}
+                  onChange={(e) => setBookingDateTo(e.target.value)}
+                  data-testid="filter-date-to"
+                />
+              </div>
+              
+              <div>
+                <Label>Search</Label>
+                <Input
+                  placeholder="Passenger, Driver, ID..."
+                  value={bookingSearch}
+                  onChange={(e) => setBookingSearch(e.target.value)}
+                  data-testid="filter-booking-search"
+                />
+              </div>
+            </div>
+
+            {bookingsLoading ? (
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
               </div>
-            ) : contacts && contacts.length > 0 ? (
+            ) : filteredBookings && filteredBookings.length > 0 ? (
               <div className="space-y-4">
-                {contacts.map((contact) => (
+                {filteredBookings.map((booking) => (
                   <div 
-                    key={contact.id}
+                    key={booking.id}
                     className="border rounded-lg p-4 space-y-3"
-                    data-testid={`contact-${contact.id}`}
+                    data-testid={`booking-${booking.id}`}
                   >
                     <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-semibold" data-testid={`contact-name-${contact.id}`}>
-                          {contact.firstName} {contact.lastName}
-                        </h4>
-                        <p className="text-sm text-muted-foreground" data-testid={`contact-email-${contact.id}`}>
-                          {contact.email} {contact.phone && `• ${contact.phone}`}
-                        </p>
-                        {contact.serviceType && (
-                          <Badge variant="outline" data-testid={`contact-service-${contact.id}`}>
-                            {contact.serviceType}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="font-semibold" data-testid={`booking-id-${booking.id}`}>
+                            #{booking.id.substring(0, 8)}
+                          </h4>
+                          <Badge variant={
+                            booking.status === 'pending' ? 'outline' :
+                            booking.status === 'confirmed' ? 'default' :
+                            booking.status === 'in_progress' ? 'secondary' :
+                            booking.status === 'completed' ? 'default' : 'destructive'
+                          } data-testid={`booking-status-${booking.id}`}>
+                            {booking.status}
                           </Badge>
-                        )}
+                          <Badge variant="outline" data-testid={`booking-type-${booking.id}`}>
+                            {booking.bookingType}
+                          </Badge>
+                        </div>
+                        
+                        <div className="grid md:grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="text-muted-foreground">Passenger</p>
+                            <p className="font-medium" data-testid={`booking-passenger-${booking.id}`}>
+                              {booking.passengerName || 'Not assigned'}
+                            </p>
+                          </div>
+                          
+                          <div>
+                            <p className="text-muted-foreground">Driver</p>
+                            <p className="font-medium" data-testid={`booking-driver-${booking.id}`}>
+                              {booking.driverName || 'Not assigned'}
+                            </p>
+                          </div>
+                          
+                          <div>
+                            <p className="text-muted-foreground">Pickup</p>
+                            <p className="font-medium" data-testid={`booking-pickup-${booking.id}`}>
+                              {booking.pickupAddress}
+                            </p>
+                          </div>
+                          
+                          <div>
+                            <p className="text-muted-foreground">Destination</p>
+                            <p className="font-medium" data-testid={`booking-destination-${booking.id}`}>
+                              {booking.destinationAddress || 'Hourly Service'}
+                            </p>
+                          </div>
+                          
+                          <div>
+                            <p className="text-muted-foreground">Scheduled Time</p>
+                            <p className="font-medium" data-testid={`booking-schedule-${booking.id}`}>
+                              {new Date(booking.scheduledDateTime).toLocaleString()}
+                            </p>
+                          </div>
+                          
+                          <div>
+                            <p className="text-muted-foreground">Total Amount</p>
+                            <p className="font-bold text-lg" data-testid={`booking-amount-${booking.id}`}>
+                              ${booking.totalAmount}
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      
+                      <div className="flex flex-col gap-2 ml-4">
                         <Select 
-                          value={contact.status}
-                          onValueChange={(value) => updateContactMutation.mutate({ id: contact.id, status: value })}
+                          value={booking.status}
+                          onValueChange={(value) => updateBookingStatusMutation.mutate({ 
+                            bookingId: booking.id, 
+                            status: value 
+                          })}
+                          disabled={updateBookingStatusMutation.isPending}
                         >
-                          <SelectTrigger className="w-32" data-testid={`select-status-${contact.id}`}>
+                          <SelectTrigger className="w-40" data-testid={`select-status-${booking.id}`}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="new">New</SelectItem>
-                            <SelectItem value="contacted">Contacted</SelectItem>
-                            <SelectItem value="resolved">Resolved</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="confirmed">Confirmed</SelectItem>
+                            <SelectItem value="in_progress">In Progress</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
                           </SelectContent>
                         </Select>
-                        <Badge 
-                          variant={contact.status === 'new' ? 'destructive' : contact.status === 'contacted' ? 'default' : 'secondary'}
-                          data-testid={`status-badge-${contact.id}`}
-                        >
-                          {contact.status}
-                        </Badge>
+                        
+                        {!booking.driverId && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setAssigningBookingId(booking.id);
+                              setAssignDriverDialogOpen(true);
+                            }}
+                            data-testid={`button-assign-driver-${booking.id}`}
+                          >
+                            <Car className="w-4 h-4 mr-2" />
+                            Assign Driver
+                          </Button>
+                        )}
                       </div>
                     </div>
-                    <p className="text-sm" data-testid={`contact-message-${contact.id}`}>
-                      {contact.message}
-                    </p>
-                    <p className="text-xs text-muted-foreground" data-testid={`contact-date-${contact.id}`}>
-                      {new Date(contact.createdAt).toLocaleDateString()} at {new Date(contact.createdAt).toLocaleTimeString()}
-                    </p>
+                    
+                    {booking.specialInstructions && (
+                      <div className="pt-2 border-t">
+                        <p className="text-xs text-muted-foreground">Special Instructions:</p>
+                        <p className="text-sm" data-testid={`booking-instructions-${booking.id}`}>
+                          {booking.specialInstructions}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center p-8 text-muted-foreground" data-testid="no-contacts">
-                No contact submissions yet.
+              <div className="text-center p-8 text-muted-foreground" data-testid="no-bookings">
+                No bookings found.
               </div>
             )}
           </CardContent>
         </Card>
         )}
+
+        {/* Assign Driver Dialog */}
+        <Dialog open={assignDriverDialogOpen} onOpenChange={setAssignDriverDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Assign Driver</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Select Driver</Label>
+                <Select value={selectedDriverForAssignment} onValueChange={setSelectedDriverForAssignment}>
+                  <SelectTrigger data-testid="select-driver-assignment">
+                    <SelectValue placeholder="Choose a driver" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeDrivers?.map((driver) => (
+                      <SelectItem key={driver.id} value={driver.id}>
+                        {driver.firstName} {driver.lastName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setAssignDriverDialogOpen(false)}
+                  data-testid="button-cancel-assign"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (assigningBookingId && selectedDriverForAssignment) {
+                      assignDriverMutation.mutate({
+                        bookingId: assigningBookingId,
+                        driverId: selectedDriverForAssignment
+                      });
+                    }
+                  }}
+                  disabled={!selectedDriverForAssignment || assignDriverMutation.isPending}
+                  data-testid="button-confirm-assign"
+                >
+                  {assignDriverMutation.isPending ? 'Assigning...' : 'Assign Driver'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* User Accounts Management */}
         {showUserManager && (

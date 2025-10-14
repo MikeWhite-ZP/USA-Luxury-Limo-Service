@@ -491,6 +491,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin bookings management endpoints
+  app.get('/api/admin/bookings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const bookings = await storage.getAllBookingsWithDetails();
+      res.json(bookings);
+    } catch (error) {
+      console.error('Get all bookings error:', error);
+      res.status(500).json({ message: 'Failed to fetch bookings' });
+    }
+  });
+
+  app.get('/api/admin/active-drivers', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const drivers = await storage.getActiveDrivers();
+      res.json(drivers);
+    } catch (error) {
+      console.error('Get active drivers error:', error);
+      res.status(500).json({ message: 'Failed to fetch active drivers' });
+    }
+  });
+
+  app.patch('/api/admin/bookings/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'].includes(status)) {
+        return res.status(400).json({ error: 'Invalid status value' });
+      }
+
+      const updatedBooking = await storage.updateBookingStatus(id, status);
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Update booking status error:', error);
+      res.status(500).json({ error: 'Failed to update booking status' });
+    }
+  });
+
+  app.patch('/api/admin/bookings/:id/assign-driver', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const { driverId } = req.body;
+
+      if (!driverId) {
+        return res.status(400).json({ error: 'Driver ID is required' });
+      }
+
+      const updatedBooking = await storage.assignDriverToBooking(id, driverId);
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Assign driver error:', error);
+      res.status(500).json({ error: 'Failed to assign driver to booking' });
+    }
+  });
+
   app.get('/api/admin/settings', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;

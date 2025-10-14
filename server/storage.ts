@@ -139,6 +139,11 @@ export interface IStorage {
   getDriverRatings(driverId: string): Promise<DriverRating[]>;
   getBookingRating(bookingId: string): Promise<DriverRating | undefined>;
   getDriverAverageRating(driverId: string): Promise<number>;
+  
+  // Admin Bookings Management
+  getAllBookingsWithDetails(): Promise<any[]>;
+  getActiveDrivers(): Promise<any[]>;
+  assignDriverToBooking(bookingId: string, driverId: string): Promise<Booking>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -795,6 +800,86 @@ export class DatabaseStorage implements IStorage {
       .from(driverRatings)
       .where(eq(driverRatings.driverId, driverId));
     return parseFloat(result?.avg || '0');
+  }
+
+  async getAllBookingsWithDetails(): Promise<any[]> {
+    const allBookings = await db
+      .select({
+        id: bookings.id,
+        passengerId: bookings.passengerId,
+        driverId: bookings.driverId,
+        vehicleTypeId: bookings.vehicleTypeId,
+        bookingType: bookings.bookingType,
+        status: bookings.status,
+        pickupAddress: bookings.pickupAddress,
+        destinationAddress: bookings.destinationAddress,
+        scheduledDateTime: bookings.scheduledDateTime,
+        totalAmount: bookings.totalAmount,
+        paymentStatus: bookings.paymentStatus,
+        specialInstructions: bookings.specialInstructions,
+        createdAt: bookings.createdAt,
+        passengerFirstName: users.firstName,
+        passengerLastName: users.lastName,
+      })
+      .from(bookings)
+      .leftJoin(users, eq(bookings.passengerId, users.id))
+      .orderBy(desc(bookings.createdAt));
+
+    // Fetch driver names for bookings with assigned drivers
+    const bookingsWithDriverNames = await Promise.all(
+      allBookings.map(async (booking) => {
+        let driverName = null;
+        if (booking.driverId) {
+          const driver = await this.getDriver(booking.driverId);
+          if (driver) {
+            const driverUser = await this.getUser(driver.userId);
+            if (driverUser) {
+              driverName = `${driverUser.firstName} ${driverUser.lastName}`;
+            }
+          }
+        }
+        return {
+          ...booking,
+          passengerName: `${booking.passengerFirstName || ''} ${booking.passengerLastName || ''}`.trim(),
+          driverName,
+        };
+      })
+    );
+
+    return bookingsWithDriverNames;
+  }
+
+  async getActiveDrivers(): Promise<any[]> {
+    const activeDriversData = await db
+      .select({
+        id: drivers.id,
+        userId: drivers.userId,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+      })
+      .from(drivers)
+      .innerJoin(users, eq(drivers.userId, users.id))
+      .where(eq(users.isActive, true));
+
+    return activeDriversData;
+  }
+
+  async assignDriverToBooking(bookingId: string, driverId: string): Promise<Booking> {
+    const [updatedBooking] = await db
+      .update(bookings)
+      .set({ 
+        driverId,
+        updatedAt: new Date(),
+      })
+      .where(eq(bookings.id, bookingId))
+      .returning();
+    
+    if (!updatedBooking) {
+      throw new Error('Booking not found');
+    }
+    
+    return updatedBooking;
   }
 }
 
