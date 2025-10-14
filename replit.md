@@ -2,7 +2,7 @@
 
 ## Overview
 
-USA Luxury Limo is a full-stack luxury transportation booking platform that replicates the functionality of professional limousine services. The application provides a comprehensive booking system with real-time pricing, fleet management, and multi-role user authentication. Built with modern web technologies, it features a React frontend with TypeScript, Express.js backend, PostgreSQL database with Drizzle ORM, and integrates with Stripe for payments and TomTom for geocoding services.
+USA Luxury Limo is a full-stack luxury transportation booking platform that replicates the functionality of professional limousine services. The application provides a comprehensive booking system with real-time pricing, fleet management, and multi-role user authentication. Built as a Progressive Web Application (PWA), it features a React frontend with TypeScript, Express.js backend, PostgreSQL database with Drizzle ORM, and integrates with Stripe for payments and TomTom for geocoding services. The PWA functionality allows drivers, passengers, and dispatchers to install the app on their devices for quick access and offline capabilities.
 
 ## User Preferences
 
@@ -78,6 +78,16 @@ Preferred communication style: Simple, everyday language.
 - **Driver View**: Real-time status display with expiration dates, rejection reasons, and upload timestamps
 - **Admin Review**: Admins can approve/reject documents with optional rejection reasons
 - **Object Storage**: Files stored in Replit Object Storage under `driver-docs/{driverId}/` directory
+
+### Progressive Web Application (PWA)
+- **Installability**: App can be installed on any device (iOS, Android, Desktop) via browser prompt
+- **Install Prompt**: Custom in-app prompt with "Install" and "Not now" options, dismissible per session
+- **Service Worker**: Implements offline caching strategy for static assets and API responses
+- **Manifest**: Web app manifest with app metadata, icons (72x72 to 512x512), and theme colors
+- **Icons**: Auto-generated PWA icons from luxury limo stock image in 8 different sizes
+- **Offline Support**: Network-first caching strategy with offline fallback to cached content
+- **User Experience**: Works seamlessly for all user roles (passenger, driver, dispatcher/admin)
+- **Installation**: Users can install from browser menu or via in-app prompt for quick access
 
 ## External Dependencies
 
