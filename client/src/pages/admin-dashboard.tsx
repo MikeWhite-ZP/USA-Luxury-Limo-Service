@@ -99,6 +99,7 @@ export default function AdminDashboard() {
   const [loadingValue, setLoadingValue] = useState(false);
   const [visibleCredentialsSection, setVisibleCredentialsSection] = useState<'api' | 'payment' | null>(null);
   const [visibleSettingsSection, setVisibleSettingsSection] = useState<'commission' | null>(null);
+  const [showBookings, setShowBookings] = useState(false);
   const [selectedUserType, setSelectedUserType] = useState<'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin'>('all');
   const [showUserManager, setShowUserManager] = useState(false);
   const [userSearchQuery, setUserSearchQuery] = useState('');
@@ -888,6 +889,8 @@ export default function AdminDashboard() {
         onCredentialsClick={(section) => {
           setVisibleCredentialsSection(section);
           setVisibleSettingsSection(null);
+          setShowUserManager(false);
+          setShowBookings(false);
           setTimeout(() => {
             const targetId = section === 'api' ? 'credentials-section' : 'payment-section';
             document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
@@ -896,14 +899,23 @@ export default function AdminDashboard() {
         onUserManagerClick={(type) => {
           setSelectedUserType(type);
           setShowUserManager(true);
+          setVisibleCredentialsSection(null);
+          setVisibleSettingsSection(null);
+          setShowBookings(false);
           setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
         }}
         onBookingsClick={() => {
-          document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' });
+          setVisibleCredentialsSection(null);
+          setVisibleSettingsSection(null);
+          setShowUserManager(false);
+          setShowBookings(true);
+          setTimeout(() => document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
         }}
         onSettingsClick={(section) => {
           setVisibleSettingsSection(section);
           setVisibleCredentialsSection(null);
+          setShowUserManager(false);
+          setShowBookings(false);
           setTimeout(() => {
             document.getElementById('settings-section')?.scrollIntoView({ behavior: 'smooth' });
           }, 100);
@@ -1377,6 +1389,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Contact Submissions */}
+        {showBookings && (
         <Card id="contact-section" data-testid="contact-submissions">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -1449,6 +1462,7 @@ export default function AdminDashboard() {
             )}
           </CardContent>
         </Card>
+        )}
 
         {/* User Accounts Management */}
         {showUserManager && (
