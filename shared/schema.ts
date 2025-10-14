@@ -237,6 +237,19 @@ export const bookings = pgTable("bookings", {
   // Metadata
   specialInstructions: text("special_instructions"),
   passengerCount: integer("passenger_count").default(1),
+  luggageCount: integer("luggage_count").default(0),
+  babySeat: boolean("baby_seat").default(false),
+  
+  // Additional passenger information
+  bookingFor: varchar("booking_for", { enum: ["self", "someone_else"] }).default("self"),
+  passengerName: varchar("passenger_name"),
+  passengerPhone: varchar("passenger_phone"),
+  passengerEmail: varchar("passenger_email"),
+  
+  // Flight details
+  flightNumber: varchar("flight_number"),
+  flightName: varchar("flight_name"),
+  noFlightInfo: boolean("no_flight_info").default(false),
   
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

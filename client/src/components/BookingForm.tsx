@@ -36,7 +36,7 @@ export default function BookingForm() {
   const [activeTab, setActiveTab] = useState<'transfer' | 'hourly'>('transfer');
   const [step, setStep] = useState(1);
   
-  // Form state
+  // Form state - Step 1 & 2
   const [fromAddress, setFromAddress] = useState('');
   const [toAddress, setToAddress] = useState('');
   const [pickupAddress, setPickupAddress] = useState('');
@@ -61,6 +61,19 @@ export default function BookingForm() {
   // Quote data
   const [quoteData, setQuoteData] = useState<any>(null);
   
+  // Form state - Step 3 (Additional Information)
+  const [bookingFor, setBookingFor] = useState<'self' | 'someone_else'>('self');
+  const [passengerName, setPassengerName] = useState('');
+  const [passengerPhone, setPassengerPhone] = useState('');
+  const [passengerEmail, setPassengerEmail] = useState('');
+  const [flightNumber, setFlightNumber] = useState('');
+  const [flightName, setFlightName] = useState('');
+  const [noFlightInfo, setNoFlightInfo] = useState(false);
+  const [passengerCount, setPassengerCount] = useState(1);
+  const [luggageCount, setLuggageCount] = useState(0);
+  const [babySeat, setBabySeat] = useState(false);
+  const [specialInstructions, setSpecialInstructions] = useState('');
+  
   const suggestionTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // Set minimum date to today and restore saved booking data
@@ -74,7 +87,7 @@ export default function BookingForm() {
       try {
         const data = JSON.parse(savedBookingData);
         
-        // Restore all form state
+        // Restore all form state - Step 1 & 2
         setActiveTab(data.activeTab);
         setStep(data.step);
         setFromAddress(data.fromAddress || '');
@@ -91,6 +104,19 @@ export default function BookingForm() {
         setPickupCoords(data.pickupCoords || null);
         setQuoteData(data.quoteData || null);
         setCalculatedPrices(data.calculatedPrices || {});
+        
+        // Restore step 3 data if exists
+        if (data.bookingFor) setBookingFor(data.bookingFor);
+        if (data.passengerName) setPassengerName(data.passengerName);
+        if (data.passengerPhone) setPassengerPhone(data.passengerPhone);
+        if (data.passengerEmail) setPassengerEmail(data.passengerEmail);
+        if (data.flightNumber) setFlightNumber(data.flightNumber);
+        if (data.flightName) setFlightName(data.flightName);
+        if (data.noFlightInfo !== undefined) setNoFlightInfo(data.noFlightInfo);
+        if (data.passengerCount) setPassengerCount(data.passengerCount);
+        if (data.luggageCount !== undefined) setLuggageCount(data.luggageCount);
+        if (data.babySeat !== undefined) setBabySeat(data.babySeat);
+        if (data.specialInstructions) setSpecialInstructions(data.specialInstructions);
         
         // Show success message
         toast({
@@ -363,6 +389,18 @@ export default function BookingForm() {
           pickupLon: pickupCoords?.lon.toString(),
           requestedHours: parseInt(duration),
         }),
+        // Step 3 - Additional booking information
+        bookingFor,
+        passengerName: passengerName || undefined,
+        passengerPhone: passengerPhone || undefined,
+        passengerEmail: passengerEmail || undefined,
+        flightNumber: flightNumber || undefined,
+        flightName: flightName || undefined,
+        noFlightInfo,
+        passengerCount,
+        luggageCount,
+        babySeat,
+        specialInstructions: specialInstructions || undefined,
       };
 
       const response = await apiRequest('POST', '/api/bookings', bookingData);
@@ -405,6 +443,18 @@ export default function BookingForm() {
           pickupCoords,
           quoteData,
           calculatedPrices,
+          // Step 3 data
+          bookingFor,
+          passengerName,
+          passengerPhone,
+          passengerEmail,
+          flightNumber,
+          flightName,
+          noFlightInfo,
+          passengerCount,
+          luggageCount,
+          babySeat,
+          specialInstructions,
         };
         localStorage.setItem('pendingBookingData', JSON.stringify(bookingDataToSave));
         
@@ -470,6 +520,16 @@ export default function BookingForm() {
   };
 
   const handleContinueBooking = () => {
+    // Pre-fill step 3 data with user info if booking for self
+    if (user && bookingFor === 'self') {
+      setPassengerName(`${user.firstName || ''} ${user.lastName || ''}`.trim());
+      setPassengerPhone(user.phone || '');
+      setPassengerEmail(user.email || '');
+    }
+    setStep(3);
+  };
+  
+  const handleProceedToPayment = () => {
     bookingMutation.mutate();
   };
 
@@ -662,6 +722,254 @@ export default function BookingForm() {
             data-testid="button-continue-booking"
           >
             {bookingMutation.isPending ? 'Processing...' : 'Continue to Payment'}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 3 && quoteData) {
+    return (
+      <div className="space-y-6">
+        {/* Trip Summary - Compact View */}
+        <div className="bg-gray-50 p-4 rounded-lg" data-testid="trip-summary">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-gray-600">
+              {new Date(`${date}T${time}`).toLocaleString()}
+            </span>
+            <span className="text-xl font-bold text-primary">${quoteData.totalAmount}</span>
+          </div>
+          <div className="text-sm text-gray-700">
+            <div className="flex items-start gap-2">
+              <span className="text-green-600">●</span>
+              <span>{activeTab === 'transfer' ? fromAddress : pickupAddress}</span>
+            </div>
+            {activeTab === 'transfer' && toAddress && (
+              <div className="flex items-start gap-2 mt-1">
+                <span className="text-red-600">●</span>
+                <span>{toAddress}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Booking For */}
+        <div data-testid="booking-for-section">
+          <h4 className="font-semibold mb-3">Are you booking for yourself or someone else?</h4>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => {
+                setBookingFor('self');
+                if (user) {
+                  setPassengerName(`${user.firstName || ''} ${user.lastName || ''}`.trim());
+                  setPassengerPhone(user.phone || '');
+                  setPassengerEmail(user.email || '');
+                }
+              }}
+              className={`p-4 rounded-lg border-2 transition-all ${
+                bookingFor === 'self' 
+                  ? 'border-primary bg-primary/5' 
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+              data-testid="radio-booking-self"
+            >
+              <div className="flex items-center gap-2">
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  bookingFor === 'self' ? 'border-primary' : 'border-gray-300'
+                }`}>
+                  {bookingFor === 'self' && <div className="w-3 h-3 rounded-full bg-primary" />}
+                </div>
+                <span className="font-medium">I am booking for myself</span>
+              </div>
+            </button>
+            <button
+              onClick={() => {
+                setBookingFor('someone_else');
+                setPassengerName('');
+                setPassengerPhone('');
+                setPassengerEmail('');
+              }}
+              className={`p-4 rounded-lg border-2 transition-all ${
+                bookingFor === 'someone_else' 
+                  ? 'border-primary bg-primary/5' 
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+              data-testid="radio-booking-someone-else"
+            >
+              <div className="flex items-center gap-2">
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  bookingFor === 'someone_else' ? 'border-primary' : 'border-gray-300'
+                }`}>
+                  {bookingFor === 'someone_else' && <div className="w-3 h-3 rounded-full bg-primary" />}
+                </div>
+                <span className="font-medium">I am booking for someone else</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Additional Information */}
+        <div data-testid="additional-info-section">
+          <h4 className="font-semibold mb-3">Provide additional information</h4>
+          <div className="space-y-3">
+            <Input
+              placeholder="Passenger Name"
+              value={passengerName}
+              onChange={(e) => setPassengerName(e.target.value)}
+              data-testid="input-passenger-name"
+            />
+            <Input
+              placeholder="Phone Number"
+              value={passengerPhone}
+              onChange={(e) => setPassengerPhone(e.target.value)}
+              data-testid="input-passenger-phone"
+            />
+            <Input
+              placeholder="Email"
+              type="email"
+              value={passengerEmail}
+              onChange={(e) => setPassengerEmail(e.target.value)}
+              data-testid="input-passenger-email"
+            />
+          </div>
+        </div>
+
+        {/* Flight Details */}
+        <div data-testid="flight-details-section">
+          <div className="flex justify-between items-center mb-3">
+            <h4 className="font-semibold">Flight Details</h4>
+            <button className="text-sm text-red-600 font-medium" data-testid="button-check-flight">
+              check flight
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3 mb-2">
+            <Input
+              placeholder="Enter Flight Number"
+              value={flightNumber}
+              onChange={(e) => setFlightNumber(e.target.value)}
+              disabled={noFlightInfo}
+              data-testid="input-flight-number"
+            />
+            <Input
+              placeholder="Enter Flight Name"
+              value={flightName}
+              onChange={(e) => setFlightName(e.target.value)}
+              disabled={noFlightInfo}
+              data-testid="input-flight-name"
+            />
+          </div>
+          <label className="flex items-center gap-2 text-sm text-gray-600">
+            <input
+              type="checkbox"
+              checked={noFlightInfo}
+              onChange={(e) => {
+                setNoFlightInfo(e.target.checked);
+                if (e.target.checked) {
+                  setFlightNumber('');
+                  setFlightName('');
+                }
+              }}
+              data-testid="checkbox-no-flight-info"
+            />
+            I don't have flight information.
+          </label>
+        </div>
+
+        {/* Passenger Count */}
+        <div data-testid="passenger-count-section">
+          <div className="flex justify-between items-center">
+            <span className="font-semibold">Passenger</span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setPassengerCount(Math.max(1, passengerCount - 1))}
+                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                data-testid="button-decrease-passengers"
+              >
+                −
+              </button>
+              <span className="w-8 text-center font-medium" data-testid="text-passenger-count">{passengerCount}</span>
+              <button
+                onClick={() => setPassengerCount(passengerCount + 1)}
+                className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700"
+                data-testid="button-increase-passengers"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Luggage Count */}
+        <div data-testid="luggage-count-section">
+          <div className="flex justify-between items-center">
+            <span className="font-semibold">Luggage</span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setLuggageCount(Math.max(0, luggageCount - 1))}
+                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                data-testid="button-decrease-luggage"
+              >
+                −
+              </button>
+              <span className="w-8 text-center font-medium" data-testid="text-luggage-count">{luggageCount}</span>
+              <button
+                onClick={() => setLuggageCount(luggageCount + 1)}
+                className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700"
+                data-testid="button-increase-luggage"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Baby Seat */}
+        <div data-testid="baby-seat-section">
+          <div className="flex justify-between items-center">
+            <span className="font-semibold">Baby Seat (optional)</span>
+            <label className="relative inline-block w-12 h-6">
+              <input
+                type="checkbox"
+                checked={babySeat}
+                onChange={(e) => setBabySeat(e.target.checked)}
+                className="sr-only peer"
+                data-testid="toggle-baby-seat"
+              />
+              <div className="w-12 h-6 bg-gray-300 rounded-full peer peer-checked:bg-primary transition-colors"></div>
+              <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-6"></div>
+            </label>
+          </div>
+        </div>
+
+        {/* Special Instructions */}
+        <div data-testid="special-instructions-section">
+          <h4 className="font-semibold mb-2">Special Instructions</h4>
+          <textarea
+            placeholder="Is there anything else we need to know?"
+            value={specialInstructions}
+            onChange={(e) => setSpecialInstructions(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg resize-none h-24"
+            data-testid="textarea-special-instructions"
+          />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3">
+          <Button 
+            variant="outline" 
+            onClick={() => setStep(2)}
+            className="flex-1"
+            data-testid="button-back-step3"
+          >
+            Back
+          </Button>
+          <Button 
+            onClick={handleProceedToPayment}
+            disabled={bookingMutation.isPending}
+            className="flex-1 bg-red-600 hover:bg-red-700"
+            data-testid="button-proceed-payment"
+          >
+            {bookingMutation.isPending ? 'Processing...' : 'PROCEED TO PAYMENT'}
           </Button>
         </div>
       </div>
