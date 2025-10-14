@@ -71,6 +71,8 @@ export interface IStorage {
   getBookingsByDriver(driverId: string): Promise<Booking[]>;
   updateBookingStatus(id: string, status: string): Promise<void>;
   updateBookingPayment(id: string, paymentIntentId: string, status: string): Promise<void>;
+  updateBooking(id: string, updates: Partial<InsertBooking>): Promise<Booking | undefined>;
+  deleteBooking(id: string): Promise<void>;
   
   // Saved addresses
   createSavedAddress(address: InsertSavedAddress): Promise<SavedAddress>;
@@ -325,6 +327,19 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date() 
       })
       .where(eq(bookings.id, id));
+  }
+
+  async updateBooking(id: string, updates: Partial<InsertBooking>): Promise<Booking | undefined> {
+    const [booking] = await db
+      .update(bookings)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(bookings.id, id))
+      .returning();
+    return booking;
+  }
+
+  async deleteBooking(id: string): Promise<void> {
+    await db.delete(bookings).where(eq(bookings.id, id));
   }
 
   async createSavedAddress(addressData: InsertSavedAddress): Promise<SavedAddress> {

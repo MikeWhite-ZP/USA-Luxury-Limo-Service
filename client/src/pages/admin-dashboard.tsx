@@ -153,6 +153,18 @@ export default function AdminDashboard() {
   const [assignDriverDialogOpen, setAssignDriverDialogOpen] = useState(false);
   const [assigningBookingId, setAssigningBookingId] = useState<string | null>(null);
   const [selectedDriverForAssignment, setSelectedDriverForAssignment] = useState('');
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [editingBooking, setEditingBooking] = useState<any | null>(null);
+  const [bookingFormData, setBookingFormData] = useState({
+    passengerId: '',
+    pickupAddress: '',
+    destinationAddress: '',
+    scheduledDateTime: '',
+    totalAmount: '',
+    vehicleTypeId: '',
+    bookingType: 'transfer' as 'transfer' | 'hourly',
+    status: 'pending' as 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled',
+  });
 
   // Redirect to home if not authenticated or not admin
   useEffect(() => {
@@ -208,6 +220,13 @@ export default function AdminDashboard() {
   // Fetch active drivers for assignment
   const { data: activeDrivers } = useQuery<any[]>({
     queryKey: ['/api/admin/active-drivers'],
+    retry: false,
+    enabled: isAuthenticated && user?.role === 'admin',
+  });
+
+  // Fetch vehicle types for booking dialog
+  const { data: vehicleTypes } = useQuery<any[]>({
+    queryKey: ['/api/vehicle-types'],
     retry: false,
     enabled: isAuthenticated && user?.role === 'admin',
   });
@@ -393,6 +412,74 @@ export default function AdminDashboard() {
       toast({
         title: "Error",
         description: error.message || "Failed to assign driver",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Create/Update booking mutation
+  const saveBookingMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const method = editingBooking ? 'PATCH' : 'POST';
+      const url = editingBooking ? `/api/admin/bookings/${editingBooking.id}` : '/api/admin/bookings';
+      const response = await apiRequest(method, url, data);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || `Failed to ${editingBooking ? 'update' : 'create'} booking`);
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      setBookingDialogOpen(false);
+      setEditingBooking(null);
+      setBookingFormData({
+        passengerId: '',
+        pickupAddress: '',
+        destinationAddress: '',
+        scheduledDateTime: '',
+        totalAmount: '',
+        vehicleTypeId: '',
+        bookingType: 'transfer',
+        status: 'pending',
+      });
+      toast({
+        title: editingBooking ? "Booking Updated" : "Booking Created",
+        description: `Booking has been ${editingBooking ? 'updated' : 'created'} successfully.`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete booking mutation
+  const deleteBookingMutation = useMutation({
+    mutationFn: async (bookingId: string) => {
+      const response = await apiRequest('DELETE', `/api/bookings/${bookingId}`);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete booking');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      toast({
+        title: "Booking Deleted",
+        description: "Booking has been deleted successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -677,6 +764,39 @@ export default function AdminDashboard() {
       return;
     }
     updateCredentialMutation.mutate({ key: newKeyName.toUpperCase().replace(/\s+/g, '_'), value: newKeyValue });
+  };
+
+  // Booking management functions
+  const openAddBookingDialog = () => {
+    setEditingBooking(null);
+    setBookingFormData({
+      passengerId: '',
+      pickupAddress: '',
+      destinationAddress: '',
+      scheduledDateTime: '',
+      totalAmount: '',
+      vehicleTypeId: '',
+      bookingType: 'transfer',
+      status: 'pending',
+    });
+    setBookingDialogOpen(true);
+  };
+
+  const openEditBookingDialog = (booking: any) => {
+    setEditingBooking(booking);
+    const scheduledDate = new Date(booking.scheduledDateTime);
+    const formattedDateTime = scheduledDate.toISOString().slice(0, 16);
+    setBookingFormData({
+      passengerId: booking.passengerId || '',
+      pickupAddress: booking.pickupAddress || '',
+      destinationAddress: booking.destinationAddress || '',
+      scheduledDateTime: formattedDateTime,
+      totalAmount: booking.totalAmount.toString(),
+      vehicleTypeId: booking.vehicleTypeId || '',
+      bookingType: booking.bookingType || 'transfer',
+      status: booking.status || 'pending',
+    });
+    setBookingDialogOpen(true);
   };
 
   // User management functions
@@ -1528,10 +1648,20 @@ export default function AdminDashboard() {
         {showBookings && (
         <Card id="bookings-section" data-testid="bookings-management">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <MessageSquare className="w-5 h-5" />
-              <span>Bookings Management</span>
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <MessageSquare className="w-5 h-5" />
+                <span>Bookings Management</span>
+              </CardTitle>
+              <Button
+                onClick={openAddBookingDialog}
+                size="sm"
+                data-testid="button-add-booking"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Booking
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -1695,6 +1825,31 @@ export default function AdminDashboard() {
                             Assign Driver
                           </Button>
                         )}
+                        
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openEditBookingDialog(booking)}
+                          data-testid={`button-edit-booking-${booking.id}`}
+                        >
+                          <Edit2 className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
+                        
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            if (confirm(`Are you sure you want to delete booking #${booking.id.substring(0, 8)}?`)) {
+                              deleteBookingMutation.mutate(booking.id);
+                            }
+                          }}
+                          disabled={deleteBookingMutation.isPending}
+                          data-testid={`button-delete-booking-${booking.id}`}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </Button>
                       </div>
                     </div>
                     
@@ -1764,6 +1919,181 @@ export default function AdminDashboard() {
                 </Button>
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add/Edit Booking Dialog */}
+        <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
+          <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#ffffff]">
+            <DialogHeader>
+              <DialogTitle>{editingBooking ? 'Edit Booking' : 'Add New Booking'}</DialogTitle>
+              <DialogDescription>
+                {editingBooking ? 'Update the booking details below.' : 'Fill in the details to create a new booking.'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="passenger">Passenger *</Label>
+                <Select
+                  value={bookingFormData.passengerId}
+                  onValueChange={(value) => setBookingFormData({ ...bookingFormData, passengerId: value })}
+                >
+                  <SelectTrigger id="passenger" data-testid="select-passenger">
+                    <SelectValue placeholder="Select passenger" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allUsers
+                      .filter(u => u.role === 'passenger')
+                      .map((passenger) => (
+                        <SelectItem key={passenger.id} value={passenger.id}>
+                          {passenger.firstName} {passenger.lastName} ({passenger.email})
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="booking-type">Booking Type *</Label>
+                  <Select
+                    value={bookingFormData.bookingType}
+                    onValueChange={(value) => setBookingFormData({ ...bookingFormData, bookingType: value as 'transfer' | 'hourly' })}
+                  >
+                    <SelectTrigger id="booking-type" data-testid="select-booking-type">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="transfer">Transfer</SelectItem>
+                      <SelectItem value="hourly">Hourly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="vehicle-type">Vehicle Type *</Label>
+                  <Select
+                    value={bookingFormData.vehicleTypeId}
+                    onValueChange={(value) => setBookingFormData({ ...bookingFormData, vehicleTypeId: value })}
+                  >
+                    <SelectTrigger id="vehicle-type" data-testid="select-vehicle-type">
+                      <SelectValue placeholder="Select vehicle" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {vehicleTypes?.map((vt) => (
+                        <SelectItem key={vt.id} value={vt.id}>
+                          {vt.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="pickup-address">Pickup Address *</Label>
+                <Input
+                  id="pickup-address"
+                  value={bookingFormData.pickupAddress}
+                  onChange={(e) => setBookingFormData({ ...bookingFormData, pickupAddress: e.target.value })}
+                  placeholder="Enter pickup address"
+                  data-testid="input-pickup-address"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="destination-address">Destination Address {bookingFormData.bookingType === 'transfer' && '*'}</Label>
+                <Input
+                  id="destination-address"
+                  value={bookingFormData.destinationAddress}
+                  onChange={(e) => setBookingFormData({ ...bookingFormData, destinationAddress: e.target.value })}
+                  placeholder={bookingFormData.bookingType === 'hourly' ? 'N/A for hourly service' : 'Enter destination address'}
+                  disabled={bookingFormData.bookingType === 'hourly'}
+                  data-testid="input-destination-address"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="scheduled-datetime">Scheduled Date & Time *</Label>
+                  <Input
+                    id="scheduled-datetime"
+                    type="datetime-local"
+                    value={bookingFormData.scheduledDateTime}
+                    onChange={(e) => setBookingFormData({ ...bookingFormData, scheduledDateTime: e.target.value })}
+                    data-testid="input-scheduled-datetime"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="total-amount">Total Amount *</Label>
+                  <Input
+                    id="total-amount"
+                    type="number"
+                    step="0.01"
+                    value={bookingFormData.totalAmount}
+                    onChange={(e) => setBookingFormData({ ...bookingFormData, totalAmount: e.target.value })}
+                    placeholder="0.00"
+                    data-testid="input-total-amount"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="booking-status">Status *</Label>
+                <Select
+                  value={bookingFormData.status}
+                  onValueChange={(value) => setBookingFormData({ ...bookingFormData, status: value as any })}
+                >
+                  <SelectTrigger id="booking-status" data-testid="select-booking-status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="confirmed">Confirmed</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setBookingDialogOpen(false)}
+                data-testid="button-cancel-booking"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  const bookingData = {
+                    passengerId: bookingFormData.passengerId,
+                    vehicleTypeId: bookingFormData.vehicleTypeId,
+                    bookingType: bookingFormData.bookingType,
+                    pickupAddress: bookingFormData.pickupAddress,
+                    destinationAddress: bookingFormData.bookingType === 'transfer' ? bookingFormData.destinationAddress : undefined,
+                    scheduledDateTime: new Date(bookingFormData.scheduledDateTime),
+                    totalAmount: parseFloat(bookingFormData.totalAmount),
+                    status: bookingFormData.status,
+                  };
+                  saveBookingMutation.mutate(bookingData);
+                }}
+                disabled={
+                  saveBookingMutation.isPending || 
+                  !bookingFormData.passengerId ||
+                  !bookingFormData.pickupAddress || 
+                  !bookingFormData.scheduledDateTime || 
+                  !bookingFormData.totalAmount || 
+                  !bookingFormData.vehicleTypeId ||
+                  (bookingFormData.bookingType === 'transfer' && !bookingFormData.destinationAddress)
+                }
+                data-testid="button-save-booking"
+              >
+                {saveBookingMutation.isPending ? 'Saving...' : (editingBooking ? 'Update Booking' : 'Create Booking')}
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
 

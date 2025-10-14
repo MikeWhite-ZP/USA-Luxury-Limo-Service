@@ -403,6 +403,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+
+  // Delete booking (admin only)
+  app.delete('/api/bookings/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      await storage.deleteBooking(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete booking error:', error);
+      res.status(500).json({ message: 'Failed to delete booking' });
+    }
+  });
+
+  // Admin: Create booking for a passenger
+  app.post('/api/admin/bookings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      // Validate and parse the booking data, allowing passengerId to be specified
+      const bookingData = insertBookingSchema.parse(req.body);
+
+      const booking = await storage.createBooking(bookingData);
+      res.status(201).json(booking);
+    } catch (error) {
+      console.error('Admin create booking error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid booking data', errors: error.errors });
+      }
+      res.status(500).json({ message: 'Failed to create booking' });
+    }
+  });
+
+  // Admin: Update booking details
+  app.patch('/api/admin/bookings/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      // Use partial schema for updates - only validate provided fields
+      const updateSchema = insertBookingSchema.partial();
+      const validatedUpdates = updateSchema.parse(req.body);
+
+      const booking = await storage.updateBooking(id, validatedUpdates);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      res.json(booking);
+    } catch (error) {
+      console.error('Admin update booking error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid booking data', errors: error.errors });
+      }
+      res.status(500).json({ message: 'Failed to update booking' });
+    }
+  });
+
   // Saved addresses
   app.get('/api/saved-addresses', isAuthenticated, async (req: any, res) => {
     try {
