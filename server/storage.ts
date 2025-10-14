@@ -31,6 +31,9 @@ import {
   type DriverDocument,
   type InsertDriverDocument,
   driverDocuments,
+  type DriverRating,
+  type InsertDriverRating,
+  driverRatings,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -130,6 +133,12 @@ export interface IStorage {
   getDriverDocument(id: string): Promise<DriverDocument | undefined>;
   updateDriverDocumentStatus(id: string, status: string, rejectionReason?: string, reviewedBy?: string): Promise<DriverDocument | undefined>;
   deleteDriverDocument(id: string): Promise<boolean>;
+  
+  // Driver Ratings
+  createDriverRating(rating: InsertDriverRating): Promise<DriverRating>;
+  getDriverRatings(driverId: string): Promise<DriverRating[]>;
+  getBookingRating(bookingId: string): Promise<DriverRating | undefined>;
+  getDriverAverageRating(driverId: string): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -742,6 +751,50 @@ export class DatabaseStorage implements IStorage {
       .where(eq(driverDocuments.id, id))
       .returning();
     return result.length > 0;
+  }
+
+  // Driver Ratings methods
+  async createDriverRating(rating: InsertDriverRating): Promise<DriverRating> {
+    const [newRating] = await db.insert(driverRatings).values(rating).returning();
+    
+    // Update driver's average rating
+    const avgResult = await db
+      .select({ avg: sql<string>`AVG(${driverRatings.rating})` })
+      .from(driverRatings)
+      .where(eq(driverRatings.driverId, rating.driverId));
+    
+    if (avgResult[0]?.avg) {
+      await db
+        .update(drivers)
+        .set({ rating: avgResult[0].avg })
+        .where(eq(drivers.id, rating.driverId));
+    }
+    
+    return newRating;
+  }
+
+  async getDriverRatings(driverId: string): Promise<DriverRating[]> {
+    return await db
+      .select()
+      .from(driverRatings)
+      .where(eq(driverRatings.driverId, driverId))
+      .orderBy(desc(driverRatings.createdAt));
+  }
+
+  async getBookingRating(bookingId: string): Promise<DriverRating | undefined> {
+    const [rating] = await db
+      .select()
+      .from(driverRatings)
+      .where(eq(driverRatings.bookingId, bookingId));
+    return rating;
+  }
+
+  async getDriverAverageRating(driverId: string): Promise<number> {
+    const [result] = await db
+      .select({ avg: sql<string>`COALESCE(AVG(${driverRatings.rating}), 0)` })
+      .from(driverRatings)
+      .where(eq(driverRatings.driverId, driverId));
+    return parseFloat(result?.avg || '0');
   }
 }
 

@@ -242,6 +242,17 @@ export const bookings = pgTable("bookings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Driver ratings (passengers rate drivers after completed rides)
+export const driverRatings = pgTable("driver_ratings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  bookingId: uuid("booking_id").references(() => bookings.id).notNull(),
+  driverId: uuid("driver_id").references(() => drivers.id).notNull(),
+  passengerId: varchar("passenger_id").references(() => users.id).notNull(),
+  rating: integer("rating").notNull(), // 1-5 stars
+  comment: text("comment"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Saved addresses for passengers
 export const savedAddresses = pgTable("saved_addresses", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -447,6 +458,13 @@ export const insertDriverDocumentSchema = createInsertSchema(driverDocuments).om
   updatedAt: true,
 });
 
+export const insertDriverRatingSchema = createInsertSchema(driverRatings).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  rating: z.number().min(1).max(5).int(), // 1-5 stars validation
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -470,3 +488,5 @@ export type InsertPricingRule = z.infer<typeof insertPricingRuleSchema>;
 export type InsertPaymentSystem = z.infer<typeof insertPaymentSystemSchema>;
 export type DriverDocument = typeof driverDocuments.$inferSelect;
 export type InsertDriverDocument = z.infer<typeof insertDriverDocumentSchema>;
+export type DriverRating = typeof driverRatings.$inferSelect;
+export type InsertDriverRating = z.infer<typeof insertDriverRatingSchema>;

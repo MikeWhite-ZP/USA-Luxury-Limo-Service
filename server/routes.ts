@@ -690,13 +690,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const users = await storage.getAllUsers();
       
-      // Remove sensitive data from response
-      const sanitizedUsers = users.map(u => ({
-        ...u,
-        password: undefined,
-      }));
+      // Fetch driver info for drivers
+      const usersWithDriverInfo = await Promise.all(
+        users.map(async (u) => {
+          if (u.role === 'driver') {
+            const driverInfo = await storage.getDriverByUserId(u.id);
+            return {
+              ...u,
+              password: undefined,
+              driverInfo: driverInfo || null,
+            };
+          }
+          return {
+            ...u,
+            password: undefined,
+          };
+        })
+      );
       
-      res.json(sanitizedUsers);
+      res.json(usersWithDriverInfo);
     } catch (error) {
       console.error('Get users error:', error);
       res.status(500).json({ message: 'Failed to fetch users' });
@@ -2035,6 +2047,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Pricing calculation error:', error);
       res.status(500).json({ error: 'Pricing calculation failed' });
+    }
+  });
+
+  // Driver rating endpoints
+  app.post('/api/ratings', async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+
+      // Validate request body
+      const { bookingId, rating, comment } = req.body;
+      
+      if (!bookingId || typeof bookingId !== 'string') {
+        return res.status(400).json({ error: 'Valid bookingId is required' });
+      }
+      
+      if (!rating || typeof rating !== 'number' || rating < 1 || rating > 5 || !Number.isInteger(rating)) {
+        return res.status(400).json({ error: 'Rating must be an integer between 1 and 5' });
+      }
+      
+      if (comment && typeof comment !== 'string') {
+        return res.status(400).json({ error: 'Comment must be a string' });
+      }
+      
+      // Validate that the user is the passenger of the booking
+      const booking = await storage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+      
+      if (booking.passengerId !== req.user.id) {
+        return res.status(403).json({ error: 'Not authorized to rate this booking' });
+      }
+      
+      if (booking.status !== 'completed') {
+        return res.status(400).json({ error: 'Can only rate completed bookings' });
+      }
+      
+      if (!booking.driverId) {
+        return res.status(400).json({ error: 'Booking has no assigned driver' });
+      }
+      
+      // Check if already rated
+      const existingRating = await storage.getBookingRating(bookingId);
+      if (existingRating) {
+        return res.status(400).json({ error: 'Booking already rated' });
+      }
+
+      // Use driverId from booking, not from client
+      const newRating = await storage.createDriverRating({
+        bookingId,
+        driverId: booking.driverId, // Derive from booking, not client
+        passengerId: req.user.id,
+        rating,
+        comment: comment || undefined,
+      });
+
+      res.json(newRating);
+    } catch (error) {
+      console.error('Create rating error:', error);
+      res.status(500).json({ error: 'Failed to create rating' });
+    }
+  });
+
+  app.get('/api/drivers/:driverId/ratings', async (req, res) => {
+    try {
+      const { driverId } = req.params;
+      const ratings = await storage.getDriverRatings(driverId);
+      res.json(ratings);
+    } catch (error) {
+      console.error('Get ratings error:', error);
+      res.status(500).json({ error: 'Failed to get ratings' });
+    }
+  });
+
+  app.get('/api/drivers/:driverId/average-rating', async (req, res) => {
+    try {
+      const { driverId } = req.params;
+      const avgRating = await storage.getDriverAverageRating(driverId);
+      res.json({ averageRating: avgRating });
+    } catch (error) {
+      console.error('Get average rating error:', error);
+      res.status(500).json({ error: 'Failed to get average rating' });
+    }
+  });
+
+  app.get('/api/bookings/:bookingId/rating', async (req, res) => {
+    try {
+      const { bookingId } = req.params;
+      const rating = await storage.getBookingRating(bookingId);
+      if (!rating) {
+        return res.status(404).json({ error: 'Rating not found' });
+      }
+      res.json(rating);
+    } catch (error) {
+      console.error('Get booking rating error:', error);
+      res.status(500).json({ error: 'Failed to get booking rating' });
     }
   });
 

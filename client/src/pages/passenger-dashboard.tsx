@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Home, Building, MapPin, Plus, Trash2, CreditCard } from "lucide-react";
+import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star } from "lucide-react";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
@@ -35,6 +35,7 @@ interface Booking {
   scheduledDateTime: string;
   totalAmount: string;
   createdAt: string;
+  driverId?: string;
 }
 
 interface PaymentMethod {
@@ -275,6 +276,12 @@ export default function PassengerDashboard() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearchingAddress, setIsSearchingAddress] = useState(false);
   const [showAllBookings, setShowAllBookings] = useState(false);
+  
+  // Rating state
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
+  const [selectedBookingForRating, setSelectedBookingForRating] = useState<Booking | null>(null);
+  const [rating, setRating] = useState(0);
+  const [ratingComment, setRatingComment] = useState('');
 
   // Check for payment success in URL
   useEffect(() => {
@@ -373,6 +380,36 @@ export default function PassengerDashboard() {
       toast({
         title: "Error",
         description: error.message || "Failed to delete address",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Submit driver rating mutation
+  const submitRatingMutation = useMutation({
+    mutationFn: async (ratingData: { bookingId: string; rating: number; comment?: string }) => {
+      const response = await apiRequest('POST', '/api/ratings', ratingData);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to submit rating');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      setRatingDialogOpen(false);
+      setSelectedBookingForRating(null);
+      setRating(0);
+      setRatingComment('');
+      toast({
+        title: "Rating Submitted",
+        description: "Thank you for rating your driver!",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit rating",
         variant: "destructive",
       });
     },
@@ -777,13 +814,28 @@ export default function PassengerDashboard() {
                         </Badge>
                       </div>
                     </div>
-                    <div className="text-right space-y-1 ml-4">
+                    <div className="text-right space-y-1 ml-4 flex flex-col items-end">
                       <p className="font-bold text-lg text-foreground" data-testid={`history-booking-total-${booking.id}`}>
                         ${booking.totalAmount}
                       </p>
                       <Badge variant={getStatusColor(booking.status)} data-testid={`history-booking-status-${booking.id}`}>
                         {booking.status}
                       </Badge>
+                      {booking.status === 'completed' && booking.driverId && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedBookingForRating(booking);
+                            setRatingDialogOpen(true);
+                          }}
+                          className="mt-2"
+                          data-testid={`button-rate-driver-${booking.id}`}
+                        >
+                          <Star className="w-3 h-3 mr-1" />
+                          Rate Driver
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -793,6 +845,88 @@ export default function PassengerDashboard() {
                 No bookings found. Start your first ride with us!
               </div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rating Dialog */}
+      <Dialog open={ratingDialogOpen} onOpenChange={setRatingDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Rate Your Driver</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-4">
+                How was your ride experience?
+              </p>
+              <div className="flex justify-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    className="transition-transform hover:scale-110"
+                    data-testid={`rating-star-${star}`}
+                  >
+                    <Star
+                      className={`w-10 h-10 ${
+                        star <= rating
+                          ? 'text-yellow-400 fill-current'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+              {rating > 0 && (
+                <p className="mt-2 text-sm font-medium">
+                  {rating === 1 && 'Poor'}
+                  {rating === 2 && 'Fair'}
+                  {rating === 3 && 'Good'}
+                  {rating === 4 && 'Very Good'}
+                  {rating === 5 && 'Excellent'}
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="rating-comment">Additional Comments (Optional)</Label>
+              <Input
+                id="rating-comment"
+                placeholder="Share your experience..."
+                value={ratingComment}
+                onChange={(e) => setRatingComment(e.target.value)}
+                data-testid="input-rating-comment"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setRatingDialogOpen(false);
+                  setRating(0);
+                  setRatingComment('');
+                }}
+                data-testid="button-cancel-rating"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  if (selectedBookingForRating) {
+                    submitRatingMutation.mutate({
+                      bookingId: selectedBookingForRating.id,
+                      rating,
+                      comment: ratingComment || undefined,
+                    });
+                  }
+                }}
+                disabled={rating === 0 || submitRatingMutation.isPending}
+                data-testid="button-submit-rating"
+              >
+                {submitRatingMutation.isPending ? 'Submitting...' : 'Submit Rating'}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
