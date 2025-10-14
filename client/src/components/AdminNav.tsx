@@ -15,15 +15,17 @@ import {
   Star,
   MessageSquare,
   ChevronDown,
+  Percent,
 } from "lucide-react";
 
 interface AdminNavProps {
   onCredentialsClick?: (section: 'api' | 'payment') => void;
   onUserManagerClick?: (type: 'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin') => void;
   onBookingsClick?: () => void;
+  onSettingsClick?: (section: 'commission') => void;
 }
 
-export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick }: AdminNavProps) {
+export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onSettingsClick }: AdminNavProps) {
   const [location] = useLocation();
 
   return (
@@ -163,6 +165,34 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 >
                   <Star className="w-4 h-4 mr-2" />
                   Admins
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                  data-testid="nav-settings"
+                >
+                  <SettingsIcon className="w-4 h-4 mr-2" />
+                  Settings
+                  <ChevronDown className="w-4 h-4 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="bg-[#ffffff]">
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location !== '/admin-dashboard') {
+                      window.location.href = '/admin-dashboard';
+                    }
+                    onSettingsClick?.('commission');
+                  }}
+                  data-testid="nav-system-commission"
+                >
+                  <Percent className="w-4 h-4 mr-2" />
+                  System Commission
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
