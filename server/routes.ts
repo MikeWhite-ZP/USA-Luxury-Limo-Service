@@ -246,13 +246,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           signal: controller.signal
         };
 
-        const detailedResponse = await fetch(detailedUrl, detailedOptions);
-        
-        if (detailedResponse.ok) {
-          const detailedData = await detailedResponse.json();
-          return res.json(detailedData);
+        try {
+          const detailedResponse = await fetch(detailedUrl, detailedOptions);
+          
+          if (detailedResponse.ok) {
+            const detailedData = await detailedResponse.json();
+            // Successfully got detailed data, return it
+            return res.json(detailedData);
+          }
+        } catch (error) {
+          // Detailed search failed (timeout or error), fall back to simple search
+          console.log('Detailed flight search failed, falling back to simple search');
         }
-        // If detailed search fails, fall back to simple search
       }
 
       // Fallback: Use simple search endpoint
