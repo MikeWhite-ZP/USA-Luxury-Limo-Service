@@ -545,16 +545,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
     if (!flightSearchInput.trim()) {
       toast({
         title: "Flight Number Required",
-        description: "Please enter a flight number (e.g., UA2346, DL3427)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!date) {
-      toast({
-        title: "Date Required",
-        description: "Please select a booking date first",
+        description: "Please enter a flight number (e.g., KL30, UA2346, DL3427)",
         variant: "destructive",
       });
       return;
@@ -566,10 +557,11 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       const flightNumber = flightSearchInput.trim().toUpperCase();
       
       // Call backend API to search flights
-      const response = await fetch(`/api/flights/search?flightNumber=${encodeURIComponent(flightNumber)}&date=${date}`);
+      const response = await fetch(`/api/flights/search?flightNumber=${encodeURIComponent(flightNumber)}`);
       
       if (!response.ok) {
-        throw new Error('Flight search failed');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Flight search failed');
       }
 
       const data = await response.json();
@@ -580,7 +572,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       if (flightItems.length === 0) {
         toast({
           title: "No Flights Found",
-          description: `No flights found for ${flightNumber} on ${date}`,
+          description: `No flights found for ${flightNumber}`,
           variant: "destructive",
         });
         return;
@@ -1500,7 +1492,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             <DialogTitle className="text-2xl font-bold">Select Your Flight</DialogTitle>
             <DialogDescription>
               {flightResults.length > 1 
-                ? `We found ${flightResults.length} flights matching "${flightSearchInput}" on ${date}`
+                ? `We found ${flightResults.length} flights matching "${flightSearchInput}"`
                 : `Flight information for ${flightSearchInput}`
               }
             </DialogDescription>

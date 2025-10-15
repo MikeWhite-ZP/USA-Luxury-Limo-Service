@@ -195,14 +195,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Flight search using AeroDataBox RapidAPI
   app.get('/api/flights/search', async (req, res) => {
-    const { flightNumber, date } = req.query;
+    const { flightNumber } = req.query;
     
     if (!flightNumber || typeof flightNumber !== 'string') {
       return res.status(400).json({ error: 'Flight number is required' });
-    }
-
-    if (!date || typeof date !== 'string') {
-      return res.status(400).json({ error: 'Date is required' });
     }
 
     try {
@@ -211,7 +207,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ error: 'Flight API key not configured' });
       }
 
-      const url = `https://aerodatabox.p.rapidapi.com/flights/search/term?q=${encodeURIComponent(flightNumber)}&date=${date}`;
+      // AeroDataBox search endpoint - only requires flight number query
+      const url = `https://aerodatabox.p.rapidapi.com/flights/search/term?q=${encodeURIComponent(flightNumber)}`;
       const options = {
         method: 'GET',
         headers: {
@@ -221,8 +218,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const response = await fetch(url, options);
+      
       if (!response.ok) {
-        throw new Error(`AeroDataBox API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error('AeroDataBox API error:', response.status, errorText);
+        return res.status(response.status).json({ error: 'Flight search failed' });
       }
 
       const data = await response.json();
