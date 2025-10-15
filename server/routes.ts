@@ -215,9 +215,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Flight search using AeroDataBox RapidAPI
+  // Flight search using AeroDataBox RapidAPI with detailed information
   app.get('/api/flights/search', async (req, res) => {
-    const { flightNumber } = req.query;
+    const { flightNumber, date } = req.query;
     
     if (!flightNumber || typeof flightNumber !== 'string') {
       return res.status(400).json({ error: 'Flight number is required' });
@@ -230,12 +230,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ error: 'RapidAPI key not configured' });
       }
 
-      // AeroDataBox search endpoint - only requires flight number query
+      // If date is provided, try to get detailed flight info for that specific date
+      if (date && typeof date === 'string') {
+        const detailedUrl = `https://aerodatabox.p.rapidapi.com/flights/number/${encodeURIComponent(flightNumber)}/${date}`;
+        
+        const controller = new AbortController();
+        timeoutId = setTimeout(() => controller.abort(), 20000);
+        
+        const detailedOptions = {
+          method: 'GET',
+          headers: {
+            'x-rapidapi-key': apiKey,
+            'x-rapidapi-host': 'aerodatabox.p.rapidapi.com'
+          },
+          signal: controller.signal
+        };
+
+        const detailedResponse = await fetch(detailedUrl, detailedOptions);
+        
+        if (detailedResponse.ok) {
+          const detailedData = await detailedResponse.json();
+          return res.json(detailedData);
+        }
+        // If detailed search fails, fall back to simple search
+      }
+
+      // Fallback: Use simple search endpoint
       const url = `https://aerodatabox.p.rapidapi.com/flights/search/term?q=${encodeURIComponent(flightNumber)}`;
       
-      // Create AbortController for timeout
       const controller = new AbortController();
-      timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
+      if (!timeoutId) {
+        timeoutId = setTimeout(() => controller.abort(), 20000);
+      }
       
       const options = {
         method: 'GET',

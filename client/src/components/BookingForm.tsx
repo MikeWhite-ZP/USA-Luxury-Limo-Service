@@ -557,12 +557,17 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
     try {
       const flightNumber = flightSearchInput.trim().toUpperCase();
       
-      // Call backend API to search flights with timeout
+      // Call backend API to search flights with timeout, include date for detailed info
       const controller = new AbortController();
       timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
+      const queryParams = new URLSearchParams({ flightNumber });
+      if (date) {
+        queryParams.append('date', date);
+      }
+      
       const response = await fetch(
-        `/api/flights/search?flightNumber=${encodeURIComponent(flightNumber)}`,
+        `/api/flights/search?${queryParams.toString()}`,
         { signal: controller.signal }
       );
       
@@ -581,8 +586,16 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
       const data = await response.json();
       
-      // Handle AeroDataBox response structure: { searchBy, count, items: [...] }
-      const flightItems = data.items || [];
+      // Handle both detailed and simple search responses
+      let flightItems = [];
+      
+      // Check if this is a detailed response (array of flights with detailed info)
+      if (Array.isArray(data)) {
+        flightItems = data;
+      } else if (data.items) {
+        // Simple search response structure: { searchBy, count, items: [...] }
+        flightItems = data.items;
+      }
       
       if (flightItems.length === 0) {
         toast({
@@ -593,41 +606,58 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         return;
       }
 
+      // Map common airline codes to names
+      const airlineNames: Record<string, string> = {
+        'AA': 'American Airlines',
+        'UA': 'United Airlines',
+        'DL': 'Delta Air Lines',
+        'BA': 'British Airways',
+        'EK': 'Emirates',
+        'KL': 'KLM Royal Dutch Airlines',
+        'AF': 'Air France',
+        'LH': 'Lufthansa',
+        'QR': 'Qatar Airways',
+        'SQ': 'Singapore Airlines',
+        'CX': 'Cathay Pacific',
+        'JL': 'Japan Airlines',
+        'NH': 'All Nippon Airways',
+      };
+
       // Transform API response to our flight format
       const flights = flightItems.map((flight: any, index: number) => {
         // Extract flight number and airline code
         const flightNum = flight.number || flightNumber;
         const airlineCode = flightNum.trim().split(' ')[0] || flightNum.substring(0, 2);
+        const airlineName = airlineNames[airlineCode] || flight.airline?.name || airlineCode;
         
-        // Map common airline codes to names
-        const airlineNames: Record<string, string> = {
-          'AA': 'American Airlines',
-          'UA': 'United Airlines',
-          'DL': 'Delta Air Lines',
-          'BA': 'British Airways',
-          'EK': 'Emirates',
-          'KL': 'KLM Royal Dutch Airlines',
-          'AF': 'Air France',
-          'LH': 'Lufthansa',
-          'QR': 'Qatar Airways',
-          'SQ': 'Singapore Airlines',
-          'CX': 'Cathay Pacific',
-          'JL': 'Japan Airlines',
-          'NH': 'All Nippon Airways',
-        };
+        // Extract detailed information if available
+        const departure = flight.departure || {};
+        const arrival = flight.arrival || {};
         
-        const airlineName = airlineNames[airlineCode] || airlineCode;
+        const departureAirport = departure.airport?.name || departure.airport?.iata || 'N/A';
+        const arrivalAirport = arrival.airport?.name || arrival.airport?.iata || 'N/A';
+        
+        const departureTime = departure.scheduledTimeLocal || departure.scheduledTime || 'N/A';
+        const arrivalTime = arrival.scheduledTimeLocal || arrival.scheduledTime || 'N/A';
+        
+        const departureTerminal = departure.terminal || 'N/A';
+        const arrivalTerminal = arrival.terminal || 'N/A';
+        const arrivalBaggage = arrival.baggageClaim || 'N/A';
+        
+        const aircraftModel = flight.aircraft?.model || 'N/A';
         
         return {
           id: index + 1,
           flightNumber: flightNum.trim(),
           airline: airlineName,
-          departure: 'Time varies by date',
-          arrival: 'Time varies by date',
-          origin: 'Check airline website',
-          destination: 'Check airline website',
-          aircraft: 'Varies',
-          terminal: 'TBD',
+          departureAirport,
+          arrivalAirport,
+          departureTime,
+          arrivalTime,
+          departureTerminal,
+          arrivalTerminal,
+          baggageClaim: arrivalBaggage,
+          aircraft: aircraftModel,
         };
       });
 
@@ -1108,19 +1138,18 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </Button>
           </div>
           {selectedFlight && (
-            <div className="mt-3 p-4 bg-green-50 border border-green-200 rounded-lg" data-testid="selected-flight-info">
-              <div className="flex items-start gap-3">
-                <Plane className="w-5 h-5 text-green-600 mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-bold text-green-800">
-                    {selectedFlight.airline}
-                  </p>
-                  <p className="text-sm font-semibold text-green-700 mt-1">
-                    Flight {selectedFlight.flightNumber}
-                  </p>
-                  <p className="text-xs text-green-600 mt-1">
-                    Added to your booking
-                  </p>
+            <div className="mt-3 p-5 bg-green-50 border border-green-200 rounded-lg" data-testid="selected-flight-info">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Plane className="w-5 h-5 text-green-600" />
+                  <div>
+                    <p className="font-bold text-green-800">
+                      {selectedFlight.airline}
+                    </p>
+                    <p className="text-sm font-semibold text-green-700">
+                      Flight {selectedFlight.flightNumber}
+                    </p>
+                  </div>
                 </div>
                 <button
                   onClick={() => {
@@ -1133,6 +1162,45 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   Clear
                 </button>
               </div>
+              
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs text-green-600 font-medium">Departure</p>
+                    <p className="text-green-800 font-semibold">{selectedFlight.departureAirport}</p>
+                    {selectedFlight.departureTime !== 'N/A' && (
+                      <p className="text-green-700 text-xs">{new Date(selectedFlight.departureTime).toLocaleString()}</p>
+                    )}
+                    {selectedFlight.departureTerminal !== 'N/A' && (
+                      <p className="text-green-600 text-xs">Terminal: {selectedFlight.departureTerminal}</p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs text-green-600 font-medium">Arrival</p>
+                    <p className="text-green-800 font-semibold">{selectedFlight.arrivalAirport}</p>
+                    {selectedFlight.arrivalTime !== 'N/A' && (
+                      <p className="text-green-700 text-xs">{new Date(selectedFlight.arrivalTime).toLocaleString()}</p>
+                    )}
+                    {selectedFlight.arrivalTerminal !== 'N/A' && (
+                      <p className="text-green-600 text-xs">Terminal: {selectedFlight.arrivalTerminal}</p>
+                    )}
+                    {selectedFlight.baggageClaim !== 'N/A' && (
+                      <p className="text-green-600 text-xs">Baggage: {selectedFlight.baggageClaim}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {selectedFlight.aircraft !== 'N/A' && (
+                <div className="mt-3 pt-3 border-t border-green-200">
+                  <p className="text-xs text-green-600">Aircraft: <span className="text-green-700 font-medium">{selectedFlight.aircraft}</span></p>
+                </div>
+              )}
+              
+              <p className="text-xs text-green-600 mt-3 italic">Flight information added to your booking</p>
             </div>
           )}
         </div>
