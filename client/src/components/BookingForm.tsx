@@ -787,16 +787,25 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   };
   
   const handleProceedToPayment = () => {
-    // Validation for step 3
-    if (bookingFor === 'someone_else') {
-      if (!passengerName || !passengerPhone || !passengerEmail) {
-        toast({
-          title: "Missing Information",
-          description: "Please provide passenger name, phone, and email when booking for someone else.",
-          variant: "destructive",
-        });
-        return;
-      }
+    // Validation for step 3 - required fields for all bookings
+    if (!passengerName || !passengerPhone || !passengerEmail) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide passenger name, phone, and email to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Additional validation for email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(passengerEmail)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please provide a valid email address.",
+        variant: "destructive",
+      });
+      return;
     }
     
     bookingMutation.mutate();
