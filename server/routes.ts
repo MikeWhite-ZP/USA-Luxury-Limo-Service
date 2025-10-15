@@ -193,6 +193,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Flight search using AeroDataBox RapidAPI
+  app.get('/api/flights/search', async (req, res) => {
+    const { flightNumber, date } = req.query;
+    
+    if (!flightNumber || typeof flightNumber !== 'string') {
+      return res.status(400).json({ error: 'Flight number is required' });
+    }
+
+    if (!date || typeof date !== 'string') {
+      return res.status(400).json({ error: 'Date is required' });
+    }
+
+    try {
+      const apiKey = process.env.RAPIDAPI_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ error: 'Flight API key not configured' });
+      }
+
+      const url = `https://aerodatabox.p.rapidapi.com/flights/search/term?q=${encodeURIComponent(flightNumber)}&date=${date}`;
+      const options = {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': apiKey,
+          'x-rapidapi-host': 'aerodatabox.p.rapidapi.com'
+        }
+      };
+
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`AeroDataBox API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error('Flight search error:', error);
+      res.status(500).json({ error: 'Flight search service temporarily unavailable' });
+    }
+  });
+
   // TomTom geocoding proxy
   app.get('/api/geocode', async (req, res) => {
     const { q, limit = 5 } = req.query;
