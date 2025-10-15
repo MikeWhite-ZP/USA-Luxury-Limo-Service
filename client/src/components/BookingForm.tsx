@@ -542,6 +542,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
   // Flight search handler
   const handleFlightSearch = async () => {
+    console.log('Flight search clicked - Input:', flightSearchInput, 'Date:', date);
+    
     if (!flightSearchInput.trim()) {
       toast({
         title: "Flight Number Required",
@@ -561,6 +563,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
     }
 
     setIsSearchingFlight(true);
+    console.log('Starting flight search for:', flightSearchInput);
     
     try {
       // Mock flight search - in production, this would call a real flight API
@@ -602,6 +605,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       
       setFlightResults(mockFlights);
       setShowFlightDialog(true);
+      console.log('Flight search complete. Found', mockFlights.length, 'flights');
       
     } catch (error) {
       toast({
