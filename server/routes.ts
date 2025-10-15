@@ -223,6 +223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ error: 'Flight number is required' });
     }
 
+    let timeoutId: NodeJS.Timeout | undefined;
     try {
       const apiKey = await getRapidApiKey(storage);
       if (!apiKey) {
@@ -231,12 +232,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // AeroDataBox search endpoint - only requires flight number query
       const url = `https://aerodatabox.p.rapidapi.com/flights/search/term?q=${encodeURIComponent(flightNumber)}`;
+      
+      // Create AbortController for timeout
+      const controller = new AbortController();
+      timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
+      
       const options = {
         method: 'GET',
         headers: {
           'x-rapidapi-key': apiKey,
           'x-rapidapi-host': 'aerodatabox.p.rapidapi.com'
-        }
+        },
+        signal: controller.signal
       };
 
       const response = await fetch(url, options);
@@ -244,14 +251,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('AeroDataBox API error:', response.status, errorText);
+        
+        // Return more specific error messages
+        if (response.status === 504 || response.status === 503) {
+          return res.status(response.status).json({ 
+            error: 'Flight search service is currently unavailable. Please try again in a moment.' 
+          });
+        } else if (response.status === 401 || response.status === 403) {
+          return res.status(500).json({ 
+            error: 'Flight search API authentication failed. Please contact support.' 
+          });
+        } else if (response.status === 429) {
+          return res.status(429).json({ 
+            error: 'Too many flight search requests. Please wait a moment and try again.' 
+          });
+        }
+        
         return res.status(response.status).json({ error: 'Flight search failed' });
       }
 
       const data = await response.json();
       res.json(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Flight search error:', error);
+      
+      // Handle timeout error specifically
+      if (error.name === 'AbortError') {
+        return res.status(504).json({ 
+          error: 'Flight search timed out. The service may be slow or unavailable. Please try again.' 
+        });
+      }
+      
       res.status(500).json({ error: 'Flight search service temporarily unavailable' });
+    } finally {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     }
   });
 

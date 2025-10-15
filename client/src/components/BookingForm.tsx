@@ -553,15 +553,30 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
     setIsSearchingFlight(true);
     
+    let timeoutId: NodeJS.Timeout | undefined;
     try {
       const flightNumber = flightSearchInput.trim().toUpperCase();
       
-      // Call backend API to search flights
-      const response = await fetch(`/api/flights/search?flightNumber=${encodeURIComponent(flightNumber)}`);
+      // Call backend API to search flights with timeout
+      const controller = new AbortController();
+      timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      const response = await fetch(
+        `/api/flights/search?flightNumber=${encodeURIComponent(flightNumber)}`,
+        { signal: controller.signal }
+      );
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.error || 'Flight search failed');
+        
+        // Handle specific error cases
+        if (response.status === 504 || response.status === 503) {
+          throw new Error('The flight search service is currently slow or unavailable. Please try again in a moment.');
+        } else if (response.status === 500 && errorData.error?.includes('not configured')) {
+          throw new Error('Flight search is not configured. Please contact support.');
+        } else {
+          throw new Error(errorData.error || 'Flight search failed');
+        }
       }
 
       const data = await response.json();
@@ -619,14 +634,27 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       setFlightResults(flights);
       setShowFlightDialog(true);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Flight search error:', error);
-      toast({
-        title: "Search Failed",
-        description: "Unable to search for flights. Please try again.",
-        variant: "destructive",
-      });
+      
+      // Handle abort/timeout error
+      if (error.name === 'AbortError') {
+        toast({
+          title: "Request Timeout",
+          description: "The flight search is taking too long. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Search Failed",
+          description: error.message || "Unable to search for flights. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       setIsSearchingFlight(false);
     }
   };
