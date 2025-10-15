@@ -574,24 +574,10 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
       const data = await response.json();
       
-      // Transform API response to our flight format
-      const flights = data.map((flight: any, index: number) => ({
-        id: index + 1,
-        flightNumber: flight.number || flightNumber,
-        airline: flight.airline?.name || flightNumber.substring(0, 2),
-        departure: flight.departure?.scheduledTime?.local ? 
-          new Date(flight.departure.scheduledTime.local).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 
-          'N/A',
-        arrival: flight.arrival?.scheduledTime?.local ? 
-          new Date(flight.arrival.scheduledTime.local).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 
-          'N/A',
-        origin: flight.departure?.airport?.name || 'Unknown',
-        destination: flight.arrival?.airport?.name || 'Unknown',
-        aircraft: flight.aircraft?.model || 'N/A',
-        terminal: flight.departure?.terminal || flight.arrival?.terminal || 'N/A',
-      }));
-
-      if (flights.length === 0) {
+      // Handle AeroDataBox response structure: { searchBy, count, items: [...] }
+      const flightItems = data.items || [];
+      
+      if (flightItems.length === 0) {
         toast({
           title: "No Flights Found",
           description: `No flights found for ${flightNumber} on ${date}`,
@@ -599,6 +585,29 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         });
         return;
       }
+
+      // Transform API response to our flight format
+      const flights = flightItems.map((flight: any, index: number) => {
+        // Extract airline code from flight number (e.g., "AA 100" -> "AA")
+        const flightNum = flight.number || flightNumber;
+        const airlineCode = flightNum.split(' ')[0] || flightNum.substring(0, 2);
+        
+        return {
+          id: index + 1,
+          flightNumber: flightNum,
+          airline: flight.airline?.name || airlineCode,
+          departure: flight.departure?.scheduledTime?.local ? 
+            new Date(flight.departure.scheduledTime.local).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 
+            'Check with airline',
+          arrival: flight.arrival?.scheduledTime?.local ? 
+            new Date(flight.arrival.scheduledTime.local).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 
+            'Check with airline',
+          origin: flight.departure?.airport?.name || 'See flight details',
+          destination: flight.arrival?.airport?.name || 'See flight details',
+          aircraft: flight.aircraft?.model || 'Various aircraft',
+          terminal: flight.departure?.terminal || flight.arrival?.terminal || 'TBD',
+        };
+      });
 
       setFlightResults(flights);
       setShowFlightDialog(true);
