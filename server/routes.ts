@@ -478,15 +478,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 
-  // Delete booking (admin only)
+  // Update booking (passengers can edit their own pending bookings)
+  app.patch('/api/bookings/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      
+      // Get the booking first
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      // Check if user owns this booking or is admin
+      const user = await storage.getUser(userId);
+      if (booking.passengerId !== userId && user?.role !== 'admin') {
+        return res.status(403).json({ message: 'Not authorized to edit this booking' });
+      }
+
+      // Only allow editing pending bookings
+      if (booking.status !== 'pending' && user?.role !== 'admin') {
+        return res.status(400).json({ message: 'Only pending bookings can be edited' });
+      }
+
+      // Validate updates
+      const updateSchema = insertBookingSchema.partial();
+      const validatedUpdates = updateSchema.parse(req.body);
+
+      // Don't allow changing status or payment fields
+      if (user?.role !== 'admin') {
+        delete (validatedUpdates as any).status;
+        delete (validatedUpdates as any).paymentStatus;
+        delete (validatedUpdates as any).paymentIntentId;
+      }
+
+      const updatedBooking = await storage.updateBooking(id, validatedUpdates);
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Update booking error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid booking data', errors: error.errors });
+      }
+      res.status(500).json({ message: 'Failed to update booking' });
+    }
+  });
+
+  // Delete booking (passengers can delete their own pending bookings, admins can delete any)
   app.delete('/api/bookings/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
       const userId = req.user.id;
       
+      // Get the booking first
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
       const user = await storage.getUser(userId);
-      if (!user || user.role !== 'admin') {
-        return res.status(403).json({ message: 'Admin access required' });
+      
+      // Check permissions: must be admin or booking owner
+      if (booking.passengerId !== userId && user?.role !== 'admin') {
+        return res.status(403).json({ message: 'Not authorized to delete this booking' });
+      }
+
+      // Only allow deleting pending bookings (unless admin)
+      if (booking.status !== 'pending' && user?.role !== 'admin') {
+        return res.status(400).json({ message: 'Only pending bookings can be deleted' });
       }
 
       await storage.deleteBooking(id);
