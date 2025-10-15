@@ -542,8 +542,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
   // Flight search handler
   const handleFlightSearch = async () => {
-    console.log('Flight search clicked - Input:', flightSearchInput, 'Date:', date);
-    
     if (!flightSearchInput.trim()) {
       toast({
         title: "Flight Number Required",
@@ -563,51 +561,50 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
     }
 
     setIsSearchingFlight(true);
-    console.log('Starting flight search for:', flightSearchInput);
     
     try {
-      // Mock flight search - in production, this would call a real flight API
-      // For now, we'll simulate a search with mock data
       const flightNumber = flightSearchInput.trim().toUpperCase();
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call backend API to search flights
+      const response = await fetch(`/api/flights/search?flightNumber=${encodeURIComponent(flightNumber)}&date=${date}`);
       
-      // Mock flight data based on flight number pattern
-      const mockFlights = [
-        {
-          id: 1,
-          flightNumber: flightNumber,
-          airline: flightNumber.substring(0, 2),
-          departure: "10:30 AM",
-          arrival: "2:45 PM",
-          origin: "Los Angeles (LAX)",
-          destination: "New York (JFK)",
-          aircraft: "Boeing 737",
-          terminal: "Terminal 3",
-        },
-      ];
-      
-      // Check if searching for a common flight that might have multiple results
-      if (flightNumber.includes('UA') || flightNumber.includes('DL')) {
-        mockFlights.push({
-          id: 2,
-          flightNumber: flightNumber,
-          airline: flightNumber.substring(0, 2),
-          departure: "6:15 PM",
-          arrival: "10:30 PM",
-          origin: "Los Angeles (LAX)",
-          destination: "Boston (BOS)",
-          aircraft: "Airbus A320",
-          terminal: "Terminal 5",
-        });
+      if (!response.ok) {
+        throw new Error('Flight search failed');
       }
+
+      const data = await response.json();
       
-      setFlightResults(mockFlights);
+      // Transform API response to our flight format
+      const flights = data.map((flight: any, index: number) => ({
+        id: index + 1,
+        flightNumber: flight.number || flightNumber,
+        airline: flight.airline?.name || flightNumber.substring(0, 2),
+        departure: flight.departure?.scheduledTime?.local ? 
+          new Date(flight.departure.scheduledTime.local).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 
+          'N/A',
+        arrival: flight.arrival?.scheduledTime?.local ? 
+          new Date(flight.arrival.scheduledTime.local).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 
+          'N/A',
+        origin: flight.departure?.airport?.name || 'Unknown',
+        destination: flight.arrival?.airport?.name || 'Unknown',
+        aircraft: flight.aircraft?.model || 'N/A',
+        terminal: flight.departure?.terminal || flight.arrival?.terminal || 'N/A',
+      }));
+
+      if (flights.length === 0) {
+        toast({
+          title: "No Flights Found",
+          description: `No flights found for ${flightNumber} on ${date}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setFlightResults(flights);
       setShowFlightDialog(true);
-      console.log('Flight search complete. Found', mockFlights.length, 'flights');
       
     } catch (error) {
+      console.error('Flight search error:', error);
       toast({
         title: "Search Failed",
         description: "Unable to search for flights. Please try again.",
