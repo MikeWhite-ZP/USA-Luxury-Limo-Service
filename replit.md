@@ -56,8 +56,17 @@ Preferred communication style: Simple, everyday language.
 ### Geolocation Services
 - **Provider**: TomTom API for address geocoding and suggestions
 - **Features**: Real-time address autocomplete, coordinate conversion
-- **Integration**: Configurable API keys via system settings
+- **Integration**: Configurable API keys via system settings (database-first with environment variable fallback)
 - **Fallback**: Graceful degradation when service unavailable
+
+### Flight Search Integration
+- **Provider**: AeroDataBox API via RapidAPI for flight search functionality
+- **Features**: Real-time flight search by flight number, multiple flight results handling
+- **Integration**: Database-managed RapidAPI key with environment variable fallback
+- **Admin Management**: RapidAPI key configurable through admin credentials page
+- **Error Handling**: Comprehensive timeout and error handling (20s backend, 30s frontend timeouts)
+- **User Experience**: Specific error messages for different failure scenarios (timeout, service unavailable, authentication errors)
+- **API Pattern**: Follows same database-first pattern as TomTom integration (checks database, falls back to environment variable)
 
 ### Business Logic
 - **Pricing Engine**: Complex fare calculation based on n8n workflow specifications
