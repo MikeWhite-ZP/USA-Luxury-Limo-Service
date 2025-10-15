@@ -631,8 +631,17 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         };
       });
 
-      setFlightResults(flights);
-      setShowFlightDialog(true);
+      // If only 1 flight found, auto-select it. If multiple, show selection dialog
+      if (flights.length === 1) {
+        setSelectedFlight(flights[0]);
+        toast({
+          title: "Flight Found",
+          description: `${flights[0].airline} ${flights[0].flightNumber} has been added to your booking`,
+        });
+      } else {
+        setFlightResults(flights);
+        setShowFlightDialog(true);
+      }
       
     } catch (error: any) {
       console.error('Flight search error:', error);
