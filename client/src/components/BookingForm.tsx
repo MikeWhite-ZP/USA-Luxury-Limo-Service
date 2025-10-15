@@ -580,24 +580,39 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
       // Transform API response to our flight format
       const flights = flightItems.map((flight: any, index: number) => {
-        // Extract airline code from flight number (e.g., "AA 100" -> "AA")
+        // Extract flight number and airline code
         const flightNum = flight.number || flightNumber;
-        const airlineCode = flightNum.split(' ')[0] || flightNum.substring(0, 2);
+        const airlineCode = flightNum.trim().split(' ')[0] || flightNum.substring(0, 2);
+        
+        // Map common airline codes to names
+        const airlineNames: Record<string, string> = {
+          'AA': 'American Airlines',
+          'UA': 'United Airlines',
+          'DL': 'Delta Air Lines',
+          'BA': 'British Airways',
+          'EK': 'Emirates',
+          'KL': 'KLM Royal Dutch Airlines',
+          'AF': 'Air France',
+          'LH': 'Lufthansa',
+          'QR': 'Qatar Airways',
+          'SQ': 'Singapore Airlines',
+          'CX': 'Cathay Pacific',
+          'JL': 'Japan Airlines',
+          'NH': 'All Nippon Airways',
+        };
+        
+        const airlineName = airlineNames[airlineCode] || airlineCode;
         
         return {
           id: index + 1,
-          flightNumber: flightNum,
-          airline: flight.airline?.name || airlineCode,
-          departure: flight.departure?.scheduledTime?.local ? 
-            new Date(flight.departure.scheduledTime.local).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 
-            'Check with airline',
-          arrival: flight.arrival?.scheduledTime?.local ? 
-            new Date(flight.arrival.scheduledTime.local).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 
-            'Check with airline',
-          origin: flight.departure?.airport?.name || 'See flight details',
-          destination: flight.arrival?.airport?.name || 'See flight details',
-          aircraft: flight.aircraft?.model || 'Various aircraft',
-          terminal: flight.departure?.terminal || flight.arrival?.terminal || 'TBD',
+          flightNumber: flightNum.trim(),
+          airline: airlineName,
+          departure: 'Time varies by date',
+          arrival: 'Time varies by date',
+          origin: 'Check airline website',
+          destination: 'Check airline website',
+          aircraft: 'Varies',
+          terminal: 'TBD',
         };
       });
 
@@ -1056,18 +1071,18 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </Button>
           </div>
           {selectedFlight && (
-            <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg" data-testid="selected-flight-info">
+            <div className="mt-3 p-4 bg-green-50 border border-green-200 rounded-lg" data-testid="selected-flight-info">
               <div className="flex items-start gap-3">
                 <Plane className="w-5 h-5 text-green-600 mt-0.5" />
                 <div className="flex-1">
-                  <p className="font-semibold text-green-800">
-                    {selectedFlight.airline} {selectedFlight.flightNumber}
+                  <p className="font-bold text-green-800">
+                    {selectedFlight.airline}
                   </p>
-                  <p className="text-sm text-green-700">
-                    {selectedFlight.origin} → {selectedFlight.destination}
+                  <p className="text-sm font-semibold text-green-700 mt-1">
+                    Flight {selectedFlight.flightNumber}
                   </p>
-                  <p className="text-sm text-green-600">
-                    Departure: {selectedFlight.departure} • Arrival: {selectedFlight.arrival}
+                  <p className="text-xs text-green-600 mt-1">
+                    Added to your booking
                   </p>
                 </div>
                 <button
@@ -1492,8 +1507,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             <DialogTitle className="text-2xl font-bold">Select Your Flight</DialogTitle>
             <DialogDescription>
               {flightResults.length > 1 
-                ? `We found ${flightResults.length} flights matching "${flightSearchInput}"`
-                : `Flight information for ${flightSearchInput}`
+                ? `We found ${flightResults.length} flights matching "${flightSearchInput}". Select your flight to add it to your booking.`
+                : `Select your flight to add it to your booking.`
               }
             </DialogDescription>
           </DialogHeader>
@@ -1518,26 +1533,15 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     <Plane className="w-6 h-6 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-bold text-lg text-gray-900">
-                          {flight.airline} {flight.flightNumber}
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {flight.aircraft} • {flight.terminal}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-primary">{flight.departure}</p>
-                        <p className="text-xs text-gray-500">Departure</p>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-700">{flight.origin}</span>
-                      <span className="text-gray-400">→</span>
-                      <span className="text-sm font-medium text-gray-700">{flight.destination}</span>
-                      <span className="ml-auto text-sm text-gray-500">Arrives {flight.arrival}</span>
-                    </div>
+                    <p className="font-bold text-xl text-gray-900">
+                      {flight.airline}
+                    </p>
+                    <p className="text-lg font-semibold text-primary mt-1">
+                      Flight {flight.flightNumber}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      Flight times and details will be confirmed with your booking
+                    </p>
                   </div>
                 </div>
               </button>
