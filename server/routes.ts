@@ -76,6 +76,28 @@ async function getTomTomApiKey(storage: any): Promise<string | null> {
   }
 }
 
+// RapidAPI integration functions with standardized key retrieval
+// Priority: Database settings first, then environment variables as fallback
+async function getRapidApiKey(storage: any): Promise<string | null> {
+  try {
+    // Check database first (admin-configured settings)
+    const dbSetting = await storage.getSystemSetting('RAPIDAPI_KEY');
+    if (dbSetting?.value) {
+      return dbSetting.value;
+    }
+    
+    // Fall back to environment variable
+    if (process.env.RAPIDAPI_KEY) {
+      return process.env.RAPIDAPI_KEY;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Failed to retrieve RapidAPI key:', error);
+    return null;
+  }
+}
+
 async function geocodeAddress(address: string, storage: any): Promise<{lat: number, lon: number} | null> {
   try {
     const apiKey = await getTomTomApiKey(storage);
@@ -202,9 +224,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const apiKey = process.env.RAPIDAPI_KEY;
+      const apiKey = await getRapidApiKey(storage);
       if (!apiKey) {
-        return res.status(500).json({ error: 'Flight API key not configured' });
+        return res.status(500).json({ error: 'RapidAPI key not configured' });
       }
 
       // AeroDataBox search endpoint - only requires flight number query
@@ -799,7 +821,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Known environment variables to check
-      const envKeys = ['STRIPE_SECRET_KEY', 'STRIPE_PUBLIC_KEY', 'TOMTOM_API_KEY'];
+      const envKeys = ['STRIPE_SECRET_KEY', 'STRIPE_PUBLIC_KEY', 'TOMTOM_API_KEY', 'RAPIDAPI_KEY'];
       
       // Build credentials list with metadata
       const credentials: Array<{

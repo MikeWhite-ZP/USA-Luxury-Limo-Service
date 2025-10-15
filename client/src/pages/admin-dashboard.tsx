@@ -1094,6 +1094,11 @@ export default function AdminDashboard() {
       description: 'Geocoding and routing services',
       category: 'Maps'
     },
+    'RAPIDAPI_KEY': { 
+      label: 'RapidAPI Key',
+      description: 'AeroDataBox flight search API',
+      category: 'External APIs'
+    },
   };
 
   // Build enhanced credentials list from API data
