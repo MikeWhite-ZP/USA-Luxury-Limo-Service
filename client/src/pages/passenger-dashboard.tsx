@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle } from "lucide-react";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
@@ -283,6 +283,19 @@ export default function PassengerDashboard() {
   const [rating, setRating] = useState(0);
   const [ratingComment, setRatingComment] = useState('');
 
+  // Edit/Delete state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    scheduledDateTime: '',
+    pickupAddress: '',
+    destinationAddress: '',
+    passengerCount: 1,
+    luggageCount: 0,
+    specialInstructions: '',
+  });
+
   // Check for payment success in URL
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -415,6 +428,62 @@ export default function PassengerDashboard() {
     },
   });
 
+  // Edit booking mutation
+  const editBookingMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
+      const response = await apiRequest('PATCH', `/api/bookings/${id}`, updates);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update booking');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      setEditDialogOpen(false);
+      setSelectedBooking(null);
+      toast({
+        title: "Booking Updated",
+        description: "Your booking has been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update booking",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete booking mutation
+  const deleteBookingMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest('DELETE', `/api/bookings/${id}`);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete booking');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      setDeleteDialogOpen(false);
+      setSelectedBooking(null);
+      toast({
+        title: "Booking Deleted",
+        description: "Your booking has been deleted successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete booking",
+        variant: "destructive",
+      });
+    },
+  });
+
   // TomTom address search with debouncing
   const searchAddress = async (query: string) => {
     if (query.length < 3) {
@@ -496,6 +565,34 @@ export default function PassengerDashboard() {
       case 'cancelled': return 'destructive';
       default: return 'default';
     }
+  };
+
+  const handleEditBooking = (booking: Booking) => {
+    setSelectedBooking(booking);
+    // Pre-fill form with booking data
+    const dateTime = new Date(booking.scheduledDateTime);
+    setEditFormData({
+      scheduledDateTime: dateTime.toISOString().slice(0, 16), // Format for datetime-local input
+      pickupAddress: booking.pickupAddress,
+      destinationAddress: booking.destinationAddress || '',
+      passengerCount: (booking as any).passengerCount || 1,
+      luggageCount: (booking as any).luggageCount || 0,
+      specialInstructions: (booking as any).specialInstructions || '',
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleDeleteBooking = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleEditSubmit = () => {
+    if (!selectedBooking) return;
+    editBookingMutation.mutate({
+      id: selectedBooking.id,
+      updates: editFormData,
+    });
   };
 
   if (isLoading) {
@@ -691,30 +788,55 @@ export default function PassengerDashboard() {
                 {recentBookings.map((booking) => (
                   <div
                     key={booking.id}
-                    className="bg-muted rounded-lg p-4 flex justify-between items-center"
+                    className="bg-muted rounded-lg p-4"
                     data-testid={`booking-${booking.id}`}
                   >
-                    <div className="space-y-1">
-                      <p className="font-medium" data-testid={`booking-route-${booking.id}`}>
-                        {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
-                      </p>
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                        <span data-testid={`booking-date-${booking.id}`}>
-                          {new Date(booking.scheduledDateTime).toLocaleDateString()} • {new Date(booking.scheduledDateTime).toLocaleTimeString()}
-                        </span>
-                        <Badge variant="outline" data-testid={`booking-type-${booking.id}`}>
-                          {booking.bookingType}
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1 flex-1">
+                        <p className="font-medium" data-testid={`booking-route-${booking.id}`}>
+                          {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
+                        </p>
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                          <span data-testid={`booking-date-${booking.id}`}>
+                            {new Date(booking.scheduledDateTime).toLocaleDateString()} • {new Date(booking.scheduledDateTime).toLocaleTimeString()}
+                          </span>
+                          <Badge variant="outline" data-testid={`booking-type-${booking.id}`}>
+                            {booking.bookingType}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="text-right space-y-1 flex flex-col items-end ml-4">
+                        <p className="font-bold text-foreground" data-testid={`booking-total-${booking.id}`}>
+                          ${booking.totalAmount}
+                        </p>
+                        <Badge variant={getStatusColor(booking.status)} data-testid={`booking-status-${booking.id}`}>
+                          {booking.status}
                         </Badge>
                       </div>
                     </div>
-                    <div className="text-right space-y-1">
-                      <p className="font-bold text-foreground" data-testid={`booking-total-${booking.id}`}>
-                        ${booking.totalAmount}
-                      </p>
-                      <Badge variant={getStatusColor(booking.status)} data-testid={`booking-status-${booking.id}`}>
-                        {booking.status}
-                      </Badge>
-                    </div>
+                    {booking.status === 'pending' && (
+                      <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditBooking(booking)}
+                          data-testid={`button-edit-${booking.id}`}
+                        >
+                          <Edit className="w-3 h-3 mr-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeleteBooking(booking)}
+                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          data-testid={`button-delete-${booking.id}`}
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Delete
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -795,32 +917,59 @@ export default function PassengerDashboard() {
                 {bookings.map((booking) => (
                   <div
                     key={booking.id}
-                    className="bg-muted rounded-lg p-4 flex justify-between items-center"
+                    className="bg-muted rounded-lg p-4"
                     data-testid={`history-booking-${booking.id}`}
                   >
-                    <div className="space-y-1 flex-1">
-                      <p className="font-medium" data-testid={`history-booking-route-${booking.id}`}>
-                        {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
-                      </p>
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground flex-wrap gap-2">
-                        <span data-testid={`history-booking-date-${booking.id}`}>
-                          📅 {new Date(booking.scheduledDateTime).toLocaleDateString()}
-                        </span>
-                        <span>
-                          🕐 {new Date(booking.scheduledDateTime).toLocaleTimeString()}
-                        </span>
-                        <Badge variant="outline" data-testid={`history-booking-type-${booking.id}`}>
-                          {booking.bookingType}
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1 flex-1">
+                        <p className="font-medium" data-testid={`history-booking-route-${booking.id}`}>
+                          {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
+                        </p>
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground flex-wrap gap-2">
+                          <span data-testid={`history-booking-date-${booking.id}`}>
+                            📅 {new Date(booking.scheduledDateTime).toLocaleDateString()}
+                          </span>
+                          <span>
+                            🕐 {new Date(booking.scheduledDateTime).toLocaleTimeString()}
+                          </span>
+                          <Badge variant="outline" data-testid={`history-booking-type-${booking.id}`}>
+                            {booking.bookingType}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="text-right space-y-1 ml-4 flex flex-col items-end">
+                        <p className="font-bold text-lg text-foreground" data-testid={`history-booking-total-${booking.id}`}>
+                          ${booking.totalAmount}
+                        </p>
+                        <Badge variant={getStatusColor(booking.status)} data-testid={`history-booking-status-${booking.id}`}>
+                          {booking.status}
                         </Badge>
                       </div>
                     </div>
-                    <div className="text-right space-y-1 ml-4 flex flex-col items-end">
-                      <p className="font-bold text-lg text-foreground" data-testid={`history-booking-total-${booking.id}`}>
-                        ${booking.totalAmount}
-                      </p>
-                      <Badge variant={getStatusColor(booking.status)} data-testid={`history-booking-status-${booking.id}`}>
-                        {booking.status}
-                      </Badge>
+                    <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                      {booking.status === 'pending' && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditBooking(booking)}
+                            data-testid={`button-edit-history-${booking.id}`}
+                          >
+                            <Edit className="w-3 h-3 mr-1" />
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteBooking(booking)}
+                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            data-testid={`button-delete-history-${booking.id}`}
+                          >
+                            <Trash2 className="w-3 h-3 mr-1" />
+                            Delete
+                          </Button>
+                        </>
+                      )}
                       {booking.status === 'completed' && booking.driverId && (
                         <Button
                           variant="outline"
@@ -829,7 +978,6 @@ export default function PassengerDashboard() {
                             setSelectedBookingForRating(booking);
                             setRatingDialogOpen(true);
                           }}
-                          className="mt-2"
                           data-testid={`button-rate-driver-${booking.id}`}
                         >
                           <Star className="w-3 h-3 mr-1" />
@@ -927,6 +1075,145 @@ export default function PassengerDashboard() {
                 {submitRatingMutation.isPending ? 'Submitting...' : 'Submit Rating'}
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Booking Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit Booking</DialogTitle>
+            <DialogDescription>
+              Update your booking details. Only pending bookings can be edited.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-datetime">Date & Time</Label>
+              <Input
+                id="edit-datetime"
+                type="datetime-local"
+                value={editFormData.scheduledDateTime}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, scheduledDateTime: e.target.value }))}
+                data-testid="input-edit-datetime"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-pickup">Pickup Address</Label>
+              <Input
+                id="edit-pickup"
+                value={editFormData.pickupAddress}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, pickupAddress: e.target.value }))}
+                data-testid="input-edit-pickup"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-destination">Destination Address</Label>
+              <Input
+                id="edit-destination"
+                value={editFormData.destinationAddress}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, destinationAddress: e.target.value }))}
+                placeholder="Leave empty for hourly service"
+                data-testid="input-edit-destination"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-passengers">Passengers</Label>
+                <Input
+                  id="edit-passengers"
+                  type="number"
+                  min="1"
+                  value={editFormData.passengerCount}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, passengerCount: parseInt(e.target.value) }))}
+                  data-testid="input-edit-passengers"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-luggage">Luggage</Label>
+                <Input
+                  id="edit-luggage"
+                  type="number"
+                  min="0"
+                  value={editFormData.luggageCount}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, luggageCount: parseInt(e.target.value) }))}
+                  data-testid="input-edit-luggage"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-instructions">Special Instructions</Label>
+              <Input
+                id="edit-instructions"
+                value={editFormData.specialInstructions}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, specialInstructions: e.target.value }))}
+                placeholder="Any special requests..."
+                data-testid="input-edit-instructions"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setEditDialogOpen(false)}
+                data-testid="button-cancel-edit"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleEditSubmit}
+                disabled={editBookingMutation.isPending}
+                data-testid="button-save-edit"
+              >
+                {editBookingMutation.isPending ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              Delete Booking
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this booking? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedBooking && (
+            <div className="bg-muted rounded-lg p-4 my-4">
+              <p className="text-sm font-medium mb-1">
+                {selectedBooking.pickupAddress} → {selectedBooking.destinationAddress || 'Hourly Service'}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {new Date(selectedBooking.scheduledDateTime).toLocaleDateString()} • {new Date(selectedBooking.scheduledDateTime).toLocaleTimeString()}
+              </p>
+            </div>
+          )}
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              data-testid="button-cancel-delete"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (selectedBooking) {
+                  deleteBookingMutation.mutate(selectedBooking.id);
+                }
+              }}
+              disabled={deleteBookingMutation.isPending}
+              data-testid="button-confirm-delete"
+            >
+              {deleteBookingMutation.isPending ? 'Deleting...' : 'Delete Booking'}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
