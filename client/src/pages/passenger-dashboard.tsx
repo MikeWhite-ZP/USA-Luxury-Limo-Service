@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle, Send, User } from "lucide-react";
+import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone } from "lucide-react";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useForm } from "react-hook-form";
@@ -461,8 +461,24 @@ export default function PassengerDashboard() {
   const queryClient = useQueryClient();
   
   // Navigation state
-  const [activeSection, setActiveSection] = useState<'home' | 'saved-locations' | 'future-bookings' | 'past-bookings' | 'payment-methods' | 'support'>('home');
+  const [activeSection, setActiveSection] = useState<'home' | 'saved-locations' | 'future-bookings' | 'past-bookings' | 'payment-methods' | 'account-details' | 'support'>('home');
   
+  // Profile editing state
+  const [firstName, setFirstName] = useState(user?.firstName || '');
+  const [lastName, setLastName] = useState(user?.lastName || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [email, setEmail] = useState(user?.email || '');
+
+  // Update profile state when user data changes
+  useEffect(() => {
+    if (user) {
+      setFirstName(user.firstName || '');
+      setLastName(user.lastName || '');
+      setPhone(user.phone || '');
+      setEmail(user.email || '');
+    }
+  }, [user]);
+
   const [addAddressOpen, setAddAddressOpen] = useState(false);
   const [newAddress, setNewAddress] = useState({
     label: '',
@@ -592,6 +608,33 @@ export default function PassengerDashboard() {
       toast({
         title: "Error",
         description: error.message || "Failed to delete address",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update profile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: { firstName: string; lastName: string; phone: string; email: string }) => {
+      const response = await apiRequest('PATCH', '/api/user/profile', data);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update profile');
+      }
+      return await response.json();
+    },
+    onSuccess: (updatedUser) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      queryClient.setQueryData(['/api/auth/user'], updatedUser);
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile",
         variant: "destructive",
       });
     },
@@ -827,6 +870,35 @@ export default function PassengerDashboard() {
     });
   };
 
+  const handleProfileSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!firstName.trim() || !lastName.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "First name and last name are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!email.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Email is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updateProfileMutation.mutate({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      phone: phone.trim(),
+      email: email.trim(),
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -898,7 +970,7 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('saved-locations')}
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'saved-locations'
-                  ? 'border-primary text-primary'
+                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-saved-locations"
@@ -910,7 +982,7 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('future-bookings')}
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'future-bookings'
-                  ? 'border-primary text-primary'
+                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-future-bookings"
@@ -922,7 +994,7 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('past-bookings')}
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'past-bookings'
-                  ? 'border-primary text-primary'
+                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-past-bookings"
@@ -934,7 +1006,7 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('payment-methods')}
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'payment-methods'
-                  ? 'border-primary text-primary'
+                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-payment-methods"
@@ -946,7 +1018,7 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('account-details')}
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'account-details'
-                  ? 'border-primary text-primary'
+                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-account-details"
@@ -958,7 +1030,7 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('support')}
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'support'
-                  ? 'border-primary text-primary'
+                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-support"
@@ -1430,82 +1502,154 @@ export default function PassengerDashboard() {
 
         {/* Account Details Section */}
         {activeSection === 'account-details' && (
-          <Card data-testid="account-details-section">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <User className="w-5 h-5" />
-                <span>Account Details</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="grid gap-4">
+          <div className="grid gap-6">
+            {/* Editable Profile Information Card */}
+            <Card data-testid="profile-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  Account Information
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Update your personal information and contact details
+                </p>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleProfileSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="firstName" className="text-base font-medium">
+                        First Name *
+                      </Label>
+                      <Input
+                        id="firstName"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Enter your first name"
+                        className="mt-2"
+                        data-testid="input-first-name"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName" className="text-base font-medium">
+                        Last Name *
+                      </Label>
+                      <Input
+                        id="lastName"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Enter your last name"
+                        className="mt-2"
+                        data-testid="input-last-name"
+                      />
+                    </div>
+                  </div>
+
                   <div>
-                    <Label htmlFor="account-name">Name</Label>
+                    <Label htmlFor="email" className="text-base font-medium flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Email Address *
+                    </Label>
                     <Input
-                      id="account-name"
-                      value={user?.name || ''}
-                      readOnly
-                      className="bg-muted"
-                      data-testid="input-account-name"
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      className="mt-2"
+                      data-testid="input-email"
                     />
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Name is managed by your authentication provider and cannot be changed here.
+                  </div>
+
+                  <div>
+                    <Label htmlFor="phone" className="text-base font-medium flex items-center gap-2">
+                      <Phone className="w-4 h-4" />
+                      Phone Number
+                    </Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Enter your phone number"
+                      className="mt-2"
+                      data-testid="input-phone"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      type="submit"
+                      disabled={updateProfileMutation.isPending}
+                      className="flex-1 bg-primary hover:bg-primary/90"
+                      data-testid="button-save"
+                    >
+                      {updateProfileMutation.isPending ? (
+                        <>Saving...</>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Save Changes
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            {/* Account Details Card */}
+            <Card data-testid="account-details-card">
+              <CardHeader>
+                <CardTitle>Account Details</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  View your account information
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Account Type</p>
+                    <p className="font-medium capitalize" data-testid="text-role">
+                      {user?.role || 'N/A'}
                     </p>
                   </div>
                   <div>
-                    <Label htmlFor="account-email">Email</Label>
-                    <Input
-                      id="account-email"
-                      value={user?.email || ''}
-                      readOnly
-                      className="bg-muted"
-                      data-testid="input-account-email"
-                    />
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Email is managed by your authentication provider and cannot be changed here.
+                    <p className="text-sm text-muted-foreground">Account Status</p>
+                    <p className="font-medium" data-testid="text-status">
+                      {user?.isActive ? (
+                        <span className="text-green-600">Active</span>
+                      ) : (
+                        <span className="text-red-600">Inactive</span>
+                      )}
                     </p>
                   </div>
-                  <div>
-                    <Label>Account Type</Label>
-                    <Input
-                      value={user?.role === 'passenger' ? 'Passenger' : user?.role === 'driver' ? 'Driver' : 'Admin'}
-                      readOnly
-                      className="bg-muted"
-                      data-testid="input-account-role"
-                    />
+                </div>
+                {user?.payLaterEnabled && (
+                  <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                    <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                      ✓ Pay Later Enabled
+                    </p>
+                    <p className="text-sm text-green-600 dark:text-green-300 mt-1">
+                      You have been granted pay later privileges by the administrator.
+                    </p>
                   </div>
-                  {user?.payLaterEnabled && (
-                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                      <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                        ✓ Pay Later Enabled
-                      </p>
-                      <p className="text-sm text-green-600 dark:text-green-300 mt-1">
-                        You have been granted pay later privileges by the administrator.
-                      </p>
-                    </div>
-                  )}
-                  {user?.discountType && (user?.discountValue ?? 0) > 0 && (
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                      <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                        Active Discount
-                      </p>
-                      <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
-                        {user.discountType === 'percentage' 
-                          ? `${user.discountValue}% off all bookings` 
-                          : `$${user.discountValue} off all bookings`}
-                      </p>
-                    </div>
-                  )}
-                </div>
-                <div className="pt-4 border-t border-border">
-                  <p className="text-sm text-muted-foreground">
-                    To update your personal information, please contact support or your administrator.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                )}
+                {(user as any)?.discountType && ((user as any)?.discountValue ?? 0) > 0 && (
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                      Active Discount
+                    </p>
+                    <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                      {(user as any).discountType === 'percentage' 
+                        ? `${(user as any).discountValue}% off all bookings` 
+                        : `$${(user as any).discountValue} off all bookings`}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* Support Section */}
