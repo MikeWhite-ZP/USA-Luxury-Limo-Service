@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle, Send } from "lucide-react";
+import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle, Send, User } from "lucide-react";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useForm } from "react-hook-form";
@@ -943,6 +943,18 @@ export default function PassengerDashboard() {
               Payment Methods
             </button>
             <button
+              onClick={() => setActiveSection('account-details')}
+              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+                activeSection === 'account-details'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+              }`}
+              data-testid="nav-account-details"
+            >
+              <User className="w-4 h-4" />
+              Account Details
+            </button>
+            <button
               onClick={() => setActiveSection('support')}
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'support'
@@ -1412,6 +1424,86 @@ export default function PassengerDashboard() {
             </CardHeader>
             <CardContent className="space-y-4">
               <PaymentMethodsList />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Account Details Section */}
+        {activeSection === 'account-details' && (
+          <Card data-testid="account-details-section">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <User className="w-5 h-5" />
+                <span>Account Details</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="grid gap-4">
+                  <div>
+                    <Label htmlFor="account-name">Name</Label>
+                    <Input
+                      id="account-name"
+                      value={user?.name || ''}
+                      readOnly
+                      className="bg-muted"
+                      data-testid="input-account-name"
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Name is managed by your authentication provider and cannot be changed here.
+                    </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="account-email">Email</Label>
+                    <Input
+                      id="account-email"
+                      value={user?.email || ''}
+                      readOnly
+                      className="bg-muted"
+                      data-testid="input-account-email"
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Email is managed by your authentication provider and cannot be changed here.
+                    </p>
+                  </div>
+                  <div>
+                    <Label>Account Type</Label>
+                    <Input
+                      value={user?.role === 'passenger' ? 'Passenger' : user?.role === 'driver' ? 'Driver' : 'Admin'}
+                      readOnly
+                      className="bg-muted"
+                      data-testid="input-account-role"
+                    />
+                  </div>
+                  {user?.payLaterEnabled && (
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                      <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                        ✓ Pay Later Enabled
+                      </p>
+                      <p className="text-sm text-green-600 dark:text-green-300 mt-1">
+                        You have been granted pay later privileges by the administrator.
+                      </p>
+                    </div>
+                  )}
+                  {user?.discountType && (user?.discountValue ?? 0) > 0 && (
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                        Active Discount
+                      </p>
+                      <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                        {user.discountType === 'percentage' 
+                          ? `${user.discountValue}% off all bookings` 
+                          : `$${user.discountValue} off all bookings`}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className="pt-4 border-t border-border">
+                  <p className="text-sm text-muted-foreground">
+                    To update your personal information, please contact support or your administrator.
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
