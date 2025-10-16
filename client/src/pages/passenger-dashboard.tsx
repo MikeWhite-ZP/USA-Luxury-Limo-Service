@@ -461,7 +461,7 @@ export default function PassengerDashboard() {
   const queryClient = useQueryClient();
   
   // Navigation state
-  const [activeSection, setActiveSection] = useState<'home' | 'future-bookings' | 'past-bookings' | 'payment-methods' | 'support'>('home');
+  const [activeSection, setActiveSection] = useState<'home' | 'saved-locations' | 'future-bookings' | 'past-bookings' | 'payment-methods' | 'support'>('home');
   
   const [addAddressOpen, setAddAddressOpen] = useState(false);
   const [newAddress, setNewAddress] = useState({
@@ -895,6 +895,18 @@ export default function PassengerDashboard() {
               Home
             </button>
             <button
+              onClick={() => setActiveSection('saved-locations')}
+              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+                activeSection === 'saved-locations'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+              }`}
+              data-testid="nav-saved-locations"
+            >
+              <MapPin className="w-4 h-4" />
+              Saved Locations
+            </button>
+            <button
               onClick={() => setActiveSection('future-bookings')}
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'future-bookings'
@@ -950,11 +962,155 @@ export default function PassengerDashboard() {
         {/* Home Section */}
         {activeSection === 'home' && (
           <>
-            {/* Quick Book from Saved Locations */}
-            <Card data-testid="saved-addresses">
+            {/* Recent Bookings */}
+            <Card data-testid="recent-bookings">
+          <CardHeader>
+            <CardTitle>Recent Bookings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {bookingsLoading ? (
+              <div className="flex items-center justify-center p-8">
+                <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+              </div>
+            ) : recentBookings.length > 0 ? (
+              <div className="space-y-4">
+                {recentBookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="bg-muted rounded-lg p-4"
+                    data-testid={`booking-${booking.id}`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1 flex-1">
+                        <p className="font-medium" data-testid={`booking-route-${booking.id}`}>
+                          {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
+                        </p>
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                          <span data-testid={`booking-date-${booking.id}`}>
+                            {new Date(booking.scheduledDateTime).toLocaleDateString()} • {new Date(booking.scheduledDateTime).toLocaleTimeString()}
+                          </span>
+                          <Badge variant="outline" data-testid={`booking-type-${booking.id}`}>
+                            {booking.bookingType}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="text-right space-y-1 flex flex-col items-end ml-4">
+                        <p className="font-bold text-foreground" data-testid={`booking-total-${booking.id}`}>
+                          ${booking.totalAmount}
+                        </p>
+                        <Badge variant={getStatusColor(booking.status)} data-testid={`booking-status-${booking.id}`}>
+                          {booking.status}
+                        </Badge>
+                      </div>
+                    </div>
+                    {booking.status === 'pending' && (
+                      <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditBooking(booking)}
+                          data-testid={`button-edit-${booking.id}`}
+                        >
+                          <Edit className="w-3 h-3 mr-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeleteBooking(booking)}
+                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          data-testid={`button-delete-${booking.id}`}
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Delete
+                        </Button>
+                      </div>
+                    )}
+                    {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
+                      <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleCancelBooking(booking)}
+                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          data-testid={`button-cancel-${booking.id}`}
+                        >
+                          <AlertTriangle className="w-3 h-3 mr-1" />
+                          Cancel Booking
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center p-8 text-muted-foreground" data-testid="no-bookings">
+                No bookings yet. Start your first ride with us!
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Payment Methods */}
+        <Card data-testid="payment-methods">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <CreditCard className="w-5 h-5" />
+              <span>Payment Methods</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <PaymentMethodsList />
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card data-testid="quick-actions">
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-4">
+              <Button
+                onClick={() => window.location.href = '/'}
+                className="h-16 flex flex-col space-y-1"
+                data-testid="button-book-ride"
+              >
+                <MapPin className="w-5 h-5" />
+                <span>Book a Ride</span>
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={() => window.location.href = '/#contact'}
+                className="h-16 flex flex-col space-y-1"
+                data-testid="button-contact-support"
+              >
+                <Building className="w-5 h-5" />
+                <span>Contact Support</span>
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={() => setShowAllBookings(true)}
+                className="h-16 flex flex-col space-y-1"
+                data-testid="button-view-history"
+              >
+                <CreditCard className="w-5 h-5" />
+                <span>View History</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+          </>
+        )}
+
+        {/* Saved Locations Section */}
+        {activeSection === 'saved-locations' && (
+          <Card data-testid="saved-addresses">
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle>Quick Book from Saved Locations</CardTitle>
+              <CardTitle>Saved Locations</CardTitle>
               <Dialog open={addAddressOpen} onOpenChange={setAddAddressOpen}>
                 <DialogTrigger asChild>
                   <Button size="sm" data-testid="button-add-address">
@@ -1105,148 +1261,6 @@ export default function PassengerDashboard() {
             )}
           </CardContent>
         </Card>
-
-        {/* Recent Bookings */}
-        <Card data-testid="recent-bookings">
-          <CardHeader>
-            <CardTitle>Recent Bookings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {bookingsLoading ? (
-              <div className="flex items-center justify-center p-8">
-                <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
-              </div>
-            ) : recentBookings.length > 0 ? (
-              <div className="space-y-4">
-                {recentBookings.map((booking) => (
-                  <div
-                    key={booking.id}
-                    className="bg-muted rounded-lg p-4"
-                    data-testid={`booking-${booking.id}`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1 flex-1">
-                        <p className="font-medium" data-testid={`booking-route-${booking.id}`}>
-                          {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
-                        </p>
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <span data-testid={`booking-date-${booking.id}`}>
-                            {new Date(booking.scheduledDateTime).toLocaleDateString()} • {new Date(booking.scheduledDateTime).toLocaleTimeString()}
-                          </span>
-                          <Badge variant="outline" data-testid={`booking-type-${booking.id}`}>
-                            {booking.bookingType}
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="text-right space-y-1 flex flex-col items-end ml-4">
-                        <p className="font-bold text-foreground" data-testid={`booking-total-${booking.id}`}>
-                          ${booking.totalAmount}
-                        </p>
-                        <Badge variant={getStatusColor(booking.status)} data-testid={`booking-status-${booking.id}`}>
-                          {booking.status}
-                        </Badge>
-                      </div>
-                    </div>
-                    {booking.status === 'pending' && (
-                      <div className="flex gap-2 mt-3 pt-3 border-t border-border">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditBooking(booking)}
-                          data-testid={`button-edit-${booking.id}`}
-                        >
-                          <Edit className="w-3 h-3 mr-1" />
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteBooking(booking)}
-                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                          data-testid={`button-delete-${booking.id}`}
-                        >
-                          <Trash2 className="w-3 h-3 mr-1" />
-                          Delete
-                        </Button>
-                      </div>
-                    )}
-                    {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
-                      <div className="flex gap-2 mt-3 pt-3 border-t border-border">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleCancelBooking(booking)}
-                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                          data-testid={`button-cancel-${booking.id}`}
-                        >
-                          <AlertTriangle className="w-3 h-3 mr-1" />
-                          Cancel Booking
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center p-8 text-muted-foreground" data-testid="no-bookings">
-                No bookings yet. Start your first ride with us!
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Payment Methods */}
-        <Card data-testid="payment-methods">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <CreditCard className="w-5 h-5" />
-              <span>Payment Methods</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <PaymentMethodsList />
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <Card data-testid="quick-actions">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-4">
-              <Button
-                onClick={() => window.location.href = '/'}
-                className="h-16 flex flex-col space-y-1"
-                data-testid="button-book-ride"
-              >
-                <MapPin className="w-5 h-5" />
-                <span>Book a Ride</span>
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={() => window.location.href = '/#contact'}
-                className="h-16 flex flex-col space-y-1"
-                data-testid="button-contact-support"
-              >
-                <Building className="w-5 h-5" />
-                <span>Contact Support</span>
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={() => setShowAllBookings(true)}
-                className="h-16 flex flex-col space-y-1"
-                data-testid="button-view-history"
-              >
-                <CreditCard className="w-5 h-5" />
-                <span>View History</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-          </>
         )}
 
         {/* Future Bookings Section */}
