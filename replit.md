@@ -108,6 +108,26 @@ Preferred communication style: Simple, everyday language.
 - **Header Dropdown**: Account menu with user info, "Account Settings" link, and "Sign Out" button
 - **Security**: Server-side validation prevents duplicate emails, authenticated endpoint ensures user can only edit own profile
 
+### Pay Later and Discount System
+- **Admin Control**: Admins can enable/disable pay later ability for individual passengers through user management interface
+- **Discount Management**: Per-passenger discount system with two discount types:
+  - **Percentage Discount**: 0-100% off total fare (validated at API level)
+  - **Fixed Discount**: Dollar amount off total fare (minimum $0)
+- **Database Fields**: 
+  - `payLaterEnabled`: Boolean flag (default false)
+  - `discountType`: Enum ('percentage' | 'fixed') nullable
+  - `discountValue`: Decimal(10,2) storing discount amount (default 0)
+- **Price Calculation**: Discounts applied automatically during fare calculation when userId provided
+  - Discount calculated after all surcharges, fees, and gratuity
+  - Total never drops below zero
+  - Discount breakdown included in pricing response
+- **Admin UI**: User Manager section includes:
+  - Pay Later toggle (Enabled/Disabled) for passengers
+  - Discount type selector (None/Percentage/Fixed)
+  - Discount value input with validation
+  - Real-time form updates based on discount type selection
+- **Booking Integration**: Authenticated users automatically receive applicable discounts during vehicle selection and checkout
+
 ### Progressive Web Application (PWA)
 - **Installability**: App can be installed on any device (iOS, Android, Desktop) via browser prompt
 - **Install Prompt**: Custom in-app prompt with "Install" and "Not now" options, dismissible per session
