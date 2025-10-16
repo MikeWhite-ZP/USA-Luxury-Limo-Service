@@ -1015,25 +1015,110 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   if (step === 3 && quoteData) {
     return (
       <div className="space-y-6">
-        {/* Trip Summary - Compact View */}
-        <div className="bg-gray-50 p-4 rounded-lg" data-testid="trip-summary">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">
-              {new Date(`${date}T${time}`).toLocaleString()}
-            </span>
-            <span className="text-xl font-bold text-primary">${quoteData.totalAmount}</span>
-          </div>
-          <div className="text-sm text-gray-700">
-            <div className="flex items-start gap-2">
-              <span className="text-green-600">●</span>
-              <span>{activeTab === 'transfer' ? fromAddress : pickupAddress}</span>
+        {/* Trip Summary - Complete Details */}
+        <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-5 rounded-xl border-2 border-primary/20" data-testid="trip-summary">
+          <h3 className="text-lg font-bold text-primary mb-4">Booking Summary</h3>
+          
+          {/* Service Type & Vehicle */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Service Type</p>
+                <p className="font-semibold text-gray-800">{activeTab === 'transfer' ? 'Transfer' : 'Hourly Service'}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Total Price</p>
+                <p className="text-2xl font-bold text-primary">${quoteData.totalAmount}</p>
+              </div>
             </div>
-            {activeTab === 'transfer' && toAddress && (
-              <div className="flex items-start gap-2 mt-1">
-                <span className="text-red-600">●</span>
-                <span>{toAddress}</span>
+
+            {/* Selected Vehicle */}
+            {selectedVehicle && vehicleTypes && (
+              <div className="pt-3 border-t border-gray-200">
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Selected Vehicle</p>
+                <p className="font-semibold text-gray-800">
+                  {vehicleTypes.find(v => v.id === selectedVehicle)?.name || 'Vehicle'}
+                </p>
               </div>
             )}
+
+            {/* Date & Time */}
+            <div className="pt-3 border-t border-gray-200">
+              <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Date & Time</p>
+              <p className="font-semibold text-gray-800">
+                {new Date(`${date}T${time}`).toLocaleString('en-US', { 
+                  weekday: 'short', 
+                  year: 'numeric', 
+                  month: 'short', 
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit'
+                })}
+              </p>
+            </div>
+
+            {/* Route Information */}
+            <div className="pt-3 border-t border-gray-200">
+              {activeTab === 'transfer' ? (
+                <>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Route</p>
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">●</span>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500">Pickup</p>
+                        <p className="text-sm font-medium text-gray-800">{fromAddress}</p>
+                      </div>
+                    </div>
+                    {viaPoints.filter(point => point.trim()).map((viaPoint, index) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <span className="text-blue-600 mt-1">●</span>
+                        <div className="flex-1">
+                          <p className="text-xs text-gray-500">Via Point {index + 1}</p>
+                          <p className="text-sm font-medium text-gray-800">{viaPoint}</p>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex items-start gap-2">
+                      <span className="text-red-600 mt-1">●</span>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500">Destination</p>
+                        <p className="text-sm font-medium text-gray-800">{toAddress}</p>
+                      </div>
+                    </div>
+                  </div>
+                  {quoteData.distanceKm && (
+                    <p className="text-xs text-gray-600 mt-2">
+                      Distance: {quoteData.distanceKm} km ({(quoteData.distanceKm * 0.621371).toFixed(1)} miles)
+                    </p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Pickup Location</p>
+                  <p className="text-sm font-medium text-gray-800">{pickupAddress}</p>
+                  <p className="text-xs text-gray-600 mt-2">Duration: {duration} hours</p>
+                </>
+              )}
+            </div>
+
+            {/* Passenger Details */}
+            <div className="pt-3 border-t border-gray-200">
+              <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Trip Details</p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-gray-600">Passengers:</span>
+                  <span className="font-semibold text-gray-800 ml-1">{passengerCount}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Luggage:</span>
+                  <span className="font-semibold text-gray-800 ml-1">{luggageCount}</span>
+                </div>
+              </div>
+              {babySeat && (
+                <p className="text-xs text-gray-600 mt-1">✓ Baby seat requested</p>
+              )}
+            </div>
           </div>
         </div>
 
