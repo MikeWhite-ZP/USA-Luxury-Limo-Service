@@ -744,6 +744,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Get saved addresses for any user
+  app.get('/api/saved-addresses/user/:userId', isAuthenticated, async (req: any, res) => {
+    try {
+      const adminId = req.user.id;
+      const admin = await storage.getUser(adminId);
+      
+      if (!admin || admin.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { userId } = req.params;
+      const addresses = await storage.getSavedAddressesByUser(userId);
+      res.json(addresses);
+    } catch (error) {
+      console.error('Admin get user saved addresses error:', error);
+      res.status(500).json({ message: 'Failed to fetch saved addresses' });
+    }
+  });
+
   app.post('/api/saved-addresses', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
