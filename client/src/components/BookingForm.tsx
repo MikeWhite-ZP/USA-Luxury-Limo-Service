@@ -497,9 +497,27 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       // Clear saved booking data from localStorage after successful booking
       localStorage.removeItem('pendingBookingData');
       
-      // Store booking and show payment options dialog
-      setCreatedBooking(booking);
-      setShowPaymentOptions(true);
+      // Check if user has saved payment methods
+      const hasSavedCards = paymentMethods && paymentMethods.length > 0;
+      
+      if (!hasSavedCards) {
+        // Warn user they need to add a card for future payments
+        toast({
+          title: "Booking Confirmed",
+          description: "Booking confirmed! Please add a payment method in your account settings for future payments.",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Booking Confirmed",
+          description: "Your booking has been confirmed. You can pay after the trip is completed.",
+        });
+      }
+      
+      // Redirect to passenger dashboard
+      setTimeout(() => {
+        setLocation('/passenger');
+      }, 1000);
     },
     onError: (error: Error) => {
       if (error.message.includes('sign in')) {
@@ -1387,6 +1405,188 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             data-testid="button-proceed-payment"
           >
             {bookingMutation.isPending ? 'Processing...' : 'PROCEED TO PAYMENT'}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Step 4: Payment
+  if (step === 4 && quoteData) {
+    const selectedVehicleName = vehicleTypes?.find(v => v.id === selectedVehicle)?.name || '';
+    const selectedVehicleSlug = getVehicleSlug(selectedVehicleName);
+    const totalPrice = calculatedPrices[selectedVehicleSlug] || '0';
+
+    return (
+      <div className="space-y-6">
+        {/* Step Indicator */}
+        <div className="bg-white p-4 rounded-lg border-2 border-primary/20">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-600">Step 4 of 4</span>
+            <span className="text-sm font-bold text-primary">Payment</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="bg-primary h-2 rounded-full" style={{ width: '100%' }}></div>
+          </div>
+        </div>
+
+        {/* Booking Summary */}
+        <div className="bg-gray-50 p-4 rounded-lg" data-testid="payment-booking-summary">
+          <h4 className="font-semibold mb-3">Booking Summary</h4>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>Service:</span>
+              <span className="font-semibold">{activeTab === 'transfer' ? 'Transfer' : 'Hourly'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Vehicle:</span>
+              <span className="font-semibold">{selectedVehicleName}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Date & Time:</span>
+              <span className="font-semibold">{date} at {time}</span>
+            </div>
+            {activeTab === 'transfer' ? (
+              <>
+                <div className="flex justify-between">
+                  <span>From:</span>
+                  <span className="font-semibold text-right">{fromAddress}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>To:</span>
+                  <span className="font-semibold text-right">{toAddress}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between">
+                  <span>Pickup:</span>
+                  <span className="font-semibold text-right">{pickupAddress}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Duration:</span>
+                  <span className="font-semibold">{duration} hours</span>
+                </div>
+              </>
+            )}
+            <div className="flex justify-between">
+              <span>Passenger:</span>
+              <span className="font-semibold">{passengerName}</span>
+            </div>
+            <div className="border-t pt-2 mt-2 flex justify-between items-center">
+              <span className="text-lg font-bold">Total Amount:</span>
+              <span className="text-2xl font-bold text-primary">${totalPrice}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Options */}
+        <div className="space-y-4">
+          <h4 className="font-semibold text-lg">Select Payment Method</h4>
+          
+          {/* Pay Now Option - Always shown */}
+          <button
+            onClick={() => {
+              // Save all booking data to localStorage for checkout page
+              const bookingDataForCheckout = {
+                vehicleTypeId: selectedVehicle,
+                bookingType: activeTab,
+                scheduledDateTime: new Date(`${date}T${time}`).toISOString(),
+                totalAmount: totalPrice,
+                ...(activeTab === 'transfer' ? {
+                  pickupAddress: fromAddress,
+                  pickupLat: fromCoords?.lat.toString(),
+                  pickupLon: fromCoords?.lon.toString(),
+                  destinationAddress: toAddress,
+                  destinationLat: toCoords?.lat.toString(),
+                  destinationLon: toCoords?.lon.toString(),
+                  ...(viaPoints.length > 0 && {
+                    viaPoints: viaPoints.filter(point => point.trim() !== ''),
+                    viaCoordinates: viaCoords ? Object.values(viaCoords) : [],
+                  }),
+                } : {
+                  pickupAddress,
+                  pickupLat: pickupCoords?.lat.toString(),
+                  pickupLon: pickupCoords?.lon.toString(),
+                  requestedHours: parseInt(duration),
+                }),
+                bookingFor,
+                passengerName,
+                passengerPhone,
+                passengerEmail,
+                passengerCount,
+                luggageCount,
+                babySeat,
+                specialInstructions: specialInstructions || undefined,
+                ...(selectedFlight && {
+                  flightNumber: selectedFlight.flightNumber,
+                  flightAirline: selectedFlight.airline,
+                  flightDeparture: selectedFlight.departure,
+                  flightArrival: selectedFlight.arrival,
+                  flightOrigin: selectedFlight.origin,
+                  flightDestination: selectedFlight.destination,
+                }),
+              };
+              
+              // Store in localStorage for checkout page
+              localStorage.setItem('pendingBookingForPayment', JSON.stringify(bookingDataForCheckout));
+              
+              // Redirect to checkout page in "create mode"
+              setLocation(`/checkout?mode=create&amount=${totalPrice}`);
+            }}
+            className="w-full p-6 border-2 border-primary rounded-lg hover:bg-primary/5 transition-all group"
+            data-testid="button-pay-now-step4"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                <CreditCard className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-left flex-1">
+                <h3 className="text-lg font-bold text-primary">Pay Now</h3>
+                <p className="text-sm text-gray-600">Complete payment to confirm your booking</p>
+              </div>
+            </div>
+          </button>
+
+          {/* Pay Later Option - Only show if user has pay later enabled */}
+          {user?.payLaterEnabled && user.role === 'passenger' && (
+            <button
+              onClick={() => {
+                // Create booking with status "confirmed" (unpaid)
+                bookingMutation.mutate();
+              }}
+              className="w-full p-6 border-2 border-gray-300 rounded-lg hover:border-primary hover:bg-primary/5 transition-all group"
+              data-testid="button-pay-later-step4"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gray-100 group-hover:bg-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-all">
+                  <Clock className="w-6 h-6 text-gray-600 group-hover:text-primary" />
+                </div>
+                <div className="text-left flex-1">
+                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-primary">Pay Later</h3>
+                  <p className="text-sm text-gray-600">
+                    {paymentMethods && paymentMethods.length > 0 
+                      ? "Pay after your trip is completed" 
+                      : "Requires payment method on file"}
+                  </p>
+                  {paymentMethods && paymentMethods.length === 0 && (
+                    <p className="text-xs text-amber-600 mt-1">⚠️ Add a payment method in Account Settings</p>
+                  )}
+                </div>
+              </div>
+            </button>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3">
+          <Button 
+            variant="outline" 
+            onClick={() => setStep(3)}
+            className="flex-1"
+            data-testid="button-back-step4"
+          >
+            Back
           </Button>
         </div>
       </div>

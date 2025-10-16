@@ -34,15 +34,48 @@ interface BookingDetails {
   };
 }
 
-const CheckoutForm = ({ bookingId, amount }: { bookingId: string; amount: string }) => {
+const CheckoutForm = ({ bookingId, amount, mode }: { bookingId?: string; amount: string; mode?: string }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [bookingData, setBookingData] = useState<any>(null);
 
+  // For existing bookings (old flow)
   const { data: booking } = useQuery<BookingDetails>({
     queryKey: [`/api/bookings/${bookingId}`],
-    enabled: !!bookingId,
+    enabled: !!bookingId && mode !== 'create',
+  });
+
+  // For new flow - get booking data from localStorage
+  useEffect(() => {
+    if (mode === 'create') {
+      const storedData = localStorage.getItem('pendingBookingForPayment');
+      if (storedData) {
+        setBookingData(JSON.parse(storedData));
+      }
+    }
+  }, [mode]);
+
+  // Mutation to create booking after payment
+  const createBookingMutation = useMutation({
+    mutationFn: async (paymentIntentId: string) => {
+      if (!bookingData) throw new Error('No booking data found');
+      
+      const response = await apiRequest('POST', '/api/bookings', {
+        ...bookingData,
+        paymentStatus: 'paid',
+        paymentIntentId,
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      localStorage.removeItem('pendingBookingForPayment');
+      toast({
+        title: "Booking Confirmed",
+        description: "Your booking has been confirmed and paid successfully!",
+      });
+    },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,24 +88,46 @@ const CheckoutForm = ({ bookingId, amount }: { bookingId: string; amount: string
     setIsProcessing(true);
 
     try {
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/passenger?payment=success`,
-        },
-      });
+      if (mode === 'create') {
+        // For create mode, handle payment without redirect
+        const result = await stripe.confirmPayment({
+          elements,
+          redirect: 'if_required' as any, // Force type to allow if_required
+        });
 
-      if (error) {
-        toast({
-          title: "Payment Failed",
-          description: error.message || "Payment could not be processed.",
-          variant: "destructive",
-        });
+        if (result.error) {
+          toast({
+            title: "Payment Failed",
+            description: result.error.message || "Payment could not be processed.",
+            variant: "destructive",
+          });
+        } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+          // Create booking after successful payment
+          await createBookingMutation.mutateAsync(result.paymentIntent.id);
+          // Redirect to passenger dashboard
+          window.location.href = '/passenger?payment=success';
+        }
       } else {
-        toast({
-          title: "Payment Successful",
-          description: "Thank you for your booking! You will receive a confirmation shortly.",
+        // For existing bookings, use redirect flow
+        const { error } = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/passenger?payment=success`,
+          },
         });
+
+        if (error) {
+          toast({
+            title: "Payment Failed",
+            description: error.message || "Payment could not be processed.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Payment Successful",
+            description: "Thank you for your booking! You will receive a confirmation shortly.",
+          });
+        }
       }
     } catch (error) {
       toast({
@@ -111,17 +166,17 @@ const CheckoutForm = ({ bookingId, amount }: { bookingId: string; amount: string
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {booking ? (
+            {(booking || bookingData) ? (
               <>
                 {/* Trip Information */}
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <Badge variant="outline" data-testid="booking-type">
-                      {booking.bookingType.charAt(0).toUpperCase() + booking.bookingType.slice(1)}
+                      {(booking?.bookingType || bookingData?.bookingType || 'transfer').charAt(0).toUpperCase() + (booking?.bookingType || bookingData?.bookingType || 'transfer').slice(1)}
                     </Badge>
                     <span className="text-sm text-muted-foreground" data-testid="booking-date">
-                      {new Date(booking.scheduledDateTime).toLocaleDateString()} at{' '}
-                      {new Date(booking.scheduledDateTime).toLocaleTimeString()}
+                      {new Date(booking?.scheduledDateTime || bookingData?.scheduledDateTime).toLocaleDateString()} at{' '}
+                      {new Date(booking?.scheduledDateTime || bookingData?.scheduledDateTime).toLocaleTimeString()}
                     </span>
                   </div>
 
@@ -131,30 +186,30 @@ const CheckoutForm = ({ bookingId, amount }: { bookingId: string; amount: string
                       <div>
                         <p className="font-medium">Pickup Location</p>
                         <p className="text-sm text-muted-foreground" data-testid="pickup-address">
-                          {booking.pickupAddress}
+                          {booking?.pickupAddress || bookingData?.pickupAddress}
                         </p>
                       </div>
                     </div>
 
-                    {booking.destinationAddress && (
+                    {(booking?.destinationAddress || bookingData?.destinationAddress) && (
                       <div className="flex items-start space-x-2">
                         <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
                         <div>
                           <p className="font-medium">Destination</p>
                           <p className="text-sm text-muted-foreground" data-testid="destination-address">
-                            {booking.destinationAddress}
+                            {booking?.destinationAddress || bookingData?.destinationAddress}
                           </p>
                         </div>
                       </div>
                     )}
 
-                    {booking.requestedHours && (
+                    {(booking?.requestedHours || bookingData?.requestedHours) && (
                       <div className="flex items-start space-x-2">
                         <Clock className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0" />
                         <div>
                           <p className="font-medium">Duration</p>
                           <p className="text-sm text-muted-foreground" data-testid="requested-hours">
-                            {booking.requestedHours} hours
+                            {booking?.requestedHours || bookingData?.requestedHours} hours
                           </p>
                         </div>
                       </div>
@@ -311,6 +366,7 @@ export default function Checkout() {
   const urlParams = new URLSearchParams(window.location.search);
   const bookingId = urlParams.get('bookingId');
   const amount = urlParams.get('amount');
+  const mode = urlParams.get('mode');
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -329,10 +385,10 @@ export default function Checkout() {
 
   // Create payment intent
   const paymentMutation = useMutation({
-    mutationFn: async ({ amount, bookingId }: { amount: string; bookingId: string }) => {
+    mutationFn: async ({ amount, bookingId, mode }: { amount: string; bookingId?: string; mode?: string }) => {
       const response = await apiRequest("POST", "/api/create-payment-intent", {
         amount: parseFloat(amount),
-        bookingId
+        ...(bookingId && { bookingId }), // Only include bookingId if it exists
       });
       return await response.json();
     },
@@ -360,10 +416,13 @@ export default function Checkout() {
   });
 
   useEffect(() => {
-    if (bookingId && amount && isAuthenticated) {
-      paymentMutation.mutate({ amount, bookingId });
+    if (amount && isAuthenticated) {
+      // For create mode, we don't need bookingId
+      if (mode === 'create' || bookingId) {
+        paymentMutation.mutate({ amount, bookingId: bookingId || undefined, mode: mode || undefined });
+      }
     }
-  }, [bookingId, amount, isAuthenticated]);
+  }, [bookingId, amount, mode, isAuthenticated]);
 
   if (isLoading) {
     return (
@@ -377,7 +436,8 @@ export default function Checkout() {
     return null;
   }
 
-  if (!bookingId || !amount) {
+  // Validate parameters based on mode
+  if (!amount || (mode !== 'create' && !bookingId)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="max-w-md mx-4">
@@ -414,7 +474,7 @@ export default function Checkout() {
   return (
     <div className="min-h-screen bg-background">
       <Elements stripe={stripePromise} options={{ clientSecret }}>
-        <CheckoutForm bookingId={bookingId} amount={amount} />
+        <CheckoutForm bookingId={bookingId || undefined} amount={amount} mode={mode || undefined} />
       </Elements>
     </div>
   );
