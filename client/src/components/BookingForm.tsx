@@ -451,7 +451,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         vehicleTypeId: selectedVehicle,
         bookingType: activeTab,
         scheduledDateTime: new Date(`${date}T${time}`),
-        totalAmount: parseFloat(totalPrice),
+        totalAmount: totalPrice,
         ...(activeTab === 'transfer' ? {
           pickupAddress: fromAddress,
           pickupLat: fromCoords?.lat.toString(),
@@ -1025,40 +1025,34 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
     return (
       <div className="space-y-6">
-        {/* Trip Summary - Complete Details */}
-        <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-5 rounded-xl border-2 border-primary/20 text-[12px]" data-testid="trip-summary">
-          <h3 className="text-lg font-bold text-primary mb-4">Booking Summary</h3>
+        {/* Trip Summary - Compact */}
+        <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-3 rounded-xl border-2 border-primary/20 text-[10px]" data-testid="trip-summary">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-sm font-bold text-primary">Booking Summary</h3>
+            <p className="text-lg font-bold text-primary">${totalPrice}</p>
+          </div>
           
-          {/* Service Type & Vehicle */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Service Type</p>
-                <p className="font-semibold text-gray-800">{activeTab === 'transfer' ? 'Transfer' : 'Hourly Service'}</p>
+          {/* Compact Grid Layout */}
+          <div className="space-y-1">
+            {/* Service & Vehicle */}
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <p className="text-gray-500 uppercase">Service</p>
+                <p className="font-semibold text-gray-800">{activeTab === 'transfer' ? 'Transfer' : 'Hourly'}</p>
               </div>
-              <div className="text-right">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Total Price</p>
-                <p className="text-2xl font-bold text-primary">${totalPrice}</p>
-              </div>
+              {selectedVehicle && vehicleTypes && (
+                <div>
+                  <p className="text-gray-500 uppercase">Vehicle</p>
+                  <p className="font-semibold text-gray-800">{selectedVehicleName}</p>
+                </div>
+              )}
             </div>
 
-            {/* Selected Vehicle */}
-            {selectedVehicle && vehicleTypes && (
-              <div className="border-t border-gray-200 pt-[0px] pb-[0px] mt-[2px] mb-[2px]">
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Selected Vehicle</p>
-                <p className="font-semibold text-gray-800">
-                  {selectedVehicleName}
-                </p>
-              </div>
-            )}
-
             {/* Date & Time */}
-            <div className="border-t border-gray-200 pt-[0px] pb-[0px] mt-[2px] mb-[2px]">
-              <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Date & Time</p>
+            <div className="border-t border-gray-200 pt-1">
+              <p className="text-gray-500 uppercase">Date & Time</p>
               <p className="font-semibold text-gray-800">
                 {new Date(`${date}T${time}`).toLocaleString('en-US', { 
-                  weekday: 'short', 
-                  year: 'numeric', 
                   month: 'short', 
                   day: 'numeric',
                   hour: 'numeric',
@@ -1068,66 +1062,48 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </div>
 
             {/* Route Information */}
-            <div className="border-t border-gray-200 pt-[0px] pb-[0px] mt-[2px] mb-[2px]">
+            <div className="border-t border-gray-200 pt-1">
               {activeTab === 'transfer' ? (
                 <>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Route</p>
-                  <div className="space-y-2">
-                    <div className="flex items-start gap-2">
-                      <span className="text-green-600 mt-1">●</span>
-                      <div className="flex-1">
-                        <p className="text-xs text-gray-500">Pickup</p>
-                        <p className="text-sm font-medium text-gray-800">{fromAddress}</p>
-                      </div>
+                  <p className="text-gray-500 uppercase mb-1">Route</p>
+                  <div className="space-y-0.5">
+                    <div className="flex items-start gap-1">
+                      <span className="text-green-600">●</span>
+                      <p className="font-medium text-gray-800 leading-tight">{fromAddress}</p>
                     </div>
                     {viaPoints.filter(point => point.trim()).map((viaPoint, index) => (
-                      <div key={index} className="flex items-start gap-2">
-                        <span className="text-blue-600 mt-1">●</span>
-                        <div className="flex-1">
-                          <p className="text-xs text-gray-500">Via Point {index + 1}</p>
-                          <p className="text-sm font-medium text-gray-800">{viaPoint}</p>
-                        </div>
+                      <div key={index} className="flex items-start gap-1">
+                        <span className="text-blue-600">●</span>
+                        <p className="font-medium text-gray-800 leading-tight">{viaPoint}</p>
                       </div>
                     ))}
-                    <div className="flex items-start gap-2">
-                      <span className="text-red-600 mt-1">●</span>
-                      <div className="flex-1">
-                        <p className="text-xs text-gray-500">Destination</p>
-                        <p className="text-sm font-medium text-gray-800">{toAddress}</p>
-                      </div>
+                    <div className="flex items-start gap-1">
+                      <span className="text-red-600">●</span>
+                      <p className="font-medium text-gray-800 leading-tight">{toAddress}</p>
                     </div>
                   </div>
                   {quoteData.distanceKm && (
-                    <p className="text-xs text-gray-600 mt-2">
-                      Distance: {quoteData.distanceKm} km ({(quoteData.distanceKm * 0.621371).toFixed(1)} miles)
+                    <p className="text-gray-600 mt-1">
+                      {quoteData.distanceKm} km ({(quoteData.distanceKm * 0.621371).toFixed(1)} mi)
                     </p>
                   )}
                 </>
               ) : (
                 <>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Pickup Location</p>
-                  <p className="text-sm font-medium text-gray-800">{pickupAddress}</p>
-                  <p className="text-xs text-gray-600 mt-2">Duration: {duration} hours</p>
+                  <p className="text-gray-500 uppercase">Pickup</p>
+                  <p className="font-medium text-gray-800">{pickupAddress}</p>
+                  <p className="text-gray-600">Duration: {duration} hrs</p>
                 </>
               )}
             </div>
 
-            {/* Passenger Details */}
-            <div className="border-t border-gray-200 pt-[0px] pb-[0px] mt-[2px] mb-[2px]">
-              <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Trip Details</p>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <span className="text-gray-600">Passengers:</span>
-                  <span className="font-semibold text-gray-800 ml-1">{passengerCount}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Luggage:</span>
-                  <span className="font-semibold text-gray-800 ml-1">{luggageCount}</span>
-                </div>
+            {/* Trip Details */}
+            <div className="border-t border-gray-200 pt-1">
+              <div className="flex gap-3">
+                <span className="text-gray-600">Passengers: <span className="font-semibold text-gray-800">{passengerCount}</span></span>
+                <span className="text-gray-600">Luggage: <span className="font-semibold text-gray-800">{luggageCount}</span></span>
+                {babySeat && <span className="text-gray-600">✓ Baby seat</span>}
               </div>
-              {babySeat && (
-                <p className="text-xs text-gray-600 mt-1">✓ Baby seat requested</p>
-              )}
             </div>
           </div>
         </div>
