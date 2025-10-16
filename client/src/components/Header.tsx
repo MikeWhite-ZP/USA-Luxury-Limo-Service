@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, ChevronDown } from "lucide-react";
+import { User, LogOut, ChevronDown, LayoutDashboard } from "lucide-react";
 
 export default function Header() {
   const { user, isAuthenticated } = useAuth();
@@ -131,6 +131,16 @@ export default function Header() {
                     </p>
                   </div>
                   <DropdownMenuSeparator />
+                  {user.role === 'passenger' && (
+                    <DropdownMenuItem 
+                      onClick={() => setLocation('/passenger')}
+                      className="cursor-pointer"
+                      data-testid="menu-dashboard"
+                    >
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem 
                     onClick={() => setLocation('/account')}
                     className="cursor-pointer"
