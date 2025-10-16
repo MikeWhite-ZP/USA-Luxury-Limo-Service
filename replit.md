@@ -128,6 +128,21 @@ Preferred communication style: Simple, everyday language.
   - Real-time form updates based on discount type selection
 - **Booking Integration**: Authenticated users automatically receive applicable discounts during vehicle selection and checkout
 
+### Booking Management
+- **Booking Cancellation**: Passengers can cancel confirmed and in-progress bookings
+  - **API Endpoint**: PATCH /api/bookings/:id/cancel
+  - **Authorization**: Booking owner or admin can cancel
+  - **Restrictions**: Cannot cancel completed or already cancelled bookings
+  - **UI Integration**: Cancel button appears on confirmed/in-progress bookings in passenger dashboard
+  - **Confirmation Dialog**: Shows booking details before cancellation
+  - **Status Update**: Changes booking status to "cancelled" in database
+- **Saved Address Quick Booking**: Fast booking from saved addresses in passenger dashboard
+  - **From Button**: Pre-fills pickup address in booking form (works for both transfer and hourly bookings)
+  - **To Button**: Pre-fills destination address in booking form (transfer bookings only)
+  - **URL Parameters**: Uses `?from=` and `?to=` query parameters to pass addresses
+  - **Auto-fill Logic**: Booking form checks URL parameters on load and pre-fills addresses
+  - **URL Cleanup**: Parameters cleared from URL after addresses are set
+
 ### Progressive Web Application (PWA)
 - **Installability**: App can be installed on any device (iOS, Android, Desktop) via browser prompt
 - **Install Prompt**: Custom in-app prompt with "Install" and "Not now" options, dismissible per session
