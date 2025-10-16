@@ -1051,19 +1051,6 @@ export default function PassengerDashboard() {
           </CardContent>
         </Card>
 
-        {/* Payment Methods */}
-        <Card data-testid="payment-methods">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <CreditCard className="w-5 h-5" />
-              <span>Payment Methods</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <PaymentMethodsList />
-          </CardContent>
-        </Card>
-
         {/* Quick Actions */}
         <Card data-testid="quick-actions">
           <CardHeader>
