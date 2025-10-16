@@ -1113,7 +1113,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </div>
 
             {/* Passenger Details */}
-            <div className="pt-3 border-t border-gray-200">
+            <div className="border-t border-gray-200 pt-[0px] pb-[0px] mt-[2px] mb-[2px]">
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Trip Details</p>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
