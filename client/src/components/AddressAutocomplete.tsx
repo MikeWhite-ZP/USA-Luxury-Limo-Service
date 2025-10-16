@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MapPin, Star, Clock } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -121,35 +122,21 @@ export function AddressAutocomplete({
 
   return (
     <div id={`${id}-container`} className="space-y-2">
-      <div className="flex items-center justify-between">
-        <Label htmlFor={id}>
-          {label} {required && <span className="text-red-500">*</span>}
-        </Label>
-        {savedAddresses && savedAddresses.length > 0 && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowSavedAddresses(!showSavedAddresses)}
-            className="text-xs"
-            data-testid={`${testId}-saved-toggle`}
-          >
-            <Star className="w-3 h-3 mr-1" />
-            Saved ({savedAddresses.length})
-          </Button>
-        )}
-      </div>
+      <Label htmlFor={id}>
+        {label} {required && <span className="text-red-500">*</span>}
+      </Label>
 
-      <div className="relative">
-        <Input
-          id={id}
-          value={value}
-          onChange={(e) => handleAddressInput(e.target.value)}
-          placeholder={placeholder}
-          disabled={disabled}
-          autoComplete="off"
-          data-testid={testId}
-        />
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Input
+            id={id}
+            value={value}
+            onChange={(e) => handleAddressInput(e.target.value)}
+            placeholder={placeholder}
+            disabled={disabled}
+            autoComplete="off"
+            data-testid={testId}
+          />
 
         {/* Saved Addresses Dropdown */}
         {showSavedAddresses && savedAddresses && savedAddresses.length > 0 && (
@@ -181,26 +168,56 @@ export function AddressAutocomplete({
           </div>
         )}
 
-        {/* TomTom Suggestions Dropdown */}
-        {showSuggestions && suggestions.length > 0 && (
-          <div className="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-b-lg max-h-60 overflow-y-auto z-50 shadow-lg mt-1">
-            <div className="p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-              <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">SUGGESTIONS</p>
-            </div>
-            {suggestions.map((suggestion, index) => (
-              <div
-                key={index}
-                className="p-3 cursor-pointer border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                onClick={() => selectSuggestion(suggestion)}
-                data-testid={`${testId}-suggestion-${index}`}
-              >
-                <div className="flex items-start gap-2">
-                  <Clock className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
-                  <div className="font-medium text-gray-800 dark:text-gray-200">{suggestion.display_name}</div>
-                </div>
+          {/* TomTom Suggestions Dropdown */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-b-lg max-h-60 overflow-y-auto z-50 shadow-lg mt-1">
+              <div className="p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">SUGGESTIONS</p>
               </div>
-            ))}
-          </div>
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={index}
+                  className="p-3 cursor-pointer border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  onClick={() => selectSuggestion(suggestion)}
+                  data-testid={`${testId}-suggestion-${index}`}
+                >
+                  <div className="flex items-start gap-2">
+                    <Clock className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                    <div className="font-medium text-gray-800 dark:text-gray-200">{suggestion.display_name}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Saved Addresses Dropdown Selector */}
+        {savedAddresses && savedAddresses.length > 0 && (
+          <Select
+            value=""
+            onValueChange={(addressId) => {
+              const address = savedAddresses.find(a => a.id === addressId);
+              if (address) selectSavedAddress(address);
+            }}
+            disabled={disabled}
+          >
+            <SelectTrigger className="w-[200px]" data-testid={`${testId}-saved-dropdown`}>
+              <SelectValue placeholder="Saved addresses" />
+            </SelectTrigger>
+            <SelectContent>
+              {savedAddresses.map((address) => (
+                <SelectItem key={address.id} value={address.id}>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-3 h-3" />
+                    <span className="font-medium">{address.label}</span>
+                    {address.isDefault && (
+                      <span className="text-xs bg-primary/10 text-primary px-1 rounded">Default</span>
+                    )}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
       </div>
     </div>
