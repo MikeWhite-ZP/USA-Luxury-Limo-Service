@@ -98,8 +98,8 @@ function AdminEmailSettings({ user }: { user: any }) {
   });
 
   useEffect(() => {
-    if (emailSetting) {
-      setAdminEmail(emailSetting.value || '');
+    if (emailSetting && typeof emailSetting === 'object' && 'value' in emailSetting) {
+      setAdminEmail((emailSetting as any).value || '');
       setIsLoading(false);
     } else {
       setIsLoading(false);
@@ -108,11 +108,12 @@ function AdminEmailSettings({ user }: { user: any }) {
 
   const updateEmailMutation = useMutation({
     mutationFn: async (email: string) => {
-      const response = await apiRequest('/api/system-settings/ADMIN_EMAIL', {
-        method: 'PUT',
-        body: JSON.stringify({ value: email }),
-      });
-      return response;
+      const response = await apiRequest('PUT', '/api/system-settings/ADMIN_EMAIL', { value: email });
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: 'Failed to update admin email' }));
+        throw new Error(error.message || 'Failed to update admin email');
+      }
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -121,10 +122,10 @@ function AdminEmailSettings({ user }: { user: any }) {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/system-settings', 'ADMIN_EMAIL'] });
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: "Failed to update admin email. Please try again.",
+        description: error.message || "Failed to update admin email. Please try again.",
         variant: "destructive",
       });
     },
@@ -173,7 +174,7 @@ function AdminEmailSettings({ user }: { user: any }) {
                   data-testid="input-admin-email"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Current value: {emailSetting?.value || 'Not set'}
+                  Current value: {emailSetting && typeof emailSetting === 'object' && 'value' in emailSetting ? (emailSetting as any).value : 'Not set'}
                 </p>
               </div>
 

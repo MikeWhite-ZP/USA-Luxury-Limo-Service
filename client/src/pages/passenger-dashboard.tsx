@@ -284,11 +284,12 @@ function ContactSupportForm({ user }: { user: any }) {
 
   const submitContactMutation = useMutation({
     mutationFn: async (data: z.infer<typeof insertContactSchema>) => {
-      const response = await apiRequest('/api/contact', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      return response;
+      const response = await apiRequest('POST', '/api/contact', data);
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: 'Failed to send message' }));
+        throw new Error(error.message || 'Failed to send message');
+      }
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -304,10 +305,10 @@ function ContactSupportForm({ user }: { user: any }) {
         message: '',
       });
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again.",
+        description: error.message || "Failed to send message. Please try again.",
         variant: "destructive",
       });
     },
@@ -386,7 +387,7 @@ function ContactSupportForm({ user }: { user: any }) {
                   <FormItem>
                     <FormLabel>Phone (Optional)</FormLabel>
                     <FormControl>
-                      <Input {...field} data-testid="input-contact-phone" />
+                      <Input {...field} value={field.value || ''} data-testid="input-contact-phone" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -401,7 +402,7 @@ function ContactSupportForm({ user }: { user: any }) {
                 <FormItem>
                   <FormLabel>Subject (Optional)</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="e.g., Booking inquiry, Payment issue, etc." data-testid="input-contact-subject" />
+                    <Input {...field} value={field.value || ''} placeholder="e.g., Booking inquiry, Payment issue, etc." data-testid="input-contact-subject" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
