@@ -218,30 +218,30 @@ const CheckoutForm = ({ bookingId, amount, mode }: { bookingId?: string; amount:
                 </div>
 
                 {/* Vehicle & Passenger Information */}
-                {booking.vehicleType && (
+                {booking?.vehicleType && (
                   <div className="border-t pt-4 space-y-3">
                     <h4 className="font-semibold">Vehicle & Passengers</h4>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-muted-foreground">Vehicle Type</p>
-                        <p className="font-medium" data-testid="vehicle-type">{booking.vehicleType.name}</p>
+                        <p className="font-medium" data-testid="vehicle-type">{booking?.vehicleType?.name}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Capacity</p>
                         <p className="font-medium" data-testid="vehicle-capacity">
-                          {booking.vehicleType.passengerCapacity} passengers
+                          {booking?.vehicleType?.passengerCapacity} passengers
                         </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Luggage</p>
                         <p className="font-medium" data-testid="vehicle-luggage">
-                          {booking.vehicleType.luggageCapacity}
+                          {booking?.vehicleType?.luggageCapacity}
                         </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Passengers</p>
                         <p className="font-medium" data-testid="passenger-count">
-                          {booking.passengerCount}
+                          {booking?.passengerCount}
                         </p>
                       </div>
                     </div>

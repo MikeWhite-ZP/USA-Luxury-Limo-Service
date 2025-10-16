@@ -72,17 +72,19 @@ Preferred communication style: Simple, everyday language.
 - **Pricing Engine**: Complex fare calculation based on n8n workflow specifications
 - **Service Types**: Transfer (point-to-point) and hourly booking options
 - **Fleet Management**: Vehicle type definitions with capacity and pricing
-- **Booking Flow**: Multi-step booking process with real-time validation and smart payment options dialog
-  - Step 1: Enter trip details (addresses, date, time)
-  - Step 2: Select vehicle from calculated pricing options
-  - Step 3: Enter passenger information (auto-fills for logged-in users booking for themselves), optional flight search with detailed flight information
-  - Payment Options: After booking creation, smart dialog shows options based on user's payment setup:
-    - **Pay Now**: Always available, redirects to payment processor (Stripe/PayPal/Square)
-    - **Pay Later**: Conditional availability based on user configuration:
-      - If `payLaterEnabled` is false: Option not shown (Pay Now only)
-      - If `payLaterEnabled` is true AND user has saved payment methods: Shows normally, allows pay after trip
-      - If `payLaterEnabled` is true BUT no saved payment methods: Shows with warning message to add payment method in Account Settings
-    - System checks `/api/payment-methods` to verify if user has credit cards on file before showing Pay Later option details
+- **Booking Flow**: 4-step booking process where bookings are created ONLY AFTER successful payment completion
+  - **Step 1: Trip Details** - Enter addresses, date, and time for transfer or hourly service
+  - **Step 2: Vehicle Selection** - Choose from calculated pricing options for available vehicle types
+  - **Step 3: Passenger Information** - Enter passenger details (auto-fills for logged-in users booking for themselves), optional flight search with detailed flight information, passenger/luggage counts, special instructions
+  - **Step 4: Payment** - Select payment method and complete payment BEFORE booking is recorded:
+    - **Pay Now**: Processes payment immediately, creates booking with "paid" status after successful payment
+    - **Pay Later**: (Only if `payLaterEnabled` is true) Creates booking with "confirmed" status for post-trip payment
+      - Shows warning if no saved payment methods on file
+      - Requires payment method in Account Settings for future payments
+  - **Important**: Bookings are NOT saved to database until payment is completed (Step 4), ensuring no unpaid bookings in the system
+  - **Checkout Flow**: 
+    - New bookings: Payment processed first (mode=create), booking created after successful payment with paymentIntentId
+    - Existing bookings: Standard payment flow with bookingId
 - **Commission System**: Configurable system commission percentage for calculating company earnings from completed bookings, displayed in admin dashboard alongside total revenue
 
 ### Driver Document Management
