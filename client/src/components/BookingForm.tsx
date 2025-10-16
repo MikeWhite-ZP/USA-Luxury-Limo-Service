@@ -90,6 +90,12 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   
   const suggestionTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
+  // Fetch user's payment methods to check if they have saved cards
+  const { data: paymentMethods, refetch: refetchPaymentMethods } = useQuery<any[]>({
+    queryKey: ['/api/payment-methods'],
+    enabled: isAuthenticated && showPaymentOptions, // Only fetch when dialog is open
+  });
+
   // Set minimum date to today and restore saved booking data
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -1675,7 +1681,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </DialogHeader>
           
           <div className="space-y-4 mt-4">
-            {/* Pay Now Option */}
+            {/* Pay Now Option - Always shown */}
             <button
               onClick={() => {
                 setShowPaymentOptions(false);
@@ -1701,11 +1707,24 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             {user?.payLaterEnabled && user.role === 'passenger' && (
               <button
                 onClick={() => {
+                  // Check if user has saved payment methods
+                  const hasSavedCards = paymentMethods && paymentMethods.length > 0;
+                  
+                  if (!hasSavedCards) {
+                    // Warn user they need to add a card for future payments
+                    toast({
+                      title: "Payment Method Required",
+                      description: "Booking confirmed! Please add a payment method in your account settings for future payments.",
+                      variant: "default",
+                    });
+                  } else {
+                    toast({
+                      title: "Booking Confirmed",
+                      description: "Your booking has been confirmed. You can pay after the trip is completed.",
+                    });
+                  }
+                  
                   setShowPaymentOptions(false);
-                  toast({
-                    title: "Booking Confirmed",
-                    description: "Your booking has been confirmed. You can pay after the trip is completed.",
-                  });
                   setTimeout(() => {
                     setLocation('/passenger');
                   }, 1000);
@@ -1719,7 +1738,14 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   </div>
                   <div className="text-left flex-1">
                     <h3 className="text-lg font-bold text-gray-800 group-hover:text-primary">Pay Later</h3>
-                    <p className="text-sm text-gray-600">Pay after your trip is completed</p>
+                    <p className="text-sm text-gray-600">
+                      {paymentMethods && paymentMethods.length > 0 
+                        ? "Pay after your trip is completed" 
+                        : "Requires payment method on file"}
+                    </p>
+                    {paymentMethods && paymentMethods.length === 0 && (
+                      <p className="text-xs text-amber-600 mt-1">⚠️ Add a payment method in Account Settings</p>
+                    )}
                   </div>
                 </div>
               </button>
