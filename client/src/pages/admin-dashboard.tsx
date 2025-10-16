@@ -60,6 +60,8 @@ interface User {
   role: 'passenger' | 'driver' | 'dispatcher' | 'admin';
   isActive: boolean;
   payLaterEnabled: boolean;
+  discountType?: 'percentage' | 'fixed' | null;
+  discountValue?: string | null;
   createdAt: string;
 }
 
