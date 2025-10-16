@@ -131,16 +131,20 @@ export default function Header() {
                     </p>
                   </div>
                   <DropdownMenuSeparator />
-                  {user.role === 'passenger' && (
-                    <DropdownMenuItem 
-                      onClick={() => setLocation('/passenger')}
-                      className="cursor-pointer"
-                      data-testid="menu-dashboard"
-                    >
-                      <LayoutDashboard className="w-4 h-4 mr-2" />
-                      Dashboard
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      const dashboardPath = user.role === 'passenger' ? '/passenger' 
+                        : user.role === 'driver' ? '/driver'
+                        : user.role === 'admin' ? '/admin-dashboard'
+                        : '/passenger';
+                      setLocation(dashboardPath);
+                    }}
+                    className="cursor-pointer"
+                    data-testid="menu-dashboard"
+                  >
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => setLocation('/account')}
                     className="cursor-pointer"

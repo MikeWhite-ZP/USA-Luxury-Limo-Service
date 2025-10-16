@@ -620,12 +620,12 @@ export default function AdminDashboard() {
       const response = await apiRequest('POST', '/api/calculate-price', requestData);
       const data = await response.json();
 
-      if (data.total) {
-        setCalculatedPrice(data.total);
-        setBookingFormData({ ...bookingFormData, totalAmount: data.total });
+      if (data.price) {
+        setCalculatedPrice(data.price);
+        setBookingFormData({ ...bookingFormData, totalAmount: data.price });
         toast({
           title: "Price Calculated",
-          description: `Total: $${data.total}`,
+          description: `Total: $${data.price}`,
         });
       }
     } catch (error) {
