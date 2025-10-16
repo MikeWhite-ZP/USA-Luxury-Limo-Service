@@ -299,6 +299,20 @@ export default function AdminDashboard() {
     pickupCoords: null as { lat: number; lon: number } | null,
     destinationCoords: null as { lat: number; lon: number } | null,
     requestedHours: '2',
+    // Additional information fields
+    bookingFor: 'self' as 'self' | 'someone_else',
+    passengerName: '',
+    passengerPhone: '',
+    passengerEmail: '',
+    passengerCount: 1,
+    luggageCount: 0,
+    babySeat: false,
+    specialInstructions: '',
+    // Flight information
+    flightNumber: '',
+    flightAirline: '',
+    flightDepartureAirport: '',
+    flightArrivalAirport: '',
   });
   const [calculatedPrice, setCalculatedPrice] = useState<string>('');
   const [calculatingPrice, setCalculatingPrice] = useState(false);
@@ -669,6 +683,18 @@ export default function AdminDashboard() {
         pickupCoords: null,
         destinationCoords: null,
         requestedHours: '2',
+        bookingFor: 'self',
+        passengerName: '',
+        passengerPhone: '',
+        passengerEmail: '',
+        passengerCount: 1,
+        luggageCount: 0,
+        babySeat: false,
+        specialInstructions: '',
+        flightNumber: '',
+        flightAirline: '',
+        flightDepartureAirport: '',
+        flightArrivalAirport: '',
       });
       setCalculatedPrice('');
       toast({
@@ -1008,6 +1034,18 @@ export default function AdminDashboard() {
       pickupCoords: null,
       destinationCoords: null,
       requestedHours: '2',
+      bookingFor: 'self',
+      passengerName: '',
+      passengerPhone: '',
+      passengerEmail: '',
+      passengerCount: 1,
+      luggageCount: 0,
+      babySeat: false,
+      specialInstructions: '',
+      flightNumber: '',
+      flightAirline: '',
+      flightDepartureAirport: '',
+      flightArrivalAirport: '',
     });
     setCalculatedPrice('');
     setBookingDialogOpen(true);
@@ -1029,6 +1067,18 @@ export default function AdminDashboard() {
       pickupCoords: null,
       destinationCoords: null,
       requestedHours: booking.requestedHours?.toString() || '2',
+      bookingFor: booking.bookingFor || 'self',
+      passengerName: booking.passengerName || '',
+      passengerPhone: booking.passengerPhone || '',
+      passengerEmail: booking.passengerEmail || '',
+      passengerCount: booking.passengerCount || 1,
+      luggageCount: booking.luggageCount || 0,
+      babySeat: booking.babySeat || false,
+      specialInstructions: booking.specialInstructions || '',
+      flightNumber: booking.flightNumber || '',
+      flightAirline: booking.flightAirline || '',
+      flightDepartureAirport: booking.flightDepartureAirport || '',
+      flightArrivalAirport: booking.flightArrivalAirport || '',
     });
     setCalculatedPrice('');
     setBookingDialogOpen(true);
@@ -2171,7 +2221,7 @@ export default function AdminDashboard() {
 
         {/* Add/Edit Booking Dialog */}
         <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
-          <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#ffffff]">
+          <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-4xl translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#ffffff] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingBooking ? 'Edit Booking' : 'Add New Booking'}</DialogTitle>
               <DialogDescription>
@@ -2337,7 +2387,177 @@ export default function AdminDashboard() {
                 </div>
               </div>
               
-              <div className="space-y-2">
+              {/* Passenger Details Section */}
+              <div className="border-t pt-4 mt-4">
+                <h3 className="font-semibold mb-3">Passenger & Luggage Details</h3>
+                
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="passenger-count">Passengers *</Label>
+                    <Input
+                      id="passenger-count"
+                      type="number"
+                      min="1"
+                      value={bookingFormData.passengerCount}
+                      onChange={(e) => setBookingFormData({ ...bookingFormData, passengerCount: parseInt(e.target.value) || 1 })}
+                      data-testid="input-passenger-count"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="luggage-count">Luggage Count</Label>
+                    <Input
+                      id="luggage-count"
+                      type="number"
+                      min="0"
+                      value={bookingFormData.luggageCount}
+                      onChange={(e) => setBookingFormData({ ...bookingFormData, luggageCount: parseInt(e.target.value) || 0 })}
+                      data-testid="input-luggage-count"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="baby-seat" className="flex items-center gap-2">
+                      <input
+                        id="baby-seat"
+                        type="checkbox"
+                        checked={bookingFormData.babySeat}
+                        onChange={(e) => setBookingFormData({ ...bookingFormData, babySeat: e.target.checked })}
+                        className="w-4 h-4"
+                        data-testid="checkbox-baby-seat"
+                      />
+                      Baby Seat
+                    </Label>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Book for Another Person Section */}
+              <div className="border-t pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    id="booking-for-toggle"
+                    type="checkbox"
+                    checked={bookingFormData.bookingFor === 'someone_else'}
+                    onChange={(e) => setBookingFormData({ 
+                      ...bookingFormData, 
+                      bookingFor: e.target.checked ? 'someone_else' : 'self' 
+                    })}
+                    className="w-4 h-4"
+                    data-testid="checkbox-booking-for"
+                  />
+                  <Label htmlFor="booking-for-toggle" className="font-semibold">Book for Another Person</Label>
+                </div>
+                
+                {bookingFormData.bookingFor === 'someone_else' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="passenger-name">Passenger Name *</Label>
+                      <Input
+                        id="passenger-name"
+                        value={bookingFormData.passengerName}
+                        onChange={(e) => setBookingFormData({ ...bookingFormData, passengerName: e.target.value })}
+                        placeholder="Full name"
+                        data-testid="input-passenger-name"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="passenger-email">Passenger Email *</Label>
+                        <Input
+                          id="passenger-email"
+                          type="email"
+                          value={bookingFormData.passengerEmail}
+                          onChange={(e) => setBookingFormData({ ...bookingFormData, passengerEmail: e.target.value })}
+                          placeholder="email@example.com"
+                          data-testid="input-passenger-email"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="passenger-phone">Passenger Phone *</Label>
+                        <Input
+                          id="passenger-phone"
+                          type="tel"
+                          value={bookingFormData.passengerPhone}
+                          onChange={(e) => setBookingFormData({ ...bookingFormData, passengerPhone: e.target.value })}
+                          placeholder="+1234567890"
+                          data-testid="input-passenger-phone"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Flight Information Section */}
+              <div className="border-t pt-4">
+                <h3 className="font-semibold mb-3">Flight Information (Optional)</h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="flight-number">Flight Number</Label>
+                    <Input
+                      id="flight-number"
+                      value={bookingFormData.flightNumber}
+                      onChange={(e) => setBookingFormData({ ...bookingFormData, flightNumber: e.target.value })}
+                      placeholder="e.g., AA123"
+                      data-testid="input-flight-number"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="flight-airline">Airline</Label>
+                    <Input
+                      id="flight-airline"
+                      value={bookingFormData.flightAirline}
+                      onChange={(e) => setBookingFormData({ ...bookingFormData, flightAirline: e.target.value })}
+                      placeholder="e.g., American Airlines"
+                      data-testid="input-flight-airline"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="flight-departure-airport">Departure Airport</Label>
+                    <Input
+                      id="flight-departure-airport"
+                      value={bookingFormData.flightDepartureAirport}
+                      onChange={(e) => setBookingFormData({ ...bookingFormData, flightDepartureAirport: e.target.value })}
+                      placeholder="e.g., JFK"
+                      data-testid="input-flight-departure"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="flight-arrival-airport">Arrival Airport</Label>
+                    <Input
+                      id="flight-arrival-airport"
+                      value={bookingFormData.flightArrivalAirport}
+                      onChange={(e) => setBookingFormData({ ...bookingFormData, flightArrivalAirport: e.target.value })}
+                      placeholder="e.g., LAX"
+                      data-testid="input-flight-arrival"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Additional Information Section */}
+              <div className="border-t pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="special-instructions">Special Instructions / Notes</Label>
+                  <textarea
+                    id="special-instructions"
+                    value={bookingFormData.specialInstructions}
+                    onChange={(e) => setBookingFormData({ ...bookingFormData, specialInstructions: e.target.value })}
+                    placeholder="Any special requests, dietary requirements, or accessibility needs..."
+                    className="w-full min-h-[100px] p-2 border rounded-md"
+                    data-testid="textarea-special-instructions"
+                  />
+                </div>
+              </div>
+              
+              <div className="border-t pt-4 space-y-2">
                 <Label htmlFor="booking-status">Status *</Label>
                 <Select
                   value={bookingFormData.status}
@@ -2375,6 +2595,18 @@ export default function AdminDashboard() {
                     scheduledDateTime: new Date(bookingFormData.scheduledDateTime),
                     totalAmount: parseFloat(bookingFormData.totalAmount),
                     status: bookingFormData.status,
+                    bookingFor: bookingFormData.bookingFor,
+                    passengerName: bookingFormData.passengerName,
+                    passengerPhone: bookingFormData.passengerPhone,
+                    passengerEmail: bookingFormData.passengerEmail,
+                    passengerCount: bookingFormData.passengerCount,
+                    luggageCount: bookingFormData.luggageCount,
+                    babySeat: bookingFormData.babySeat,
+                    specialInstructions: bookingFormData.specialInstructions,
+                    flightNumber: bookingFormData.flightNumber,
+                    flightAirline: bookingFormData.flightAirline,
+                    flightDepartureAirport: bookingFormData.flightDepartureAirport,
+                    flightArrivalAirport: bookingFormData.flightArrivalAirport,
                   };
                   saveBookingMutation.mutate(bookingData);
                 }}
