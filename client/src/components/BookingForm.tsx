@@ -819,7 +819,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       return;
     }
     
-    bookingMutation.mutate();
+    // Move to Step 4 (Payment) instead of creating booking immediately
+    setStep(4);
   };
 
   if (step === 2 && quoteData) {
