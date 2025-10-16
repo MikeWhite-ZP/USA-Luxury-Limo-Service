@@ -1044,7 +1044,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
             {/* Selected Vehicle */}
             {selectedVehicle && vehicleTypes && (
-              <div className="pt-3 border-t border-gray-200">
+              <div className="border-t border-gray-200 pt-[0px] pb-[0px] mt-[2px] mb-[2px]">
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Selected Vehicle</p>
                 <p className="font-semibold text-gray-800">
                   {selectedVehicleName}
@@ -1053,7 +1053,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             )}
 
             {/* Date & Time */}
-            <div className="pt-3 border-t border-gray-200">
+            <div className="border-t border-gray-200 pt-[0px] pb-[0px] mt-[2px] mb-[2px]">
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Date & Time</p>
               <p className="font-semibold text-gray-800">
                 {new Date(`${date}T${time}`).toLocaleString('en-US', { 
@@ -1068,7 +1068,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </div>
 
             {/* Route Information */}
-            <div className="pt-3 border-t border-gray-200">
+            <div className="border-t border-gray-200 pt-[0px] pb-[0px] mt-[2px] mb-[2px]">
               {activeTab === 'transfer' ? (
                 <>
                   <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Route</p>
