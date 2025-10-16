@@ -556,6 +556,13 @@ export default function PassengerDashboard() {
     enabled: isAuthenticated && user?.role === 'passenger',
   });
 
+  // Fetch payment methods for card status check
+  const { data: paymentMethods } = useQuery<PaymentMethod[]>({
+    queryKey: ['/api/payment-methods'],
+    retry: false,
+    enabled: isAuthenticated && user?.role === 'passenger',
+  });
+
   // Add saved address mutation
   const addAddressMutation = useMutation({
     mutationFn: async (addressData: typeof newAddress) => {
@@ -836,6 +843,69 @@ export default function PassengerDashboard() {
       default: return 'default';
     }
   };
+
+  const getPaymentCardStatus = () => {
+    if (!paymentMethods || paymentMethods.length === 0) {
+      return {
+        status: 'No Card',
+        color: 'text-red-600',
+        bgColor: 'bg-red-50 dark:bg-red-900/20',
+        borderColor: 'border-red-200 dark:border-red-800',
+        message: 'No payment method on file. Please add a card to enable seamless bookings.',
+        action: 'Add Payment Method',
+      };
+    }
+
+    // Check for expired cards
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1; // JavaScript months are 0-based
+
+    const hasExpiredCards = paymentMethods.some(pm => {
+      const expYear = pm.card.exp_year;
+      const expMonth = pm.card.exp_month;
+      return expYear < currentYear || (expYear === currentYear && expMonth < currentMonth);
+    });
+
+    const hasValidCards = paymentMethods.some(pm => {
+      const expYear = pm.card.exp_year;
+      const expMonth = pm.card.exp_month;
+      return expYear > currentYear || (expYear === currentYear && expMonth >= currentMonth);
+    });
+
+    if (hasExpiredCards && !hasValidCards) {
+      return {
+        status: 'Expired',
+        color: 'text-red-600',
+        bgColor: 'bg-red-50 dark:bg-red-900/20',
+        borderColor: 'border-red-200 dark:border-red-800',
+        message: 'All payment cards have expired. Please update your payment information.',
+        action: 'Update Payment Method',
+      };
+    }
+
+    if (hasExpiredCards && hasValidCards) {
+      return {
+        status: 'Active (with expired cards)',
+        color: 'text-yellow-600',
+        bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
+        borderColor: 'border-yellow-200 dark:border-yellow-800',
+        message: 'You have expired cards. Please remove them and keep your payment methods up to date.',
+        action: 'Manage Payment Methods',
+      };
+    }
+
+    return {
+      status: 'Active',
+      color: 'text-green-600',
+      bgColor: '',
+      borderColor: '',
+      message: '',
+      action: '',
+    };
+  };
+
+  const paymentCardStatus = getPaymentCardStatus();
 
   const handleEditBooking = (booking: Booking) => {
     setSelectedBooking(booking);
@@ -1607,7 +1677,7 @@ export default function PassengerDashboard() {
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Account Type</p>
                     <p className="font-medium capitalize" data-testid="text-role">
@@ -1624,7 +1694,36 @@ export default function PassengerDashboard() {
                       )}
                     </p>
                   </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Payment Card Status</p>
+                    <p className={`font-medium ${paymentCardStatus.color}`} data-testid="text-payment-status">
+                      {paymentCardStatus.status}
+                    </p>
+                  </div>
                 </div>
+                {paymentCardStatus.message && (
+                  <div className={`p-4 ${paymentCardStatus.bgColor} border ${paymentCardStatus.borderColor} rounded-lg`}>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <p className={`text-sm font-medium ${paymentCardStatus.color}`}>
+                          ⚠️ Action Required
+                        </p>
+                        <p className="text-sm mt-1" style={{ color: paymentCardStatus.color.replace('text-', '') }}>
+                          {paymentCardStatus.message}
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setActiveSection('payment-methods')}
+                        className="whitespace-nowrap"
+                        data-testid="button-manage-payment"
+                      >
+                        {paymentCardStatus.action}
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 {user?.payLaterEnabled && (
                   <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                     <p className="text-sm font-medium text-green-800 dark:text-green-200">
