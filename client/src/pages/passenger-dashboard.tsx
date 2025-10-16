@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle } from "lucide-react";
+import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle } from "lucide-react";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
@@ -264,6 +264,9 @@ export default function PassengerDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
+  
+  // Navigation state
+  const [activeSection, setActiveSection] = useState<'home' | 'future-bookings' | 'past-bookings' | 'payment-methods' | 'support'>('home');
   
   const [addAddressOpen, setAddAddressOpen] = useState(false);
   const [newAddress, setNewAddress] = useState({
@@ -642,6 +645,17 @@ export default function PassengerDashboard() {
   }
 
   const recentBookings = bookings?.slice(0, 5) || [];
+  
+  // Split bookings into future and past
+  const now = new Date();
+  const futureBookings = bookings?.filter(b => 
+    (b.status === 'pending' || b.status === 'confirmed' || b.status === 'in_progress') &&
+    new Date(b.scheduledDateTime) >= now
+  ) || [];
+  const pastBookings = bookings?.filter(b => 
+    b.status === 'completed' || b.status === 'cancelled' ||
+    (new Date(b.scheduledDateTime) < now && b.status !== 'in_progress')
+  ) || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -669,9 +683,80 @@ export default function PassengerDashboard() {
         </div>
       </header>
 
+      {/* Navigation Menu */}
+      <div className="border-b border-border bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setActiveSection('home')}
+              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+                activeSection === 'home'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+              }`}
+              data-testid="nav-home"
+            >
+              <Home className="w-4 h-4" />
+              Home
+            </button>
+            <button
+              onClick={() => setActiveSection('future-bookings')}
+              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+                activeSection === 'future-bookings'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+              }`}
+              data-testid="nav-future-bookings"
+            >
+              <Calendar className="w-4 h-4" />
+              Future Bookings
+            </button>
+            <button
+              onClick={() => setActiveSection('past-bookings')}
+              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+                activeSection === 'past-bookings'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+              }`}
+              data-testid="nav-past-bookings"
+            >
+              <History className="w-4 h-4" />
+              Past Bookings
+            </button>
+            <button
+              onClick={() => setActiveSection('payment-methods')}
+              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+                activeSection === 'payment-methods'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+              }`}
+              data-testid="nav-payment-methods"
+            >
+              <CreditCard className="w-4 h-4" />
+              Payment Methods
+            </button>
+            <button
+              onClick={() => setActiveSection('support')}
+              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+                activeSection === 'support'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+              }`}
+              data-testid="nav-support"
+            >
+              <HelpCircle className="w-4 h-4" />
+              Support
+            </button>
+          </nav>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto p-6 space-y-8">
-        {/* Quick Book from Saved Locations */}
-        <Card data-testid="saved-addresses">
+        {/* Home Section */}
+        {activeSection === 'home' && (
+          <>
+            {/* Quick Book from Saved Locations */}
+            <Card data-testid="saved-addresses">
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle>Quick Book from Saved Locations</CardTitle>
@@ -966,6 +1051,232 @@ export default function PassengerDashboard() {
             </div>
           </CardContent>
         </Card>
+          </>
+        )}
+
+        {/* Future Bookings Section */}
+        {activeSection === 'future-bookings' && (
+          <Card data-testid="future-bookings-section">
+            <CardHeader>
+              <CardTitle>Future Bookings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {bookingsLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+                </div>
+              ) : futureBookings.length > 0 ? (
+                <div className="space-y-4">
+                  {futureBookings.map((booking) => (
+                    <div
+                      key={booking.id}
+                      className="bg-muted rounded-lg p-4"
+                      data-testid={`future-booking-${booking.id}`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-1 flex-1">
+                          <p className="font-medium" data-testid={`future-booking-route-${booking.id}`}>
+                            {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
+                          </p>
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                            <span data-testid={`future-booking-date-${booking.id}`}>
+                              {new Date(booking.scheduledDateTime).toLocaleDateString()} • {new Date(booking.scheduledDateTime).toLocaleTimeString()}
+                            </span>
+                            <Badge variant="outline" data-testid={`future-booking-type-${booking.id}`}>
+                              {booking.bookingType}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="text-right space-y-1 flex flex-col items-end ml-4">
+                          <p className="font-bold text-foreground" data-testid={`future-booking-total-${booking.id}`}>
+                            ${booking.totalAmount}
+                          </p>
+                          <Badge variant={getStatusColor(booking.status)} data-testid={`future-booking-status-${booking.id}`}>
+                            {booking.status}
+                          </Badge>
+                        </div>
+                      </div>
+                      {booking.status === 'pending' && (
+                        <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditBooking(booking)}
+                            data-testid={`button-edit-future-${booking.id}`}
+                          >
+                            <Edit className="w-3 h-3 mr-1" />
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteBooking(booking)}
+                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            data-testid={`button-delete-future-${booking.id}`}
+                          >
+                            <Trash2 className="w-3 h-3 mr-1" />
+                            Delete
+                          </Button>
+                        </div>
+                      )}
+                      {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
+                        <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleCancelBooking(booking)}
+                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            data-testid={`button-cancel-future-${booking.id}`}
+                          >
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            Cancel Booking
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center p-8 text-muted-foreground" data-testid="no-future-bookings">
+                  No upcoming bookings. Book your next ride with us!
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Past Bookings Section */}
+        {activeSection === 'past-bookings' && (
+          <Card data-testid="past-bookings-section">
+            <CardHeader>
+              <CardTitle>Past Bookings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {bookingsLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+                </div>
+              ) : pastBookings.length > 0 ? (
+                <div className="space-y-4">
+                  {pastBookings.map((booking) => (
+                    <div
+                      key={booking.id}
+                      className="bg-muted rounded-lg p-4"
+                      data-testid={`past-booking-${booking.id}`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-1 flex-1">
+                          <p className="font-medium" data-testid={`past-booking-route-${booking.id}`}>
+                            {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
+                          </p>
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                            <span data-testid={`past-booking-date-${booking.id}`}>
+                              {new Date(booking.scheduledDateTime).toLocaleDateString()} • {new Date(booking.scheduledDateTime).toLocaleTimeString()}
+                            </span>
+                            <Badge variant="outline" data-testid={`past-booking-type-${booking.id}`}>
+                              {booking.bookingType}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="text-right space-y-1 flex flex-col items-end ml-4">
+                          <p className="font-bold text-foreground" data-testid={`past-booking-total-${booking.id}`}>
+                            ${booking.totalAmount}
+                          </p>
+                          <Badge variant={getStatusColor(booking.status)} data-testid={`past-booking-status-${booking.id}`}>
+                            {booking.status}
+                          </Badge>
+                        </div>
+                      </div>
+                      {booking.status === 'completed' && booking.driverId && (
+                        <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedBookingForRating(booking);
+                              setRatingDialogOpen(true);
+                            }}
+                            data-testid={`button-rate-driver-past-${booking.id}`}
+                          >
+                            <Star className="w-3 h-3 mr-1" />
+                            Rate Driver
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center p-8 text-muted-foreground" data-testid="no-past-bookings">
+                  No past bookings found.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Payment Methods Section */}
+        {activeSection === 'payment-methods' && (
+          <Card data-testid="payment-methods-section">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <CreditCard className="w-5 h-5" />
+                <span>Payment Methods</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <PaymentMethodsList />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Support Section */}
+        {activeSection === 'support' && (
+          <Card data-testid="support-section">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <HelpCircle className="w-5 h-5" />
+                <span>Support & Help</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Need Help?</h3>
+                <p className="text-muted-foreground mb-4">
+                  We're here to assist you with any questions or concerns about your bookings.
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => window.location.href = '/#contact'}
+                  className="h-auto py-4 flex flex-col items-start gap-2"
+                  data-testid="button-contact-us"
+                >
+                  <Building className="w-5 h-5" />
+                  <div className="text-left">
+                    <div className="font-semibold">Contact Support</div>
+                    <div className="text-sm text-muted-foreground">Get in touch with our team</div>
+                  </div>
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  onClick={() => window.location.href = '/'}
+                  className="h-auto py-4 flex flex-col items-start gap-2"
+                  data-testid="button-book-another-ride"
+                >
+                  <MapPin className="w-5 h-5" />
+                  <div className="text-left">
+                    <div className="font-semibold">Book a Ride</div>
+                    <div className="text-sm text-muted-foreground">Start a new booking</div>
+                  </div>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Full Booking History Dialog */}
