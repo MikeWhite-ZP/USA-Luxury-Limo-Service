@@ -251,6 +251,11 @@ export const bookings = pgTable("bookings", {
   // Flight details
   flightNumber: varchar("flight_number"),
   flightName: varchar("flight_name"),
+  flightAirline: varchar("flight_airline"),
+  flightDepartureAirport: varchar("flight_departure_airport"),
+  flightArrivalAirport: varchar("flight_arrival_airport"),
+  flightDeparture: varchar("flight_departure"),
+  flightArrival: varchar("flight_arrival"),
   noFlightInfo: boolean("no_flight_info").default(false),
   
   createdAt: timestamp("created_at").defaultNow(),
