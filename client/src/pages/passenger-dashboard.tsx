@@ -10,9 +10,15 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle } from "lucide-react";
+import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle, Send } from "lucide-react";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { insertContactSchema } from "@shared/schema";
+import type { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 
 const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 const stripePromise = STRIPE_PUBLIC_KEY ? loadStripe(STRIPE_PUBLIC_KEY) : null;
@@ -257,6 +263,194 @@ function PaymentMethodsList() {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+function ContactSupportForm({ user }: { user: any }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const form = useForm<z.infer<typeof insertContactSchema>>({
+    resolver: zodResolver(insertContactSchema),
+    defaultValues: {
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+      serviceType: '',
+      message: '',
+    },
+  });
+
+  const submitContactMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof insertContactSchema>) => {
+      const response = await apiRequest('/api/contact', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Message sent!",
+        description: "We've received your message and will get back to you soon.",
+      });
+      form.reset({
+        firstName: user?.firstName || '',
+        lastName: user?.lastName || '',
+        email: user?.email || '',
+        phone: user?.phone || '',
+        serviceType: '',
+        message: '',
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (data: z.infer<typeof insertContactSchema>) => {
+    submitContactMutation.mutate(data);
+  };
+
+  return (
+    <Card data-testid="support-section">
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <HelpCircle className="w-5 h-5" />
+          <span>Contact Support</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-6">
+          <p className="text-muted-foreground">
+            Have a question or need assistance? Fill out the form below and our support team will get back to you as soon as possible.
+          </p>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} data-testid="input-contact-firstname" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} data-testid="input-contact-lastname" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" {...field} data-testid="input-contact-email" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone (Optional)</FormLabel>
+                    <FormControl>
+                      <Input {...field} data-testid="input-contact-phone" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="serviceType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subject (Optional)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="e.g., Booking inquiry, Payment issue, etc." data-testid="input-contact-subject" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Message</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      {...field} 
+                      rows={5}
+                      placeholder="Please describe your question or concern..."
+                      data-testid="input-contact-message"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-end">
+              <Button 
+                type="submit" 
+                disabled={submitContactMutation.isPending}
+                className="min-w-[150px]"
+                data-testid="button-submit-contact"
+              >
+                {submitContactMutation.isPending ? (
+                  <>
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send Message
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -1231,52 +1425,7 @@ export default function PassengerDashboard() {
         )}
 
         {/* Support Section */}
-        {activeSection === 'support' && (
-          <Card data-testid="support-section">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <HelpCircle className="w-5 h-5" />
-                <span>Support & Help</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="font-semibold text-lg mb-2">Need Help?</h3>
-                <p className="text-muted-foreground mb-4">
-                  We're here to assist you with any questions or concerns about your bookings.
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-4">
-                <Button
-                  variant="outline"
-                  onClick={() => window.location.href = '/#contact'}
-                  className="h-auto py-4 flex flex-col items-start gap-2"
-                  data-testid="button-contact-us"
-                >
-                  <Building className="w-5 h-5" />
-                  <div className="text-left">
-                    <div className="font-semibold">Contact Support</div>
-                    <div className="text-sm text-muted-foreground">Get in touch with our team</div>
-                  </div>
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  onClick={() => window.location.href = '/'}
-                  className="h-auto py-4 flex flex-col items-start gap-2"
-                  data-testid="button-book-another-ride"
-                >
-                  <MapPin className="w-5 h-5" />
-                  <div className="text-left">
-                    <div className="font-semibold">Book a Ride</div>
-                    <div className="text-sm text-muted-foreground">Start a new booking</div>
-                  </div>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {activeSection === 'support' && <ContactSupportForm user={user} />}
       </div>
 
       {/* Full Booking History Dialog */}
