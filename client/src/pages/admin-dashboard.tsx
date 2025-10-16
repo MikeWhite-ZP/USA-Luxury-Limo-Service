@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, Pencil, FileText } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 
 interface DashboardStats {
   totalRevenue: string;
@@ -2133,28 +2134,32 @@ export default function AdminDashboard() {
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="pickup-address">Pickup Address *</Label>
-                <Input
-                  id="pickup-address"
-                  value={bookingFormData.pickupAddress}
-                  onChange={(e) => setBookingFormData({ ...bookingFormData, pickupAddress: e.target.value })}
-                  placeholder="Enter pickup address"
-                  data-testid="input-pickup-address"
-                />
-              </div>
+              <AddressAutocomplete
+                id="pickup-address"
+                label="Pickup Address"
+                value={bookingFormData.pickupAddress}
+                onChange={(value, coords) => {
+                  setBookingFormData({ ...bookingFormData, pickupAddress: value });
+                }}
+                placeholder="Enter pickup address"
+                userId={bookingFormData.passengerId}
+                required={true}
+                data-testid="input-pickup-address"
+              />
               
-              <div className="space-y-2">
-                <Label htmlFor="destination-address">Destination Address {bookingFormData.bookingType === 'transfer' && '*'}</Label>
-                <Input
-                  id="destination-address"
-                  value={bookingFormData.destinationAddress}
-                  onChange={(e) => setBookingFormData({ ...bookingFormData, destinationAddress: e.target.value })}
-                  placeholder={bookingFormData.bookingType === 'hourly' ? 'N/A for hourly service' : 'Enter destination address'}
-                  disabled={bookingFormData.bookingType === 'hourly'}
-                  data-testid="input-destination-address"
-                />
-              </div>
+              <AddressAutocomplete
+                id="destination-address"
+                label="Destination Address"
+                value={bookingFormData.destinationAddress}
+                onChange={(value, coords) => {
+                  setBookingFormData({ ...bookingFormData, destinationAddress: value });
+                }}
+                placeholder={bookingFormData.bookingType === 'hourly' ? 'N/A for hourly service' : 'Enter destination address'}
+                userId={bookingFormData.passengerId}
+                disabled={bookingFormData.bookingType === 'hourly'}
+                required={bookingFormData.bookingType === 'transfer'}
+                data-testid="input-destination-address"
+              />
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
