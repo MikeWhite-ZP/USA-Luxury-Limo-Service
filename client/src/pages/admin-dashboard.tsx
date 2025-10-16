@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, Pencil, FileText } from "lucide-react";
+import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, Pencil, FileText, Plane, Search } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 
@@ -316,6 +316,11 @@ export default function AdminDashboard() {
   });
   const [calculatedPrice, setCalculatedPrice] = useState<string>('');
   const [calculatingPrice, setCalculatingPrice] = useState(false);
+  
+  // Flight search state
+  const [flightSearchInput, setFlightSearchInput] = useState('');
+  const [selectedFlight, setSelectedFlight] = useState<any>(null);
+  const [isSearchingFlight, setIsSearchingFlight] = useState(false);
 
   // Redirect to home if not authenticated or not admin
   useEffect(() => {
@@ -654,6 +659,103 @@ export default function AdminDashboard() {
     }
   };
 
+  // Flight search handler
+  const handleFlightSearch = async () => {
+    if (!flightSearchInput.trim()) {
+      toast({
+        title: "Flight Number Required",
+        description: "Please enter a flight number (e.g., KL30, UA2346, DL3427)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSearchingFlight(true);
+    
+    try {
+      const flightNumber = flightSearchInput.trim().toUpperCase();
+      
+      const queryParams = new URLSearchParams({ flightNumber });
+      if (bookingFormData.scheduledDateTime) {
+        const dateOnly = bookingFormData.scheduledDateTime.split('T')[0];
+        queryParams.append('date', dateOnly);
+      }
+      
+      const response = await fetch(`/api/flights/search?${queryParams.toString()}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Flight search failed');
+      }
+
+      const data = await response.json();
+      
+      let flightItems = Array.isArray(data) ? data : (data.items || []);
+      
+      if (flightItems.length === 0) {
+        toast({
+          title: "No Flights Found",
+          description: `No flights found for ${flightNumber}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const airlineNames: Record<string, string> = {
+        'AA': 'American Airlines', 'UA': 'United Airlines', 'DL': 'Delta Air Lines',
+        'BA': 'British Airways', 'EK': 'Emirates', 'KL': 'KLM Royal Dutch Airlines',
+        'AF': 'Air France', 'LH': 'Lufthansa', 'QR': 'Qatar Airways',
+        'SQ': 'Singapore Airlines', 'CX': 'Cathay Pacific', 'JL': 'Japan Airlines',
+        'NH': 'All Nippon Airways',
+      };
+
+      const flight = flightItems[0];
+      const flightNum = flight.number || flightNumber;
+      const airlineCode = flightNum.trim().split(' ')[0] || flightNum.substring(0, 2);
+      const airlineName = airlineNames[airlineCode] || flight.airline?.name || airlineCode;
+      
+      const departure = flight.departure || {};
+      const arrival = flight.arrival || {};
+      
+      const selectedFlightData = {
+        flightNumber: flightNum.trim(),
+        airline: airlineName,
+        departureAirport: departure.airport?.name || departure.airport?.iata || 'N/A',
+        arrivalAirport: arrival.airport?.name || arrival.airport?.iata || 'N/A',
+        departureTime: departure.scheduledTimeLocal || departure.scheduledTime || 'N/A',
+        arrivalTime: arrival.scheduledTimeLocal || arrival.scheduledTime || 'N/A',
+        departureTerminal: departure.terminal || 'N/A',
+        arrivalTerminal: arrival.terminal || 'N/A',
+        baggageClaim: arrival.baggageClaim || 'N/A',
+        aircraft: flight.aircraft?.model || 'N/A',
+      };
+      
+      setSelectedFlight(selectedFlightData);
+      
+      // Update form with flight info
+      setBookingFormData({
+        ...bookingFormData,
+        flightNumber: selectedFlightData.flightNumber,
+        flightAirline: selectedFlightData.airline,
+        flightDepartureAirport: selectedFlightData.departureAirport,
+        flightArrivalAirport: selectedFlightData.arrivalAirport,
+      });
+      
+      toast({
+        title: "Flight Found",
+        description: `${selectedFlightData.airline} ${selectedFlightData.flightNumber}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Flight Search Failed",
+        description: error.message || "Unable to search for flights. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSearchingFlight(false);
+    }
+  };
+
   // Create/Update booking mutation
   const saveBookingMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -697,6 +799,8 @@ export default function AdminDashboard() {
         flightArrivalAirport: '',
       });
       setCalculatedPrice('');
+      setFlightSearchInput('');
+      setSelectedFlight(null);
       toast({
         title: editingBooking ? "Booking Updated" : "Booking Created",
         description: `Booking has been ${editingBooking ? 'updated' : 'created'} successfully.`,
@@ -1048,6 +1152,8 @@ export default function AdminDashboard() {
       flightArrivalAirport: '',
     });
     setCalculatedPrice('');
+    setFlightSearchInput('');
+    setSelectedFlight(null);
     setBookingDialogOpen(true);
   };
 
@@ -1081,6 +1187,8 @@ export default function AdminDashboard() {
       flightArrivalAirport: booking.flightArrivalAirport || '',
     });
     setCalculatedPrice('');
+    setFlightSearchInput('');
+    setSelectedFlight(null);
     setBookingDialogOpen(true);
   };
 
@@ -2494,52 +2602,114 @@ export default function AdminDashboard() {
               {/* Flight Information Section */}
               <div className="border-t pt-4">
                 <h3 className="font-semibold mb-3">Flight Information (Optional)</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Search for a flight by entering the flight number below. The system will automatically populate flight details.
+                </p>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="flight-number">Flight Number</Label>
+                <div className="flex gap-2 mb-3">
+                  <div className="flex-1">
                     <Input
-                      id="flight-number"
-                      value={bookingFormData.flightNumber}
-                      onChange={(e) => setBookingFormData({ ...bookingFormData, flightNumber: e.target.value })}
-                      placeholder="e.g., AA123"
-                      data-testid="input-flight-number"
+                      placeholder="Enter flight number (e.g., UA2346, DL3427)"
+                      value={flightSearchInput}
+                      onChange={(e) => setFlightSearchInput(e.target.value.toUpperCase())}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleFlightSearch();
+                        }
+                      }}
+                      data-testid="input-flight-search"
                     />
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="flight-airline">Airline</Label>
-                    <Input
-                      id="flight-airline"
-                      value={bookingFormData.flightAirline}
-                      onChange={(e) => setBookingFormData({ ...bookingFormData, flightAirline: e.target.value })}
-                      placeholder="e.g., American Airlines"
-                      data-testid="input-flight-airline"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="flight-departure-airport">Departure Airport</Label>
-                    <Input
-                      id="flight-departure-airport"
-                      value={bookingFormData.flightDepartureAirport}
-                      onChange={(e) => setBookingFormData({ ...bookingFormData, flightDepartureAirport: e.target.value })}
-                      placeholder="e.g., JFK"
-                      data-testid="input-flight-departure"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="flight-arrival-airport">Arrival Airport</Label>
-                    <Input
-                      id="flight-arrival-airport"
-                      value={bookingFormData.flightArrivalAirport}
-                      onChange={(e) => setBookingFormData({ ...bookingFormData, flightArrivalAirport: e.target.value })}
-                      placeholder="e.g., LAX"
-                      data-testid="input-flight-arrival"
-                    />
-                  </div>
+                  <Button
+                    onClick={handleFlightSearch}
+                    disabled={isSearchingFlight || !flightSearchInput.trim()}
+                    className="bg-primary hover:bg-primary/90 text-white px-6"
+                    data-testid="button-find-flight"
+                  >
+                    {isSearchingFlight ? (
+                      'Searching...'
+                    ) : (
+                      <>
+                        <Search className="w-4 h-4 mr-2" />
+                        Find Flight
+                      </>
+                    )}
+                  </Button>
                 </div>
+                
+                {selectedFlight && (
+                  <div className="mt-3 p-5 bg-green-50 border border-green-200 rounded-lg" data-testid="selected-flight-info">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Plane className="w-5 h-5 text-green-600" />
+                        <div>
+                          <p className="font-bold text-green-800">
+                            {selectedFlight.airline}
+                          </p>
+                          <p className="text-sm font-semibold text-green-700">
+                            Flight {selectedFlight.flightNumber}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSelectedFlight(null);
+                          setFlightSearchInput('');
+                          setBookingFormData({
+                            ...bookingFormData,
+                            flightNumber: '',
+                            flightAirline: '',
+                            flightDepartureAirport: '',
+                            flightArrivalAirport: '',
+                          });
+                        }}
+                        className="text-green-600 hover:text-green-800 text-sm font-medium"
+                        data-testid="button-clear-flight"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="space-y-2">
+                        <div>
+                          <p className="text-xs text-green-600 font-medium">Departure</p>
+                          <p className="text-green-800 font-semibold">{selectedFlight.departureAirport}</p>
+                          {selectedFlight.departureTime !== 'N/A' && (
+                            <p className="text-green-700 text-xs">{new Date(selectedFlight.departureTime).toLocaleString()}</p>
+                          )}
+                          {selectedFlight.departureTerminal !== 'N/A' && (
+                            <p className="text-green-600 text-xs">Terminal: {selectedFlight.departureTerminal}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div>
+                          <p className="text-xs text-green-600 font-medium">Arrival</p>
+                          <p className="text-green-800 font-semibold">{selectedFlight.arrivalAirport}</p>
+                          {selectedFlight.arrivalTime !== 'N/A' && (
+                            <p className="text-green-700 text-xs">{new Date(selectedFlight.arrivalTime).toLocaleString()}</p>
+                          )}
+                          {selectedFlight.arrivalTerminal !== 'N/A' && (
+                            <p className="text-green-600 text-xs">Terminal: {selectedFlight.arrivalTerminal}</p>
+                          )}
+                          {selectedFlight.baggageClaim !== 'N/A' && (
+                            <p className="text-green-600 text-xs">Baggage: {selectedFlight.baggageClaim}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {selectedFlight.aircraft !== 'N/A' && (
+                      <div className="mt-3 pt-3 border-t border-green-200">
+                        <p className="text-xs text-green-600">Aircraft: <span className="text-green-700 font-medium">{selectedFlight.aircraft}</span></p>
+                      </div>
+                    )}
+                    
+                    <p className="text-xs text-green-600 mt-3 italic">Flight information added to your booking</p>
+                  </div>
+                )}
               </div>
               
               {/* Additional Information Section */}
