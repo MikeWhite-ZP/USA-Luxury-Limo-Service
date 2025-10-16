@@ -785,6 +785,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // System Settings (Admin only)
+  app.get('/api/system-settings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const settings = await storage.getAllSystemSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error('Get system settings error:', error);
+      res.status(500).json({ message: 'Failed to fetch system settings' });
+    }
+  });
+
+  app.get('/api/system-settings/:key', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { key } = req.params;
+      const setting = await storage.getSystemSetting(key);
+      
+      if (!setting) {
+        return res.status(404).json({ message: 'Setting not found' });
+      }
+      
+      res.json(setting);
+    } catch (error) {
+      console.error('Get system setting error:', error);
+      res.status(500).json({ message: 'Failed to fetch system setting' });
+    }
+  });
+
+  app.put('/api/system-settings/:key', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { key } = req.params;
+      const { value } = req.body;
+
+      if (typeof value !== 'string') {
+        return res.status(400).json({ message: 'Value must be a string' });
+      }
+
+      await storage.updateSystemSetting(key, value, userId);
+      const updatedSetting = await storage.getSystemSetting(key);
+      
+      res.json(updatedSetting);
+    } catch (error) {
+      console.error('Update system setting error:', error);
+      res.status(500).json({ message: 'Failed to update system setting' });
+    }
+  });
+
   // Admin routes
   app.get('/api/admin/dashboard', isAuthenticated, async (req: any, res) => {
     try {
