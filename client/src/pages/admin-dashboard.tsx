@@ -2763,7 +2763,7 @@ export default function AdminDashboard() {
                     pickupAddress: bookingFormData.pickupAddress,
                     destinationAddress: bookingFormData.bookingType === 'transfer' ? bookingFormData.destinationAddress : undefined,
                     scheduledDateTime: new Date(bookingFormData.scheduledDateTime),
-                    totalAmount: parseFloat(bookingFormData.totalAmount),
+                    totalAmount: bookingFormData.totalAmount.toString(),
                     status: bookingFormData.status,
                     bookingFor: bookingFormData.bookingFor,
                     passengerName: bookingFormData.passengerName,
