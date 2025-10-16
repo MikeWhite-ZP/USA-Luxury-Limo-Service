@@ -442,11 +442,16 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         throw new Error('Please sign in to complete your booking');
       }
 
+      // Get the total price for the selected vehicle
+      const selectedVehicleName = vehicleTypes?.find(v => v.id === selectedVehicle)?.name || '';
+      const selectedVehicleSlug = getVehicleSlug(selectedVehicleName);
+      const totalPrice = calculatedPrices[selectedVehicleSlug] || '0';
+
       const bookingData = {
         vehicleTypeId: selectedVehicle,
         bookingType: activeTab,
         scheduledDateTime: new Date(`${date}T${time}`),
-        totalAmount: parseFloat(quoteData.totalAmount),
+        totalAmount: parseFloat(totalPrice),
         ...(activeTab === 'transfer' ? {
           pickupAddress: fromAddress,
           pickupLat: fromCoords?.lat.toString(),
@@ -1013,10 +1018,15 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   }
 
   if (step === 3 && quoteData) {
+    // Get the total price for the selected vehicle
+    const selectedVehicleName = vehicleTypes?.find(v => v.id === selectedVehicle)?.name || '';
+    const selectedVehicleSlug = getVehicleSlug(selectedVehicleName);
+    const totalPrice = calculatedPrices[selectedVehicleSlug] || '0';
+
     return (
       <div className="space-y-6">
         {/* Trip Summary - Complete Details */}
-        <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-5 rounded-xl border-2 border-primary/20" data-testid="trip-summary">
+        <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-5 rounded-xl border-2 border-primary/20 text-[12px]" data-testid="trip-summary">
           <h3 className="text-lg font-bold text-primary mb-4">Booking Summary</h3>
           
           {/* Service Type & Vehicle */}
@@ -1028,7 +1038,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               </div>
               <div className="text-right">
                 <p className="text-xs text-gray-500 uppercase tracking-wide">Total Price</p>
-                <p className="text-2xl font-bold text-primary">${quoteData.totalAmount}</p>
+                <p className="text-2xl font-bold text-primary">${totalPrice}</p>
               </div>
             </div>
 
@@ -1037,7 +1047,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               <div className="pt-3 border-t border-gray-200">
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Selected Vehicle</p>
                 <p className="font-semibold text-gray-800">
-                  {vehicleTypes.find(v => v.id === selectedVehicle)?.name || 'Vehicle'}
+                  {selectedVehicleName}
                 </p>
               </div>
             )}
