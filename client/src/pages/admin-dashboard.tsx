@@ -85,6 +85,132 @@ interface DriverDocument {
   };
 }
 
+function AdminEmailSettings({ user }: { user: any }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [adminEmail, setAdminEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch current admin email setting
+  const { data: emailSetting } = useQuery({
+    queryKey: ['/api/system-settings', 'ADMIN_EMAIL'],
+    enabled: !!user && user.role === 'admin',
+  });
+
+  useEffect(() => {
+    if (emailSetting) {
+      setAdminEmail(emailSetting.value || '');
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
+    }
+  }, [emailSetting]);
+
+  const updateEmailMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await apiRequest('/api/system-settings/ADMIN_EMAIL', {
+        method: 'PUT',
+        body: JSON.stringify({ value: email }),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Email updated",
+        description: "System admin email has been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/system-settings', 'ADMIN_EMAIL'] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update admin email. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleUpdate = () => {
+    if (!adminEmail || !adminEmail.includes('@')) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    updateEmailMutation.mutate(adminEmail);
+  };
+
+  return (
+    <Card id="settings-section" data-testid="email-settings">
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <Settings className="w-5 h-5" />
+          <span>Email Settings</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Configure the system-wide admin email address. Contact form submissions will be sent to this email address.
+            </p>
+
+            <div className="max-w-md space-y-3">
+              <div>
+                <Label htmlFor="admin-email">Admin Email Address</Label>
+                <Input
+                  id="admin-email"
+                  type="email"
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  placeholder="admin@example.com"
+                  data-testid="input-admin-email"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Current value: {emailSetting?.value || 'Not set'}
+                </p>
+              </div>
+
+              <Button
+                onClick={handleUpdate}
+                disabled={updateEmailMutation.isPending}
+                data-testid="button-update-email"
+              >
+                {updateEmailMutation.isPending ? (
+                  <>
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Update Email
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <div className="mt-6 p-4 bg-muted rounded-lg">
+              <h4 className="font-semibold text-sm mb-2">Usage:</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• This email receives all contact form submissions from passengers</li>
+                <li>• Make sure the email address is monitored regularly</li>
+                <li>• You can update this email at any time</li>
+              </ul>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function AdminDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -102,7 +228,7 @@ export default function AdminDashboard() {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [loadingValue, setLoadingValue] = useState(false);
   const [visibleCredentialsSection, setVisibleCredentialsSection] = useState<'api' | 'payment' | null>(null);
-  const [visibleSettingsSection, setVisibleSettingsSection] = useState<'commission' | null>(null);
+  const [visibleSettingsSection, setVisibleSettingsSection] = useState<'commission' | 'email' | null>(null);
   const [showBookings, setShowBookings] = useState(false);
   const [selectedUserType, setSelectedUserType] = useState<'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin'>('all');
   const [showUserManager, setShowUserManager] = useState(false);
@@ -1656,6 +1782,9 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         )}
+
+        {/* Email Settings */}
+        {visibleSettingsSection === 'email' && <AdminEmailSettings user={user} />}
 
         {/* Bookings Management */}
         {showBookings && (

@@ -17,6 +17,7 @@ import {
   ChevronDown,
   Percent,
   LogOut,
+  Mail,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -24,7 +25,7 @@ interface AdminNavProps {
   onCredentialsClick?: (section: 'api' | 'payment') => void;
   onUserManagerClick?: (type: 'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin') => void;
   onBookingsClick?: () => void;
-  onSettingsClick?: (section: 'commission') => void;
+  onSettingsClick?: (section: 'commission' | 'email') => void;
 }
 
 export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onSettingsClick }: AdminNavProps) {
@@ -212,6 +213,19 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 >
                   <Percent className="w-4 h-4 mr-2" />
                   System Commission
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location !== '/admin-dashboard') {
+                      window.location.href = '/admin-dashboard';
+                    }
+                    onSettingsClick?.('email');
+                  }}
+                  className="hover:bg-black hover:text-white cursor-pointer"
+                  data-testid="nav-email-settings"
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Email Settings
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
