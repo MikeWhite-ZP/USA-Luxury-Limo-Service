@@ -317,7 +317,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               serviceType: 'transfer',
               distance: distanceData.distance,
               date,
-              time
+              time,
+              userId: user?.id
             });
             const priceData = await priceResponse.json();
             return { vehicleType: vehicleTypeSlug, price: priceData.price };
@@ -357,7 +358,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               serviceType: 'hourly',
               hours: duration,
               date,
-              time
+              time,
+              userId: user?.id
             });
             const priceData = await priceResponse.json();
             return { vehicleType: vehicleTypeSlug, price: priceData.price };

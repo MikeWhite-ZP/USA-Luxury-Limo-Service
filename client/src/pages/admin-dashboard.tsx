@@ -118,6 +118,8 @@ export default function AdminDashboard() {
     role: 'passenger' as 'passenger' | 'driver' | 'dispatcher' | 'admin',
     isActive: true,
     payLaterEnabled: false,
+    discountType: null as 'percentage' | 'fixed' | null,
+    discountValue: '0',
   });
 
   // Payment configuration dialog state
@@ -810,6 +812,8 @@ export default function AdminDashboard() {
       role: selectedUserType !== 'all' ? selectedUserType : 'passenger',
       isActive: true,
       payLaterEnabled: false,
+      discountType: null,
+      discountValue: '0',
     });
     setUserDialogOpen(true);
   };
@@ -824,6 +828,8 @@ export default function AdminDashboard() {
       role: user.role,
       isActive: user.isActive,
       payLaterEnabled: user.payLaterEnabled,
+      discountType: user.discountType as 'percentage' | 'fixed' | null,
+      discountValue: user.discountValue || '0',
     });
     setUserDialogOpen(true);
   };
@@ -2607,24 +2613,74 @@ export default function AdminDashboard() {
             </div>
 
             {userFormData.role === 'passenger' && (
-              <div className="space-y-2">
-                <Label htmlFor="user-paylater">Pay Later Ability</Label>
-                <Select
-                  value={userFormData.payLaterEnabled ? 'enabled' : 'disabled'}
-                  onValueChange={(value) => setUserFormData({ ...userFormData, payLaterEnabled: value === 'enabled' })}
-                >
-                  <SelectTrigger id="user-paylater" data-testid="select-user-paylater">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="enabled">Enabled</SelectItem>
-                    <SelectItem value="disabled">Disabled</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Allow passenger to complete trips and pay afterwards
-                </p>
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="user-paylater">Pay Later Ability</Label>
+                  <Select
+                    value={userFormData.payLaterEnabled ? 'enabled' : 'disabled'}
+                    onValueChange={(value) => setUserFormData({ ...userFormData, payLaterEnabled: value === 'enabled' })}
+                  >
+                    <SelectTrigger id="user-paylater" data-testid="select-user-paylater">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="enabled">Enabled</SelectItem>
+                      <SelectItem value="disabled">Disabled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Allow passenger to complete trips and pay afterwards
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="user-discount-type">Discount Type</Label>
+                  <Select
+                    value={userFormData.discountType || 'none'}
+                    onValueChange={(value) => setUserFormData({ 
+                      ...userFormData, 
+                      discountType: value === 'none' ? null : value as 'percentage' | 'fixed',
+                      discountValue: value === 'none' ? '0' : userFormData.discountValue
+                    })}
+                  >
+                    <SelectTrigger id="user-discount-type" data-testid="select-user-discount-type">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No Discount</SelectItem>
+                      <SelectItem value="percentage">Percentage (%)</SelectItem>
+                      <SelectItem value="fixed">Fixed Amount ($)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Select how the discount should be applied
+                  </p>
+                </div>
+
+                {userFormData.discountType && (
+                  <div className="space-y-2">
+                    <Label htmlFor="user-discount-value">
+                      Discount Value {userFormData.discountType === 'percentage' ? '(%)' : '($)'}
+                    </Label>
+                    <Input
+                      id="user-discount-value"
+                      type="number"
+                      min="0"
+                      max={userFormData.discountType === 'percentage' ? '100' : undefined}
+                      step={userFormData.discountType === 'percentage' ? '1' : '0.01'}
+                      placeholder={userFormData.discountType === 'percentage' ? '10' : '5.00'}
+                      value={userFormData.discountValue}
+                      onChange={(e) => setUserFormData({ ...userFormData, discountValue: e.target.value })}
+                      data-testid="input-user-discount-value"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {userFormData.discountType === 'percentage' 
+                        ? 'Enter percentage discount (0-100)'
+                        : 'Enter fixed discount amount in dollars'}
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
