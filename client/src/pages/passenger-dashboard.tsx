@@ -1069,7 +1069,7 @@ export default function PassengerDashboard() {
               
               <Button
                 variant="outline"
-                onClick={() => setShowAllBookings(true)}
+                onClick={() => setActiveSection('past-bookings')}
                 className="h-16 flex flex-col space-y-1"
                 data-testid="button-view-history"
               >
