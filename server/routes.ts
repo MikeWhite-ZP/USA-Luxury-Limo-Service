@@ -643,6 +643,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cancel booking (passengers can cancel confirmed bookings, admins can cancel any)
+  app.patch('/api/bookings/:id/cancel', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      
+      // Get the booking first
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      const user = await storage.getUser(userId);
+      
+      // Check permissions: must be admin or booking owner
+      if (booking.passengerId !== userId && user?.role !== 'admin') {
+        return res.status(403).json({ message: 'Not authorized to cancel this booking' });
+      }
+
+      // Don't allow cancelling completed or already cancelled bookings
+      if (booking.status === 'completed' || booking.status === 'cancelled') {
+        return res.status(400).json({ 
+          message: `Cannot cancel ${booking.status} booking` 
+        });
+      }
+
+      // Update booking status to cancelled
+      const updatedBooking = await storage.updateBooking(id, { status: 'cancelled' });
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Cancel booking error:', error);
+      res.status(500).json({ message: 'Failed to cancel booking' });
+    }
+  });
+
   // Admin: Create booking for a passenger
   app.post('/api/admin/bookings', isAuthenticated, async (req: any, res) => {
     try {
