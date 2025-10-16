@@ -119,7 +119,7 @@ export default function Header() {
                     <ChevronDown className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-56 bg-[#ffffff]">
                   <div className="px-2 py-1.5">
                     <p className="text-sm font-medium" data-testid="menu-user-name">
                       {user.firstName && user.lastName 
