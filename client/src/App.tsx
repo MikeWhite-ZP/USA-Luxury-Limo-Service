@@ -58,7 +58,8 @@ function Router() {
       
       {/* Authentication routes */}
       <Route path="/login" component={RoleLogin} />
-      <Route path="/admin-login/" component={AdminLogin} />
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin-login" component={AdminLogin} />
       
       {!isAuthenticated ? (
         <Route path="/" component={Landing} />

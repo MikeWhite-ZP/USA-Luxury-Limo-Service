@@ -1,200 +1,55 @@
 # USA Luxury Limo
 
 ## Overview
-
-USA Luxury Limo is a full-stack luxury transportation booking platform that replicates the functionality of professional limousine services. The application provides a comprehensive booking system with real-time pricing, fleet management, and multi-role user authentication. Built as a Progressive Web Application (PWA), it features a React frontend with TypeScript, Express.js backend, PostgreSQL database with Drizzle ORM, and integrates with Stripe for payments and TomTom for geocoding services. The PWA functionality allows drivers, passengers, and dispatchers to install the app on their devices for quick access and offline capabilities.
+USA Luxury Limo is a full-stack luxury transportation booking platform designed as a Progressive Web Application (PWA). It provides a comprehensive system for real-time pricing, fleet management, and multi-role user authentication, catering to passengers, drivers, and dispatchers. The platform aims to streamline the booking process for luxury transportation services, offering features like flight search integration, advanced payment options, and driver document management.
 
 ## User Preferences
-
 Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Frontend Architecture
-- **Framework**: React 18 with TypeScript using Vite as the build tool
-- **UI Library**: Shadcn/ui components built on Radix UI primitives
-- **Styling**: Tailwind CSS with custom design tokens and Montserrat font family
-- **State Management**: TanStack Query (React Query) for server state management
-- **Routing**: Wouter for lightweight client-side routing
-- **Form Handling**: React Hook Form with Zod validation
-- **Admin Navigation**: Reusable AdminNav component provides consistent navigation across all admin pages (pricing, credentials, user management, bookings)
+### Frontend
+- **Framework**: React 18 with TypeScript and Vite.
+- **UI/UX**: Shadcn/ui components (Radix UI) with Tailwind CSS, custom design tokens, and Montserrat font.
+- **State Management**: TanStack Query for server state.
+- **Routing**: Wouter for client-side routing.
+- **Form Handling**: React Hook Form with Zod validation.
+- **PWA Features**: Installable with offline capabilities via service worker and web app manifest.
 
-### Backend Architecture
-- **Runtime**: Node.js with Express.js framework
-- **Language**: TypeScript with ES modules
-- **API Design**: RESTful APIs with JSON responses
-- **Authentication**: Replit Auth integration with OpenID Connect
-- **Session Management**: Express sessions with PostgreSQL storage
-- **File Processing**: Custom upload handling with object storage integration
+### Backend
+- **Runtime**: Node.js with Express.js.
+- **Language**: TypeScript with ES modules.
+- **API**: RESTful APIs with JSON.
+- **Authentication**: Replit Auth with OpenID Connect and PostgreSQL-backed session management, supporting three-tier roles (passenger, driver, admin).
+- **Security**: scrypt password hashing, secure session cookies, and robust password validation.
 
-### Database Design
-- **Database**: PostgreSQL with connection pooling via Neon
-- **ORM**: Drizzle ORM for type-safe database operations
-- **Schema Management**: Drizzle Kit for migrations and schema generation
-- **Key Tables**: Users, drivers, vehicles, bookings, saved addresses, system settings, invoices, contact submissions
+### Database
+- **Type**: PostgreSQL with Neon for connection pooling.
+- **ORM**: Drizzle ORM for type-safe operations.
+- **Schema Management**: Drizzle Kit for migrations.
+- **Key Entities**: Users, drivers, vehicles, bookings, addresses, system settings, invoices, contact submissions.
 
-### Authentication & Authorization
-- **Provider**: Replit Auth with OpenID Connect
-- **Session Storage**: PostgreSQL-backed sessions with configurable TTL
-- **User Roles**: Three-tier role system (passenger, driver, admin)
-- **Security**: bcrypt for password hashing, secure session cookies
-
-### Payment Processing
-- **Multi-Provider Support**: Configurable payment systems for Stripe, PayPal, and Square
-- **Implementation**: Dialog-based credential configuration with provider-specific fields
-- **Configuration Flow**: 
-  - Create new systems with full credential validation
-  - Update existing systems with partial credential updates
-  - Prefill non-secret fields when editing (publicKey, clientId, applicationId, locationId)
-  - Never expose or prefill secret fields for security
-- **Provider Mapping**:
-  - Stripe: publicKey (pk_live_*), secretKey (sk_live_*), webhookSecret (whsec_*)
-  - PayPal: clientId (→publicKey), clientSecret (→secretKey), webhookId (→webhookSecret)
-  - Square: applicationId (→publicKey), accessToken (→secretKey), locationId (→config.locationId)
-- **Security**: No raw credential storage in frontend, password-type inputs for secrets, server-side credential masking
-
-### Geolocation Services
-- **Provider**: TomTom API for address geocoding and suggestions
-- **Features**: Real-time address autocomplete, coordinate conversion
-- **Integration**: Configurable API keys via system settings (database-first with environment variable fallback)
-- **Fallback**: Graceful degradation when service unavailable
-
-### Flight Search Integration
-- **Provider**: AeroDataBox API via RapidAPI for flight search functionality
-- **Features**: Real-time flight search by flight number, multiple flight results handling
-- **Integration**: Database-managed RapidAPI key with environment variable fallback
-- **Admin Management**: RapidAPI key configurable through admin credentials page
-- **Error Handling**: Comprehensive timeout and error handling (20s backend, 30s frontend timeouts)
-- **User Experience**: Specific error messages for different failure scenarios (timeout, service unavailable, authentication errors)
-- **API Pattern**: Follows same database-first pattern as TomTom integration (checks database, falls back to environment variable)
-
-### Business Logic
-- **Pricing Engine**: Complex fare calculation based on n8n workflow specifications
-- **Service Types**: Transfer (point-to-point) and hourly booking options
-- **Fleet Management**: Vehicle type definitions with capacity and pricing
-- **Booking Flow**: 4-step booking process where bookings are created ONLY AFTER successful payment completion
-  - **Step 1: Trip Details** - Enter addresses, date, and time for transfer or hourly service
-  - **Step 2: Vehicle Selection** - Choose from calculated pricing options for available vehicle types
-  - **Step 3: Passenger Information** - Enter passenger details (auto-fills for logged-in users booking for themselves), optional flight search with detailed flight information, passenger/luggage counts, special instructions
-  - **Step 4: Payment** - Select payment method and complete payment BEFORE booking is recorded:
-    - **Pay Now**: Processes payment immediately, creates booking with "paid" status after successful payment
-    - **Pay Later**: (Only if `payLaterEnabled` is true) Creates booking with "confirmed" status for post-trip payment
-      - Shows warning if no saved payment methods on file
-      - Requires payment method in Account Settings for future payments
-  - **Important**: Bookings are NOT saved to database until payment is completed (Step 4), ensuring no unpaid bookings in the system
-  - **Checkout Flow**: 
-    - New bookings: Payment processed first (mode=create), booking created after successful payment with paymentIntentId
-    - Existing bookings: Standard payment flow with bookingId
-- **Commission System**: Configurable system commission percentage for calculating company earnings from completed bookings, displayed in admin dashboard alongside total revenue
-
-### Driver Document Management
-- **Document Types**: Four document types (Driver License, Limo License, Insurance Certificate, Vehicle Image)
-- **Status Tracking**: Three-tier status system (pending, approved, rejected) with visual badges
-- **Expiration Management**: 
-  - Driver License, Limo License, and Insurance Certificate include expiration date tracking
-  - Vehicle Image includes vehicle plate number instead of expiration date
-- **Upload Flow**:
-  - Initial upload: File + metadata → Status set to "pending" → Awaits admin review
-  - Re-upload: Updates existing document → Status resets to "pending" → Notifies admins
-- **Driver View**: Real-time status display with expiration dates, rejection reasons, and upload timestamps
-- **Admin Review**: Admins can approve/reject documents with optional rejection reasons
-- **Object Storage**: Files stored in Replit Object Storage under `driver-docs/{driverId}/` directory
-
-### User Account Management
-- **Account Settings Page**: Dedicated /account route for authenticated users to manage profile
-- **Profile Editing**: Users can update firstName, lastName, email, and phone number
-- **API Endpoint**: PATCH /api/user/profile with validation and email uniqueness check
-- **Real-time Updates**: Profile changes immediately reflected in Header and across application via TanStack Query cache invalidation
-- **Header Dropdown**: Account menu with user info, "Account Settings" link, and "Sign Out" button
-- **Security**: Server-side validation prevents duplicate emails, authenticated endpoint ensures user can only edit own profile
-
-### Pay Later and Discount System
-- **Admin Control**: Admins can enable/disable pay later ability for individual passengers through user management interface
-- **Discount Management**: Per-passenger discount system with two discount types:
-  - **Percentage Discount**: 0-100% off total fare (validated at API level)
-  - **Fixed Discount**: Dollar amount off total fare (minimum $0)
-- **Database Fields**: 
-  - `payLaterEnabled`: Boolean flag (default false)
-  - `discountType`: Enum ('percentage' | 'fixed') nullable
-  - `discountValue`: Decimal(10,2) storing discount amount (default 0)
-- **Price Calculation**: Discounts applied automatically during fare calculation when userId provided
-  - Discount calculated after all surcharges, fees, and gratuity
-  - Total never drops below zero
-  - Discount breakdown included in pricing response
-- **Admin UI**: User Manager section includes:
-  - Pay Later toggle (Enabled/Disabled) for passengers
-  - Discount type selector (None/Percentage/Fixed)
-  - Discount value input with validation
-  - Real-time form updates based on discount type selection
-- **Booking Integration**: Authenticated users automatically receive applicable discounts during vehicle selection and checkout
-
-### Booking Management
-- **Booking Cancellation**: Passengers can cancel confirmed and in-progress bookings
-  - **API Endpoint**: PATCH /api/bookings/:id/cancel
-  - **Authorization**: Booking owner or admin can cancel
-  - **Restrictions**: Cannot cancel completed or already cancelled bookings
-  - **UI Integration**: Cancel button appears on confirmed/in-progress bookings in passenger dashboard
-  - **Confirmation Dialog**: Shows booking details before cancellation
-  - **Status Update**: Changes booking status to "cancelled" in database
-- **Saved Address Quick Booking**: Fast booking from saved addresses in passenger dashboard
-  - **From Button**: Pre-fills pickup address in booking form (works for both transfer and hourly bookings)
-  - **To Button**: Pre-fills destination address in booking form (transfer bookings only)
-  - **URL Parameters**: Uses `?from=` and `?to=` query parameters to pass addresses
-  - **Auto-fill Logic**: Booking form checks URL parameters on load and pre-fills addresses
-  - **URL Cleanup**: Parameters cleared from URL after addresses are set
-
-### Progressive Web Application (PWA)
-- **Installability**: App can be installed on any device (iOS, Android, Desktop) via browser prompt
-- **Install Prompt**: Custom in-app prompt with "Install" and "Not now" options, dismissible per session
-- **Service Worker**: Implements offline caching strategy for static assets and API responses
-- **Manifest**: Web app manifest with app metadata, icons (72x72 to 512x512), and theme colors
-- **Icons**: Auto-generated PWA icons from luxury limo stock image in 8 different sizes
-- **Offline Support**: Network-first caching strategy with offline fallback to cached content
-- **User Experience**: Works seamlessly for all user roles (passenger, driver, dispatcher/admin)
-- **Installation**: Users can install from browser menu or via in-app prompt for quick access
+### Core Features
+- **Payment Processing**: Multi-provider support (Stripe, PayPal, Square) with secure credential handling and configurable payment systems. Supports "Pay Now" and conditional "Pay Later" options.
+- **Geolocation**: TomTom API for geocoding, address autocomplete, and coordinate conversion.
+- **Flight Search**: AeroDataBox API for real-time flight search, configurable via RapidAPI key.
+- **Pricing Engine**: Complex fare calculation based on service type (transfer/hourly) and vehicle type, incorporating system commissions and per-passenger discounts (percentage/fixed).
+- **Booking Flow**: A 4-step process where bookings are finalized only after successful payment completion to prevent unpaid bookings.
+- **Driver Management**: Document upload and approval system (Driver License, Limo License, Insurance, Vehicle Image) with expiration tracking, admin review, and Replit Object Storage integration.
+- **User Account Management**: Users can update profiles; admins manage user roles, `payLaterEnabled` status, and discount settings.
+- **Contact Support**: Passenger contact form with submissions stored in the database for admin review.
+- **System Settings**: Admin-configurable, system-wide key-value settings stored in the database (e.g., ADMIN_EMAIL).
 
 ## External Dependencies
-
-- **Stripe**: Payment processing and customer management
-- **TomTom**: Geocoding services and address suggestions
-- **Neon Database**: PostgreSQL hosting with connection pooling
-- **Replit Auth**: Authentication provider with OpenID Connect
-- **Shadcn/ui**: Component library built on Radix UI
-- **TanStack Query**: Server state management and caching
-- **Drizzle ORM**: Type-safe database operations
-- **Tailwind CSS**: Utility-first CSS framework
-- **Wouter**: Lightweight React routing
-- **React Hook Form**: Form state management and validation
-
-## Docker Deployment
-
-The application can be containerized and deployed using Docker:
-
-### Files
-- **Dockerfile**: Multi-stage build (builder + production) using Node 20 Alpine
-- **docker-compose.yml**: Service orchestration with environment variables
-- **.dockerignore**: Excludes node_modules, logs, and dev files from build context
-- **.env.example**: Template for required environment variables
-
-### Build Process
-1. Builder stage: Installs all dependencies and runs `npm run build`
-   - Frontend built to `dist/public/` via Vite
-   - Backend bundled to `dist/index.js` via esbuild
-2. Production stage: Copies built artifacts and production dependencies only
-
-### Running with Docker
-```bash
-# Build the image
-docker build -t usa-luxury-limo .
-
-# Run with docker-compose (recommended)
-docker-compose up -d
-
-# Or run directly
-docker run -p 5000:5000 --env-file .env usa-luxury-limo
-```
-
-### Environment Variables
-All environment variables must be provided via `.env` file or docker-compose environment section:
-- DATABASE_URL, STRIPE keys, Auth credentials, SESSION_SECRET, etc.
-- See `.env.example` for complete list
+- **Stripe**: Payment gateway.
+- **TomTom**: Geocoding and location services.
+- **Neon Database**: PostgreSQL hosting.
+- **Replit Auth**: User authentication.
+- **Shadcn/ui**: UI component library.
+- **TanStack Query**: Server state management.
+- **Drizzle ORM**: Database ORM.
+- **Tailwind CSS**: Styling framework.
+- **Wouter**: React router.
+- **React Hook Form**: Form management.
+- **AeroDataBox API (via RapidAPI)**: Flight search services.
+- **Replit Object Storage**: Driver document storage.
