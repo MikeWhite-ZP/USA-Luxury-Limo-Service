@@ -1057,7 +1057,7 @@ export default function PassengerDashboard() {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 gap-4">
               <Button
                 onClick={() => window.location.href = '/'}
                 className="h-16 flex flex-col space-y-1"
@@ -1065,16 +1065,6 @@ export default function PassengerDashboard() {
               >
                 <MapPin className="w-5 h-5" />
                 <span>Book a Ride</span>
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={() => window.location.href = '/#contact'}
-                className="h-16 flex flex-col space-y-1"
-                data-testid="button-contact-support"
-              >
-                <Building className="w-5 h-5" />
-                <span>Contact Support</span>
               </Button>
               
               <Button
