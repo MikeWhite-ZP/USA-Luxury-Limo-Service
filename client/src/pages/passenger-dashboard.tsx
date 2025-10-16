@@ -770,8 +770,7 @@ export default function PassengerDashboard() {
                   return (
                     <div
                       key={address.id}
-                      className="bg-muted rounded-lg p-4 cursor-pointer hover:bg-muted/80 transition-colors group"
-                      onClick={() => handleQuickBook(address)}
+                      className="bg-muted rounded-lg p-4 group"
                       data-testid={`address-${address.id}`}
                     >
                       <div className="flex justify-between items-start mb-2">
@@ -792,9 +791,29 @@ export default function PassengerDashboard() {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      <p className="text-sm text-muted-foreground" data-testid={`address-text-${address.id}`}>
+                      <p className="text-sm text-muted-foreground mb-3" data-testid={`address-text-${address.id}`}>
                         {address.address}
                       </p>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => window.location.href = `/?from=${encodeURIComponent(address.address)}`}
+                          className="flex-1"
+                          data-testid={`button-from-${address.id}`}
+                        >
+                          From
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => window.location.href = `/?to=${encodeURIComponent(address.address)}`}
+                          className="flex-1"
+                          data-testid={`button-to-${address.id}`}
+                        >
+                          To
+                        </Button>
+                      </div>
                     </div>
                   );
                 })}

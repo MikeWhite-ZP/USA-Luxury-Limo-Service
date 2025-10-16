@@ -101,6 +101,24 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
     const today = new Date().toISOString().split('T')[0];
     setDate(today);
     
+    // Check for URL parameters for pre-filled addresses
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromParam = urlParams.get('from');
+    const toParam = urlParams.get('to');
+    
+    if (fromParam) {
+      setFromAddress(fromParam);
+      setPickupAddress(fromParam);
+    }
+    if (toParam) {
+      setToAddress(toParam);
+    }
+    
+    // Clear URL parameters after setting the addresses
+    if (fromParam || toParam) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    
     // Check for saved booking data from localStorage
     const savedBookingData = localStorage.getItem('pendingBookingData');
     if (savedBookingData) {
