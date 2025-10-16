@@ -886,8 +886,8 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('home')}
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'home'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-home"
             >
@@ -899,7 +899,7 @@ export default function PassengerDashboard() {
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'saved-locations'
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-saved-locations"
             >
@@ -911,7 +911,7 @@ export default function PassengerDashboard() {
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'future-bookings'
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-future-bookings"
             >
@@ -923,7 +923,7 @@ export default function PassengerDashboard() {
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'past-bookings'
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-past-bookings"
             >
@@ -935,7 +935,7 @@ export default function PassengerDashboard() {
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'payment-methods'
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-payment-methods"
             >
@@ -947,7 +947,7 @@ export default function PassengerDashboard() {
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'account-details'
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-account-details"
             >
@@ -959,7 +959,7 @@ export default function PassengerDashboard() {
               className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
                 activeSection === 'support'
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
               }`}
               data-testid="nav-support"
             >
