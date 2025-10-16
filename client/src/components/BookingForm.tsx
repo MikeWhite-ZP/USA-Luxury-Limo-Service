@@ -1757,7 +1757,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               onClick={() => {
                 setShowPaymentOptions(false);
                 if (createdBooking) {
-                  setLocation(`/checkout?bookingId=${createdBooking.id}&amount=${quoteData.totalAmount}`);
+                  setLocation(`/checkout?bookingId=${createdBooking.id}&amount=${createdBooking.totalAmount}`);
                 }
               }}
               className="w-full p-6 border-2 border-primary rounded-lg hover:bg-primary/5 transition-all group"
