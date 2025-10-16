@@ -283,9 +283,10 @@ export default function PassengerDashboard() {
   const [rating, setRating] = useState(0);
   const [ratingComment, setRatingComment] = useState('');
 
-  // Edit/Delete state
+  // Edit/Delete/Cancel state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [editFormData, setEditFormData] = useState({
     scheduledDateTime: '',
@@ -484,6 +485,34 @@ export default function PassengerDashboard() {
     },
   });
 
+  // Cancel booking mutation
+  const cancelBookingMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest('PATCH', `/api/bookings/${id}/cancel`);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to cancel booking');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      setCancelDialogOpen(false);
+      setSelectedBooking(null);
+      toast({
+        title: "Booking Cancelled",
+        description: "Your booking has been cancelled successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to cancel booking",
+        variant: "destructive",
+      });
+    },
+  });
+
   // TomTom address search with debouncing
   const searchAddress = async (query: string) => {
     if (query.length < 3) {
@@ -585,6 +614,11 @@ export default function PassengerDashboard() {
   const handleDeleteBooking = (booking: Booking) => {
     setSelectedBooking(booking);
     setDeleteDialogOpen(true);
+  };
+
+  const handleCancelBooking = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setCancelDialogOpen(true);
   };
 
   const handleEditSubmit = () => {
@@ -837,6 +871,20 @@ export default function PassengerDashboard() {
                         </Button>
                       </div>
                     )}
+                    {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
+                      <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleCancelBooking(booking)}
+                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          data-testid={`button-cancel-${booking.id}`}
+                        >
+                          <AlertTriangle className="w-3 h-3 mr-1" />
+                          Cancel Booking
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -969,6 +1017,18 @@ export default function PassengerDashboard() {
                             Delete
                           </Button>
                         </>
+                      )}
+                      {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleCancelBooking(booking)}
+                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          data-testid={`button-cancel-history-${booking.id}`}
+                        >
+                          <AlertTriangle className="w-3 h-3 mr-1" />
+                          Cancel Booking
+                        </Button>
                       )}
                       {booking.status === 'completed' && booking.driverId && (
                         <Button
@@ -1213,6 +1273,52 @@ export default function PassengerDashboard() {
               data-testid="button-confirm-delete"
             >
               {deleteBookingMutation.isPending ? 'Deleting...' : 'Delete Booking'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel Confirmation Dialog */}
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <DialogContent className="sm:max-w-[400px] bg-[#ffffff]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              Cancel Booking
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel this booking? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedBooking && (
+            <div className="bg-muted rounded-lg p-4 my-4">
+              <p className="text-sm font-medium mb-1">
+                {selectedBooking.pickupAddress} → {selectedBooking.destinationAddress || 'Hourly Service'}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {new Date(selectedBooking.scheduledDateTime).toLocaleDateString()} • {new Date(selectedBooking.scheduledDateTime).toLocaleTimeString()}
+              </p>
+            </div>
+          )}
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setCancelDialogOpen(false)}
+              data-testid="button-cancel-cancel"
+            >
+              Keep Booking
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (selectedBooking) {
+                  cancelBookingMutation.mutate(selectedBooking.id);
+                }
+              }}
+              disabled={cancelBookingMutation.isPending}
+              data-testid="button-confirm-cancel"
+            >
+              {cancelBookingMutation.isPending ? 'Cancelling...' : 'Cancel Booking'}
             </Button>
           </div>
         </DialogContent>
