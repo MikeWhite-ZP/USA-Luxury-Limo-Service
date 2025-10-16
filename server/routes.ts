@@ -1102,12 +1102,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id } = req.params;
-      const { role, isActive, payLaterEnabled, firstName, lastName, email, phone } = req.body;
+      const { role, isActive, payLaterEnabled, discountType, discountValue, firstName, lastName, email, phone } = req.body;
       
       const updates: Partial<User> = {};
       if (role !== undefined) updates.role = role;
       if (isActive !== undefined) updates.isActive = isActive;
       if (payLaterEnabled !== undefined) updates.payLaterEnabled = payLaterEnabled;
+      if (discountType !== undefined) updates.discountType = discountType;
+      if (discountValue !== undefined) {
+        // Validate discount value
+        const value = parseFloat(discountValue);
+        if (isNaN(value) || value < 0) {
+          return res.status(400).json({ message: 'Invalid discount value' });
+        }
+        // For percentage, ensure it's between 0 and 100
+        if (discountType === 'percentage' && value > 100) {
+          return res.status(400).json({ message: 'Percentage discount cannot exceed 100%' });
+        }
+        updates.discountValue = discountValue.toString();
+      }
       if (firstName !== undefined) updates.firstName = firstName;
       if (lastName !== undefined) updates.lastName = lastName;
       if (email !== undefined) updates.email = email;
@@ -1987,7 +2000,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Calculate price based on admin pricing rules
   app.post('/api/calculate-price', async (req, res) => {
     try {
-      const { vehicleType, serviceType, distance, hours, date, time, airportCode } = req.body;
+      const { vehicleType, serviceType, distance, hours, date, time, airportCode, userId } = req.body;
 
       if (!vehicleType || !serviceType) {
         return res.status(400).json({ message: 'vehicleType and serviceType are required' });
@@ -2122,15 +2135,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Calculate final total
+      // Calculate final total before discount
       breakdown.total = (breakdown.subtotal + breakdown.gratuity + breakdown.airportFee + breakdown.meetAndGreetFee) * breakdown.surgeMultiplier;
+
+      // Apply passenger discount if userId provided
+      let discountAmount = 0;
+      let discountType = null;
+      let discountValue = null;
+      
+      if (userId) {
+        const user = await storage.getUser(userId);
+        if (user && user.discountValue && parseFloat(user.discountValue) > 0) {
+          discountType = user.discountType;
+          discountValue = parseFloat(user.discountValue);
+          
+          if (discountType === 'percentage') {
+            discountAmount = breakdown.total * (discountValue / 100);
+          } else if (discountType === 'fixed') {
+            discountAmount = discountValue;
+          }
+          
+          // Ensure total doesn't go below zero
+          discountAmount = Math.min(discountAmount, breakdown.total);
+        }
+      }
+      
+      breakdown.discount = discountAmount;
+      breakdown.finalTotal = breakdown.total - discountAmount;
 
       res.json({
         vehicleType,
         serviceType,
-        price: breakdown.total.toFixed(2),
+        price: breakdown.finalTotal.toFixed(2),
         breakdown,
-        ruleId: rule.id
+        ruleId: rule.id,
+        discount: discountAmount > 0 ? {
+          type: discountType,
+          value: discountValue,
+          amount: discountAmount
+        } : null
       });
 
     } catch (error) {
