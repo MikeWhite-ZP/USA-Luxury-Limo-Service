@@ -296,7 +296,12 @@ export default function AdminDashboard() {
     vehicleTypeId: '',
     bookingType: 'transfer' as 'transfer' | 'hourly',
     status: 'pending' as 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled',
+    pickupCoords: null as { lat: number; lon: number } | null,
+    destinationCoords: null as { lat: number; lon: number } | null,
+    requestedHours: '2',
   });
+  const [calculatedPrice, setCalculatedPrice] = useState<string>('');
+  const [calculatingPrice, setCalculatingPrice] = useState(false);
 
   // Redirect to home if not authenticated or not admin
   useEffect(() => {
@@ -549,6 +554,92 @@ export default function AdminDashboard() {
     },
   });
 
+  // Calculate distance between two coordinates using Haversine formula
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 3959; // Earth's radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  // Calculate price based on booking details
+  const handleCalculatePrice = async () => {
+    if (!bookingFormData.vehicleTypeId) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a vehicle type first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setCalculatingPrice(true);
+      
+      const vehicleTypeName = vehicleTypes?.find(v => v.id === bookingFormData.vehicleTypeId)?.name || '';
+      const vehicleSlug = vehicleTypeName.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_').replace(/[^a-z0-9_]/g, '');
+      
+      let requestData: any = {
+        vehicleType: vehicleSlug,
+        serviceType: bookingFormData.bookingType,
+        userId: bookingFormData.passengerId || undefined,
+      };
+
+      if (bookingFormData.scheduledDateTime) {
+        const dateTime = new Date(bookingFormData.scheduledDateTime);
+        requestData.date = dateTime.toISOString().split('T')[0];
+        requestData.time = dateTime.toTimeString().split(' ')[0].substring(0, 5);
+      }
+
+      if (bookingFormData.bookingType === 'transfer') {
+        if (!bookingFormData.pickupCoords || !bookingFormData.destinationCoords) {
+          toast({
+            title: "Missing Coordinates",
+            description: "Please select addresses from the autocomplete to get coordinates",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const distance = calculateDistance(
+          bookingFormData.pickupCoords.lat,
+          bookingFormData.pickupCoords.lon,
+          bookingFormData.destinationCoords.lat,
+          bookingFormData.destinationCoords.lon
+        );
+        requestData.distance = distance.toFixed(2);
+      } else {
+        requestData.hours = parseInt(bookingFormData.requestedHours);
+      }
+
+      const response = await apiRequest('POST', '/api/calculate-price', requestData);
+      const data = await response.json();
+
+      if (data.total) {
+        setCalculatedPrice(data.total);
+        setBookingFormData({ ...bookingFormData, totalAmount: data.total });
+        toast({
+          title: "Price Calculated",
+          description: `Total: $${data.total}`,
+        });
+      }
+    } catch (error) {
+      console.error('Price calculation error:', error);
+      toast({
+        title: "Calculation Failed",
+        description: "Unable to calculate price. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setCalculatingPrice(false);
+    }
+  };
+
   // Create/Update booking mutation
   const saveBookingMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -575,7 +666,11 @@ export default function AdminDashboard() {
         vehicleTypeId: '',
         bookingType: 'transfer',
         status: 'pending',
+        pickupCoords: null,
+        destinationCoords: null,
+        requestedHours: '2',
       });
+      setCalculatedPrice('');
       toast({
         title: editingBooking ? "Booking Updated" : "Booking Created",
         description: `Booking has been ${editingBooking ? 'updated' : 'created'} successfully.`,
@@ -910,7 +1005,11 @@ export default function AdminDashboard() {
       vehicleTypeId: '',
       bookingType: 'transfer',
       status: 'pending',
+      pickupCoords: null,
+      destinationCoords: null,
+      requestedHours: '2',
     });
+    setCalculatedPrice('');
     setBookingDialogOpen(true);
   };
 
@@ -927,7 +1026,11 @@ export default function AdminDashboard() {
       vehicleTypeId: booking.vehicleTypeId || '',
       bookingType: booking.bookingType || 'transfer',
       status: booking.status || 'pending',
+      pickupCoords: null,
+      destinationCoords: null,
+      requestedHours: booking.requestedHours?.toString() || '2',
     });
+    setCalculatedPrice('');
     setBookingDialogOpen(true);
   };
 
@@ -2139,7 +2242,7 @@ export default function AdminDashboard() {
                 label="Pickup Address"
                 value={bookingFormData.pickupAddress}
                 onChange={(value, coords) => {
-                  setBookingFormData({ ...bookingFormData, pickupAddress: value });
+                  setBookingFormData({ ...bookingFormData, pickupAddress: value, pickupCoords: coords || null });
                 }}
                 placeholder="Enter pickup address"
                 userId={bookingFormData.passengerId}
@@ -2152,7 +2255,7 @@ export default function AdminDashboard() {
                 label="Destination Address"
                 value={bookingFormData.destinationAddress}
                 onChange={(value, coords) => {
-                  setBookingFormData({ ...bookingFormData, destinationAddress: value });
+                  setBookingFormData({ ...bookingFormData, destinationAddress: value, destinationCoords: coords || null });
                 }}
                 placeholder={bookingFormData.bookingType === 'hourly' ? 'N/A for hourly service' : 'Enter destination address'}
                 userId={bookingFormData.passengerId}
@@ -2160,6 +2263,31 @@ export default function AdminDashboard() {
                 required={bookingFormData.bookingType === 'transfer'}
                 data-testid="input-destination-address"
               />
+              
+              {bookingFormData.bookingType === 'hourly' && (
+                <div className="space-y-2">
+                  <Label htmlFor="requested-hours">Duration (Hours) *</Label>
+                  <Select
+                    value={bookingFormData.requestedHours}
+                    onValueChange={(value) => setBookingFormData({ ...bookingFormData, requestedHours: value })}
+                  >
+                    <SelectTrigger id="requested-hours" data-testid="select-requested-hours">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2">2 hours</SelectItem>
+                      <SelectItem value="3">3 hours</SelectItem>
+                      <SelectItem value="4">4 hours</SelectItem>
+                      <SelectItem value="5">5 hours</SelectItem>
+                      <SelectItem value="6">6 hours</SelectItem>
+                      <SelectItem value="8">8 hours</SelectItem>
+                      <SelectItem value="10">10 hours</SelectItem>
+                      <SelectItem value="12">12 hours</SelectItem>
+                      <SelectItem value="24">24 hours</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -2175,15 +2303,37 @@ export default function AdminDashboard() {
                 
                 <div className="space-y-2">
                   <Label htmlFor="total-amount">Total Amount *</Label>
-                  <Input
-                    id="total-amount"
-                    type="number"
-                    step="0.01"
-                    value={bookingFormData.totalAmount}
-                    onChange={(e) => setBookingFormData({ ...bookingFormData, totalAmount: e.target.value })}
-                    placeholder="0.00"
-                    data-testid="input-total-amount"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="total-amount"
+                      type="number"
+                      step="0.01"
+                      value={bookingFormData.totalAmount}
+                      onChange={(e) => setBookingFormData({ ...bookingFormData, totalAmount: e.target.value })}
+                      placeholder="0.00"
+                      data-testid="input-total-amount"
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleCalculatePrice}
+                      disabled={
+                        calculatingPrice ||
+                        !bookingFormData.vehicleTypeId ||
+                        !bookingFormData.pickupAddress ||
+                        (bookingFormData.bookingType === 'transfer' && !bookingFormData.destinationAddress)
+                      }
+                      variant="outline"
+                      data-testid="button-calculate-price"
+                    >
+                      {calculatingPrice ? 'Calculating...' : 'Calculate'}
+                    </Button>
+                  </div>
+                  {calculatedPrice && (
+                    <p className="text-xs text-muted-foreground">
+                      Calculated: ${calculatedPrice} (editable)
+                    </p>
+                  )}
                 </div>
               </div>
               
