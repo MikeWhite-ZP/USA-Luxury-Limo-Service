@@ -32,6 +32,7 @@ Preferred communication style: Simple, everyday language.
 ### Core Features
 - **Payment Processing**: Multi-provider support (Stripe, PayPal, Square) with secure credential handling and configurable payment systems. Supports "Pay Now" and conditional "Pay Later" options.
 - **Geolocation**: TomTom API for geocoding, address autocomplete, and coordinate conversion.
+- **Address Autocomplete**: Intelligent address input with TomTom suggestions and saved addresses. Admin booking form displays passenger's saved addresses (with labels and default badges) alongside TomTom suggestions for quick selection. Debounced API calls (300ms) reduce usage costs.
 - **Flight Search**: AeroDataBox API for real-time flight search, configurable via RapidAPI key.
 - **Pricing Engine**: Complex fare calculation based on service type (transfer/hourly) and vehicle type, incorporating system commissions and per-passenger discounts (percentage/fixed).
 - **Booking Flow**: A 4-step process where bookings are finalized only after successful payment completion to prevent unpaid bookings.
