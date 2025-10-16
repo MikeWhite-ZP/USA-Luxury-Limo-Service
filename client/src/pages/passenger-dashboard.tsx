@@ -962,6 +962,35 @@ export default function PassengerDashboard() {
         {/* Home Section */}
         {activeSection === 'home' && (
           <>
+            {/* Quick Actions */}
+            <Card data-testid="quick-actions">
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <Button
+                    onClick={() => window.location.href = '/'}
+                    className="h-16 flex flex-col space-y-1"
+                    data-testid="button-book-ride"
+                  >
+                    <MapPin className="w-5 h-5" />
+                    <span>Book a Ride</span>
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    onClick={() => setActiveSection('past-bookings')}
+                    className="h-16 flex flex-col space-y-1"
+                    data-testid="button-view-history"
+                  >
+                    <CreditCard className="w-5 h-5" />
+                    <span>View History</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Recent Bookings */}
             <Card data-testid="recent-bookings">
           <CardHeader>
@@ -1048,35 +1077,6 @@ export default function PassengerDashboard() {
                 No bookings yet. Start your first ride with us!
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <Card data-testid="quick-actions">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
-              <Button
-                onClick={() => window.location.href = '/'}
-                className="h-16 flex flex-col space-y-1"
-                data-testid="button-book-ride"
-              >
-                <MapPin className="w-5 h-5" />
-                <span>Book a Ride</span>
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={() => setActiveSection('past-bookings')}
-                className="h-16 flex flex-col space-y-1"
-                data-testid="button-view-history"
-              >
-                <CreditCard className="w-5 h-5" />
-                <span>View History</span>
-              </Button>
-            </div>
           </CardContent>
         </Card>
           </>
