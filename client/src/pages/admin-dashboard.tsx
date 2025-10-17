@@ -2810,7 +2810,7 @@ export default function AdminDashboard() {
               </div>
               
               <div className="border-t pt-4 space-y-2 bg-[#e1faaf]">
-                <Label htmlFor="booking-status">Status *</Label>
+                <Label htmlFor="booking-status" className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#d82527] font-bold text-[16px]">Status *</Label>
                 <Select
                   value={bookingFormData.status}
                   onValueChange={(value) => setBookingFormData({ ...bookingFormData, status: value as any })}
