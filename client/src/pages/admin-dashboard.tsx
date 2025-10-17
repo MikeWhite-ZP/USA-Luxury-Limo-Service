@@ -1187,8 +1187,27 @@ export default function AdminDashboard() {
       flightArrivalAirport: booking.flightArrivalAirport || '',
     });
     setCalculatedPrice('');
-    setFlightSearchInput('');
-    setSelectedFlight(null);
+    
+    // Restore flight information if available
+    if (booking.flightNumber && booking.flightAirline) {
+      setFlightSearchInput(booking.flightNumber);
+      setSelectedFlight({
+        flightNumber: booking.flightNumber,
+        airline: booking.flightAirline,
+        departureAirport: booking.flightDepartureAirport || 'N/A',
+        arrivalAirport: booking.flightArrivalAirport || 'N/A',
+        departureTime: 'N/A',
+        arrivalTime: 'N/A',
+        departureTerminal: 'N/A',
+        arrivalTerminal: 'N/A',
+        baggageClaim: 'N/A',
+        aircraft: 'N/A',
+      });
+    } else {
+      setFlightSearchInput('');
+      setSelectedFlight(null);
+    }
+    
     setBookingDialogOpen(true);
   };
 
