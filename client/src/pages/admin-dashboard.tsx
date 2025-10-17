@@ -2076,7 +2076,7 @@ export default function AdminDashboard() {
 
         {/* Bookings Management */}
         {showBookings && (
-        <Card id="bookings-section" data-testid="bookings-management">
+        <Card id="bookings-section" data-testid="bookings-management" className="rounded-lg border text-card-foreground shadow-sm bg-[#f2f1e1] mt-[5px] mb-[5px] text-[12px]">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
