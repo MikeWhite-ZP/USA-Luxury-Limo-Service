@@ -2153,7 +2153,7 @@ export default function AdminDashboard() {
                 {filteredBookings.map((booking) => (
                   <div 
                     key={booking.id}
-                    className="border rounded-lg p-4 space-y-3"
+                    className="border rounded-lg p-4 space-y-3 bg-[#e2f2e1]"
                     data-testid={`booking-${booking.id}`}
                   >
                     <div className="flex justify-between items-start">
