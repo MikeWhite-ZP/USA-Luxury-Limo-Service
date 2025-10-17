@@ -835,6 +835,18 @@ export class DatabaseStorage implements IStorage {
         createdAt: bookings.createdAt,
         passengerFirstName: users.firstName,
         passengerLastName: users.lastName,
+        requestedHours: bookings.requestedHours,
+        bookingFor: bookings.bookingFor,
+        passengerName: bookings.passengerName,
+        passengerPhone: bookings.passengerPhone,
+        passengerEmail: bookings.passengerEmail,
+        passengerCount: bookings.passengerCount,
+        luggageCount: bookings.luggageCount,
+        babySeat: bookings.babySeat,
+        flightNumber: bookings.flightNumber,
+        flightAirline: bookings.flightAirline,
+        flightDepartureAirport: bookings.flightDepartureAirport,
+        flightArrivalAirport: bookings.flightArrivalAirport,
       })
       .from(bookings)
       .leftJoin(users, eq(bookings.passengerId, users.id))
