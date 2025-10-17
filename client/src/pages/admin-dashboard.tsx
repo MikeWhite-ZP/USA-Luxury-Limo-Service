@@ -2371,7 +2371,7 @@ export default function AdminDashboard() {
                 {editingBooking ? 'Update the booking details below.' : 'Fill in the details to create a new booking.'}
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4 bg-[#f5f4e6] pt-[5px] pb-[5px]">
+            <div className="space-y-4 py-4 pt-[5px] pb-[5px] bg-[#e1faaf]">
               <div className="space-y-2">
                 <Label htmlFor="passenger">Passenger *</Label>
                 <Select
