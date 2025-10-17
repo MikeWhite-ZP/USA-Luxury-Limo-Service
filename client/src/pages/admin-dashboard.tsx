@@ -2593,7 +2593,7 @@ export default function AdminDashboard() {
                     className="w-4 h-4"
                     data-testid="checkbox-booking-for"
                   />
-                  <Label htmlFor="booking-for-toggle" className="font-semibold">Book for Another Person</Label>
+                  <Label htmlFor="booking-for-toggle" className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#1c73ba] font-bold text-[16px]">Book for Another Person</Label>
                 </div>
                 
                 {bookingFormData.bookingFor === 'someone_else' && (
@@ -2715,6 +2715,45 @@ export default function AdminDashboard() {
                       </>
                     )}
                   </Button>
+                </div>
+                
+                {/* Recorded Flight Information Display */}
+                <div className="mt-6 mb-4">
+                  {!editingBooking && !bookingFormData.flightNumber && !selectedFlight && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg" data-testid="no-flight-warning">
+                      <p className="text-red-600 font-medium text-sm">
+                        If you need to add flight information, please use search above!
+                      </p>
+                    </div>
+                  )}
+                  
+                  {!editingBooking && bookingFormData.flightNumber && !selectedFlight && (
+                    <div className="p-4 bg-white border border-gray-300 rounded-lg" data-testid="recorded-flight-display">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Plane className="w-5 h-5 text-gray-700" />
+                        <div>
+                          <p className="font-bold text-black">Recorded Flight Information</p>
+                          <p className="text-sm text-black">
+                            {bookingFormData.flightAirline} - Flight {bookingFormData.flightNumber}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        {bookingFormData.flightDepartureAirport && (
+                          <div>
+                            <p className="text-xs text-gray-600 font-medium">Departure</p>
+                            <p className="text-black">{bookingFormData.flightDepartureAirport}</p>
+                          </div>
+                        )}
+                        {bookingFormData.flightArrivalAirport && (
+                          <div>
+                            <p className="text-xs text-gray-600 font-medium">Arrival</p>
+                            <p className="text-black">{bookingFormData.flightArrivalAirport}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 {selectedFlight && (
