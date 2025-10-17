@@ -2491,6 +2491,7 @@ export default function AdminDashboard() {
                     value={bookingFormData.scheduledDateTime}
                     onChange={(e) => setBookingFormData({ ...bookingFormData, scheduledDateTime: e.target.value })}
                     data-testid="input-scheduled-datetime"
+                    className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
                   />
                 </div>
                 
@@ -2505,7 +2506,7 @@ export default function AdminDashboard() {
                       onChange={(e) => setBookingFormData({ ...bookingFormData, totalAmount: e.target.value })}
                       placeholder="0.00"
                       data-testid="input-total-amount"
-                      className="flex-1"
+                      className="flex-1 pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
                     />
                     <Button
                       type="button"
@@ -2518,6 +2519,7 @@ export default function AdminDashboard() {
                       }
                       variant="outline"
                       data-testid="button-calculate-price"
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 bg-[#7bc5c7] pt-[5px] pb-[5px] pl-[5px] pr-[5px] text-[12px]"
                     >
                       {calculatingPrice ? 'Calculating...' : 'Calculate'}
                     </Button>
@@ -2544,6 +2546,7 @@ export default function AdminDashboard() {
                       value={bookingFormData.passengerCount}
                       onChange={(e) => setBookingFormData({ ...bookingFormData, passengerCount: parseInt(e.target.value) || 1 })}
                       data-testid="input-passenger-count"
+                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
                     />
                   </div>
                   
@@ -2556,6 +2559,7 @@ export default function AdminDashboard() {
                       value={bookingFormData.luggageCount}
                       onChange={(e) => setBookingFormData({ ...bookingFormData, luggageCount: parseInt(e.target.value) || 0 })}
                       data-testid="input-luggage-count"
+                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
                     />
                   </div>
                   
@@ -2602,6 +2606,7 @@ export default function AdminDashboard() {
                         onChange={(e) => setBookingFormData({ ...bookingFormData, passengerName: e.target.value })}
                         placeholder="Full name"
                         data-testid="input-passenger-name"
+                        className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
                       />
                     </div>
                     
@@ -2615,6 +2620,7 @@ export default function AdminDashboard() {
                           onChange={(e) => setBookingFormData({ ...bookingFormData, passengerEmail: e.target.value })}
                           placeholder="email@example.com"
                           data-testid="input-passenger-email"
+                          className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
                         />
                       </div>
                       
@@ -2627,6 +2633,7 @@ export default function AdminDashboard() {
                           onChange={(e) => setBookingFormData({ ...bookingFormData, passengerPhone: e.target.value })}
                           placeholder="+1234567890"
                           data-testid="input-passenger-phone"
+                          className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
                         />
                       </div>
                     </div>
@@ -2690,6 +2697,7 @@ export default function AdminDashboard() {
                         }
                       }}
                       data-testid="input-flight-search"
+                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
                     />
                   </div>
                   <Button
