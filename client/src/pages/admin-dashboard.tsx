@@ -2637,8 +2637,45 @@ export default function AdminDashboard() {
               {/* Flight Information Section */}
               <div className="border-t pt-4">
                 <h3 className="font-semibold mb-3">Flight Information (Optional)</h3>
+                
+                {/* Show existing flight info when editing */}
+                {editingBooking && bookingFormData.flightNumber && !selectedFlight && (
+                  <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg" data-testid="existing-flight-info">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Plane className="w-5 h-5 text-blue-600" />
+                        <div>
+                          <p className="font-bold text-blue-800">Current Flight Information</p>
+                          <p className="text-sm text-blue-700">
+                            {bookingFormData.flightAirline} - Flight {bookingFormData.flightNumber}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm mt-3">
+                      {bookingFormData.flightDepartureAirport && (
+                        <div>
+                          <p className="text-xs text-blue-600 font-medium">Departure</p>
+                          <p className="text-blue-800">{bookingFormData.flightDepartureAirport}</p>
+                        </div>
+                      )}
+                      {bookingFormData.flightArrivalAirport && (
+                        <div>
+                          <p className="text-xs text-blue-600 font-medium">Arrival</p>
+                          <p className="text-blue-800">{bookingFormData.flightArrivalAirport}</p>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-blue-600 mt-3 italic">
+                      This is the recorded flight information. Search below to update.
+                    </p>
+                  </div>
+                )}
+                
                 <p className="text-sm text-muted-foreground mb-3">
-                  Search for a flight by entering the flight number below. The system will automatically populate flight details.
+                  {editingBooking && bookingFormData.flightNumber 
+                    ? 'Search for a new flight to update the flight information.'
+                    : 'Search for a flight by entering the flight number below. The system will automatically populate flight details.'}
                 </p>
                 
                 <div className="flex gap-2 mb-3">
@@ -2666,7 +2703,7 @@ export default function AdminDashboard() {
                     ) : (
                       <>
                         <Search className="w-4 h-4 mr-2" />
-                        Find Flight
+                        {editingBooking && bookingFormData.flightNumber ? 'Update Flight' : 'Find Flight'}
                       </>
                     )}
                   </Button>
@@ -2742,7 +2779,9 @@ export default function AdminDashboard() {
                       </div>
                     )}
                     
-                    <p className="text-xs text-green-600 mt-3 italic">Flight information added to your booking</p>
+                    <p className="text-xs text-green-600 mt-3 italic">
+                      {editingBooking ? 'Updated flight information will be saved to your booking' : 'Flight information added to your booking'}
+                    </p>
                   </div>
                 )}
               </div>
