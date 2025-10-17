@@ -2534,7 +2534,7 @@ export default function AdminDashboard() {
               
               {/* Passenger Details Section */}
               <div className="border-t pt-4 mt-4 bg-[#e1faaf] text-[12px]">
-                <h3 className="font-semibold text-[#d82527] text-[16px] mt-[5px] mb-[5px]">Passenger & Luggage Details</h3>
+                <h3 className="text-[#d82527] text-[16px] mt-[5px] mb-[5px] font-bold">Passenger & Luggage Details</h3>
                 
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   <div className="space-y-2">
