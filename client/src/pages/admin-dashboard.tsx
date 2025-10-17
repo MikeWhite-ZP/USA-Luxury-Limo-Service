@@ -2177,7 +2177,7 @@ export default function AdminDashboard() {
                           >
                             {booking.status}
                           </Badge>
-                          <Badge variant="outline" data-testid={`booking-type-${booking.id}`}>
+                          <Badge variant="outline" className="bg-[#cceb8a]" data-testid={`booking-type-${booking.id}`}>
                             {booking.bookingType}
                           </Badge>
                         </div>
