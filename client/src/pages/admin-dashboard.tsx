@@ -661,7 +661,14 @@ export default function AdminDashboard() {
 
   // Flight search handler
   const handleFlightSearch = async () => {
+    console.log('🔍 FLIGHT SEARCH STARTED');
+    console.log('Flight Search Input:', flightSearchInput);
+    console.log('Current Booking Form Data:', bookingFormData);
+    console.log('Editing Booking:', editingBooking);
+    console.log('Selected Flight State:', selectedFlight);
+    
     if (!flightSearchInput.trim()) {
+      console.warn('⚠️ Flight search aborted: No flight number entered');
       toast({
         title: "Flight Number Required",
         description: "Please enter a flight number (e.g., KL30, UA2346, DL3427)",
@@ -674,25 +681,36 @@ export default function AdminDashboard() {
     
     try {
       const flightNumber = flightSearchInput.trim().toUpperCase();
+      console.log('📝 Processed Flight Number:', flightNumber);
       
       const queryParams = new URLSearchParams({ flightNumber });
       if (bookingFormData.scheduledDateTime) {
         const dateOnly = bookingFormData.scheduledDateTime.split('T')[0];
         queryParams.append('date', dateOnly);
+        console.log('📅 Search Date:', dateOnly);
       }
       
-      const response = await fetch(`/api/flights/search?${queryParams.toString()}`);
+      const apiUrl = `/api/flights/search?${queryParams.toString()}`;
+      console.log('🌐 API Request URL:', apiUrl);
+      
+      const response = await fetch(apiUrl);
+      console.log('📡 API Response Status:', response.status, response.statusText);
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('❌ API Error Response:', errorData);
         throw new Error(errorData.error || 'Flight search failed');
       }
 
       const data = await response.json();
+      console.log('📦 Raw API Response Data:', data);
       
       let flightItems = Array.isArray(data) ? data : (data.items || []);
+      console.log('✈️ Flight Items Array:', flightItems);
+      console.log('Number of flights found:', flightItems.length);
       
       if (flightItems.length === 0) {
+        console.warn('⚠️ No flights found for:', flightNumber);
         toast({
           title: "No Flights Found",
           description: `No flights found for ${flightNumber}`,
@@ -710,12 +728,17 @@ export default function AdminDashboard() {
       };
 
       const flight = flightItems[0];
+      console.log('🎯 Selected Flight (first item):', flight);
+      
       const flightNum = flight.number || flightNumber;
       const airlineCode = flightNum.trim().split(' ')[0] || flightNum.substring(0, 2);
       const airlineName = airlineNames[airlineCode] || flight.airline?.name || airlineCode;
+      console.log('🏢 Airline Code:', airlineCode, '→ Airline Name:', airlineName);
       
       const departure = flight.departure || {};
       const arrival = flight.arrival || {};
+      console.log('🛫 Departure Data:', departure);
+      console.log('🛬 Arrival Data:', arrival);
       
       const selectedFlightData = {
         flightNumber: flightNum.trim(),
@@ -729,29 +752,38 @@ export default function AdminDashboard() {
         baggageClaim: arrival.baggageClaim || 'N/A',
         aircraft: flight.aircraft?.model || 'N/A',
       };
+      console.log('📋 Selected Flight Data Object:', selectedFlightData);
       
+      console.log('💾 Setting selectedFlight state...');
       setSelectedFlight(selectedFlightData);
       
       // Update form with flight info
-      setBookingFormData({
+      const updatedFormData = {
         ...bookingFormData,
         flightNumber: selectedFlightData.flightNumber,
         flightAirline: selectedFlightData.airline,
         flightDepartureAirport: selectedFlightData.departureAirport,
         flightArrivalAirport: selectedFlightData.arrivalAirport,
-      });
+      };
+      console.log('📝 Updating Booking Form Data with:', updatedFormData);
+      setBookingFormData(updatedFormData);
       
+      console.log('✅ Flight search completed successfully');
       toast({
         title: "Flight Found",
         description: `${selectedFlightData.airline} ${selectedFlightData.flightNumber}`,
       });
     } catch (error: any) {
+      console.error('💥 FLIGHT SEARCH ERROR:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
       toast({
         title: "Flight Search Failed",
         description: error.message || "Unable to search for flights. Please try again.",
         variant: "destructive",
       });
     } finally {
+      console.log('🏁 Flight search process ended, setting isSearchingFlight to false');
       setIsSearchingFlight(false);
     }
   };
@@ -1158,6 +1190,9 @@ export default function AdminDashboard() {
   };
 
   const openEditBookingDialog = (booking: any) => {
+    console.log('📝 OPENING EDIT BOOKING DIALOG');
+    console.log('Booking to edit:', booking);
+    
     setEditingBooking(booking);
     const scheduledDate = new Date(booking.scheduledDateTime);
     const formattedDateTime = scheduledDate.toISOString().slice(0, 16);
@@ -1190,14 +1225,20 @@ export default function AdminDashboard() {
     
     // Restore flight information if available
     // Note: Backend returns snake_case field names from database
+    console.log('✈️ CHECKING FOR FLIGHT DATA IN BOOKING');
     const flightNum = booking.flightNumber || booking.flight_number;
     const flightAir = booking.flightAirline || booking.flight_airline;
     const deptAirport = booking.flightDepartureAirport || booking.flight_departure_airport;
     const arrAirport = booking.flightArrivalAirport || booking.flight_arrival_airport;
     
+    console.log('Flight Number found:', flightNum);
+    console.log('Flight Airline found:', flightAir);
+    console.log('Departure Airport found:', deptAirport);
+    console.log('Arrival Airport found:', arrAirport);
+    
     if (flightNum && flightAir) {
-      setFlightSearchInput(flightNum);
-      setSelectedFlight({
+      console.log('✅ Flight data exists, restoring flight information');
+      const restoredFlight = {
         flightNumber: flightNum,
         airline: flightAir,
         departureAirport: deptAirport || 'N/A',
@@ -1208,12 +1249,17 @@ export default function AdminDashboard() {
         arrivalTerminal: 'N/A',
         baggageClaim: 'N/A',
         aircraft: 'N/A',
-      });
+      };
+      console.log('Restored flight object:', restoredFlight);
+      setFlightSearchInput(flightNum);
+      setSelectedFlight(restoredFlight);
     } else {
+      console.log('❌ No flight data found in booking, clearing flight state');
       setFlightSearchInput('');
       setSelectedFlight(null);
     }
     
+    console.log('📂 Opening booking dialog...');
     setBookingDialogOpen(true);
   };
 
