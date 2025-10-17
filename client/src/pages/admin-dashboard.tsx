@@ -1721,7 +1721,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card data-testid="stat-satisfaction">
+          <Card className="rounded-lg border text-card-foreground shadow-sm bg-[#f2f1e1]" data-testid="stat-satisfaction">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
                 <Star className="w-8 h-8 text-yellow-500" />
