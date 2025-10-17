@@ -2099,7 +2099,7 @@ export default function AdminDashboard() {
               <div>
                 <Label>Status Filter</Label>
                 <Select value={bookingStatusFilter} onValueChange={setBookingStatusFilter}>
-                  <SelectTrigger data-testid="filter-booking-status">
+                  <SelectTrigger className="bg-[#ffffff]" data-testid="filter-booking-status">
                     <SelectValue placeholder="All Statuses" />
                   </SelectTrigger>
                   <SelectContent>
@@ -2236,7 +2236,7 @@ export default function AdminDashboard() {
                           })}
                           disabled={updateBookingStatusMutation.isPending}
                         >
-                          <SelectTrigger className="w-40" data-testid={`select-status-${booking.id}`}>
+                          <SelectTrigger className="w-40 bg-[#ffffff]" data-testid={`select-status-${booking.id}`}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
