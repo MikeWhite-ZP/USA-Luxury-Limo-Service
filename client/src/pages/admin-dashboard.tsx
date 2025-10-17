@@ -2643,7 +2643,7 @@ export default function AdminDashboard() {
               
               {/* Flight Information Section */}
               <div className="border-t pt-4 bg-[#e1faaf]">
-                <h3 className="font-semibold mb-3 text-[#d82527]">Flight Information (Optional)</h3>
+                <h3 className="mb-3 text-[#d82527] font-bold">Flight Information (Optional)</h3>
                 
                 {/* Show existing flight info when editing */}
                 {editingBooking && bookingFormData.flightNumber && !selectedFlight && (
