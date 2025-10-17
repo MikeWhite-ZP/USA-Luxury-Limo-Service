@@ -136,6 +136,7 @@ export function AddressAutocomplete({
             disabled={disabled}
             autoComplete="off"
             data-testid={testId}
+            className="bg-white p-[5px]"
           />
 
         {/* Saved Addresses Dropdown */}

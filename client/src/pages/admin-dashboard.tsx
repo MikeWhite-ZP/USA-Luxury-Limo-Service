@@ -2378,7 +2378,7 @@ export default function AdminDashboard() {
                   value={bookingFormData.passengerId}
                   onValueChange={(value) => setBookingFormData({ ...bookingFormData, passengerId: value })}
                 >
-                  <SelectTrigger id="passenger" data-testid="select-passenger">
+                  <SelectTrigger id="passenger" className="bg-[#ffffff] text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]" data-testid="select-passenger">
                     <SelectValue placeholder="Select passenger" />
                   </SelectTrigger>
                   <SelectContent>
@@ -2400,7 +2400,7 @@ export default function AdminDashboard() {
                     value={bookingFormData.bookingType}
                     onValueChange={(value) => setBookingFormData({ ...bookingFormData, bookingType: value as 'transfer' | 'hourly' })}
                   >
-                    <SelectTrigger id="booking-type" data-testid="select-booking-type">
+                    <SelectTrigger id="booking-type" className="bg-[#ffffff] text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]" data-testid="select-booking-type">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -2416,7 +2416,7 @@ export default function AdminDashboard() {
                     value={bookingFormData.vehicleTypeId}
                     onValueChange={(value) => setBookingFormData({ ...bookingFormData, vehicleTypeId: value })}
                   >
-                    <SelectTrigger id="vehicle-type" data-testid="select-vehicle-type">
+                    <SelectTrigger id="vehicle-type" className="bg-[#ffffff] text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]" data-testid="select-vehicle-type">
                       <SelectValue placeholder="Select vehicle" />
                     </SelectTrigger>
                     <SelectContent>
@@ -2464,7 +2464,7 @@ export default function AdminDashboard() {
                     value={bookingFormData.requestedHours}
                     onValueChange={(value) => setBookingFormData({ ...bookingFormData, requestedHours: value })}
                   >
-                    <SelectTrigger id="requested-hours" data-testid="select-requested-hours">
+                    <SelectTrigger id="requested-hours" className="bg-[#ffffff] text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]" data-testid="select-requested-hours">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -2807,7 +2807,7 @@ export default function AdminDashboard() {
                   value={bookingFormData.status}
                   onValueChange={(value) => setBookingFormData({ ...bookingFormData, status: value as any })}
                 >
-                  <SelectTrigger id="booking-status" data-testid="select-booking-status">
+                  <SelectTrigger id="booking-status" className="bg-[#ffffff] text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]" data-testid="select-booking-status">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
