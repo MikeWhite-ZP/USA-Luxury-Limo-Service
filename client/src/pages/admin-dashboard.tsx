@@ -1178,24 +1178,30 @@ export default function AdminDashboard() {
       passengerPhone: booking.passengerPhone || '',
       passengerEmail: booking.passengerEmail || '',
       passengerCount: booking.passengerCount || 1,
-      luggageCount: booking.luggageCount || 0,
-      babySeat: booking.babySeat || false,
-      specialInstructions: booking.specialInstructions || '',
-      flightNumber: booking.flightNumber || '',
-      flightAirline: booking.flightAirline || '',
-      flightDepartureAirport: booking.flightDepartureAirport || '',
-      flightArrivalAirport: booking.flightArrivalAirport || '',
+      luggageCount: booking.luggageCount || booking.luggage_count || 0,
+      babySeat: booking.babySeat || booking.baby_seat || false,
+      specialInstructions: booking.specialInstructions || booking.special_instructions || '',
+      flightNumber: booking.flightNumber || booking.flight_number || '',
+      flightAirline: booking.flightAirline || booking.flight_airline || '',
+      flightDepartureAirport: booking.flightDepartureAirport || booking.flight_departure_airport || '',
+      flightArrivalAirport: booking.flightArrivalAirport || booking.flight_arrival_airport || '',
     });
     setCalculatedPrice('');
     
     // Restore flight information if available
-    if (booking.flightNumber && booking.flightAirline) {
-      setFlightSearchInput(booking.flightNumber);
+    // Note: Backend returns snake_case field names from database
+    const flightNum = booking.flightNumber || booking.flight_number;
+    const flightAir = booking.flightAirline || booking.flight_airline;
+    const deptAirport = booking.flightDepartureAirport || booking.flight_departure_airport;
+    const arrAirport = booking.flightArrivalAirport || booking.flight_arrival_airport;
+    
+    if (flightNum && flightAir) {
+      setFlightSearchInput(flightNum);
       setSelectedFlight({
-        flightNumber: booking.flightNumber,
-        airline: booking.flightAirline,
-        departureAirport: booking.flightDepartureAirport || 'N/A',
-        arrivalAirport: booking.flightArrivalAirport || 'N/A',
+        flightNumber: flightNum,
+        airline: flightAir,
+        departureAirport: deptAirport || 'N/A',
+        arrivalAirport: arrAirport || 'N/A',
         departureTime: 'N/A',
         arrivalTime: 'N/A',
         departureTerminal: 'N/A',
