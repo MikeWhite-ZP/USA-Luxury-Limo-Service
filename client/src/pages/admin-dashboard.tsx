@@ -2165,12 +2165,16 @@ export default function AdminDashboard() {
                           <h4 className="font-semibold" data-testid={`booking-id-${booking.id}`}>
                             #{booking.id.substring(0, 8)}
                           </h4>
-                          <Badge variant={
-                            booking.status === 'pending' ? 'outline' :
-                            booking.status === 'confirmed' ? 'default' :
-                            booking.status === 'in_progress' ? 'secondary' :
-                            booking.status === 'completed' ? 'default' : 'destructive'
-                          } data-testid={`booking-status-${booking.id}`}>
+                          <Badge 
+                            variant={
+                              booking.status === 'pending' ? 'outline' :
+                              booking.status === 'confirmed' ? 'default' :
+                              booking.status === 'in_progress' ? 'secondary' :
+                              booking.status === 'completed' ? 'default' : 'destructive'
+                            }
+                            className={booking.status === 'pending' ? 'bg-[#f79952]' : ''}
+                            data-testid={`booking-status-${booking.id}`}
+                          >
                             {booking.status}
                           </Badge>
                           <Badge variant="outline" data-testid={`booking-type-${booking.id}`}>
