@@ -1647,7 +1647,7 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto p-6 space-y-8">
         {/* Dashboard Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          <Card data-testid="stat-revenue">
+          <Card className="rounded-lg border text-card-foreground shadow-sm bg-[#e2f2e1]" data-testid="stat-revenue">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
                 <DollarSign className="w-8 h-8 text-green-600" />
@@ -1666,7 +1666,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card data-testid="stat-commission">
+          <Card className="rounded-lg border text-card-foreground shadow-sm bg-[#cceb8a]" data-testid="stat-commission">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
                 <DollarSign className="w-8 h-8 text-purple-600" />
