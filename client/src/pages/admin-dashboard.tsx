@@ -1192,6 +1192,16 @@ export default function AdminDashboard() {
   const openEditBookingDialog = (booking: any) => {
     console.log('📝 OPENING EDIT BOOKING DIALOG');
     console.log('Booking to edit:', booking);
+    console.log('🔍 All booking property names:', Object.keys(booking));
+    console.log('🔍 Checking specific flight properties:');
+    console.log('  - booking.flightNumber:', booking.flightNumber);
+    console.log('  - booking.flight_number:', booking.flight_number);
+    console.log('  - booking.flightAirline:', booking.flightAirline);
+    console.log('  - booking.flight_airline:', booking.flight_airline);
+    console.log('  - booking.flightDepartureAirport:', booking.flightDepartureAirport);
+    console.log('  - booking.flight_departure_airport:', booking.flight_departure_airport);
+    console.log('  - booking.flightArrivalAirport:', booking.flightArrivalAirport);
+    console.log('  - booking.flight_arrival_airport:', booking.flight_arrival_airport);
     
     setEditingBooking(booking);
     const scheduledDate = new Date(booking.scheduledDateTime);
