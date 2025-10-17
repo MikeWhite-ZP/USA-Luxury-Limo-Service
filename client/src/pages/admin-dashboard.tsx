@@ -2253,6 +2253,7 @@ export default function AdminDashboard() {
                               setAssignDriverDialogOpen(true);
                             }}
                             data-testid={`button-assign-driver-${booking.id}`}
+                            className="bg-[#53a3f5]"
                           >
                             <Car className="w-4 h-4 mr-2" />
                             Assign Driver
