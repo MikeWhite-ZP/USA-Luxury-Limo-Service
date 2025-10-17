@@ -2642,7 +2642,7 @@ export default function AdminDashboard() {
               </div>
               
               {/* Flight Information Section */}
-              <div className="border-t pt-4">
+              <div className="border-t pt-4 bg-[#e1faaf]">
                 <h3 className="font-semibold mb-3">Flight Information (Optional)</h3>
                 
                 {/* Show existing flight info when editing */}
@@ -2809,7 +2809,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
               
-              <div className="border-t pt-4 space-y-2">
+              <div className="border-t pt-4 space-y-2 bg-[#e1faaf]">
                 <Label htmlFor="booking-status">Status *</Label>
                 <Select
                   value={bookingFormData.status}
