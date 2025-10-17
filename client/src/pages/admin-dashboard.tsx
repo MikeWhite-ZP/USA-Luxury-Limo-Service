@@ -2836,7 +2836,7 @@ export default function AdminDashboard() {
               {/* Additional Information Section */}
               <div className="border-t pt-4">
                 <div className="space-y-2">
-                  <Label htmlFor="special-instructions">Special Instructions / Notes</Label>
+                  <Label htmlFor="special-instructions" className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#d82527] text-[16px] font-bold">Special Instructions / Notes</Label>
                   <textarea
                     id="special-instructions"
                     value={bookingFormData.specialInstructions}
