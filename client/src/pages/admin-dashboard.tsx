@@ -2116,6 +2116,7 @@ export default function AdminDashboard() {
               <div>
                 <Label>Date From</Label>
                 <Input
+                  className="bg-[#ffffff]"
                   type="date"
                   value={bookingDateFrom}
                   onChange={(e) => setBookingDateFrom(e.target.value)}
@@ -2126,6 +2127,7 @@ export default function AdminDashboard() {
               <div>
                 <Label>Date To</Label>
                 <Input
+                  className="bg-[#ffffff]"
                   type="date"
                   value={bookingDateTo}
                   onChange={(e) => setBookingDateTo(e.target.value)}
