@@ -2642,8 +2642,8 @@ export default function AdminDashboard() {
               </div>
               
               {/* Flight Information Section */}
-              <div className="border-t pt-4 bg-[#e1faaf]">
-                <h3 className="mb-3 text-[#d82527] font-bold">Flight Information (Optional)</h3>
+              <div className="border-t pt-4 mt-4 bg-[#e1faaf] text-[12px]">
+                <h3 className="text-[#d82527] text-[16px] mt-[5px] mb-[5px] font-bold">Flight Information (Optional)</h3>
                 
                 {/* Show existing flight info when editing */}
                 {editingBooking && bookingFormData.flightNumber && !selectedFlight && (
@@ -2834,9 +2834,9 @@ export default function AdminDashboard() {
               </div>
               
               {/* Additional Information Section */}
-              <div className="border-t pt-4">
+              <div className="border-t pt-4 mt-4 bg-[#e1faaf] text-[12px]">
+                <h3 className="text-[#d82527] text-[16px] mt-[5px] mb-[5px] font-bold">Special Instructions / Notes</h3>
                 <div className="space-y-2">
-                  <Label htmlFor="special-instructions" className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#d82527] text-[16px] font-bold">Special Instructions / Notes</Label>
                   <textarea
                     id="special-instructions"
                     value={bookingFormData.specialInstructions}
@@ -2848,8 +2848,8 @@ export default function AdminDashboard() {
                 </div>
               </div>
               
-              <div className="border-t pt-4 space-y-2 bg-[#e1faaf]">
-                <Label htmlFor="booking-status" className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#d82527] font-bold text-[16px]">Status *</Label>
+              <div className="border-t pt-4 mt-4 space-y-2 bg-[#e1faaf] text-[12px]">
+                <h3 className="text-[#d82527] text-[16px] mt-[5px] mb-[5px] font-bold">Status *</h3>
                 <Select
                   value={bookingFormData.status}
                   onValueChange={(value) => setBookingFormData({ ...bookingFormData, status: value as any })}
