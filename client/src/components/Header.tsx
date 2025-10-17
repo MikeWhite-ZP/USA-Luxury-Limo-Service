@@ -168,7 +168,7 @@ export default function Header() {
               <>
                 <button 
                   onClick={() => setLocation('/login')}
-                  className="bg-[#88ba61] text-foreground hover:text-primary font-medium"
+                  className="text-foreground hover:text-primary font-medium bg-[transparent]"
                   data-testid="button-signin"
                 >
                   Sign In
