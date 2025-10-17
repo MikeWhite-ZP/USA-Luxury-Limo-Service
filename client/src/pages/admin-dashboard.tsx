@@ -1700,7 +1700,7 @@ export default function AdminDashboard() {
           </Card>
 
           <Card data-testid="stat-drivers">
-            <CardContent className="p-6">
+            <CardContent className="p-6 bg-[#c2d9f2]">
               <div className="flex items-center space-x-2">
                 <Car className="w-8 h-8 text-primary" />
                 <div>
