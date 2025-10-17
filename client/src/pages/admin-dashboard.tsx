@@ -2136,6 +2136,7 @@ export default function AdminDashboard() {
               <div>
                 <Label>Search</Label>
                 <Input
+                  className="bg-[#ffffff]"
                   placeholder="Passenger, Driver, ID..."
                   value={bookingSearch}
                   onChange={(e) => setBookingSearch(e.target.value)}
