@@ -202,7 +202,7 @@ export function AddressAutocomplete({
             }}
             disabled={disabled}
           >
-            <SelectTrigger className="w-[200px]" data-testid={`${testId}-saved-dropdown`}>
+            <SelectTrigger className="w-[200px] bg-[#ffffff] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px]" data-testid={`${testId}-saved-dropdown`}>
               <SelectValue placeholder="Saved addresses" />
             </SelectTrigger>
             <SelectContent>
