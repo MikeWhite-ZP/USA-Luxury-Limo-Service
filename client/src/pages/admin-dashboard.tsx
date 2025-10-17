@@ -2703,7 +2703,7 @@ export default function AdminDashboard() {
                   <Button
                     onClick={handleFlightSearch}
                     disabled={isSearchingFlight || !flightSearchInput.trim()}
-                    className="bg-primary hover:bg-primary/90 text-white px-6"
+                    className="hover:bg-primary/90 text-white px-6 bg-[#3d82ba] font-bold"
                     data-testid="button-find-flight"
                   >
                     {isSearchingFlight ? (
