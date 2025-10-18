@@ -1671,7 +1671,7 @@ export default function PassengerDashboard() {
             {/* Account Details Card */}
             <Card data-testid="account-details-card">
               <CardHeader>
-                <CardTitle>Account Details</CardTitle>
+                <CardTitle className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2 text-[#d82527]">Account Details</CardTitle>
                 <p className="text-sm text-muted-foreground">
                   View your account information
                 </p>
