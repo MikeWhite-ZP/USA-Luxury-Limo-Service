@@ -1135,7 +1135,7 @@ export default function PassengerDashboard() {
                   <Button
                     variant="outline"
                     onClick={() => setActiveSection('past-bookings')}
-                    className="h-16 flex flex-col space-y-1"
+                    className="h-16 flex flex-col space-y-1 bg-[#16a34a]"
                     data-testid="button-view-history"
                   >
                     <CreditCard className="w-5 h-5" />
