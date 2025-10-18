@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./auth";
+import { setupAuth, isAuthenticated, hashPassword, comparePasswords } from "./auth";
 import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertDriverDocumentSchema, type User } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
@@ -201,6 +201,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.error("Error updating user profile:", error);
       res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
+  // Update user password
+  app.patch('/api/user/password', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const passwordSchema = z.object({
+        currentPassword: z.string().min(1, "Current password is required"),
+        newPassword: z.string()
+          .min(8, "Password must be at least 8 characters")
+          .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+          .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+          .regex(/[0-9]/, "Password must contain at least one number"),
+      });
+
+      const { currentPassword, newPassword } = passwordSchema.parse(req.body);
+      
+      // Get user with password
+      const user = await storage.getUser(userId);
+      if (!user || !user.password) {
+        return res.status(404).json({ message: "User not found or not using local authentication" });
+      }
+
+      // Verify current password
+      const isValidPassword = await comparePasswords(currentPassword, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Current password is incorrect" });
+      }
+
+      // Hash new password
+      const hashedPassword = await hashPassword(newPassword);
+      
+      // Update password
+      const updatedUser = await storage.updateUser(userId, { password: hashedPassword });
+      if (!updatedUser) {
+        return res.status(500).json({ message: "Failed to update password" });
+      }
+
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0].message });
+      }
+      console.error("Error updating password:", error);
+      res.status(500).json({ message: "Failed to update password" });
     }
   });
 

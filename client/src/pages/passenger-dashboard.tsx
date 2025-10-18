@@ -469,6 +469,11 @@ export default function PassengerDashboard() {
   const [phone, setPhone] = useState(user?.phone || '');
   const [email, setEmail] = useState(user?.email || '');
 
+  // Password update state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   // Update profile state when user data changes
   useEffect(() => {
     if (user) {
@@ -642,6 +647,34 @@ export default function PassengerDashboard() {
       toast({
         title: "Error",
         description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update password mutation
+  const updatePasswordMutation = useMutation({
+    mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
+      const response = await apiRequest('PATCH', '/api/user/password', data);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update password');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      toast({
+        title: "Password Updated",
+        description: "Your password has been updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password",
         variant: "destructive",
       });
     },
@@ -966,6 +999,42 @@ export default function PassengerDashboard() {
       lastName: lastName.trim(),
       phone: phone.trim(),
       email: email.trim(),
+    });
+  };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast({
+        title: "Validation Error",
+        description: "All password fields are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Validation Error",
+        description: "New passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast({
+        title: "Validation Error",
+        description: "Password must be at least 8 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updatePasswordMutation.mutate({
+      currentPassword,
+      newPassword,
     });
   };
 
@@ -1576,7 +1645,7 @@ export default function PassengerDashboard() {
             {/* Editable Profile Information Card */}
             <Card data-testid="profile-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2 text-[#d82527]">
                   <User className="w-5 h-5" />
                   Account Information
                 </CardTitle>
@@ -1660,6 +1729,87 @@ export default function PassengerDashboard() {
                         <>
                           <Save className="w-4 h-4 mr-2" />
                           Save Changes
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            {/* Password Update Card */}
+            <Card data-testid="password-card">
+              <CardHeader>
+                <CardTitle className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2 text-[#d82527]">
+                  Change Password
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Update your password to keep your account secure
+                </p>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                  <div>
+                    <Label htmlFor="currentPassword" className="text-base font-medium">
+                      Current Password *
+                    </Label>
+                    <Input
+                      id="currentPassword"
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="Enter current password"
+                      className="mt-2"
+                      data-testid="input-current-password"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="newPassword" className="text-base font-medium">
+                      New Password *
+                    </Label>
+                    <Input
+                      id="newPassword"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password (min 8 characters)"
+                      className="mt-2"
+                      data-testid="input-new-password"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Password must be at least 8 characters with uppercase, lowercase, and numbers
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="confirmPassword" className="text-base font-medium">
+                      Confirm New Password *
+                    </Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Re-enter new password"
+                      className="mt-2"
+                      data-testid="input-confirm-password"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      type="submit"
+                      disabled={updatePasswordMutation.isPending}
+                      className="flex-1 bg-primary hover:bg-primary/90"
+                      data-testid="button-update-password"
+                    >
+                      {updatePasswordMutation.isPending ? (
+                        <>Updating...</>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Update Password
                         </>
                       )}
                     </Button>

@@ -3,7 +3,10 @@
 ## Overview
 USA Luxury Limo is a full-stack luxury transportation booking platform designed as a Progressive Web Application (PWA). It provides a comprehensive system for real-time pricing, fleet management, and multi-role user authentication, catering to passengers, drivers, and dispatchers. The platform aims to streamline the booking process for luxury transportation services, offering features like flight search integration, advanced payment options, and driver document management.
 
-## Recent Changes (October 17, 2025)
+## Recent Changes (October 18, 2025)
+- **Password Update Feature**: Implemented secure password update functionality for users. Backend validates current password using scrypt comparison before allowing updates. New passwords require minimum 8 characters with uppercase, lowercase, and numbers. Password update UI integrated in passenger dashboard Account Details section with real-time validation and user-friendly error messages.
+
+## Previous Changes (October 17, 2025)
 - **Fixed Flight Information Display Bug**: Added comprehensive console logging to track flight search and data restoration processes in admin booking dialog.
 - **Backend Data Retrieval Fix**: Updated `getAllBookingsWithDetails()` in server/storage.ts to include all booking fields (flight information, passenger details, luggage, baby seat, etc.) that were previously missing from the API response.
 
@@ -41,7 +44,7 @@ Preferred communication style: Simple, everyday language.
 - **Pricing Engine**: Complex fare calculation based on service type (transfer/hourly) and vehicle type, incorporating system commissions and per-passenger discounts (percentage/fixed).
 - **Booking Flow**: A 4-step process where bookings are finalized only after successful payment completion to prevent unpaid bookings.
 - **Driver Management**: Document upload and approval system (Driver License, Limo License, Insurance, Vehicle Image) with expiration tracking, admin review, and Replit Object Storage integration.
-- **User Account Management**: Users can update profiles; admins manage user roles, `payLaterEnabled` status, and discount settings.
+- **User Account Management**: Users can update profiles and change passwords securely; admins manage user roles, `payLaterEnabled` status, and discount settings. Password updates require current password verification and enforce strong password requirements.
 - **Contact Support**: Passenger contact form with submissions stored in the database for admin review.
 - **System Settings**: Admin-configurable, system-wide key-value settings stored in the database (e.g., ADMIN_EMAIL).
 
