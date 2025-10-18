@@ -112,7 +112,7 @@ function AddPaymentMethodForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="p-4 border rounded-lg">
+      <div className="p-4 border rounded-lg bg-[#ffffff]">
         <CardElement
           options={{
             style: {
