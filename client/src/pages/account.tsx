@@ -317,7 +317,7 @@ export default function AccountPage() {
           </Card>
 
           {/* Account Details Card */}
-          <Card data-testid="account-details-card">
+          <Card data-testid="account-details-card" className="bg-[#f2e9e9]">
             <CardHeader>
               <CardTitle className="text-[#d82527]">Account Details</CardTitle>
               <CardDescription>
