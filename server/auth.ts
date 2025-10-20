@@ -5,10 +5,14 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as AppleStrategy } from "passport-apple";
 import { Express } from "express";
 import session from "express-session";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import type { User as SelectUser } from "@shared/schema";
+
+const PgSession = connectPg(session);
 
 declare global {
   namespace Express {
@@ -47,12 +51,18 @@ export async function comparePasswords(supplied: string, stored: string): Promis
 
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
+    store: new PgSession({
+      pool: pool as any,
+      tableName: 'session',
+      createTableIfMissing: true,
+    }),
     secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
     resave: false,
     saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
+      sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   };
