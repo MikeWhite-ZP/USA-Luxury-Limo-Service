@@ -212,6 +212,45 @@ export default function AccountPage() {
         </Button>
 
         <div className="grid gap-6">
+          {/* Account Details Card - Moved to Top */}
+          <Card data-testid="account-details-card" className="bg-[#f2e9e9]">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-[#d82527]">Account Details</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Account Type</p>
+                  <p className="font-medium capitalize text-sm" data-testid="text-role">
+                    {user?.role || 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Account Status</p>
+                  <p className="font-medium text-sm" data-testid="text-status">
+                    {user?.isActive ? (
+                      <span className="text-green-600">Active</span>
+                    ) : (
+                      <span className="text-red-600">Inactive</span>
+                    )}
+                  </p>
+                </div>
+                {user?.createdAt && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Member Since</p>
+                    <p className="font-medium text-sm" data-testid="text-created-at">
+                      {new Date(user.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Profile Information Card */}
           <Card data-testid="profile-card">
             <CardHeader>
@@ -316,50 +355,8 @@ export default function AccountPage() {
             </CardContent>
           </Card>
 
-          {/* Account Details Card */}
-          <Card data-testid="account-details-card" className="bg-[#f2e9e9]">
-            <CardHeader>
-              <CardTitle className="text-[#d82527]">Account Details</CardTitle>
-              <CardDescription>
-                View your account information
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Account Type</p>
-                  <p className="font-medium capitalize" data-testid="text-role">
-                    {user?.role || 'N/A'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Account Status</p>
-                  <p className="font-medium" data-testid="text-status">
-                    {user?.isActive ? (
-                      <span className="text-green-600">Active</span>
-                    ) : (
-                      <span className="text-red-600">Inactive</span>
-                    )}
-                  </p>
-                </div>
-              </div>
-              {user?.createdAt && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Member Since</p>
-                  <p className="font-medium" data-testid="text-created-at">
-                    {new Date(user.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
           {/* Change Password Card */}
-          <Card data-testid="change-password-card">
+          <Card data-testid="change-password-card" className="bg-[#f5f5ed]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-[#d82527]">
                 <Lock className="w-5 h-5" />

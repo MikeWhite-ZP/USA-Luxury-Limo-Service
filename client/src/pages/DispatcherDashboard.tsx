@@ -20,7 +20,8 @@ import {
   UserCheck,
   RadioIcon,
   BarChart3,
-  AlertTriangle
+  AlertTriangle,
+  Plus
 } from "lucide-react";
 
 export default function DispatcherDashboard() {
