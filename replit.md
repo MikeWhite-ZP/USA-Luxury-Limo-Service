@@ -6,6 +6,7 @@ USA Luxury Limo is a full-stack luxury transportation booking platform designed 
 ## Recent Changes (October 20, 2025)
 - **Email Sending Functionality**: Implemented comprehensive email notification system throughout the application using Nodemailer for SMTP. Features include:
   - **Admin SMTP Configuration**: Two-tab interface in admin dashboard for configuring SMTP server settings (host, port, secure/TLS, username, password, from email, from name) with support for common providers (Gmail, Outlook, Yahoo, SendGrid)
+  - **Correct SSL/TLS Handling**: Properly configured STARTTLS support for port 587 (secure: false, requireTLS: true) and direct SSL for port 465 (secure: true). Admin UI provides clear guidance on correct settings for each SMTP provider.
   - **Test Email Feature**: Built-in test email functionality to verify SMTP configuration before deployment
   - **Automated Email Notifications**:
     - Contact form submissions automatically email admin with form details
@@ -15,6 +16,10 @@ USA Luxury Limo is a full-stack luxury transportation booking platform designed 
   - **Professional Email Templates**: Responsive HTML email templates with company branding, gradient headers, and mobile-friendly design
   - **Graceful Error Handling**: Email failures don't block critical operations (bookings, status updates continue even if email fails)
   - **Cached SMTP Transport**: Efficient SMTP connection management with 5-minute caching to reduce overhead
+  - **SMTP Configuration Notes**:
+    - Port 587: Use SSL/TLS = No (STARTTLS automatically enabled)
+    - Port 465: Use SSL/TLS = Yes (direct SSL connection)
+    - Gmail requires App Passwords (not regular password) with 2-Step Verification enabled
 - **Dispatcher Dashboard Real-Time Statistics**: Replaced hardcoded statistics with real data from the system. The dispatcher dashboard now displays accurate, live metrics including active drivers (available and verified), active rides (in-progress bookings), pending requests (awaiting assignment), and fleet utilization percentage (vehicles currently in use vs. total active vehicles).
 - **Dispatcher Assign/Reassign Ride Functionality**: Implemented comprehensive ride assignment and reassignment workflow for dispatchers. Features include:
   - Three-panel dialog layout showing pending bookings (unassigned), already assigned bookings (with current driver), and available drivers

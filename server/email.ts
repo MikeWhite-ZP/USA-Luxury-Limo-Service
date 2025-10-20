@@ -70,7 +70,7 @@ async function getTransporter(): Promise<Transporter | null> {
   }
 
   try {
-    cachedTransporter = nodemailer.createTransport({
+    const transportConfig: any = {
       host: settings.host,
       port: settings.port,
       secure: settings.secure,
@@ -78,7 +78,14 @@ async function getTransporter(): Promise<Transporter | null> {
         user: settings.user,
         pass: settings.password,
       },
-    });
+    };
+
+    // For port 587 with STARTTLS, force TLS upgrade
+    if (settings.port === 587 && !settings.secure) {
+      transportConfig.requireTLS = true;
+    }
+
+    cachedTransporter = nodemailer.createTransport(transportConfig);
 
     lastSettingsCheck = now;
     return cachedTransporter;

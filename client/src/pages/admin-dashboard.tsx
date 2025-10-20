@@ -485,11 +485,14 @@ function AdminEmailSettings({ user }: { user: any }) {
                   <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
                     <h4 className="font-semibold text-sm mb-2 text-blue-900 dark:text-blue-100">Common SMTP Providers:</h4>
                     <ul className="text-xs text-blue-800 dark:text-blue-200 space-y-1">
-                      <li>• <strong>Gmail:</strong> smtp.gmail.com, Port 587 (Use App Password, not regular password)</li>
-                      <li>• <strong>Outlook/Office 365:</strong> smtp.office365.com, Port 587</li>
-                      <li>• <strong>Yahoo:</strong> smtp.mail.yahoo.com, Port 587</li>
-                      <li>• <strong>SendGrid:</strong> smtp.sendgrid.net, Port 587</li>
+                      <li>• <strong>Gmail:</strong> smtp.gmail.com, Port 587, SSL/TLS: No (Use App Password, not regular password)</li>
+                      <li>• <strong>Outlook/Office 365:</strong> smtp.office365.com, Port 587, SSL/TLS: No</li>
+                      <li>• <strong>Yahoo:</strong> smtp.mail.yahoo.com, Port 587, SSL/TLS: No</li>
+                      <li>• <strong>SendGrid:</strong> smtp.sendgrid.net, Port 587, SSL/TLS: No</li>
                     </ul>
+                    <div className="mt-3 p-2 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded text-xs text-yellow-900 dark:text-yellow-100">
+                      <strong>Important:</strong> For Port 587, set SSL/TLS to <strong>No</strong> (uses STARTTLS). For Port 465, set SSL/TLS to <strong>Yes</strong> (direct SSL).
+                    </div>
                   </div>
                 </div>
               )}
