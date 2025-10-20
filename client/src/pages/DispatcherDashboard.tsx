@@ -517,7 +517,7 @@ export default function DispatcherDashboard() {
 
             {/* Available Drivers Section */}
             <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <h3 className="font-semibold mb-3 flex items-center gap-2 text-[#0178f2]">
                 <Car className="w-4 h-4" />
                 Available Drivers ({activeDrivers?.length || 0})
               </h3>
