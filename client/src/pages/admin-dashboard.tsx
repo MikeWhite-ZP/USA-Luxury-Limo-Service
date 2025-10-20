@@ -2430,27 +2430,68 @@ export default function AdminDashboard() {
             <div className="space-y-4 py-4 pt-[5px] pb-[5px] bg-[#e1faaf]">
               <div className="space-y-2">
                 <Label htmlFor="passenger">Passenger *</Label>
-                <Select
-                  value={bookingFormData.passengerId}
-                  onValueChange={(value) => setBookingFormData({ ...bookingFormData, passengerId: value })}
-                >
-                  <SelectTrigger id="passenger" className="bg-[#ffffff] text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]" data-testid="select-passenger">
-                    <SelectValue placeholder="Select passenger" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {allUsers && allUsers.length > 0 ? (
-                      allUsers
+                <div className="relative">
+                  <Input
+                    id="passenger"
+                    type="text"
+                    placeholder="Search by name, email, or phone..."
+                    value={(() => {
+                      if (!bookingFormData.passengerId) return '';
+                      const selectedPassenger = allUsers?.find(u => u.id === bookingFormData.passengerId);
+                      if (selectedPassenger) {
+                        return `${selectedPassenger.firstName} ${selectedPassenger.lastName} (${selectedPassenger.email}) - ${selectedPassenger.phone || 'N/A'}`;
+                      }
+                      return '';
+                    })()}
+                    onChange={(e) => {
+                      const searchQuery = e.target.value.toLowerCase();
+                      // Clear selection when user starts typing
+                      if (bookingFormData.passengerId) {
+                        setBookingFormData({ ...bookingFormData, passengerId: '' });
+                      }
+                      setUserSearchQuery(searchQuery);
+                    }}
+                    onFocus={() => setUserSearchQuery('')}
+                    className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
+                    data-testid="input-passenger-search"
+                  />
+                  {userSearchQuery && allUsers && allUsers.length > 0 && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      {allUsers
                         .filter(u => u.role === 'passenger')
+                        .filter(u => {
+                          const query = userSearchQuery.toLowerCase();
+                          return (
+                            u.firstName?.toLowerCase().includes(query) ||
+                            u.lastName?.toLowerCase().includes(query) ||
+                            u.email?.toLowerCase().includes(query) ||
+                            u.phone?.toLowerCase().includes(query) ||
+                            `${u.firstName} ${u.lastName}`.toLowerCase().includes(query)
+                          );
+                        })
                         .map((passenger) => (
-                          <SelectItem key={passenger.id} value={passenger.id}>
-                            {passenger.firstName} {passenger.lastName} ({passenger.email})
-                          </SelectItem>
+                          <button
+                            key={passenger.id}
+                            type="button"
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                            onClick={() => {
+                              setBookingFormData({ ...bookingFormData, passengerId: passenger.id });
+                              setUserSearchQuery('');
+                            }}
+                            data-testid={`passenger-option-${passenger.id}`}
+                          >
+                            {passenger.firstName} {passenger.lastName} ({passenger.email}) - {passenger.phone || 'N/A'}
+                          </button>
                         ))
-                    ) : (
-                      <div className="p-2 text-sm text-muted-foreground">No passengers available</div>
-                    )}
-                  </SelectContent>
-                </Select>
+                        .slice(0, 10)}
+                      {allUsers.filter(u => u.role === 'passenger').length === 0 && (
+                        <div className="p-4 text-sm text-center bg-[#ebe6d3]">
+                          No passengers available
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">

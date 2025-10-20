@@ -60,22 +60,20 @@ export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     store: sessionStore,
     secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
-    resave: true, // Force session save even if not modified
-    saveUninitialized: true, // Save uninitialized sessions
-    rolling: false,
+    resave: false, // Don't save session if unmodified
+    saveUninitialized: false, // Don't create session until something stored
+    rolling: true, // Reset maxAge on every request
     name: 'connect.sid',
     proxy: false,
     cookie: {
       secure: false,
-      httpOnly: false, // Allow JavaScript access for debugging
+      httpOnly: true, // Prevent XSS attacks
       sameSite: 'lax',
       path: '/',
       maxAge: 24 * 60 * 60 * 1000,
     },
   };
 
-  // Don't trust proxy in development
-  // app.set("trust proxy", 1);
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
@@ -193,21 +191,26 @@ export function setupAuth(app: Express) {
     );
   }
 
-  // Passport serialization
+  // Passport serialization - store full user ID as string
   passport.serializeUser((user, done) => {
     console.log("🔵 Serializing user:", user.id);
-    done(null, user.id);
+    done(null, String(user.id));
   });
 
-  passport.deserializeUser(async (id: string, done) => {
+  passport.deserializeUser(async (id: string | number, done) => {
     try {
-      console.log("🔵 Deserializing user ID:", id);
-      const user = await storage.getUser(id);
-      console.log("🔵 User found:", user ? user.username : "NOT FOUND");
+      const userId = String(id);
+      console.log("🔵 Deserializing user ID:", userId);
+      const user = await storage.getUser(userId);
+      if (!user) {
+        console.error("🔴 User not found for ID:", userId);
+        return done(null, false);
+      }
+      console.log("🔵 User found:", user.username || user.email);
       done(null, user);
     } catch (error) {
       console.error("🔴 Deserialization error:", error);
-      done(error);
+      done(error, false);
     }
   });
 
@@ -249,16 +252,25 @@ export function setupAuth(app: Express) {
       });
       
       // Log the user in
-      req.login(user, (err) => {
-        if (err) return next(err);
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          console.error("🔴 Registration login error:", loginErr);
+          return next(loginErr);
+        }
         
         // Explicitly save the session before responding
         req.session.save((saveErr) => {
           if (saveErr) {
-            console.error("Session save error:", saveErr);
+            console.error("🔴 Registration session save error:", saveErr);
             return next(saveErr);
           }
-          res.status(201).json(user);
+          
+          console.log("✅ Registration successful for user:", user.id);
+          console.log("✅ SessionID:", req.sessionID);
+          
+          // Send user data without password
+          const { password: _, ...userWithoutPassword } = user;
+          res.status(201).json(userWithoutPassword);
         });
       });
     } catch (error) {
@@ -277,28 +289,35 @@ export function setupAuth(app: Express) {
     
     passport.authenticate("local", (err: any, user: any, info: any) => {
       if (err) {
-        console.error("Login error:", err);
+        console.error("🔴 Login error:", err);
         return next(err);
       }
       if (!user) {
+        console.log("🔴 Authentication failed:", info?.message);
         return res.status(401).json({ message: info?.message || "Invalid credentials" });
       }
       
-      req.login(user, (err) => {
-        if (err) {
-          console.error("Session error:", err);
-          return next(err);
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          console.error("🔴 req.login error:", loginErr);
+          return next(loginErr);
         }
         
-        // Explicitly save the session before responding
+        // Session is automatically saved by passport, but we'll ensure it
         req.session.save((saveErr) => {
           if (saveErr) {
-            console.error("Session save error:", saveErr);
+            console.error("🔴 Session save error:", saveErr);
             return next(saveErr);
           }
-          console.log("✅ Session saved successfully. SessionID:", req.sessionID);
-          console.log("✅ Cookie settings:", req.session.cookie);
-          res.status(200).json(user);
+          
+          console.log("✅ Login successful for user:", user.id);
+          console.log("✅ SessionID:", req.sessionID);
+          console.log("✅ Session passport:", req.session.passport);
+          console.log("✅ Cookie:", req.session.cookie);
+          
+          // Send user data without password
+          const { password: _, ...userWithoutPassword } = user;
+          res.status(200).json(userWithoutPassword);
         });
       });
     })(req, res, next);
@@ -381,14 +400,19 @@ export function setupAuth(app: Express) {
 
 // Middleware to check if user is authenticated
 export function isAuthenticated(req: any, res: any, next: any) {
-  console.log("🔍 Auth check - Path:", req.path, "SessionID:", req.sessionID, "Has session?", !!req.session, "isAuthenticated?", req.isAuthenticated());
-  if (req.session) {
-    console.log("🔍 Session data:", JSON.stringify(req.session, null, 2).substring(0, 200));
-  }
+  console.log("🔍 Auth check - Path:", req.path);
+  console.log("🔍 SessionID:", req.sessionID);
+  console.log("🔍 Session exists?", !!req.session);
+  console.log("🔍 Session.passport:", req.session?.passport);
+  console.log("🔍 req.isAuthenticated():", req.isAuthenticated());
+  console.log("🔍 req.user:", req.user?.id);
   
-  if (req.isAuthenticated()) {
+  if (req.isAuthenticated() && req.user) {
+    console.log("✅ Authentication successful for user:", req.user.id);
     return next();
   }
+  
   console.log("❌ Authentication failed for:", req.path);
+  console.log("❌ Reason: isAuthenticated =", req.isAuthenticated(), "user =", !!req.user);
   res.status(401).json({ message: "Not authenticated" });
 }
