@@ -62,19 +62,20 @@ export function setupAuth(app: Express) {
     secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
     resave: false,
     saveUninitialized: false,
-    rolling: false, // Disable rolling to prevent session ID regeneration
-    name: 'connect.sid', // Explicit cookie name
-    proxy: true,
+    rolling: false,
+    name: 'connect.sid',
+    proxy: false, // Disable proxy for development
     cookie: {
-      secure: false, // Always false for development
+      secure: false,
       httpOnly: true,
       sameSite: 'lax',
       path: '/',
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 24 * 60 * 60 * 1000,
     },
   };
 
-  app.set("trust proxy", 1);
+  // Don't trust proxy in development
+  // app.set("trust proxy", 1);
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
