@@ -25,7 +25,7 @@ interface AdminNavProps {
   onCredentialsClick?: (section: 'api' | 'payment') => void;
   onUserManagerClick?: (type: 'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin') => void;
   onBookingsClick?: () => void;
-  onSettingsClick?: (section: 'commission' | 'email') => void;
+  onSettingsClick?: (section: 'commission' | 'email' | 'sms') => void;
 }
 
 export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onSettingsClick }: AdminNavProps) {
@@ -226,6 +226,19 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 >
                   <Mail className="w-4 h-4 mr-2" />
                   Email Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location !== '/admin-dashboard') {
+                      setLocation('/admin-dashboard');
+                    }
+                    setTimeout(() => onSettingsClick?.('sms'), 100);
+                  }}
+                  className="hover:bg-black hover:text-white cursor-pointer"
+                  data-testid="nav-sms-settings"
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  SMS Notifications
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

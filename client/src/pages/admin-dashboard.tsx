@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, Pencil, FileText, Plane, Search } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
+import { AdminSMSSettings } from "@/components/admin-sms-settings";
 
 interface DashboardStats {
   totalRevenue: string;
@@ -521,7 +522,7 @@ export default function AdminDashboard() {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [loadingValue, setLoadingValue] = useState(false);
   const [visibleCredentialsSection, setVisibleCredentialsSection] = useState<'api' | 'payment' | null>(null);
-  const [visibleSettingsSection, setVisibleSettingsSection] = useState<'commission' | 'email' | null>(null);
+  const [visibleSettingsSection, setVisibleSettingsSection] = useState<'commission' | 'email' | 'sms' | null>(null);
   const [showBookings, setShowBookings] = useState(false);
   const [selectedUserType, setSelectedUserType] = useState<'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin'>('all');
   const [showUserManager, setShowUserManager] = useState(false);
@@ -2424,6 +2425,9 @@ export default function AdminDashboard() {
 
         {/* Email Settings */}
         {visibleSettingsSection === 'email' && <AdminEmailSettings user={user} />}
+
+        {/* SMS Settings */}
+        {visibleSettingsSection === 'sms' && <AdminSMSSettings />}
 
         {/* Bookings Management */}
         {showBookings && (
