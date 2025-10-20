@@ -2444,14 +2444,19 @@ export default function AdminDashboard() {
                       return '';
                     })()}
                     onChange={(e) => {
-                      const searchQuery = e.target.value.toLowerCase();
+                      const searchQuery = e.target.value;
                       // Clear selection when user starts typing
                       if (bookingFormData.passengerId) {
                         setBookingFormData({ ...bookingFormData, passengerId: '' });
                       }
                       setUserSearchQuery(searchQuery);
                     }}
-                    onFocus={() => setUserSearchQuery('')}
+                    onFocus={() => {
+                      // Open dropdown on focus by setting a space if empty
+                      if (!userSearchQuery && !bookingFormData.passengerId) {
+                        setUserSearchQuery(' ');
+                      }
+                    }}
                     className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
                     data-testid="input-passenger-search"
                   />
@@ -2460,7 +2465,8 @@ export default function AdminDashboard() {
                       {allUsers
                         .filter(u => u.role === 'passenger')
                         .filter(u => {
-                          const query = userSearchQuery.toLowerCase();
+                          const query = userSearchQuery.trim().toLowerCase();
+                          if (!query) return true; // Show all if empty/space
                           return (
                             u.firstName?.toLowerCase().includes(query) ||
                             u.lastName?.toLowerCase().includes(query) ||
