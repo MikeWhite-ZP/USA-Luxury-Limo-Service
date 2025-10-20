@@ -370,7 +370,7 @@ export default function DispatcherDashboard() {
           <div className="grid md:grid-cols-3 gap-6 mt-4">
             {/* Pending Bookings Section */}
             <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <h3 className="font-semibold mb-3 flex items-center gap-2 text-[#028848]">
                 <Clock className="w-4 h-4" />
                 Pending Bookings ({pendingBookings.length})
               </h3>
