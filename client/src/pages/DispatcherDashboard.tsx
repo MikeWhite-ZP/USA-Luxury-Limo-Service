@@ -332,7 +332,7 @@ export default function DispatcherDashboard() {
 
       {/* Assign Ride Dialog */}
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-[#ffffff] max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Assign Ride to Driver</DialogTitle>
             <DialogDescription>
