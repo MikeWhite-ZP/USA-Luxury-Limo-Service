@@ -5,6 +5,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as AppleStrategy } from "passport-apple";
 import { Express } from "express";
 import session from "express-session";
+import MemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
@@ -13,6 +14,7 @@ import { storage } from "./storage";
 import type { User as SelectUser } from "@shared/schema";
 
 const PgSession = connectPg(session);
+const MemStore = MemoryStore(session);
 
 declare global {
   namespace Express {
@@ -50,14 +52,9 @@ export async function comparePasswords(supplied: string, stored: string): Promis
 }
 
 export function setupAuth(app: Express) {
-  const sessionStore = new PgSession({
-    pool: pool as any,
-    tableName: 'session',
-    createTableIfMissing: false,
-  });
-
-  sessionStore.on('error', (error) => {
-    console.error('Session store error:', error);
+  // Use memory store for better compatibility
+  const sessionStore = new MemStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
   });
 
   const sessionSettings: session.SessionOptions = {
@@ -66,10 +63,12 @@ export function setupAuth(app: Express) {
     resave: false,
     saveUninitialized: false,
     rolling: true,
+    proxy: true,
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       sameSite: 'lax',
+      path: '/',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   };
