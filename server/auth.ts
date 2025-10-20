@@ -52,6 +52,9 @@ export async function comparePasswords(supplied: string, stored: string): Promis
 }
 
 export function setupAuth(app: Express) {
+  // Enable trust proxy for Replit environment
+  app.set('trust proxy', 1);
+
   // Use memory store for better compatibility
   const sessionStore = new MemStore({
     checkPeriod: 86400000 // prune expired entries every 24h
@@ -60,13 +63,13 @@ export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     store: sessionStore,
     secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
-    resave: false, // Don't save session if unmodified
+    resave: false, // Don't save if unmodified (best practice)
     saveUninitialized: false, // Don't create session until something stored
     rolling: true, // Reset maxAge on every request
     name: 'connect.sid',
-    proxy: false,
+    proxy: true, // Trust the proxy for Replit environment
     cookie: {
-      secure: false,
+      secure: false, // HTTP in development
       httpOnly: true, // Prevent XSS attacks
       sameSite: 'lax',
       path: '/',
@@ -395,6 +398,25 @@ export function setupAuth(app: Express) {
       return res.status(401).json({ message: "Not authenticated" });
     }
     res.json(req.user);
+  });
+
+  // Debug endpoint for session troubleshooting
+  app.get("/api/debug/session", (req, res) => {
+    res.json({
+      sessionID: req.sessionID,
+      sessionExists: !!req.session,
+      sessionPassport: req.session?.passport,
+      isAuthenticated: req.isAuthenticated(),
+      userId: req.user?.id,
+      cookies: req.headers.cookie,
+      protocol: req.protocol,
+      secure: req.secure,
+      headers: {
+        'x-forwarded-proto': req.get('x-forwarded-proto'),
+        'x-forwarded-host': req.get('x-forwarded-host'),
+        'x-forwarded-for': req.get('x-forwarded-for'),
+      }
+    });
   });
 }
 
