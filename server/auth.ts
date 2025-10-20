@@ -60,14 +60,14 @@ export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     store: sessionStore,
     secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
-    resave: false,
-    saveUninitialized: false,
+    resave: true, // Force session save even if not modified
+    saveUninitialized: true, // Save uninitialized sessions
     rolling: false,
     name: 'connect.sid',
-    proxy: false, // Disable proxy for development
+    proxy: false,
     cookie: {
       secure: false,
-      httpOnly: true,
+      httpOnly: false, // Allow JavaScript access for debugging
       sameSite: 'lax',
       path: '/',
       maxAge: 24 * 60 * 60 * 1000,
@@ -195,14 +195,18 @@ export function setupAuth(app: Express) {
 
   // Passport serialization
   passport.serializeUser((user, done) => {
+    console.log("🔵 Serializing user:", user.id);
     done(null, user.id);
   });
 
   passport.deserializeUser(async (id: string, done) => {
     try {
+      console.log("🔵 Deserializing user ID:", id);
       const user = await storage.getUser(id);
+      console.log("🔵 User found:", user ? user.username : "NOT FOUND");
       done(null, user);
     } catch (error) {
+      console.error("🔴 Deserialization error:", error);
       done(error);
     }
   });
