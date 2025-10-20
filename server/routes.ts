@@ -8,6 +8,7 @@ import Stripe from "stripe";
 import multer from "multer";
 import { Client as ObjectStorageClient } from "@replit/object-storage";
 import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML } from "./email";
+import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS } from "./sms";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -3046,6 +3047,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         message: 'SMTP test failed. Please check your settings.' 
+      });
+    }
+  });
+
+  // Get Twilio SMS connection status
+  app.get('/api/admin/sms/status', async (req, res) => {
+    try {
+      const status = await getTwilioConnectionStatus();
+      res.json(status);
+    } catch (error) {
+      console.error('SMS status check error:', error);
+      res.status(500).json({ 
+        connected: false, 
+        error: 'Failed to check SMS connection status' 
+      });
+    }
+  });
+
+  // Send test SMS
+  app.post('/api/admin/sms/test', async (req, res) => {
+    try {
+      const { phoneNumber } = req.body;
+
+      if (!phoneNumber) {
+        return res.status(400).json({ error: 'Phone number is required' });
+      }
+
+      const result = await sendTestSMS(phoneNumber);
+
+      if (result.success) {
+        res.json({ 
+          success: true, 
+          message: `Test SMS sent successfully to ${phoneNumber}`,
+          messageId: result.messageId
+        });
+      } else {
+        res.status(500).json({ 
+          success: false, 
+          message: result.error || 'Failed to send test SMS' 
+        });
+      }
+    } catch (error) {
+      console.error('SMS test error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'SMS test failed. Please check your Twilio configuration.' 
       });
     }
   });
