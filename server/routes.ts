@@ -727,16 +727,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: Create booking for a passenger
-  // TEMPORARY: Removed authentication for testing
-  app.post('/api/admin/bookings', async (req: any, res) => {
+  app.post('/api/admin/bookings', isAuthenticated, async (req: any, res) => {
     try {
-      // TODO: Re-enable authentication once session issue is resolved
-      // const userId = req.user.id;
-      // 
-      // const user = await storage.getUser(userId);
-      // if (!user || user.role !== 'admin') {
-      //   return res.status(403).json({ message: 'Admin access required' });
-      // }
+      const userId = req.user.id;
+      
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
 
       // Validate and parse the booking data, allowing passengerId to be specified
       const bookingData = insertBookingSchema.parse(req.body);
@@ -807,17 +805,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: Update booking details
-  // TEMPORARY: Removed authentication for testing
-  app.patch('/api/admin/bookings/:id', async (req: any, res) => {
+  app.patch('/api/admin/bookings/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      // TODO: Re-enable authentication once session issue is resolved
-      // const userId = req.user.id;
-      // 
-      // const user = await storage.getUser(userId);
-      // if (!user || user.role !== 'admin') {
-      //   return res.status(403).json({ message: 'Admin access required' });
-      // }
+      const userId = req.user.id;
+      
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
 
       // Use partial schema for updates - only validate provided fields
       const updateSchema = insertBookingSchema.partial();
@@ -851,16 +847,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: Get saved addresses for any user
-  // TEMPORARY: Removed authentication for testing
-  app.get('/api/saved-addresses/user/:userId', async (req: any, res) => {
+  app.get('/api/saved-addresses/user/:userId', isAuthenticated, async (req: any, res) => {
     try {
-      // TODO: Re-enable authentication once session issue is resolved
-      // const adminId = req.user.id;
-      // const admin = await storage.getUser(adminId);
-      // 
-      // if (!admin || admin.role !== 'admin') {
-      //   return res.status(403).json({ message: 'Admin access required' });
-      // }
+      const adminId = req.user.id;
+      const admin = await storage.getUser(adminId);
+      
+      if (!admin || admin.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
 
       const { userId } = req.params;
       const addresses = await storage.getSavedAddressesByUser(userId);
@@ -1066,16 +1060,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin bookings management endpoints
-  // TEMPORARY: Removed authentication for testing
-  app.get('/api/admin/bookings', async (req: any, res) => {
+  app.get('/api/admin/bookings', isAuthenticated, async (req: any, res) => {
     try {
-      // TODO: Re-enable authentication once session issue is resolved
-      // const userId = req.user.id;
-      // const user = await storage.getUser(userId);
-      // 
-      // if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
-      //   return res.status(403).json({ message: 'Admin or dispatcher access required' });
-      // }
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
+      }
 
       const bookings = await storage.getAllBookingsWithDetails();
       res.json(bookings);
@@ -1455,16 +1447,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Management (admin only)
-  // TEMPORARY: Removed authentication for testing
-  app.get('/api/admin/users', async (req: any, res) => {
+  app.get('/api/admin/users', isAuthenticated, async (req: any, res) => {
     try {
-      // TODO: Re-enable authentication once session issue is resolved
-      // const userId = req.user.id;
-      // const user = await storage.getUser(userId);
-      // 
-      // if (!user || user.role !== 'admin') {
-      //   return res.status(403).json({ message: 'Admin access required' });
-      // }
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
 
       const users = await storage.getAllUsers();
       
@@ -2970,14 +2960,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // SMTP Settings Management
-  // TEMPORARY: Authentication disabled due to session bug in Replit webview
-  // TODO: Re-enable isAuthenticated middleware once session issue is resolved
-  app.get('/api/admin/smtp-settings', async (req, res) => {
+  app.get('/api/admin/smtp-settings', isAuthenticated, async (req: any, res) => {
     try {
-      // TEMPORARY: Admin check disabled
-      // if (!req.user || req.user.role !== 'admin') {
-      //   return res.status(403).json({ error: 'Admin access required' });
-      // }
+      if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
 
       const [host, port, secure, user, fromEmail, fromName] = await Promise.all([
         storage.getSystemSetting('SMTP_HOST'),
@@ -3003,14 +2990,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // TEMPORARY: Authentication disabled due to session bug in Replit webview
-  // TODO: Re-enable isAuthenticated middleware once session issue is resolved
-  app.post('/api/admin/smtp-settings', async (req, res) => {
+  app.post('/api/admin/smtp-settings', isAuthenticated, async (req: any, res) => {
     try {
-      // TEMPORARY: Admin check disabled
-      // if (!req.user || req.user.role !== 'admin') {
-      //   return res.status(403).json({ error: 'Admin access required' });
-      // }
+      if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
 
       const { host, port, secure, user, password, fromEmail, fromName } = req.body;
 
@@ -3028,9 +3012,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         settingsToUpdate.push({ key: 'SMTP_PASSWORD', value: password });
       }
 
-      // TEMPORARY: Use null as updatedBy since authentication is disabled
       await Promise.all(
-        settingsToUpdate.map(setting => storage.updateSystemSetting(setting.key, setting.value, null as any))
+        settingsToUpdate.map(setting => storage.updateSystemSetting(setting.key, setting.value, req.user.id))
       );
 
       // Clear email cache to force recreation with new settings
@@ -3043,14 +3026,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // TEMPORARY: Authentication disabled due to session bug in Replit webview
-  // TODO: Re-enable isAuthenticated middleware once session issue is resolved
-  app.post('/api/admin/smtp-test', async (req, res) => {
+  app.post('/api/admin/smtp-test', isAuthenticated, async (req: any, res) => {
     try {
-      // TEMPORARY: Admin check disabled
-      // if (!req.user || req.user.role !== 'admin') {
-      //   return res.status(403).json({ error: 'Admin access required' });
-      // }
+      if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
 
       const { testEmail } = req.body;
 
