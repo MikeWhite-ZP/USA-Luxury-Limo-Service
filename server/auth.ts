@@ -290,6 +290,8 @@ export function setupAuth(app: Express) {
             console.error("Session save error:", saveErr);
             return next(saveErr);
           }
+          console.log("✅ Session saved successfully. SessionID:", req.sessionID);
+          console.log("✅ Cookie settings:", req.session.cookie);
           res.status(200).json(user);
         });
       });
@@ -373,8 +375,14 @@ export function setupAuth(app: Express) {
 
 // Middleware to check if user is authenticated
 export function isAuthenticated(req: any, res: any, next: any) {
+  console.log("🔍 Auth check - Path:", req.path, "SessionID:", req.sessionID, "Has session?", !!req.session, "isAuthenticated?", req.isAuthenticated());
+  if (req.session) {
+    console.log("🔍 Session data:", JSON.stringify(req.session, null, 2).substring(0, 200));
+  }
+  
   if (req.isAuthenticated()) {
     return next();
   }
+  console.log("❌ Authentication failed for:", req.path);
   res.status(401).json({ message: "Not authenticated" });
 }
