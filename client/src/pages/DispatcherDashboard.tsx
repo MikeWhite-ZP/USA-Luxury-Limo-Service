@@ -43,18 +43,16 @@ export default function DispatcherDashboard() {
     retry: false,
   });
 
-  // Fetch active drivers
-  const { data: activeDrivers } = useQuery<any[]>({
-    queryKey: ['/api/admin/active-drivers'],
-    retry: false,
-  });
-
-  // Fetch all drivers for fleet monitoring
+  // Fetch all drivers (for both assignment and fleet monitoring)
   const { data: allDrivers } = useQuery<any[]>({
     queryKey: ['/api/admin/drivers'],
     retry: false,
-    enabled: fleetMonitorOpen,
   });
+
+  // Filter active drivers (all drivers who are active, not just available)
+  const activeDrivers = Array.isArray(allDrivers)
+    ? allDrivers.filter((d: any) => d.isActive)
+    : [];
 
   // Filter pending bookings (not assigned to a driver yet)
   const pendingBookings = Array.isArray(allBookings) 
