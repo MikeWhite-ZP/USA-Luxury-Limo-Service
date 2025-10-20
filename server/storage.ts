@@ -108,6 +108,14 @@ export interface IStorage {
     ratingImprovement: string;
   }>;
   
+  // Dispatcher dashboard data
+  getDispatcherDashboardStats(): Promise<{
+    activeDrivers: number;
+    activeRides: number;
+    pendingRequests: number;
+    fleetUtilization: string;
+  }>;
+  
   // Stripe customer management
   updateStripeCustomerId(userId: string, customerId: string): Promise<User>;
   updateUserStripeInfo(userId: string, stripeInfo: { customerId: string; subscriptionId: string }): Promise<User>;
@@ -622,6 +630,80 @@ export class DatabaseStorage implements IStorage {
       pendingDrivers: pendingDriversResult?.count || 0,
       revenueGrowth,
       ratingImprovement,
+    };
+  }
+
+  async getDispatcherDashboardStats(): Promise<{
+    activeDrivers: number;
+    activeRides: number;
+    pendingRequests: number;
+    fleetUtilization: string;
+  }> {
+    // Active drivers count (drivers who are available and fully verified)
+    const [activeDriversResult] = await db
+      .select({ 
+        count: sql<number>`COUNT(*)` 
+      })
+      .from(drivers)
+      .innerJoin(users, eq(users.id, drivers.userId))
+      .where(
+        and(
+          eq(users.isActive, true),
+          eq(drivers.isAvailable, true),
+          eq(drivers.verificationStatus, 'verified')
+        )
+      );
+
+    // Active rides count (bookings currently in progress)
+    const [activeRidesResult] = await db
+      .select({ 
+        count: sql<number>`COUNT(*)` 
+      })
+      .from(bookings)
+      .where(eq(bookings.status, 'in_progress'));
+
+    // Pending requests count (bookings waiting to be assigned)
+    const [pendingRequestsResult] = await db
+      .select({ 
+        count: sql<number>`COUNT(*)` 
+      })
+      .from(bookings)
+      .where(eq(bookings.status, 'pending'));
+
+    // Fleet utilization calculation
+    // Total active vehicles
+    const [totalActiveVehiclesResult] = await db
+      .select({ 
+        count: sql<number>`COUNT(*)` 
+      })
+      .from(vehicles)
+      .where(eq(vehicles.isActive, true));
+
+    // Vehicles currently in use (assigned to in-progress bookings)
+    const [vehiclesInUseResult] = await db
+      .select({ 
+        count: sql<number>`COUNT(DISTINCT ${vehicles.id})` 
+      })
+      .from(vehicles)
+      .innerJoin(bookings, eq(bookings.vehicleId, vehicles.id))
+      .where(
+        and(
+          eq(vehicles.isActive, true),
+          eq(bookings.status, 'in_progress')
+        )
+      );
+
+    const totalVehicles = totalActiveVehiclesResult?.count || 0;
+    const vehiclesInUse = vehiclesInUseResult?.count || 0;
+    const utilization = totalVehicles > 0 
+      ? ((vehiclesInUse / totalVehicles) * 100).toFixed(0) 
+      : '0';
+
+    return {
+      activeDrivers: activeDriversResult?.count || 0,
+      activeRides: activeRidesResult?.count || 0,
+      pendingRequests: pendingRequestsResult?.count || 0,
+      fleetUtilization: `${utilization}%`,
     };
   }
 

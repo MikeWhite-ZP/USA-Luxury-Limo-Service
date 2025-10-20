@@ -28,29 +28,29 @@ export default function DispatcherDashboard() {
   const statsCards = [
     {
       title: "Active Drivers",
-      value: (dashboardStats as any)?.activeDrivers || "12",
-      change: "+2 from yesterday",
+      value: (dashboardStats as any)?.activeDrivers?.toString() || "0",
+      change: "Available and verified drivers",
       icon: <Car className="w-6 h-6" />,
       color: "text-green-600"
     },
     {
       title: "Active Rides",
-      value: (dashboardStats as any)?.activeRides || "8",
+      value: (dashboardStats as any)?.activeRides?.toString() || "0",
       change: "Currently in progress",
       icon: <Activity className="w-6 h-6" />,
       color: "text-blue-600"
     },
     {
       title: "Pending Requests",
-      value: (dashboardStats as any)?.pendingRequests || "5",
+      value: (dashboardStats as any)?.pendingRequests?.toString() || "0",
       change: "Awaiting assignment",
       icon: <Clock className="w-6 h-6" />,
       color: "text-orange-600"
     },
     {
       title: "Fleet Utilization",
-      value: (dashboardStats as any)?.fleetUtilization || "87%",
-      change: "+5% from last hour",
+      value: (dashboardStats as any)?.fleetUtilization || "0%",
+      change: "Vehicles currently in use",
       icon: <BarChart3 className="w-6 h-6" />,
       color: "text-purple-600"
     }

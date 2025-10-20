@@ -935,6 +935,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Dispatcher routes
+  app.get('/api/dispatcher/stats', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Dispatcher or admin access required' });
+      }
+
+      const stats = await storage.getDispatcherDashboardStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Dispatcher stats error:', error);
+      res.status(500).json({ message: 'Failed to fetch dispatcher stats' });
+    }
+  });
+
   app.get('/api/admin/contacts', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
