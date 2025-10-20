@@ -2438,13 +2438,17 @@ export default function AdminDashboard() {
                     <SelectValue placeholder="Select passenger" />
                   </SelectTrigger>
                   <SelectContent>
-                    {allUsers
-                      .filter(u => u.role === 'passenger')
-                      .map((passenger) => (
-                        <SelectItem key={passenger.id} value={passenger.id}>
-                          {passenger.firstName} {passenger.lastName} ({passenger.email})
-                        </SelectItem>
-                      ))}
+                    {allUsers && allUsers.length > 0 ? (
+                      allUsers
+                        .filter(u => u.role === 'passenger')
+                        .map((passenger) => (
+                          <SelectItem key={passenger.id} value={passenger.id}>
+                            {passenger.firstName} {passenger.lastName} ({passenger.email})
+                          </SelectItem>
+                        ))
+                    ) : (
+                      <div className="p-2 text-sm text-muted-foreground">No passengers available</div>
+                    )}
                   </SelectContent>
                 </Select>
               </div>

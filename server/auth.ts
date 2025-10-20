@@ -50,17 +50,24 @@ export async function comparePasswords(supplied: string, stored: string): Promis
 }
 
 export function setupAuth(app: Express) {
+  const sessionStore = new PgSession({
+    pool: pool as any,
+    tableName: 'session',
+    createTableIfMissing: false,
+  });
+
+  sessionStore.on('error', (error) => {
+    console.error('Session store error:', error);
+  });
+
   const sessionSettings: session.SessionOptions = {
-    store: new PgSession({
-      pool: pool as any,
-      tableName: 'session',
-      createTableIfMissing: true,
-    }),
+    store: sessionStore,
     secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
     resave: false,
     saveUninitialized: false,
+    rolling: true,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       httpOnly: true,
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
@@ -239,7 +246,15 @@ export function setupAuth(app: Express) {
       // Log the user in
       req.login(user, (err) => {
         if (err) return next(err);
-        res.status(201).json(user);
+        
+        // Explicitly save the session before responding
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error("Session save error:", saveErr);
+            return next(saveErr);
+          }
+          res.status(201).json(user);
+        });
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -269,7 +284,15 @@ export function setupAuth(app: Express) {
           console.error("Session error:", err);
           return next(err);
         }
-        res.status(200).json(user);
+        
+        // Explicitly save the session before responding
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error("Session save error:", saveErr);
+            return next(saveErr);
+          }
+          res.status(200).json(user);
+        });
       });
     })(req, res, next);
   });
