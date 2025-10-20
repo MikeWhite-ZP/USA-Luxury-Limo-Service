@@ -28,6 +28,7 @@ export default function DispatcherDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [fleetMonitorOpen, setFleetMonitorOpen] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [selectedDriverId, setSelectedDriverId] = useState<string>("");
 
@@ -46,6 +47,13 @@ export default function DispatcherDashboard() {
   const { data: activeDrivers } = useQuery<any[]>({
     queryKey: ['/api/admin/active-drivers'],
     retry: false,
+  });
+
+  // Fetch all drivers for fleet monitoring
+  const { data: allDrivers } = useQuery<any[]>({
+    queryKey: ['/api/admin/drivers'],
+    retry: false,
+    enabled: fleetMonitorOpen,
   });
 
   // Filter pending bookings (not assigned to a driver yet)
@@ -161,7 +169,7 @@ export default function DispatcherDashboard() {
       title: "Fleet Monitor",
       description: "Real-time location and status of all vehicles",
       icon: <MapPin className="w-6 h-6" />,
-      action: () => console.log("Fleet monitor"),
+      action: () => setFleetMonitorOpen(true),
       color: "bg-green-500"
     },
     {
@@ -600,6 +608,195 @@ export default function DispatcherDashboard() {
               data-testid="button-confirm-assign"
             >
               {getButtonText()}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Fleet Monitor Dialog */}
+      <Dialog open={fleetMonitorOpen} onOpenChange={setFleetMonitorOpen}>
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-6xl max-h-[90vh] overflow-y-auto bg-[#ffffff]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MapPin className="w-5 h-5" />
+              Fleet Monitor - Live Status
+            </DialogTitle>
+            <DialogDescription>
+              Real-time overview of all drivers and vehicles in the fleet
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-4">
+            {/* Summary Stats */}
+            <div className="grid grid-cols-4 gap-4 mb-6">
+              <Card className="bg-green-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Available</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {allDrivers?.filter((d: any) => d.isAvailable).length || 0}
+                      </p>
+                    </div>
+                    <Car className="w-8 h-8 text-green-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-blue-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">On Ride</p>
+                      <p className="text-2xl font-bold text-blue-600">
+                        {allDrivers?.filter((d: any) => !d.isAvailable).length || 0}
+                      </p>
+                    </div>
+                    <Activity className="w-8 h-8 text-blue-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-orange-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Offline</p>
+                      <p className="text-2xl font-bold text-orange-600">
+                        {allDrivers?.filter((d: any) => !d.isActive).length || 0}
+                      </p>
+                    </div>
+                    <Clock className="w-8 h-8 text-orange-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-purple-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Total Fleet</p>
+                      <p className="text-2xl font-bold text-purple-600">
+                        {allDrivers?.length || 0}
+                      </p>
+                    </div>
+                    <Users className="w-8 h-8 text-purple-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Driver List */}
+            <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+              {!allDrivers || allDrivers.length === 0 ? (
+                <div className="text-center p-12 border rounded-lg bg-muted/50">
+                  <Car className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground">No drivers in fleet</p>
+                </div>
+              ) : (
+                allDrivers.map((driver: any) => {
+                  const currentRide = allBookings?.find(
+                    (b: any) => b.driverId === driver.id && (b.status === 'in_progress' || b.status === 'pending')
+                  );
+                  const isOnRide = !!currentRide;
+                  const statusColor = driver.isAvailable ? 'green' : isOnRide ? 'blue' : 'orange';
+                  const statusText = driver.isAvailable ? 'Available' : isOnRide ? 'On Ride' : 'Offline';
+
+                  return (
+                    <Card key={driver.id} className="hover:shadow-md transition-shadow" data-testid={`fleet-driver-${driver.id}`}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          {/* Driver Info */}
+                          <div className="flex items-start gap-4 flex-1">
+                            <div className={`w-12 h-12 rounded-full bg-${statusColor}-100 flex items-center justify-center`}>
+                              <Car className={`w-6 h-6 text-${statusColor}-600`} />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-semibold">
+                                  {driver.firstName} {driver.lastName}
+                                </h4>
+                                <Badge 
+                                  variant={driver.isAvailable ? "default" : isOnRide ? "secondary" : "outline"}
+                                  className={
+                                    driver.isAvailable 
+                                      ? "bg-green-500" 
+                                      : isOnRide 
+                                        ? "bg-blue-500" 
+                                        : "bg-orange-500 text-white"
+                                  }
+                                >
+                                  {statusText}
+                                </Badge>
+                              </div>
+                              <div className="text-sm text-muted-foreground space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs">Email:</span>
+                                  <span className="text-xs">{driver.email}</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-xs">Rating:</span>
+                                    <span className="text-xs font-medium">⭐ {driver.rating || 'N/A'}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-xs">Total Rides:</span>
+                                    <span className="text-xs font-medium">{driver.totalRides || 0}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Current Ride Info */}
+                              {currentRide && (
+                                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                  <p className="text-xs font-medium text-blue-900 mb-2">Current Ride:</p>
+                                  <div className="space-y-1 text-xs">
+                                    <div className="flex items-center gap-1">
+                                      <Users className="w-3 h-3" />
+                                      <span>{currentRide.passengerFirstName} {currentRide.passengerLastName}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <MapPin className="w-3 h-3" />
+                                      <span className="truncate">{currentRide.pickupAddress}</span>
+                                    </div>
+                                    {currentRide.destinationAddress && (
+                                      <div className="flex items-center gap-1">
+                                        <MapPin className="w-3 h-3" />
+                                        <span className="truncate">→ {currentRide.destinationAddress}</span>
+                                      </div>
+                                    )}
+                                    <div className="flex items-center gap-1">
+                                      <Calendar className="w-3 h-3" />
+                                      <span>{new Date(currentRide.scheduledDateTime).toLocaleString()}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Vehicle Info */}
+                          <div className="text-right">
+                            <Badge variant="outline" className="mb-2">
+                              {driver.vehicleType || 'No Vehicle'}
+                            </Badge>
+                            <p className="text-xs text-muted-foreground">
+                              {driver.vehiclePlate || 'N/A'}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => setFleetMonitorOpen(false)}
+              data-testid="button-close-fleet-monitor"
+            >
+              Close
             </Button>
           </div>
         </DialogContent>

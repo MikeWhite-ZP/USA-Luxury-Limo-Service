@@ -13,6 +13,14 @@ USA Luxury Limo is a full-stack luxury transportation booking platform designed 
   - One-click assignment or driver change with automatic statistics updates
   - Differentiated success messages for new assignments vs. reassignments
   - Full mobile responsiveness across all three panels
+- **Fleet Monitoring Functionality**: Implemented real-time fleet monitoring system for dispatchers. Features include:
+  - Live overview of all drivers and vehicles with status breakdown (Available, On Ride, Offline, Total)
+  - Detailed driver cards displaying current status, ratings, total rides, and contact information
+  - Real-time ride information showing current passenger, pickup/destination, and scheduled time for drivers on active rides
+  - Vehicle information display (type and plate number)
+  - Color-coded status badges (green for available, blue for on ride, orange for offline)
+  - Auto-refreshing data when dialog opens
+  - Comprehensive fleet summary statistics at the top of the monitor
 
 ## Previous Changes (October 18, 2025)
 - **Password Update Feature**: Implemented secure password update functionality for users. Backend validates current password using scrypt comparison before allowing updates. New passwords require minimum 8 characters with uppercase, lowercase, and numbers. Password update UI integrated in passenger dashboard Account Details section with real-time validation and user-friendly error messages.
