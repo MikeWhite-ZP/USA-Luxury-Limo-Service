@@ -18,6 +18,7 @@ import AboutUs from "@/pages/AboutUs";
 import Locations from "@/pages/Locations";
 import FeaturedAreaDetail from "@/pages/FeaturedAreaDetail";
 import Hotels from "@/pages/Hotels";
+import Contact from "@/pages/contact";
 import { RoleLogin } from "@/pages/RoleLogin";
 import { AdminLogin } from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/admin-dashboard";
@@ -55,6 +56,7 @@ function Router() {
       <Route path="/locations" component={Locations} />
       <Route path="/locations/:slug" component={FeaturedAreaDetail} />
       <Route path="/hotels" component={Hotels} />
+      <Route path="/contact" component={Contact} />
       
       {/* Authentication routes */}
       <Route path="/login" component={RoleLogin} />
