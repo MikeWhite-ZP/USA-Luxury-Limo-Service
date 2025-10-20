@@ -316,7 +316,20 @@ export function setupAuth(app: Express) {
           console.log("✅ Login successful for user:", user.id);
           console.log("✅ SessionID:", req.sessionID);
           console.log("✅ Session passport:", req.session.passport);
-          console.log("✅ Cookie:", req.session.cookie);
+          console.log("✅ Cookie settings:", {
+            secure: req.session.cookie.secure,
+            httpOnly: req.session.cookie.httpOnly,
+            sameSite: req.session.cookie.sameSite,
+            path: req.session.cookie.path,
+            domain: req.session.cookie.domain,
+            maxAge: req.session.cookie.maxAge
+          });
+          console.log("✅ Response will set cookie header");
+          
+          // Log response headers after they're set
+          res.on('finish', () => {
+            console.log("✅ Response sent with headers:", res.getHeaders());
+          });
           
           // Send user data without password
           const { password: _, ...userWithoutPassword } = user;
