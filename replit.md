@@ -4,6 +4,18 @@
 USA Luxury Limo is a full-stack luxury transportation booking platform designed as a Progressive Web Application (PWA). It provides a comprehensive system for real-time pricing, fleet management, and multi-role user authentication, catering to passengers, drivers, and dispatchers. The platform aims to streamline the booking process for luxury transportation services, offering features like flight search integration, advanced payment options, and driver document management.
 
 ## Recent Changes (October 20, 2025)
+- **SMS Notification System**: Implemented comprehensive SMS notification system using Twilio integration via Replit connector. Features include:
+  - **Secure Credential Management**: Uses Replit's Twilio connector for secure API key and account SID management
+  - **Admin SMS Settings Interface**: Dedicated settings section in admin dashboard showing connection status, account SID, and configured phone number
+  - **Test SMS Feature**: Built-in test SMS functionality to verify Twilio configuration before deployment
+  - **Automated SMS Notifications**:
+    - Booking confirmations sent to passengers upon booking creation with pickup details and scheduled time
+    - Status update notifications sent to passengers when booking status changes (confirmed, in progress, completed, cancelled)
+    - Driver assignment SMS sent to drivers when assigned to a ride with passenger and trip information
+  - **Professional SMS Templates**: Clear, concise message templates optimized for SMS character limits
+  - **Graceful Error Handling**: SMS failures don't block critical operations (bookings and status updates continue even if SMS fails)
+  - **Parallel Email + SMS**: Both email and SMS notifications are sent for important events, providing redundant communication channels
+  - **Phone Number Validation**: SMS only sent if user has valid phone number on file
 - **Email Sending Functionality**: Implemented comprehensive email notification system throughout the application using Nodemailer for SMTP. Features include:
   - **Admin SMTP Configuration**: Two-tab interface in admin dashboard for configuring SMTP server settings (host, port, secure/TLS, username, password, from email, from name) with support for common providers (Gmail, Outlook, Yahoo, SendGrid)
   - **Correct SSL/TLS Handling**: Properly configured STARTTLS support for port 587 (secure: false, requireTLS: true) and direct SSL for port 465 (secure: true). Admin UI provides clear guidance on correct settings for each SMTP provider.
@@ -72,6 +84,7 @@ Preferred communication style: Simple, everyday language.
 - **Key Entities**: Users, drivers, vehicles, bookings, addresses, system settings, invoices, contact submissions.
 
 ### Core Features
+- **SMS Notifications**: Comprehensive Twilio-based SMS system using Replit's Twilio connector for secure credential management. Automated SMS notifications for booking confirmations, status updates, and driver assignments. Professional SMS templates optimized for mobile delivery. Test SMS functionality for configuration verification. Graceful error handling ensures SMS failures don't block critical operations.
 - **Email Notifications**: Comprehensive SMTP-based email system using Nodemailer with admin-configurable SMTP settings (host, port, authentication, SSL/TLS). Automated email notifications for contact form submissions, booking confirmations, status updates, and driver assignments. Professional HTML email templates with responsive design. Test email functionality for configuration verification.
 - **Payment Processing**: Multi-provider support (Stripe, PayPal, Square) with secure credential handling and configurable payment systems. Supports "Pay Now" and conditional "Pay Later" options.
 - **Geolocation**: TomTom API for geocoding, address autocomplete, and coordinate conversion.
@@ -85,6 +98,7 @@ Preferred communication style: Simple, everyday language.
 - **System Settings**: Admin-configurable, system-wide key-value settings stored in the database (e.g., ADMIN_EMAIL, SMTP settings).
 
 ## External Dependencies
+- **Twilio**: SMS messaging service via Replit connector.
 - **Stripe**: Payment gateway.
 - **TomTom**: Geocoding and location services.
 - **Neon Database**: PostgreSQL hosting.
