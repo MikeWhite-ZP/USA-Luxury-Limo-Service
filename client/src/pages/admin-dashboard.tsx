@@ -2053,9 +2053,13 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Existing Credentials (excluding Stripe - moved to Payment Systems) */}
+            {/* Existing Credentials (excluding Stripe and SMTP - moved to their respective sections) */}
             <div className="space-y-3">
-              {credentials.filter(c => !c.key.includes('STRIPE')).map((credential) => (
+              {credentials.filter(c => 
+                !c.key.includes('STRIPE') && 
+                !c.key.includes('SMTP') && 
+                c.key !== 'ADMIN_EMAIL'
+              ).map((credential) => (
                 <div
                   key={credential.key}
                   className="border rounded-lg p-4"
