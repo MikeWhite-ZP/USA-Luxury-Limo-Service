@@ -8,11 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
-import { User, Mail, Phone, ArrowLeft, Save } from "lucide-react";
+import { User, Mail, Phone, ArrowLeft, Save, Lock, Eye, EyeOff } from "lucide-react";
 import Header from "@/components/Header";
 
 export default function AccountPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -21,6 +21,14 @@ export default function AccountPage() {
   const [lastName, setLastName] = useState(user?.lastName || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [email, setEmail] = useState(user?.email || '');
+
+  // Password update states
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: { firstName: string; lastName: string; phone: string; email: string }) => {
@@ -43,6 +51,33 @@ export default function AccountPage() {
       toast({
         title: "Error",
         description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updatePasswordMutation = useMutation({
+    mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
+      const response = await apiRequest('PATCH', '/api/user/password', data);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update password');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      toast({
+        title: "Password Updated",
+        description: "Your password has been updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password",
         variant: "destructive",
       });
     },
@@ -77,11 +112,85 @@ export default function AccountPage() {
     });
   };
 
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast({
+        title: "Validation Error",
+        description: "All password fields are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Validation Error",
+        description: "New passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast({
+        title: "Validation Error",
+        description: "Password must be at least 8 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!/[A-Z]/.test(newPassword)) {
+      toast({
+        title: "Validation Error",
+        description: "Password must contain at least one uppercase letter",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!/[a-z]/.test(newPassword)) {
+      toast({
+        title: "Validation Error",
+        description: "Password must contain at least one lowercase letter",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!/[0-9]/.test(newPassword)) {
+      toast({
+        title: "Validation Error",
+        description: "Password must contain at least one number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updatePasswordMutation.mutate({
+      currentPassword,
+      newPassword,
+    });
+  };
+
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       setLocation('/login');
     }
-  }, [isAuthenticated, setLocation]);
+  }, [isLoading, isAuthenticated, setLocation]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return null;
@@ -106,7 +215,7 @@ export default function AccountPage() {
           {/* Profile Information Card */}
           <Card data-testid="profile-card">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-[#d82527]">
                 <User className="w-5 h-5" />
                 Account Information
               </CardTitle>
@@ -210,7 +319,7 @@ export default function AccountPage() {
           {/* Account Details Card */}
           <Card data-testid="account-details-card">
             <CardHeader>
-              <CardTitle>Account Details</CardTitle>
+              <CardTitle className="text-[#d82527]">Account Details</CardTitle>
               <CardDescription>
                 View your account information
               </CardDescription>
@@ -246,6 +355,140 @@ export default function AccountPage() {
                   </p>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Change Password Card */}
+          <Card data-testid="change-password-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-[#d82527]">
+                <Lock className="w-5 h-5" />
+                Change Password
+              </CardTitle>
+              <CardDescription>
+                Update your password to keep your account secure
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="currentPassword" className="text-base font-medium">
+                    Current Password *
+                  </Label>
+                  <div className="relative mt-2">
+                    <Input
+                      id="currentPassword"
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="Enter your current password"
+                      data-testid="input-current-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      data-testid="toggle-current-password"
+                    >
+                      {showCurrentPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="newPassword" className="text-base font-medium">
+                    New Password *
+                  </Label>
+                  <div className="relative mt-2">
+                    <Input
+                      id="newPassword"
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter your new password"
+                      data-testid="input-new-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      data-testid="toggle-new-password"
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Minimum 8 characters with uppercase, lowercase, and numbers
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="confirmPassword" className="text-base font-medium">
+                    Confirm New Password *
+                  </Label>
+                  <div className="relative mt-2">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm your new password"
+                      data-testid="input-confirm-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      data-testid="toggle-confirm-password"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setCurrentPassword('');
+                      setNewPassword('');
+                      setConfirmPassword('');
+                    }}
+                    className="flex-1"
+                    data-testid="button-cancel-password"
+                  >
+                    Clear
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={updatePasswordMutation.isPending}
+                    className="flex-1 bg-primary hover:bg-primary/90"
+                    data-testid="button-update-password"
+                  >
+                    {updatePasswordMutation.isPending ? (
+                      <>Updating...</>
+                    ) : (
+                      <>
+                        <Lock className="w-4 h-4 mr-2" />
+                        Update Password
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </div>
