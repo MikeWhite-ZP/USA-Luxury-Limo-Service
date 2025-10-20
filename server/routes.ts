@@ -3096,8 +3096,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get Twilio SMS connection status
-  app.get('/api/admin/sms/status', async (req, res) => {
+  app.get('/api/admin/sms/status', isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
       const status = await getTwilioConnectionStatus();
       res.json(status);
     } catch (error) {
@@ -3110,8 +3117,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Send test SMS
-  app.post('/api/admin/sms/test', async (req, res) => {
+  app.post('/api/admin/sms/test', isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
       const { phoneNumber } = req.body;
 
       if (!phoneNumber) {

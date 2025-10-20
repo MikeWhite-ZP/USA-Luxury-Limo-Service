@@ -1,4 +1,5 @@
 import { getTwilioClient, getTwilioFromPhoneNumber, getTwilioConnectionStatus } from './twilio';
+import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 
 export interface SMSResult {
   success: boolean;
@@ -6,8 +7,62 @@ export interface SMSResult {
   error?: string;
 }
 
+export function normalizePhoneNumber(phoneNumber: string): string | null {
+  try {
+    // If it's already in E.164 format (starts with +), validate it
+    if (phoneNumber.startsWith('+')) {
+      if (isValidPhoneNumber(phoneNumber)) {
+        const parsed = parsePhoneNumber(phoneNumber);
+        return parsed.format('E.164');
+      }
+      return null;
+    }
+    
+    // Try parsing as US number if no country code
+    const cleaned = phoneNumber.replace(/\D/g, '');
+    
+    // If it's a 10-digit number, assume US
+    if (cleaned.length === 10) {
+      const usNumber = `+1${cleaned}`;
+      if (isValidPhoneNumber(usNumber)) {
+        return usNumber;
+      }
+    }
+    
+    // If it's 11 digits and starts with 1, assume US
+    if (cleaned.length === 11 && cleaned.startsWith('1')) {
+      const usNumber = `+${cleaned}`;
+      if (isValidPhoneNumber(usNumber)) {
+        return usNumber;
+      }
+    }
+    
+    // Try parsing with US as default country
+    if (isValidPhoneNumber(phoneNumber, 'US')) {
+      const parsed = parsePhoneNumber(phoneNumber, 'US');
+      return parsed.format('E.164');
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Phone number normalization error:', error);
+    return null;
+  }
+}
+
 export async function sendSMS(to: string, message: string): Promise<SMSResult> {
   try {
+    // Normalize and validate phone number
+    const normalizedPhone = normalizePhoneNumber(to);
+    
+    if (!normalizedPhone) {
+      console.warn(`Invalid phone number format: ${to}`);
+      return {
+        success: false,
+        error: 'Invalid phone number format'
+      };
+    }
+
     const client = await getTwilioClient();
     const fromNumber = await getTwilioFromPhoneNumber();
 
@@ -18,10 +73,10 @@ export async function sendSMS(to: string, message: string): Promise<SMSResult> {
     const result = await client.messages.create({
       body: message,
       from: fromNumber,
-      to: to
+      to: normalizedPhone
     });
 
-    console.log(`SMS sent successfully to ${to}, SID: ${result.sid}`);
+    console.log(`SMS sent successfully to ${normalizedPhone}, SID: ${result.sid}`);
     
     return {
       success: true,
