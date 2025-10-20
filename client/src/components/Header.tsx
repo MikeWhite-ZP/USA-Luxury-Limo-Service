@@ -136,6 +136,7 @@ export default function Header() {
                       const dashboardPath = user.role === 'passenger' ? '/passenger' 
                         : user.role === 'driver' ? '/driver'
                         : user.role === 'admin' ? '/admin-dashboard'
+                        : user.role === 'dispatcher' ? '/dispatcher'
                         : '/passenger';
                       setLocation(dashboardPath);
                     }}
