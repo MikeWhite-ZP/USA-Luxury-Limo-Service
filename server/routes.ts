@@ -774,6 +774,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 status: booking.status || 'pending',
               }),
             });
+
+            // Send SMS notification if phone number is available
+            if (passenger.phone) {
+              try {
+                await sendBookingConfirmationSMS(
+                  passenger.phone,
+                  booking.id,
+                  booking.pickupAddress,
+                  new Date(booking.scheduledDateTime)
+                );
+              } catch (smsError) {
+                console.error('Failed to send booking confirmation SMS:', smsError);
+                // Continue even if SMS fails
+              }
+            }
           }
         } catch (emailError) {
           console.error('Failed to send booking confirmation email:', emailError);
@@ -1143,6 +1158,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 scheduledDateTime,
               }),
             });
+
+            // Send SMS notification if phone number is available
+            if (passenger.phone) {
+              try {
+                await sendBookingStatusUpdateSMS(
+                  passenger.phone,
+                  updatedBooking.id,
+                  status
+                );
+              } catch (smsError) {
+                console.error('Failed to send booking status update SMS:', smsError);
+                // Continue even if SMS fails
+              }
+            }
           }
         } catch (emailError) {
           console.error('Failed to send booking status update email:', emailError);
@@ -1209,6 +1238,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 vehicleType: vehicleType?.name || 'Standard',
               }),
             });
+
+            // Send SMS notification if phone number is available
+            if (driverUser.phone && passenger) {
+              try {
+                await sendDriverAssignmentSMS(
+                  driverUser.phone,
+                  `${passenger.firstName} ${passenger.lastName}`,
+                  updatedBooking.pickupAddress,
+                  new Date(updatedBooking.scheduledDateTime)
+                );
+              } catch (smsError) {
+                console.error('Failed to send driver assignment SMS:', smsError);
+                // Continue even if SMS fails
+              }
+            }
           }
         }
       } catch (emailError) {
