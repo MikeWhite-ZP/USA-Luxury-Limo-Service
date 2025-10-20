@@ -7,6 +7,7 @@ import { z } from "zod";
 import Stripe from "stripe";
 import multer from "multer";
 import { Client as ObjectStorageClient } from "@replit/object-storage";
+import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML } from "./email";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -740,6 +741,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const bookingData = insertBookingSchema.parse(req.body);
 
       const booking = await storage.createBooking(bookingData);
+      
+      // Send booking confirmation email to passenger
+      if (booking.passengerId) {
+        try {
+          const passenger = await storage.getUser(booking.passengerId);
+          const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+          
+          if (passenger?.email) {
+            const scheduledDateTime = new Date(booking.scheduledDateTime).toLocaleString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: 'America/Chicago'
+            });
+
+            await sendEmail({
+              to: passenger.email,
+              subject: `Booking Confirmation - ${booking.id}`,
+              html: getBookingConfirmationEmailHTML({
+                passengerName: `${passenger.firstName} ${passenger.lastName}`,
+                bookingId: booking.id,
+                pickupAddress: booking.pickupAddress,
+                destinationAddress: booking.destinationAddress || 'N/A',
+                scheduledDateTime,
+                vehicleType: vehicleType?.name || 'Standard',
+                totalAmount: (booking.totalAmount || 0).toString(),
+                status: booking.status || 'pending',
+              }),
+            });
+          }
+        } catch (emailError) {
+          console.error('Failed to send booking confirmation email:', emailError);
+          // Don't fail the booking creation if email fails
+        }
+      }
+      
       res.status(201).json(booking);
     } catch (error) {
       console.error('Admin create booking error:', error);
@@ -849,6 +889,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const contactData = insertContactSchema.parse(req.body);
       const contact = await storage.createContactSubmission(contactData);
+      
+      // Send email notification to admin
+      const adminEmailSetting = await storage.getSystemSetting('ADMIN_EMAIL');
+      if (adminEmailSetting?.value) {
+        try {
+          const submittedAt = new Date().toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'America/Chicago'
+          });
+
+          await sendEmail({
+            to: adminEmailSetting.value,
+            subject: `New Contact Form Submission from ${contactData.firstName} ${contactData.lastName}`,
+            html: getContactFormEmailHTML({
+              firstName: contactData.firstName,
+              lastName: contactData.lastName,
+              email: contactData.email,
+              phone: contactData.phone,
+              serviceType: contactData.serviceType,
+              message: contactData.message,
+              submittedAt,
+            }),
+          });
+        } catch (emailError) {
+          console.error('Failed to send contact form email notification:', emailError);
+          // Don't fail the request if email fails - contact is already saved
+        }
+      }
+      
       res.status(201).json(contact);
     } catch (error) {
       console.error('Contact submission error:', error);
@@ -1029,7 +1102,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Invalid status value' });
       }
 
-      const updatedBooking = await storage.updateBookingStatus(id, status);
+      // Get old booking to compare status change
+      const oldBooking = await storage.getBooking(id);
+      const oldStatus = oldBooking?.status;
+      
+      await storage.updateBookingStatus(id, status);
+      
+      // Get updated booking
+      const updatedBooking = await storage.getBooking(id);
+      if (!updatedBooking) {
+        return res.status(404).json({ error: 'Booking not found after update' });
+      }
+      
+      // Send status update email to passenger if status changed
+      if (oldStatus && oldStatus !== status && updatedBooking.passengerId) {
+        try {
+          const passenger = await storage.getUser(updatedBooking.passengerId);
+          
+          if (passenger?.email) {
+            const scheduledDateTime = new Date(updatedBooking.scheduledDateTime).toLocaleString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: 'America/Chicago'
+            });
+
+            await sendEmail({
+              to: passenger.email,
+              subject: `Booking Status Update - ${updatedBooking.id}`,
+              html: getBookingStatusUpdateEmailHTML({
+                passengerName: `${passenger.firstName} ${passenger.lastName}`,
+                bookingId: updatedBooking.id,
+                oldStatus,
+                newStatus: status,
+                pickupAddress: updatedBooking.pickupAddress,
+                scheduledDateTime,
+              }),
+            });
+          }
+        } catch (emailError) {
+          console.error('Failed to send booking status update email:', emailError);
+          // Don't fail the status update if email fails
+        }
+      }
+      
       return res.json(updatedBooking);
     } catch (error) {
       console.error('Update booking status error:', error);
@@ -1054,6 +1173,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updatedBooking = await storage.assignDriverToBooking(id, driverId);
+      
+      // Send driver assignment email to driver
+      try {
+        const driver = await storage.getDriver(driverId);
+        const passenger = updatedBooking.passengerId ? await storage.getUser(updatedBooking.passengerId) : null;
+        const vehicleType = await storage.getVehicleType(updatedBooking.vehicleTypeId);
+        
+        if (driver?.userId) {
+          const driverUser = await storage.getUser(driver.userId);
+          
+          if (driverUser?.email) {
+            const scheduledDateTime = new Date(updatedBooking.scheduledDateTime).toLocaleString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: 'America/Chicago'
+            });
+
+            await sendEmail({
+              to: driverUser.email,
+              subject: `New Ride Assignment - ${updatedBooking.id}`,
+              html: getDriverAssignmentEmailHTML({
+                driverName: `${driverUser.firstName} ${driverUser.lastName}`,
+                bookingId: updatedBooking.id,
+                passengerName: passenger ? `${passenger.firstName} ${passenger.lastName}` : 'N/A',
+                passengerPhone: passenger?.phone || 'N/A',
+                pickupAddress: updatedBooking.pickupAddress,
+                destinationAddress: updatedBooking.destinationAddress || 'N/A',
+                scheduledDateTime,
+                vehicleType: vehicleType?.name || 'Standard',
+              }),
+            });
+          }
+        }
+      } catch (emailError) {
+        console.error('Failed to send driver assignment email:', emailError);
+        // Don't fail the assignment if email fails
+      }
+      
       res.json(updatedBooking);
     } catch (error) {
       console.error('Assign driver error:', error);
@@ -2760,6 +2921,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Get booking rating error:', error);
       res.status(500).json({ error: 'Failed to get booking rating' });
+    }
+  });
+
+  // SMTP Settings Management
+  app.get('/api/admin/smtp-settings', isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const [host, port, secure, user, fromEmail, fromName] = await Promise.all([
+        storage.getSystemSetting('SMTP_HOST'),
+        storage.getSystemSetting('SMTP_PORT'),
+        storage.getSystemSetting('SMTP_SECURE'),
+        storage.getSystemSetting('SMTP_USER'),
+        storage.getSystemSetting('SMTP_FROM_EMAIL'),
+        storage.getSystemSetting('SMTP_FROM_NAME'),
+      ]);
+
+      res.json({
+        host: host?.value || '',
+        port: port?.value || '587',
+        secure: secure?.value === 'true',
+        user: user?.value || '',
+        hasPassword: !!(await storage.getSystemSetting('SMTP_PASSWORD'))?.value,
+        fromEmail: fromEmail?.value || '',
+        fromName: fromName?.value || 'USA Luxury Limo',
+      });
+    } catch (error) {
+      console.error('Get SMTP settings error:', error);
+      res.status(500).json({ error: 'Failed to get SMTP settings' });
+    }
+  });
+
+  app.post('/api/admin/smtp-settings', isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const { host, port, secure, user, password, fromEmail, fromName } = req.body;
+
+      const settingsToUpdate = [
+        { key: 'SMTP_HOST', value: host },
+        { key: 'SMTP_PORT', value: port?.toString() || '587' },
+        { key: 'SMTP_SECURE', value: secure ? 'true' : 'false' },
+        { key: 'SMTP_USER', value: user },
+        { key: 'SMTP_FROM_EMAIL', value: fromEmail },
+        { key: 'SMTP_FROM_NAME', value: fromName || 'USA Luxury Limo' },
+      ];
+
+      // Only update password if provided
+      if (password) {
+        settingsToUpdate.push({ key: 'SMTP_PASSWORD', value: password });
+      }
+
+      await Promise.all(
+        settingsToUpdate.map(setting => storage.updateSystemSetting(setting.key, setting.value, req.user!.id))
+      );
+
+      // Clear email cache to force recreation with new settings
+      clearEmailCache();
+
+      res.json({ success: true, message: 'SMTP settings updated successfully' });
+    } catch (error) {
+      console.error('Update SMTP settings error:', error);
+      res.status(500).json({ error: 'Failed to update SMTP settings' });
+    }
+  });
+
+  app.post('/api/admin/smtp-test', isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const { testEmail } = req.body;
+
+      if (!testEmail) {
+        return res.status(400).json({ error: 'Test email address is required' });
+      }
+
+      // Test connection first
+      const connectionTest = await testSMTPConnection();
+      
+      if (!connectionTest.success) {
+        return res.status(400).json({ 
+          success: false, 
+          message: connectionTest.message 
+        });
+      }
+
+      // Send test email
+      const emailSent = await sendEmail({
+        to: testEmail,
+        subject: 'USA Luxury Limo - SMTP Test Email',
+        html: getTestEmailHTML(),
+      });
+
+      if (emailSent) {
+        res.json({ 
+          success: true, 
+          message: `Test email sent successfully to ${testEmail}. Please check your inbox.` 
+        });
+      } else {
+        res.status(500).json({ 
+          success: false, 
+          message: 'Failed to send test email. Please check your SMTP settings and try again.' 
+        });
+      }
+    } catch (error) {
+      console.error('SMTP test error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'SMTP test failed. Please check your settings.' 
+      });
     }
   });
 

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, Pencil, FileText, Plane, Search } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
@@ -91,10 +92,37 @@ function AdminEmailSettings({ user }: { user: any }) {
   const queryClient = useQueryClient();
   const [adminEmail, setAdminEmail] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-
+  const [activeTab, setActiveTab] = useState('admin-email');
+  
+  // SMTP Settings state
+  const [smtpSettings, setSmtpSettings] = useState({
+    host: '',
+    port: '587',
+    secure: false,
+    user: '',
+    password: '',
+    fromEmail: '',
+    fromName: 'USA Luxury Limo',
+  });
+  const [testEmail, setTestEmail] = useState('');
+  
   // Fetch current admin email setting
   const { data: emailSetting } = useQuery({
     queryKey: ['/api/system-settings', 'ADMIN_EMAIL'],
+    enabled: !!user && user.role === 'admin',
+  });
+
+  // Fetch SMTP settings
+  const { data: smtpData, isLoading: smtpLoading } = useQuery<{
+    host: string;
+    port: string;
+    secure: boolean;
+    user: string;
+    hasPassword: boolean;
+    fromEmail: string;
+    fromName: string;
+  }>({
+    queryKey: ['/api/admin/smtp-settings'],
     enabled: !!user && user.role === 'admin',
   });
 
@@ -106,6 +134,20 @@ function AdminEmailSettings({ user }: { user: any }) {
       setIsLoading(false);
     }
   }, [emailSetting]);
+
+  useEffect(() => {
+    if (smtpData) {
+      setSmtpSettings({
+        host: smtpData.host || '',
+        port: smtpData.port || '587',
+        secure: smtpData.secure || false,
+        user: smtpData.user || '',
+        password: '',
+        fromEmail: smtpData.fromEmail || '',
+        fromName: smtpData.fromName || 'USA Luxury Limo',
+      });
+    }
+  }, [smtpData]);
 
   const updateEmailMutation = useMutation({
     mutationFn: async (email: string) => {
@@ -132,6 +174,56 @@ function AdminEmailSettings({ user }: { user: any }) {
     },
   });
 
+  const updateSMTPMutation = useMutation({
+    mutationFn: async (settings: typeof smtpSettings) => {
+      const response = await apiRequest('POST', '/api/admin/smtp-settings', settings);
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: 'Failed to update SMTP settings' }));
+        throw new Error(error.message || 'Failed to update SMTP settings');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "SMTP Settings Updated",
+        description: "Email server settings have been saved successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/smtp-settings'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update SMTP settings.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const testSMTPMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await apiRequest('POST', '/api/admin/smtp-test', { testEmail: email });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to send test email');
+      }
+      return data;
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Test Email Sent",
+        description: data.message || "Test email sent successfully!",
+      });
+      setTestEmail('');
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Test Failed",
+        description: error.message || "Failed to send test email.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleUpdate = () => {
     if (!adminEmail || !adminEmail.includes('@')) {
       toast({
@@ -142,6 +234,30 @@ function AdminEmailSettings({ user }: { user: any }) {
       return;
     }
     updateEmailMutation.mutate(adminEmail);
+  };
+
+  const handleSMTPUpdate = () => {
+    if (!smtpSettings.host || !smtpSettings.user || !smtpSettings.fromEmail) {
+      toast({
+        title: "Missing Fields",
+        description: "Please fill in all required SMTP fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+    updateSMTPMutation.mutate(smtpSettings);
+  };
+
+  const handleTestEmail = () => {
+    if (!testEmail || !testEmail.includes('@')) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address for testing.",
+        variant: "destructive",
+      });
+      return;
+    }
+    testSMTPMutation.mutate(testEmail);
   };
 
   return (
@@ -158,55 +274,227 @@ function AdminEmailSettings({ user }: { user: any }) {
             <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
           </div>
         ) : (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Configure the system-wide admin email address. Contact form submissions will be sent to this email address.
-            </p>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="admin-email" data-testid="tab-admin-email">Admin Email</TabsTrigger>
+              <TabsTrigger value="smtp-settings" data-testid="tab-smtp-settings">SMTP Settings</TabsTrigger>
+            </TabsList>
 
-            <div className="max-w-md space-y-3">
-              <div>
-                <Label htmlFor="admin-email">Admin Email Address</Label>
-                <Input
-                  id="admin-email"
-                  type="email"
-                  value={adminEmail}
-                  onChange={(e) => setAdminEmail(e.target.value)}
-                  placeholder="admin@example.com"
-                  data-testid="input-admin-email"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Current value: {emailSetting && typeof emailSetting === 'object' && 'value' in emailSetting ? (emailSetting as any).value : 'Not set'}
-                </p>
+            <TabsContent value="admin-email" className="space-y-4 mt-4">
+              <p className="text-sm text-muted-foreground">
+                Configure the system-wide admin email address. Contact form submissions will be sent to this email address.
+              </p>
+
+              <div className="max-w-md space-y-3">
+                <div>
+                  <Label htmlFor="admin-email">Admin Email Address</Label>
+                  <Input
+                    id="admin-email"
+                    type="email"
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    placeholder="admin@example.com"
+                    data-testid="input-admin-email"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Current value: {emailSetting && typeof emailSetting === 'object' && 'value' in emailSetting ? (emailSetting as any).value : 'Not set'}
+                  </p>
+                </div>
+
+                <Button
+                  onClick={handleUpdate}
+                  disabled={updateEmailMutation.isPending}
+                  data-testid="button-update-email"
+                >
+                  {updateEmailMutation.isPending ? (
+                    <>
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 mr-2" />
+                      Update Email
+                    </>
+                  )}
+                </Button>
               </div>
 
-              <Button
-                onClick={handleUpdate}
-                disabled={updateEmailMutation.isPending}
-                data-testid="button-update-email"
-              >
-                {updateEmailMutation.isPending ? (
-                  <>
-                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                    Updating...
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-4 h-4 mr-2" />
-                    Update Email
-                  </>
-                )}
-              </Button>
-            </div>
+              <div className="mt-6 p-4 bg-muted rounded-lg">
+                <h4 className="font-semibold text-sm mb-2">Usage:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• This email receives all contact form submissions from passengers</li>
+                  <li>• Make sure the email address is monitored regularly</li>
+                  <li>• You can update this email at any time</li>
+                </ul>
+              </div>
+            </TabsContent>
 
-            <div className="mt-6 p-4 bg-muted rounded-lg">
-              <h4 className="font-semibold text-sm mb-2">Usage:</h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• This email receives all contact form submissions from passengers</li>
-                <li>• Make sure the email address is monitored regularly</li>
-                <li>• You can update this email at any time</li>
-              </ul>
-            </div>
-          </div>
+            <TabsContent value="smtp-settings" className="space-y-4 mt-4">
+              <p className="text-sm text-muted-foreground">
+                Configure SMTP server settings to enable email sending functionality throughout the system.
+              </p>
+
+              {smtpLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+                </div>
+              ) : (
+                <div className="max-w-2xl space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="smtp-host">SMTP Host *</Label>
+                      <Input
+                        id="smtp-host"
+                        value={smtpSettings.host}
+                        onChange={(e) => setSmtpSettings({ ...smtpSettings, host: e.target.value })}
+                        placeholder="smtp.gmail.com"
+                        data-testid="input-smtp-host"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="smtp-port">Port *</Label>
+                      <Input
+                        id="smtp-port"
+                        value={smtpSettings.port}
+                        onChange={(e) => setSmtpSettings({ ...smtpSettings, port: e.target.value })}
+                        placeholder="587"
+                        data-testid="input-smtp-port"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="smtp-secure"
+                      checked={smtpSettings.secure}
+                      onChange={(e) => setSmtpSettings({ ...smtpSettings, secure: e.target.checked })}
+                      className="w-4 h-4"
+                      data-testid="checkbox-smtp-secure"
+                    />
+                    <Label htmlFor="smtp-secure" className="cursor-pointer">
+                      Use SSL/TLS (port 465)
+                    </Label>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="smtp-user">SMTP Username *</Label>
+                      <Input
+                        id="smtp-user"
+                        value={smtpSettings.user}
+                        onChange={(e) => setSmtpSettings({ ...smtpSettings, user: e.target.value })}
+                        placeholder="your-email@gmail.com"
+                        data-testid="input-smtp-user"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="smtp-password">SMTP Password</Label>
+                      <Input
+                        id="smtp-password"
+                        type="password"
+                        value={smtpSettings.password}
+                        onChange={(e) => setSmtpSettings({ ...smtpSettings, password: e.target.value })}
+                        placeholder={smtpData?.hasPassword ? "••••••••" : "Enter password"}
+                        data-testid="input-smtp-password"
+                      />
+                      {smtpData?.hasPassword && !smtpSettings.password && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Password is already set. Leave blank to keep current password.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="smtp-from-email">From Email Address *</Label>
+                      <Input
+                        id="smtp-from-email"
+                        type="email"
+                        value={smtpSettings.fromEmail}
+                        onChange={(e) => setSmtpSettings({ ...smtpSettings, fromEmail: e.target.value })}
+                        placeholder="noreply@yourdomain.com"
+                        data-testid="input-smtp-from-email"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="smtp-from-name">From Name</Label>
+                      <Input
+                        id="smtp-from-name"
+                        value={smtpSettings.fromName}
+                        onChange={(e) => setSmtpSettings({ ...smtpSettings, fromName: e.target.value })}
+                        placeholder="USA Luxury Limo"
+                        data-testid="input-smtp-from-name"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex space-x-3">
+                    <Button
+                      onClick={handleSMTPUpdate}
+                      disabled={updateSMTPMutation.isPending}
+                      data-testid="button-save-smtp"
+                    >
+                      {updateSMTPMutation.isPending ? (
+                        <>
+                          <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4 mr-2" />
+                          Save SMTP Settings
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  <div className="mt-6 p-4 bg-muted rounded-lg space-y-3">
+                    <h4 className="font-semibold text-sm">Test Email Configuration</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Send a test email to verify your SMTP settings are working correctly.
+                    </p>
+                    <div className="flex space-x-3">
+                      <Input
+                        type="email"
+                        value={testEmail}
+                        onChange={(e) => setTestEmail(e.target.value)}
+                        placeholder="test@example.com"
+                        data-testid="input-test-email"
+                      />
+                      <Button
+                        onClick={handleTestEmail}
+                        disabled={testSMTPMutation.isPending}
+                        variant="outline"
+                        data-testid="button-send-test-email"
+                      >
+                        {testSMTPMutation.isPending ? (
+                          <>
+                            <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full mr-2" />
+                            Sending...
+                          </>
+                        ) : (
+                          'Send Test Email'
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <h4 className="font-semibold text-sm mb-2 text-blue-900 dark:text-blue-100">Common SMTP Providers:</h4>
+                    <ul className="text-xs text-blue-800 dark:text-blue-200 space-y-1">
+                      <li>• <strong>Gmail:</strong> smtp.gmail.com, Port 587 (Use App Password, not regular password)</li>
+                      <li>• <strong>Outlook/Office 365:</strong> smtp.office365.com, Port 587</li>
+                      <li>• <strong>Yahoo:</strong> smtp.mail.yahoo.com, Port 587</li>
+                      <li>• <strong>SendGrid:</strong> smtp.sendgrid.net, Port 587</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         )}
       </CardContent>
     </Card>

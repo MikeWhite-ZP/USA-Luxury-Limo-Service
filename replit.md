@@ -4,6 +4,17 @@
 USA Luxury Limo is a full-stack luxury transportation booking platform designed as a Progressive Web Application (PWA). It provides a comprehensive system for real-time pricing, fleet management, and multi-role user authentication, catering to passengers, drivers, and dispatchers. The platform aims to streamline the booking process for luxury transportation services, offering features like flight search integration, advanced payment options, and driver document management.
 
 ## Recent Changes (October 20, 2025)
+- **Email Sending Functionality**: Implemented comprehensive email notification system throughout the application using Nodemailer for SMTP. Features include:
+  - **Admin SMTP Configuration**: Two-tab interface in admin dashboard for configuring SMTP server settings (host, port, secure/TLS, username, password, from email, from name) with support for common providers (Gmail, Outlook, Yahoo, SendGrid)
+  - **Test Email Feature**: Built-in test email functionality to verify SMTP configuration before deployment
+  - **Automated Email Notifications**:
+    - Contact form submissions automatically email admin with form details
+    - Booking confirmations sent to passengers upon booking creation with complete trip details
+    - Status update notifications sent to passengers when booking status changes (pending → confirmed → in progress → completed)
+    - Driver assignment emails sent to drivers when assigned to a ride with passenger and trip information
+  - **Professional Email Templates**: Responsive HTML email templates with company branding, gradient headers, and mobile-friendly design
+  - **Graceful Error Handling**: Email failures don't block critical operations (bookings, status updates continue even if email fails)
+  - **Cached SMTP Transport**: Efficient SMTP connection management with 5-minute caching to reduce overhead
 - **Dispatcher Dashboard Real-Time Statistics**: Replaced hardcoded statistics with real data from the system. The dispatcher dashboard now displays accurate, live metrics including active drivers (available and verified), active rides (in-progress bookings), pending requests (awaiting assignment), and fleet utilization percentage (vehicles currently in use vs. total active vehicles).
 - **Dispatcher Assign/Reassign Ride Functionality**: Implemented comprehensive ride assignment and reassignment workflow for dispatchers. Features include:
   - Three-panel dialog layout showing pending bookings (unassigned), already assigned bookings (with current driver), and available drivers
@@ -56,6 +67,7 @@ Preferred communication style: Simple, everyday language.
 - **Key Entities**: Users, drivers, vehicles, bookings, addresses, system settings, invoices, contact submissions.
 
 ### Core Features
+- **Email Notifications**: Comprehensive SMTP-based email system using Nodemailer with admin-configurable SMTP settings (host, port, authentication, SSL/TLS). Automated email notifications for contact form submissions, booking confirmations, status updates, and driver assignments. Professional HTML email templates with responsive design. Test email functionality for configuration verification.
 - **Payment Processing**: Multi-provider support (Stripe, PayPal, Square) with secure credential handling and configurable payment systems. Supports "Pay Now" and conditional "Pay Later" options.
 - **Geolocation**: TomTom API for geocoding, address autocomplete, and coordinate conversion.
 - **Address Autocomplete**: Intelligent address input with TomTom suggestions and saved addresses. Admin booking form displays passenger's saved addresses (with labels and default badges) alongside TomTom suggestions for quick selection. Debounced API calls (300ms) reduce usage costs.
@@ -65,7 +77,7 @@ Preferred communication style: Simple, everyday language.
 - **Driver Management**: Document upload and approval system (Driver License, Limo License, Insurance, Vehicle Image) with expiration tracking, admin review, and Replit Object Storage integration.
 - **User Account Management**: Users can update profiles and change passwords securely; admins manage user roles, `payLaterEnabled` status, and discount settings. Password updates require current password verification and enforce strong password requirements.
 - **Contact Support**: Passenger contact form with submissions stored in the database for admin review.
-- **System Settings**: Admin-configurable, system-wide key-value settings stored in the database (e.g., ADMIN_EMAIL).
+- **System Settings**: Admin-configurable, system-wide key-value settings stored in the database (e.g., ADMIN_EMAIL, SMTP settings).
 
 ## External Dependencies
 - **Stripe**: Payment gateway.
