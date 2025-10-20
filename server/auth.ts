@@ -62,10 +62,11 @@ export function setupAuth(app: Express) {
     secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
     resave: false,
     saveUninitialized: false,
-    rolling: true,
+    rolling: false, // Disable rolling to prevent session ID regeneration
+    name: 'connect.sid', // Explicit cookie name
     proxy: true,
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Always false for development
       httpOnly: true,
       sameSite: 'lax',
       path: '/',
