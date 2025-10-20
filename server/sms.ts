@@ -63,8 +63,8 @@ export async function sendSMS(to: string, message: string): Promise<SMSResult> {
       };
     }
 
-    const client = await getTwilioClient();
-    const fromNumber = await getTwilioFromPhoneNumber();
+    const client = getTwilioClient();
+    const fromNumber = getTwilioFromPhoneNumber();
 
     if (!fromNumber) {
       throw new Error('Twilio phone number not configured');

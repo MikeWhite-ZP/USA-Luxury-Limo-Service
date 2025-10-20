@@ -4,8 +4,8 @@
 USA Luxury Limo is a full-stack luxury transportation booking platform designed as a Progressive Web Application (PWA). It provides a comprehensive system for real-time pricing, fleet management, and multi-role user authentication, catering to passengers, drivers, and dispatchers. The platform aims to streamline the booking process for luxury transportation services, offering features like flight search integration, advanced payment options, and driver document management.
 
 ## Recent Changes (October 20, 2025)
-- **SMS Notification System**: Implemented comprehensive SMS notification system using Twilio integration via Replit connector. Features include:
-  - **Secure Credential Management**: Uses Replit's Twilio connector for secure API key and account SID management
+- **SMS Notification System**: Implemented comprehensive SMS notification system using Twilio with direct credential storage in Replit Secrets. Features include:
+  - **Secure Credential Management**: Uses environment variables (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER) stored securely in Replit Secrets
   - **Admin SMS Settings Interface**: Dedicated settings section in admin dashboard showing connection status, account SID, and configured phone number
   - **Test SMS Feature**: Built-in test SMS functionality to verify Twilio configuration before deployment
   - **Automated SMS Notifications**:
