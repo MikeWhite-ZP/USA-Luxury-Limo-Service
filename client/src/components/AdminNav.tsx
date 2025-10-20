@@ -29,7 +29,7 @@ interface AdminNavProps {
 }
 
 export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onSettingsClick }: AdminNavProps) {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { logoutMutation } = useAuth();
 
   const handleLogout = () => {
@@ -81,9 +81,9 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
-                      window.location.href = '/admin-dashboard';
+                      setLocation('/admin-dashboard');
                     }
-                    onCredentialsClick?.('api');
+                    setTimeout(() => onCredentialsClick?.('api'), 100);
                   }}
                   className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-api-credentials"
@@ -94,9 +94,9 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
-                      window.location.href = '/admin-dashboard';
+                      setLocation('/admin-dashboard');
                     }
-                    onCredentialsClick?.('payment');
+                    setTimeout(() => onCredentialsClick?.('payment'), 100);
                   }}
                   className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-payment-systems"
@@ -123,9 +123,9 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
-                      window.location.href = '/admin-dashboard';
+                      setLocation('/admin-dashboard');
                     }
-                    onUserManagerClick?.('all');
+                    setTimeout(() => onUserManagerClick?.('all'), 100);
                   }}
                   className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-all-users"
@@ -136,9 +136,9 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
-                      window.location.href = '/admin-dashboard';
+                      setLocation('/admin-dashboard');
                     }
-                    onUserManagerClick?.('passenger');
+                    setTimeout(() => onUserManagerClick?.('passenger'), 100);
                   }}
                   className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-passengers"
@@ -149,9 +149,9 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
-                      window.location.href = '/admin-dashboard';
+                      setLocation('/admin-dashboard');
                     }
-                    onUserManagerClick?.('driver');
+                    setTimeout(() => onUserManagerClick?.('driver'), 100);
                   }}
                   className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-drivers"
@@ -162,9 +162,9 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
-                      window.location.href = '/admin-dashboard';
+                      setLocation('/admin-dashboard');
                     }
-                    onUserManagerClick?.('dispatcher');
+                    setTimeout(() => onUserManagerClick?.('dispatcher'), 100);
                   }}
                   className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-dispatchers"
@@ -175,9 +175,9 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
-                      window.location.href = '/admin-dashboard';
+                      setLocation('/admin-dashboard');
                     }
-                    onUserManagerClick?.('admin');
+                    setTimeout(() => onUserManagerClick?.('admin'), 100);
                   }}
                   className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-admins"
@@ -204,9 +204,9 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
-                      window.location.href = '/admin-dashboard';
+                      setLocation('/admin-dashboard');
                     }
-                    onSettingsClick?.('commission');
+                    setTimeout(() => onSettingsClick?.('commission'), 100);
                   }}
                   className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-system-commission"
@@ -217,9 +217,9 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
-                      window.location.href = '/admin-dashboard';
+                      setLocation('/admin-dashboard');
                     }
-                    onSettingsClick?.('email');
+                    setTimeout(() => onSettingsClick?.('email'), 100);
                   }}
                   className="hover:bg-black hover:text-white cursor-pointer"
                   data-testid="nav-email-settings"
@@ -235,9 +235,9 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
               onClick={() => {
                 if (location !== '/admin-dashboard') {
-                  window.location.href = '/admin-dashboard';
+                  setLocation('/admin-dashboard');
                 }
-                onBookingsClick?.();
+                setTimeout(() => onBookingsClick?.(), 100);
               }}
               data-testid="nav-bookings"
             >
