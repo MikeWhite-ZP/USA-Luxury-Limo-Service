@@ -5,7 +5,14 @@ USA Luxury Limo is a full-stack luxury transportation booking platform designed 
 
 ## Recent Changes (October 20, 2025)
 - **Dispatcher Dashboard Real-Time Statistics**: Replaced hardcoded statistics with real data from the system. The dispatcher dashboard now displays accurate, live metrics including active drivers (available and verified), active rides (in-progress bookings), pending requests (awaiting assignment), and fleet utilization percentage (vehicles currently in use vs. total active vehicles).
-- **Dispatcher Assign Ride Functionality**: Implemented full ride assignment workflow for dispatchers. Features include a comprehensive dialog showing all pending bookings with passenger details, pickup/destination, and scheduling information, alongside available drivers with ratings and statistics. Dispatchers can select any pending booking and assign it to an available driver with a single click. The system automatically updates all relevant data and statistics after assignment.
+- **Dispatcher Assign/Reassign Ride Functionality**: Implemented comprehensive ride assignment and reassignment workflow for dispatchers. Features include:
+  - Three-panel dialog layout showing pending bookings (unassigned), already assigned bookings (with current driver), and available drivers
+  - Visual indicators for assignment status (blue highlight for pending, orange highlight for reassignment)
+  - Current driver information prominently displayed for assigned bookings
+  - Dynamic button text ("Assign Driver" vs "Reassign Driver") based on booking selection
+  - One-click assignment or driver change with automatic statistics updates
+  - Differentiated success messages for new assignments vs. reassignments
+  - Full mobile responsiveness across all three panels
 
 ## Previous Changes (October 18, 2025)
 - **Password Update Feature**: Implemented secure password update functionality for users. Backend validates current password using scrypt comparison before allowing updates. New passwords require minimum 8 characters with uppercase, lowercase, and numbers. Password update UI integrated in passenger dashboard Account Details section with real-time validation and user-friendly error messages.

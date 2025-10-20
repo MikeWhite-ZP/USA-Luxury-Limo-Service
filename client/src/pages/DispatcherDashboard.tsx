@@ -53,25 +53,32 @@ export default function DispatcherDashboard() {
     ? allBookings.filter((booking: any) => booking.status === 'pending' && !booking.driverId)
     : [];
 
+  // Filter assigned bookings (already have a driver assigned)
+  const assignedBookings = Array.isArray(allBookings)
+    ? allBookings.filter((booking: any) => booking.status === 'pending' && booking.driverId)
+    : [];
+
   // Assign driver mutation
   const assignDriverMutation = useMutation({
-    mutationFn: async ({ bookingId, driverId }: { bookingId: string; driverId: string }) => {
+    mutationFn: async ({ bookingId, driverId, isReassignment }: { bookingId: string; driverId: string; isReassignment?: boolean }) => {
       const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/assign-driver`, { driverId });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to assign driver');
       }
-      return await response.json();
+      return { data: await response.json(), isReassignment };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dispatcher/stats'] });
       setAssignDialogOpen(false);
       setSelectedBookingId(null);
       setSelectedDriverId("");
       toast({
-        title: "Driver Assigned",
-        description: "The driver has been successfully assigned to the ride.",
+        title: result.isReassignment ? "Driver Reassigned" : "Driver Assigned",
+        description: result.isReassignment 
+          ? "The driver has been successfully changed for this ride."
+          : "The driver has been successfully assigned to the ride.",
       });
     },
     onError: (error: Error) => {
@@ -96,7 +103,19 @@ export default function DispatcherDashboard() {
       });
       return;
     }
-    assignDriverMutation.mutate({ bookingId: selectedBookingId, driverId: selectedDriverId });
+    
+    const selectedBooking = allBookings?.find((b: any) => b.id === selectedBookingId);
+    const isReassignment = !!(selectedBooking && selectedBooking.driverId);
+    
+    assignDriverMutation.mutate({ bookingId: selectedBookingId, driverId: selectedDriverId, isReassignment });
+  };
+
+  // Determine button text based on selected booking
+  const getButtonText = () => {
+    if (assignDriverMutation.isPending) return 'Processing...';
+    if (!selectedBookingId) return 'Select Booking & Driver';
+    const selectedBooking = allBookings?.find((b: any) => b.id === selectedBookingId);
+    return selectedBooking?.driverId ? 'Reassign Driver' : 'Assign Driver';
   };
 
   const statsCards = [
@@ -332,15 +351,15 @@ export default function DispatcherDashboard() {
 
       {/* Assign Ride Dialog */}
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-        <DialogContent className="bg-[#ffffff] max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto bg-[#ffffff]">
           <DialogHeader>
-            <DialogTitle>Assign Ride to Driver</DialogTitle>
+            <DialogTitle>Assign/Reassign Ride to Driver</DialogTitle>
             <DialogDescription>
-              Select a pending ride and assign it to an available driver
+              Select a pending ride to assign or an assigned ride to change the driver
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid md:grid-cols-2 gap-6 mt-4">
+          <div className="grid md:grid-cols-3 gap-6 mt-4">
             {/* Pending Bookings Section */}
             <div>
               <h3 className="font-semibold mb-3 flex items-center gap-2">
@@ -379,6 +398,82 @@ export default function DispatcherDashboard() {
                             <Badge variant="secondary">
                               {booking.vehicleTypeName}
                             </Badge>
+                          </div>
+                          <div className="text-xs space-y-1 text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              <span className="truncate">{booking.pickupAddress}</span>
+                            </div>
+                            {booking.destinationAddress && (
+                              <div className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                <span className="truncate">→ {booking.destinationAddress}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>{new Date(booking.scheduledDateTime).toLocaleString()}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between pt-2 border-t">
+                            <span className="text-xs text-muted-foreground">
+                              {booking.passengerCount} passenger{booking.passengerCount > 1 ? 's' : ''}
+                            </span>
+                            <span className="font-semibold text-sm">
+                              ${booking.totalAmount}
+                            </span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Already Assigned Bookings Section */}
+            <div>
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <UserCheck className="w-4 h-4" />
+                Already Assigned ({assignedBookings.length})
+              </h3>
+              {assignedBookings.length === 0 ? (
+                <div className="text-center p-6 border rounded-lg bg-muted/50">
+                  <UserCheck className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">No assigned bookings</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                  {assignedBookings.map((booking: any) => (
+                    <Card 
+                      key={booking.id}
+                      className={`cursor-pointer transition-all ${
+                        selectedBookingId === booking.id 
+                          ? 'ring-2 ring-orange-500 bg-orange-50' 
+                          : 'hover:bg-muted/50'
+                      }`}
+                      onClick={() => setSelectedBookingId(booking.id)}
+                      data-testid={`assigned-booking-${booking.id}`}
+                    >
+                      <CardContent className="p-4">
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="font-medium text-sm">
+                                {booking.passengerFirstName} {booking.passengerLastName}
+                              </p>
+                              <Badge variant="outline" className="mt-1">
+                                {booking.bookingType}
+                              </Badge>
+                            </div>
+                            <Badge variant="secondary">
+                              {booking.vehicleTypeName}
+                            </Badge>
+                          </div>
+                          <div className="bg-orange-50 border border-orange-200 rounded p-2 mb-2">
+                            <p className="text-xs font-medium text-orange-800">
+                              Currently: {booking.driverFirstName} {booking.driverLastName}
+                            </p>
                           </div>
                           <div className="text-xs space-y-1 text-muted-foreground">
                             <div className="flex items-center gap-1">
@@ -504,7 +599,7 @@ export default function DispatcherDashboard() {
               disabled={!selectedBookingId || !selectedDriverId || assignDriverMutation.isPending}
               data-testid="button-confirm-assign"
             >
-              {assignDriverMutation.isPending ? 'Assigning...' : 'Assign Driver'}
+              {getButtonText()}
             </Button>
           </div>
         </DialogContent>
