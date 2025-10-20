@@ -976,8 +976,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const user = await storage.getUser(userId);
       
-      if (!user || user.role !== 'admin') {
-        return res.status(403).json({ message: 'Admin access required' });
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
       }
 
       const bookings = await storage.getAllBookingsWithDetails();
@@ -993,8 +993,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const user = await storage.getUser(userId);
       
-      if (!user || user.role !== 'admin') {
-        return res.status(403).json({ message: 'Admin access required' });
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
       }
 
       const drivers = await storage.getActiveDrivers();
@@ -1034,8 +1034,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const user = await storage.getUser(userId);
       
-      if (!user || user.role !== 'admin') {
-        return res.status(403).json({ message: 'Admin access required' });
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
       }
 
       const { id } = req.params;
