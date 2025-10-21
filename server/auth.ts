@@ -322,7 +322,7 @@ export function setupAuth(app: Express) {
           
           console.log("✅ Login successful for user:", user.id);
           console.log("✅ SessionID:", req.sessionID);
-          console.log("✅ Session passport:", req.session.passport);
+          console.log("✅ Session passport:", (req.session as any).passport);
           console.log("✅ Cookie settings:", {
             secure: req.session.cookie.secure,
             httpOnly: req.session.cookie.httpOnly,
@@ -425,7 +425,7 @@ export function setupAuth(app: Express) {
     res.json({
       sessionID: req.sessionID,
       sessionExists: !!req.session,
-      sessionPassport: req.session?.passport,
+      sessionPassport: (req.session as any)?.passport,
       isAuthenticated: req.isAuthenticated(),
       userId: req.user?.id,
       cookies: req.headers.cookie,
@@ -445,7 +445,7 @@ export function isAuthenticated(req: any, res: any, next: any) {
   console.log("🔍 Auth check - Path:", req.path);
   console.log("🔍 SessionID:", req.sessionID);
   console.log("🔍 Session exists?", !!req.session);
-  console.log("🔍 Session.passport:", req.session?.passport);
+  console.log("🔍 Session.passport:", (req.session as any)?.passport);
   console.log("🔍 req.isAuthenticated():", req.isAuthenticated());
   console.log("🔍 req.user:", req.user?.id);
   
