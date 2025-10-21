@@ -18,6 +18,8 @@ function getCredentials() {
 
 export function getTwilioClient() {
   const { accountSid, authToken } = getCredentials();
+  console.log('[TWILIO] Initializing client with Account SID:', accountSid?.substring(0, 10) + '...');
+  console.log('[TWILIO] Auth Token length:', authToken?.length, 'chars');
   return twilio(accountSid, authToken);
 }
 
