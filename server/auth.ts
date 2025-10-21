@@ -85,18 +85,25 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
+        console.log('[AUTH] Login attempt for username:', username);
         const user = await storage.getUserByUsername(username);
+        console.log('[AUTH] User found:', user ? 'Yes' : 'No');
         if (!user || !user.password) {
+          console.log('[AUTH] User not found or no password');
           return done(null, false, { message: "Invalid username or password" });
         }
         
+        console.log('[AUTH] Stored password hash:', user.password);
+        console.log('[AUTH] Password length:', password.length);
         const isValid = await comparePasswords(password, user.password);
+        console.log('[AUTH] Password valid:', isValid);
         if (!isValid) {
           return done(null, false, { message: "Invalid username or password" });
         }
         
         return done(null, user);
       } catch (error) {
+        console.error('[AUTH] Error during authentication:', error);
         return done(error);
       }
     })
