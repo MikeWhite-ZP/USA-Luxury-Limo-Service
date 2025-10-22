@@ -1970,11 +1970,11 @@ export default function AdminDashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Total Revenue</p>
                   <p className="text-2xl font-bold" data-testid="total-revenue">
-                    ${statsLoading ? '...' : stats?.totalRevenue || '0'}
+                    ${statsLoading ? '...' : parseFloat(stats?.totalRevenue || '0').toFixed(2)}
                   </p>
                   {!statsLoading && stats && parseFloat(stats.revenueGrowth) !== 0 && (
                     <p className={`text-xs ${parseFloat(stats.revenueGrowth) > 0 ? 'text-green-600' : 'text-red-600'}`} data-testid="revenue-growth">
-                      {parseFloat(stats.revenueGrowth) > 0 ? '+' : ''}{stats.revenueGrowth}% from last month
+                      {parseFloat(stats.revenueGrowth) > 0 ? '+' : ''}{parseFloat(stats.revenueGrowth).toFixed(2)}% from last month
                     </p>
                   )}
                 </div>
@@ -1989,7 +1989,7 @@ export default function AdminDashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Total Commission</p>
                   <p className="text-2xl font-bold" data-testid="total-commission">
-                    ${statsLoading ? '...' : stats?.totalCommission || '0'}
+                    ${statsLoading ? '...' : parseFloat(stats?.totalCommission || '0').toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -2044,11 +2044,11 @@ export default function AdminDashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Customer Satisfaction</p>
                   <p className="text-2xl font-bold" data-testid="customer-satisfaction">
-                    {statsLoading ? '...' : stats?.averageRating || '0'}/5
+                    {statsLoading ? '...' : parseFloat(stats?.averageRating || '0').toFixed(2)}/5
                   </p>
                   {!statsLoading && stats && parseFloat(stats.ratingImprovement) !== 0 && (
                     <p className={`text-xs ${parseFloat(stats.ratingImprovement) > 0 ? 'text-green-600' : 'text-red-600'}`} data-testid="rating-improvement">
-                      {parseFloat(stats.ratingImprovement) > 0 ? '+' : ''}{stats.ratingImprovement} this month
+                      {parseFloat(stats.ratingImprovement) > 0 ? '+' : ''}{parseFloat(stats.ratingImprovement).toFixed(2)} this month
                     </p>
                   )}
                 </div>
