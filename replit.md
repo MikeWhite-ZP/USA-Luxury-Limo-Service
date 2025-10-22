@@ -15,7 +15,7 @@ Preferred communication style: Simple, everyday language.
 - **Routing**: Wouter for client-side routing.
 - **Form Handling**: React Hook Form with Zod validation.
 - **Mobile PWA**: Implements smart install prompts (iOS/Android detection), a three-stage animated splash screen, role-based login with visual theming, and touch-optimized dashboards for passengers and drivers. Includes optimistic UI updates for instant feedback.
-- **Driver Mobile App**: Green-themed, touch-optimized interface for driver management of rides (Upcoming, Completed), status updates, and navigation integration via Google Maps links.
+- **Driver Mobile App**: Green-themed, touch-optimized interface for driver management of rides (Upcoming, Completed), status updates, real-time GPS tracking with live location updates, and navigation integration via universal Google Maps links.
 
 ### Backend
 - **Runtime**: Node.js with Express.js.
@@ -42,6 +42,8 @@ Preferred communication style: Simple, everyday language.
 - **Contact Support**: Passenger contact form with submissions stored for admin review.
 - **System Settings**: Admin-configurable key-value settings stored in the database.
 - **Dispatcher Dashboard**: Real-time statistics, assign/reassign ride functionality, and fleet monitoring with live driver and vehicle status.
+- **GPS Tracking**: Real-time driver location tracking using `navigator.geolocation.watchPosition()`. Captures coordinates when driver is available, sends updates to backend (PATCH `/api/driver/location`), stores as JSON (`{lat, lng, timestamp}`) in `drivers.currentLocation` field. UI shows GPS status with three states: requesting permission, active (green pulse), or error.
+- **Driver Navigation**: Tappable address cards (pickup/via/dropoff) on driver ride details screen. Each address opens device's native maps app (Apple Maps on iOS, Google Maps on Android) using universal link format: `https://maps.google.com/maps?daddr={lat},{lng}`. Falls back to address string if coordinates unavailable.
 
 ## External Dependencies
 - **Twilio**: SMS messaging service.
