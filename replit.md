@@ -3,7 +3,17 @@
 ## Overview
 USA Luxury Limo is a full-stack luxury transportation booking platform designed as a Progressive Web Application (PWA). It provides a comprehensive system for real-time pricing, fleet management, and multi-role user authentication, catering to passengers, drivers, and dispatchers. The platform aims to streamline the booking process for luxury transportation services, offering features like flight search integration, advanced payment options, and driver document management.
 
-## Recent Changes (October 20, 2025)
+## Recent Changes (October 21, 2025)
+- **Mobile PWA Infrastructure**: Implemented comprehensive mobile Progressive Web App (PWA) experience for passengers, drivers, and dispatchers. Features include:
+  - **PWA Install Component**: Smart install prompts with iOS/Android detection, automatic standalone mode detection, and platform-specific installation instructions
+  - **Mobile Splash Screen**: Three-stage animated entry flow (company logo → luxury chauffeur image → role selection) with smooth transitions and touch-friendly design
+  - **Role-Based Login**: Mobile-optimized login page with role validation and visual role theming (blue for passengers, green for drivers, purple for dispatchers)
+  - **Passenger Mobile App**: Touch-optimized dashboard with quick booking CTA, upcoming/past bookings tabs, booking details, and account management shortcuts
+  - **Homepage Integration**: Added prominent "Download Mobile App" button to hero section with install prompts
+  - **Optimistic UI Updates**: Implemented optimistic updates for booking status changes to provide instant visual feedback without page refreshes
+  - **Mobile Routes**: Dedicated routes for mobile splash (`/mobile-splash`), login (`/mobile-login`), and passenger app (`/mobile-passenger`)
+
+## Previous Changes (October 20, 2025)
 - **Authentication Security Fixes**: Re-enabled authentication and role-based access control on all admin endpoints that had been temporarily disabled. Fixed routes include admin bookings management (POST/PATCH /api/admin/bookings), user management (GET /api/admin/users), saved addresses (GET /api/saved-addresses/user/:userId), and SMTP settings (GET/POST /api/admin/smtp-settings, POST /api/admin/smtp-test). All protected routes now properly enforce session authentication and admin role verification. SMTP settings updates correctly track audit trail with req.user.id. End-to-end tests confirm proper protection: unauthenticated requests return 401, unauthorized roles return 403, and authenticated admins have full access.
 - **SMS Notification System**: Implemented comprehensive SMS notification system using Twilio with direct credential storage in Replit Secrets. Features include:
   - **Secure Credential Management**: Uses environment variables (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER) stored securely in Replit Secrets

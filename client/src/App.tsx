@@ -31,6 +31,11 @@ import Checkout from "@/pages/checkout";
 import AccountPage from "@/pages/account";
 import MobileSplash from "@/pages/mobile-splash";
 import MobileLogin from "@/pages/mobile-login";
+import MobilePassenger from "@/pages/mobile-passenger";
+import MobileBooking from "@/pages/mobile-booking";
+import MobileBookingDetails from "@/pages/mobile-booking-details";
+import MobileInvoices from "@/pages/mobile-invoices";
+import MobilePaymentMethods from "@/pages/mobile-payment-methods";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -49,6 +54,11 @@ function Router() {
       {/* Mobile PWA Routes */}
       <Route path="/mobile-splash" component={MobileSplash} />
       <Route path="/mobile-login" component={MobileLogin} />
+      <Route path="/mobile-passenger" component={MobilePassenger} />
+      <Route path="/mobile-booking" component={MobileBooking} />
+      <Route path="/mobile-booking-details/:id" component={MobileBookingDetails} />
+      <Route path="/mobile-invoices" component={MobileInvoices} />
+      <Route path="/mobile-payment-methods" component={MobilePaymentMethods} />
       
       {/* Public routes */}
       <Route path="/booking" component={Booking} />
