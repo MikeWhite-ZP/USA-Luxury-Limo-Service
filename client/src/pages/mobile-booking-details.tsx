@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useParams } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -72,20 +72,35 @@ export default function MobileBookingDetails() {
   const form = useForm<EditBookingForm>({
     resolver: zodResolver(editBookingSchema),
     defaultValues: {
-      scheduledDateTime: booking ? format(
-        typeof booking.scheduledDateTime === 'string' 
-          ? parseISO(booking.scheduledDateTime) 
-          : booking.scheduledDateTime,
-        "yyyy-MM-dd'T'HH:mm"
-      ) : '',
-      pickupAddress: booking?.pickupAddress || '',
-      destinationAddress: booking?.destinationAddress || '',
-      passengerCount: booking?.passengerCount || 1,
-      luggageCount: booking?.luggageCount || 0,
-      babySeat: booking?.babySeat || false,
-      specialInstructions: booking?.specialInstructions || '',
+      scheduledDateTime: '',
+      pickupAddress: '',
+      destinationAddress: '',
+      passengerCount: 1,
+      luggageCount: 0,
+      babySeat: false,
+      specialInstructions: '',
     },
   });
+
+  // Reset form when booking data loads
+  useEffect(() => {
+    if (booking) {
+      form.reset({
+        scheduledDateTime: format(
+          typeof booking.scheduledDateTime === 'string' 
+            ? parseISO(booking.scheduledDateTime) 
+            : booking.scheduledDateTime,
+          "yyyy-MM-dd'T'HH:mm"
+        ),
+        pickupAddress: booking.pickupAddress || '',
+        destinationAddress: booking.destinationAddress || '',
+        passengerCount: booking.passengerCount || 1,
+        luggageCount: booking.luggageCount || 0,
+        babySeat: booking.babySeat || false,
+        specialInstructions: booking.specialInstructions || '',
+      });
+    }
+  }, [booking, form]);
 
   // Update mutation
   const updateMutation = useMutation({
@@ -155,10 +170,14 @@ export default function MobileBookingDetails() {
         : booking.scheduledDateTime,
       "yyyy-MM-dd'T'HH:mm"
     );
+    
+    // Normalize empty strings and null for comparison
+    const normalizeString = (val: string | null | undefined) => val || '';
+    
     const priceAffectingChanges = 
       data.scheduledDateTime !== originalDateTime ||
-      data.pickupAddress !== booking.pickupAddress ||
-      data.destinationAddress !== booking.destinationAddress ||
+      normalizeString(data.pickupAddress) !== normalizeString(booking.pickupAddress) ||
+      normalizeString(data.destinationAddress) !== normalizeString(booking.destinationAddress) ||
       data.passengerCount !== booking.passengerCount;
 
     if (priceAffectingChanges && booking.status === 'pending') {
