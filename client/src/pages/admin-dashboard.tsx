@@ -819,6 +819,26 @@ export default function AdminDashboard() {
       const text = await response.text();
       return text ? JSON.parse(text) : {};
     },
+    onMutate: async ({ bookingId, status }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['/api/admin/bookings'] });
+      
+      // Snapshot the previous value
+      const previousBookings = queryClient.getQueryData(['/api/admin/bookings']);
+      
+      // Optimistically update to the new value
+      queryClient.setQueryData(['/api/admin/bookings'], (old: any) => {
+        if (!old) return old;
+        return old.map((booking: any) => 
+          booking.id === bookingId 
+            ? { ...booking, status } 
+            : booking
+        );
+      });
+      
+      // Return a context with the snapshot
+      return { previousBookings };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
@@ -827,7 +847,11 @@ export default function AdminDashboard() {
         description: "Booking status has been updated successfully.",
       });
     },
-    onError: (error: Error) => {
+    onError: (error: Error, variables, context: any) => {
+      // Rollback to the previous value on error
+      if (context?.previousBookings) {
+        queryClient.setQueryData(['/api/admin/bookings'], context.previousBookings);
+      }
       toast({
         title: "Error",
         description: error.message || "Failed to update booking status",
