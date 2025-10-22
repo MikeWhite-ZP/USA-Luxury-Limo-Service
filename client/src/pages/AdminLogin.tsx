@@ -70,15 +70,8 @@ export function AdminLogin() {
         description: "Welcome to the admin dashboard",
       });
       
-      // Check if user has pending booking data
-      const pendingBookingData = localStorage.getItem('pendingBookingData');
-      if (pendingBookingData) {
-        // Redirect to booking page to complete the booking
-        setLocation('/booking');
-      } else {
-        // Redirect to admin dashboard
-        setLocation('/admin');
-      }
+      // The automatic redirect in lines 37-51 will handle navigation
+      // after the user state has been properly updated
     } catch (error: any) {
       toast({
         title: "Authentication Failed",
@@ -120,15 +113,8 @@ export function AdminLogin() {
         description: `Welcome, ${signupForm.firstName || signupForm.username}!`,
       });
       
-      // Check if user has pending booking data
-      const pendingBookingData = localStorage.getItem('pendingBookingData');
-      if (pendingBookingData) {
-        // Redirect to booking page to complete the booking
-        setLocation('/booking');
-      } else {
-        // Redirect to admin dashboard
-        setLocation('/admin');
-      }
+      // The automatic redirect in lines 37-51 will handle navigation
+      // after the user state has been properly updated
     } catch (error: any) {
       toast({
         title: "Registration Failed",
