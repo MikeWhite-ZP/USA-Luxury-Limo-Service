@@ -36,6 +36,8 @@ import MobileBooking from "@/pages/mobile-booking";
 import MobileBookingDetails from "@/pages/mobile-booking-details";
 import MobileInvoices from "@/pages/mobile-invoices";
 import MobilePaymentMethods from "@/pages/mobile-payment-methods";
+import MobileDriver from "@/pages/mobile-driver";
+import MobileDriverRideDetails from "@/pages/mobile-driver-ride-details";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -59,6 +61,8 @@ function Router() {
       <Route path="/mobile-booking-details/:id" component={MobileBookingDetails} />
       <Route path="/mobile-invoices" component={MobileInvoices} />
       <Route path="/mobile-payment-methods" component={MobilePaymentMethods} />
+      <Route path="/mobile-driver" component={MobileDriver} />
+      <Route path="/mobile-driver/rides/:id" component={MobileDriverRideDetails} />
       
       {/* Public routes */}
       <Route path="/booking" component={Booking} />

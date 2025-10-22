@@ -586,7 +586,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      res.json(booking);
+      // Enrich booking with passenger details for drivers
+      let enrichedBooking = { ...booking };
+      if (booking.passengerId) {
+        const passenger = await storage.getUser(booking.passengerId);
+        if (passenger) {
+          enrichedBooking = {
+            ...enrichedBooking,
+            passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'N/A',
+            passengerPhone: passenger.phone || undefined,
+            passengerEmail: passenger.email || undefined,
+          };
+        }
+      }
+
+      res.json(enrichedBooking);
     } catch (error) {
       console.error('Get booking error:', error);
       res.status(500).json({ message: 'Failed to fetch booking' });
@@ -1615,6 +1629,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Delete user error:', error);
       res.status(500).json({ message: 'Failed to delete user' });
+    }
+  });
+
+  // Driver Profile Management
+  app.get('/api/driver/profile', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      // Get all driver bookings for computing metrics
+      const allBookings = await storage.getBookingsByDriver(driver.id);
+      
+      // Calculate completed rides count
+      const completedRides = allBookings.filter(b => b.status === 'completed').length;
+      
+      // Calculate average rating
+      const avgRating = await storage.getDriverAverageRating(driver.id);
+
+      // Return enriched driver profile
+      res.json({
+        ...driver,
+        completedRides,
+        rating: avgRating || 0,
+      });
+    } catch (error) {
+      console.error('Get driver profile error:', error);
+      res.status(500).json({ message: 'Failed to fetch driver profile' });
+    }
+  });
+
+  app.patch('/api/driver/availability', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      const { isAvailable } = req.body;
+      if (typeof isAvailable !== 'boolean') {
+        return res.status(400).json({ message: 'isAvailable must be a boolean' });
+      }
+
+      const updatedDriver = await storage.updateDriverAvailability(driver.id, isAvailable);
+      res.json(updatedDriver);
+    } catch (error) {
+      console.error('Update driver availability error:', error);
+      res.status(500).json({ message: 'Failed to update availability' });
+    }
+  });
+
+  app.patch('/api/driver/location', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      const { lat, lng } = req.body;
+      if (typeof lat !== 'number' || typeof lng !== 'number') {
+        return res.status(400).json({ message: 'Valid latitude and longitude required' });
+      }
+
+      // Store location as JSON string
+      const location = JSON.stringify({ lat, lng, timestamp: new Date().toISOString() });
+      const updatedDriver = await storage.updateDriverLocation(driver.id, location);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Update driver location error:', error);
+      res.status(500).json({ message: 'Failed to update location' });
     }
   });
 
