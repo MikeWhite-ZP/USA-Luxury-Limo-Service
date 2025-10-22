@@ -14,8 +14,10 @@ Preferred communication style: Simple, everyday language.
 - **State Management**: TanStack Query for server state.
 - **Routing**: Wouter for client-side routing.
 - **Form Handling**: React Hook Form with Zod validation.
-- **Mobile PWA**: Implements smart install prompts (iOS/Android detection), a three-stage animated splash screen, role-based login with visual theming, and touch-optimized dashboards for passengers and drivers. Includes optimistic UI updates for instant feedback.
+- **Mobile PWA**: Implements smart install prompts (iOS/Android detection), a three-stage animated splash screen, role-based login with visual theming, and touch-optimized dashboards for passengers, drivers, and dispatchers. Includes optimistic UI updates for instant feedback.
+- **Passenger Mobile App**: Blue-themed dashboard with quick booking, bookings list, invoice downloads, credit card management, and booking edit with price approval workflow.
 - **Driver Mobile App**: Green-themed, touch-optimized interface for driver management of rides (Upcoming, Completed), status updates, real-time GPS tracking with live location updates, and navigation integration via universal Google Maps links.
+- **Dispatcher Mobile App**: Purple-themed fleet management interface with real-time statistics dashboard, three-tab ride management (Pending/Assigned/Active), simplified driver assignment workflow with dropdown selection, and fleet monitor showing all drivers with GPS location integration and "View on Map" functionality.
 
 ### Backend
 - **Runtime**: Node.js with Express.js.

@@ -59,6 +59,7 @@ export interface IStorage {
   updateDriverAvailability(id: string, isAvailable: boolean): Promise<Driver | undefined>;
   updateDriverLocation(id: string, location: string): Promise<Driver | undefined>;
   getAvailableDrivers(): Promise<Driver[]>;
+  getAllDrivers(): Promise<Driver[]>;
   
   // Vehicle operations
   getVehicleTypes(): Promise<VehicleType[]>;
@@ -280,6 +281,10 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(drivers)
       .where(and(eq(drivers.isAvailable, true), eq(drivers.verificationStatus, 'verified')));
+  }
+
+  async getAllDrivers(): Promise<Driver[]> {
+    return await db.select().from(drivers);
   }
 
   async getVehicleTypes(): Promise<VehicleType[]> {
@@ -957,20 +962,23 @@ export class DatabaseStorage implements IStorage {
     // Fetch driver names for bookings with assigned drivers
     const bookingsWithDriverNames = await Promise.all(
       allBookings.map(async (booking) => {
-        let driverName = null;
+        let driverFirstName = null;
+        let driverLastName = null;
         if (booking.driverId) {
           const driver = await this.getDriver(booking.driverId);
           if (driver) {
             const driverUser = await this.getUser(driver.userId);
             if (driverUser) {
-              driverName = `${driverUser.firstName} ${driverUser.lastName}`;
+              driverFirstName = driverUser.firstName;
+              driverLastName = driverUser.lastName;
             }
           }
         }
         return {
           ...booking,
           passengerName: `${booking.passengerFirstName || ''} ${booking.passengerLastName || ''}`.trim(),
-          driverName,
+          driverFirstName,
+          driverLastName,
         };
       })
     );

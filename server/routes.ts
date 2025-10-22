@@ -600,6 +600,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Enrich booking with driver details for dispatchers/admins
+      if (booking.driverId) {
+        const driver = await storage.getDriver(booking.driverId);
+        if (driver) {
+          const driverUser = await storage.getUser(driver.userId);
+          if (driverUser) {
+            enrichedBooking = {
+              ...enrichedBooking,
+              driverFirstName: driverUser.firstName,
+              driverLastName: driverUser.lastName,
+            };
+          }
+        }
+      }
+
       res.json(enrichedBooking);
     } catch (error) {
       console.error('Get booking error:', error);
@@ -1105,6 +1120,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Get active drivers error:', error);
       res.status(500).json({ message: 'Failed to fetch active drivers' });
+    }
+  });
+
+  app.get('/api/admin/drivers', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
+      }
+
+      const allDrivers = await storage.getAllDrivers();
+      
+      // Enrich each driver with user information
+      const enrichedDrivers = await Promise.all(
+        allDrivers.map(async (driver: any) => {
+          const driverUser = await storage.getUser(driver.userId);
+          return {
+            ...driver,
+            firstName: driverUser?.firstName,
+            lastName: driverUser?.lastName,
+            email: driverUser?.email,
+            phone: driverUser?.phone,
+            isActive: driverUser?.isActive,
+          };
+        })
+      );
+      
+      res.json(enrichedDrivers);
+    } catch (error) {
+      console.error('Get all drivers error:', error);
+      res.status(500).json({ message: 'Failed to fetch drivers' });
     }
   });
 
