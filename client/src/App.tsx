@@ -29,6 +29,8 @@ import DispatcherDashboard from "@/pages/DispatcherDashboard";
 import PassengerDashboard from "@/pages/passenger-dashboard";
 import Checkout from "@/pages/checkout";
 import AccountPage from "@/pages/account";
+import MobileSplash from "@/pages/mobile-splash";
+import MobileLogin from "@/pages/mobile-login";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -44,6 +46,10 @@ function Router() {
 
   return (
     <Switch>
+      {/* Mobile PWA Routes */}
+      <Route path="/mobile-splash" component={MobileSplash} />
+      <Route path="/mobile-login" component={MobileLogin} />
+      
       {/* Public routes */}
       <Route path="/booking" component={Booking} />
       <Route path="/vehicle/:id" component={VehicleDetail} />
