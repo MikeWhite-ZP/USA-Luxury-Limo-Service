@@ -2615,16 +2615,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // If user doesn't have a Stripe customer ID, return empty array
       if (!user.stripeCustomerId) {
-        return res.json([]);
+        return res.json({ paymentMethods: [], defaultPaymentMethodId: null });
       }
 
-      // Retrieve payment methods from Stripe
-      const paymentMethods = await stripe.paymentMethods.list({
-        customer: user.stripeCustomerId,
-        type: 'card',
-      });
+      // Retrieve payment methods and customer details from Stripe
+      const [paymentMethods, customer] = await Promise.all([
+        stripe.paymentMethods.list({
+          customer: user.stripeCustomerId,
+          type: 'card',
+        }),
+        stripe.customers.retrieve(user.stripeCustomerId),
+      ]);
 
-      res.json(paymentMethods.data);
+      const defaultPaymentMethodId = (customer as any).invoice_settings?.default_payment_method || null;
+
+      res.json({
+        paymentMethods: paymentMethods.data,
+        defaultPaymentMethodId,
+      });
     } catch (error: any) {
       console.error('Get payment methods error:', error);
       res.status(500).json({ message: 'Failed to fetch payment methods' });
@@ -2693,6 +2701,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Remove payment method error:', error);
       res.status(500).json({ message: error.message || 'Failed to remove payment method' });
+    }
+  });
+
+  app.patch('/api/payment-methods/:id/default', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { id } = req.params;
+      
+      const user = await storage.getUser(userId);
+      
+      if (!user || !user.stripeCustomerId) {
+        return res.status(404).json({ message: 'User not found or no Stripe customer ID' });
+      }
+
+      // Set as default payment method
+      await stripe.customers.update(user.stripeCustomerId, {
+        invoice_settings: {
+          default_payment_method: id,
+        },
+      });
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Set default payment method error:', error);
+      res.status(500).json({ message: error.message || 'Failed to set default payment method' });
     }
   });
 
