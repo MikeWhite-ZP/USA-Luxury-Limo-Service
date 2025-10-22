@@ -2,13 +2,15 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, hashPassword, comparePasswords } from "./auth";
-import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertDriverDocumentSchema, type User } from "@shared/schema";
+import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertDriverDocumentSchema, type User, vehicles } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
 import multer from "multer";
 import { Client as ObjectStorageClient } from "@replit/object-storage";
 import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML } from "./email";
 import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS } from "./sms";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -594,9 +596,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           enrichedBooking = {
             ...enrichedBooking,
             passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'N/A',
-            passengerPhone: passenger.phone || undefined,
-            passengerEmail: passenger.email || undefined,
-          };
+            passengerPhone: passenger.phone || null,
+            passengerEmail: passenger.email || null,
+          } as any;
         }
       }
 
@@ -608,9 +610,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (driverUser) {
             enrichedBooking = {
               ...enrichedBooking,
-              driverFirstName: driverUser.firstName,
-              driverLastName: driverUser.lastName,
-            };
+              driverFirstName: driverUser.firstName || null,
+              driverLastName: driverUser.lastName || null,
+              driverPhone: driverUser.phone || null,
+              driverProfileImageUrl: driverUser.profileImageUrl || null,
+            } as any;
+          }
+          
+          // Get driver's vehicle plate
+          const vehicleData = await db
+            .select()
+            .from(vehicles)
+            .where(eq(vehicles.driverId, driver.id))
+            .limit(1);
+          
+          if (vehicleData[0]) {
+            enrichedBooking = {
+              ...enrichedBooking,
+              driverVehiclePlate: vehicleData[0].licensePlate || null,
+            } as any;
           }
         }
       }

@@ -2569,11 +2569,36 @@ export default function AdminDashboard() {
                             </p>
                           </div>
                           
-                          <div>
-                            <p className="text-muted-foreground">Driver</p>
-                            <p className="font-medium" data-testid={`booking-driver-${booking.id}`}>
-                              {booking.driverName || 'Not assigned'}
-                            </p>
+                          <div className="col-span-2">
+                            <p className="text-muted-foreground mb-2">Driver</p>
+                            {booking.driverId ? (
+                              <div className="flex items-center gap-3 p-2 border rounded-lg bg-white" data-testid={`booking-driver-${booking.id}`}>
+                                {booking.driverProfileImageUrl ? (
+                                  <img 
+                                    src={booking.driverProfileImageUrl} 
+                                    alt="Driver" 
+                                    className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
+                                    {booking.driverFirstName?.[0]}{booking.driverLastName?.[0]}
+                                  </div>
+                                )}
+                                <div className="flex-1">
+                                  <p className="font-semibold">{booking.driverFirstName} {booking.driverLastName}</p>
+                                  {booking.driverPhone && (
+                                    <p className="text-sm text-muted-foreground">{booking.driverPhone}</p>
+                                  )}
+                                  {booking.driverVehiclePlate && (
+                                    <p className="text-xs font-mono bg-gray-100 px-2 py-0.5 rounded inline-block mt-1">
+                                      {booking.driverVehiclePlate}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="font-medium text-muted-foreground">Not assigned</p>
+                            )}
                           </div>
                           
                           <div>
@@ -2627,21 +2652,19 @@ export default function AdminDashboard() {
                           </SelectContent>
                         </Select>
                         
-                        {!booking.driverId && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setAssigningBookingId(booking.id);
-                              setAssignDriverDialogOpen(true);
-                            }}
-                            data-testid={`button-assign-driver-${booking.id}`}
-                            className="bg-[#53a3f5]"
-                          >
-                            <Car className="w-4 h-4 mr-2" />
-                            Assign Driver
-                          </Button>
-                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setAssigningBookingId(booking.id);
+                            setAssignDriverDialogOpen(true);
+                          }}
+                          data-testid={`button-assign-driver-${booking.id}`}
+                          className="bg-[#53a3f5]"
+                        >
+                          <Car className="w-4 h-4 mr-2" />
+                          {booking.driverId ? 'Change Driver' : 'Assign Driver'}
+                        </Button>
                         
                         <Button
                           size="sm"

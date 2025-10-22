@@ -959,11 +959,15 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(users, eq(bookings.passengerId, users.id))
       .orderBy(desc(bookings.createdAt));
 
-    // Fetch driver names for bookings with assigned drivers
-    const bookingsWithDriverNames = await Promise.all(
+    // Fetch driver details for bookings with assigned drivers
+    const bookingsWithDriverDetails = await Promise.all(
       allBookings.map(async (booking) => {
         let driverFirstName = null;
         let driverLastName = null;
+        let driverPhone = null;
+        let driverProfileImageUrl = null;
+        let driverVehiclePlate = null;
+        
         if (booking.driverId) {
           const driver = await this.getDriver(booking.driverId);
           if (driver) {
@@ -971,19 +975,36 @@ export class DatabaseStorage implements IStorage {
             if (driverUser) {
               driverFirstName = driverUser.firstName;
               driverLastName = driverUser.lastName;
+              driverPhone = driverUser.phone;
+              driverProfileImageUrl = driverUser.profileImageUrl;
+            }
+            
+            // Get driver's vehicle plate
+            const [vehicle] = await db
+              .select()
+              .from(vehicles)
+              .where(eq(vehicles.driverId, driver.id))
+              .limit(1);
+            
+            if (vehicle) {
+              driverVehiclePlate = vehicle.licensePlate;
             }
           }
         }
+        
         return {
           ...booking,
           passengerName: `${booking.passengerFirstName || ''} ${booking.passengerLastName || ''}`.trim(),
           driverFirstName,
           driverLastName,
+          driverPhone,
+          driverProfileImageUrl,
+          driverVehiclePlate,
         };
       })
     );
 
-    return bookingsWithDriverNames;
+    return bookingsWithDriverDetails;
   }
 
   async getActiveDrivers(): Promise<any[]> {
