@@ -2594,7 +2594,7 @@ export default function AdminDashboard() {
                           <SelectTrigger className="w-40 bg-[#ffffff]" data-testid={`select-status-${booking.id}`}>
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent position="popper" side="bottom" align="start" sideOffset={4}>
                             <SelectItem value="pending">Pending</SelectItem>
                             <SelectItem value="confirmed">Confirmed</SelectItem>
                             <SelectItem value="in_progress">In Progress</SelectItem>
