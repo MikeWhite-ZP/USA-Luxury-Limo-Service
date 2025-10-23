@@ -3325,10 +3325,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Save credentials to system settings
-      await storage.setSetting('TWILIO_ACCOUNT_SID', accountSid);
-      await storage.setSetting('TWILIO_AUTH_TOKEN', authToken);
-      await storage.setSetting('TWILIO_PHONE_NUMBER', phoneNumber);
-      await storage.setSetting('TWILIO_ENABLED', enabled ? 'true' : 'false');
+      await storage.setSetting('TWILIO_ACCOUNT_SID', accountSid, userId);
+      await storage.setSetting('TWILIO_AUTH_TOKEN', authToken, userId);
+      await storage.setSetting('TWILIO_PHONE_NUMBER', phoneNumber, userId);
+      await storage.setSetting('TWILIO_ENABLED', enabled ? 'true' : 'false', userId);
 
       res.json({ success: true, message: 'Twilio credentials saved successfully' });
     } catch (error) {
@@ -3349,7 +3349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { enabled } = req.body;
 
-      await storage.setSetting('TWILIO_ENABLED', enabled ? 'true' : 'false');
+      await storage.setSetting('TWILIO_ENABLED', enabled ? 'true' : 'false', userId);
 
       res.json({ success: true, enabled });
     } catch (error) {
