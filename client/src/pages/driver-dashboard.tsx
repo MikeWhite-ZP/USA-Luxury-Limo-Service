@@ -35,6 +35,7 @@ interface Booking {
   scheduledDateTime: string;
   passengerCount: number;
   totalAmount: string;
+  driverPayment?: string;
   specialInstructions?: string;
 }
 
@@ -431,7 +432,7 @@ export default function DriverDashboard() {
                               <strong>Scheduled:</strong> {new Date(booking.scheduledDateTime).toLocaleString()}
                             </div>
                             <div data-testid={`accepted-amount-${booking.id}`}>
-                              <strong>Fare:</strong> ${booking.totalAmount}
+                              <strong>Your Payment:</strong> ${booking.driverPayment || 'Not set'}
                             </div>
                           </div>
                           <Badge variant="default" data-testid={`accepted-status-${booking.id}`}>
@@ -796,7 +797,7 @@ export default function DriverDashboard() {
                             <strong>Scheduled:</strong> {new Date(booking.scheduledDateTime).toLocaleString()}
                           </div>
                           <div data-testid={`assigned-amount-${booking.id}`}>
-                            <strong>Fare:</strong> ${booking.totalAmount}
+                            <strong>Your Payment:</strong> ${booking.driverPayment || 'Not set'}
                           </div>
                         </div>
                         <Badge variant="default" data-testid={`assigned-status-${booking.id}`}>
