@@ -1061,10 +1061,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   async assignDriverToBooking(bookingId: string, driverId: string): Promise<Booking> {
+    // Get the booking first to calculate driver payment from total amount
+    const [booking] = await db.select().from(bookings).where(eq(bookings.id, bookingId));
+    
+    if (!booking) {
+      throw new Error('Booking not found');
+    }
+    
+    // Calculate initial driver payment (70% of total amount as default)
+    // Admin/dispatcher can manually edit this later
+    const totalAmount = parseFloat(booking.totalAmount || '0');
+    const driverPaymentAmount = (totalAmount * 0.70).toFixed(2);
+    
     const [updatedBooking] = await db
       .update(bookings)
       .set({ 
         driverId,
+        driverPayment: driverPaymentAmount,
         updatedAt: new Date(),
       })
       .where(eq(bookings.id, bookingId))
