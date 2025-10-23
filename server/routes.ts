@@ -1312,6 +1312,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   destinationAddress: updatedBooking.destinationAddress || 'N/A',
                   scheduledDateTime,
                   vehicleType: vehicleType?.name || 'Standard',
+                  driverPayment: updatedBooking.driverPayment || undefined,
                 }),
               });
 
@@ -1322,7 +1323,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     driverUser.phone,
                     `${passenger.firstName} ${passenger.lastName}`,
                     updatedBooking.pickupAddress,
-                    new Date(updatedBooking.scheduledDateTime)
+                    new Date(updatedBooking.scheduledDateTime),
+                    updatedBooking.driverPayment || undefined
                   );
                 } catch (smsError) {
                   console.error('Failed to send driver assignment SMS:', smsError);

@@ -133,9 +133,11 @@ export async function sendDriverAssignmentSMS(
   phoneNumber: string,
   passengerName: string,
   pickupAddress: string,
-  scheduledTime: Date
+  scheduledTime: Date,
+  driverPayment?: string
 ): Promise<SMSResult> {
-  const message = `USA Luxury Limo - New Ride Assignment\n\nPassenger: ${passengerName}\nPickup: ${pickupAddress}\nTime: ${scheduledTime.toLocaleString()}\n\nPlease check your driver dashboard for details.`;
+  const paymentInfo = driverPayment ? `\nYour Payment: $${driverPayment}` : '';
+  const message = `USA Luxury Limo - New Ride Assignment\n\nPassenger: ${passengerName}\nPickup: ${pickupAddress}\nTime: ${scheduledTime.toLocaleString()}${paymentInfo}\n\nPlease check your driver dashboard for details.`;
   
   return sendSMS(phoneNumber, message);
 }

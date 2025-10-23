@@ -380,6 +380,7 @@ export function getDriverAssignmentEmailHTML(data: {
   destinationAddress: string;
   scheduledDateTime: string;
   vehicleType: string;
+  driverPayment?: string;
 }): string {
   return `
     <!DOCTYPE html>
@@ -436,6 +437,12 @@ export function getDriverAssignmentEmailHTML(data: {
                 <span class="detail-label">Vehicle Type:</span>
                 <span class="detail-value">${data.vehicleType}</span>
               </div>
+              ${data.driverPayment ? `
+              <div class="detail-row" style="background: #e8f5e9; margin-top: 10px; padding: 15px; border-radius: 4px;">
+                <span class="detail-label" style="color: #2e7d32; font-size: 16px;">💰 Your Payment for this Ride:</span>
+                <span class="detail-value" style="color: #2e7d32; font-size: 20px; font-weight: bold;">$${data.driverPayment}</span>
+              </div>
+              ` : ''}
             </div>
 
             <p><strong>Action Required:</strong></p>
