@@ -25,6 +25,7 @@ Preferred communication style: Simple, everyday language.
 - **API**: RESTful APIs with JSON.
 - **Authentication**: Replit Auth with OpenID Connect and PostgreSQL-backed session management, supporting passenger, driver, and admin roles.
 - **Security**: scrypt password hashing, secure session cookies, and robust password validation.
+- **Async Notification Pattern**: Long-running operations (email/SMS) use fire-and-forget async execution to return HTTP responses immediately, ensuring fast UI feedback. Notifications are sent in background with comprehensive error handling.
 
 ### Database
 - **Type**: PostgreSQL with Neon for connection pooling.

@@ -1276,63 +1276,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const updatedBooking = await storage.assignDriverToBooking(id, driverId);
       
-      // Send driver assignment email to driver
-      try {
-        const driver = await storage.getDriver(driverId);
-        const passenger = updatedBooking.passengerId ? await storage.getUser(updatedBooking.passengerId) : null;
-        const vehicleType = await storage.getVehicleType(updatedBooking.vehicleTypeId);
-        
-        if (driver?.userId) {
-          const driverUser = await storage.getUser(driver.userId);
+      // Return response immediately for fast UI feedback
+      res.json(updatedBooking);
+      
+      // Send driver assignment notifications asynchronously (fire and forget)
+      (async () => {
+        try {
+          const driver = await storage.getDriver(driverId);
+          const passenger = updatedBooking.passengerId ? await storage.getUser(updatedBooking.passengerId) : null;
+          const vehicleType = await storage.getVehicleType(updatedBooking.vehicleTypeId);
           
-          if (driverUser?.email) {
-            const scheduledDateTime = new Date(updatedBooking.scheduledDateTime).toLocaleString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              timeZone: 'America/Chicago'
-            });
+          if (driver?.userId) {
+            const driverUser = await storage.getUser(driver.userId);
+            
+            if (driverUser?.email) {
+              const scheduledDateTime = new Date(updatedBooking.scheduledDateTime).toLocaleString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'America/Chicago'
+              });
 
-            await sendEmail({
-              to: driverUser.email,
-              subject: `New Ride Assignment - ${updatedBooking.id}`,
-              html: getDriverAssignmentEmailHTML({
-                driverName: `${driverUser.firstName} ${driverUser.lastName}`,
-                bookingId: updatedBooking.id,
-                passengerName: passenger ? `${passenger.firstName} ${passenger.lastName}` : 'N/A',
-                passengerPhone: passenger?.phone || 'N/A',
-                pickupAddress: updatedBooking.pickupAddress,
-                destinationAddress: updatedBooking.destinationAddress || 'N/A',
-                scheduledDateTime,
-                vehicleType: vehicleType?.name || 'Standard',
-              }),
-            });
+              await sendEmail({
+                to: driverUser.email,
+                subject: `New Ride Assignment - ${updatedBooking.id}`,
+                html: getDriverAssignmentEmailHTML({
+                  driverName: `${driverUser.firstName} ${driverUser.lastName}`,
+                  bookingId: updatedBooking.id,
+                  passengerName: passenger ? `${passenger.firstName} ${passenger.lastName}` : 'N/A',
+                  passengerPhone: passenger?.phone || 'N/A',
+                  pickupAddress: updatedBooking.pickupAddress,
+                  destinationAddress: updatedBooking.destinationAddress || 'N/A',
+                  scheduledDateTime,
+                  vehicleType: vehicleType?.name || 'Standard',
+                }),
+              });
 
-            // Send SMS notification if phone number is available
-            if (driverUser.phone && passenger) {
-              try {
-                await sendDriverAssignmentSMS(
-                  driverUser.phone,
-                  `${passenger.firstName} ${passenger.lastName}`,
-                  updatedBooking.pickupAddress,
-                  new Date(updatedBooking.scheduledDateTime)
-                );
-              } catch (smsError) {
-                console.error('Failed to send driver assignment SMS:', smsError);
-                // Continue even if SMS fails
+              // Send SMS notification if phone number is available
+              if (driverUser.phone && passenger) {
+                try {
+                  await sendDriverAssignmentSMS(
+                    driverUser.phone,
+                    `${passenger.firstName} ${passenger.lastName}`,
+                    updatedBooking.pickupAddress,
+                    new Date(updatedBooking.scheduledDateTime)
+                  );
+                } catch (smsError) {
+                  console.error('Failed to send driver assignment SMS:', smsError);
+                  // Continue even if SMS fails
+                }
               }
             }
           }
+        } catch (emailError) {
+          console.error('Failed to send driver assignment notifications:', emailError);
         }
-      } catch (emailError) {
-        console.error('Failed to send driver assignment email:', emailError);
-        // Don't fail the assignment if email fails
-      }
-      
-      res.json(updatedBooking);
+      })();
     } catch (error) {
       console.error('Assign driver error:', error);
       res.status(500).json({ error: 'Failed to assign driver to booking' });
