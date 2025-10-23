@@ -577,6 +577,9 @@ export default function AdminDashboard() {
   const [assignDriverDialogOpen, setAssignDriverDialogOpen] = useState(false);
   const [assigningBookingId, setAssigningBookingId] = useState<string | null>(null);
   const [selectedDriverForAssignment, setSelectedDriverForAssignment] = useState('');
+  const [editDriverPaymentDialogOpen, setEditDriverPaymentDialogOpen] = useState(false);
+  const [editingDriverPaymentBookingId, setEditingDriverPaymentBookingId] = useState<string | null>(null);
+  const [newDriverPayment, setNewDriverPayment] = useState('');
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState<any | null>(null);
   const [bookingFormData, setBookingFormData] = useState({
@@ -884,6 +887,35 @@ export default function AdminDashboard() {
       toast({
         title: "Error",
         description: error.message || "Failed to assign driver",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update driver payment mutation
+  const updateDriverPaymentMutation = useMutation({
+    mutationFn: async ({ bookingId, driverPayment }: { bookingId: string; driverPayment: string }) => {
+      const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/driver-payment`, { driverPayment });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update driver payment');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      setEditDriverPaymentDialogOpen(false);
+      setEditingDriverPaymentBookingId(null);
+      setNewDriverPayment('');
+      toast({
+        title: "Driver Payment Updated",
+        description: "Driver payment has been successfully updated.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update driver payment",
         variant: "destructive",
       });
     },
@@ -2628,6 +2660,15 @@ export default function AdminDashboard() {
                               ${booking.totalAmount}
                             </p>
                           </div>
+                          
+                          {booking.driverId && (
+                            <div>
+                              <p className="text-muted-foreground">Driver Payment</p>
+                              <p className="font-bold text-lg text-green-600" data-testid={`booking-driver-payment-${booking.id}`}>
+                                ${booking.driverPayment || 'Not set'}
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
@@ -2665,6 +2706,23 @@ export default function AdminDashboard() {
                           <Car className="w-4 h-4 mr-2" />
                           {booking.driverId ? 'Change Driver' : 'Assign Driver'}
                         </Button>
+                        
+                        {booking.driverId && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditingDriverPaymentBookingId(booking.id);
+                              setNewDriverPayment(booking.driverPayment || '');
+                              setEditDriverPaymentDialogOpen(true);
+                            }}
+                            data-testid={`button-edit-driver-payment-${booking.id}`}
+                            className="bg-[#22c55e]"
+                          >
+                            <DollarSign className="w-4 h-4 mr-2" />
+                            Edit Driver Payment
+                          </Button>
+                        )}
                         
                         <Button
                           size="sm"
@@ -2758,6 +2816,56 @@ export default function AdminDashboard() {
                   data-testid="button-confirm-assign"
                 >
                   {assignDriverMutation.isPending ? 'Assigning...' : 'Assign Driver'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Driver Payment Dialog */}
+        <Dialog open={editDriverPaymentDialogOpen} onOpenChange={setEditDriverPaymentDialogOpen}>
+          <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#ffffff]">
+            <DialogHeader>
+              <DialogTitle>Edit Driver Payment</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="driver-payment">Driver Payment Amount ($)</Label>
+                <Input
+                  id="driver-payment"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={newDriverPayment}
+                  onChange={(e) => setNewDriverPayment(e.target.value)}
+                  placeholder="0.00"
+                  data-testid="input-driver-payment"
+                />
+                <p className="text-sm text-muted-foreground mt-2">
+                  This is the amount the driver will receive for completing this ride.
+                </p>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setEditDriverPaymentDialogOpen(false)}
+                  data-testid="button-cancel-edit-payment"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (editingDriverPaymentBookingId && newDriverPayment) {
+                      updateDriverPaymentMutation.mutate({
+                        bookingId: editingDriverPaymentBookingId,
+                        driverPayment: newDriverPayment
+                      });
+                    }
+                  }}
+                  disabled={!newDriverPayment || updateDriverPaymentMutation.isPending}
+                  data-testid="button-save-driver-payment"
+                >
+                  {updateDriverPaymentMutation.isPending ? 'Saving...' : 'Save Payment'}
                 </Button>
               </div>
             </div>
