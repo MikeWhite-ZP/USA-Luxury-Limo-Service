@@ -1830,6 +1830,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/driver/credentials', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      const { driverCredentials } = req.body;
+      if (typeof driverCredentials !== 'string') {
+        return res.status(400).json({ message: 'driverCredentials must be a string' });
+      }
+
+      const updatedDriver = await storage.updateDriver(driver.id, { driverCredentials });
+      res.json(updatedDriver);
+    } catch (error) {
+      console.error('Update driver credentials error:', error);
+      res.status(500).json({ message: 'Failed to update credentials' });
+    }
+  });
+
   // Driver Documents Management
   // Upload document (driver only)
   app.post('/api/driver/documents/upload', isAuthenticated, upload.single('file'), async (req: any, res) => {

@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ObjectUploader } from "../components/ObjectUploader";
-import { DollarSign, MapPin, Clock, Star, Upload, CheckCircle, AlertCircle, FileText, Car, Home, Settings, Briefcase } from "lucide-react";
+import { DollarSign, MapPin, Clock, Star, Upload, CheckCircle, AlertCircle, FileText, Car, Home, Settings, Briefcase, Pencil } from "lucide-react";
 
 interface DriverData {
   id: string;
@@ -23,6 +23,7 @@ interface DriverData {
   rating: string;
   totalRides: number;
   isAvailable: boolean;
+  driverCredentials?: string;
 }
 
 interface Booking {
@@ -56,6 +57,8 @@ export default function DriverDashboard() {
   const queryClient = useQueryClient();
   const [todayEarnings] = useState(485); // This would come from API
   const [activeTab, setActiveTab] = useState<'home' | 'documents' | 'assigned-jobs' | 'settings'>('home');
+  const [editingCredentials, setEditingCredentials] = useState(false);
+  const [credentialsValue, setCredentialsValue] = useState('');
   
   // Document upload state with expiration dates
   const [documentForms, setDocumentForms] = useState({
@@ -87,6 +90,13 @@ export default function DriverDashboard() {
     retry: false,
     enabled: isAuthenticated && user?.role === 'driver',
   });
+
+  // Initialize credentials value when driver data loads
+  useEffect(() => {
+    if (driver?.driverCredentials) {
+      setCredentialsValue(driver.driverCredentials);
+    }
+  }, [driver]);
 
   // Fetch driver bookings
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
@@ -186,6 +196,33 @@ export default function DriverDashboard() {
       toast({
         title: "Error",
         description: error.message || "Failed to update booking status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update driver credentials mutation
+  const updateCredentialsMutation = useMutation({
+    mutationFn: async (driverCredentials: string) => {
+      const response = await apiRequest('PATCH', '/api/driver/credentials', { driverCredentials });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update credentials');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/driver/profile'] });
+      setEditingCredentials(false);
+      toast({
+        title: "Credentials Updated",
+        description: "Your driver credentials have been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update credentials",
         variant: "destructive",
       });
     },
@@ -858,6 +895,61 @@ export default function DriverDashboard() {
                 <div>
                   <Label>Total Rides</Label>
                   <Input value={driver?.totalRides?.toString() || '0'} disabled data-testid="setting-total-rides" />
+                </div>
+                <div className="pt-4 border-t">
+                  <div className="flex justify-between items-center mb-2">
+                    <Label htmlFor="credentials">Driver Credentials</Label>
+                    {!editingCredentials ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setEditingCredentials(true)}
+                        data-testid="button-edit-credentials"
+                      >
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingCredentials(false);
+                            setCredentialsValue(driver?.driverCredentials || '');
+                          }}
+                          data-testid="button-cancel-credentials"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => updateCredentialsMutation.mutate(credentialsValue)}
+                          disabled={updateCredentialsMutation.isPending}
+                          data-testid="button-save-credentials"
+                        >
+                          {updateCredentialsMutation.isPending ? 'Saving...' : 'Save'}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  {editingCredentials ? (
+                    <textarea
+                      id="credentials"
+                      className="w-full min-h-[100px] p-2 border rounded-md"
+                      value={credentialsValue}
+                      onChange={(e) => setCredentialsValue(e.target.value)}
+                      placeholder="Enter your driver credentials (e.g., CDL License #, TLC License #, certifications, etc.)"
+                      data-testid="input-credentials"
+                    />
+                  ) : (
+                    <p className="text-sm p-2 bg-muted rounded-md" data-testid="text-credentials">
+                      {driver?.driverCredentials || 'No credentials added yet'}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-2">
+                    These credentials will be shared with passengers when you are assigned to their booking.
+                  </p>
                 </div>
               </div>
             </CardContent>
