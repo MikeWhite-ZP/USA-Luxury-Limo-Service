@@ -55,6 +55,7 @@ export interface IStorage {
   createDriver(driver: InsertDriver): Promise<Driver>;
   getDriver(id: string): Promise<Driver | undefined>;
   getDriverByUserId(userId: string): Promise<Driver | undefined>;
+  updateDriver(id: string, updates: Partial<Driver>): Promise<Driver | undefined>;
   updateDriverVerificationStatus(id: string, status: string): Promise<void>;
   updateDriverAvailability(id: string, isAvailable: boolean): Promise<Driver | undefined>;
   updateDriverLocation(id: string, location: string): Promise<Driver | undefined>;
@@ -74,6 +75,7 @@ export interface IStorage {
   getBookingsByDriver(driverId: string): Promise<Booking[]>;
   updateBookingStatus(id: string, status: string): Promise<void>;
   updateBookingPayment(id: string, paymentIntentId: string, status: string): Promise<void>;
+  updateBookingDriverPayment(id: string, driverPayment: string): Promise<Booking | undefined>;
   updateBooking(id: string, updates: Partial<InsertBooking>): Promise<Booking | undefined>;
   deleteBooking(id: string): Promise<void>;
   
@@ -278,6 +280,15 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  async updateDriver(id: string, updates: Partial<Driver>): Promise<Driver | undefined> {
+    const [updated] = await db
+      .update(drivers)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(drivers.id, id))
+      .returning();
+    return updated;
+  }
+
   async getAvailableDrivers(): Promise<Driver[]> {
     return await db
       .select()
@@ -362,6 +373,18 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date() 
       })
       .where(eq(bookings.id, id));
+  }
+
+  async updateBookingDriverPayment(id: string, driverPayment: string): Promise<Booking | undefined> {
+    const [updated] = await db
+      .update(bookings)
+      .set({ 
+        driverPayment, 
+        updatedAt: new Date() 
+      })
+      .where(eq(bookings.id, id))
+      .returning();
+    return updated;
   }
 
   async updateBooking(id: string, updates: Partial<InsertBooking>): Promise<Booking | undefined> {
