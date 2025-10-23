@@ -4,15 +4,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquare, Send, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { apiRequest } from '@/lib/queryClient';
+import { MessageSquare, Send, CheckCircle, XCircle, Loader2, Eye, EyeOff, Save } from 'lucide-react';
 
 interface TwilioStatus {
   connected: boolean;
+  enabled: boolean;
   accountSid?: string;
   phoneNumber?: string;
   error?: string;
+}
+
+interface TwilioCredentials {
+  accountSid: string;
+  authToken: string;
+  phoneNumber: string;
+  enabled: boolean;
 }
 
 export function AdminSMSSettings() {
@@ -21,6 +29,16 @@ export function AdminSMSSettings() {
   const [loading, setLoading] = useState(true);
   const [testPhoneNumber, setTestPhoneNumber] = useState('');
   const [sendingTest, setSendingTest] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [showAuthToken, setShowAuthToken] = useState(false);
+  
+  const [credentials, setCredentials] = useState<TwilioCredentials>({
+    accountSid: '',
+    authToken: '',
+    phoneNumber: '',
+    enabled: false,
+  });
 
   const checkStatus = async () => {
     setLoading(true);
@@ -28,9 +46,19 @@ export function AdminSMSSettings() {
       const response = await fetch('/api/admin/sms/status');
       const data = await response.json();
       setStatus(data);
+      
+      // Populate credentials from status if available
+      if (data.connected || data.accountSid || data.phoneNumber) {
+        setCredentials(prev => ({
+          ...prev,
+          accountSid: data.accountSid || '',
+          phoneNumber: data.phoneNumber || '',
+          enabled: data.enabled !== undefined ? data.enabled : true,
+        }));
+      }
     } catch (error) {
       console.error('Failed to fetch SMS status:', error);
-      setStatus({ connected: false, error: 'Failed to check status' });
+      setStatus({ connected: false, enabled: false, error: 'Failed to check status' });
     } finally {
       setLoading(false);
     }
@@ -39,6 +67,81 @@ export function AdminSMSSettings() {
   useEffect(() => {
     checkStatus();
   }, []);
+
+  const handleSaveCredentials = async () => {
+    if (!credentials.accountSid || !credentials.authToken || !credentials.phoneNumber) {
+      toast({
+        title: 'Incomplete Credentials',
+        description: 'Please fill in all Twilio credentials',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const response = await fetch('/api/admin/sms/credentials', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save credentials');
+      }
+
+      toast({
+        title: 'Credentials Saved',
+        description: 'Twilio credentials have been updated successfully',
+      });
+      
+      setEditing(false);
+      setShowAuthToken(false);
+      await checkStatus();
+    } catch (error: any) {
+      toast({
+        title: 'Save Failed',
+        description: error.message || 'Failed to save Twilio credentials',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleEnabled = async (enabled: boolean) => {
+    try {
+      const response = await fetch('/api/admin/sms/toggle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ enabled }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to toggle SMS status');
+      }
+
+      toast({
+        title: enabled ? 'SMS Enabled' : 'SMS Disabled',
+        description: enabled 
+          ? 'SMS notifications are now active' 
+          : 'SMS notifications have been disabled',
+      });
+      
+      setCredentials(prev => ({ ...prev, enabled }));
+      await checkStatus();
+    } catch (error: any) {
+      toast({
+        title: 'Toggle Failed',
+        description: error.message || 'Failed to toggle SMS status',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleTestSMS = async () => {
     if (!testPhoneNumber) {
@@ -101,6 +204,23 @@ export function AdminSMSSettings() {
           </div>
         ) : (
           <>
+            {/* Enable/Disable Toggle */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold">SMS Notifications</h4>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {credentials.enabled ? 'SMS notifications are active' : 'SMS notifications are disabled'}
+                  </p>
+                </div>
+                <Switch
+                  checked={credentials.enabled}
+                  onCheckedChange={handleToggleEnabled}
+                  data-testid="switch-sms-enabled"
+                />
+              </div>
+            </div>
+
             {/* Connection Status */}
             <div className="border rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
@@ -118,27 +238,6 @@ export function AdminSMSSettings() {
                 )}
               </div>
 
-              {status?.connected ? (
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Account SID:</span>
-                    <span className="font-mono text-xs" data-testid="text-account-sid">
-                      {status.accountSid ? `${status.accountSid.substring(0, 8)}...` : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Phone Number:</span>
-                    <span className="font-mono text-xs" data-testid="text-phone-number">
-                      {status.phoneNumber || 'Not configured'}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  {status?.error || 'Twilio integration is not connected. Please set up the Twilio connector in your Replit settings.'}
-                </div>
-              )}
-
               <Button
                 size="sm"
                 variant="outline"
@@ -151,8 +250,131 @@ export function AdminSMSSettings() {
               </Button>
             </div>
 
+            {/* Twilio Credentials */}
+            <div className="border rounded-lg p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold">Twilio Credentials</h4>
+                {!editing && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditing(true)}
+                    data-testid="button-edit-credentials"
+                  >
+                    Edit Credentials
+                  </Button>
+                )}
+              </div>
+
+              {editing ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="account-sid">Account SID</Label>
+                    <Input
+                      id="account-sid"
+                      type="text"
+                      placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                      value={credentials.accountSid}
+                      onChange={(e) => setCredentials(prev => ({ ...prev, accountSid: e.target.value }))}
+                      data-testid="input-account-sid"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="auth-token">Auth Token</Label>
+                    <div className="relative">
+                      <Input
+                        id="auth-token"
+                        type={showAuthToken ? "text" : "password"}
+                        placeholder="Your Twilio Auth Token"
+                        value={credentials.authToken}
+                        onChange={(e) => setCredentials(prev => ({ ...prev, authToken: e.target.value }))}
+                        data-testid="input-auth-token"
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAuthToken(!showAuthToken)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        data-testid="button-toggle-auth-token"
+                      >
+                        {showAuthToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone-number">Phone Number</Label>
+                    <Input
+                      id="phone-number"
+                      type="tel"
+                      placeholder="+1234567890"
+                      value={credentials.phoneNumber}
+                      onChange={(e) => setCredentials(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                      data-testid="input-twilio-phone"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Your Twilio phone number (include country code)
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleSaveCredentials}
+                      disabled={saving}
+                      data-testid="button-save-credentials"
+                    >
+                      {saving ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Save Credentials
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setEditing(false);
+                        setShowAuthToken(false);
+                        checkStatus();
+                      }}
+                      data-testid="button-cancel-edit"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Account SID:</span>
+                    <span className="font-mono text-xs" data-testid="text-account-sid">
+                      {credentials.accountSid ? `${credentials.accountSid.substring(0, 12)}...` : 'Not configured'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Auth Token:</span>
+                    <span className="font-mono text-xs" data-testid="text-auth-token">
+                      {credentials.authToken ? '••••••••••••••••' : 'Not configured'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Phone Number:</span>
+                    <span className="font-mono text-xs" data-testid="text-phone-number">
+                      {credentials.phoneNumber || 'Not configured'}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Test SMS */}
-            {status?.connected && (
+            {credentials.enabled && status?.connected && (
               <div className="border rounded-lg p-4 space-y-3">
                 <h4 className="font-semibold">Test SMS Notification</h4>
                 <p className="text-sm text-muted-foreground">
@@ -198,7 +420,7 @@ export function AdminSMSSettings() {
             <div className="border rounded-lg p-4 space-y-3 bg-muted/50">
               <h4 className="font-semibold text-sm">Automated SMS Notifications</h4>
               <p className="text-sm text-muted-foreground">
-                When connected, SMS notifications will be automatically sent for:
+                When enabled, SMS notifications will be automatically sent for:
               </p>
               <ul className="text-sm text-muted-foreground space-y-1 ml-4">
                 <li>• Booking confirmations to passengers</li>
@@ -206,7 +428,7 @@ export function AdminSMSSettings() {
                 <li>• Driver assignments to drivers</li>
               </ul>
               <p className="text-xs text-muted-foreground mt-3">
-                <strong>Note:</strong> SMS notifications will only be sent if the Twilio connection is active and the user has a valid phone number on file.
+                <strong>Note:</strong> SMS notifications will only be sent if SMS is enabled and the user has a valid phone number on file.
               </p>
             </div>
 
@@ -215,10 +437,11 @@ export function AdminSMSSettings() {
               <strong>Setup Instructions:</strong>
               <ol className="list-decimal ml-4 space-y-1">
                 <li>Sign up for a Twilio account at twilio.com</li>
-                <li>Get your Account SID, API Key, and API Key Secret from the Twilio Console</li>
+                <li>Get your Account SID and Auth Token from the Twilio Console</li>
                 <li>Purchase a phone number in the Twilio Console</li>
-                <li>Configure the Twilio connector in your Replit integration settings</li>
-                <li>Return here and click "Refresh Status" to verify the connection</li>
+                <li>Enter your credentials above and click "Save Credentials"</li>
+                <li>Enable SMS notifications using the toggle switch</li>
+                <li>Send a test SMS to verify everything is working</li>
               </ol>
             </div>
           </>

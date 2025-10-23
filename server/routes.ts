@@ -3292,13 +3292,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const status = await getTwilioConnectionStatus();
-      res.json(status);
+      
+      // Get enabled status from system settings
+      const enabledSetting = await storage.getSetting('TWILIO_ENABLED');
+      const enabled = enabledSetting?.value === 'true';
+      
+      res.json({ ...status, enabled });
     } catch (error) {
       console.error('SMS status check error:', error);
       res.status(500).json({ 
-        connected: false, 
+        connected: false,
+        enabled: false,
         error: 'Failed to check SMS connection status' 
       });
+    }
+  });
+
+  // Save Twilio credentials
+  app.post('/api/admin/sms/credentials', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { accountSid, authToken, phoneNumber, enabled } = req.body;
+
+      if (!accountSid || !authToken || !phoneNumber) {
+        return res.status(400).json({ message: 'All Twilio credentials are required' });
+      }
+
+      // Save credentials to system settings
+      await storage.setSetting('TWILIO_ACCOUNT_SID', accountSid);
+      await storage.setSetting('TWILIO_AUTH_TOKEN', authToken);
+      await storage.setSetting('TWILIO_PHONE_NUMBER', phoneNumber);
+      await storage.setSetting('TWILIO_ENABLED', enabled ? 'true' : 'false');
+
+      res.json({ success: true, message: 'Twilio credentials saved successfully' });
+    } catch (error) {
+      console.error('Save credentials error:', error);
+      res.status(500).json({ message: 'Failed to save Twilio credentials' });
+    }
+  });
+
+  // Toggle Twilio enabled/disabled
+  app.post('/api/admin/sms/toggle', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { enabled } = req.body;
+
+      await storage.setSetting('TWILIO_ENABLED', enabled ? 'true' : 'false');
+
+      res.json({ success: true, enabled });
+    } catch (error) {
+      console.error('Toggle SMS error:', error);
+      res.status(500).json({ message: 'Failed to toggle SMS status' });
     }
   });
 

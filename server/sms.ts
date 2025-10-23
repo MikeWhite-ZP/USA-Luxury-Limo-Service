@@ -1,4 +1,4 @@
-import { getTwilioClient, getTwilioFromPhoneNumber, getTwilioConnectionStatus } from './twilio';
+import { getTwilioClient, getTwilioFromPhoneNumber, getTwilioConnectionStatus, isTwilioEnabled } from './twilio';
 import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 
 export interface SMSResult {
@@ -52,6 +52,16 @@ export function normalizePhoneNumber(phoneNumber: string): string | null {
 
 export async function sendSMS(to: string, message: string): Promise<SMSResult> {
   try {
+    // Check if Twilio is enabled
+    const enabled = await isTwilioEnabled();
+    if (!enabled) {
+      console.log('SMS sending skipped: Twilio is disabled in admin settings');
+      return {
+        success: false,
+        error: 'SMS notifications are disabled'
+      };
+    }
+
     // Normalize and validate phone number
     const normalizedPhone = normalizePhoneNumber(to);
     
@@ -63,8 +73,8 @@ export async function sendSMS(to: string, message: string): Promise<SMSResult> {
       };
     }
 
-    const client = getTwilioClient();
-    const fromNumber = getTwilioFromPhoneNumber();
+    const client = await getTwilioClient();
+    const fromNumber = await getTwilioFromPhoneNumber();
 
     if (!fromNumber) {
       throw new Error('Twilio phone number not configured');
@@ -136,4 +146,4 @@ export async function sendTestSMS(phoneNumber: string): Promise<SMSResult> {
   return sendSMS(phoneNumber, message);
 }
 
-export { getTwilioConnectionStatus };
+export { getTwilioConnectionStatus, isTwilioEnabled };
