@@ -64,6 +64,7 @@ export const drivers = pgTable("drivers", {
   licenseExpiry: timestamp("license_expiry"),
   licenseDocumentUrl: varchar("license_document_url"),
   insuranceDocumentUrl: varchar("insurance_document_url"),
+  driverCredentials: varchar("driver_credentials"), // Additional credentials to share with passengers
   backgroundCheckStatus: varchar("background_check_status", { 
     enum: ["pending", "approved", "rejected"] 
   }).default("pending"),
@@ -229,6 +230,7 @@ export const bookings = pgTable("bookings", {
   timeFare: decimal("time_fare", { precision: 10, scale: 2 }),
   surcharges: jsonb("surcharges"), // Additional fees
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }),
+  driverPayment: decimal("driver_payment", { precision: 10, scale: 2 }), // Amount driver gets paid (editable by admin/dispatcher)
   
   // Payment
   paymentStatus: varchar("payment_status", { 
