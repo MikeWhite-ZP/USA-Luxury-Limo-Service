@@ -542,14 +542,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const driver = await storage.getDriverByUserId(userId);
         if (driver) {
           bookings = await storage.getBookingsByDriver(driver.id);
+          // Strip totalAmount from driver bookings - drivers should only see driverPayment
+          bookings = bookings.map(booking => {
+            const { totalAmount, ...driverBooking } = booking;
+            return driverBooking;
+          });
         } else {
           bookings = [];
         }
+        res.json(bookings);
       } else {
         bookings = await storage.getBookingsByUser(userId);
+        
+        // Enrich bookings with driver information for passengers
+        if (user.role === 'passenger') {
+          const enrichedBookings = await Promise.all(
+            bookings.map(async (booking) => {
+              if (booking.driverId) {
+                const driver = await storage.getDriver(booking.driverId);
+                if (driver) {
+                  const driverUser = await storage.getUser(driver.userId);
+                  if (driverUser) {
+                    return {
+                      ...booking,
+                      driverFirstName: driverUser.firstName || null,
+                      driverLastName: driverUser.lastName || null,
+                      driverPhone: driverUser.phone || null,
+                      driverCredentials: driver.driverCredentials || null,
+                    };
+                  }
+                }
+              }
+              return booking;
+            })
+          );
+          res.json(enrichedBookings);
+        } else {
+          res.json(bookings);
+        }
       }
-
-      res.json(bookings);
     } catch (error) {
       console.error('Get bookings error:', error);
       res.status(500).json({ message: 'Failed to fetch bookings' });

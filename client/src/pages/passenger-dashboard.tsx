@@ -42,6 +42,10 @@ interface Booking {
   totalAmount: string;
   createdAt: string;
   driverId?: string;
+  driverFirstName?: string;
+  driverLastName?: string;
+  driverPhone?: string;
+  driverCredentials?: string;
 }
 
 interface PaymentMethod {
@@ -1255,6 +1259,28 @@ export default function PassengerDashboard() {
                         </Badge>
                       </div>
                     </div>
+                    {booking.driverId && (booking.driverFirstName || booking.driverLastName) && (
+                      <div className="mt-3 pt-3 border-t border-border">
+                        <div className="flex items-start space-x-2">
+                          <User className="w-4 h-4 mt-0.5 text-muted-foreground" />
+                          <div className="flex-1 space-y-1">
+                            <p className="text-sm font-medium" data-testid={`booking-driver-name-${booking.id}`}>
+                              Driver: {booking.driverFirstName} {booking.driverLastName}
+                            </p>
+                            {booking.driverPhone && (
+                              <p className="text-xs text-muted-foreground" data-testid={`booking-driver-phone-${booking.id}`}>
+                                📞 {booking.driverPhone}
+                              </p>
+                            )}
+                            {booking.driverCredentials && (
+                              <p className="text-xs text-muted-foreground" data-testid={`booking-driver-credentials-${booking.id}`}>
+                                {booking.driverCredentials}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     {booking.status === 'pending' && (
                       <div className="flex gap-2 mt-3 pt-3 border-t border-border">
                         <Button
@@ -1596,6 +1622,28 @@ export default function PassengerDashboard() {
                           </Badge>
                         </div>
                       </div>
+                      {booking.driverId && (booking.driverFirstName || booking.driverLastName) && (
+                        <div className="mt-3 pt-3 border-t border-border">
+                          <div className="flex items-start space-x-2">
+                            <User className="w-4 h-4 mt-0.5 text-muted-foreground" />
+                            <div className="flex-1 space-y-1">
+                              <p className="text-sm font-medium" data-testid={`past-booking-driver-name-${booking.id}`}>
+                                Driver: {booking.driverFirstName} {booking.driverLastName}
+                              </p>
+                              {booking.driverPhone && (
+                                <p className="text-xs text-muted-foreground" data-testid={`past-booking-driver-phone-${booking.id}`}>
+                                  📞 {booking.driverPhone}
+                                </p>
+                              )}
+                              {booking.driverCredentials && (
+                                <p className="text-xs text-muted-foreground" data-testid={`past-booking-driver-credentials-${booking.id}`}>
+                                  {booking.driverCredentials}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       {booking.status === 'completed' && booking.driverId && (
                         <div className="flex gap-2 mt-3 pt-3 border-t border-border">
                           <Button
@@ -1950,6 +1998,28 @@ export default function PassengerDashboard() {
                         </Badge>
                       </div>
                     </div>
+                    {booking.driverId && (booking.driverFirstName || booking.driverLastName) && (
+                      <div className="mt-3 pt-3 border-t border-border">
+                        <div className="flex items-start space-x-2">
+                          <User className="w-4 h-4 mt-0.5 text-muted-foreground" />
+                          <div className="flex-1 space-y-1">
+                            <p className="text-sm font-medium" data-testid={`history-booking-driver-name-${booking.id}`}>
+                              Driver: {booking.driverFirstName} {booking.driverLastName}
+                            </p>
+                            {booking.driverPhone && (
+                              <p className="text-xs text-muted-foreground" data-testid={`history-booking-driver-phone-${booking.id}`}>
+                                📞 {booking.driverPhone}
+                              </p>
+                            )}
+                            {booking.driverCredentials && (
+                              <p className="text-xs text-muted-foreground" data-testid={`history-booking-driver-credentials-${booking.id}`}>
+                                {booking.driverCredentials}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex gap-2 mt-3 pt-3 border-t border-border">
                       {booking.status === 'pending' && (
                         <>
