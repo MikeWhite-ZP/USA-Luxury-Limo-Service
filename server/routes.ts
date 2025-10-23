@@ -1341,6 +1341,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/admin/bookings/:id/driver-payment', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
+      }
+
+      const { id } = req.params;
+      const { driverPayment } = req.body;
+
+      if (!driverPayment) {
+        return res.status(400).json({ error: 'Driver payment amount is required' });
+      }
+
+      // Validate that driverPayment is a valid number
+      const paymentAmount = parseFloat(driverPayment);
+      if (isNaN(paymentAmount) || paymentAmount < 0) {
+        return res.status(400).json({ error: 'Invalid driver payment amount' });
+      }
+
+      const updatedBooking = await storage.updateBookingDriverPayment(id, driverPayment);
+      
+      if (!updatedBooking) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+      
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Update driver payment error:', error);
+      res.status(500).json({ error: 'Failed to update driver payment' });
+    }
+  });
+
   app.get('/api/admin/settings', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
