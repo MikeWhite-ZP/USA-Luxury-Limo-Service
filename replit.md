@@ -32,7 +32,7 @@ Preferred communication style: Simple, everyday language.
 - **Key Entities**: Users, drivers, vehicles, bookings, addresses, system settings, invoices, contact submissions.
 
 ### Core Features
-- **SMS Notifications**: Twilio-based system for booking confirmations, status updates, and driver assignments, with secure credential management via Replit Secrets and admin settings.
+- **SMS Notifications**: Twilio-based system for booking confirmations, status updates, and driver assignments. Admin can view, edit, and manage Twilio credentials (Account SID, Auth Token, Phone Number) directly in the admin dashboard settings. Includes enable/disable toggle to control SMS sending. Credentials stored in database with fallback to environment variables. Connection status monitoring and test SMS functionality included.
 - **Email Notifications**: SMTP-based system using Nodemailer, with admin-configurable settings and HTML email templates for various notifications.
 - **Payment Processing**: Supports multiple providers (Stripe, PayPal, Square) with secure credential handling and flexible "Pay Now" / "Pay Later" options.
 - **Geolocation**: TomTom API for geocoding, address autocomplete, and coordinate conversion.
