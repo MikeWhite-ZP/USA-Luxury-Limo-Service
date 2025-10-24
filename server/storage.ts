@@ -160,7 +160,7 @@ export interface IStorage {
   // Admin Bookings Management
   getAllBookingsWithDetails(): Promise<any[]>;
   getActiveDrivers(): Promise<any[]>;
-  assignDriverToBooking(bookingId: string, driverId: string): Promise<Booking>;
+  assignDriverToBooking(bookingId: string, driverId: string, driverPayment?: string): Promise<Booking>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1061,24 +1061,33 @@ export class DatabaseStorage implements IStorage {
     return activeDriversData;
   }
 
-  async assignDriverToBooking(bookingId: string, driverId: string): Promise<Booking> {
-    // Get the booking first to calculate driver payment from total amount
+  async assignDriverToBooking(bookingId: string, driverId: string, driverPayment?: string): Promise<Booking> {
+    // Get the booking first
     const [booking] = await db.select().from(bookings).where(eq(bookings.id, bookingId));
     
     if (!booking) {
       throw new Error('Booking not found');
     }
     
-    // Calculate initial driver payment (70% of total amount as default)
-    // Admin/dispatcher can manually edit this later
-    const totalAmount = parseFloat(booking.totalAmount || '0');
-    const driverPaymentAmount = (totalAmount * 0.70).toFixed(2);
+    let finalDriverPayment: string;
+    
+    if (driverPayment) {
+      // Use manually provided driver payment
+      finalDriverPayment = driverPayment;
+    } else {
+      // Auto-calculate driver payment using system commission settings
+      const commissionSetting = await this.getSystemSetting('SYSTEM_COMMISSION_PERCENTAGE');
+      const commissionPercentage = parseFloat(commissionSetting?.value || '30');
+      const totalAmount = parseFloat(booking.totalAmount || '0');
+      const calculatedPayment = totalAmount * (1 - commissionPercentage / 100);
+      finalDriverPayment = calculatedPayment.toFixed(2);
+    }
     
     const [updatedBooking] = await db
       .update(bookings)
       .set({ 
         driverId,
-        driverPayment: driverPaymentAmount,
+        driverPayment: finalDriverPayment,
         updatedAt: new Date(),
       })
       .where(eq(bookings.id, bookingId))

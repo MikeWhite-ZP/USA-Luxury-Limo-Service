@@ -1299,13 +1299,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id } = req.params;
-      const { driverId } = req.body;
+      const { driverId, driverPayment } = req.body;
 
       if (!driverId) {
         return res.status(400).json({ error: 'Driver ID is required' });
       }
 
-      const updatedBooking = await storage.assignDriverToBooking(id, driverId);
+      const updatedBooking = await storage.assignDriverToBooking(id, driverId, driverPayment);
       
       // Return response immediately for fast UI feedback
       res.json(updatedBooking);

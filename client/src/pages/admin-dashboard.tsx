@@ -577,6 +577,9 @@ export default function AdminDashboard() {
   const [assignDriverDialogOpen, setAssignDriverDialogOpen] = useState(false);
   const [assigningBookingId, setAssigningBookingId] = useState<string | null>(null);
   const [selectedDriverForAssignment, setSelectedDriverForAssignment] = useState('');
+  const [calculatedDriverPayment, setCalculatedDriverPayment] = useState('');
+  const [manualDriverPayment, setManualDriverPayment] = useState('');
+  const [isManualPaymentOverride, setIsManualPaymentOverride] = useState(false);
   const [editDriverPaymentDialogOpen, setEditDriverPaymentDialogOpen] = useState(false);
   const [editingDriverPaymentBookingId, setEditingDriverPaymentBookingId] = useState<string | null>(null);
   const [newDriverPayment, setNewDriverPayment] = useState('');
@@ -718,6 +721,24 @@ export default function AdminDashboard() {
       setCommissionPercentage(systemCommission.percentage.toString());
     }
   }, [systemCommission]);
+
+  // Auto-calculate driver payment when driver is selected
+  useEffect(() => {
+    if (selectedDriverForAssignment && assigningBookingId && systemCommission) {
+      const booking = bookings?.find((b: any) => b.id === assigningBookingId);
+      if (booking && booking.totalAmount) {
+        const totalAmount = parseFloat(booking.totalAmount);
+        const commissionPct = systemCommission.percentage;
+        const calculatedPayment = totalAmount * (1 - commissionPct / 100);
+        setCalculatedDriverPayment(calculatedPayment.toFixed(2));
+        
+        // If not manually overridden, set the manual payment to calculated
+        if (!isManualPaymentOverride) {
+          setManualDriverPayment(calculatedPayment.toFixed(2));
+        }
+      }
+    }
+  }, [selectedDriverForAssignment, assigningBookingId, systemCommission, bookings, isManualPaymentOverride]);
 
   // Update single credential mutation
   const updateCredentialMutation = useMutation({
@@ -865,8 +886,11 @@ export default function AdminDashboard() {
 
   // Assign driver mutation
   const assignDriverMutation = useMutation({
-    mutationFn: async ({ bookingId, driverId }: { bookingId: string; driverId: string }) => {
-      const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/assign-driver`, { driverId });
+    mutationFn: async ({ bookingId, driverId, driverPayment }: { bookingId: string; driverId: string; driverPayment?: string }) => {
+      const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/assign-driver`, { 
+        driverId,
+        driverPayment 
+      });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to assign driver');
@@ -878,9 +902,12 @@ export default function AdminDashboard() {
       setAssignDriverDialogOpen(false);
       setAssigningBookingId(null);
       setSelectedDriverForAssignment('');
+      setCalculatedDriverPayment('');
+      setManualDriverPayment('');
+      setIsManualPaymentOverride(false);
       toast({
         title: "Driver Assigned",
-        description: "Driver has been successfully assigned to the booking.",
+        description: "Driver has been successfully assigned with payment amount.",
       });
     },
     onError: (error: Error) => {
@@ -2773,11 +2800,23 @@ export default function AdminDashboard() {
         </Card>
         )}
 
-        {/* Assign Driver Dialog */}
-        <Dialog open={assignDriverDialogOpen} onOpenChange={setAssignDriverDialogOpen}>
+        {/* Assign Driver Dialog - Unified with Payment Calculation */}
+        <Dialog open={assignDriverDialogOpen} onOpenChange={(open) => {
+          setAssignDriverDialogOpen(open);
+          if (!open) {
+            // Reset state when dialog closes
+            setSelectedDriverForAssignment('');
+            setCalculatedDriverPayment('');
+            setManualDriverPayment('');
+            setIsManualPaymentOverride(false);
+          }
+        }}>
           <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#ffffff]">
             <DialogHeader>
-              <DialogTitle>Assign Driver</DialogTitle>
+              <DialogTitle>Assign Driver & Set Payment</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                Select a driver and review the auto-calculated payment amount based on system commission settings.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -2795,6 +2834,70 @@ export default function AdminDashboard() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Show payment calculation when driver is selected */}
+              {selectedDriverForAssignment && calculatedDriverPayment && (
+                <div className="space-y-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">
+                      <p className="font-medium text-blue-900">Driver Payment</p>
+                      <p className="text-xs text-blue-600">
+                        Based on {systemCommission?.percentage}% system commission
+                      </p>
+                    </div>
+                    {isManualPaymentOverride && (
+                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                        Manual Override
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="driver-payment-amount">Payment Amount ($)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="driver-payment-amount"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={manualDriverPayment}
+                        onChange={(e) => {
+                          setManualDriverPayment(e.target.value);
+                          setIsManualPaymentOverride(true);
+                        }}
+                        placeholder="0.00"
+                        data-testid="input-driver-payment-unified"
+                      />
+                      {isManualPaymentOverride && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setManualDriverPayment(calculatedDriverPayment);
+                            setIsManualPaymentOverride(false);
+                          }}
+                          data-testid="button-reset-to-calculated"
+                          className="whitespace-nowrap"
+                        >
+                          Reset
+                        </Button>
+                      )}
+                    </div>
+                    {!isManualPaymentOverride && (
+                      <p className="text-xs text-blue-600">
+                        Auto-calculated amount. You can edit if needed.
+                      </p>
+                    )}
+                    {isManualPaymentOverride && (
+                      <p className="text-xs text-yellow-600">
+                        Original calculated: ${calculatedDriverPayment}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
@@ -2808,11 +2911,12 @@ export default function AdminDashboard() {
                     if (assigningBookingId && selectedDriverForAssignment) {
                       assignDriverMutation.mutate({
                         bookingId: assigningBookingId,
-                        driverId: selectedDriverForAssignment
+                        driverId: selectedDriverForAssignment,
+                        driverPayment: manualDriverPayment || undefined
                       });
                     }
                   }}
-                  disabled={!selectedDriverForAssignment || assignDriverMutation.isPending}
+                  disabled={!selectedDriverForAssignment || !manualDriverPayment || assignDriverMutation.isPending}
                   data-testid="button-confirm-assign"
                 >
                   {assignDriverMutation.isPending ? 'Assigning...' : 'Assign Driver'}
