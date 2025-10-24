@@ -1,0 +1,426 @@
+import { useState, useRef } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { queryClient, apiRequest } from '@/lib/queryClient';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, Upload, Image as ImageIcon, Trash2, Edit2, FolderOpen, X } from 'lucide-react';
+
+type CmsMedia = {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: number;
+  folder: 'logos' | 'hero-images' | 'vehicles' | 'testimonials' | 'general';
+  altText: string;
+  description: string;
+  width: number | null;
+  height: number | null;
+  uploadedBy: string;
+  uploadedAt: string;
+};
+
+type FolderType = 'all' | 'logos' | 'hero-images' | 'vehicles' | 'testimonials' | 'general';
+
+export default function MediaLibrary() {
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFolder, setSelectedFolder] = useState<FolderType>('all');
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState<CmsMedia | null>(null);
+  const [uploadFolder, setUploadFolder] = useState<'logos' | 'hero-images' | 'vehicles' | 'testimonials' | 'general'>('general');
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Fetch all media
+  const { data: allMedia, isLoading } = useQuery<CmsMedia[]>({
+    queryKey: ['/api/admin/cms/media'],
+  });
+
+  // Filter media by folder
+  const displayedMedia = selectedFolder === 'all' 
+    ? allMedia 
+    : allMedia?.filter(m => m.folder === selectedFolder);
+
+  // Upload mutation
+  const uploadMedia = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await fetch('/api/admin/cms/media/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Upload failed');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
+      setUploadDialogOpen(false);
+      toast({
+        title: 'Success',
+        description: 'Media uploaded successfully',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Error',
+        description: 'Failed to upload media',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Update mutation
+  const updateMedia = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<CmsMedia> }) => {
+      return apiRequest(`/api/admin/cms/media/${id}`, 'PUT', data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
+      setEditDialogOpen(false);
+      toast({
+        title: 'Success',
+        description: 'Media updated successfully',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Error',
+        description: 'Failed to update media',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Delete mutation
+  const deleteMedia = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest(`/api/admin/cms/media/${id}`, 'DELETE');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
+      toast({
+        title: 'Success',
+        description: 'Media deleted successfully',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete media',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Handle file upload
+  const handleFileUpload = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', uploadFolder);
+    formData.append('altText', '');
+    formData.append('description', '');
+
+    uploadMedia.mutate(formData);
+  };
+
+  // Handle drag and drop
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFileUpload(e.dataTransfer.files);
+  };
+
+  // Format file size
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  // Folder labels
+  const folderLabels: Record<FolderType, string> = {
+    all: 'All Media',
+    logos: 'Logos',
+    'hero-images': 'Hero Images',
+    vehicles: 'Vehicles',
+    testimonials: 'Testimonials',
+    general: 'General',
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header with Upload Button */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold" data-testid="title-media-library">Media Library</h3>
+          <p className="text-sm text-muted-foreground">Manage your website images and files</p>
+        </div>
+        <Button onClick={() => setUploadDialogOpen(true)} data-testid="button-upload-media">
+          <Upload className="w-4 h-4 mr-2" />
+          Upload Media
+        </Button>
+      </div>
+
+      {/* Folder Tabs */}
+      <Tabs value={selectedFolder} onValueChange={(v) => setSelectedFolder(v as FolderType)}>
+        <TabsList className="grid w-full grid-cols-6" data-testid="tabs-folders">
+          <TabsTrigger value="all" data-testid="tab-all">All ({allMedia?.length || 0})</TabsTrigger>
+          <TabsTrigger value="logos" data-testid="tab-logos">Logos</TabsTrigger>
+          <TabsTrigger value="hero-images" data-testid="tab-hero-images">Hero</TabsTrigger>
+          <TabsTrigger value="vehicles" data-testid="tab-vehicles">Vehicles</TabsTrigger>
+          <TabsTrigger value="testimonials" data-testid="tab-testimonials">Testimonials</TabsTrigger>
+          <TabsTrigger value="general" data-testid="tab-general">General</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value={selectedFolder} className="space-y-4 mt-4">
+          {/* Media Grid */}
+          {displayedMedia && displayedMedia.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="grid-media">
+              {displayedMedia.map((media) => (
+                <Card key={media.id} className="overflow-hidden group relative" data-testid={`card-media-${media.id}`}>
+                  {/* Image Preview */}
+                  <div className="aspect-square bg-muted flex items-center justify-center overflow-hidden">
+                    {media.fileType.startsWith('image/') ? (
+                      <img
+                        src={media.fileUrl}
+                        alt={media.altText || media.fileName}
+                        className="w-full h-full object-cover"
+                        data-testid={`img-preview-${media.id}`}
+                      />
+                    ) : (
+                      <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                    )}
+                  </div>
+
+                  {/* Overlay with Actions */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => {
+                        setSelectedMedia(media);
+                        setEditDialogOpen(true);
+                      }}
+                      data-testid={`button-edit-${media.id}`}
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        if (confirm('Are you sure you want to delete this media?')) {
+                          deleteMedia.mutate(media.id);
+                        }
+                      }}
+                      data-testid={`button-delete-${media.id}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  {/* Media Info */}
+                  <CardContent className="p-3">
+                    <p className="text-sm font-medium truncate" data-testid={`text-filename-${media.id}`}>
+                      {media.fileName}
+                    </p>
+                    <p className="text-xs text-muted-foreground" data-testid={`text-filesize-${media.id}`}>
+                      {formatFileSize(media.fileSize)}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground" data-testid="empty-state">
+              <FolderOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p className="text-lg font-medium">No media in {folderLabels[selectedFolder]}</p>
+              <p className="text-sm mt-2">Upload some files to get started</p>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      {/* Upload Dialog */}
+      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent data-testid="dialog-upload">
+          <DialogHeader>
+            <DialogTitle>Upload Media</DialogTitle>
+            <DialogDescription>Choose a folder and upload your file</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Folder Selection */}
+            <div className="space-y-2">
+              <Label>Folder</Label>
+              <Select value={uploadFolder} onValueChange={(v: any) => setUploadFolder(v)}>
+                <SelectTrigger data-testid="select-upload-folder">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="logos">Logos</SelectItem>
+                  <SelectItem value="hero-images">Hero Images</SelectItem>
+                  <SelectItem value="vehicles">Vehicles</SelectItem>
+                  <SelectItem value="testimonials">Testimonials</SelectItem>
+                  <SelectItem value="general">General</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Drag and Drop Area */}
+            <div
+              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              data-testid="dropzone-upload"
+            >
+              <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-sm font-medium">Drag and drop a file here</p>
+              <p className="text-xs text-muted-foreground mt-1">or click to browse</p>
+              <Input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e.target.files)}
+                className="hidden"
+                data-testid="input-file-upload"
+              />
+            </div>
+          </div>
+
+          {uploadMedia.isPending && (
+            <div className="flex items-center justify-center gap-2 text-sm" data-testid="status-uploading">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Uploading...</span>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent data-testid="dialog-edit" key={selectedMedia?.id || 'new'}>
+          <DialogHeader>
+            <DialogTitle>Edit Media</DialogTitle>
+            <DialogDescription>Update media information</DialogDescription>
+          </DialogHeader>
+
+          {selectedMedia && (
+            <div className="space-y-4">
+              {/* Preview */}
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center">
+                {selectedMedia.fileType.startsWith('image/') ? (
+                  <img
+                    src={selectedMedia.fileUrl}
+                    alt={selectedMedia.altText}
+                    className="max-w-full max-h-full object-contain"
+                    data-testid="img-edit-preview"
+                  />
+                ) : (
+                  <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                )}
+              </div>
+
+              {/* Alt Text - Controlled */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-alt-text">Alt Text</Label>
+                <Input
+                  id="edit-alt-text"
+                  data-testid="input-edit-alt-text"
+                  value={selectedMedia.altText}
+                  placeholder="Descriptive text for screen readers"
+                  onChange={(e) => {
+                    if (selectedMedia) {
+                      setSelectedMedia({ ...selectedMedia, altText: e.target.value });
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Description - Controlled */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  data-testid="input-edit-description"
+                  value={selectedMedia.description}
+                  placeholder="Additional notes about this media"
+                  rows={3}
+                  onChange={(e) => {
+                    if (selectedMedia) {
+                      setSelectedMedia({ ...selectedMedia, description: e.target.value });
+                    }
+                  }}
+                />
+              </div>
+
+              {/* File Info */}
+              <div className="text-xs text-muted-foreground space-y-1" data-testid="text-file-info">
+                <p>File: {selectedMedia.fileName}</p>
+                <p>Size: {formatFileSize(selectedMedia.fileSize)}</p>
+                <p>Type: {selectedMedia.fileType}</p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)} data-testid="button-cancel-edit">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (selectedMedia) {
+                  updateMedia.mutate({
+                    id: selectedMedia.id,
+                    data: {
+                      altText: selectedMedia.altText,
+                      description: selectedMedia.description,
+                    },
+                  });
+                }
+              }}
+              disabled={updateMedia.isPending}
+              data-testid="button-save-edit"
+            >
+              {updateMedia.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

@@ -17,6 +17,7 @@ import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { AdminSMSSettings } from "@/components/admin-sms-settings";
 import BrandSettings from "@/components/BrandSettings";
+import MediaLibrary from "@/components/MediaLibrary";
 
 interface DashboardStats {
   totalRevenue: string;
@@ -2556,11 +2557,7 @@ export default function AdminDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <Image className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p className="text-lg font-medium">Media Management Coming Soon</p>
-                <p className="text-sm mt-2">Manage logos, images, and other media assets for the website.</p>
-              </div>
+              <MediaLibrary />
             </CardContent>
           </Card>
         )}
