@@ -18,6 +18,8 @@ import {
   Percent,
   LogOut,
   Mail,
+  FileText,
+  Image,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -26,9 +28,10 @@ interface AdminNavProps {
   onUserManagerClick?: (type: 'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin') => void;
   onBookingsClick?: () => void;
   onSettingsClick?: (section: 'commission' | 'email' | 'sms') => void;
+  onCMSClick?: (section: 'pages' | 'media') => void;
 }
 
-export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onSettingsClick }: AdminNavProps) {
+export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onSettingsClick, onCMSClick }: AdminNavProps) {
   const [location, setLocation] = useLocation();
   const { logoutMutation } = useAuth();
 
@@ -239,6 +242,48 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 >
                   <MessageSquare className="w-4 h-4 mr-2" />
                   SMS Notifications
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                  data-testid="nav-cms"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  CMS
+                  <ChevronDown className="w-4 h-4 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="bg-[#ffffff]">
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location !== '/admin-dashboard') {
+                      setLocation('/admin-dashboard');
+                    }
+                    setTimeout(() => onCMSClick?.('pages'), 100);
+                  }}
+                  className="hover:bg-black hover:text-white cursor-pointer"
+                  data-testid="nav-cms-pages"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Pages
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location !== '/admin-dashboard') {
+                      setLocation('/admin-dashboard');
+                    }
+                    setTimeout(() => onCMSClick?.('media'), 100);
+                  }}
+                  className="hover:bg-black hover:text-white cursor-pointer"
+                  data-testid="nav-cms-media"
+                >
+                  <Image className="w-4 h-4 mr-2" />
+                  Media & Images
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

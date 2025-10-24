@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, Pencil, FileText, Plane, Search } from "lucide-react";
+import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, ArrowRight, Key, Edit2, Trash2, Plus, Check, X, Pencil, FileText, Plane, Search, Image } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { AdminSMSSettings } from "@/components/admin-sms-settings";
@@ -523,6 +523,7 @@ export default function AdminDashboard() {
   const [loadingValue, setLoadingValue] = useState(false);
   const [visibleCredentialsSection, setVisibleCredentialsSection] = useState<'api' | 'payment' | null>(null);
   const [visibleSettingsSection, setVisibleSettingsSection] = useState<'commission' | 'email' | 'sms' | null>(null);
+  const [visibleCMSSection, setVisibleCMSSection] = useState<'pages' | 'media' | null>(null);
   const [showBookings, setShowBookings] = useState(false);
   const [selectedUserType, setSelectedUserType] = useState<'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin'>('all');
   const [showUserManager, setShowUserManager] = useState(false);
@@ -1989,6 +1990,7 @@ export default function AdminDashboard() {
         onCredentialsClick={(section) => {
           setVisibleCredentialsSection(section);
           setVisibleSettingsSection(null);
+          setVisibleCMSSection(null);
           setShowUserManager(false);
           setShowBookings(false);
           setTimeout(() => {
@@ -2001,12 +2003,14 @@ export default function AdminDashboard() {
           setShowUserManager(true);
           setVisibleCredentialsSection(null);
           setVisibleSettingsSection(null);
+          setVisibleCMSSection(null);
           setShowBookings(false);
           setTimeout(() => document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
         }}
         onBookingsClick={() => {
           setVisibleCredentialsSection(null);
           setVisibleSettingsSection(null);
+          setVisibleCMSSection(null);
           setShowUserManager(false);
           setShowBookings(true);
           setTimeout(() => document.getElementById('bookings-section')?.scrollIntoView({ behavior: 'smooth' }), 100);
@@ -2014,10 +2018,21 @@ export default function AdminDashboard() {
         onSettingsClick={(section) => {
           setVisibleSettingsSection(section);
           setVisibleCredentialsSection(null);
+          setVisibleCMSSection(null);
           setShowUserManager(false);
           setShowBookings(false);
           setTimeout(() => {
             document.getElementById('settings-section')?.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        }}
+        onCMSClick={(section) => {
+          setVisibleCMSSection(section);
+          setVisibleCredentialsSection(null);
+          setVisibleSettingsSection(null);
+          setShowUserManager(false);
+          setShowBookings(false);
+          setTimeout(() => {
+            document.getElementById('cms-section')?.scrollIntoView({ behavior: 'smooth' });
           }, 100);
         }}
       />
@@ -2514,6 +2529,44 @@ export default function AdminDashboard() {
 
         {/* SMS Settings */}
         {visibleSettingsSection === 'sms' && <AdminSMSSettings />}
+
+        {/* CMS - Pages Management */}
+        {visibleCMSSection === 'pages' && (
+          <Card id="cms-section" data-testid="cms-pages-management" className="rounded-lg border text-card-foreground shadow-sm bg-[#f2f1e1] mt-[5px] mb-[5px]">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <FileText className="w-5 h-5" />
+                <span>Pages Management</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12 text-muted-foreground">
+                <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium">CMS Pages Management Coming Soon</p>
+                <p className="text-sm mt-2">Manage homepage content, about page, and other website pages.</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* CMS - Media Management */}
+        {visibleCMSSection === 'media' && (
+          <Card id="cms-section" data-testid="cms-media-management" className="rounded-lg border text-card-foreground shadow-sm bg-[#f2f1e1] mt-[5px] mb-[5px]">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Image className="w-5 h-5" />
+                <span>Media & Images Management</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12 text-muted-foreground">
+                <Image className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium">Media Management Coming Soon</p>
+                <p className="text-sm mt-2">Manage logos, images, and other media assets for the website.</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Bookings Management */}
         {showBookings && (
