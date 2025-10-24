@@ -1017,16 +1017,8 @@ export class DatabaseStorage implements IStorage {
               driverProfileImageUrl = driverUser.profileImageUrl;
             }
             
-            // Get driver's vehicle plate
-            const [vehicle] = await db
-              .select()
-              .from(vehicles)
-              .where(eq(vehicles.driverId, driver.id))
-              .limit(1);
-            
-            if (vehicle) {
-              driverVehiclePlate = vehicle.licensePlate;
-            }
+            // Get driver's vehicle plate from drivers table
+            driverVehiclePlate = driver.vehiclePlate;
           }
         }
         

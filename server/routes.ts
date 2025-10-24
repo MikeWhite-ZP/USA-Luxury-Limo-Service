@@ -1643,7 +1643,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id } = req.params;
-      const { role, isActive, payLaterEnabled, discountType, discountValue, firstName, lastName, email, phone } = req.body;
+      const { role, isActive, payLaterEnabled, discountType, discountValue, firstName, lastName, email, phone, vehiclePlate } = req.body;
       
       const updates: Partial<User> = {};
       if (role !== undefined) updates.role = role;
@@ -1679,7 +1679,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!existingDriver) {
           await storage.createDriver({
             userId: id,
+            vehiclePlate: vehiclePlate || null,
           });
+        } else if (vehiclePlate !== undefined) {
+          // Update vehicle plate for existing driver
+          await storage.updateDriver(existingDriver.id, { vehiclePlate });
         }
       }
       
@@ -1699,7 +1703,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Admin access required' });
       }
 
-      const { firstName, lastName, email, phone, role, isActive, payLaterEnabled } = req.body;
+      const { firstName, lastName, email, phone, role, isActive, payLaterEnabled, vehiclePlate } = req.body;
       
       if (!firstName || !email) {
         return res.status(400).json({ message: 'First name and email are required' });
@@ -1729,6 +1733,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (role === 'driver') {
         await storage.createDriver({
           userId: newUser.id,
+          vehiclePlate: vehiclePlate || null,
         });
       }
       
@@ -1885,6 +1890,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Update driver credentials error:', error);
       res.status(500).json({ message: 'Failed to update credentials' });
+    }
+  });
+
+  app.patch('/api/driver/vehicle-plate', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      const { vehiclePlate } = req.body;
+      if (typeof vehiclePlate !== 'string') {
+        return res.status(400).json({ message: 'vehiclePlate must be a string' });
+      }
+
+      const updatedDriver = await storage.updateDriver(driver.id, { vehiclePlate });
+      res.json(updatedDriver);
+    } catch (error) {
+      console.error('Update driver vehicle plate error:', error);
+      res.status(500).json({ message: 'Failed to update vehicle plate' });
     }
   });
 

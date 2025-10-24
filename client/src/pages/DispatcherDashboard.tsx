@@ -577,6 +577,12 @@ export default function DispatcherDashboard() {
                                   <span>Email:</span>
                                   <span className="font-medium text-xs">{driver.email}</span>
                                 </div>
+                                {driver.vehiclePlate && (
+                                  <div className="flex items-center justify-between">
+                                    <span>Vehicle Plate:</span>
+                                    <span className="font-medium font-mono bg-gray-100 px-2 py-0.5 rounded">{driver.vehiclePlate}</span>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           );

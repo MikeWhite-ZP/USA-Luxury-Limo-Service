@@ -64,6 +64,7 @@ export const drivers = pgTable("drivers", {
   licenseExpiry: timestamp("license_expiry"),
   licenseDocumentUrl: varchar("license_document_url"),
   insuranceDocumentUrl: varchar("insurance_document_url"),
+  vehiclePlate: varchar("vehicle_plate"), // Vehicle license plate number
   driverCredentials: varchar("driver_credentials"), // Additional credentials to share with passengers
   backgroundCheckStatus: varchar("background_check_status", { 
     enum: ["pending", "approved", "rejected"] 

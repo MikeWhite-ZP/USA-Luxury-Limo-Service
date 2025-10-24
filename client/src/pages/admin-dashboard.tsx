@@ -542,6 +542,7 @@ export default function AdminDashboard() {
     payLaterEnabled: false,
     discountType: null as 'percentage' | 'fixed' | null,
     discountValue: '0',
+    vehiclePlate: '', // For drivers
   });
 
   // Payment configuration dialog state
@@ -1661,6 +1662,7 @@ export default function AdminDashboard() {
       payLaterEnabled: false,
       discountType: null,
       discountValue: '0',
+      vehiclePlate: '',
     });
     setUserDialogOpen(true);
   };
@@ -1677,6 +1679,7 @@ export default function AdminDashboard() {
       payLaterEnabled: user.payLaterEnabled,
       discountType: user.discountType as 'percentage' | 'fixed' | null,
       discountValue: user.discountValue || '0',
+      vehiclePlate: (user as any).driverInfo?.vehiclePlate || '',
     });
     setUserDialogOpen(true);
   };
@@ -4052,6 +4055,22 @@ export default function AdminDashboard() {
                 data-testid="input-user-phone"
               />
             </div>
+
+            {userFormData.role === 'driver' && (
+              <div className="space-y-2">
+                <Label htmlFor="user-vehicle-plate">Vehicle Plate Number</Label>
+                <Input
+                  id="user-vehicle-plate"
+                  placeholder="ABC123"
+                  value={userFormData.vehiclePlate}
+                  onChange={(e) => setUserFormData({ ...userFormData, vehiclePlate: e.target.value })}
+                  data-testid="input-user-vehicle-plate"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Vehicle license plate number assigned to this driver
+                </p>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="user-role">Role *</Label>

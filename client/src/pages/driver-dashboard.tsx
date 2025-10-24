@@ -18,6 +18,7 @@ interface DriverData {
   licenseExpiry?: string;
   licenseDocumentUrl?: string;
   insuranceDocumentUrl?: string;
+  vehiclePlate?: string;
   backgroundCheckStatus: 'pending' | 'approved' | 'rejected';
   verificationStatus: 'pending' | 'verified' | 'rejected';
   rating: string;
@@ -59,6 +60,8 @@ export default function DriverDashboard() {
   const [activeTab, setActiveTab] = useState<'home' | 'documents' | 'assigned-jobs' | 'settings'>('home');
   const [editingCredentials, setEditingCredentials] = useState(false);
   const [credentialsValue, setCredentialsValue] = useState('');
+  const [editingVehiclePlate, setEditingVehiclePlate] = useState(false);
+  const [vehiclePlateValue, setVehiclePlateValue] = useState('');
   
   // Document upload state with expiration dates
   const [documentForms, setDocumentForms] = useState({
@@ -91,10 +94,13 @@ export default function DriverDashboard() {
     enabled: isAuthenticated && user?.role === 'driver',
   });
 
-  // Initialize credentials value when driver data loads
+  // Initialize credentials and vehicle plate values when driver data loads
   useEffect(() => {
     if (driver?.driverCredentials) {
       setCredentialsValue(driver.driverCredentials);
+    }
+    if (driver?.vehiclePlate) {
+      setVehiclePlateValue(driver.vehiclePlate);
     }
   }, [driver]);
 
@@ -223,6 +229,33 @@ export default function DriverDashboard() {
       toast({
         title: "Error",
         description: error.message || "Failed to update credentials",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update driver vehicle plate mutation
+  const updateVehiclePlateMutation = useMutation({
+    mutationFn: async (vehiclePlate: string) => {
+      const response = await apiRequest('PATCH', '/api/driver/vehicle-plate', { vehiclePlate });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update vehicle plate');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/driver/profile'] });
+      setEditingVehiclePlate(false);
+      toast({
+        title: "Vehicle Plate Updated",
+        description: "Your vehicle plate has been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update vehicle plate",
         variant: "destructive",
       });
     },
@@ -887,6 +920,61 @@ export default function DriverDashboard() {
                 <div>
                   <Label>License Number</Label>
                   <Input value={driver?.licenseNumber || 'Not provided'} disabled data-testid="setting-license" />
+                </div>
+                <div className="pt-2">
+                  <div className="flex justify-between items-center mb-2">
+                    <Label htmlFor="vehicle-plate">Vehicle Plate Number</Label>
+                    {!editingVehiclePlate ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setEditingVehiclePlate(true)}
+                        data-testid="button-edit-vehicle-plate"
+                      >
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingVehiclePlate(false);
+                            setVehiclePlateValue(driver?.vehiclePlate || '');
+                          }}
+                          data-testid="button-cancel-vehicle-plate"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => updateVehiclePlateMutation.mutate(vehiclePlateValue)}
+                          disabled={updateVehiclePlateMutation.isPending}
+                          data-testid="button-save-vehicle-plate"
+                        >
+                          {updateVehiclePlateMutation.isPending ? 'Saving...' : 'Save'}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  {editingVehiclePlate ? (
+                    <Input
+                      id="vehicle-plate"
+                      value={vehiclePlateValue}
+                      onChange={(e) => setVehiclePlateValue(e.target.value)}
+                      placeholder="Enter vehicle plate number (e.g., ABC123)"
+                      className="font-mono"
+                      data-testid="input-vehicle-plate"
+                    />
+                  ) : (
+                    <p className="text-sm p-2 bg-muted rounded-md font-mono" data-testid="text-vehicle-plate">
+                      {driver?.vehiclePlate || 'No vehicle plate added yet'}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Your vehicle plate number will be shared with passengers when you are assigned to their booking.
+                  </p>
                 </div>
                 <div>
                   <Label>Rating</Label>
