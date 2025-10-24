@@ -16,6 +16,7 @@ import { TrendingUp, Users, Car, Star, Settings, MessageSquare, DollarSign, Arro
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { AdminSMSSettings } from "@/components/admin-sms-settings";
+import BrandSettings from "@/components/BrandSettings";
 
 interface DashboardStats {
   totalRevenue: string;
@@ -2540,11 +2541,7 @@ export default function AdminDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p className="text-lg font-medium">CMS Pages Management Coming Soon</p>
-                <p className="text-sm mt-2">Manage homepage content, about page, and other website pages.</p>
-              </div>
+              <BrandSettings />
             </CardContent>
           </Card>
         )}
