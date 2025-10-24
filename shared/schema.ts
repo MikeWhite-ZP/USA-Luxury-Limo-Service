@@ -492,6 +492,80 @@ export const insertDriverRatingSchema = createInsertSchema(driverRatings).omit({
   rating: z.number().min(1).max(5).int(), // 1-5 stars validation
 });
 
+// CMS Settings - Brand settings (logos, colors, social media, etc.)
+export const cmsSettingCategoryEnum = ["branding", "colors", "social", "contact", "seo"] as const;
+export type CmsSettingCategory = typeof cmsSettingCategoryEnum[number];
+
+export const cmsSettings = pgTable("cms_settings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  key: varchar("key").notNull().unique(), // e.g., 'logo_main', 'color_primary', 'social_facebook'
+  value: text("value"), // Value or URL
+  category: varchar("category", {
+    enum: cmsSettingCategoryEnum
+  }).notNull(),
+  description: text("description"), // Human-readable description of what this setting controls
+  updatedBy: varchar("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// CMS Content Blocks - Editable content sections
+export const contentBlockEnum = ["hero", "about", "services", "contact", "footer", "testimonial"] as const;
+export type ContentBlockType = typeof contentBlockEnum[number];
+
+export const cmsContent = pgTable("cms_content", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  blockType: varchar("block_type", { enum: contentBlockEnum }).notNull(),
+  identifier: varchar("identifier").notNull(), // e.g., 'hero_main', 'about_company', allows multiple of same type
+  title: varchar("title"), // Block title
+  content: text("content"), // Rich text content
+  metadata: jsonb("metadata"), // Additional structured data (CTA button text, links, etc.)
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0), // For ordering multiple blocks of same type
+  updatedBy: varchar("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// CMS Media Library - Uploaded images and files
+export const mediaFolderEnum = ["logos", "hero-images", "vehicles", "testimonials", "general"] as const;
+export type MediaFolder = typeof mediaFolderEnum[number];
+
+export const cmsMedia = pgTable("cms_media", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  fileName: varchar("file_name").notNull(),
+  fileUrl: text("file_url").notNull(), // Object storage URL
+  fileType: varchar("file_type").notNull(), // MIME type
+  fileSize: integer("file_size"), // Size in bytes
+  folder: varchar("folder", { enum: mediaFolderEnum }).default("general"),
+  altText: text("alt_text"), // For accessibility
+  description: text("description"),
+  width: integer("width"), // Image dimensions
+  height: integer("height"),
+  uploadedBy: varchar("uploaded_by").references(() => users.id).notNull(),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Insert schemas for CMS
+export const insertCmsSettingSchema = createInsertSchema(cmsSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCmsContentSchema = createInsertSchema(cmsContent).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCmsMediaSchema = createInsertSchema(cmsMedia).omit({
+  id: true,
+  createdAt: true,
+  uploadedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -517,3 +591,9 @@ export type DriverDocument = typeof driverDocuments.$inferSelect;
 export type InsertDriverDocument = z.infer<typeof insertDriverDocumentSchema>;
 export type DriverRating = typeof driverRatings.$inferSelect;
 export type InsertDriverRating = z.infer<typeof insertDriverRatingSchema>;
+export type CmsSetting = typeof cmsSettings.$inferSelect;
+export type InsertCmsSetting = z.infer<typeof insertCmsSettingSchema>;
+export type CmsContent = typeof cmsContent.$inferSelect;
+export type InsertCmsContent = z.infer<typeof insertCmsContentSchema>;
+export type CmsMedia = typeof cmsMedia.$inferSelect;
+export type InsertCmsMedia = z.infer<typeof insertCmsMediaSchema>;

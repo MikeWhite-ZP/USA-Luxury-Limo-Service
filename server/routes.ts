@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, hashPassword, comparePasswords } from "./auth";
-import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertDriverDocumentSchema, type User, vehicles } from "@shared/schema";
+import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertDriverDocumentSchema, insertCmsSettingSchema, insertCmsContentSchema, insertCmsMediaSchema, type User, vehicles } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
 import multer from "multer";
@@ -57,6 +57,28 @@ const upload = multer({
     }
   }
 });
+
+// Admin-only middleware to avoid repeated user lookups
+const requireAdmin = async (req: any, res: any, next: any) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    const user = await storage.getUser(userId);
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    // Attach user to request for downstream use
+    req.adminUser = user;
+    next();
+  } catch (error) {
+    console.error('Admin middleware error:', error);
+    res.status(500).json({ message: 'Authorization check failed' });
+  }
+};
 
 // TomTom API integration functions with standardized key retrieval
 // Priority: Database settings first, then environment variables as fallback
@@ -3523,6 +3545,307 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false, 
         message: 'SMS test failed. Please check your Twilio configuration.' 
       });
+    }
+  });
+
+  // ========================================
+  // CMS API Routes
+  // ========================================
+
+  // CMS Settings Routes
+  app.get('/api/admin/cms/settings', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const settings = await storage.getCmsSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error('Get CMS settings error:', error);
+      res.status(500).json({ message: 'Failed to fetch CMS settings' });
+    }
+  });
+
+  app.get('/api/admin/cms/settings/category/:category', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { category } = req.params;
+      const settings = await storage.getCmsSettingsByCategory(category as any);
+      res.json(settings);
+    } catch (error) {
+      console.error('Get CMS settings by category error:', error);
+      res.status(500).json({ message: 'Failed to fetch CMS settings' });
+    }
+  });
+
+  app.put('/api/admin/cms/settings', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const userId = req.adminUser.id;
+      
+      // Validate request body
+      const validationResult = insertCmsSettingSchema.safeParse({
+        ...req.body,
+        updatedBy: userId,
+      });
+
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: 'Invalid setting data', 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const setting = await storage.upsertCmsSetting(validationResult.data);
+      res.json(setting);
+    } catch (error) {
+      console.error('Upsert CMS setting error:', error);
+      res.status(500).json({ message: 'Failed to save CMS setting' });
+    }
+  });
+
+  app.delete('/api/admin/cms/settings/:key', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { key } = req.params;
+      await storage.deleteCmsSetting(key);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete CMS setting error:', error);
+      res.status(500).json({ message: 'Failed to delete CMS setting' });
+    }
+  });
+
+  // CMS Content Routes
+  app.get('/api/admin/cms/content', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      // Return all content (including inactive) for admin management
+      const content = await storage.getCmsContent(false);
+      res.json(content);
+    } catch (error) {
+      console.error('Get CMS content error:', error);
+      res.status(500).json({ message: 'Failed to fetch CMS content' });
+    }
+  });
+
+  app.get('/api/admin/cms/content/:id', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const content = await storage.getCmsContentById(id);
+      
+      if (!content) {
+        return res.status(404).json({ message: 'Content not found' });
+      }
+
+      res.json(content);
+    } catch (error) {
+      console.error('Get CMS content by ID error:', error);
+      res.status(500).json({ message: 'Failed to fetch CMS content' });
+    }
+  });
+
+  app.get('/api/admin/cms/content/type/:blockType', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { blockType } = req.params;
+      // Return all content (including inactive) for admin management
+      const content = await storage.getCmsContentByType(blockType as any, false);
+      res.json(content);
+    } catch (error) {
+      console.error('Get CMS content by type error:', error);
+      res.status(500).json({ message: 'Failed to fetch CMS content' });
+    }
+  });
+
+  app.post('/api/admin/cms/content', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const userId = req.adminUser.id;
+      
+      // Validate request body
+      const validationResult = insertCmsContentSchema.safeParse({
+        ...req.body,
+        updatedBy: userId,
+      });
+
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: 'Invalid content data', 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const content = await storage.createCmsContent(validationResult.data);
+      res.json(content);
+    } catch (error) {
+      console.error('Create CMS content error:', error);
+      res.status(500).json({ message: 'Failed to create CMS content' });
+    }
+  });
+
+  app.put('/api/admin/cms/content/:id', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const userId = req.adminUser.id;
+      const { id } = req.params;
+      
+      // Validate request body (allow partial updates)
+      const validationResult = insertCmsContentSchema.partial().safeParse({
+        ...req.body,
+        updatedBy: userId,
+      });
+
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: 'Invalid content data', 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const content = await storage.updateCmsContent(id, validationResult.data);
+      
+      if (!content) {
+        return res.status(404).json({ message: 'Content not found' });
+      }
+
+      res.json(content);
+    } catch (error) {
+      console.error('Update CMS content error:', error);
+      res.status(500).json({ message: 'Failed to update CMS content' });
+    }
+  });
+
+  app.delete('/api/admin/cms/content/:id', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteCmsContent(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete CMS content error:', error);
+      res.status(500).json({ message: 'Failed to delete CMS content' });
+    }
+  });
+
+  // CMS Media Routes
+  app.get('/api/admin/cms/media', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const media = await storage.getCmsMedia();
+      res.json(media);
+    } catch (error) {
+      console.error('Get CMS media error:', error);
+      res.status(500).json({ message: 'Failed to fetch CMS media' });
+    }
+  });
+
+  app.get('/api/admin/cms/media/folder/:folder', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { folder } = req.params;
+      const media = await storage.getCmsMediaByFolder(folder as any);
+      res.json(media);
+    } catch (error) {
+      console.error('Get CMS media by folder error:', error);
+      res.status(500).json({ message: 'Failed to fetch CMS media' });
+    }
+  });
+
+  app.post('/api/admin/cms/media/upload', isAuthenticated, requireAdmin, upload.single('file'), async (req: any, res) => {
+    try {
+      const userId = req.adminUser.id;
+
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      const { folder = 'general', altText, description } = req.body;
+      
+      // Generate unique filename
+      const timestamp = Date.now();
+      const fileExtension = req.file.originalname.split('.').pop();
+      const fileName = `cms-${folder}-${timestamp}.${fileExtension}`;
+      const filePath = `/cms/${folder}/${fileName}`;
+
+      // Upload to Object Storage
+      const objStorage = getObjectStorage();
+      const { ok, error } = await objStorage.uploadFromBytes(filePath, req.file.buffer);
+      
+      if (!ok) {
+        console.error('Upload to Object Storage failed:', error);
+        return res.status(500).json({ message: `Upload failed: ${error}` });
+      }
+
+      // Get public URL
+      const fileUrl = `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'http://localhost:5000'}${filePath}`;
+
+      // Validate media metadata with Zod
+      const validationResult = insertCmsMediaSchema.safeParse({
+        fileName: req.file.originalname,
+        fileUrl,
+        fileType: req.file.mimetype,
+        fileSize: req.file.size,
+        folder: folder as any,
+        altText: altText || '',
+        description: description || '',
+        uploadedBy: userId,
+      });
+
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: 'Invalid media data', 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const media = await storage.createCmsMedia(validationResult.data);
+      res.json(media);
+    } catch (error) {
+      console.error('Upload CMS media error:', error);
+      res.status(500).json({ message: 'Failed to upload media' });
+    }
+  });
+
+  app.put('/api/admin/cms/media/:id', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Validate request body (allow partial updates)
+      const validationResult = insertCmsMediaSchema.partial().safeParse(req.body);
+
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: 'Invalid media data', 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const media = await storage.updateCmsMedia(id, validationResult.data);
+      
+      if (!media) {
+        return res.status(404).json({ message: 'Media not found' });
+      }
+
+      res.json(media);
+    } catch (error) {
+      console.error('Update CMS media error:', error);
+      res.status(500).json({ message: 'Failed to update media' });
+    }
+  });
+
+  app.delete('/api/admin/cms/media/:id', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Get media to get file path for deletion
+      const media = await storage.getCmsMediaById(id);
+      
+      if (media) {
+        // Delete from Object Storage
+        try {
+          const objStorage = getObjectStorage();
+          const urlPath = new URL(media.fileUrl).pathname;
+          await objStorage.delete(urlPath);
+        } catch (storageError) {
+          console.error('Object storage deletion error:', storageError);
+          // Continue with database deletion even if storage deletion fails
+        }
+      }
+      
+      // Delete from database
+      await storage.deleteCmsMedia(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete CMS media error:', error);
+      res.status(500).json({ message: 'Failed to delete media' });
     }
   });
 

@@ -34,6 +34,18 @@ import {
   type DriverRating,
   type InsertDriverRating,
   driverRatings,
+  type CmsSetting,
+  type InsertCmsSetting,
+  cmsSettings,
+  type CmsContent,
+  type InsertCmsContent,
+  cmsContent,
+  type CmsMedia,
+  type InsertCmsMedia,
+  cmsMedia,
+  type CmsSettingCategory,
+  type ContentBlockType,
+  type MediaFolder,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -161,6 +173,30 @@ export interface IStorage {
   getAllBookingsWithDetails(): Promise<any[]>;
   getActiveDrivers(): Promise<any[]>;
   assignDriverToBooking(bookingId: string, driverId: string, driverPayment?: string): Promise<Booking>;
+  
+  // CMS Settings
+  getCmsSettings(): Promise<CmsSetting[]>;
+  getCmsSetting(key: string): Promise<CmsSetting | undefined>;
+  getCmsSettingsByCategory(category: CmsSettingCategory): Promise<CmsSetting[]>;
+  upsertCmsSetting(setting: InsertCmsSetting): Promise<CmsSetting>;
+  deleteCmsSetting(key: string): Promise<void>;
+  
+  // CMS Content
+  getCmsContent(activeOnly?: boolean): Promise<CmsContent[]>;
+  getCmsContentById(id: string): Promise<CmsContent | undefined>;
+  getCmsContentByType(blockType: ContentBlockType, activeOnly?: boolean): Promise<CmsContent[]>;
+  getCmsContentByIdentifier(identifier: string): Promise<CmsContent | undefined>;
+  createCmsContent(content: InsertCmsContent): Promise<CmsContent>;
+  updateCmsContent(id: string, updates: Partial<InsertCmsContent>): Promise<CmsContent | undefined>;
+  deleteCmsContent(id: string): Promise<void>;
+  
+  // CMS Media
+  getCmsMedia(): Promise<CmsMedia[]>;
+  getCmsMediaById(id: string): Promise<CmsMedia | undefined>;
+  getCmsMediaByFolder(folder: MediaFolder): Promise<CmsMedia[]>;
+  createCmsMedia(media: InsertCmsMedia): Promise<CmsMedia>;
+  updateCmsMedia(id: string, updates: Partial<InsertCmsMedia>): Promise<CmsMedia | undefined>;
+  deleteCmsMedia(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1090,6 +1126,130 @@ export class DatabaseStorage implements IStorage {
     }
     
     return updatedBooking;
+  }
+
+  // CMS Settings Methods
+  async getCmsSettings(): Promise<CmsSetting[]> {
+    return await db.select().from(cmsSettings).orderBy(cmsSettings.key);
+  }
+
+  async getCmsSetting(key: string): Promise<CmsSetting | undefined> {
+    const [setting] = await db.select().from(cmsSettings).where(eq(cmsSettings.key, key));
+    return setting;
+  }
+
+  async getCmsSettingsByCategory(category: CmsSettingCategory): Promise<CmsSetting[]> {
+    return await db.select().from(cmsSettings).where(eq(cmsSettings.category, category));
+  }
+
+  async upsertCmsSetting(setting: InsertCmsSetting): Promise<CmsSetting> {
+    const [result] = await db
+      .insert(cmsSettings)
+      .values({
+        ...setting,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: cmsSettings.key,
+        set: {
+          value: setting.value,
+          category: setting.category,
+          description: setting.description,
+          updatedBy: setting.updatedBy,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return result;
+  }
+
+  async deleteCmsSetting(key: string): Promise<void> {
+    await db.delete(cmsSettings).where(eq(cmsSettings.key, key));
+  }
+
+  // CMS Content Methods
+  async getCmsContent(activeOnly: boolean = false): Promise<CmsContent[]> {
+    const query = db.select().from(cmsContent);
+    if (activeOnly) {
+      return await query.where(eq(cmsContent.isActive, true)).orderBy(cmsContent.sortOrder);
+    }
+    return await query.orderBy(cmsContent.sortOrder);
+  }
+
+  async getCmsContentById(id: string): Promise<CmsContent | undefined> {
+    const [content] = await db.select().from(cmsContent).where(eq(cmsContent.id, id));
+    return content;
+  }
+
+  async getCmsContentByType(blockType: ContentBlockType, activeOnly: boolean = false): Promise<CmsContent[]> {
+    if (activeOnly) {
+      return await db.select().from(cmsContent).where(and(eq(cmsContent.blockType, blockType), eq(cmsContent.isActive, true))).orderBy(cmsContent.sortOrder);
+    }
+    return await db.select().from(cmsContent).where(eq(cmsContent.blockType, blockType)).orderBy(cmsContent.sortOrder);
+  }
+
+  async getCmsContentByIdentifier(identifier: string): Promise<CmsContent | undefined> {
+    const [content] = await db.select().from(cmsContent).where(eq(cmsContent.identifier, identifier));
+    return content;
+  }
+
+  async createCmsContent(content: InsertCmsContent): Promise<CmsContent> {
+    const [result] = await db.insert(cmsContent).values({
+      ...content,
+      updatedAt: new Date(),
+    }).returning();
+    return result;
+  }
+
+  async updateCmsContent(id: string, updates: Partial<InsertCmsContent>): Promise<CmsContent | undefined> {
+    const [result] = await db
+      .update(cmsContent)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(cmsContent.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteCmsContent(id: string): Promise<void> {
+    await db.delete(cmsContent).where(eq(cmsContent.id, id));
+  }
+
+  // CMS Media Methods
+  async getCmsMedia(): Promise<CmsMedia[]> {
+    return await db.select().from(cmsMedia).orderBy(desc(cmsMedia.uploadedAt));
+  }
+
+  async getCmsMediaById(id: string): Promise<CmsMedia | undefined> {
+    const [media] = await db.select().from(cmsMedia).where(eq(cmsMedia.id, id));
+    return media;
+  }
+
+  async getCmsMediaByFolder(folder: MediaFolder): Promise<CmsMedia[]> {
+    return await db.select().from(cmsMedia).where(eq(cmsMedia.folder, folder)).orderBy(desc(cmsMedia.uploadedAt));
+  }
+
+  async createCmsMedia(media: InsertCmsMedia): Promise<CmsMedia> {
+    const [result] = await db.insert(cmsMedia).values({
+      ...media,
+      uploadedAt: new Date(),
+    }).returning();
+    return result;
+  }
+
+  async updateCmsMedia(id: string, updates: Partial<InsertCmsMedia>): Promise<CmsMedia | undefined> {
+    const [result] = await db
+      .update(cmsMedia)
+      .set(updates)
+      .where(eq(cmsMedia.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteCmsMedia(id: string): Promise<void> {
+    await db.delete(cmsMedia).where(eq(cmsMedia.id, id));
   }
 }
 
