@@ -261,6 +261,28 @@ export const bookings = pgTable("bookings", {
   flightArrival: varchar("flight_arrival"),
   noFlightInfo: boolean("no_flight_info").default(false),
   
+  // Journey tracking fields
+  bookedBy: varchar("booked_by", { enum: ["admin", "passenger"] }),
+  bookedAt: timestamp("booked_at"),
+  confirmedAt: timestamp("confirmed_at"),
+  assignedAt: timestamp("assigned_at"),
+  acceptedAt: timestamp("accepted_at"),
+  acceptedLocation: jsonb("accepted_location").$type<{lat: number; lng: number; timestamp: string}>(),
+  startedAt: timestamp("started_at"),
+  startedLocation: jsonb("started_location").$type<{lat: number; lng: number; timestamp: string}>(),
+  dodAt: timestamp("dod_at"), // Driver On Destination
+  dodLocation: jsonb("dod_location").$type<{lat: number; lng: number; timestamp: string}>(),
+  pobAt: timestamp("pob_at"), // Passenger On Board
+  pobLocation: jsonb("pob_location").$type<{lat: number; lng: number; timestamp: string}>(),
+  endedAt: timestamp("ended_at"),
+  endedLocation: jsonb("ended_location").$type<{lat: number; lng: number; timestamp: string}>(),
+  paymentAt: timestamp("payment_at"),
+  cancelledAt: timestamp("cancelled_at"),
+  cancelReason: text("cancel_reason"),
+  noShow: boolean("no_show").default(false),
+  refundInvoiceSent: boolean("refund_invoice_sent").default(false),
+  markedCompletedAt: timestamp("marked_completed_at"),
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
