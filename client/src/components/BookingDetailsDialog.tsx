@@ -1165,7 +1165,7 @@ export function BookingDetailsDialog({
                     <div className="space-y-2 pt-4 border-t">
                       <Button 
                         variant="outline" 
-                        className="w-full"
+                        className="w-full bg-[orange]"
                         data-testid="button-authorize-payment"
                       >
                         Authorize & Capture
