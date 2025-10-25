@@ -20,7 +20,8 @@ import {
   FileText,
   CheckCircle2,
   AlertCircle,
-  XCircle
+  XCircle,
+  Plus
 } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
 import L from 'leaflet';
@@ -451,6 +452,67 @@ export function BookingDetailsDialog({
                     required={true}
                     data-testid="input-pickup-address"
                   />
+
+                  {/* Via Points Section */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label>Via Points (Optional)</Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const newViaPoints = [...(formData.viaPoints || []), { address: '', lat: 0, lon: 0 }];
+                          setFormData({ ...formData, viaPoints: newViaPoints });
+                        }}
+                        data-testid="button-add-via-point"
+                        className="text-xs bg-[#84c6f0]"
+                      >
+                        <Plus className="w-3 h-3 mr-1" />
+                        Add Via Point
+                      </Button>
+                    </div>
+                    
+                    {formData.viaPoints && formData.viaPoints.length > 0 && (
+                      <div className="space-y-3">
+                        {formData.viaPoints.map((viaPoint, index) => (
+                          <div key={index} className="relative">
+                            <AddressAutocomplete
+                              id={`via-point-${index}`}
+                              label={`Via Point ${index + 1}`}
+                              value={viaPoint.address}
+                              onChange={(value, coords) => {
+                                const newViaPoints = [...formData.viaPoints];
+                                newViaPoints[index] = {
+                                  address: value,
+                                  lat: coords?.lat || 0,
+                                  lon: coords?.lon || 0,
+                                };
+                                setFormData({ ...formData, viaPoints: newViaPoints });
+                              }}
+                              placeholder="Enter via point address"
+                              userId={formData.passengerId}
+                              required={false}
+                              data-testid={`input-via-point-${index}`}
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                const newViaPoints = formData.viaPoints.filter((_, i) => i !== index);
+                                setFormData({ ...formData, viaPoints: newViaPoints });
+                              }}
+                              className="absolute top-0 right-0 text-red-600 hover:text-red-800 hover:bg-red-50"
+                              data-testid={`button-remove-via-point-${index}`}
+                            >
+                              <XCircle className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
                   {/* Destination Address with Saved Addresses */}
                   <AddressAutocomplete
