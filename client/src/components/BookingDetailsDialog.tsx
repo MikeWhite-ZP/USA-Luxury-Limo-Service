@@ -869,7 +869,7 @@ export function BookingDetailsDialog({
             <div className="mb-6">
               <Card className="bg-blue-50">
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
+                  <CardTitle className="text-lg flex items-center gap-2 text-[#ff0000]">
                     <Car className="w-5 h-5" />
                     Dispatch Job
                   </CardTitle>
