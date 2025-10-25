@@ -78,7 +78,7 @@ interface BookingFormData {
   pickupCoords: { lat: number; lon: number } | null;
   destinationAddress: string;
   destinationCoords: { lat: number; lon: number } | null;
-  viaPoints?: ViaPoint[];
+  viaPoints: ViaPoint[];
   scheduledDateTime: string;
   totalAmount: string;
   requestedHours: string;
@@ -94,7 +94,7 @@ interface BookingFormData {
   flightDepartureAirport: string;
   flightArrivalAirport: string;
   specialInstructions: string;
-  status?: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
 }
 
 interface BookingDetailsDialogProps {

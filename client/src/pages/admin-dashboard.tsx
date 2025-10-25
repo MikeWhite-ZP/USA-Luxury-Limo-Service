@@ -1172,9 +1172,18 @@ export default function AdminDashboard() {
   // Create/Update booking mutation
   const saveBookingMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Transform string values to numbers for schema validation
+      const transformedData = {
+        ...data,
+        // Convert totalAmount to number
+        totalAmount: data.totalAmount ? parseFloat(data.totalAmount) : undefined,
+        // Convert requestedHours to number (only for hourly bookings)
+        requestedHours: data.requestedHours ? parseInt(data.requestedHours) : undefined,
+      };
+      
       const method = editingBooking ? 'PATCH' : 'POST';
       const url = editingBooking ? `/api/admin/bookings/${editingBooking.id}` : '/api/admin/bookings';
-      const response = await apiRequest(method, url, data);
+      const response = await apiRequest(method, url, transformedData);
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || `Failed to ${editingBooking ? 'update' : 'create'} booking`);
@@ -1197,6 +1206,7 @@ export default function AdminDashboard() {
         status: 'pending',
         pickupCoords: null,
         destinationCoords: null,
+        viaPoints: [],
         requestedHours: '2',
         bookingFor: 'self',
         passengerName: '',
