@@ -898,7 +898,7 @@ export function BookingDetailsDialog({
                   {/* Driver Assignment */}
                   <div>
                     <Label>Driver</Label>
-                    {selectedDriverId && editingBooking?.driverId && !isChangingDriver ? (
+                    {editingBooking?.driverId && !isChangingDriver ? (
                       <div className="space-y-2">
                         <div className="flex items-center gap-3 p-3 border rounded-lg bg-white">
                           {editingBooking.driverProfileImageUrl ? (
@@ -1027,8 +1027,8 @@ export function BookingDetailsDialog({
                     )}
                   </div>
 
-                  {/* Driver Payment */}
-                  {selectedDriverId && (
+                  {/* Driver Payment - Only show when selecting driver for new booking */}
+                  {selectedDriverId && !editingBooking?.driverId && (
                     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                       <Label>Driver Payment</Label>
                       <div className="flex gap-2 mt-2">

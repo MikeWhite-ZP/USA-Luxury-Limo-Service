@@ -1625,6 +1625,15 @@ export default function AdminDashboard() {
     });
     setCalculatedPrice('');
     
+    // Set driver information if already assigned
+    if (booking.driverId) {
+      setSelectedDriverForAssignment(booking.driverId);
+      setManualDriverPayment(booking.driverPayment?.toString() || '');
+    } else {
+      setSelectedDriverForAssignment('');
+      setManualDriverPayment('');
+    }
+    
     // Restore flight information if available
     // Note: Backend returns snake_case field names from database
     console.log('✈️ CHECKING FOR FLIGHT DATA IN BOOKING');
