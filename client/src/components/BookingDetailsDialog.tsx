@@ -803,57 +803,216 @@ export function BookingDetailsDialog({
                     <CardTitle className="text-lg text-[#ff0000]">Journey Log</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+                    <div className="space-y-2 text-xs">
+                      {/* Booked By */}
+                      {editingBooking.bookedBy && (
                         <div>
-                          <p className="font-medium text-sm">Booking Created</p>
-                          <p className="text-xs text-gray-500">Admin created the booking</p>
-                        </div>
-                      </div>
-                      {editingBooking.status === 'confirmed' || editingBooking.status === 'in_progress' || editingBooking.status === 'completed' ? (
-                        <div className="flex items-start gap-3">
-                          <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
-                          <div>
-                            <p className="font-medium text-sm">Booking Confirmed</p>
-                            <p className="text-xs text-gray-500">Passenger confirmed the booking</p>
-                          </div>
-                        </div>
-                      ) : null}
-                      {editingBooking.driverId && (
-                        <div className="flex items-start gap-3">
-                          <Car className="w-5 h-5 text-blue-600 mt-0.5" />
-                          <div>
-                            <p className="font-medium text-sm">Driver Assigned</p>
-                            <p className="text-xs text-gray-500">Driver has been assigned to this job</p>
-                          </div>
+                          <span className="font-semibold">Booked By: </span>
+                          <span className="capitalize">{editingBooking.bookedBy}</span>
                         </div>
                       )}
-                      {editingBooking.status === 'in_progress' || editingBooking.status === 'completed' ? (
-                        <div className="flex items-start gap-3">
-                          <Navigation className="w-5 h-5 text-blue-600 mt-0.5" />
-                          <div>
-                            <p className="font-medium text-sm">Trip Started</p>
-                            <p className="text-xs text-gray-500">Driver started the journey</p>
-                          </div>
-                        </div>
-                      ) : null}
-                      {editingBooking.status === 'completed' && (
-                        <div className="flex items-start gap-3">
-                          <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
-                          <div>
-                            <p className="font-medium text-sm">Trip Completed</p>
-                            <p className="text-xs text-gray-500">Journey completed successfully</p>
-                          </div>
+
+                      {/* Booked At */}
+                      {editingBooking.bookedAt && (
+                        <div>
+                          <span className="font-semibold">Booked At: </span>
+                          <span>{new Date(editingBooking.bookedAt).toLocaleString('en-US', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          })}</span>
                         </div>
                       )}
+
+                      {/* Booking Confirmed */}
+                      {editingBooking.confirmedAt && (
+                        <div>
+                          <span className="font-semibold">Booking Confirmed: </span>
+                          <span>{new Date(editingBooking.confirmedAt).toLocaleString('en-US', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          })}</span>
+                        </div>
+                      )}
+
+                      {/* Job Assigned */}
+                      {editingBooking.assignedAt && (
+                        <div>
+                          <span className="font-semibold">Job Assigned: </span>
+                          <span>{new Date(editingBooking.assignedAt).toLocaleString('en-US', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          })}</span>
+                        </div>
+                      )}
+
+                      {/* Job Accepted */}
+                      {editingBooking.acceptedAt && (
+                        <div>
+                          <span className="font-semibold">Job Accepted: </span>
+                          <span>{new Date(editingBooking.acceptedAt).toLocaleString('en-US', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          })}</span>
+                          {editingBooking.acceptedLocation && typeof editingBooking.acceptedLocation === 'object' && (
+                            <span className="text-blue-600 ml-1">
+                              ({editingBooking.acceptedLocation.lat}, {editingBooking.acceptedLocation.lng})
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Start At */}
+                      {editingBooking.startedAt && (
+                        <div>
+                          <span className="font-semibold">Start At: </span>
+                          <span>{new Date(editingBooking.startedAt).toLocaleString('en-US', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          })}</span>
+                          {editingBooking.startedLocation && typeof editingBooking.startedLocation === 'object' && (
+                            <span className="text-blue-600 ml-1">
+                              ({editingBooking.startedLocation.lat}, {editingBooking.startedLocation.lng})
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* DOD - Driver On Destination */}
+                      {editingBooking.dodAt && (
+                        <div>
+                          <span className="font-semibold">DOD: </span>
+                          <span>{new Date(editingBooking.dodAt).toLocaleString('en-US', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          })}</span>
+                          {editingBooking.dodLocation && typeof editingBooking.dodLocation === 'object' && (
+                            <span className="text-blue-600 ml-1">
+                              ({editingBooking.dodLocation.lat}, {editingBooking.dodLocation.lng})
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* No Show */}
+                      {editingBooking.noShow && (
+                        <div className="text-red-600 font-semibold">
+                          No Show-up
+                        </div>
+                      )}
+
+                      {/* POB - Passenger On Board */}
+                      {editingBooking.pobAt && (
+                        <div>
+                          <span className="font-semibold">POB: </span>
+                          <span>{new Date(editingBooking.pobAt).toLocaleString('en-US', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          })}</span>
+                          {editingBooking.pobLocation && typeof editingBooking.pobLocation === 'object' && (
+                            <span className="text-blue-600 ml-1">
+                              ({editingBooking.pobLocation.lat}, {editingBooking.pobLocation.lng})
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Trip Ended */}
+                      {editingBooking.endedAt && (
+                        <div>
+                          <span className="font-semibold">Trip Ended: </span>
+                          <span>{new Date(editingBooking.endedAt).toLocaleString('en-US', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          })}</span>
+                          {editingBooking.endedLocation && typeof editingBooking.endedLocation === 'object' && (
+                            <span className="text-blue-600 ml-1">
+                              ({editingBooking.endedLocation.lat}, {editingBooking.endedLocation.lng})
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Payment */}
+                      {editingBooking.paymentAt && (
+                        <div>
+                          <span className="font-semibold">Payment: </span>
+                          <span>{new Date(editingBooking.paymentAt).toLocaleString('en-US', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          })}</span>
+                        </div>
+                      )}
+
+                      {/* Cancelled */}
                       {editingBooking.status === 'cancelled' && (
-                        <div className="flex items-start gap-3">
-                          <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
-                          <div>
-                            <p className="font-medium text-sm">Booking Cancelled</p>
-                            <p className="text-xs text-gray-500">This booking was cancelled</p>
-                          </div>
+                        <div className="text-red-600 font-semibold">
+                          Cancelled
+                        </div>
+                      )}
+
+                      {/* Cancel Reason */}
+                      {editingBooking.cancelReason && (
+                        <div>
+                          <span className="font-semibold">Cancel Reason: </span>
+                          <span>{editingBooking.cancelReason || '-'}</span>
+                        </div>
+                      )}
+
+                      {/* Refund Invoice */}
+                      {editingBooking.refundInvoiceSent && (
+                        <div className="text-green-600 font-semibold">
+                          Refund Invoice Sent
+                        </div>
+                      )}
+
+                      {/* Mark Completed */}
+                      {editingBooking.markedCompletedAt && (
+                        <div>
+                          <span className="font-semibold">Mark Completed: </span>
+                          <span>{new Date(editingBooking.markedCompletedAt).toLocaleString('en-US', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          })}</span>
                         </div>
                       )}
                     </div>

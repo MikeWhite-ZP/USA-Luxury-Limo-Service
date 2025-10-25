@@ -1028,6 +1028,27 @@ export class DatabaseStorage implements IStorage {
         flightAirline: bookings.flightAirline,
         flightDepartureAirport: bookings.flightDepartureAirport,
         flightArrivalAirport: bookings.flightArrivalAirport,
+        // Journey tracking fields
+        bookedBy: bookings.bookedBy,
+        bookedAt: bookings.bookedAt,
+        confirmedAt: bookings.confirmedAt,
+        assignedAt: bookings.assignedAt,
+        acceptedAt: bookings.acceptedAt,
+        acceptedLocation: bookings.acceptedLocation,
+        startedAt: bookings.startedAt,
+        startedLocation: bookings.startedLocation,
+        dodAt: bookings.dodAt,
+        dodLocation: bookings.dodLocation,
+        pobAt: bookings.pobAt,
+        pobLocation: bookings.pobLocation,
+        endedAt: bookings.endedAt,
+        endedLocation: bookings.endedLocation,
+        paymentAt: bookings.paymentAt,
+        cancelledAt: bookings.cancelledAt,
+        cancelReason: bookings.cancelReason,
+        noShow: bookings.noShow,
+        refundInvoiceSent: bookings.refundInvoiceSent,
+        markedCompletedAt: bookings.markedCompletedAt,
       })
       .from(bookings)
       .leftJoin(users, eq(bookings.passengerId, users.id))
