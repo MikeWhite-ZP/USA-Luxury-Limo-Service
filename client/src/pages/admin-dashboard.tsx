@@ -1022,7 +1022,7 @@ export default function AdminDashboard() {
 
       if (data.price) {
         setCalculatedPrice(data.price);
-        setBookingFormData({ ...bookingFormData, totalAmount: data.price });
+        setBookingFormData({ ...bookingFormData, totalAmount: String(data.price) });
         toast({
           title: "Price Calculated",
           description: `Total: $${data.price}`,
@@ -1172,12 +1172,11 @@ export default function AdminDashboard() {
   // Create/Update booking mutation
   const saveBookingMutation = useMutation({
     mutationFn: async (data: any) => {
-      // Transform string values to numbers for schema validation
+      // Transform string values to correct types for schema validation
       const transformedData = {
         ...data,
-        // Convert totalAmount to number
-        totalAmount: data.totalAmount ? parseFloat(data.totalAmount) : undefined,
-        // Convert requestedHours to number (only for hourly bookings)
+        // totalAmount stays as string (decimal type in schema)
+        // Only convert requestedHours to number (integer type in schema)
         requestedHours: data.requestedHours ? parseInt(data.requestedHours) : undefined,
       };
       
