@@ -3052,6 +3052,7 @@ export default function AdminDashboard() {
           userSearchQuery={userSearchQuery}
           setUserSearchQuery={setUserSearchQuery}
           selectedFlight={selectedFlight}
+          systemCommission={systemCommission}
           setSelectedFlight={setSelectedFlight}
           flightSearchInput={flightSearchInput}
           setFlightSearchInput={setFlightSearchInput}

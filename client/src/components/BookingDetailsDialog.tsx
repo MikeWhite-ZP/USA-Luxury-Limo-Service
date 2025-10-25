@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -122,6 +123,7 @@ interface BookingDetailsDialogProps {
   setFlightSearchInput: (input: string) => void;
   onFlightSearch: () => void;
   isSearchingFlight: boolean;
+  systemCommission?: { percentage: number; description: string } | null;
 }
 
 export function BookingDetailsDialog({
@@ -150,6 +152,7 @@ export function BookingDetailsDialog({
   setFlightSearchInput,
   onFlightSearch,
   isSearchingFlight,
+  systemCommission,
 }: BookingDetailsDialogProps) {
   
   // Calculate map center and route
@@ -227,6 +230,22 @@ export function BookingDetailsDialog({
 
   const distance = calculateDistance();
   const estimatedDuration = distance ? `${Math.ceil(parseFloat(distance) / 30)} hr ${Math.round((parseFloat(distance) / 30 % 1) * 60)} mins` : null;
+
+  // Auto-calculate driver payment when driver is selected or total amount changes
+  useEffect(() => {
+    if (selectedDriverId && formData.totalAmount && systemCommission) {
+      const totalAmount = parseFloat(formData.totalAmount);
+      if (!isNaN(totalAmount) && totalAmount > 0) {
+        const commissionPct = systemCommission.percentage;
+        const calculatedPayment = totalAmount * (1 - commissionPct / 100);
+        
+        // Only update if current driver payment is empty or different from calculated
+        if (!driverPayment || parseFloat(driverPayment) !== calculatedPayment) {
+          setDriverPayment(calculatedPayment.toFixed(2));
+        }
+      }
+    }
+  }, [selectedDriverId, formData.totalAmount, systemCommission]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -445,7 +464,7 @@ export function BookingDetailsDialog({
                     label="Pickup Address"
                     value={formData.pickupAddress}
                     onChange={(value, coords) => {
-                      setFormData({ ...formData, pickupAddress: value, pickupCoords: coords });
+                      setFormData({ ...formData, pickupAddress: value, pickupCoords: coords || null });
                     }}
                     placeholder="Enter pickup address"
                     userId={formData.passengerId}
@@ -482,7 +501,7 @@ export function BookingDetailsDialog({
                               label={`Via Point ${index + 1}`}
                               value={viaPoint.address}
                               onChange={(value, coords) => {
-                                const newViaPoints = [...formData.viaPoints];
+                                const newViaPoints = [...(formData.viaPoints || [])];
                                 newViaPoints[index] = {
                                   address: value,
                                   lat: coords?.lat || 0,
@@ -500,7 +519,7 @@ export function BookingDetailsDialog({
                               size="sm"
                               variant="ghost"
                               onClick={() => {
-                                const newViaPoints = formData.viaPoints.filter((_, i) => i !== index);
+                                const newViaPoints = (formData.viaPoints || []).filter((_, i) => i !== index);
                                 setFormData({ ...formData, viaPoints: newViaPoints });
                               }}
                               className="absolute top-0 right-0 text-red-600 hover:text-red-800 hover:bg-red-50"
@@ -520,7 +539,7 @@ export function BookingDetailsDialog({
                     label="Destination Address"
                     value={formData.destinationAddress}
                     onChange={(value, coords) => {
-                      setFormData({ ...formData, destinationAddress: value, destinationCoords: coords });
+                      setFormData({ ...formData, destinationAddress: value, destinationCoords: coords || null });
                     }}
                     placeholder={formData.bookingType === 'hourly' ? 'N/A for hourly service' : 'Enter destination address'}
                     userId={formData.passengerId}
