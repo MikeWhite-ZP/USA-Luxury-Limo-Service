@@ -20,7 +20,7 @@ export function Toaster() {
             key={id} 
             variant={variant}
             className={cn(
-              variant === "destructive" && "bg-[#c95759]"
+              variant === "destructive" ? "bg-[#c95759]" : "border text-foreground bg-[#00ff2b]"
             )}
             {...props}
           >

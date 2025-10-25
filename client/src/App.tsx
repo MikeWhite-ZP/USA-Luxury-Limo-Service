@@ -111,6 +111,7 @@ function Router() {
           {user?.role === 'passenger' && (
             <Route path="/passenger" component={PassengerDashboard} />
           )}
+          <Route component={NotFound} />
         </>
       )}
       <Route component={NotFound} />
