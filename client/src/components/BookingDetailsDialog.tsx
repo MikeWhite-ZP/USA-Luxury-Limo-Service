@@ -363,7 +363,7 @@ export function BookingDetailsDialog({
             <div className="space-y-4 mb-6">
               <Card>
                 <CardHeader className="flex flex-col space-y-1.5 p-6 text-[12px]">
-                  <CardTitle className="text-lg">Journey Details</CardTitle>
+                  <CardTitle className="text-lg text-[#ff0000]">Journey Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Passenger Selection */}
