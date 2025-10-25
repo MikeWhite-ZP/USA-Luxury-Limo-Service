@@ -732,7 +732,7 @@ export function BookingDetailsDialog({
               <div className="mb-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
+                    <CardTitle className="text-lg flex items-center gap-2 text-[#ff0000]">
                       <Plane className="w-5 h-5" />
                       Flight Information
                     </CardTitle>
@@ -800,7 +800,7 @@ export function BookingDetailsDialog({
               <div className="mb-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Journey Log</CardTitle>
+                    <CardTitle className="text-lg text-[#ff0000]">Journey Log</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
