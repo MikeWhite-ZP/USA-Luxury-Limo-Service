@@ -3067,6 +3067,10 @@ export default function AdminDashboard() {
           setFlightSearchInput={setFlightSearchInput}
           onFlightSearch={handleFlightSearch}
           isSearchingFlight={isSearchingFlight}
+          onAssignDriver={(bookingId, driverId, driverPayment) => {
+            assignDriverMutation.mutate({ bookingId, driverId, driverPayment });
+          }}
+          isAssigningDriver={assignDriverMutation.isPending}
         />
 
         {/* OLD BOOKING DIALOG - TEMPORARILY DISABLED (set open to false) */}

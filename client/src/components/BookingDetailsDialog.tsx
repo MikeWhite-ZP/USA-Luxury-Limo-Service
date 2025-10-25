@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -124,6 +124,8 @@ interface BookingDetailsDialogProps {
   onFlightSearch: () => void;
   isSearchingFlight: boolean;
   systemCommission?: { percentage: number; description: string } | null;
+  onAssignDriver?: (bookingId: string, driverId: string, driverPayment: string) => void;
+  isAssigningDriver?: boolean;
 }
 
 export function BookingDetailsDialog({
@@ -153,7 +155,14 @@ export function BookingDetailsDialog({
   onFlightSearch,
   isSearchingFlight,
   systemCommission,
+  onAssignDriver,
+  isAssigningDriver = false,
 }: BookingDetailsDialogProps) {
+  
+  // State for change driver mode
+  const [isChangingDriver, setIsChangingDriver] = useState(false);
+  const [tempSelectedDriverId, setTempSelectedDriverId] = useState('');
+  const [tempDriverPayment, setTempDriverPayment] = useState('');
   
   // Calculate map center and route
   const getMapConfig = () => {
@@ -889,30 +898,114 @@ export function BookingDetailsDialog({
                   {/* Driver Assignment */}
                   <div>
                     <Label>Driver</Label>
-                    {selectedDriverId && editingBooking?.driverId ? (
-                      <div className="flex items-center gap-3 p-3 border rounded-lg bg-white">
-                        {editingBooking.driverProfileImageUrl ? (
-                          <img 
-                            src={editingBooking.driverProfileImageUrl} 
-                            alt="Driver" 
-                            className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
-                            {editingBooking.driverFirstName?.[0]}{editingBooking.driverLastName?.[0]}
+                    {selectedDriverId && editingBooking?.driverId && !isChangingDriver ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3 p-3 border rounded-lg bg-white">
+                          {editingBooking.driverProfileImageUrl ? (
+                            <img 
+                              src={editingBooking.driverProfileImageUrl} 
+                              alt="Driver" 
+                              className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
+                              {editingBooking.driverFirstName?.[0]}{editingBooking.driverLastName?.[0]}
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <p className="font-semibold">{editingBooking.driverFirstName} {editingBooking.driverLastName}</p>
+                            {editingBooking.driverPhone && (
+                              <p className="text-sm text-gray-600">{editingBooking.driverPhone}</p>
+                            )}
+                            {editingBooking.driverVehiclePlate && (
+                              <p className="text-xs font-mono bg-gray-100 px-2 py-0.5 rounded inline-block mt-1">
+                                {editingBooking.driverVehiclePlate}
+                              </p>
+                            )}
+                            <Badge className="mt-1 bg-green-100 text-green-800">Assigned</Badge>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setIsChangingDriver(true);
+                            setTempSelectedDriverId('');
+                            setTempDriverPayment(driverPayment || '');
+                          }}
+                          className="w-full"
+                          data-testid="button-change-driver"
+                        >
+                          <Car className="w-4 h-4 mr-2" />
+                          Change Driver
+                        </Button>
+                      </div>
+                    ) : isChangingDriver ? (
+                      <div className="space-y-3">
+                        <Select
+                          value={tempSelectedDriverId}
+                          onValueChange={setTempSelectedDriverId}
+                        >
+                          <SelectTrigger data-testid="dispatch-driver-select-change">
+                            <SelectValue placeholder="Select new driver" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {activeDrivers?.map((driver) => (
+                              <SelectItem key={driver.id} value={driver.id}>
+                                {driver.firstName} {driver.lastName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        
+                        {tempSelectedDriverId && (
+                          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <Label className="text-xs">Driver Payment</Label>
+                            <div className="relative mt-1">
+                              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={tempDriverPayment}
+                                onChange={(e) => setTempDriverPayment(e.target.value)}
+                                placeholder="0.00"
+                                className="pl-9"
+                                data-testid="input-temp-driver-payment"
+                              />
+                            </div>
                           </div>
                         )}
-                        <div className="flex-1">
-                          <p className="font-semibold">{editingBooking.driverFirstName} {editingBooking.driverLastName}</p>
-                          {editingBooking.driverPhone && (
-                            <p className="text-sm text-gray-600">{editingBooking.driverPhone}</p>
-                          )}
-                          {editingBooking.driverVehiclePlate && (
-                            <p className="text-xs font-mono bg-gray-100 px-2 py-0.5 rounded inline-block mt-1">
-                              {editingBooking.driverVehiclePlate}
-                            </p>
-                          )}
-                          <Badge className="mt-1 bg-green-100 text-green-800">Assigned</Badge>
+                        
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              setIsChangingDriver(false);
+                              setTempSelectedDriverId('');
+                              setTempDriverPayment('');
+                            }}
+                            className="flex-1"
+                            disabled={isAssigningDriver}
+                            data-testid="button-cancel-change-driver"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              if (onAssignDriver && editingBooking && tempSelectedDriverId) {
+                                onAssignDriver(editingBooking.id, tempSelectedDriverId, tempDriverPayment);
+                                setIsChangingDriver(false);
+                              }
+                            }}
+                            disabled={!tempSelectedDriverId || isAssigningDriver}
+                            className="flex-1 bg-blue-600 hover:bg-blue-700"
+                            data-testid="button-save-change-driver"
+                          >
+                            {isAssigningDriver ? 'Assigning...' : 'Assign Driver'}
+                          </Button>
                         </div>
                       </div>
                     ) : (
