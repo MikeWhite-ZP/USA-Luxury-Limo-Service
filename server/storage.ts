@@ -1116,6 +1116,7 @@ export class DatabaseStorage implements IStorage {
       .set({ 
         driverId,
         driverPayment: finalDriverPayment,
+        assignedAt: new Date(),
         updatedAt: new Date(),
       })
       .where(eq(bookings.id, bookingId))

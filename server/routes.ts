@@ -539,6 +539,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const bookingData = insertBookingSchema.parse({
         ...req.body,
         passengerId: userId,
+        bookedBy: 'passenger',
+        bookedAt: new Date(),
       });
 
       const booking = await storage.createBooking(bookingData);
@@ -839,7 +841,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate and parse the booking data, allowing passengerId to be specified
       const bookingData = insertBookingSchema.parse(req.body);
 
-      const booking = await storage.createBooking(bookingData);
+      // Set journey tracking fields for admin-created bookings
+      const bookingWithTracking = {
+        ...bookingData,
+        bookedBy: 'admin' as const,
+        bookedAt: new Date(),
+      };
+
+      const booking = await storage.createBooking(bookingWithTracking);
       
       // Send booking confirmation email to passenger
       if (booking.passengerId) {
@@ -1939,6 +1948,144 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Update driver vehicle plate error:', error);
       res.status(500).json({ message: 'Failed to update vehicle plate' });
+    }
+  });
+
+  // Journey Tracking - Driver status updates with GPS
+  app.post('/api/driver/job/accept', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const { bookingId, lat, lng } = req.body;
+      if (!bookingId || typeof lat !== 'number' || typeof lng !== 'number') {
+        return res.status(400).json({ message: 'Booking ID and GPS coordinates required' });
+      }
+
+      const location = { lat, lng, timestamp: new Date().toISOString() };
+      const updatedBooking = await storage.updateBooking(bookingId, {
+        acceptedAt: new Date(),
+        acceptedLocation: location,
+      });
+
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Accept job error:', error);
+      res.status(500).json({ message: 'Failed to accept job' });
+    }
+  });
+
+  app.post('/api/driver/job/start', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const { bookingId, lat, lng } = req.body;
+      if (!bookingId || typeof lat !== 'number' || typeof lng !== 'number') {
+        return res.status(400).json({ message: 'Booking ID and GPS coordinates required' });
+      }
+
+      const location = { lat, lng, timestamp: new Date().toISOString() };
+      const updatedBooking = await storage.updateBooking(bookingId, {
+        startedAt: new Date(),
+        startedLocation: location,
+        status: 'in_progress',
+      });
+
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Start job error:', error);
+      res.status(500).json({ message: 'Failed to start job' });
+    }
+  });
+
+  app.post('/api/driver/job/dod', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const { bookingId, lat, lng } = req.body;
+      if (!bookingId || typeof lat !== 'number' || typeof lng !== 'number') {
+        return res.status(400).json({ message: 'Booking ID and GPS coordinates required' });
+      }
+
+      const location = { lat, lng, timestamp: new Date().toISOString() };
+      const updatedBooking = await storage.updateBooking(bookingId, {
+        dodAt: new Date(),
+        dodLocation: location,
+      });
+
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('DOD error:', error);
+      res.status(500).json({ message: 'Failed to update DOD' });
+    }
+  });
+
+  app.post('/api/driver/job/pob', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const { bookingId, lat, lng } = req.body;
+      if (!bookingId || typeof lat !== 'number' || typeof lng !== 'number') {
+        return res.status(400).json({ message: 'Booking ID and GPS coordinates required' });
+      }
+
+      const location = { lat, lng, timestamp: new Date().toISOString() };
+      const updatedBooking = await storage.updateBooking(bookingId, {
+        pobAt: new Date(),
+        pobLocation: location,
+      });
+
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('POB error:', error);
+      res.status(500).json({ message: 'Failed to update POB' });
+    }
+  });
+
+  app.post('/api/driver/job/end', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const { bookingId, lat, lng } = req.body;
+      if (!bookingId || typeof lat !== 'number' || typeof lng !== 'number') {
+        return res.status(400).json({ message: 'Booking ID and GPS coordinates required' });
+      }
+
+      const location = { lat, lng, timestamp: new Date().toISOString() };
+      const updatedBooking = await storage.updateBooking(bookingId, {
+        endedAt: new Date(),
+        endedLocation: location,
+        status: 'completed',
+      });
+
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('End job error:', error);
+      res.status(500).json({ message: 'Failed to end job' });
     }
   });
 
