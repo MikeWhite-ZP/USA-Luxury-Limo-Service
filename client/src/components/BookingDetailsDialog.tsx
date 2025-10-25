@@ -1172,7 +1172,7 @@ export function BookingDetailsDialog({
                       </Button>
                       <Button 
                         variant="outline" 
-                        className="w-full"
+                        className="w-full bg-[#e5a8a8]"
                         data-testid="button-send-proforma"
                       >
                         Send Proforma Invoice
