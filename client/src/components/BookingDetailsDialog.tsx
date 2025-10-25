@@ -600,7 +600,7 @@ export function BookingDetailsDialog({
             <div className="mb-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
+                  <CardTitle className="text-lg flex items-center gap-2 text-[#ff0000]">
                     <User className="w-5 h-5" />
                     Passenger & Luggage Details
                   </CardTitle>
@@ -1082,7 +1082,7 @@ export function BookingDetailsDialog({
               <Card>
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg flex items-center gap-2">
+                    <CardTitle className="text-lg flex items-center gap-2 text-[#ff0000]">
                       <FileText className="w-5 h-5" />
                       Invoice
                     </CardTitle>
