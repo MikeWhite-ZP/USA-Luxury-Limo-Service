@@ -933,7 +933,7 @@ export function BookingDetailsDialog({
                             setTempSelectedDriverId('');
                             setTempDriverPayment(driverPayment || '');
                           }}
-                          className="w-full"
+                          className="w-full bg-[#b1dee0]"
                           data-testid="button-change-driver"
                         >
                           <Car className="w-4 h-4 mr-2" />
