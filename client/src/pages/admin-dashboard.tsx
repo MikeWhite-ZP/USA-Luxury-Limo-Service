@@ -954,6 +954,82 @@ export default function AdminDashboard() {
     },
   });
 
+  // Journey tracking mutations
+  const toggleNoShowMutation = useMutation({
+    mutationFn: async ({ bookingId, noShow }: { bookingId: string; noShow: boolean }) => {
+      const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/no-show`, { noShow });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update no-show status');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      toast({
+        title: "No-Show Updated",
+        description: "No-show status has been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update no-show status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const sendRefundInvoiceMutation = useMutation({
+    mutationFn: async (bookingId: string) => {
+      const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/refund-invoice`, {});
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to send refund invoice');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      toast({
+        title: "Refund Invoice Sent",
+        description: "Refund invoice has been sent successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send refund invoice",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const markCompletedMutation = useMutation({
+    mutationFn: async (bookingId: string) => {
+      const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/mark-completed`, {});
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to mark booking as completed');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      toast({
+        title: "Booking Marked Completed",
+        description: "Booking has been marked as completed successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to mark booking as completed",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Calculate distance between two coordinates using Haversine formula
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
     const R = 3959; // Earth's radius in miles
@@ -3080,6 +3156,15 @@ export default function AdminDashboard() {
             assignDriverMutation.mutate({ bookingId, driverId, driverPayment });
           }}
           isAssigningDriver={assignDriverMutation.isPending}
+          onToggleNoShow={(bookingId, noShow) => {
+            toggleNoShowMutation.mutate({ bookingId, noShow });
+          }}
+          onSendRefundInvoice={(bookingId) => {
+            sendRefundInvoiceMutation.mutate(bookingId);
+          }}
+          onMarkCompleted={(bookingId) => {
+            markCompletedMutation.mutate(bookingId);
+          }}
         />
 
         {/* OLD BOOKING DIALOG - TEMPORARILY DISABLED (set open to false) */}

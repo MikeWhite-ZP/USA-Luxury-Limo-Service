@@ -1440,6 +1440,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin journey tracking endpoints
+  app.patch('/api/admin/bookings/:id/no-show', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const { noShow } = req.body;
+
+      const updatedBooking = await storage.updateBooking(id, {
+        noShow: noShow === true,
+      });
+
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Update no-show error:', error);
+      res.status(500).json({ message: 'Failed to update no-show status' });
+    }
+  });
+
+  app.patch('/api/admin/bookings/:id/refund-invoice', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+
+      const updatedBooking = await storage.updateBooking(id, {
+        refundInvoiceSent: true,
+      });
+
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Send refund invoice error:', error);
+      res.status(500).json({ message: 'Failed to send refund invoice' });
+    }
+  });
+
+  app.patch('/api/admin/bookings/:id/mark-completed', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+
+      const updatedBooking = await storage.updateBooking(id, {
+        markedCompletedAt: new Date(),
+      });
+
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Mark completed error:', error);
+      res.status(500).json({ message: 'Failed to mark booking as completed' });
+    }
+  });
+
   app.get('/api/admin/settings', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;

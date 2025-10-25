@@ -126,6 +126,9 @@ interface BookingDetailsDialogProps {
   systemCommission?: { percentage: number; description: string } | null;
   onAssignDriver?: (bookingId: string, driverId: string, driverPayment: string) => void;
   isAssigningDriver?: boolean;
+  onToggleNoShow?: (bookingId: string, noShow: boolean) => void;
+  onSendRefundInvoice?: (bookingId: string) => void;
+  onMarkCompleted?: (bookingId: string) => void;
 }
 
 export function BookingDetailsDialog({
@@ -157,6 +160,9 @@ export function BookingDetailsDialog({
   systemCommission,
   onAssignDriver,
   isAssigningDriver = false,
+  onToggleNoShow,
+  onSendRefundInvoice,
+  onMarkCompleted,
 }: BookingDetailsDialogProps) {
   
   // State for change driver mode
@@ -1015,6 +1021,58 @@ export function BookingDetailsDialog({
                           })}</span>
                         </div>
                       )}
+
+                      {/* Admin Actions */}
+                      <div className="mt-4 pt-4 border-t space-y-2">
+                        <p className="font-semibold text-sm mb-2">Admin Actions:</p>
+                        
+                        <Button
+                          type="button"
+                          variant={editingBooking.noShow ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            if (onToggleNoShow && editingBooking) {
+                              onToggleNoShow(editingBooking.id, !editingBooking.noShow);
+                            }
+                          }}
+                          className={`w-full ${editingBooking.noShow ? 'bg-red-600 hover:bg-red-700' : ''}`}
+                          data-testid="button-toggle-no-show"
+                        >
+                          {editingBooking.noShow ? 'Clear No-Show' : 'Mark No-Show'}
+                        </Button>
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (onSendRefundInvoice && editingBooking) {
+                              onSendRefundInvoice(editingBooking.id);
+                            }
+                          }}
+                          disabled={editingBooking.refundInvoiceSent}
+                          className="w-full"
+                          data-testid="button-send-refund-invoice"
+                        >
+                          {editingBooking.refundInvoiceSent ? 'Refund Invoice Sent' : 'Send Refund Invoice'}
+                        </Button>
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (onMarkCompleted && editingBooking) {
+                              onMarkCompleted(editingBooking.id);
+                            }
+                          }}
+                          disabled={!!editingBooking.markedCompletedAt}
+                          className="w-full"
+                          data-testid="button-mark-completed"
+                        >
+                          {editingBooking.markedCompletedAt ? 'Already Marked Completed' : 'Mark Completed'}
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
