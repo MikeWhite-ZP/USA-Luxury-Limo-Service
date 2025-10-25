@@ -47,25 +47,160 @@ export default function MobileDriverRideDetails() {
     retry: false,
   });
 
-  // Update booking status mutation
-  const updateStatusMutation = useMutation({
-    mutationFn: async (status: string) => {
-      const response = await apiRequest('PATCH', `/api/bookings/${id}/status`, { status });
+  // Helper function to get current GPS coordinates
+  const getCurrentLocation = (): Promise<{ lat: number; lng: number }> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported'));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          reject(error);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    });
+  };
+
+  // Journey event mutations
+  const acceptJobMutation = useMutation({
+    mutationFn: async () => {
+      const location = await getCurrentLocation();
+      const response = await apiRequest('POST', '/api/driver/job/accept', {
+        bookingId: id,
+        lat: location.lat,
+        lng: location.lng,
+      });
       return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/bookings', id] });
       queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/driver/profile'] });
       toast({
-        title: "Status Updated",
-        description: "Ride status has been updated successfully",
+        title: "Job Accepted",
+        description: "You have accepted this job",
       });
     },
     onError: (error: Error) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to update status",
+        description: error.message || "Failed to accept job. Please enable location access.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const startTripMutation = useMutation({
+    mutationFn: async () => {
+      const location = await getCurrentLocation();
+      const response = await apiRequest('POST', '/api/driver/job/start', {
+        bookingId: id,
+        lat: location.lat,
+        lng: location.lng,
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings', id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      toast({
+        title: "Trip Started",
+        description: "Trip has been started",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to start trip. Please enable location access.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const dodMutation = useMutation({
+    mutationFn: async () => {
+      const location = await getCurrentLocation();
+      const response = await apiRequest('POST', '/api/driver/job/dod', {
+        bookingId: id,
+        lat: location.lat,
+        lng: location.lng,
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings', id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      toast({
+        title: "Driver On Destination",
+        description: "You have arrived at the pickup location",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update DOD. Please enable location access.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const pobMutation = useMutation({
+    mutationFn: async () => {
+      const location = await getCurrentLocation();
+      const response = await apiRequest('POST', '/api/driver/job/pob', {
+        bookingId: id,
+        lat: location.lat,
+        lng: location.lng,
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings', id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      toast({
+        title: "Passenger On Board",
+        description: "Passenger is on board",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update POB. Please enable location access.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const endTripMutation = useMutation({
+    mutationFn: async () => {
+      const location = await getCurrentLocation();
+      const response = await apiRequest('POST', '/api/driver/job/end', {
+        bookingId: id,
+        lat: location.lat,
+        lng: location.lng,
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings', id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      toast({
+        title: "Trip Completed",
+        description: "Trip has been completed successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to end trip. Please enable location access.",
         variant: "destructive",
       });
     },
@@ -101,12 +236,60 @@ export default function MobileDriverRideDetails() {
     }
   };
 
-  const getStatusNextAction = (status: string) => {
-    switch (status) {
-      case 'confirmed': return { label: 'Start Ride', nextStatus: 'in_progress', icon: Clock };
-      case 'in_progress': return { label: 'Complete Ride', nextStatus: 'completed', icon: CheckCircle2 };
-      default: return null;
+  // Determine next journey action based on current booking data
+  const getNextJourneyAction = (booking: any) => {
+    // Check if driver has accepted the job
+    if (!booking.acceptedAt) {
+      return { 
+        label: 'Accept Job', 
+        mutation: acceptJobMutation,
+        icon: CheckCircle2,
+        color: 'bg-blue-600 hover:bg-blue-700'
+      };
     }
+    
+    // Check if trip has started
+    if (!booking.startedAt) {
+      return { 
+        label: 'Start Trip', 
+        mutation: startTripMutation,
+        icon: Clock,
+        color: 'bg-green-600 hover:bg-green-700'
+      };
+    }
+    
+    // Check if driver is on destination
+    if (!booking.dodAt) {
+      return { 
+        label: 'Driver On Destination', 
+        mutation: dodMutation,
+        icon: MapPin,
+        color: 'bg-purple-600 hover:bg-purple-700'
+      };
+    }
+    
+    // Check if passenger is on board
+    if (!booking.pobAt) {
+      return { 
+        label: 'Passenger On Board', 
+        mutation: pobMutation,
+        icon: User,
+        color: 'bg-yellow-600 hover:bg-yellow-700'
+      };
+    }
+    
+    // Check if trip has ended
+    if (!booking.endedAt) {
+      return { 
+        label: 'End Trip', 
+        mutation: endTripMutation,
+        icon: CheckCircle2,
+        color: 'bg-red-600 hover:bg-red-700'
+      };
+    }
+    
+    // Trip is completed
+    return null;
   };
 
   if (isLoading) {
@@ -143,7 +326,7 @@ export default function MobileDriverRideDetails() {
     );
   }
 
-  const nextAction = getStatusNextAction(booking.status);
+  const nextAction = getNextJourneyAction(booking);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white pb-6">
@@ -345,16 +528,16 @@ export default function MobileDriverRideDetails() {
           </CardContent>
         </Card>
 
-        {/* Status Action Button */}
+        {/* Journey Action Button */}
         {nextAction && (
           <Button
-            onClick={() => updateStatusMutation.mutate(nextAction.nextStatus)}
-            disabled={updateStatusMutation.isPending}
-            className="w-full bg-green-600 hover:bg-green-700 h-12 text-lg font-semibold shadow-lg"
-            data-testid={`button-${nextAction.nextStatus}`}
+            onClick={() => nextAction.mutation.mutate()}
+            disabled={nextAction.mutation.isPending}
+            className={`w-full ${nextAction.color} h-12 text-lg font-semibold shadow-lg`}
+            data-testid={`button-${nextAction.label.toLowerCase().replace(/\s+/g, '-')}`}
           >
             <nextAction.icon className="w-5 h-5 mr-2" />
-            {nextAction.label}
+            {nextAction.mutation.isPending ? 'Processing...' : nextAction.label}
           </Button>
         )}
       </div>
