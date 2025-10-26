@@ -500,7 +500,7 @@ export function BookingDetailsDialog({
                           setFormData({ ...formData, viaPoints: newViaPoints });
                         }}
                         data-testid="button-add-via-point"
-                        className="text-xs bg-[#84c6f0]"
+                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 text-xs text-[#ff0000] bg-[#ffffff]"
                       >
                         <Plus className="w-3 h-3 mr-1" />
                         Add Via Point
