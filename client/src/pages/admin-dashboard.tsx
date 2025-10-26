@@ -2610,7 +2610,7 @@ export default function AdminDashboard() {
             data-testid="stat-bookings"
           >
             <CardContent className="p-6 pl-[0px] pr-[0px] pt-[0px] pb-[0px] text-[12px]">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 pl-[24px] pr-[24px] pt-[24px] pb-[24px]">
                 <TrendingUp className="w-8 h-8 text-blue-600" />
                 <div>
                   <p className="text-sm text-muted-foreground">
