@@ -3185,7 +3185,7 @@ export default function AdminDashboard() {
             className="rounded-lg border text-card-foreground shadow-sm bg-[#f2f1e1] mt-[0px] mb-[0px]"
           >
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
+              <CardTitle className="flex items-center space-x-2 text-[#9e0202]">
                 <FileText className="w-5 h-5" />
                 <span>Pages Management</span>
               </CardTitle>
