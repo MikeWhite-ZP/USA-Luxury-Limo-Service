@@ -813,8 +813,7 @@ export function BookingDetailsDialog({
                       {/* Booked By */}
                       {editingBooking.bookedBy && (
                         <div>
-                          <span className="font-semibold">Booked By </span>
-                          <span className="capitalize">{editingBooking.bookedBy}</span>
+                          <span className="font-semibold">Booked By {editingBooking.bookedBy === 'admin' ? 'Admin' : editingBooking.bookedBy === 'passenger' ? 'Passenger' : editingBooking.bookedBy}</span>
                         </div>
                       )}
 
