@@ -2174,7 +2174,7 @@ export default function AdminDashboard() {
           </Card>
 
           <Card className="rounded-lg border text-card-foreground shadow-sm bg-[#ede2ca]" data-testid="stat-bookings">
-            <CardContent className="p-6">
+            <CardContent className="p-6 pl-[0px] pr-[0px] pt-[0px] pb-[0px] text-[12px]">
               <div className="flex items-center space-x-2">
                 <TrendingUp className="w-8 h-8 text-blue-600" />
                 <div>
@@ -2193,7 +2193,7 @@ export default function AdminDashboard() {
           </Card>
 
           <Card data-testid="stat-drivers">
-            <CardContent className="p-6 bg-[#c2d9f2]">
+            <CardContent className="p-6 bg-[#e6ecf5] pt-[0px] pb-[0px] pl-[0px] pr-[0px] text-[12px]">
               <div className="flex items-center space-x-2">
                 <Car className="w-8 h-8 text-primary" />
                 <div>
