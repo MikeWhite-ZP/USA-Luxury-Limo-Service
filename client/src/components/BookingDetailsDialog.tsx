@@ -813,7 +813,7 @@ export function BookingDetailsDialog({
                       {/* Booked By */}
                       {editingBooking.bookedBy && (
                         <div>
-                          <span className="font-semibold">Booked By: </span>
+                          <span className="font-semibold">Booked By </span>
                           <span className="capitalize">{editingBooking.bookedBy}</span>
                         </div>
                       )}
@@ -821,7 +821,7 @@ export function BookingDetailsDialog({
                       {/* Booked At */}
                       {editingBooking.bookedAt && (
                         <div>
-                          <span className="font-semibold">Booked At: </span>
+                          <span className="font-semibold">Booked At </span>
                           <span>{new Date(editingBooking.bookedAt).toLocaleString('en-US', {
                             month: '2-digit',
                             day: '2-digit',
@@ -836,7 +836,7 @@ export function BookingDetailsDialog({
                       {/* Booking Confirmed */}
                       {editingBooking.confirmedAt && (
                         <div>
-                          <span className="font-semibold">Booking Confirmed: </span>
+                          <span className="font-semibold">Booking Confirmed </span>
                           <span>{new Date(editingBooking.confirmedAt).toLocaleString('en-US', {
                             month: '2-digit',
                             day: '2-digit',
@@ -851,7 +851,7 @@ export function BookingDetailsDialog({
                       {/* Job Assigned */}
                       {editingBooking.assignedAt && (
                         <div>
-                          <span className="font-semibold">Job Assigned: </span>
+                          <span className="font-semibold">Job Assigned </span>
                           <span>{new Date(editingBooking.assignedAt).toLocaleString('en-US', {
                             month: '2-digit',
                             day: '2-digit',
@@ -866,7 +866,7 @@ export function BookingDetailsDialog({
                       {/* Job Accepted */}
                       {editingBooking.acceptedAt && (
                         <div>
-                          <span className="font-semibold">Job Accepted: </span>
+                          <span className="font-semibold">Job Accepted </span>
                           <span>{new Date(editingBooking.acceptedAt).toLocaleString('en-US', {
                             month: '2-digit',
                             day: '2-digit',
@@ -886,7 +886,7 @@ export function BookingDetailsDialog({
                       {/* Start At */}
                       {editingBooking.startedAt && (
                         <div>
-                          <span className="font-semibold">Start At: </span>
+                          <span className="font-semibold">Start At </span>
                           <span>{new Date(editingBooking.startedAt).toLocaleString('en-US', {
                             month: '2-digit',
                             day: '2-digit',
@@ -906,7 +906,7 @@ export function BookingDetailsDialog({
                       {/* DOD - Driver On Destination */}
                       {editingBooking.dodAt && (
                         <div>
-                          <span className="font-semibold">DOD: </span>
+                          <span className="font-semibold">DOD </span>
                           <span>{new Date(editingBooking.dodAt).toLocaleString('en-US', {
                             month: '2-digit',
                             day: '2-digit',
@@ -933,7 +933,7 @@ export function BookingDetailsDialog({
                       {/* POB - Passenger On Board */}
                       {editingBooking.pobAt && (
                         <div>
-                          <span className="font-semibold">POB: </span>
+                          <span className="font-semibold">POB </span>
                           <span>{new Date(editingBooking.pobAt).toLocaleString('en-US', {
                             month: '2-digit',
                             day: '2-digit',
@@ -953,7 +953,7 @@ export function BookingDetailsDialog({
                       {/* Trip Ended */}
                       {editingBooking.endedAt && (
                         <div>
-                          <span className="font-semibold">Trip Ended: </span>
+                          <span className="font-semibold">Trip Ended </span>
                           <span>{new Date(editingBooking.endedAt).toLocaleString('en-US', {
                             month: '2-digit',
                             day: '2-digit',
@@ -973,7 +973,7 @@ export function BookingDetailsDialog({
                       {/* Payment */}
                       {editingBooking.paymentAt && (
                         <div>
-                          <span className="font-semibold">Payment: </span>
+                          <span className="font-semibold">Payment </span>
                           <span>{new Date(editingBooking.paymentAt).toLocaleString('en-US', {
                             month: '2-digit',
                             day: '2-digit',
@@ -995,7 +995,7 @@ export function BookingDetailsDialog({
                       {/* Cancel Reason */}
                       {editingBooking.cancelReason && (
                         <div>
-                          <span className="font-semibold">Cancel Reason: </span>
+                          <span className="font-semibold">Cancel Reason </span>
                           <span>{editingBooking.cancelReason || '-'}</span>
                         </div>
                       )}
@@ -1010,7 +1010,7 @@ export function BookingDetailsDialog({
                       {/* Mark Completed */}
                       {editingBooking.markedCompletedAt && (
                         <div>
-                          <span className="font-semibold">Mark Completed: </span>
+                          <span className="font-semibold">Mark Completed </span>
                           <span>{new Date(editingBooking.markedCompletedAt).toLocaleString('en-US', {
                             month: '2-digit',
                             day: '2-digit',
