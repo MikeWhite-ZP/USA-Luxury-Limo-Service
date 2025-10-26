@@ -222,14 +222,16 @@ export default function MediaLibrary() {
                   </div>
 
                   {/* Overlay with Actions */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
                     <Button
                       size="sm"
                       variant="secondary"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setSelectedMedia(media);
                         setEditDialogOpen(true);
                       }}
+                      className="pointer-events-auto"
                       data-testid={`button-edit-${media.id}`}
                     >
                       <Edit2 className="w-4 h-4" />
@@ -237,14 +239,22 @@ export default function MediaLibrary() {
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => {
-                        if (confirm('Are you sure you want to delete this media?')) {
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const confirmed = window.confirm('Are you sure you want to delete this media?');
+                        if (confirmed) {
                           deleteMedia.mutate(media.id);
                         }
                       }}
+                      disabled={deleteMedia.isPending}
+                      className="pointer-events-auto"
                       data-testid={`button-delete-${media.id}`}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      {deleteMedia.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
                     </Button>
                   </div>
 
