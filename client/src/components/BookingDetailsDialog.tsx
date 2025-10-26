@@ -277,88 +277,84 @@ export function BookingDetailsDialog({
 
             {/* TODO: Map Component will go here */}
             <div className="mb-6">
-              <Card>
-                <CardContent>
-                  <div className="h-[300px] rounded-lg overflow-hidden border">
-                    <MapContainer
-                      center={mapConfig.center}
-                      zoom={mapConfig.zoom}
-                      style={{ height: '100%', width: '100%' }}
-                      scrollWheelZoom={false}
-                    >
-                      <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      />
-                      
-                      {/* Pickup Marker */}
-                      {formData.pickupCoords && (
-                        <Marker 
-                          position={[formData.pickupCoords.lat, formData.pickupCoords.lon]}
-                          icon={pickupIcon}
-                        >
-                          <Popup>
-                            <strong>Pickup</strong><br/>
-                            {formData.pickupAddress}
-                          </Popup>
-                        </Marker>
-                      )}
-                      
-                      {/* Via Point Markers */}
-                      {formData.viaPoints?.map((via, index) => (
-                        <Marker 
-                          key={`via-${index}`}
-                          position={[via.lat, via.lon]}
-                          icon={viaIcon}
-                        >
-                          <Popup>
-                            <strong>Via Point {index + 1}</strong><br/>
-                            {via.address}
-                          </Popup>
-                        </Marker>
-                      ))}
-                      
-                      {/* Destination Marker */}
-                      {formData.destinationCoords && (
-                        <Marker 
-                          position={[formData.destinationCoords.lat, formData.destinationCoords.lon]}
-                          icon={destinationIcon}
-                        >
-                          <Popup>
-                            <strong>Destination</strong><br/>
-                            {formData.destinationAddress}
-                          </Popup>
-                        </Marker>
-                      )}
-                      
-                      {/* Route Line - Using OSRM for road-based routing */}
-                      <RouteLayer
-                        pickup={formData.pickupCoords}
-                        viaPoints={formData.viaPoints}
-                        destination={formData.destinationCoords}
-                        color="#3b82f6"
-                        weight={4}
-                      />
-                    </MapContainer>
-                  </div>
+              <div className="h-[300px] rounded-lg overflow-hidden border">
+                <MapContainer
+                  center={mapConfig.center}
+                  zoom={mapConfig.zoom}
+                  style={{ height: '100%', width: '100%' }}
+                  scrollWheelZoom={false}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
                   
-                  {/* Distance & Duration */}
-                  {distance && (
-                    <div className="mt-3 flex gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Navigation className="w-4 h-4" />
-                        <span>{distance} miles</span>
-                      </div>
-                      {estimatedDuration && (
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{estimatedDuration}</span>
-                        </div>
-                      )}
+                  {/* Pickup Marker */}
+                  {formData.pickupCoords && (
+                    <Marker 
+                      position={[formData.pickupCoords.lat, formData.pickupCoords.lon]}
+                      icon={pickupIcon}
+                    >
+                      <Popup>
+                        <strong>Pickup</strong><br/>
+                        {formData.pickupAddress}
+                      </Popup>
+                    </Marker>
+                  )}
+                  
+                  {/* Via Point Markers */}
+                  {formData.viaPoints?.map((via, index) => (
+                    <Marker 
+                      key={`via-${index}`}
+                      position={[via.lat, via.lon]}
+                      icon={viaIcon}
+                    >
+                      <Popup>
+                        <strong>Via Point {index + 1}</strong><br/>
+                        {via.address}
+                      </Popup>
+                    </Marker>
+                  ))}
+                  
+                  {/* Destination Marker */}
+                  {formData.destinationCoords && (
+                    <Marker 
+                      position={[formData.destinationCoords.lat, formData.destinationCoords.lon]}
+                      icon={destinationIcon}
+                    >
+                      <Popup>
+                        <strong>Destination</strong><br/>
+                        {formData.destinationAddress}
+                      </Popup>
+                    </Marker>
+                  )}
+                  
+                  {/* Route Line - Using OSRM for road-based routing */}
+                  <RouteLayer
+                    pickup={formData.pickupCoords}
+                    viaPoints={formData.viaPoints}
+                    destination={formData.destinationCoords}
+                    color="#3b82f6"
+                    weight={4}
+                  />
+                </MapContainer>
+              </div>
+              
+              {/* Distance & Duration */}
+              {distance && (
+                <div className="mt-3 flex gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <Navigation className="w-4 h-4" />
+                    <span>{distance} miles</span>
+                  </div>
+                  {estimatedDuration && (
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{estimatedDuration}</span>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              )}
             </div>
 
             {/* Address Input Section with Saved Addresses */}
