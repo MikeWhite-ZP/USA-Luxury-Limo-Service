@@ -124,7 +124,7 @@ export default function BrandSettings() {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="h-10 items-center justify-center rounded-md bg-muted p-1 grid w-full grid-cols-5 text-[#ff0000]">
           <TabsTrigger value="branding" className="flex items-center gap-2" data-testid="tab-branding">
             <Settings className="w-4 h-4" />
             <span>Branding</span>
