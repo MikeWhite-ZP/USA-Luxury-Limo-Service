@@ -2545,7 +2545,7 @@ export default function AdminDashboard() {
         }}
       />
 
-      <div className="max-w-7xl mx-auto p-6 space-y-8">
+      <div className="max-w-7xl mx-auto p-6 space-y-8 text-[12px] pl-[0px] pr-[0px] pt-[0px] pb-[0px]">
         {/* Dashboard Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <Card
