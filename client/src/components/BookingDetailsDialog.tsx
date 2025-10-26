@@ -8,6 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
+import { useAuth } from "@/hooks/useAuth";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
 import { 
   MapPin, 
   Navigation, 
@@ -170,6 +175,97 @@ export function BookingDetailsDialog({
   const [isChangingDriver, setIsChangingDriver] = useState(false);
   const [tempSelectedDriverId, setTempSelectedDriverId] = useState('');
   const [tempDriverPayment, setTempDriverPayment] = useState('');
+  
+  // State for additional charges
+  const [showAdditionalChargeForm, setShowAdditionalChargeForm] = useState(false);
+  const [chargeDescription, setChargeDescription] = useState('');
+  const [chargeAmount, setChargeAmount] = useState('');
+  
+  // Get current user for role checking
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const canManageCharges = user?.role === 'admin' || user?.role === 'dispatcher';
+  
+  // Mutation for adding additional charges
+  const addChargeMutation = useMutation({
+    mutationFn: async ({ bookingId, description, amount }: { bookingId: string; description: string; amount: number }) => {
+      const response = await apiRequest('POST', `/api/bookings/${bookingId}/additional-charge`, {
+        description,
+        amount
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Charge Added",
+        description: "Additional charge has been added successfully",
+      });
+      setShowAdditionalChargeForm(false);
+      setChargeDescription('');
+      setChargeAmount('');
+      // Refresh booking data
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dispatcher/bookings'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add additional charge",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Mutation for authorizing payment
+  const authorizePaymentMutation = useMutation({
+    mutationFn: async (bookingId: string) => {
+      const response = await apiRequest('POST', `/api/bookings/${bookingId}/authorize-payment`);
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Payment Authorized",
+        description: `Successfully charged $${data.amount}`,
+      });
+      // Refresh booking data
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dispatcher/bookings'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Payment Failed",
+        description: error.message || "Failed to authorize payment",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Handle adding additional charge
+  const handleAddCharge = () => {
+    if (!editingBooking) return;
+    
+    const amount = parseFloat(chargeAmount);
+    if (!chargeDescription.trim() || !chargeAmount || amount <= 0) {
+      toast({
+        title: "Invalid Input",
+        description: "Please provide a valid description and amount",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    addChargeMutation.mutate({
+      bookingId: editingBooking.id,
+      description: chargeDescription,
+      amount
+    });
+  };
+  
+  // Handle authorizing payment
+  const handleAuthorizePayment = () => {
+    if (!editingBooking) return;
+    authorizePaymentMutation.mutate(editingBooking.id);
+  };
   
   // Calculate map center and route
   const getMapConfig = () => {
@@ -1266,6 +1362,93 @@ export function BookingDetailsDialog({
                     )}
                   </div>
 
+                  {/* Additional Charges Section */}
+                  {editingBooking && editingBooking.surcharges && (editingBooking.surcharges as any[]).length > 0 && (
+                    <div className="pt-3 border-t">
+                      <Label className="text-sm font-semibold mb-2">Additional Charges</Label>
+                      <div className="space-y-1 mt-2">
+                        {((editingBooking.surcharges as any[]) || []).map((charge: any, index: number) => (
+                          <div key={index} className="flex justify-between items-center text-sm p-2 bg-gray-50 rounded">
+                            <span className="text-gray-700">{charge.description}</span>
+                            <span className="font-semibold">${charge.amount.toFixed(2)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Add Additional Charge Button & Form (Admin/Dispatcher only) */}
+                  {editingBooking && canManageCharges && (
+                    <div className="pt-3 border-t">
+                      {!showAdditionalChargeForm ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowAdditionalChargeForm(true)}
+                          className="w-full"
+                          data-testid="button-show-additional-charge-form"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Additional Charge
+                        </Button>
+                      ) : (
+                        <div className="space-y-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div>
+                            <Label className="text-xs">Explanation</Label>
+                            <Input
+                              type="text"
+                              value={chargeDescription}
+                              onChange={(e) => setChargeDescription(e.target.value)}
+                              placeholder="e.g., Airport fee, Wait time, etc."
+                              className="mt-1"
+                              data-testid="input-charge-description"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Amount</Label>
+                            <div className="relative mt-1">
+                              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={chargeAmount}
+                                onChange={(e) => setChargeAmount(e.target.value)}
+                                placeholder="0.00"
+                                className="pl-9"
+                                data-testid="input-charge-amount"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                setShowAdditionalChargeForm(false);
+                                setChargeDescription('');
+                                setChargeAmount('');
+                              }}
+                              className="flex-1"
+                              data-testid="button-cancel-charge"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              type="button"
+                              onClick={handleAddCharge}
+                              disabled={addChargeMutation.isPending}
+                              className="flex-1 bg-blue-600 hover:bg-blue-700"
+                              data-testid="button-add-charge"
+                            >
+                              {addChargeMutation.isPending ? 'Adding...' : 'Add Charge'}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Total Fare */}
                   <div className="pt-4 border-t">
                     <div className="flex justify-between items-center">
@@ -1276,15 +1459,17 @@ export function BookingDetailsDialog({
                     </div>
                   </div>
 
-                  {/* Payment Actions */}
-                  {editingBooking && (
+                  {/* Payment Actions (Admin/Dispatcher only) */}
+                  {editingBooking && canManageCharges && (
                     <div className="space-y-2 pt-4 border-t">
                       <Button 
                         variant="outline" 
+                        onClick={handleAuthorizePayment}
+                        disabled={authorizePaymentMutation.isPending}
                         className="w-full bg-[#e6e6e6] pl-[0px] pr-[0px] pt-[0px] pb-[0px] text-[12px] text-[#c90606]"
                         data-testid="button-authorize-payment"
                       >
-                        Authorize & Capture
+                        {authorizePaymentMutation.isPending ? 'Processing...' : 'Authorize & Capture'}
                       </Button>
                       <Button 
                         variant="outline" 

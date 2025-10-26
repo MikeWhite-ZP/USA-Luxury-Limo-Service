@@ -90,6 +90,7 @@ export interface IStorage {
   updateBookingDriverPayment(id: string, driverPayment: string): Promise<Booking | undefined>;
   updateBooking(id: string, updates: Partial<InsertBooking>): Promise<Booking | undefined>;
   deleteBooking(id: string): Promise<void>;
+  addAdditionalCharge(bookingId: string, charge: { description: string; amount: number; addedBy: string }): Promise<Booking | undefined>;
   
   // Saved addresses
   createSavedAddress(address: InsertSavedAddress): Promise<SavedAddress>;
@@ -434,6 +435,57 @@ export class DatabaseStorage implements IStorage {
 
   async deleteBooking(id: string): Promise<void> {
     await db.delete(bookings).where(eq(bookings.id, id));
+  }
+
+  async addAdditionalCharge(
+    bookingId: string, 
+    charge: { description: string; amount: number; addedBy: string }
+  ): Promise<Booking | undefined> {
+    const booking = await this.getBooking(bookingId);
+    if (!booking) return undefined;
+
+    const existingSurcharges = (booking.surcharges as any) || [];
+    const newSurcharges = [
+      ...existingSurcharges,
+      {
+        ...charge,
+        addedAt: new Date().toISOString()
+      }
+    ];
+
+    // Calculate base fare by subtracting existing surcharges from current total
+    // Safely parse surcharge amounts with type coercion
+    const existingSurchargesTotal = existingSurcharges.reduce((sum: number, s: any) => {
+      const amount = typeof s.amount === 'number' ? s.amount : parseFloat(s.amount || '0');
+      return sum + (isNaN(amount) ? 0 : amount);
+    }, 0);
+    
+    const currentTotal = parseFloat(booking.totalAmount || '0');
+    if (isNaN(currentTotal)) {
+      throw new Error('Invalid booking total amount');
+    }
+    
+    const baseFare = Math.max(0, currentTotal - existingSurchargesTotal);
+    
+    // Calculate new total as base fare + all surcharges (including the new one)
+    const totalChargesAmount = newSurcharges.reduce((sum: number, s: any) => {
+      const amount = typeof s.amount === 'number' ? s.amount : parseFloat(s.amount || '0');
+      return sum + (isNaN(amount) ? 0 : amount);
+    }, 0);
+    
+    const newTotal = baseFare + totalChargesAmount;
+
+    const [updated] = await db
+      .update(bookings)
+      .set({ 
+        surcharges: newSurcharges as any,
+        totalAmount: newTotal.toFixed(2),
+        updatedAt: new Date() 
+      })
+      .where(eq(bookings.id, bookingId))
+      .returning();
+    
+    return updated;
   }
 
   async createSavedAddress(addressData: InsertSavedAddress): Promise<SavedAddress> {

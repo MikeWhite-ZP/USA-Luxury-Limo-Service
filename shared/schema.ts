@@ -229,7 +229,12 @@ export const bookings = pgTable("bookings", {
   baseFare: decimal("base_fare", { precision: 10, scale: 2 }),
   distanceFare: decimal("distance_fare", { precision: 10, scale: 2 }),
   timeFare: decimal("time_fare", { precision: 10, scale: 2 }),
-  surcharges: jsonb("surcharges"), // Additional fees
+  surcharges: jsonb("surcharges").$type<Array<{
+    description: string;
+    amount: number;
+    addedBy?: string;
+    addedAt?: string;
+  }>>().default(sql`'[]'::jsonb`), // Additional charges array
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }),
   driverPayment: decimal("driver_payment", { precision: 10, scale: 2 }), // Amount driver gets paid (editable by admin/dispatcher)
   

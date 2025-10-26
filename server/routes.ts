@@ -943,6 +943,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add additional charge to booking (Admin/Dispatcher only)
+  app.post('/api/bookings/:id/additional-charge', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      const { description, amount } = req.body;
+      
+      const user = await storage.getUser(userId);
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
+      }
+
+      if (!description || !amount || amount <= 0) {
+        return res.status(400).json({ message: 'Valid description and amount are required' });
+      }
+
+      const booking = await storage.addAdditionalCharge(id, {
+        description,
+        amount: parseFloat(amount),
+        addedBy: userId
+      });
+
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      res.json(booking);
+    } catch (error) {
+      console.error('Add additional charge error:', error);
+      res.status(500).json({ message: 'Failed to add additional charge' });
+    }
+  });
+
+  // Authorize & Capture payment (Admin/Dispatcher only)
+  app.post('/api/bookings/:id/authorize-payment', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      
+      const user = await storage.getUser(userId);
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
+      }
+
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      // Get passenger details
+      const passenger = await storage.getUser(booking.passengerId);
+      if (!passenger?.stripeCustomerId) {
+        return res.status(400).json({ message: 'Passenger does not have a payment method on file' });
+      }
+
+      // Get passenger's default payment method
+      const customer = await stripe.customers.retrieve(passenger.stripeCustomerId);
+      
+      if (!customer || customer.deleted) {
+        return res.status(400).json({ message: 'Customer not found in payment system' });
+      }
+
+      const defaultPaymentMethod = (customer as any).invoice_settings?.default_payment_method;
+      
+      if (!defaultPaymentMethod) {
+        return res.status(400).json({ message: 'No default payment method found for passenger' });
+      }
+
+      // Create payment intent with automatic payment method
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(parseFloat(booking.totalAmount || '0') * 100), // Convert to cents
+        currency: 'usd',
+        customer: passenger.stripeCustomerId,
+        payment_method: defaultPaymentMethod,
+        off_session: true,
+        confirm: true,
+        metadata: {
+          bookingId: booking.id,
+          passengerId: booking.passengerId,
+          authorizedBy: userId
+        },
+      });
+
+      // Update booking payment status
+      await storage.updateBookingPayment(id, paymentIntent.id, 'paid');
+
+      res.json({ 
+        success: true, 
+        paymentIntent: paymentIntent.id,
+        amount: booking.totalAmount 
+      });
+    } catch (error: any) {
+      console.error('Authorize payment error:', error);
+      
+      // Handle Stripe-specific errors
+      if (error.type === 'StripeCardError') {
+        return res.status(400).json({ 
+          message: 'Card payment failed: ' + error.message 
+        });
+      }
+      
+      res.status(500).json({ 
+        message: error.message || 'Failed to authorize payment' 
+      });
+    }
+  });
+
   // Saved addresses
   app.get('/api/saved-addresses', isAuthenticated, async (req: any, res) => {
     try {
