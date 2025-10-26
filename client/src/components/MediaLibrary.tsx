@@ -80,7 +80,7 @@ export default function MediaLibrary() {
   // Update mutation
   const updateMedia = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<CmsMedia> }) => {
-      return apiRequest(`/api/admin/cms/media/${id}`, 'PUT', data);
+      return apiRequest('PUT', `/api/admin/cms/media/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
@@ -102,7 +102,7 @@ export default function MediaLibrary() {
   // Delete mutation
   const deleteMedia = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest(`/api/admin/cms/media/${id}`, 'DELETE');
+      return apiRequest('DELETE', `/api/admin/cms/media/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
