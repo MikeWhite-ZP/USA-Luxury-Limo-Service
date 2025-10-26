@@ -2544,7 +2544,7 @@ export default function AdminDashboard() {
           }, 100);
         }}
       />
-      <div className="max-w-7xl mx-auto p-6 space-y-8 text-[12px] pl-[0px] pr-[0px] pt-[0px] pb-[0px]">
+      <div className="max-w-7xl mx-auto p-6 space-y-8 text-[12px] pt-[10px] pb-[10px] pl-[0px] pr-[0px] bg-[#ffffff]">
         {/* Dashboard Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 scale-y-[0.7] origin-top">
           <Card
