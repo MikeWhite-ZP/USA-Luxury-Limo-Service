@@ -151,7 +151,7 @@ export default function BrandSettings() {
         <TabsContent value="branding" className="space-y-4">
           <Card data-testid="card-branding">
             <CardHeader>
-              <CardTitle>Brand Identity</CardTitle>
+              <CardTitle className="text-[#0040ff]">Brand Identity</CardTitle>
               <CardDescription>Manage your company logos, name, and tagline</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
