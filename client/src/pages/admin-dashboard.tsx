@@ -2673,6 +2673,7 @@ export default function AdminDashboard() {
                 onClick={openAddBookingDialog}
                 size="sm"
                 data-testid="button-add-booking"
+                className="font-bold"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Booking
