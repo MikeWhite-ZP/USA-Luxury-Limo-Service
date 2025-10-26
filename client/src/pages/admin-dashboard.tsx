@@ -2173,7 +2173,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-lg border text-card-foreground shadow-sm bg-[#f0cf92]" data-testid="stat-bookings">
+          <Card className="rounded-lg border text-card-foreground shadow-sm bg-[#ede2ca]" data-testid="stat-bookings">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
                 <TrendingUp className="w-8 h-8 text-blue-600" />
