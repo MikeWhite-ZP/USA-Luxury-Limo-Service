@@ -2192,9 +2192,9 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card data-testid="stat-drivers">
-            <CardContent className="p-6 bg-[#e6ecf5] pt-[0px] pb-[0px] pl-[0px] pr-[0px] text-[12px]">
-              <div className="flex items-center space-x-2">
+          <Card className="rounded-lg border text-card-foreground shadow-sm bg-[#e6f6fa] text-[12px]" data-testid="stat-drivers">
+            <CardContent className="p-6 pt-[0px] pb-[0px] pl-[0px] pr-[0px]">
+              <div className="flex items-center space-x-2 bg-[#e6f6fa]">
                 <Car className="w-8 h-8 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Drivers</p>
