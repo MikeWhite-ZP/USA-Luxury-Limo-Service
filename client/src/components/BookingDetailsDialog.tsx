@@ -1382,7 +1382,7 @@ export function BookingDetailsDialog({
                     <div className="space-y-2 pt-4 border-t">
                       <Button 
                         variant="outline" 
-                        className="w-full bg-[orange]"
+                        className="w-full bg-[#e6e6e6] pl-[0px] pr-[0px] pt-[0px] pb-[0px] text-[12px] text-[#c90606]"
                         data-testid="button-authorize-payment"
                       >
                         Authorize & Capture
