@@ -2159,7 +2159,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-lg border text-card-foreground shadow-sm bg-[#cceb8a]" data-testid="stat-commission">
+          <Card className="rounded-lg border text-card-foreground shadow-sm bg-[#dbdbc8]" data-testid="stat-commission">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
                 <DollarSign className="w-8 h-8 text-purple-600" />
