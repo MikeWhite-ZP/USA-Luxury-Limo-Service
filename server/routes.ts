@@ -4087,7 +4087,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get public URL
-      const fileUrl = `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'http://localhost:5000'}${filePath}`;
+      const domain = process.env.REPLIT_DOMAINS?.split(',')[0];
+      const fileUrl = domain ? `https://${domain}${filePath}` : `http://localhost:5000${filePath}`;
 
       // Validate media metadata with Zod
       const validationResult = insertCmsMediaSchema.safeParse({
