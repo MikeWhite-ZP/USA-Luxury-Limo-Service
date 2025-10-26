@@ -4201,7 +4201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
-      res.send(value);
+      res.send(Buffer.from(value.buffer || value));
     } catch (error) {
       console.error('Error serving CMS media:', error);
       res.status(500).json({ message: 'Failed to serve media' });
