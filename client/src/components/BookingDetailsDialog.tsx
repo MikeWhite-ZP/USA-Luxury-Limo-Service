@@ -639,77 +639,67 @@ export function BookingDetailsDialog({
                       {isSearchingFlight ? 'Searching...' : 'Search'}
                     </Button>
                   </div>
+
+                  {/* Flight Information Display */}
+                  {(formData.flightNumber || selectedFlight) && (
+                    <div className="mt-4">
+                      {selectedFlight ? (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-[12px] pl-[0px] pr-[0px] pt-[0px] pb-[0px]">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <p className="font-bold text-green-800">{selectedFlight.airline}</p>
+                              <p className="text-sm text-green-700">Flight {selectedFlight.flightNumber}</p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setSelectedFlight(null);
+                                setFlightSearchInput('');
+                                setFormData({
+                                  ...formData,
+                                  flightNumber: '',
+                                  flightAirline: '',
+                                  flightDepartureAirport: '',
+                                  flightArrivalAirport: '',
+                                });
+                              }}
+                              className="text-green-600 hover:text-green-800 text-sm"
+                              data-testid="button-clear-flight"
+                            >
+                              Clear
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <p className="text-xs text-green-600 font-medium">Departure</p>
+                              <p className="text-green-800">{selectedFlight.departureAirport}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-green-600 font-medium">Arrival</p>
+                              <p className="text-green-800">{selectedFlight.arrivalAirport}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <p className="font-bold text-blue-800">{formData.flightAirline}</p>
+                          <p className="text-sm text-blue-700">Flight {formData.flightNumber}</p>
+                          {formData.flightDepartureAirport && formData.flightArrivalAirport && (
+                            <div className="grid grid-cols-2 gap-3 text-sm mt-2">
+                              <div>
+                                <p className="text-xs text-blue-600">From: {formData.flightDepartureAirport}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-blue-600">To: {formData.flightArrivalAirport}</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
-
-            {/* Flight Information Section */}
-            {(formData.flightNumber || selectedFlight) && (
-              <div className="mb-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2 text-[#ff0000]">
-                      <Plane className="w-5 h-5" />
-                      Flight Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {selectedFlight ? (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-[12px] pl-[0px] pr-[0px] pt-[0px] pb-[0px]">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <p className="font-bold text-green-800">{selectedFlight.airline}</p>
-                            <p className="text-sm text-green-700">Flight {selectedFlight.flightNumber}</p>
-                          </div>
-                          <button
-                            onClick={() => {
-                              setSelectedFlight(null);
-                              setFlightSearchInput('');
-                              setFormData({
-                                ...formData,
-                                flightNumber: '',
-                                flightAirline: '',
-                                flightDepartureAirport: '',
-                                flightArrivalAirport: '',
-                              });
-                            }}
-                            className="text-green-600 hover:text-green-800 text-sm"
-                            data-testid="button-clear-flight"
-                          >
-                            Clear
-                          </button>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 text-sm">
-                          <div>
-                            <p className="text-xs text-green-600 font-medium">Departure</p>
-                            <p className="text-green-800">{selectedFlight.departureAirport}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-green-600 font-medium">Arrival</p>
-                            <p className="text-green-800">{selectedFlight.arrivalAirport}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p className="font-bold text-blue-800">{formData.flightAirline}</p>
-                        <p className="text-sm text-blue-700">Flight {formData.flightNumber}</p>
-                        {formData.flightDepartureAirport && formData.flightArrivalAirport && (
-                          <div className="grid grid-cols-2 gap-3 text-sm mt-2">
-                            <div>
-                              <p className="text-xs text-blue-600">From: {formData.flightDepartureAirport}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-blue-600">To: {formData.flightArrivalAirport}</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            )}
 
             {/* Journey Log Timeline */}
             {editingBooking && (
