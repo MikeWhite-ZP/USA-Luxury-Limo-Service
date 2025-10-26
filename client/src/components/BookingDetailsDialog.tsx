@@ -270,7 +270,7 @@ export function BookingDetailsDialog({
           
           {/* LEFT PANEL - Journey Visualization */}
           <div className="overflow-y-auto p-6 bg-gray-50 border-r text-[12px] pl-[0px] pr-[0px] pt-[0px] pb-[0px]">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900">
+            <h2 className="text-2xl font-bold text-[#0052ff] mt-[0px] mb-[0px]">
               {editingBooking ? `Booking ID: ${editingBooking.id.substring(0, 8)}` : 'New Booking'}
             </h2>
 
