@@ -4172,6 +4172,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public route to serve CMS media files from Object Storage
+  app.get('/cms/:folder/:filename', async (req, res) => {
+    try {
+      const { folder, filename } = req.params;
+      const filePath = `/cms/${folder}/${filename}`;
+
+      // Download from object storage
+      const { ok, value, error } = await getObjectStorage().downloadAsBytes(filePath);
+
+      if (!ok) {
+        return res.status(404).json({ message: `File not found: ${error}` });
+      }
+
+      // Determine content type from file extension
+      const extension = filename.split('.').pop()?.toLowerCase();
+      const contentTypeMap: Record<string, string> = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'webp': 'image/webp',
+        'svg': 'image/svg+xml',
+        'pdf': 'application/pdf',
+        'ico': 'image/x-icon',
+      };
+      const contentType = contentTypeMap[extension || ''] || 'application/octet-stream';
+
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+      res.send(Buffer.from(value));
+    } catch (error) {
+      console.error('Error serving CMS media:', error);
+      res.status(500).json({ message: 'Failed to serve media' });
+    }
+  });
+
   // Stripe webhook for payment status updates
   app.post('/api/stripe-webhook', async (req, res) => {
     try {
