@@ -3182,7 +3182,7 @@ export default function AdminDashboard() {
           <Card
             id="cms-section"
             data-testid="cms-pages-management"
-            className="rounded-lg border text-card-foreground shadow-sm bg-[#f2f1e1] mt-[0px] mb-[0px]"
+            className="rounded-lg border text-card-foreground shadow-sm mt-[0px] mb-[0px] bg-[#ffffff]"
           >
             <CardHeader>
               <CardTitle className="flex items-center space-x-2 text-[#9e0202]">
