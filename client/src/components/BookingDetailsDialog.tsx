@@ -1389,7 +1389,7 @@ export function BookingDetailsDialog({
                       </Button>
                       <Button 
                         variant="outline" 
-                        className="w-full bg-[#e5a8a8]"
+                        className="w-full bg-[#e6e6e6] text-[#2600f0] pl-[0px] pr-[0px] pt-[0px] pb-[0px] mt-[0px] mb-[0px] text-[12px]"
                         data-testid="button-send-proforma"
                       >
                         Send Proforma Invoice
