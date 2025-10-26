@@ -27,6 +27,7 @@ import {
 import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { RouteLayer } from './RouteLayer';
 
 // Fix Leaflet default icon issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -336,13 +337,14 @@ export function BookingDetailsDialog({
                         </Marker>
                       )}
                       
-                      {/* Route Line */}
-                      {mapConfig.showRoute && (
-                        <Polyline 
-                          positions={mapConfig.routePositions}
-                          pathOptions={{ color: 'blue', weight: 3, dashArray: '10, 5' }}
-                        />
-                      )}
+                      {/* Route Line - Using OSRM for road-based routing */}
+                      <RouteLayer
+                        pickup={formData.pickupCoords}
+                        viaPoints={formData.viaPoints}
+                        destination={formData.destinationCoords}
+                        color="#3b82f6"
+                        weight={4}
+                      />
                     </MapContainer>
                   </div>
                   
