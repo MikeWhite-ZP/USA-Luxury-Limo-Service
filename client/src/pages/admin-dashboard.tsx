@@ -1631,7 +1631,23 @@ export default function AdminDashboard() {
 
   // Filter bookings based on criteria
   const filteredBookings = bookings?.filter((booking) => {
-    // Status filter
+    // Segment filter - primary filter based on segment tabs
+    // Only applies when status dropdown is "all", otherwise dropdown takes precedence
+    if (bookingStatusFilter === "all") {
+      if (bookingSegmentFilter === "all") {
+        // "All" segment excludes completed and cancelled bookings only when dropdown is also "all"
+        if (booking.status === "completed" || booking.status === "cancelled") {
+          return false;
+        }
+      } else {
+        // Specific segment shows only that status
+        if (booking.status !== bookingSegmentFilter) {
+          return false;
+        }
+      }
+    }
+
+    // Status filter (secondary dropdown filter) - takes precedence when set
     if (
       bookingStatusFilter !== "all" &&
       booking.status !== bookingStatusFilter
