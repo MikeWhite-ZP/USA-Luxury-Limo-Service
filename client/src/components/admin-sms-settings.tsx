@@ -48,17 +48,15 @@ export function AdminSMSSettings() {
       const data = await response.json();
       setStatus(data);
       
-      // Populate credentials from status if available
-      if (data.connected || data.accountSid || data.phoneNumber) {
-        setCredentials(prev => ({
-          ...prev,
-          accountSid: data.accountSid || '',
-          phoneNumber: data.phoneNumber || '',
-          enabled: data.enabled !== undefined ? data.enabled : true,
-          // Keep authToken empty - we'll use status.hasAuthToken to display the masked version
-          authToken: '',
-        }));
-      }
+      // Always populate credentials from status response (even if not connected)
+      setCredentials(prev => ({
+        ...prev,
+        accountSid: data.accountSid || '',
+        phoneNumber: data.phoneNumber || '',
+        enabled: data.enabled !== undefined ? data.enabled : true,
+        // Keep authToken empty - we'll use status.hasAuthToken to display the masked version
+        authToken: '',
+      }));
     } catch (error) {
       console.error('Failed to fetch SMS status:', error);
       setStatus({ connected: false, enabled: false, error: 'Failed to check status' });
@@ -307,12 +305,17 @@ export function AdminSMSSettings() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="auth-token">Auth Token</Label>
+                    <Label htmlFor="auth-token">
+                      Auth Token
+                      {status?.hasAuthToken && (
+                        <span className="text-xs text-muted-foreground ml-2">(optional - leave empty to keep existing)</span>
+                      )}
+                    </Label>
                     <div className="relative">
                       <Input
                         id="auth-token"
                         type={showAuthToken ? "text" : "password"}
-                        placeholder="Your Twilio Auth Token"
+                        placeholder={status?.hasAuthToken ? "Leave empty to keep existing token" : "Your Twilio Auth Token"}
                         value={credentials.authToken}
                         onChange={(e) => setCredentials(prev => ({ ...prev, authToken: e.target.value }))}
                         data-testid="input-auth-token"
