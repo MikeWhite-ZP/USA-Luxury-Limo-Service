@@ -3383,6 +3383,20 @@ export default function AdminDashboard() {
                               </p>
                             </div>
 
+                            {booking.specialInstructions && (
+                              <div className="md:col-span-2">
+                                <p className="text-muted-foreground">
+                                  Special Instructions
+                                </p>
+                                <p
+                                  className="font-medium"
+                                  data-testid={`booking-instructions-${booking.id}`}
+                                >
+                                  {booking.specialInstructions}
+                                </p>
+                              </div>
+                            )}
+
                             <div>
                               <p className="text-muted-foreground">
                                 Scheduled Time
@@ -3561,20 +3575,6 @@ export default function AdminDashboard() {
                           </Button>
                         </div>
                       </div>
-
-                      {booking.specialInstructions && (
-                        <div className="pt-2 border-t">
-                          <p className="text-xs text-muted-foreground">
-                            Special Instructions:
-                          </p>
-                          <p
-                            className="text-sm"
-                            data-testid={`booking-instructions-${booking.id}`}
-                          >
-                            {booking.specialInstructions}
-                          </p>
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
