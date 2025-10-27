@@ -3540,7 +3540,7 @@ export default function AdminDashboard() {
                               className="bg-[#22c55e]"
                             >
                               <DollarSign className="w-4 h-4 mr-2" />
-                              Edit Driver Payment
+                              Driver Payment
                             </Button>
                           )}
 
