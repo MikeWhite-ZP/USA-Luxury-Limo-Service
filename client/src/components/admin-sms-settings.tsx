@@ -13,6 +13,7 @@ interface TwilioStatus {
   enabled: boolean;
   accountSid?: string;
   phoneNumber?: string;
+  hasAuthToken?: boolean;
   error?: string;
 }
 
@@ -54,6 +55,8 @@ export function AdminSMSSettings() {
           accountSid: data.accountSid || '',
           phoneNumber: data.phoneNumber || '',
           enabled: data.enabled !== undefined ? data.enabled : true,
+          // Use placeholder to indicate token exists without exposing actual value
+          authToken: data.hasAuthToken ? 'PLACEHOLDER_TOKEN_EXISTS' : '',
         }));
       }
     } catch (error) {
