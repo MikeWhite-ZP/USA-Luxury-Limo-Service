@@ -3383,20 +3383,6 @@ export default function AdminDashboard() {
                               </p>
                             </div>
 
-                            {booking.specialInstructions && (
-                              <div className="md:col-span-2">
-                                <p className="text-[#8a1313] font-bold text-[12px]">
-                                  Special Instructions
-                                </p>
-                                <p
-                                  className="font-medium"
-                                  data-testid={`booking-instructions-${booking.id}`}
-                                >
-                                  {booking.specialInstructions}
-                                </p>
-                              </div>
-                            )}
-
                             <div>
                               <p className="text-muted-foreground">
                                 Scheduled Time
@@ -3410,6 +3396,20 @@ export default function AdminDashboard() {
                                 ).toLocaleString()}
                               </p>
                             </div>
+
+                            {booking.specialInstructions && (
+                              <div className="md:col-span-2">
+                                <p className="text-[#8a1313] font-bold text-[12px]">
+                                  Special Instructions
+                                </p>
+                                <p
+                                  className="font-medium"
+                                  data-testid={`booking-instructions-${booking.id}`}
+                                >
+                                  {booking.specialInstructions}
+                                </p>
+                              </div>
+                            )}
 
                             <div>
                               <p className="text-muted-foreground">
