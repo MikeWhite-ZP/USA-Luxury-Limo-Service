@@ -3343,7 +3343,7 @@ export default function AdminDashboard() {
                             </Badge>
                             <Badge
                               variant="outline"
-                              className="bg-[#cceb8a]"
+                              className="bg-[#dee8ca]"
                               data-testid={`booking-type-${booking.id}`}
                             >
                               {booking.bookingType}
