@@ -556,20 +556,21 @@ export function BookingDetailsDialog({
                     </div>
                   )}
 
-                  {/* Destination Address with Saved Addresses */}
-                  <AddressAutocomplete
-                    id="destination-address"
-                    label="Destination Address"
-                    value={formData.destinationAddress}
-                    onChange={(value, coords) => {
-                      setFormData({ ...formData, destinationAddress: value, destinationCoords: coords || null });
-                    }}
-                    placeholder={formData.bookingType === 'hourly' ? 'N/A for hourly service' : 'Enter destination address'}
-                    userId={formData.passengerId}
-                    disabled={formData.bookingType === 'hourly'}
-                    required={formData.bookingType === 'transfer'}
-                    data-testid="input-destination-address"
-                  />
+                  {/* Destination Address with Saved Addresses - Hidden for Hourly Service */}
+                  {formData.bookingType !== 'hourly' && (
+                    <AddressAutocomplete
+                      id="destination-address"
+                      label="Destination Address"
+                      value={formData.destinationAddress}
+                      onChange={(value, coords) => {
+                        setFormData({ ...formData, destinationAddress: value, destinationCoords: coords || null });
+                      }}
+                      placeholder="Enter destination address"
+                      userId={formData.passengerId}
+                      required={true}
+                      data-testid="input-destination-address"
+                    />
+                  )}
 
                   {/* Duration for Hourly */}
                   {formData.bookingType === 'hourly' && (
