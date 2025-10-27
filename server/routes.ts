@@ -1645,8 +1645,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         updatedAt?: string;
       }> = [];
 
-      // Add all database credentials
+      // Twilio settings to exclude (managed in SMS Settings section)
+      const twilioKeys = ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_PHONE_NUMBER', 'TWILIO_ENABLED'];
+      
+      // Add all database credentials (excluding Twilio settings)
       allSettings.forEach(setting => {
+        // Skip Twilio settings - they're managed in the SMS Settings section
+        if (twilioKeys.includes(setting.key)) {
+          return;
+        }
+        
         const hasEnv = !!process.env[setting.key];
         credentials.push({
           key: setting.key,
