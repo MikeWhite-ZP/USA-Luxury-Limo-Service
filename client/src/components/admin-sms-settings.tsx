@@ -55,8 +55,8 @@ export function AdminSMSSettings() {
           accountSid: data.accountSid || '',
           phoneNumber: data.phoneNumber || '',
           enabled: data.enabled !== undefined ? data.enabled : true,
-          // Use placeholder to indicate token exists without exposing actual value
-          authToken: data.hasAuthToken ? 'PLACEHOLDER_TOKEN_EXISTS' : '',
+          // Keep authToken empty - we'll use status.hasAuthToken to display the masked version
+          authToken: '',
         }));
       }
     } catch (error) {
@@ -72,10 +72,21 @@ export function AdminSMSSettings() {
   }, []);
 
   const handleSaveCredentials = async () => {
-    if (!credentials.accountSid || !credentials.authToken || !credentials.phoneNumber) {
+    // Validate required fields
+    if (!credentials.accountSid || !credentials.phoneNumber) {
       toast({
         title: 'Incomplete Credentials',
-        description: 'Please fill in all Twilio credentials',
+        description: 'Please fill in Account SID and Phone Number',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Auth token is required only for new setups (when no token exists in database)
+    if (!status?.hasAuthToken && !credentials.authToken) {
+      toast({
+        title: 'Auth Token Required',
+        description: 'Please enter your Twilio Auth Token for initial setup',
         variant: 'destructive',
       });
       return;
@@ -83,12 +94,24 @@ export function AdminSMSSettings() {
 
     setSaving(true);
     try {
+      // Build request body - only include authToken if user entered a new value
+      const requestBody: any = {
+        accountSid: credentials.accountSid,
+        phoneNumber: credentials.phoneNumber,
+        enabled: credentials.enabled,
+      };
+      
+      // Only send authToken if user typed a new value
+      if (credentials.authToken) {
+        requestBody.authToken = credentials.authToken;
+      }
+
       const response = await fetch('/api/admin/sms/credentials', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -363,7 +386,7 @@ export function AdminSMSSettings() {
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Auth Token:</span>
                     <span className="font-mono text-xs" data-testid="text-auth-token">
-                      {credentials.authToken ? '••••••••••••••••' : 'Not configured'}
+                      {status?.hasAuthToken ? '••••••••••••••••' : 'Not configured'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">

@@ -3798,14 +3798,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { accountSid, authToken, phoneNumber, enabled } = req.body;
 
-      if (!accountSid || !authToken || !phoneNumber) {
-        return res.status(400).json({ message: 'All Twilio credentials are required' });
+      // Account SID and Phone Number are always required
+      if (!accountSid || !phoneNumber) {
+        return res.status(400).json({ message: 'Account SID and Phone Number are required' });
       }
 
       // Save credentials to system settings
       await storage.setSetting('TWILIO_ACCOUNT_SID', accountSid, userId);
-      await storage.setSetting('TWILIO_AUTH_TOKEN', authToken, userId);
       await storage.setSetting('TWILIO_PHONE_NUMBER', phoneNumber, userId);
+      
+      // Only update authToken if provided (allows updating other fields without re-entering token)
+      if (authToken) {
+        await storage.setSetting('TWILIO_AUTH_TOKEN', authToken, userId);
+      }
+      
       await storage.setSetting('TWILIO_ENABLED', enabled ? 'true' : 'false', userId);
 
       res.json({ success: true, message: 'Twilio credentials saved successfully' });
