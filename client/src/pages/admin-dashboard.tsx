@@ -724,6 +724,7 @@ export default function AdminDashboard() {
 
   // Bookings management state
   const [bookingStatusFilter, setBookingStatusFilter] = useState("all");
+  const [bookingSegmentFilter, setBookingSegmentFilter] = useState<"all" | "pending" | "confirmed" | "in_progress" | "completed" | "cancelled">("all");
   const [bookingDateFrom, setBookingDateFrom] = useState("");
   const [bookingDateTo, setBookingDateTo] = useState("");
   const [bookingSearch, setBookingSearch] = useState("");
