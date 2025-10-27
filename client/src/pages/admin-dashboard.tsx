@@ -723,7 +723,6 @@ export default function AdminDashboard() {
   });
 
   // Bookings management state
-  const [bookingStatusFilter, setBookingStatusFilter] = useState("all");
   const [bookingSegmentFilter, setBookingSegmentFilter] = useState<"all" | "pending" | "confirmed" | "in_progress" | "completed" | "cancelled">("all");
   const [bookingDateFrom, setBookingDateFrom] = useState("");
   const [bookingDateTo, setBookingDateTo] = useState("");
@@ -1631,28 +1630,17 @@ export default function AdminDashboard() {
 
   // Filter bookings based on criteria
   const filteredBookings = bookings?.filter((booking) => {
-    // Segment filter - primary filter based on segment tabs
-    // Only applies when status dropdown is "all", otherwise dropdown takes precedence
-    if (bookingStatusFilter === "all") {
-      if (bookingSegmentFilter === "all") {
-        // "All" segment excludes completed and cancelled bookings only when dropdown is also "all"
-        if (booking.status === "completed" || booking.status === "cancelled") {
-          return false;
-        }
-      } else {
-        // Specific segment shows only that status
-        if (booking.status !== bookingSegmentFilter) {
-          return false;
-        }
+    // Segment filter - filter based on segment tabs
+    if (bookingSegmentFilter === "all") {
+      // "All" segment excludes completed and cancelled bookings
+      if (booking.status === "completed" || booking.status === "cancelled") {
+        return false;
       }
-    }
-
-    // Status filter (secondary dropdown filter) - takes precedence when set
-    if (
-      bookingStatusFilter !== "all" &&
-      booking.status !== bookingStatusFilter
-    ) {
-      return false;
+    } else {
+      // Specific segment shows only that status
+      if (booking.status !== bookingSegmentFilter) {
+        return false;
+      }
     }
 
     // Date range filter
@@ -3328,30 +3316,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Filters */}
-              <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <Label>Status Filter</Label>
-                  <Select
-                    value={bookingStatusFilter}
-                    onValueChange={setBookingStatusFilter}
-                  >
-                    <SelectTrigger
-                      className="bg-[#ffffff]"
-                      data-testid="filter-booking-status"
-                    >
-                      <SelectValue placeholder="All Statuses" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="confirmed">Confirmed</SelectItem>
-                      <SelectItem value="in_progress">In Progress</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
+              <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label>Date From</Label>
                   <Input
