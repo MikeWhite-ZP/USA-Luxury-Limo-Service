@@ -3385,7 +3385,7 @@ export default function AdminDashboard() {
 
                             {booking.specialInstructions && (
                               <div className="md:col-span-2">
-                                <p className="text-muted-foreground">
+                                <p className="text-[#8a1313] font-bold text-[12px]">
                                   Special Instructions
                                 </p>
                                 <p
