@@ -495,7 +495,7 @@ export function BookingDetailsDialog({
 
                   {/* Via Points Section */}
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between pt-[0px] pb-[0px] text-[13px]">
                       <Label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#ff0000] text-[12px]">Via Points (Optional)</Label>
                       <Button
                         type="button"
