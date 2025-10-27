@@ -3220,7 +3220,7 @@ export default function AdminDashboard() {
           <Card
             id="bookings-section"
             data-testid="bookings-management"
-            className="rounded-lg border text-card-foreground shadow-sm bg-[#f2f1e1] mt-[0px] mb-[0px] text-[12px]"
+            className="rounded-lg border text-card-foreground shadow-sm text-[12px] bg-[#ffffff] mt-[0px] mb-[0px]"
           >
             <CardHeader>
               <div className="flex items-center justify-between">
