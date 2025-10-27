@@ -3537,7 +3537,7 @@ export default function AdminDashboard() {
                                 setEditDriverPaymentDialogOpen(true);
                               }}
                               data-testid={`button-edit-driver-payment-${booking.id}`}
-                              className="bg-[#22c55e]"
+                              className="bg-[#e3dac5] text-[12px] pl-[0px] pr-[0px]"
                             >
                               <DollarSign className="w-4 h-4 mr-2" />
                               Driver Payment
