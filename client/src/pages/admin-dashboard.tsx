@@ -3549,7 +3549,7 @@ export default function AdminDashboard() {
                             variant="outline"
                             onClick={() => openEditBookingDialog(booking)}
                             data-testid={`button-edit-booking-${booking.id}`}
-                            className="bg-[#6dd670]"
+                            className="bg-[#c9edd0] text-[12px] pl-[0px] pr-[0px]"
                           >
                             <Edit2 className="w-4 h-4 mr-2" />
                             Edit
