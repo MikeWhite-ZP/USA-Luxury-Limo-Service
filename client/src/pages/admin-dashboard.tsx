@@ -3569,7 +3569,7 @@ export default function AdminDashboard() {
                             }}
                             disabled={deleteBookingMutation.isPending}
                             data-testid={`button-delete-booking-${booking.id}`}
-                            className="bg-[#f24949]"
+                            className="bg-[#8da8e38a] pl-[0px] pr-[0px] text-[12px]"
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
                             Delete
