@@ -58,7 +58,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
             <Link href="/admin-pricing">
               <Button 
                 variant="ghost" 
-                className={`text-primary-foreground hover:bg-white/10 rounded-none border-b-2 ${
+                className={`text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 ${
                   location === '/admin-pricing' ? 'border-white' : 'border-transparent'
                 } hover:border-white/50`}
                 data-testid="nav-pricing"
@@ -72,7 +72,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:text-accent-foreground h-10 px-4 py-2 text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50 text-[12px]"
                   data-testid="nav-credentials"
                 >
                   <Key className="w-4 h-4 mr-2" />
@@ -114,7 +114,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                  className="text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
                   data-testid="nav-user-manager"
                 >
                   <Users className="w-4 h-4 mr-2" />
@@ -195,7 +195,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                  className="text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
                   data-testid="nav-settings"
                 >
                   <SettingsIcon className="w-4 h-4 mr-2" />
@@ -250,7 +250,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                  className="text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
                   data-testid="nav-cms"
                 >
                   <FileText className="w-4 h-4 mr-2" />
@@ -290,7 +290,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
             
             <Button 
               variant="ghost" 
-              className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+              className="text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
               onClick={() => {
                 if (location !== '/admin-dashboard') {
                   setLocation('/admin-dashboard');
@@ -307,7 +307,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
             
             <Button 
               variant="ghost" 
-              className="text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+              className="text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
               onClick={handleLogout}
               disabled={logoutMutation.isPending}
               data-testid="nav-logout"
