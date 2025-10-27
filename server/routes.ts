@@ -3770,12 +3770,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const enabledSetting = await storage.getSetting('TWILIO_ENABLED');
       const enabled = enabledSetting?.value === 'true';
       
-      res.json({ ...status, enabled });
+      // Check if auth token exists in database (don't return the actual value for security)
+      const authTokenSetting = await storage.getSetting('TWILIO_AUTH_TOKEN');
+      const hasAuthToken = !!authTokenSetting?.value;
+      
+      res.json({ ...status, enabled, hasAuthToken });
     } catch (error) {
       console.error('SMS status check error:', error);
       res.status(500).json({ 
         connected: false,
         enabled: false,
+        hasAuthToken: false,
         error: 'Failed to check SMS connection status' 
       });
     }
