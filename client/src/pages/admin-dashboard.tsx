@@ -3241,6 +3241,76 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
+              {/* Segmented Status Menu */}
+              <div className="mb-6 flex flex-wrap gap-2" data-testid="booking-segment-menu">
+                <button
+                  onClick={() => setBookingSegmentFilter("all")}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    bookingSegmentFilter === "all"
+                      ? "bg-[#f79952] text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                  data-testid="segment-all"
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setBookingSegmentFilter("pending")}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    bookingSegmentFilter === "pending"
+                      ? "bg-[#f79952] text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                  data-testid="segment-pending"
+                >
+                  Pending
+                </button>
+                <button
+                  onClick={() => setBookingSegmentFilter("confirmed")}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    bookingSegmentFilter === "confirmed"
+                      ? "bg-[#f79952] text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                  data-testid="segment-confirmed"
+                >
+                  Confirmed
+                </button>
+                <button
+                  onClick={() => setBookingSegmentFilter("in_progress")}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    bookingSegmentFilter === "in_progress"
+                      ? "bg-[#f79952] text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                  data-testid="segment-in-progress"
+                >
+                  In Progress
+                </button>
+                <button
+                  onClick={() => setBookingSegmentFilter("completed")}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    bookingSegmentFilter === "completed"
+                      ? "bg-[#f79952] text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                  data-testid="segment-completed"
+                >
+                  Completed
+                </button>
+                <button
+                  onClick={() => setBookingSegmentFilter("cancelled")}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    bookingSegmentFilter === "cancelled"
+                      ? "bg-[#f79952] text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                  data-testid="segment-cancelled"
+                >
+                  Cancelled
+                </button>
+              </div>
+
               {/* Filters */}
               <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
