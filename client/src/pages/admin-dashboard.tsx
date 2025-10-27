@@ -3226,7 +3226,7 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center space-x-2">
                   <MessageSquare className="w-5 h-5" />
-                  <span>Bookings Management</span>
+                  <span className="text-[#de0d0d]">Bookings Management</span>
                 </CardTitle>
                 <Button
                   onClick={openAddBookingDialog}
