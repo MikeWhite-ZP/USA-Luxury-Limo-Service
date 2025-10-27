@@ -52,7 +52,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
           </h1>
         </div>
       </div>
-      <div className="border-t border-white/20">
+      <div className="border-t border-white/20 text-[12px]">
         <div className="max-w-7xl mx-auto px-6">
           <nav className="flex space-x-1" data-testid="admin-nav">
             <Link href="/admin-pricing">
