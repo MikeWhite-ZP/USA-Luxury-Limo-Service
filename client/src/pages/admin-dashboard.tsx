@@ -3350,7 +3350,7 @@ export default function AdminDashboard() {
                             </Badge>
                           </div>
 
-                          <div className="grid md:grid-cols-2 gap-4 text-sm">
+                          <div className="grid md:grid-cols-2 gap-4 text-[12px]">
                             <div>
                               <p className="text-muted-foreground">Passenger</p>
                               <p
