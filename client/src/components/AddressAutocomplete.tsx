@@ -193,7 +193,7 @@ export function AddressAutocomplete({
         </div>
 
         {/* Saved Addresses Dropdown Selector */}
-        {savedAddresses && savedAddresses.length > 0 && (
+        {savedAddresses && savedAddresses.length > 0 && !disabled && (
           <Select
             value=""
             onValueChange={(addressId) => {
