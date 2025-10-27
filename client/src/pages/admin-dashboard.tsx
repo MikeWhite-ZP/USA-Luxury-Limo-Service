@@ -3512,6 +3512,12 @@ export default function AdminDashboard() {
                             variant="outline"
                             onClick={() => {
                               setAssigningBookingId(booking.id);
+                              // Pre-populate with current driver and payment if editing
+                              if (booking.driverId) {
+                                setSelectedDriverForAssignment(booking.driverId);
+                                setManualDriverPayment(booking.driverPayment || "");
+                                setCalculatedDriverPayment(booking.driverPayment || "");
+                              }
                               setAssignDriverDialogOpen(true);
                             }}
                             data-testid={`button-assign-driver-${booking.id}`}
@@ -3522,25 +3528,6 @@ export default function AdminDashboard() {
                               ? "Change Driver"
                               : "Assign Driver"}
                           </Button>
-
-                          {booking.driverId && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setEditingDriverPaymentBookingId(booking.id);
-                                setNewDriverPayment(
-                                  booking.driverPayment || "",
-                                );
-                                setEditDriverPaymentDialogOpen(true);
-                              }}
-                              data-testid={`button-edit-driver-payment-${booking.id}`}
-                              className="bg-[#e3dac5] text-[12px] pl-[0px] pr-[0px]"
-                            >
-                              <DollarSign className="w-4 h-4 mr-2" />
-                              Driver Payment
-                            </Button>
-                          )}
 
                           <Button
                             size="sm"
@@ -3619,7 +3606,11 @@ export default function AdminDashboard() {
         >
           <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#ffffff]">
             <DialogHeader>
-              <DialogTitle>Assign Driver & Set Payment</DialogTitle>
+              <DialogTitle>
+                {assigningBookingId && bookings?.find(b => b.id === assigningBookingId)?.driverId 
+                  ? "Change Driver & Update Payment" 
+                  : "Assign Driver & Set Payment"}
+              </DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
                 Select a driver and review the auto-calculated payment amount
                 based on system commission settings.
@@ -3742,8 +3733,8 @@ export default function AdminDashboard() {
                   data-testid="button-confirm-assign"
                 >
                   {assignDriverMutation.isPending
-                    ? "Assigning..."
-                    : "Assign Driver"}
+                    ? (assigningBookingId && bookings?.find(b => b.id === assigningBookingId)?.driverId ? "Updating..." : "Assigning...")
+                    : (assigningBookingId && bookings?.find(b => b.id === assigningBookingId)?.driverId ? "Update Driver" : "Assign Driver")}
                 </Button>
               </div>
             </div>
