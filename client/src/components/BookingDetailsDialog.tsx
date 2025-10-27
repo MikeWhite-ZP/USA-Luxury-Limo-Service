@@ -493,66 +493,68 @@ export function BookingDetailsDialog({
                     data-testid="input-pickup-address"
                   />
 
-                  {/* Via Points Section */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between pt-[0px] pb-[0px] text-[13px]">
-                      <Label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#ff0000] text-[12px]">Via Points (Optional)</Label>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          const newViaPoints = [...(formData.viaPoints || []), { address: '', lat: 0, lon: 0 }];
-                          setFormData({ ...formData, viaPoints: newViaPoints });
-                        }}
-                        data-testid="button-add-via-point"
-                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 text-xs text-[#ff0000] bg-[#ffffff]"
-                      >
-                        <Plus className="w-3 h-3 mr-1" />
-                        Add Via Point
-                      </Button>
-                    </div>
-                    
-                    {formData.viaPoints && formData.viaPoints.length > 0 && (
-                      <div className="space-y-3">
-                        {formData.viaPoints.map((viaPoint, index) => (
-                          <div key={index} className="relative">
-                            <AddressAutocomplete
-                              id={`via-point-${index}`}
-                              label={`Via Point ${index + 1}`}
-                              value={viaPoint.address}
-                              onChange={(value, coords) => {
-                                const newViaPoints = [...(formData.viaPoints || [])];
-                                newViaPoints[index] = {
-                                  address: value,
-                                  lat: coords?.lat || 0,
-                                  lon: coords?.lon || 0,
-                                };
-                                setFormData({ ...formData, viaPoints: newViaPoints });
-                              }}
-                              placeholder="Enter via point address"
-                              userId={formData.passengerId}
-                              required={false}
-                              data-testid={`input-via-point-${index}`}
-                            />
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                const newViaPoints = (formData.viaPoints || []).filter((_, i) => i !== index);
-                                setFormData({ ...formData, viaPoints: newViaPoints });
-                              }}
-                              className="absolute top-0 right-0 text-red-600 hover:text-red-800 hover:bg-red-50"
-                              data-testid={`button-remove-via-point-${index}`}
-                            >
-                              <XCircle className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ))}
+                  {/* Via Points Section - Hidden for Hourly Service */}
+                  {formData.bookingType !== 'hourly' && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between pt-[0px] pb-[0px] text-[13px]">
+                        <Label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#ff0000] text-[12px]">Via Points (Optional)</Label>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const newViaPoints = [...(formData.viaPoints || []), { address: '', lat: 0, lon: 0 }];
+                            setFormData({ ...formData, viaPoints: newViaPoints });
+                          }}
+                          data-testid="button-add-via-point"
+                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 text-xs text-[#ff0000] bg-[#ffffff]"
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          Add Via Point
+                        </Button>
                       </div>
-                    )}
-                  </div>
+                      
+                      {formData.viaPoints && formData.viaPoints.length > 0 && (
+                        <div className="space-y-3">
+                          {formData.viaPoints.map((viaPoint, index) => (
+                            <div key={index} className="relative">
+                              <AddressAutocomplete
+                                id={`via-point-${index}`}
+                                label={`Via Point ${index + 1}`}
+                                value={viaPoint.address}
+                                onChange={(value, coords) => {
+                                  const newViaPoints = [...(formData.viaPoints || [])];
+                                  newViaPoints[index] = {
+                                    address: value,
+                                    lat: coords?.lat || 0,
+                                    lon: coords?.lon || 0,
+                                  };
+                                  setFormData({ ...formData, viaPoints: newViaPoints });
+                                }}
+                                placeholder="Enter via point address"
+                                userId={formData.passengerId}
+                                required={false}
+                                data-testid={`input-via-point-${index}`}
+                              />
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  const newViaPoints = (formData.viaPoints || []).filter((_, i) => i !== index);
+                                  setFormData({ ...formData, viaPoints: newViaPoints });
+                                }}
+                                className="absolute top-0 right-0 text-red-600 hover:text-red-800 hover:bg-red-50"
+                                data-testid={`button-remove-via-point-${index}`}
+                              >
+                                <XCircle className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Destination Address with Saved Addresses */}
                   <AddressAutocomplete
