@@ -2012,6 +2012,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const passenger = await storage.getUser(booking.passengerId);
 
+      // Get dynamic logo URL from CMS settings
+      const logoSetting = await storage.getCmsSetting('BRAND_LOGO_URL');
+      const logoUrl = logoSetting?.value || '';
+      
+      // Get base URL for logo (for email context)
+      const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+        : 'https://your-domain.com';
+
       const emailHtml = `
         <!DOCTYPE html>
         <html>
@@ -2023,8 +2032,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f5f5f5; }
             .email-wrapper { background-color: #f5f5f5; padding: 20px; }
             .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-            .header { padding: 20px; border-bottom: 3px solid #4CAF50; }
+            .header { padding: 20px; border-bottom: 3px solid #4CAF50; text-align: center; }
             .logo { font-size: 24px; font-weight: bold; color: #000; margin-bottom: 5px; }
+            .logo-img { max-height: 60px; max-width: 250px; margin: 0 auto 10px; display: block; }
             .tagline { font-size: 12px; color: #666; }
             .success-banner { background-color: #d4edda; padding: 15px; text-align: center; margin: 0; border-bottom: 1px solid #c3e6cb; }
             .success-banner h2 { color: #155724; font-size: 18px; margin: 0; }
@@ -2050,7 +2060,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             <div class="container">
               <!-- Header -->
               <div class="header">
-                <div class="logo">USA Luxury Limo</div>
+                ${logoUrl ? `
+                  <img src="${logoUrl.startsWith('http') ? logoUrl : baseUrl + logoUrl}" alt="USA Luxury Limo" class="logo-img" />
+                ` : `
+                  <div class="logo">USA Luxury Limo</div>
+                `}
                 <div class="tagline">Ride in Style, Always on Time</div>
               </div>
 
