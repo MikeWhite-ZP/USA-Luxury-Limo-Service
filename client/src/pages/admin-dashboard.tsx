@@ -1318,7 +1318,7 @@ function InvoiceManagement() {
 
       {/* Backfill Invoices Dialog */}
       <Dialog open={backfillDialogOpen} onOpenChange={setBackfillDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] bg-[#ffffff] text-[12px]">
           <DialogHeader>
             <DialogTitle>Backfill Missing Invoices</DialogTitle>
             <DialogDescription>
