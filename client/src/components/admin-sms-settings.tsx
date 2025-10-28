@@ -237,11 +237,21 @@ export function AdminSMSSettings() {
                     {credentials.enabled ? 'SMS notifications are active' : 'SMS notifications are disabled'}
                   </p>
                 </div>
-                <Switch
-                  checked={credentials.enabled}
-                  onCheckedChange={handleToggleEnabled}
-                  data-testid="switch-sms-enabled"
-                />
+                <div className="flex items-center gap-3">
+                  <span className={`text-sm font-semibold ${credentials.enabled ? 'text-green-600' : 'text-red-600'}`}>
+                    {credentials.enabled ? 'ON' : 'OFF'}
+                  </span>
+                  <div className={`relative inline-flex items-center rounded-full p-1 transition-colors ${
+                    credentials.enabled ? 'bg-green-600' : 'bg-red-600'
+                  }`}>
+                    <Switch
+                      checked={credentials.enabled}
+                      onCheckedChange={handleToggleEnabled}
+                      data-testid="switch-sms-enabled"
+                      className="data-[state=checked]:bg-green-700 data-[state=unchecked]:bg-red-700"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
