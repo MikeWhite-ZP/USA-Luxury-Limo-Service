@@ -261,12 +261,65 @@ export default function DriverDashboard() {
     },
   });
 
+  // Accept booking mutation
+  const acceptBookingMutation = useMutation({
+    mutationFn: async (bookingId: string) => {
+      const response = await apiRequest('POST', `/api/bookings/${bookingId}/accept`, {});
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to accept booking');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      toast({
+        title: "Booking Accepted",
+        description: "You have successfully accepted this booking.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to accept booking",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Decline booking mutation
+  const declineBookingMutation = useMutation({
+    mutationFn: async ({ bookingId, reason }: { bookingId: string; reason?: string }) => {
+      const response = await apiRequest('POST', `/api/bookings/${bookingId}/decline`, { reason });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to decline booking');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      toast({
+        title: "Booking Declined",
+        description: "You have declined this booking. It will be reassigned to another driver.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to decline booking",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleAcceptRide = (bookingId: string) => {
-    updateBookingMutation.mutate({ id: bookingId, status: 'confirmed' });
+    acceptBookingMutation.mutate(bookingId);
   };
 
   const handleDeclineRide = (bookingId: string) => {
-    updateBookingMutation.mutate({ id: bookingId, status: 'cancelled' });
+    // Could add a confirmation dialog here with reason input
+    declineBookingMutation.mutate({ bookingId });
   };
 
   const handleCompleteRide = (bookingId: string) => {
@@ -354,7 +407,10 @@ export default function DriverDashboard() {
   const completedRides = bookings?.filter(b => b.status === 'completed').length || 0;
   const pendingBookings = bookings?.filter(b => b.status === 'pending') || [];
   const activeBooking = bookings?.find(b => b.status === 'in_progress');
-  const assignedBookings = bookings?.filter(b => b.status === 'confirmed' || b.status === 'in_progress') || [];
+  // Show ALL bookings assigned to this driver (except completed/cancelled)
+  const assignedBookings = bookings?.filter(b => 
+    b.status !== 'completed' && b.status !== 'cancelled' && b.status !== 'pending'
+  ) || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -870,10 +926,38 @@ export default function DriverDashboard() {
                             <strong>Your Payment:</strong> ${booking.driverPayment || 'Not set'}
                           </div>
                         </div>
-                        <Badge variant="default" data-testid={`assigned-status-${booking.id}`}>
-                          {booking.status}
+                        <Badge 
+                          variant={booking.status === 'pending_driver_acceptance' ? 'secondary' : 'default'} 
+                          data-testid={`assigned-status-${booking.id}`}
+                        >
+                          {booking.status === 'pending_driver_acceptance' ? 'Awaiting Your Response' : booking.status}
                         </Badge>
                       </div>
+                      
+                      {/* Accept/Decline buttons for pending acceptance */}
+                      {booking.status === 'pending_driver_acceptance' && (
+                        <div className="flex space-x-2 pt-2">
+                          <Button 
+                            onClick={() => handleAcceptRide(booking.id)}
+                            disabled={acceptBookingMutation.isPending || declineBookingMutation.isPending}
+                            className="flex-1 bg-green-600 hover:bg-green-700"
+                            data-testid={`button-accept-${booking.id}`}
+                          >
+                            {acceptBookingMutation.isPending ? 'Accepting...' : 'Accept Ride'}
+                          </Button>
+                          <Button 
+                            onClick={() => handleDeclineRide(booking.id)}
+                            disabled={acceptBookingMutation.isPending || declineBookingMutation.isPending}
+                            variant="destructive"
+                            className="flex-1"
+                            data-testid={`button-decline-${booking.id}`}
+                          >
+                            {declineBookingMutation.isPending ? 'Declining...' : 'Decline'}
+                          </Button>
+                        </div>
+                      )}
+                      
+                      {/* Complete button for in-progress rides */}
                       {booking.status === 'in_progress' && (
                         <div className="flex space-x-2">
                           <Button 
