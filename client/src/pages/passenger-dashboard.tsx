@@ -1441,21 +1441,47 @@ export default function PassengerDashboard() {
                 <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
               </div>
             ) : addresses && addresses.length > 0 ? (
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="space-y-3">
                 {addresses.map((address) => {
                   const IconComponent = getAddressIcon(address.label);
                   return (
                     <div
                       key={address.id}
-                      className="bg-muted rounded-lg p-4 group"
+                      className="bg-muted rounded-lg p-4 group flex items-center justify-between gap-4"
                       data-testid={`address-${address.id}`}
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center space-x-2">
-                          <IconComponent className="w-5 h-5 text-primary" />
-                          <span className="font-medium" data-testid={`address-label-${address.id}`}>
+                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                        <IconComponent className="w-5 h-5 text-primary flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <span className="font-medium block" data-testid={`address-label-${address.id}`}>
                             {address.label}
                           </span>
+                          <p className="text-sm text-muted-foreground truncate" data-testid={`address-text-${address.id}`}>
+                            {address.address}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground mb-1 whitespace-nowrap">Easy Book With !</p>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => window.location.href = `/?from=${encodeURIComponent(address.address)}`}
+                              data-testid={`button-from-${address.id}`}
+                            >
+                              From
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => window.location.href = `/?to=${encodeURIComponent(address.address)}`}
+                              data-testid={`button-to-${address.id}`}
+                            >
+                              To
+                            </Button>
+                          </div>
                         </div>
                         <button
                           onClick={(e) => {
@@ -1467,29 +1493,6 @@ export default function PassengerDashboard() {
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3" data-testid={`address-text-${address.id}`}>
-                        {address.address}
-                      </p>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.location.href = `/?from=${encodeURIComponent(address.address)}`}
-                          className="flex-1"
-                          data-testid={`button-from-${address.id}`}
-                        >
-                          From
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.location.href = `/?to=${encodeURIComponent(address.address)}`}
-                          className="flex-1"
-                          data-testid={`button-to-${address.id}`}
-                        >
-                          To
-                        </Button>
                       </div>
                     </div>
                   );
