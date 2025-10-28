@@ -1,6 +1,7 @@
 import { storage } from './storage';
 import { sendSMS } from './sms';
 import { sendEmail } from './email';
+import { sendCancelledBookingReport } from './emailReports';
 
 /**
  * Auto-cancel bookings that are past their scheduled time
@@ -32,7 +33,7 @@ export async function autoCancelExpiredBookings() {
       if (shouldCancel) {
         console.log(`[AUTO-CANCEL] Cancelling expired booking ${booking.id}`);
         
-        await storage.updateBooking(booking.id, {
+        const updatedBooking = await storage.updateBooking(booking.id, {
           status: 'cancelled' as any,
           autoCancelledAt: now,
           cancelReason: 'Automatically cancelled - scheduled time passed without driver starting trip',
@@ -59,6 +60,20 @@ export async function autoCancelExpiredBookings() {
                 <p>Please book again if you still need transportation.</p>
               `,
             });
+          }
+          
+          // Send system admin cancellation report
+          if (passenger) {
+            const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+            if (vehicleType) {
+              await sendCancelledBookingReport(
+                updatedBooking,
+                passenger,
+                vehicleType.name || 'Unknown Vehicle',
+                'system',
+                'Automatically cancelled - scheduled time passed without driver starting trip'
+              );
+            }
           }
         } catch (error) {
           console.error('[AUTO-CANCEL] Failed to send notification:', error);

@@ -839,7 +839,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update booking: remove driver assignment and revert to pending status
-      await storage.updateBooking(id, {
+      const updatedBooking = await storage.updateBooking(id, {
         status: 'pending',
         driverId: null,
         driverPayment: null,
@@ -861,6 +861,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 html: `<p>${notificationMessage}</p><p>Pickup: ${booking.pickupAddress}</p><p>Passenger: ${booking.passengerName || 'N/A'}</p><p>Please reassign this booking to another driver.</p>`,
               });
             }
+          }
+          
+          // Send system admin cancellation report
+          const passenger = await storage.getUser(booking.passengerId);
+          const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+          if (passenger && vehicleType) {
+            await sendCancelledBookingReport(
+              updatedBooking,
+              passenger,
+              vehicleType.name || 'Unknown Vehicle',
+              'driver',
+              reason || 'Driver declined the booking'
+            );
           }
         } catch (error) {
           console.error('Error sending driver declination notification:', error);
@@ -1240,7 +1253,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update booking status to cancelled
-      const updatedBooking = await storage.updateBooking(id, { status: 'cancelled' });
+      const updatedBooking = await storage.updateBooking(id, { status: 'cancelled', cancelledAt: new Date(), cancelReason: req.body.reason || 'Cancelled by user' });
+      
+      // Send system admin report (fire-and-forget)
+      (async () => {
+        try {
+          const passenger = await storage.getUser(booking.passengerId);
+          const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+          if (passenger && vehicleType) {
+            await sendCancelledBookingReport(
+              updatedBooking,
+              passenger,
+              vehicleType.name || 'Unknown Vehicle',
+              'passenger',
+              req.body.reason || 'No reason provided'
+            );
+          }
+        } catch (error) {
+          console.error('[EMAIL REPORT] Failed to send cancellation report:', error);
+        }
+      })();
+      
       res.json(updatedBooking);
     } catch (error) {
       console.error('Cancel booking error:', error);
