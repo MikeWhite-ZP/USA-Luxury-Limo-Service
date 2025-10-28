@@ -2103,8 +2103,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     <span class="info-value">${new Date(booking.scheduledDateTime).toLocaleString()}</span>
                   </div>
                   <div class="info-row">
-                    <span class="info-label">Booking ID</span>
-                    <span class="info-value">${booking.id}</span>
+                    <span class="info-label">Booking REF#</span>
+                    <span class="info-value">${booking.id.toUpperCase().substring(0, 8)}</span>
                   </div>
                 </div>
 

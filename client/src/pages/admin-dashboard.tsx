@@ -1143,7 +1143,7 @@ function InvoiceManagement() {
                   </div>
                   <div className="col-span-2">
                     <p className="text-gray-600 mb-1">Booking ID</p>
-                    <p className="font-mono text-xs" data-testid="view-booking-id">{selectedInvoice.bookingId}</p>
+                    <p className="font-mono text-xs" data-testid="view-booking-id">#{selectedInvoice.bookingId.toUpperCase().substring(0, 8)}</p>
                   </div>
                   {selectedInvoice.paidAt && (
                     <div className="col-span-2">
