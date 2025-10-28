@@ -1901,6 +1901,234 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Invoice management endpoints
+  app.get('/api/invoices', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const invoices = await storage.getAllInvoices();
+      res.json(invoices);
+    } catch (error) {
+      console.error('Get invoices error:', error);
+      res.status(500).json({ message: 'Failed to fetch invoices' });
+    }
+  });
+
+  app.get('/api/invoices/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const invoice = await storage.getInvoice(req.params.id);
+      if (!invoice) {
+        return res.status(404).json({ message: 'Invoice not found' });
+      }
+
+      res.json(invoice);
+    } catch (error) {
+      console.error('Get invoice error:', error);
+      res.status(500).json({ message: 'Failed to fetch invoice' });
+    }
+  });
+
+  app.put('/api/invoices/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { subtotal, taxAmount, totalAmount, paidAt } = req.body;
+      
+      const updated = await storage.updateInvoice(req.params.id, {
+        subtotal,
+        taxAmount,
+        totalAmount,
+        paidAt: paidAt ? new Date(paidAt) : undefined,
+      });
+
+      if (!updated) {
+        return res.status(404).json({ message: 'Invoice not found' });
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error('Update invoice error:', error);
+      res.status(500).json({ message: 'Failed to update invoice' });
+    }
+  });
+
+  app.delete('/api/invoices/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      await storage.deleteInvoice(req.params.id);
+      res.json({ message: 'Invoice deleted successfully' });
+    } catch (error) {
+      console.error('Delete invoice error:', error);
+      res.status(500).json({ message: 'Failed to delete invoice' });
+    }
+  });
+
+  app.post('/api/invoices/:id/email', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { recipientEmail } = req.body;
+      if (!recipientEmail) {
+        return res.status(400).json({ message: 'Recipient email is required' });
+      }
+
+      const invoice = await storage.getInvoice(req.params.id);
+      if (!invoice) {
+        return res.status(404).json({ message: 'Invoice not found' });
+      }
+
+      const booking = await storage.getBooking(invoice.bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: 'Associated booking not found' });
+      }
+
+      const passenger = await storage.getUser(booking.passengerId);
+
+      // Get SMTP settings
+      const smtpHost = await storage.getSystemSetting('SMTP_HOST');
+      const smtpPort = await storage.getSystemSetting('SMTP_PORT');
+      const smtpUser = await storage.getSystemSetting('SMTP_USER');
+      const smtpPassword = await storage.getSystemSetting('SMTP_PASSWORD');
+      const smtpFromEmail = await storage.getSystemSetting('SMTP_FROM_EMAIL');
+      const smtpFromName = await storage.getSystemSetting('SMTP_FROM_NAME');
+
+      if (!smtpHost || !smtpPort || !smtpUser || !smtpPassword || !smtpFromEmail) {
+        return res.status(500).json({ 
+          message: 'Email settings not configured. Please configure SMTP settings in admin panel.' 
+        });
+      }
+
+      const nodemailer = await import('nodemailer');
+      const transporter = nodemailer.createTransporter({
+        host: smtpHost.value,
+        port: parseInt(smtpPort.value || '587'),
+        secure: smtpPort.value === '465',
+        auth: {
+          user: smtpUser.value,
+          pass: smtpPassword.value,
+        },
+      });
+
+      const emailHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #000; color: #fff; padding: 20px; text-align: center; }
+            .invoice-details { background-color: #f5f5f5; padding: 20px; margin: 20px 0; }
+            .invoice-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ddd; }
+            .total { font-weight: bold; font-size: 1.2em; margin-top: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>USA Luxury Limo</h1>
+              <p>Invoice #${invoice.invoiceNumber}</p>
+            </div>
+            <div class="invoice-details">
+              <h2>Invoice Details</h2>
+              <div class="invoice-row">
+                <span>Customer:</span>
+                <span>${passenger?.firstName} ${passenger?.lastName}</span>
+              </div>
+              <div class="invoice-row">
+                <span>Invoice Number:</span>
+                <span>${invoice.invoiceNumber}</span>
+              </div>
+              <div class="invoice-row">
+                <span>Invoice Date:</span>
+                <span>${new Date(invoice.createdAt).toLocaleDateString()}</span>
+              </div>
+              <div class="invoice-row">
+                <span>Booking Date:</span>
+                <span>${new Date(booking.scheduledDateTime).toLocaleDateString()}</span>
+              </div>
+              <div class="invoice-row">
+                <span>Pickup Location:</span>
+                <span>${booking.pickupAddress}</span>
+              </div>
+              ${booking.dropoffAddress ? `
+              <div class="invoice-row">
+                <span>Dropoff Location:</span>
+                <span>${booking.dropoffAddress}</span>
+              </div>
+              ` : ''}
+              <hr style="margin: 20px 0;">
+              <div class="invoice-row">
+                <span>Subtotal:</span>
+                <span>$${parseFloat(invoice.subtotal).toFixed(2)}</span>
+              </div>
+              <div class="invoice-row">
+                <span>Tax:</span>
+                <span>$${parseFloat(invoice.taxAmount).toFixed(2)}</span>
+              </div>
+              <div class="invoice-row total">
+                <span>Total Amount:</span>
+                <span>$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
+              </div>
+              ${invoice.paidAt ? `
+              <div class="invoice-row">
+                <span>Payment Date:</span>
+                <span>${new Date(invoice.paidAt).toLocaleDateString()}</span>
+              </div>
+              <div style="text-align: center; margin-top: 20px; color: green; font-weight: bold;">
+                PAID
+              </div>
+              ` : ''}
+            </div>
+            <p style="text-align: center; color: #666; font-size: 0.9em;">
+              Thank you for choosing USA Luxury Limo!
+            </p>
+          </div>
+        </body>
+        </html>
+      `;
+
+      await transporter.sendMail({
+        from: `${smtpFromName?.value || 'USA Luxury Limo'} <${smtpFromEmail.value}>`,
+        to: recipientEmail,
+        subject: `Invoice #${invoice.invoiceNumber} - USA Luxury Limo`,
+        html: emailHtml,
+      });
+
+      res.json({ message: 'Invoice sent successfully' });
+    } catch (error) {
+      console.error('Email invoice error:', error);
+      res.status(500).json({ message: 'Failed to send invoice email' });
+    }
+  });
+
   // Admin bookings management endpoints
   app.get('/api/admin/bookings', isAuthenticated, async (req: any, res) => {
     try {
