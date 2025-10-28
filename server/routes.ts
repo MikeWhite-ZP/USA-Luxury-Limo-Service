@@ -2104,7 +2104,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   </div>
                   <div class="info-row">
                     <span class="info-label">Booking REF#</span>
-                    <span class="info-value">${booking.id.toUpperCase().substring(0, 8)}</span>
+                    <span class="info-value">#${booking.id.toUpperCase().substring(0, 8)}</span>
                   </div>
                 </div>
 

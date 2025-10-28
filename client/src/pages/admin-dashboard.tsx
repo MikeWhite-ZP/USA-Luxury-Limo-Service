@@ -962,7 +962,7 @@ function InvoiceManagement() {
           </div>
           <div class="invoice-row">
             <span class="label">Booking ID:</span>
-            <span>${invoice.bookingId}</span>
+            <span>#${invoice.bookingId.toUpperCase().substring(0, 8)}</span>
           </div>
           ${invoice.paidAt ? `
             <div class="invoice-row">
