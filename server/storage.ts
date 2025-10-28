@@ -117,6 +117,10 @@ export interface IStorage {
   // Invoices
   createInvoice(invoice: Omit<Invoice, 'id' | 'createdAt'>): Promise<Invoice>;
   getInvoiceByBooking(bookingId: string): Promise<Invoice | undefined>;
+  getAllInvoices(): Promise<Invoice[]>;
+  getInvoice(id: string): Promise<Invoice | undefined>;
+  updateInvoice(id: string, updates: Partial<Omit<Invoice, 'id' | 'createdAt'>>): Promise<Invoice | undefined>;
+  deleteInvoice(id: string): Promise<void>;
   
   // Admin dashboard data
   getAdminDashboardStats(): Promise<{
