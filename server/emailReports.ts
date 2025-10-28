@@ -4,7 +4,7 @@ import type { Booking, User } from '@shared/schema';
 
 async function getSystemAdminEmail(): Promise<string | null> {
   try {
-    const setting = await storage.getSystemSetting('systemAdminEmail');
+    const setting = await storage.getSystemSetting('SYSTEM_ADMIN_EMAIL');
     return setting?.value || null;
   } catch (error) {
     console.error('Error fetching system admin email:', error);
