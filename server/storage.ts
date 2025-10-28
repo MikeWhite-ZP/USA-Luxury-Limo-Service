@@ -600,6 +600,36 @@ export class DatabaseStorage implements IStorage {
     return invoice;
   }
 
+  async getAllInvoices(): Promise<Invoice[]> {
+    return await db
+      .select()
+      .from(invoices)
+      .orderBy(desc(invoices.createdAt));
+  }
+
+  async getInvoice(id: string): Promise<Invoice | undefined> {
+    const [invoice] = await db
+      .select()
+      .from(invoices)
+      .where(eq(invoices.id, id));
+    return invoice;
+  }
+
+  async updateInvoice(id: string, updates: Partial<Omit<Invoice, 'id' | 'createdAt'>>): Promise<Invoice | undefined> {
+    const [updated] = await db
+      .update(invoices)
+      .set(updates)
+      .where(eq(invoices.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteInvoice(id: string): Promise<void> {
+    await db
+      .delete(invoices)
+      .where(eq(invoices.id, id));
+  }
+
   async getAdminDashboardStats(): Promise<{
     totalRevenue: string;
     totalCommission: string;
