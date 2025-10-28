@@ -12,7 +12,6 @@ import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sen
 import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityReport } from "./emailReports";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
-import nodemailer from "nodemailer";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -2013,30 +2012,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const passenger = await storage.getUser(booking.passengerId);
 
-      // Get SMTP settings
-      const smtpHost = await storage.getSystemSetting('SMTP_HOST');
-      const smtpPort = await storage.getSystemSetting('SMTP_PORT');
-      const smtpUser = await storage.getSystemSetting('SMTP_USER');
-      const smtpPassword = await storage.getSystemSetting('SMTP_PASSWORD');
-      const smtpFromEmail = await storage.getSystemSetting('SMTP_FROM_EMAIL');
-      const smtpFromName = await storage.getSystemSetting('SMTP_FROM_NAME');
-
-      if (!smtpHost || !smtpPort || !smtpUser || !smtpPassword || !smtpFromEmail) {
-        return res.status(500).json({ 
-          message: 'Email settings not configured. Please configure SMTP settings in admin panel.' 
-        });
-      }
-
-      const transporter = nodemailer.createTransport({
-        host: smtpHost.value,
-        port: parseInt(smtpPort.value || '587'),
-        secure: smtpPort.value === '465',
-        auth: {
-          user: smtpUser.value,
-          pass: smtpPassword.value,
-        },
-      });
-
       const emailHtml = `
         <!DOCTYPE html>
         <html>
@@ -2192,12 +2167,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         </html>
       `;
 
-      await transporter.sendMail({
-        from: `${smtpFromName?.value || 'USA Luxury Limo'} <${smtpFromEmail.value}>`,
+      const emailSent = await sendEmail({
         to: recipientEmail,
         subject: `Invoice #${invoice.invoiceNumber} - USA Luxury Limo`,
         html: emailHtml,
       });
+
+      if (!emailSent) {
+        return res.status(500).json({ 
+          message: 'Failed to send email. Please check SMTP settings.' 
+        });
+      }
 
       res.json({ message: 'Invoice sent successfully' });
     } catch (error) {
