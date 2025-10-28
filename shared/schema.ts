@@ -205,7 +205,7 @@ export const bookings = pgTable("bookings", {
   vehicleId: uuid("vehicle_id").references(() => vehicles.id),
   bookingType: varchar("booking_type", { enum: ["transfer", "hourly"] }).notNull(),
   status: varchar("status", { 
-    enum: ["pending", "pending_driver_acceptance", "confirmed", "in_progress", "completed", "cancelled"] 
+    enum: ["pending", "pending_driver_acceptance", "confirmed", "on_the_way", "arrived", "on_board", "in_progress", "completed", "cancelled"] 
   }).default("pending"),
   
   // Trip details
@@ -272,6 +272,11 @@ export const bookings = pgTable("bookings", {
   confirmedAt: timestamp("confirmed_at"),
   assignedAt: timestamp("assigned_at"),
   acceptedAt: timestamp("accepted_at"),
+  reminderSentAt: timestamp("reminder_sent_at"), // When 2-hour reminder was sent
+  onTheWayAt: timestamp("on_the_way_at"), // When driver started journey
+  arrivedAt: timestamp("arrived_at"), // When driver arrived at pickup
+  onBoardAt: timestamp("on_board_at"), // When passenger boarded
+  autoCancelledAt: timestamp("auto_cancelled_at"), // When system auto-cancelled
   acceptedLocation: jsonb("accepted_location").$type<{lat: number; lng: number; timestamp: string}>(),
   startedAt: timestamp("started_at"),
   startedLocation: jsonb("started_location").$type<{lat: number; lng: number; timestamp: string}>(),

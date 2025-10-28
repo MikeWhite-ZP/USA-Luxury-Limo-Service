@@ -85,6 +85,7 @@ export interface IStorage {
   getBooking(id: string): Promise<Booking | undefined>;
   getBookingsByUser(userId: string): Promise<Booking[]>;
   getBookingsByDriver(driverId: string): Promise<Booking[]>;
+  getAllBookings(): Promise<Booking[]>;
   updateBookingStatus(id: string, status: string): Promise<void>;
   updateBookingPayment(id: string, paymentIntentId: string, status: string): Promise<void>;
   updateBookingDriverPayment(id: string, driverPayment: string): Promise<Booking | undefined>;
@@ -391,6 +392,13 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(bookings)
       .where(eq(bookings.driverId, driverId))
+      .orderBy(desc(bookings.scheduledDateTime));
+  }
+
+  async getAllBookings(): Promise<Booking[]> {
+    return await db
+      .select()
+      .from(bookings)
       .orderBy(desc(bookings.scheduledDateTime));
   }
 

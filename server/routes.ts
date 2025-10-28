@@ -859,6 +859,268 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Driver marks themselves as "On the Way"
+  app.post('/api/bookings/:id/on-the-way', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      const now = new Date();
+
+      // Get user and verify they're a driver
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Only drivers can update trip status' });
+      }
+
+      // Get driver profile
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      // Get the booking
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      // Verify this booking is assigned to this driver
+      if (booking.driverId !== driver.id) {
+        return res.status(403).json({ message: 'This booking is not assigned to you' });
+      }
+
+      // Verify booking is in confirmed status or later (not completed/cancelled)
+      if (!['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(booking.status)) {
+        return res.status(400).json({ message: 'Booking must be confirmed before starting trip' });
+      }
+
+      // If already on the way or further, no need to update
+      if (['on_the_way', 'arrived', 'on_board'].includes(booking.status)) {
+        return res.json({ success: true, message: 'Already on the way or further along', alreadyProgressed: true });
+      }
+
+      // Timing validation for on-the-way
+      const scheduledTime = new Date(booking.scheduledDateTime);
+      const minutesUntilPickup = (scheduledTime.getTime() - now.getTime()) / (1000 * 60);
+      
+      // Can only mark "on the way" within 2 hours of pickup or after
+      if (minutesUntilPickup > 120) {
+        return res.status(400).json({ 
+          message: 'You can only start your trip within 2 hours of the scheduled pickup time',
+          minutesUntil: Math.round(minutesUntilPickup)
+        });
+      }
+
+      // Set reminderSentAt if not already set (for cases where job hasn't run or admin-assigned late)
+      const updates: any = {
+        status: 'on_the_way',
+        onTheWayAt: now,
+      };
+      
+      if (!booking.reminderSentAt) {
+        updates.reminderSentAt = now;
+        console.log(`[ON-THE-WAY] Setting reminderSentAt for booking ${id} (was not set by scheduled job)`);
+      }
+
+      // Update booking to on_the_way status
+      await storage.updateBooking(id, updates);
+
+      // Send notification to passenger (fire-and-forget)
+      (async () => {
+        try {
+          const passenger = await storage.getUser(booking.passengerId);
+          if (passenger) {
+            const message = `Your driver ${user.firstName} ${user.lastName} is on the way! Pickup at ${booking.pickupAddress} at ${scheduledTime.toLocaleString()}.`;
+            
+            if (booking.passengerPhone || passenger.phone) {
+              await sendSMS(booking.passengerPhone || passenger.phone!, message);
+            }
+
+            if (passenger.email) {
+              await sendEmail({
+                to: passenger.email,
+                subject: 'Driver On the Way',
+                html: `<h2>Driver On the Way</h2><p>${message}</p><p>Vehicle: ${driver.vehiclePlate || 'N/A'}</p>`,
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error sending on-the-way notification:', error);
+        }
+      })();
+
+      res.json({ success: true, message: 'Status updated to on the way' });
+    } catch (error) {
+      console.error('On the way error:', error);
+      res.status(500).json({ message: 'Failed to update status' });
+    }
+  });
+
+  // Driver marks themselves as "Arrived"
+  app.post('/api/bookings/:id/arrived', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      const now = new Date();
+
+      // Get user and verify they're a driver
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Only drivers can update trip status' });
+      }
+
+      // Get driver profile
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      // Get the booking
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      // Verify this booking is assigned to this driver
+      if (booking.driverId !== driver.id) {
+        return res.status(403).json({ message: 'This booking is not assigned to you' });
+      }
+
+      // Verify booking has progressed to on_the_way or is already arrived/on_board
+      if (!['on_the_way', 'arrived', 'on_board'].includes(booking.status)) {
+        return res.status(400).json({ message: 'You must be on the way before marking as arrived' });
+      }
+
+      // If already arrived or further, no need to update
+      if (['arrived', 'on_board'].includes(booking.status)) {
+        return res.json({ success: true, message: 'Already arrived or further along', alreadyProgressed: true });
+      }
+
+      // Verify arrival timing: 15 minutes before scheduled time onward
+      const scheduledTime = new Date(booking.scheduledDateTime);
+      const minutesDiff = (now.getTime() - scheduledTime.getTime()) / (1000 * 60);
+      
+      if (minutesDiff < -15) {
+        return res.status(400).json({ 
+          message: 'You can only mark as arrived within 15 minutes before the scheduled pickup time',
+          minutesUntil: Math.round(Math.abs(minutesDiff))
+        });
+      }
+
+      // Update booking to arrived status
+      await storage.updateBooking(id, {
+        status: 'arrived',
+        arrivedAt: now,
+      });
+
+      // Send notification to passenger (fire-and-forget)
+      (async () => {
+        try {
+          const passenger = await storage.getUser(booking.passengerId);
+          if (passenger) {
+            const message = `Your driver ${user.firstName} ${user.lastName} has arrived at ${booking.pickupAddress}!`;
+            
+            if (booking.passengerPhone || passenger.phone) {
+              await sendSMS(booking.passengerPhone || passenger.phone!, message);
+            }
+
+            if (passenger.email) {
+              await sendEmail({
+                to: passenger.email,
+                subject: 'Driver Has Arrived',
+                html: `<h2>Driver Has Arrived</h2><p>${message}</p><p>Vehicle: ${driver.vehiclePlate || 'N/A'}</p>`,
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error sending arrived notification:', error);
+        }
+      })();
+
+      res.json({ success: true, message: 'Status updated to arrived' });
+    } catch (error) {
+      console.error('Arrived error:', error);
+      res.status(500).json({ message: 'Failed to update status' });
+    }
+  });
+
+  // Driver marks passenger as "On Board"
+  app.post('/api/bookings/:id/on-board', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      const now = new Date();
+
+      // Get user and verify they're a driver
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Only drivers can update trip status' });
+      }
+
+      // Get driver profile
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      // Get the booking
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      // Verify this booking is assigned to this driver
+      if (booking.driverId !== driver.id) {
+        return res.status(403).json({ message: 'This booking is not assigned to you' });
+      }
+
+      // Verify booking is arrived or already on_board
+      if (!['arrived', 'on_board'].includes(booking.status)) {
+        return res.status(400).json({ message: 'You must mark as arrived before passenger boards' });
+      }
+
+      // If already on_board, no need to update
+      if (booking.status === 'on_board') {
+        return res.json({ success: true, message: 'Passenger already on board', alreadyProgressed: true });
+      }
+
+      // Update booking to on_board status
+      await storage.updateBooking(id, {
+        status: 'on_board',
+        onBoardAt: now,
+      });
+
+      // Send notification to passenger (fire-and-forget)
+      (async () => {
+        try {
+          const passenger = await storage.getUser(booking.passengerId);
+          if (passenger) {
+            const message = `Trip started! You're on your way to ${booking.destinationAddress || 'your destination'}.`;
+            
+            if (booking.passengerPhone || passenger.phone) {
+              await sendSMS(booking.passengerPhone || passenger.phone!, message);
+            }
+
+            if (passenger.email) {
+              await sendEmail({
+                to: passenger.email,
+                subject: 'Trip Started',
+                html: `<h2>Trip Started</h2><p>${message}</p><p>Driver: ${user.firstName} ${user.lastName}</p>`,
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error sending on-board notification:', error);
+        }
+      })();
+
+      res.json({ success: true, message: 'Passenger is on board' });
+    } catch (error) {
+      console.error('On board error:', error);
+      res.status(500).json({ message: 'Failed to update status' });
+    }
+  });
+
   // Update booking (passengers can edit their own pending bookings)
   app.patch('/api/bookings/:id', isAuthenticated, async (req: any, res) => {
     try {

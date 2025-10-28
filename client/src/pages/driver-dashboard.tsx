@@ -49,6 +49,9 @@ interface Booking {
     | "pending"
     | "pending_driver_acceptance"
     | "confirmed"
+    | "on_the_way"
+    | "arrived"
+    | "on_board"
     | "in_progress"
     | "completed"
     | "cancelled";
@@ -59,6 +62,10 @@ interface Booking {
   totalAmount: string;
   driverPayment?: string;
   specialInstructions?: string;
+  reminderSentAt?: string;
+  onTheWayAt?: string;
+  arrivedAt?: string;
+  onBoardAt?: string;
 }
 
 interface DriverDocument {
