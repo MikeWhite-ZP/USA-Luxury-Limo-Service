@@ -24,7 +24,16 @@ import {
   Settings,
   Briefcase,
   Pencil,
+  Info,
+  Calendar,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface DriverData {
   id: string;
@@ -83,14 +92,24 @@ interface DriverDocument {
   uploadedAt: string;
 }
 
+interface EarningsData {
+  today: number;
+  week: number;
+  month: number;
+  year: number;
+  allTime: number;
+  currentDate: string;
+  completedRidesCount: number;
+}
+
 export default function DriverDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
-  const [todayEarnings] = useState(485); // This would come from API
   const [activeTab, setActiveTab] = useState<
     "home" | "documents" | "assigned-jobs" | "settings"
   >("home");
+  const [earningsDialogOpen, setEarningsDialogOpen] = useState(false);
   const [editingCredentials, setEditingCredentials] = useState(false);
   const [credentialsValue, setCredentialsValue] = useState("");
   const [editingVehiclePlate, setEditingVehiclePlate] = useState(false);
@@ -123,6 +142,13 @@ export default function DriverDashboard() {
   // Fetch driver profile
   const { data: driver, isLoading: driverLoading } = useQuery<DriverData>({
     queryKey: ["/api/driver/profile"],
+    retry: false,
+    enabled: isAuthenticated && user?.role === "driver",
+  });
+
+  // Fetch driver earnings
+  const { data: earnings, isLoading: earningsLoading } = useQuery<EarningsData>({
+    queryKey: ["/api/driver/earnings"],
     retry: false,
     enabled: isAuthenticated && user?.role === "driver",
   });
@@ -579,19 +605,88 @@ export default function DriverDashboard() {
             <div className="grid md:grid-cols-3 gap-6">
               <Card data-testid="stat-earnings">
                 <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <DollarSign className="w-8 h-8 text-green-600" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Today's Earnings
-                      </p>
-                      <p
-                        className="text-xl font-bold"
-                        data-testid="today-earnings"
-                      >
-                        ${todayEarnings}
-                      </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <DollarSign className="w-8 h-8 text-green-600" />
+                      <div>
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Calendar className="w-3 h-3" />
+                          {earnings?.currentDate 
+                            ? new Date(earnings.currentDate).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric', 
+                                year: 'numeric' 
+                              })
+                            : "Today"}
+                        </p>
+                        <p
+                          className="text-xl font-bold"
+                          data-testid="today-earnings"
+                        >
+                          {earningsLoading ? (
+                            <span className="text-muted-foreground">Loading...</span>
+                          ) : (
+                            `$${earnings?.today?.toFixed(2) || '0.00'}`
+                          )}
+                        </p>
+                      </div>
                     </div>
+                    <Dialog open={earningsDialogOpen} onOpenChange={setEarningsDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          data-testid="button-earnings-details"
+                        >
+                          <Info className="w-4 h-4 text-blue-600" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md" data-testid="dialog-earnings-details">
+                        <DialogHeader>
+                          <DialogTitle>Earnings Breakdown</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <p className="text-sm text-muted-foreground">Today</p>
+                              <p className="text-2xl font-bold text-green-600" data-testid="earnings-today">
+                                ${earnings?.today?.toFixed(2) || '0.00'}
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm text-muted-foreground">This Week</p>
+                              <p className="text-2xl font-bold text-blue-600" data-testid="earnings-week">
+                                ${earnings?.week?.toFixed(2) || '0.00'}
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm text-muted-foreground">This Month</p>
+                              <p className="text-2xl font-bold text-purple-600" data-testid="earnings-month">
+                                ${earnings?.month?.toFixed(2) || '0.00'}
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm text-muted-foreground">This Year</p>
+                              <p className="text-2xl font-bold text-orange-600" data-testid="earnings-year">
+                                ${earnings?.year?.toFixed(2) || '0.00'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="pt-4 border-t">
+                            <div className="space-y-1">
+                              <p className="text-sm text-muted-foreground">All-Time Earnings</p>
+                              <p className="text-3xl font-bold" data-testid="earnings-all-time">
+                                ${earnings?.allTime?.toFixed(2) || '0.00'}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                From {earnings?.completedRidesCount || 0} completed rides
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </CardContent>
               </Card>
