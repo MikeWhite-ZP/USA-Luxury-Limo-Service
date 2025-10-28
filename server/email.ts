@@ -463,6 +463,63 @@ export function getDriverAssignmentEmailHTML(data: {
   `;
 }
 
+export function getPasswordResetEmailHTML(data: {
+  name: string;
+  resetLink: string;
+  expiresIn: string;
+}): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
+          .button { display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+          .warning { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0; }
+          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0;">🔐 Password Reset Request</h1>
+            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+          </div>
+          <div class="content">
+            <p>Hello ${data.name},</p>
+            <p>We received a request to reset your password. Click the button below to create a new password:</p>
+            
+            <div style="text-align: center;">
+              <a href="${data.resetLink}" class="button">Reset Password</a>
+            </div>
+            
+            <p>Or copy and paste this link into your browser:</p>
+            <p style="background: #fff; padding: 10px; border-radius: 4px; word-break: break-all; font-size: 12px;">
+              ${data.resetLink}
+            </p>
+            
+            <div class="warning">
+              <p style="margin: 0;"><strong>⚠️ Important:</strong></p>
+              <ul style="margin: 10px 0 0 0;">
+                <li>This link will expire in ${data.expiresIn}</li>
+                <li>If you didn't request this reset, please ignore this email</li>
+                <li>Your password won't change until you click the link and create a new one</li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer">
+            <p><strong>USA Luxury Limo</strong></p>
+            <p>If you have any questions, please contact our support team.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
 export function getTestEmailHTML(): string {
   return `
     <!DOCTYPE html>

@@ -21,6 +21,8 @@ import Hotels from "@/pages/Hotels";
 import Contact from "@/pages/contact";
 import { RoleLogin } from "@/pages/RoleLogin";
 import { AdminLogin } from "@/pages/AdminLogin";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminPricing from "@/pages/admin-pricing";
 import DriverDashboard from "@/pages/driver-dashboard";
@@ -84,6 +86,8 @@ function Router() {
       <Route path="/login" component={RoleLogin} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin-login" component={AdminLogin} />
+      <Route path="/forgot-password" component={ForgotPassword} />
+      <Route path="/reset-password" component={ResetPassword} />
       
       {!isAuthenticated ? (
         <Route path="/" component={Landing} />

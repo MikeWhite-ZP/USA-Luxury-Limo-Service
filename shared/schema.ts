@@ -598,6 +598,21 @@ export const insertCmsMediaSchema = createInsertSchema(cmsMedia).omit({
   uploadedAt: true,
 });
 
+// Password reset tokens
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  token: varchar("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  used: boolean("used").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertPasswordResetTokenSchema = createInsertSchema(passwordResetTokens).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -611,6 +626,8 @@ export type Invoice = typeof invoices.$inferSelect;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 export type PricingRule = typeof pricingRules.$inferSelect;
 export type PaymentSystem = typeof paymentSystems.$inferSelect;
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSchema>;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertDriver = z.infer<typeof insertDriverSchema>;

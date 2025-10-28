@@ -332,7 +332,7 @@ function ContactSupportForm({ user }: { user: any }) {
   return (
     <Card data-testid="support-section">
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
+        <CardTitle className="flex items-center space-x-2 text-[#0f2ebf]">
           <HelpCircle className="w-5 h-5" />
           <span>Contact Support</span>
         </CardTitle>
@@ -443,12 +443,12 @@ function ContactSupportForm({ user }: { user: any }) {
               <Button 
                 type="submit" 
                 disabled={submitContactMutation.isPending}
-                className="min-w-[150px]"
+                className="min-w-[150px] bg-[#c7edd3e6] text-[#000000]"
                 data-testid="button-submit-contact"
               >
                 {submitContactMutation.isPending ? (
                   <>
-                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                    <div className="animate-spin w-4 h-4 border-2 border-black border-t-transparent rounded-full mr-2" />
                     Sending...
                   </>
                 ) : (

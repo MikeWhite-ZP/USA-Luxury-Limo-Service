@@ -10,6 +10,7 @@ import {
   contactSubmissions,
   pricingRules,
   paymentSystems,
+  passwordResetTokens,
   type User,
   type UpsertUser,
   type Driver,
@@ -46,6 +47,8 @@ import {
   type CmsSettingCategory,
   type ContentBlockType,
   type MediaFolder,
+  type PasswordResetToken,
+  type InsertPasswordResetToken,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -199,6 +202,11 @@ export interface IStorage {
   createCmsMedia(media: InsertCmsMedia): Promise<CmsMedia>;
   updateCmsMedia(id: string, updates: Partial<InsertCmsMedia>): Promise<CmsMedia | undefined>;
   deleteCmsMedia(id: string): Promise<void>;
+  
+  // Password Reset Tokens
+  createPasswordResetToken(data: InsertPasswordResetToken): Promise<PasswordResetToken>;
+  getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
+  markPasswordResetTokenAsUsed(token: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1333,6 +1341,21 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCmsMedia(id: string): Promise<void> {
     await db.delete(cmsMedia).where(eq(cmsMedia.id, id));
+  }
+
+  // Password Reset Token Methods
+  async createPasswordResetToken(data: InsertPasswordResetToken): Promise<PasswordResetToken> {
+    const [token] = await db.insert(passwordResetTokens).values(data).returning();
+    return token;
+  }
+
+  async getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined> {
+    const [resetToken] = await db.select().from(passwordResetTokens).where(eq(passwordResetTokens.token, token));
+    return resetToken;
+  }
+
+  async markPasswordResetTokenAsUsed(token: string): Promise<void> {
+    await db.update(passwordResetTokens).set({ used: true }).where(eq(passwordResetTokens.token, token));
   }
 }
 

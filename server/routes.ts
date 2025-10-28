@@ -7,7 +7,7 @@ import { z } from "zod";
 import Stripe from "stripe";
 import multer from "multer";
 import { Client as ObjectStorageClient } from "@replit/object-storage";
-import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML } from "./email";
+import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML } from "./email";
 import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS } from "./sms";
 import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityReport } from "./emailReports";
 import { db } from "./db";
@@ -194,6 +194,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Forgot password - send reset email
+  app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+      }
+
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      
+      // Always return success to prevent email enumeration
+      if (!user) {
+        return res.json({ success: true, message: 'If an account with that email exists, a password reset link has been sent.' });
+      }
+
+      // Generate reset token
+      const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      const expiresAt = new Date(Date.now() + 3600000); // 1 hour from now
+
+      // Save token to database
+      await storage.createPasswordResetToken({
+        userId: user.id,
+        token,
+        expiresAt,
+        used: false,
+      });
+
+      // Send reset email
+      const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000';
+      const protocol = domain.includes('localhost') ? 'http' : 'https';
+      const resetLink = `${protocol}://${domain}/reset-password?token=${token}`;
+
+      await sendEmail({
+        to: email,
+        subject: 'Password Reset Request - USA Luxury Limo',
+        html: getPasswordResetEmailHTML({
+          name: user.firstName || user.username || 'User',
+          resetLink,
+          expiresIn: '1 hour',
+        }),
+      });
+
+      res.json({ success: true, message: 'If an account with that email exists, a password reset link has been sent.' });
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      res.status(500).json({ message: 'Failed to process password reset request' });
+    }
+  });
+
+  // Verify reset token
+  app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
+    try {
+      const { token } = req.params;
+      
+      const resetToken = await storage.getPasswordResetToken(token);
+      
+      if (!resetToken) {
+        return res.status(400).json({ valid: false, message: 'Invalid or expired reset token' });
+      }
+
+      if (resetToken.used) {
+        return res.status(400).json({ valid: false, message: 'This reset link has already been used' });
+      }
+
+      if (new Date() > new Date(resetToken.expiresAt)) {
+        return res.status(400).json({ valid: false, message: 'This reset link has expired' });
+      }
+
+      res.json({ valid: true });
+    } catch (error) {
+      console.error('Verify reset token error:', error);
+      res.status(500).json({ valid: false, message: 'Failed to verify reset token' });
+    }
+  });
+
+  // Reset password with token
+  app.post('/api/auth/reset-password', async (req, res) => {
+    try {
+      const { token, password } = req.body;
+      
+      if (!token || !password) {
+        return res.status(400).json({ message: 'Token and password are required' });
+      }
+
+      if (password.length < 8) {
+        return res.status(400).json({ message: 'Password must be at least 8 characters' });
+      }
+
+      // Verify token
+      const resetToken = await storage.getPasswordResetToken(token);
+      
+      if (!resetToken) {
+        return res.status(400).json({ message: 'Invalid or expired reset token' });
+      }
+
+      if (resetToken.used) {
+        return res.status(400).json({ message: 'This reset link has already been used' });
+      }
+
+      if (new Date() > new Date(resetToken.expiresAt)) {
+        return res.status(400).json({ message: 'This reset link has expired' });
+      }
+
+      // Hash new password
+      const hashedPassword = await hashPassword(password);
+      
+      // Update user password
+      await storage.updateUser(resetToken.userId, { password: hashedPassword });
+      
+      // Mark token as used
+      await storage.markPasswordResetTokenAsUsed(token);
+
+      res.json({ success: true, message: 'Password has been reset successfully' });
+    } catch (error) {
+      console.error('Reset password error:', error);
+      res.status(500).json({ message: 'Failed to reset password' });
     }
   });
 
