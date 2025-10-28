@@ -58,6 +58,11 @@ interface PaymentMethod {
   };
 }
 
+interface PaymentMethodsResponse {
+  paymentMethods: PaymentMethod[];
+  defaultPaymentMethodId: string | null;
+}
+
 function AddPaymentMethodForm({ onSuccess }: { onSuccess: () => void }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -146,10 +151,12 @@ function PaymentMethodsList() {
   const queryClient = useQueryClient();
   const [addPaymentOpen, setAddPaymentOpen] = useState(false);
 
-  const { data: paymentMethods, isLoading } = useQuery<PaymentMethod[]>({
+  const { data, isLoading } = useQuery<PaymentMethodsResponse>({
     queryKey: ['/api/payment-methods'],
     retry: false,
   });
+
+  const paymentMethods = data?.paymentMethods || [];
 
   const removePaymentMutation = useMutation({
     mutationFn: async (paymentMethodId: string) => {
@@ -566,11 +573,13 @@ export default function PassengerDashboard() {
   });
 
   // Fetch payment methods for card status check
-  const { data: paymentMethods } = useQuery<PaymentMethod[]>({
+  const { data: paymentData } = useQuery<PaymentMethodsResponse>({
     queryKey: ['/api/payment-methods'],
     retry: false,
     enabled: isAuthenticated && user?.role === 'passenger',
   });
+
+  const paymentMethods = paymentData?.paymentMethods || [];
 
   // Add saved address mutation
   const addAddressMutation = useMutation({

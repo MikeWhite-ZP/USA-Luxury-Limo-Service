@@ -30,6 +30,11 @@ interface VehicleType {
   imageUrl?: string;
 }
 
+interface PaymentMethodsResponse {
+  paymentMethods: any[];
+  defaultPaymentMethodId: string | null;
+}
+
 interface BookingFormProps {
   isQuickBooking?: boolean; // True when used in hero section
 }
@@ -91,10 +96,12 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   const suggestionTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // Fetch user's payment methods to check if they have saved cards
-  const { data: paymentMethods, refetch: refetchPaymentMethods } = useQuery<any[]>({
+  const { data: paymentData, refetch: refetchPaymentMethods } = useQuery<PaymentMethodsResponse>({
     queryKey: ['/api/payment-methods'],
     enabled: isAuthenticated && showPaymentOptions, // Only fetch when dialog is open
   });
+
+  const paymentMethods = paymentData?.paymentMethods || [];
 
   // Set minimum date to today and restore saved booking data
   useEffect(() => {
