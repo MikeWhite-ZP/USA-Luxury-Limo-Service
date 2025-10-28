@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, hashPassword, comparePasswords } from "./auth";
-import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertDriverDocumentSchema, insertCmsSettingSchema, insertCmsContentSchema, insertCmsMediaSchema, type User, vehicles } from "@shared/schema";
+import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertDriverDocumentSchema, insertCmsSettingSchema, insertCmsContentSchema, insertCmsMediaSchema, type User, type Booking, vehicles } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
 import multer from "multer";
@@ -2844,8 +2844,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get all completed bookings for this driver
-      const allBookings = await storage.getDriverBookings(driver.id);
-      const completedBookings = allBookings.filter(b => b.status === 'completed' && b.driverPayment);
+      const allBookings = await storage.getBookingsByDriver(driver.id);
+      const completedBookings = allBookings.filter((b: Booking) => b.status === 'completed' && b.driverPayment);
 
       // Calculate date ranges
       const now = new Date();
@@ -2858,23 +2858,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Calculate earnings for each period
       const todayEarnings = completedBookings
-        .filter(b => new Date(b.completedAt || b.updatedAt) >= startOfToday)
-        .reduce((sum, b) => sum + parseFloat(b.driverPayment || '0'), 0);
+        .filter((b: Booking) => {
+          const completedDate = b.markedCompletedAt || b.updatedAt;
+          return completedDate ? new Date(completedDate) >= startOfToday : false;
+        })
+        .reduce((sum: number, b: Booking) => sum + parseFloat(b.driverPayment || '0'), 0);
 
       const weekEarnings = completedBookings
-        .filter(b => new Date(b.completedAt || b.updatedAt) >= startOfWeek)
-        .reduce((sum, b) => sum + parseFloat(b.driverPayment || '0'), 0);
+        .filter((b: Booking) => {
+          const completedDate = b.markedCompletedAt || b.updatedAt;
+          return completedDate ? new Date(completedDate) >= startOfWeek : false;
+        })
+        .reduce((sum: number, b: Booking) => sum + parseFloat(b.driverPayment || '0'), 0);
 
       const monthEarnings = completedBookings
-        .filter(b => new Date(b.completedAt || b.updatedAt) >= startOfMonth)
-        .reduce((sum, b) => sum + parseFloat(b.driverPayment || '0'), 0);
+        .filter((b: Booking) => {
+          const completedDate = b.markedCompletedAt || b.updatedAt;
+          return completedDate ? new Date(completedDate) >= startOfMonth : false;
+        })
+        .reduce((sum: number, b: Booking) => sum + parseFloat(b.driverPayment || '0'), 0);
 
       const yearEarnings = completedBookings
-        .filter(b => new Date(b.completedAt || b.updatedAt) >= startOfYear)
-        .reduce((sum, b) => sum + parseFloat(b.driverPayment || '0'), 0);
+        .filter((b: Booking) => {
+          const completedDate = b.markedCompletedAt || b.updatedAt;
+          return completedDate ? new Date(completedDate) >= startOfYear : false;
+        })
+        .reduce((sum: number, b: Booking) => sum + parseFloat(b.driverPayment || '0'), 0);
 
       const allTimeEarnings = completedBookings
-        .reduce((sum, b) => sum + parseFloat(b.driverPayment || '0'), 0);
+        .reduce((sum: number, b: Booking) => sum + parseFloat(b.driverPayment || '0'), 0);
 
       res.json({
         today: todayEarnings,

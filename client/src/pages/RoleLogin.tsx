@@ -286,10 +286,8 @@ export function RoleLogin() {
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               <Label htmlFor="login-password">Password</Label>
-                              <Link href="/forgot-password">
-                                <a className="text-sm text-primary hover:underline">
-                                  Forgot Password?
-                                </a>
+                              <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                                Forgot Password?
                               </Link>
                             </div>
                             <Input
@@ -395,18 +393,17 @@ export function RoleLogin() {
 
             {/* Admin Dashboard Link */}
             <div className="mt-16 text-center">
-              <Link href="/admin-login">
-                <div 
-                  className="inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
-                  data-testid="link-admin-dashboard"
-                >
-                  <div className="flex items-center justify-center w-12 h-12 bg-white/10 rounded-lg p-1">
-                    <img src={adminLogo} alt="USA Luxury Limo" className="w-full h-full object-contain" />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-sm font-semibold">Admin Access</div>
-                    <div className="text-xs text-gray-300">Dashboard Login</div>
-                  </div>
+              <Link 
+                to="/admin-login"
+                className="inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
+                data-testid="link-admin-dashboard"
+              >
+                <div className="flex items-center justify-center w-12 h-12 bg-white/10 rounded-lg p-1">
+                  <img src={adminLogo} alt="USA Luxury Limo" className="w-full h-full object-contain" />
+                </div>
+                <div className="text-left">
+                  <div className="text-sm font-semibold">Admin Access</div>
+                  <div className="text-xs text-gray-300">Dashboard Login</div>
                 </div>
               </Link>
             </div>
