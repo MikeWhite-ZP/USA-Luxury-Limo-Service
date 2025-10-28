@@ -45,6 +45,7 @@ import {
   Plane,
   Search,
   Image,
+  Mail,
 } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
@@ -765,6 +766,520 @@ function AdminEmailSettings({ user }: { user: any }) {
   );
 }
 
+// Invoice Management Component
+function InvoiceManagement() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [editFormData, setEditFormData] = useState({
+    subtotal: "",
+    taxAmount: "",
+    totalAmount: "",
+  });
+
+  // Fetch all invoices
+  const { data: invoices, isLoading } = useQuery<any[]>({
+    queryKey: ["/api/invoices"],
+  });
+
+  // Update invoice mutation
+  const updateInvoiceMutation = useMutation({
+    mutationFn: async (data: { id: string; updates: any }) => {
+      const response = await fetch(`/api/invoices/${data.id}`, {
+        method: "PUT",
+        body: JSON.stringify(data.updates),
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to update invoice");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/invoices"] });
+      toast({ title: "Invoice updated successfully" });
+      setEditDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to update invoice",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete invoice mutation
+  const deleteInvoiceMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/invoices/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to delete invoice");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/invoices"] });
+      toast({ title: "Invoice deleted successfully" });
+      setDeleteDialogOpen(false);
+      setSelectedInvoice(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to delete invoice",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Email invoice mutation
+  const emailInvoiceMutation = useMutation({
+    mutationFn: async (data: { id: string; recipientEmail: string }) => {
+      const response = await fetch(`/api/invoices/${data.id}/email`, {
+        method: "POST",
+        body: JSON.stringify({ recipientEmail: data.recipientEmail }),
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to send invoice");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Invoice sent successfully" });
+      setEmailDialogOpen(false);
+      setRecipientEmail("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to send invoice",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Filter invoices
+  const filteredInvoices = invoices?.filter((invoice) => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      invoice.invoiceNumber?.toLowerCase().includes(searchLower) ||
+      invoice.bookingId?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const handleView = (invoice: any) => {
+    setSelectedInvoice(invoice);
+    setViewDialogOpen(true);
+  };
+
+  const handleEdit = (invoice: any) => {
+    setSelectedInvoice(invoice);
+    setEditFormData({
+      subtotal: invoice.subtotal,
+      taxAmount: invoice.taxAmount,
+      totalAmount: invoice.totalAmount,
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleEmail = (invoice: any) => {
+    setSelectedInvoice(invoice);
+    setEmailDialogOpen(true);
+  };
+
+  const handleDelete = (invoice: any) => {
+    setSelectedInvoice(invoice);
+    setDeleteDialogOpen(true);
+  };
+
+  const handlePrint = (invoice: any) => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Invoice #${invoice.invoiceNumber}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+          .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
+          .header h1 { margin: 0; font-size: 32px; }
+          .header p { margin: 5px 0; color: #666; }
+          .invoice-details { margin: 30px 0; }
+          .invoice-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #ddd; }
+          .invoice-row.total { font-weight: bold; font-size: 1.3em; border-top: 3px solid #000; border-bottom: 3px solid #000; margin-top: 20px; }
+          .label { font-weight: 600; }
+          .footer { margin-top: 50px; text-align: center; color: #666; font-size: 14px; }
+          @media print { body { padding: 0; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>USA Luxury Limo</h1>
+          <p>Invoice #${invoice.invoiceNumber}</p>
+        </div>
+        <div class="invoice-details">
+          <div class="invoice-row">
+            <span class="label">Invoice Date:</span>
+            <span>${new Date(invoice.createdAt).toLocaleDateString()}</span>
+          </div>
+          <div class="invoice-row">
+            <span class="label">Booking ID:</span>
+            <span>${invoice.bookingId}</span>
+          </div>
+          ${invoice.paidAt ? `
+            <div class="invoice-row">
+              <span class="label">Payment Date:</span>
+              <span>${new Date(invoice.paidAt).toLocaleDateString()}</span>
+            </div>
+          ` : ''}
+          <div class="invoice-row" style="margin-top: 30px;">
+            <span class="label">Subtotal:</span>
+            <span>$${parseFloat(invoice.subtotal).toFixed(2)}</span>
+          </div>
+          <div class="invoice-row">
+            <span class="label">Tax:</span>
+            <span>$${parseFloat(invoice.taxAmount).toFixed(2)}</span>
+          </div>
+          <div class="invoice-row total">
+            <span class="label">Total Amount:</span>
+            <span>$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
+          </div>
+          ${invoice.paidAt ? `
+            <div style="text-align: center; margin-top: 30px; padding: 15px; background-color: #d4edda; border-radius: 5px; color: #155724; font-weight: bold; font-size: 18px;">
+              PAID
+            </div>
+          ` : ''}
+        </div>
+        <div class="footer">
+          <p>Thank you for choosing USA Luxury Limo!</p>
+        </div>
+        <script>
+          window.onload = () => {
+            window.print();
+            window.onafterprint = () => window.close();
+          };
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+  };
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading invoices...</div>;
+  }
+
+  return (
+    <>
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="flex items-center gap-2">
+          <Search className="w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by invoice number or booking ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="max-w-md"
+            data-testid="input-invoice-search"
+          />
+        </div>
+      </div>
+
+      {/* Invoices Table */}
+      <div className="border rounded-lg overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-muted">
+            <tr>
+              <th className="text-left p-3 font-semibold">Invoice #</th>
+              <th className="text-left p-3 font-semibold">Date</th>
+              <th className="text-left p-3 font-semibold">Booking ID</th>
+              <th className="text-right p-3 font-semibold">Amount</th>
+              <th className="text-center p-3 font-semibold">Status</th>
+              <th className="text-center p-3 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredInvoices && filteredInvoices.length > 0 ? (
+              filteredInvoices.map((invoice) => (
+                <tr key={invoice.id} className="border-t hover:bg-muted/50" data-testid={`invoice-row-${invoice.id}`}>
+                  <td className="p-3">{invoice.invoiceNumber}</td>
+                  <td className="p-3">{new Date(invoice.createdAt).toLocaleDateString()}</td>
+                  <td className="p-3 font-mono text-sm">{invoice.bookingId.slice(0, 8)}...</td>
+                  <td className="p-3 text-right font-semibold">${parseFloat(invoice.totalAmount).toFixed(2)}</td>
+                  <td className="p-3 text-center">
+                    <Badge variant={invoice.paidAt ? "default" : "secondary"} data-testid={`invoice-status-${invoice.id}`}>
+                      {invoice.paidAt ? "Paid" : "Unpaid"}
+                    </Badge>
+                  </td>
+                  <td className="p-3">
+                    <div className="flex items-center justify-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleView(invoice)}
+                        data-testid={`button-view-${invoice.id}`}
+                      >
+                        View
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handlePrint(invoice)}
+                        data-testid={`button-print-${invoice.id}`}
+                      >
+                        Print
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEmail(invoice)}
+                        data-testid={`button-email-${invoice.id}`}
+                      >
+                        <Mail className="w-3 h-3 mr-1" />
+                        Email
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(invoice)}
+                        data-testid={`button-edit-${invoice.id}`}
+                      >
+                        <Edit2 className="w-3 h-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(invoice)}
+                        data-testid={`button-delete-${invoice.id}`}
+                      >
+                        <Trash2 className="w-3 h-3 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="text-center p-8 text-muted-foreground" data-testid="no-invoices">
+                  No invoices found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* View Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Invoice Details</DialogTitle>
+          </DialogHeader>
+          {selectedInvoice && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Invoice Number</Label>
+                  <p className="font-semibold" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
+                </div>
+                <div>
+                  <Label>Date</Label>
+                  <p data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <Label>Booking ID</Label>
+                  <p className="font-mono text-sm" data-testid="view-booking-id">{selectedInvoice.bookingId}</p>
+                </div>
+                {selectedInvoice.paidAt && (
+                  <div>
+                    <Label>Payment Date</Label>
+                    <p data-testid="view-payment-date">{new Date(selectedInvoice.paidAt).toLocaleDateString()}</p>
+                  </div>
+                )}
+              </div>
+              <div className="border-t pt-4">
+                <div className="flex justify-between py-2">
+                  <span>Subtotal:</span>
+                  <span data-testid="view-subtotal">${parseFloat(selectedInvoice.subtotal).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between py-2">
+                  <span>Tax:</span>
+                  <span data-testid="view-tax">${parseFloat(selectedInvoice.taxAmount).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between py-2 font-bold text-lg border-t">
+                  <span>Total:</span>
+                  <span data-testid="view-total">${parseFloat(selectedInvoice.totalAmount).toFixed(2)}</span>
+                </div>
+              </div>
+              {selectedInvoice.paidAt && (
+                <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg font-semibold">
+                  PAID
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewDialogOpen(false)} data-testid="button-close-view">
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Invoice</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-subtotal">Subtotal</Label>
+              <Input
+                id="edit-subtotal"
+                type="number"
+                step="0.01"
+                value={editFormData.subtotal}
+                onChange={(e) => setEditFormData({ ...editFormData, subtotal: e.target.value })}
+                data-testid="input-edit-subtotal"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-tax">Tax Amount</Label>
+              <Input
+                id="edit-tax"
+                type="number"
+                step="0.01"
+                value={editFormData.taxAmount}
+                onChange={(e) => setEditFormData({ ...editFormData, taxAmount: e.target.value })}
+                data-testid="input-edit-tax"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-total">Total Amount</Label>
+              <Input
+                id="edit-total"
+                type="number"
+                step="0.01"
+                value={editFormData.totalAmount}
+                onChange={(e) => setEditFormData({ ...editFormData, totalAmount: e.target.value })}
+                data-testid="input-edit-total"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)} data-testid="button-cancel-edit">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                updateInvoiceMutation.mutate({
+                  id: selectedInvoice.id,
+                  updates: editFormData,
+                });
+              }}
+              disabled={updateInvoiceMutation.isPending}
+              data-testid="button-save-edit"
+            >
+              {updateInvoiceMutation.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Email Dialog */}
+      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Email Invoice</DialogTitle>
+            <DialogDescription>Send this invoice to a customer via email.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="recipient-email">Recipient Email</Label>
+              <Input
+                id="recipient-email"
+                type="email"
+                placeholder="customer@example.com"
+                value={recipientEmail}
+                onChange={(e) => setRecipientEmail(e.target.value)}
+                data-testid="input-recipient-email"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEmailDialogOpen(false)} data-testid="button-cancel-email">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (selectedInvoice && recipientEmail) {
+                  emailInvoiceMutation.mutate({
+                    id: selectedInvoice.id,
+                    recipientEmail,
+                  });
+                }
+              }}
+              disabled={emailInvoiceMutation.isPending || !recipientEmail}
+              data-testid="button-send-email"
+            >
+              {emailInvoiceMutation.isPending ? "Sending..." : "Send Email"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Delete Invoice</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this invoice? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedInvoice && (
+            <div className="p-4 bg-muted rounded-lg">
+              <p><strong>Invoice #:</strong> {selectedInvoice.invoiceNumber}</p>
+              <p><strong>Amount:</strong> ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} data-testid="button-cancel-delete">
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (selectedInvoice) {
+                  deleteInvoiceMutation.mutate(selectedInvoice.id);
+                }
+              }}
+              disabled={deleteInvoiceMutation.isPending}
+              data-testid="button-confirm-delete"
+            >
+              {deleteInvoiceMutation.isPending ? "Deleting..." : "Delete Invoice"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 export default function AdminDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -791,6 +1306,7 @@ export default function AdminDashboard() {
     "pages" | "media" | null
   >(null);
   const [showBookings, setShowBookings] = useState(false);
+  const [showInvoices, setShowInvoices] = useState(false);
   const [selectedUserType, setSelectedUserType] = useState<
     "all" | "passenger" | "driver" | "dispatcher" | "admin"
   >("all");
@@ -2610,6 +3126,7 @@ export default function AdminDashboard() {
           setVisibleCMSSection(null);
           setShowUserManager(false);
           setShowBookings(false);
+          setShowInvoices(false);
           setTimeout(() => {
             const targetId =
               section === "api" ? "credentials-section" : "payment-section";
@@ -2625,6 +3142,7 @@ export default function AdminDashboard() {
           setVisibleSettingsSection(null);
           setVisibleCMSSection(null);
           setShowBookings(false);
+          setShowInvoices(false);
           setTimeout(
             () =>
               document
@@ -2639,10 +3157,26 @@ export default function AdminDashboard() {
           setVisibleCMSSection(null);
           setShowUserManager(false);
           setShowBookings(true);
+          setShowInvoices(false);
           setTimeout(
             () =>
               document
                 .getElementById("bookings-section")
+                ?.scrollIntoView({ behavior: "smooth" }),
+            100,
+          );
+        }}
+        onInvoicesClick={() => {
+          setVisibleCredentialsSection(null);
+          setVisibleSettingsSection(null);
+          setVisibleCMSSection(null);
+          setShowUserManager(false);
+          setShowBookings(false);
+          setShowInvoices(true);
+          setTimeout(
+            () =>
+              document
+                .getElementById("invoices-section")
                 ?.scrollIntoView({ behavior: "smooth" }),
             100,
           );
@@ -2653,6 +3187,7 @@ export default function AdminDashboard() {
           setVisibleCMSSection(null);
           setShowUserManager(false);
           setShowBookings(false);
+          setShowInvoices(false);
           setTimeout(() => {
             document
               .getElementById("settings-section")
@@ -2665,6 +3200,7 @@ export default function AdminDashboard() {
           setVisibleSettingsSection(null);
           setShowUserManager(false);
           setShowBookings(false);
+          setShowInvoices(false);
           setTimeout(() => {
             document
               .getElementById("cms-section")
@@ -5163,6 +5699,18 @@ export default function AdminDashboard() {
                   No users found.
                 </div>
               )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Invoice Management Section */}
+        {showInvoices && (
+          <Card id="invoices-section">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold">Invoice Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <InvoiceManagement />
             </CardContent>
           </Card>
         )}
