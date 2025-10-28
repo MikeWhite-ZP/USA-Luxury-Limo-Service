@@ -20,6 +20,7 @@ import {
   Mail,
   FileText,
   Image,
+  Receipt,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -27,11 +28,12 @@ interface AdminNavProps {
   onCredentialsClick?: (section: 'api' | 'payment') => void;
   onUserManagerClick?: (type: 'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin') => void;
   onBookingsClick?: () => void;
+  onInvoicesClick?: () => void;
   onSettingsClick?: (section: 'commission' | 'email' | 'sms') => void;
   onCMSClick?: (section: 'pages' | 'media') => void;
 }
 
-export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onSettingsClick, onCMSClick }: AdminNavProps) {
+export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onSettingsClick, onCMSClick }: AdminNavProps) {
   const [location, setLocation] = useLocation();
   const { logoutMutation } = useAuth();
 
@@ -301,6 +303,21 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
             >
               <MessageSquare className="w-4 h-4 mr-2" />
               Bookings
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              className="text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+              onClick={() => {
+                if (location !== '/admin-dashboard') {
+                  setLocation('/admin-dashboard');
+                }
+                setTimeout(() => onInvoicesClick?.(), 100);
+              }}
+              data-testid="nav-invoices"
+            >
+              <Receipt className="w-4 h-4 mr-2" />
+              Invoices
             </Button>
             
             <div className="flex-grow" />
