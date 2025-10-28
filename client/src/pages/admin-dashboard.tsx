@@ -1054,7 +1054,7 @@ function InvoiceManagement() {
                 <tr key={invoice.id} className="border-t hover:bg-muted/50" data-testid={`invoice-row-${invoice.id}`}>
                   <td className="p-3">{invoice.invoiceNumber}</td>
                   <td className="p-3">{new Date(invoice.createdAt).toLocaleDateString()}</td>
-                  <td className="p-3 font-mono text-sm">{invoice.bookingId.slice(0, 8)}...</td>
+                  <td className="p-3 font-mono text-sm" data-testid={`booking-id-${invoice.id}`}>#{invoice.bookingId.toUpperCase().substring(0, 8)}</td>
                   <td className="p-3 text-right font-semibold">${parseFloat(invoice.totalAmount).toFixed(2)}</td>
                   <td className="p-3 text-center">
                     <Badge variant={invoice.paidAt ? "default" : "secondary"} data-testid={`invoice-status-${invoice.id}`}>
