@@ -1343,6 +1343,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Enhanced endpoint for smart driver matching
+  app.get('/api/admin/drivers/for-assignment', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
+      }
+
+      const { bookingTime } = req.query;
+      const allDrivers = await storage.getAllDrivers();
+      const allBookings = await storage.getAllBookingsWithDetails();
+      
+      // Enrich each driver with user information and upcoming bookings
+      const enrichedDrivers = await Promise.all(
+        allDrivers.map(async (driver: any) => {
+          const driverUser = await storage.getUser(driver.userId);
+          
+          // Get driver's upcoming bookings
+          const upcomingBookings = allBookings.filter((booking: any) => 
+            booking.driverId === driver.id && 
+            (booking.status === 'pending' || booking.status === 'in_progress' || booking.status === 'confirmed') &&
+            new Date(booking.scheduledDateTime) >= new Date()
+          );
+          
+          // Check for schedule conflicts if bookingTime provided
+          let hasConflict = false;
+          let conflictingBooking = null;
+          if (bookingTime) {
+            const requestedTime = new Date(bookingTime as string);
+            const conflictWindow = 2 * 60 * 60 * 1000; // 2 hours window
+            
+            conflictingBooking = upcomingBookings.find((b: any) => {
+              const bookingTime = new Date(b.scheduledDateTime).getTime();
+              const diff = Math.abs(bookingTime - requestedTime.getTime());
+              return diff < conflictWindow;
+            });
+            
+            hasConflict = !!conflictingBooking;
+          }
+          
+          return {
+            ...driver,
+            firstName: driverUser?.firstName,
+            lastName: driverUser?.lastName,
+            email: driverUser?.email,
+            phone: driverUser?.phone,
+            isActive: driverUser?.isActive,
+            upcomingBookingsCount: upcomingBookings.length,
+            hasConflict,
+            conflictingBooking: conflictingBooking ? {
+              id: conflictingBooking.id,
+              scheduledDateTime: conflictingBooking.scheduledDateTime,
+              pickupAddress: conflictingBooking.pickupAddress,
+              passengerName: `${conflictingBooking.passengerFirstName} ${conflictingBooking.passengerLastName}`,
+            } : null,
+          };
+        })
+      );
+      
+      res.json(enrichedDrivers);
+    } catch (error) {
+      console.error('Get drivers for assignment error:', error);
+      res.status(500).json({ message: 'Failed to fetch drivers for assignment' });
+    }
+  });
+
   app.patch('/api/admin/bookings/:id/status', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
