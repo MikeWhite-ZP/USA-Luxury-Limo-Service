@@ -128,6 +128,7 @@ function AdminEmailSettings({ user }: { user: any }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [adminEmail, setAdminEmail] = useState("");
+  const [systemAdminEmail, setSystemAdminEmail] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("admin-email");
 
@@ -146,6 +147,12 @@ function AdminEmailSettings({ user }: { user: any }) {
   // Fetch current admin email setting
   const { data: emailSetting } = useQuery({
     queryKey: ["/api/system-settings", "ADMIN_EMAIL"],
+    enabled: !!user && user.role === "admin",
+  });
+
+  // Fetch system admin email for reports
+  const { data: systemEmailSetting } = useQuery({
+    queryKey: ["/api/system-settings", "SYSTEM_ADMIN_EMAIL"],
     enabled: !!user && user.role === "admin",
   });
 
@@ -175,6 +182,16 @@ function AdminEmailSettings({ user }: { user: any }) {
       setIsLoading(false);
     }
   }, [emailSetting]);
+
+  useEffect(() => {
+    if (
+      systemEmailSetting &&
+      typeof systemEmailSetting === "object" &&
+      "value" in systemEmailSetting
+    ) {
+      setSystemAdminEmail((systemEmailSetting as any).value || "");
+    }
+  }, [systemEmailSetting]);
 
   useEffect(() => {
     if (smtpData) {
@@ -219,6 +236,40 @@ function AdminEmailSettings({ user }: { user: any }) {
         title: "Error",
         description:
           error.message || "Failed to update admin email. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateSystemAdminEmailMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await apiRequest(
+        "PUT",
+        "/api/system-settings/SYSTEM_ADMIN_EMAIL",
+        { value: email },
+      );
+      if (!response.ok) {
+        const error = await response
+          .json()
+          .catch(() => ({ message: "Failed to update system admin email" }));
+        throw new Error(error.message || "Failed to update system admin email");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Email updated",
+        description: "System admin email for reports has been updated successfully.",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/system-settings", "SYSTEM_ADMIN_EMAIL"],
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description:
+          error.message || "Failed to update system admin email. Please try again.",
         variant: "destructive",
       });
     },
@@ -294,6 +345,18 @@ function AdminEmailSettings({ user }: { user: any }) {
     updateEmailMutation.mutate(adminEmail);
   };
 
+  const handleSystemAdminEmailUpdate = () => {
+    if (!systemAdminEmail || !systemAdminEmail.includes("@")) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    updateSystemAdminEmailMutation.mutate(systemAdminEmail);
+  };
+
   const handleSMTPUpdate = () => {
     if (!smtpSettings.host || !smtpSettings.user || !smtpSettings.fromEmail) {
       toast({
@@ -337,9 +400,12 @@ function AdminEmailSettings({ user }: { user: any }) {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="admin-email" data-testid="tab-admin-email">
-                Admin Email
+                Contact Email
+              </TabsTrigger>
+              <TabsTrigger value="system-admin-email" data-testid="tab-system-admin-email">
+                Report Email
               </TabsTrigger>
               <TabsTrigger
                 value="smtp-settings"
@@ -404,6 +470,63 @@ function AdminEmailSettings({ user }: { user: any }) {
                   </li>
                   <li>• Make sure the email address is monitored regularly</li>
                   <li>• You can update this email at any time</li>
+                </ul>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="system-admin-email" className="space-y-4 mt-4">
+              <p className="text-sm text-muted-foreground">
+                Configure the system admin email address for automated email reports. 
+                All booking activity, driver status changes, and cancellation reports will be sent here.
+              </p>
+
+              <div className="max-w-md space-y-3">
+                <div>
+                  <Label htmlFor="system-admin-email">System Admin Email Address</Label>
+                  <Input
+                    id="system-admin-email"
+                    type="email"
+                    value={systemAdminEmail}
+                    onChange={(e) => setSystemAdminEmail(e.target.value)}
+                    placeholder="reports@example.com"
+                    data-testid="input-system-admin-email"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Current value:{" "}
+                    {systemEmailSetting &&
+                    typeof systemEmailSetting === "object" &&
+                    "value" in systemEmailSetting
+                      ? (systemEmailSetting as any).value
+                      : "Not set"}
+                  </p>
+                </div>
+
+                <Button
+                  onClick={handleSystemAdminEmailUpdate}
+                  disabled={updateSystemAdminEmailMutation.isPending}
+                  data-testid="button-update-system-admin-email"
+                >
+                  {updateSystemAdminEmailMutation.isPending ? (
+                    <>
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 mr-2" />
+                      Update Email
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <div className="mt-6 p-4 bg-muted rounded-lg">
+                <h4 className="font-semibold text-sm mb-2">Report Types:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• New booking confirmations with full details</li>
+                  <li>• Cancellation reports (passenger, driver, or automatic)</li>
+                  <li>• Driver activity updates (acceptance, on the way, arrived, on board)</li>
+                  <li>• All reports include booking ID, passenger info, and timestamps</li>
                 </ul>
               </div>
             </TabsContent>
