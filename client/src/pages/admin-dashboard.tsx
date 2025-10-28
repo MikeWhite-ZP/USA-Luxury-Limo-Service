@@ -3332,160 +3332,133 @@ export default function AdminDashboard() {
           }, 100);
         }}
       />
-      <div className="max-w-7xl mx-auto p-6 space-y-8 text-[12px] pt-[10px] pb-[10px] pl-[0px] pr-[0px] bg-[#ffffff]">
+      <div className="max-w-7xl mx-auto p-6 space-y-8">
         {/* Dashboard Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 scale-y-[0.7] origin-top">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card
-            className="rounded-lg border text-card-foreground shadow-sm bg-[#e2f2e1]"
+            className="group relative overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-slate-900 to-slate-800 shadow-[0_15px_35px_rgba(17,20,24,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(17,20,24,0.35)]"
             data-testid="stat-revenue"
           >
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-2">
-                <DollarSign className="w-8 h-8 text-green-600" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Revenue</p>
-                  <p className="text-2xl font-bold" data-testid="total-revenue">
-                    $
-                    {statsLoading
-                      ? "..."
-                      : parseFloat(stats?.totalRevenue || "0").toFixed(2)}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-yellow-400" />
+            <CardContent className="p-7">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-slate-400 mb-2">Total Revenue</p>
+                  <p className="text-4xl font-bold text-white tracking-tight mb-1" data-testid="total-revenue">
+                    ${statsLoading ? "..." : parseFloat(stats?.totalRevenue || "0").toFixed(2)}
                   </p>
-                  {!statsLoading &&
-                    stats &&
-                    parseFloat(stats.revenueGrowth) !== 0 && (
-                      <p
-                        className={`text-xs ${parseFloat(stats.revenueGrowth) > 0 ? "text-green-600" : "text-red-600"}`}
-                        data-testid="revenue-growth"
-                      >
-                        {parseFloat(stats.revenueGrowth) > 0 ? "+" : ""}
-                        {parseFloat(stats.revenueGrowth).toFixed(2)}% from last
-                        month
-                      </p>
-                    )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card
-            className="rounded-lg border text-card-foreground shadow-sm bg-[#dbdbc8]"
-            data-testid="stat-commission"
-          >
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-2">
-                <DollarSign className="w-8 h-8 text-purple-600" />
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Total Commission
-                  </p>
-                  <p
-                    className="text-2xl font-bold"
-                    data-testid="total-commission"
-                  >
-                    $
-                    {statsLoading
-                      ? "..."
-                      : parseFloat(stats?.totalCommission || "0").toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card
-            className="rounded-lg border text-card-foreground shadow-sm bg-[#ede2ca]"
-            data-testid="stat-bookings"
-          >
-            <CardContent className="p-6 pl-[0px] pr-[0px] pt-[0px] pb-[0px] text-[12px]">
-              <div className="flex items-center space-x-2 pl-[24px] pr-[24px] pt-[24px] pb-[24px]">
-                <TrendingUp className="w-8 h-8 text-blue-600" />
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Active Bookings
-                  </p>
-                  <p
-                    className="text-2xl font-bold"
-                    data-testid="active-bookings"
-                  >
-                    {statsLoading ? "..." : stats?.activeBookings || 0}
-                  </p>
-                  {!statsLoading && stats && stats.pendingBookings > 0 && (
+                  {!statsLoading && stats && parseFloat(stats.revenueGrowth) !== 0 && (
                     <p
-                      className="text-xs text-blue-600"
-                      data-testid="pending-bookings"
+                      className={`text-sm font-medium ${parseFloat(stats.revenueGrowth) > 0 ? "text-emerald-400" : "text-rose-400"}`}
+                      data-testid="revenue-growth"
                     >
-                      {stats.pendingBookings} pending approval
-                      {stats.pendingBookings !== 1 ? "s" : ""}
+                      {parseFloat(stats.revenueGrowth) > 0 ? "+" : ""}
+                      {parseFloat(stats.revenueGrowth).toFixed(2)}% from last month
                     </p>
                   )}
                 </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
+                  <DollarSign className="h-6 w-6 text-amber-500" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
           <Card
-            className="rounded-lg border text-card-foreground shadow-sm bg-[#e6f6fa] text-[12px]"
+            className="group relative overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-slate-900 to-slate-800 shadow-[0_15px_35px_rgba(17,20,24,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(17,20,24,0.35)]"
+            data-testid="stat-commission"
+          >
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-fuchsia-500" />
+            <CardContent className="p-7">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-slate-400 mb-2">Total Commission</p>
+                  <p className="text-4xl font-bold text-white tracking-tight" data-testid="total-commission">
+                    ${statsLoading ? "..." : parseFloat(stats?.totalCommission || "0").toFixed(2)}
+                  </p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/10 ring-1 ring-purple-500/20">
+                  <DollarSign className="h-6 w-6 text-purple-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="group relative overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-slate-900 to-slate-800 shadow-[0_15px_35px_rgba(17,20,24,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(17,20,24,0.35)]"
+            data-testid="stat-bookings"
+          >
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500" />
+            <CardContent className="p-7">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-slate-400 mb-2">Active Bookings</p>
+                  <p className="text-4xl font-bold text-white tracking-tight mb-1" data-testid="active-bookings">
+                    {statsLoading ? "..." : stats?.activeBookings || 0}
+                  </p>
+                  {!statsLoading && stats && stats.pendingBookings > 0 && (
+                    <p className="text-sm font-medium text-blue-400" data-testid="pending-bookings">
+                      {stats.pendingBookings} pending approval{stats.pendingBookings !== 1 ? "s" : ""}
+                    </p>
+                  )}
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
+                  <TrendingUp className="h-6 w-6 text-blue-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="group relative overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-slate-900 to-slate-800 shadow-[0_15px_35px_rgba(17,20,24,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(17,20,24,0.35)]"
             data-testid="stat-drivers"
           >
-            <CardContent className="p-6 pt-[0px] pb-[0px] pl-[0px] pr-[0px]">
-              <div className="flex items-center space-x-2 bg-[#e6f6fa] pl-[24px] pr-[24px] pt-[24px] pb-[24px]">
-                <Car className="w-8 h-8 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Drivers</p>
-                  <p
-                    className="text-2xl font-bold"
-                    data-testid="active-drivers"
-                  >
-                    {statsLoading
-                      ? "..."
-                      : `${stats?.activeDrivers || 0}/${stats?.totalDrivers || 0}`}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
+            <CardContent className="p-7">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-slate-400 mb-2">Drivers</p>
+                  <p className="text-4xl font-bold text-white tracking-tight mb-1" data-testid="active-drivers">
+                    {statsLoading ? "..." : `${stats?.activeDrivers || 0}/${stats?.totalDrivers || 0}`}
                   </p>
-                  <p className="text-xs text-muted-foreground">Active/Total</p>
+                  <p className="text-xs text-slate-500">Active/Total</p>
                   {!statsLoading && stats && stats.pendingDrivers > 0 && (
-                    <p
-                      className="text-xs text-primary"
-                      data-testid="pending-drivers"
-                    >
+                    <p className="text-sm font-medium text-emerald-400 mt-1" data-testid="pending-drivers">
                       {stats.pendingDrivers} pending verification
                     </p>
                   )}
                 </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                  <Car className="h-6 w-6 text-emerald-400" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
           <Card
-            className="rounded-lg border text-card-foreground shadow-sm bg-[#f2f1e1]"
+            className="group relative overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-slate-900 to-slate-800 shadow-[0_15px_35px_rgba(17,20,24,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(17,20,24,0.35)]"
             data-testid="stat-satisfaction"
           >
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-2">
-                <Star className="w-8 h-8 text-yellow-500" />
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Customer Satisfaction
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-orange-400" />
+            <CardContent className="p-7">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-slate-400 mb-2">Customer Satisfaction</p>
+                  <p className="text-4xl font-bold text-white tracking-tight mb-1" data-testid="customer-satisfaction">
+                    {statsLoading ? "..." : parseFloat(stats?.averageRating || "0").toFixed(2)}/5
                   </p>
-                  <p
-                    className="text-2xl font-bold"
-                    data-testid="customer-satisfaction"
-                  >
-                    {statsLoading
-                      ? "..."
-                      : parseFloat(stats?.averageRating || "0").toFixed(2)}
-                    /5
-                  </p>
-                  {!statsLoading &&
-                    stats &&
-                    parseFloat(stats.ratingImprovement) !== 0 && (
-                      <p
-                        className={`text-xs ${parseFloat(stats.ratingImprovement) > 0 ? "text-green-600" : "text-red-600"}`}
-                        data-testid="rating-improvement"
-                      >
-                        {parseFloat(stats.ratingImprovement) > 0 ? "+" : ""}
-                        {parseFloat(stats.ratingImprovement).toFixed(2)} this
-                        month
-                      </p>
-                    )}
+                  {!statsLoading && stats && parseFloat(stats.ratingImprovement) !== 0 && (
+                    <p
+                      className={`text-sm font-medium ${parseFloat(stats.ratingImprovement) > 0 ? "text-emerald-400" : "text-rose-400"}`}
+                      data-testid="rating-improvement"
+                    >
+                      {parseFloat(stats.ratingImprovement) > 0 ? "+" : ""}
+                      {parseFloat(stats.ratingImprovement).toFixed(2)} this month
+                    </p>
+                  )}
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
+                  <Star className="h-6 w-6 text-amber-400" />
                 </div>
               </div>
             </CardContent>
