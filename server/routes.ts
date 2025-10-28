@@ -12,6 +12,7 @@ import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sen
 import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityReport } from "./emailReports";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
+import nodemailer from "nodemailer";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -2026,8 +2027,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const nodemailer = await import('nodemailer');
-      const transporter = nodemailer.default.createTransporter({
+      const transporter = nodemailer.createTransporter({
         host: smtpHost.value,
         port: parseInt(smtpPort.value || '587'),
         secure: smtpPort.value === '465',
