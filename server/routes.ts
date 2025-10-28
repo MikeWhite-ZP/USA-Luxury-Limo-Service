@@ -765,12 +765,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update booking to confirmed status and set acceptedAt timestamp
-      await storage.updateBooking(id, {
+      const updatedBooking = await storage.updateBooking(id, {
         status: 'confirmed',
         acceptedAt: new Date(),
       });
 
-      // Send notification to passenger (fire-and-forget)
+      // Send notification to passenger and system admin report (fire-and-forget)
       (async () => {
         try {
           const passenger = await storage.getUser(booking.passengerId);
@@ -788,6 +788,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 to: passenger.email,
                 subject: 'Driver Accepted Your Booking',
                 html: `<p>${message}</p><p>Pickup: ${booking.pickupAddress}</p><p>Time: ${new Date(booking.scheduledDateTime).toLocaleString()}</p>`,
+              });
+            }
+            
+            // Send system admin activity report
+            const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+            if (vehicleType) {
+              await sendDriverActivityReport({
+                type: 'acceptance',
+                booking: updatedBooking,
+                driver: user,
+                passenger,
+                vehicleTypeName: vehicleType.name || 'Unknown Vehicle',
+                timestamp: new Date(),
               });
             }
           }
@@ -951,9 +964,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update booking to on_the_way status
-      await storage.updateBooking(id, updates);
+      const updatedBooking = await storage.updateBooking(id, updates);
 
-      // Send notification to passenger (fire-and-forget)
+      // Send notification to passenger and system admin report (fire-and-forget)
       (async () => {
         try {
           const passenger = await storage.getUser(booking.passengerId);
@@ -969,6 +982,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 to: passenger.email,
                 subject: 'Driver On the Way',
                 html: `<h2>Driver On the Way</h2><p>${message}</p><p>Vehicle: ${driver.vehiclePlate || 'N/A'}</p>`,
+              });
+            }
+            
+            // Send system admin activity report
+            const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+            if (vehicleType) {
+              await sendDriverActivityReport({
+                type: 'on_the_way',
+                booking: updatedBooking,
+                driver: user,
+                passenger,
+                vehicleTypeName: vehicleType.name || 'Unknown Vehicle',
+                timestamp: now,
               });
             }
           }
@@ -1036,12 +1062,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update booking to arrived status
-      await storage.updateBooking(id, {
+      const updatedBooking = await storage.updateBooking(id, {
         status: 'arrived',
         arrivedAt: now,
       });
 
-      // Send notification to passenger (fire-and-forget)
+      // Send notification to passenger and system admin report (fire-and-forget)
       (async () => {
         try {
           const passenger = await storage.getUser(booking.passengerId);
@@ -1057,6 +1083,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 to: passenger.email,
                 subject: 'Driver Has Arrived',
                 html: `<h2>Driver Has Arrived</h2><p>${message}</p><p>Vehicle: ${driver.vehiclePlate || 'N/A'}</p>`,
+              });
+            }
+            
+            // Send system admin activity report
+            const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+            if (vehicleType) {
+              await sendDriverActivityReport({
+                type: 'arrived',
+                booking: updatedBooking,
+                driver: user,
+                passenger,
+                vehicleTypeName: vehicleType.name || 'Unknown Vehicle',
+                timestamp: now,
               });
             }
           }
@@ -1113,12 +1152,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update booking to on_board status
-      await storage.updateBooking(id, {
+      const updatedBooking = await storage.updateBooking(id, {
         status: 'on_board',
         onBoardAt: now,
       });
 
-      // Send notification to passenger (fire-and-forget)
+      // Send notification to passenger and system admin report (fire-and-forget)
       (async () => {
         try {
           const passenger = await storage.getUser(booking.passengerId);
@@ -1134,6 +1173,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 to: passenger.email,
                 subject: 'Trip Started',
                 html: `<h2>Trip Started</h2><p>${message}</p><p>Driver: ${user.firstName} ${user.lastName}</p>`,
+              });
+            }
+            
+            // Send system admin activity report
+            const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+            if (vehicleType) {
+              await sendDriverActivityReport({
+                type: 'on_board',
+                booking: updatedBooking,
+                driver: user,
+                passenger,
+                vehicleTypeName: vehicleType.name || 'Unknown Vehicle',
+                timestamp: now,
               });
             }
           }
