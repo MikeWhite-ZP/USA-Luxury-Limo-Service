@@ -1354,7 +1354,7 @@ export default function PassengerDashboard() {
               <CardTitle>Saved Locations</CardTitle>
               <Dialog open={addAddressOpen} onOpenChange={setAddAddressOpen}>
                 <DialogTrigger asChild>
-                  <Button size="sm" data-testid="button-add-address">
+                  <Button size="sm" className="bg-[#c9e8b0] text-[#000000]" data-testid="button-add-address">
                     <Plus className="w-4 h-4 mr-2" />
                     Add Address
                   </Button>
