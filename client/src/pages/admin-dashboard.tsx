@@ -56,6 +56,7 @@ import { BookingDetailsDialog } from "@/components/BookingDetailsDialog";
 
 interface DashboardStats {
   totalRevenue: string;
+  monthlyRevenue: string;
   totalCommission: string;
   activeBookings: number;
   totalDrivers: number;
@@ -3343,13 +3344,25 @@ export default function AdminDashboard() {
             <CardContent className="p-7">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-400 mb-2">Total Revenue</p>
-                  <p className="text-4xl font-bold text-white tracking-tight mb-1" data-testid="total-revenue">
-                    ${statsLoading ? "..." : parseFloat(stats?.totalRevenue || "0").toFixed(2)}
-                  </p>
+                  <p className="text-sm font-medium text-slate-400 mb-3">Revenue</p>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">This Month</p>
+                      <p className="text-3xl font-bold text-white tracking-tight" data-testid="monthly-revenue">
+                        ${statsLoading ? "..." : parseFloat(stats?.monthlyRevenue || "0").toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="h-px bg-slate-700/50" />
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">All Time</p>
+                      <p className="text-2xl font-semibold text-slate-300 tracking-tight" data-testid="total-revenue">
+                        ${statsLoading ? "..." : parseFloat(stats?.totalRevenue || "0").toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
                   {!statsLoading && stats && parseFloat(stats.revenueGrowth) !== 0 && (
                     <p
-                      className={`text-sm font-medium ${parseFloat(stats.revenueGrowth) > 0 ? "text-emerald-400" : "text-rose-400"}`}
+                      className={`text-sm font-medium mt-3 ${parseFloat(stats.revenueGrowth) > 0 ? "text-emerald-400" : "text-rose-400"}`}
                       data-testid="revenue-growth"
                     >
                       {parseFloat(stats.revenueGrowth) > 0 ? "+" : ""}

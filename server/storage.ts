@@ -126,6 +126,7 @@ export interface IStorage {
   // Admin dashboard data
   getAdminDashboardStats(): Promise<{
     totalRevenue: string;
+    monthlyRevenue: string;
     totalCommission: string;
     activeBookings: number;
     totalDrivers: number;
@@ -837,6 +838,7 @@ export class DatabaseStorage implements IStorage {
 
   async getAdminDashboardStats(): Promise<{
     totalRevenue: string;
+    monthlyRevenue: string;
     totalCommission: string;
     activeBookings: number;
     totalDrivers: number;
@@ -1026,6 +1028,7 @@ export class DatabaseStorage implements IStorage {
 
     return {
       totalRevenue: revenueResult?.total || '0',
+      monthlyRevenue: currentMonthRevenueResult?.total || '0',
       totalCommission,
       activeBookings: activeBookingsResult?.count || 0,
       totalDrivers: totalDriversResult?.count || 0,
