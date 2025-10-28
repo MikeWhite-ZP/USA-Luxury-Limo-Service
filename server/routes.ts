@@ -9,6 +9,7 @@ import multer from "multer";
 import { Client as ObjectStorageClient } from "@replit/object-storage";
 import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML } from "./email";
 import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS } from "./sms";
+import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityReport } from "./emailReports";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -544,6 +545,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const booking = await storage.createBooking(bookingData);
+      
+      // Send system admin report (fire-and-forget)
+      (async () => {
+        try {
+          const passenger = await storage.getUser(userId);
+          const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+          if (passenger && vehicleType) {
+            await sendNewBookingReport(booking, passenger, vehicleType.name || 'Unknown Vehicle');
+          }
+        } catch (error) {
+          console.error('[EMAIL REPORT] Failed to send new booking report:', error);
+        }
+      })();
+      
       res.status(201).json(booking);
     } catch (error) {
       console.error('Create booking error:', error);
