@@ -2707,6 +2707,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get driver earnings breakdown by time period
+  app.get('/api/driver/earnings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      // Get all completed bookings for this driver
+      const allBookings = await storage.getDriverBookings(driver.id);
+      const completedBookings = allBookings.filter(b => b.status === 'completed' && b.driverPayment);
+
+      // Calculate date ranges
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
+      startOfWeek.setHours(0, 0, 0, 0);
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+      // Calculate earnings for each period
+      const todayEarnings = completedBookings
+        .filter(b => new Date(b.completedAt || b.updatedAt) >= startOfToday)
+        .reduce((sum, b) => sum + parseFloat(b.driverPayment || '0'), 0);
+
+      const weekEarnings = completedBookings
+        .filter(b => new Date(b.completedAt || b.updatedAt) >= startOfWeek)
+        .reduce((sum, b) => sum + parseFloat(b.driverPayment || '0'), 0);
+
+      const monthEarnings = completedBookings
+        .filter(b => new Date(b.completedAt || b.updatedAt) >= startOfMonth)
+        .reduce((sum, b) => sum + parseFloat(b.driverPayment || '0'), 0);
+
+      const yearEarnings = completedBookings
+        .filter(b => new Date(b.completedAt || b.updatedAt) >= startOfYear)
+        .reduce((sum, b) => sum + parseFloat(b.driverPayment || '0'), 0);
+
+      const allTimeEarnings = completedBookings
+        .reduce((sum, b) => sum + parseFloat(b.driverPayment || '0'), 0);
+
+      res.json({
+        today: todayEarnings,
+        week: weekEarnings,
+        month: monthEarnings,
+        year: yearEarnings,
+        allTime: allTimeEarnings,
+        currentDate: now.toISOString(),
+        completedRidesCount: completedBookings.length,
+      });
+    } catch (error) {
+      console.error('Get driver earnings error:', error);
+      res.status(500).json({ message: 'Failed to fetch earnings' });
+    }
+  });
+
   // Journey Tracking - Driver status updates with GPS
   app.post('/api/driver/job/accept', isAuthenticated, async (req: any, res) => {
     try {
