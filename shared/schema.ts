@@ -205,7 +205,7 @@ export const bookings = pgTable("bookings", {
   vehicleId: uuid("vehicle_id").references(() => vehicles.id),
   bookingType: varchar("booking_type", { enum: ["transfer", "hourly"] }).notNull(),
   status: varchar("status", { 
-    enum: ["pending", "confirmed", "in_progress", "completed", "cancelled"] 
+    enum: ["pending", "pending_driver_acceptance", "confirmed", "in_progress", "completed", "cancelled"] 
   }).default("pending"),
   
   // Trip details
