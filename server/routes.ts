@@ -8,7 +8,7 @@ import Stripe from "stripe";
 import multer from "multer";
 import { Client as ObjectStorageClient } from "@replit/object-storage";
 import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML } from "./email";
-import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS } from "./sms";
+import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS } from "./sms";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -715,6 +715,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Driver accepts assigned booking
+  app.post('/api/bookings/:id/accept', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+
+      // Get user and verify they're a driver
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Only drivers can accept bookings' });
+      }
+
+      // Get driver profile
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      // Get the booking
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      // Verify this booking is assigned to this driver
+      if (booking.driverId !== driver.id) {
+        return res.status(403).json({ message: 'This booking is not assigned to you' });
+      }
+
+      // Verify booking is in pending_driver_acceptance status
+      if (booking.status !== 'pending_driver_acceptance') {
+        return res.status(400).json({ message: 'This booking is not awaiting your acceptance' });
+      }
+
+      // Update booking to confirmed status and set acceptedAt timestamp
+      await storage.updateBooking(id, {
+        status: 'confirmed',
+        acceptedAt: new Date(),
+      });
+
+      // Send notification to passenger (fire-and-forget)
+      (async () => {
+        try {
+          const passenger = await storage.getUser(booking.passengerId);
+          if (passenger) {
+            const message = `Good news! Driver ${user.firstName} ${user.lastName} has accepted your booking for ${new Date(booking.scheduledDateTime).toLocaleString()}.`;
+            
+            // Send SMS if phone number available
+            if (booking.passengerPhone || passenger.phone) {
+              await sendSMS(booking.passengerPhone || passenger.phone!, message);
+            }
+
+            // Send email
+            if (passenger.email) {
+              await sendEmail({
+                to: passenger.email,
+                subject: 'Driver Accepted Your Booking',
+                html: `<p>${message}</p><p>Pickup: ${booking.pickupAddress}</p><p>Time: ${new Date(booking.scheduledDateTime).toLocaleString()}</p>`,
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error sending driver acceptance notification:', error);
+        }
+      })();
+
+      res.json({ success: true, message: 'Booking accepted successfully' });
+    } catch (error) {
+      console.error('Accept booking error:', error);
+      res.status(500).json({ message: 'Failed to accept booking' });
+    }
+  });
+
+  // Driver declines assigned booking
+  app.post('/api/bookings/:id/decline', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { reason } = req.body; // Optional decline reason
+      const userId = req.user.id;
+
+      // Get user and verify they're a driver
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Only drivers can decline bookings' });
+      }
+
+      // Get driver profile
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      // Get the booking
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      // Verify this booking is assigned to this driver
+      if (booking.driverId !== driver.id) {
+        return res.status(403).json({ message: 'This booking is not assigned to you' });
+      }
+
+      // Verify booking is in pending_driver_acceptance status
+      if (booking.status !== 'pending_driver_acceptance') {
+        return res.status(400).json({ message: 'This booking is not awaiting your acceptance' });
+      }
+
+      // Update booking: remove driver assignment and revert to pending status
+      await storage.updateBooking(id, {
+        status: 'pending',
+        driverId: null,
+        driverPayment: null,
+        assignedAt: null,
+      });
+
+      // Send notification to admins/dispatchers (fire-and-forget)
+      (async () => {
+        try {
+          const allUsers = await storage.getAllUsers();
+          const admins = allUsers.filter(u => u.role === 'admin' || u.role === 'dispatcher');
+          const notificationMessage = `Driver ${user.firstName} ${user.lastName} has declined booking #${id.substring(0, 8)} for ${new Date(booking.scheduledDateTime).toLocaleString()}.${reason ? ` Reason: ${reason}` : ''}`;
+          
+          for (const admin of admins) {
+            if (admin.email) {
+              await sendEmail({
+                to: admin.email,
+                subject: 'Driver Declined Booking Assignment',
+                html: `<p>${notificationMessage}</p><p>Pickup: ${booking.pickupAddress}</p><p>Passenger: ${booking.passengerName || 'N/A'}</p><p>Please reassign this booking to another driver.</p>`,
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error sending driver declination notification:', error);
+        }
+      })();
+
+      res.json({ success: true, message: 'Booking declined successfully' });
+    } catch (error) {
+      console.error('Decline booking error:', error);
+      res.status(500).json({ message: 'Failed to decline booking' });
+    }
+  });
 
   // Update booking (passengers can edit their own pending bookings)
   app.patch('/api/bookings/:id', isAuthenticated, async (req: any, res) => {
