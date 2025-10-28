@@ -2027,7 +2027,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const transporter = nodemailer.createTransporter({
+      const transporter = nodemailer.createTransport({
         host: smtpHost.value,
         port: parseInt(smtpPort.value || '587'),
         secure: smtpPort.value === '465',
