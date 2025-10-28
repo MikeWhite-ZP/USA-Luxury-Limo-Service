@@ -1463,7 +1463,7 @@ export default function PassengerDashboard() {
                       </div>
                       <div className="flex items-center gap-3 flex-shrink-0">
                         <div className="text-center">
-                          <p className="text-xs text-muted-foreground mb-1 whitespace-nowrap">Easy Book With !</p>
+                          <p className="text-xs mb-1 whitespace-nowrap text-[#0619c7] font-medium">Easy Book With !</p>
                           <div className="flex gap-2">
                             <Button
                               size="sm"
