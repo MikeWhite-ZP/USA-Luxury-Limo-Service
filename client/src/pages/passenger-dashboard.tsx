@@ -1213,7 +1213,7 @@ export default function PassengerDashboard() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <Button
                     onClick={() => window.location.href = '/'}
-                    className="h-16 flex flex-col space-y-1"
+                    className="h-16 flex flex-col space-y-1 bg-[#d8e3d8e6] text-[#000000]"
                     data-testid="button-book-ride"
                   >
                     <MapPin className="w-5 h-5" />
