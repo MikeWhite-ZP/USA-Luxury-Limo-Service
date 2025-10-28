@@ -1063,10 +1063,16 @@ export default function PassengerDashboard() {
     return null;
   }
 
-  const recentBookings = bookings?.slice(0, 5) || [];
-  
   // Split bookings into future and past
   const now = new Date();
+  
+  // Recent bookings: exclude cancelled and past bookings, show only active upcoming ones
+  const recentBookings = bookings?.filter(b => 
+    b.status !== 'cancelled' && 
+    b.status !== 'completed' &&
+    new Date(b.scheduledDateTime) >= now
+  ).slice(0, 5) || [];
+  
   const futureBookings = bookings?.filter(b => 
     (b.status === 'pending' || b.status === 'confirmed' || b.status === 'in_progress') &&
     new Date(b.scheduledDateTime) >= now
