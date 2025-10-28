@@ -1123,51 +1123,67 @@ function InvoiceManagement() {
 
       {/* View Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Invoice Details</DialogTitle>
+        <DialogContent className="sm:max-w-[600px] bg-[#ffffff] text-[#333333]">
+          <DialogHeader className="border-b pb-4">
+            <DialogTitle className="text-xl font-bold">Invoice Details</DialogTitle>
           </DialogHeader>
           {selectedInvoice && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Invoice Number</Label>
-                  <p className="font-semibold" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
-                </div>
-                <div>
-                  <Label>Date</Label>
-                  <p data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <Label>Booking ID</Label>
-                  <p className="font-mono text-sm" data-testid="view-booking-id">{selectedInvoice.bookingId}</p>
-                </div>
-                {selectedInvoice.paidAt && (
+            <div className="space-y-6">
+              {/* Invoice Header Section */}
+              <div className="bg-[#f8f9fa] p-4 rounded-lg border border-gray-200">
+                <h3 className="font-bold text-lg mb-3">Invoice Information</h3>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
                   <div>
-                    <Label>Payment Date</Label>
-                    <p data-testid="view-payment-date">{new Date(selectedInvoice.paidAt).toLocaleDateString()}</p>
+                    <p className="text-gray-600 mb-1">Invoice Number</p>
+                    <p className="font-semibold" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
                   </div>
-                )}
+                  <div>
+                    <p className="text-gray-600 mb-1">Date</p>
+                    <p data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-gray-600 mb-1">Booking ID</p>
+                    <p className="font-mono text-xs" data-testid="view-booking-id">{selectedInvoice.bookingId}</p>
+                  </div>
+                  {selectedInvoice.paidAt && (
+                    <div className="col-span-2">
+                      <p className="text-gray-600 mb-1">Payment Date</p>
+                      <p data-testid="view-payment-date">{new Date(selectedInvoice.paidAt).toLocaleDateString()}</p>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="border-t pt-4">
-                <div className="flex justify-between py-2">
-                  <span>Subtotal:</span>
-                  <span data-testid="view-subtotal">${parseFloat(selectedInvoice.subtotal).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span>Tax:</span>
-                  <span data-testid="view-tax">${parseFloat(selectedInvoice.taxAmount).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between py-2 font-bold text-lg border-t">
-                  <span>Total:</span>
-                  <span data-testid="view-total">${parseFloat(selectedInvoice.totalAmount).toFixed(2)}</span>
+
+              {/* Fare Breakdown Section */}
+              <div className="border-t border-b py-4">
+                <h3 className="font-bold text-lg mb-3">Fare Breakdown</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-gray-600">Journey Fare</span>
+                    <span className="font-semibold" data-testid="view-subtotal">${parseFloat(selectedInvoice.subtotal).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-gray-600">Sub Total</span>
+                    <span className="font-semibold">${parseFloat(selectedInvoice.subtotal).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between py-3 bg-[#f8f9fa] px-3 -mx-3 rounded">
+                    <span className="font-bold text-base">Total Journey Fare</span>
+                    <span className="font-bold text-base" data-testid="view-total">${parseFloat(selectedInvoice.totalAmount).toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
+
+              {/* Payment Status */}
               {selectedInvoice.paidAt && (
-                <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg font-semibold">
-                  PAID
+                <div className="text-center p-4 bg-[#d4edda] border border-[#c3e6cb] rounded-lg">
+                  <p className="text-[#155724] font-bold text-lg">PAID</p>
                 </div>
               )}
+
+              {/* Footer Note */}
+              <div className="text-xs text-gray-500 text-center pt-2">
+                * All prices include all statutory taxes and all expenses for your transportation service.
+              </div>
             </div>
           )}
           <DialogFooter>
@@ -1318,7 +1334,7 @@ function InvoiceManagement() {
 
       {/* Backfill Invoices Dialog */}
       <Dialog open={backfillDialogOpen} onOpenChange={setBackfillDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-[#ffffff] text-[12px]">
+        <DialogContent className="sm:max-w-[600px] bg-[#ffffff]">
           <DialogHeader>
             <DialogTitle>Backfill Missing Invoices</DialogTitle>
             <DialogDescription>

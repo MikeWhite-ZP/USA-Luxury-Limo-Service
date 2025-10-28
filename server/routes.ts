@@ -2041,75 +2041,152 @@ export async function registerRoutes(app: Express): Promise<Server> {
         <!DOCTYPE html>
         <html>
         <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background-color: #000; color: #fff; padding: 20px; text-align: center; }
-            .invoice-details { background-color: #f5f5f5; padding: 20px; margin: 20px 0; }
-            .invoice-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ddd; }
-            .total { font-weight: bold; font-size: 1.2em; margin-top: 10px; }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f5f5f5; }
+            .email-wrapper { background-color: #f5f5f5; padding: 20px; }
+            .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+            .header { padding: 20px; border-bottom: 3px solid #4CAF50; }
+            .logo { font-size: 24px; font-weight: bold; color: #000; margin-bottom: 5px; }
+            .tagline { font-size: 12px; color: #666; }
+            .success-banner { background-color: #d4edda; padding: 15px; text-align: center; margin: 0; border-bottom: 1px solid #c3e6cb; }
+            .success-banner h2 { color: #155724; font-size: 18px; margin: 0; }
+            .content { padding: 30px 20px; }
+            .greeting { margin-bottom: 20px; }
+            .section { margin-bottom: 25px; }
+            .section-title { font-weight: bold; font-size: 16px; margin-bottom: 15px; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; }
+            .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+            .info-label { font-weight: bold; color: #555; flex: 0 0 40%; }
+            .info-value { color: #333; flex: 1; text-align: left; }
+            .fare-breakdown { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; }
+            .fare-row { display: flex; justify-content: space-between; padding: 8px 0; }
+            .fare-total { background-color: #e9ecef; padding: 12px; margin-top: 10px; border-radius: 3px; }
+            .fare-total .fare-row { font-weight: bold; font-size: 16px; }
+            .payment-link { text-align: center; margin: 20px 0; }
+            .payment-button { display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+            .footer-note { font-size: 12px; color: #666; text-align: center; padding: 20px; border-top: 1px solid #e0e0e0; margin-top: 20px; }
+            .paid-badge { background-color: #d4edda; color: #155724; padding: 15px; text-align: center; font-weight: bold; font-size: 18px; border-radius: 5px; margin: 20px 0; border: 2px solid #c3e6cb; }
           </style>
         </head>
         <body>
-          <div class="container">
-            <div class="header">
-              <h1>USA Luxury Limo</h1>
-              <p>Invoice #${invoice.invoiceNumber}</p>
+          <div class="email-wrapper">
+            <div class="container">
+              <!-- Header -->
+              <div class="header">
+                <div class="logo">USA Luxury Limo</div>
+                <div class="tagline">Ride in Style, Always on Time</div>
+              </div>
+
+              <!-- Success Banner -->
+              <div class="success-banner">
+                <h2>Invoice Ready!</h2>
+              </div>
+
+              <!-- Content -->
+              <div class="content">
+                <div class="greeting">
+                  <p>Dear ${passenger?.firstName || 'Customer'},</p>
+                  <p style="margin-top: 10px;">Thank you for booking with USA Luxury Limo Service! Below is your invoice.</p>
+                </div>
+
+                <!-- Invoice Information -->
+                <div class="section">
+                  <div class="section-title">Invoice Information</div>
+                  <div class="info-row">
+                    <span class="info-label">Invoice Number</span>
+                    <span class="info-value">${invoice.invoiceNumber}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Date & time</span>
+                    <span class="info-value">${new Date(booking.scheduledDateTime).toLocaleString()}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Booking ID</span>
+                    <span class="info-value">${booking.id}</span>
+                  </div>
+                </div>
+
+                <!-- Journey Information -->
+                <div class="section">
+                  <div class="section-title">Journey Information</div>
+                  <div class="info-row">
+                    <span class="info-label">From</span>
+                    <span class="info-value">${booking.pickupAddress}</span>
+                  </div>
+                  ${booking.dropoffAddress ? `
+                  <div class="info-row">
+                    <span class="info-label">To</span>
+                    <span class="info-value">${booking.dropoffAddress}</span>
+                  </div>
+                  ` : ''}
+                </div>
+
+                <!-- Account -->
+                <div class="section">
+                  <div class="section-title">Account</div>
+                  <div class="info-row">
+                    <span class="info-label">Name</span>
+                    <span class="info-value">${passenger?.firstName} ${passenger?.lastName}</span>
+                  </div>
+                  ${passenger?.phone ? `
+                  <div class="info-row">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">${passenger.phone}</span>
+                  </div>
+                  ` : ''}
+                  ${passenger?.email ? `
+                  <div class="info-row">
+                    <span class="info-label">E-mail</span>
+                    <span class="info-value">${passenger.email}</span>
+                  </div>
+                  ` : ''}
+                </div>
+
+                <!-- Fare Breakdown -->
+                <div class="section">
+                  <div class="section-title">Fare Breakdown</div>
+                  <div class="fare-breakdown">
+                    <div class="fare-row">
+                      <span>Journey Fare</span>
+                      <span>$${parseFloat(invoice.subtotal).toFixed(2)}</span>
+                    </div>
+                    <div class="fare-row" style="border-top: 1px solid #dee2e6; padding-top: 10px; margin-top: 5px;">
+                      <span>Sub Total</span>
+                      <span>$${parseFloat(invoice.subtotal).toFixed(2)}</span>
+                    </div>
+                    <div class="fare-total">
+                      <div class="fare-row">
+                        <span>Total Journey Fare</span>
+                        <span>$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                ${invoice.paidAt ? `
+                <!-- Payment Status -->
+                <div class="paid-badge">
+                  ✓ PAID
+                </div>
+                ` : `
+                <!-- Payment Link -->
+                <div class="payment-link">
+                  <p style="margin-bottom: 10px;">Click here to Make Payment</p>
+                  <a href="${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'https://your-domain.com'}" class="payment-button">Make Payment</a>
+                </div>
+                `}
+
+                <!-- Footer Note -->
+                <div class="footer-note">
+                  * All prices include all statutory taxes and all expenses for your transportation service.
+                  <br><br>
+                  Best regards,<br>
+                  <strong>USA Luxury Limo Service</strong>
+                </div>
+              </div>
             </div>
-            <div class="invoice-details">
-              <h2>Invoice Details</h2>
-              <div class="invoice-row">
-                <span>Customer:</span>
-                <span>${passenger?.firstName} ${passenger?.lastName}</span>
-              </div>
-              <div class="invoice-row">
-                <span>Invoice Number:</span>
-                <span>${invoice.invoiceNumber}</span>
-              </div>
-              <div class="invoice-row">
-                <span>Invoice Date:</span>
-                <span>${new Date(invoice.createdAt).toLocaleDateString()}</span>
-              </div>
-              <div class="invoice-row">
-                <span>Booking Date:</span>
-                <span>${new Date(booking.scheduledDateTime).toLocaleDateString()}</span>
-              </div>
-              <div class="invoice-row">
-                <span>Pickup Location:</span>
-                <span>${booking.pickupAddress}</span>
-              </div>
-              ${booking.dropoffAddress ? `
-              <div class="invoice-row">
-                <span>Dropoff Location:</span>
-                <span>${booking.dropoffAddress}</span>
-              </div>
-              ` : ''}
-              <hr style="margin: 20px 0;">
-              <div class="invoice-row">
-                <span>Subtotal:</span>
-                <span>$${parseFloat(invoice.subtotal).toFixed(2)}</span>
-              </div>
-              <div class="invoice-row">
-                <span>Tax:</span>
-                <span>$${parseFloat(invoice.taxAmount).toFixed(2)}</span>
-              </div>
-              <div class="invoice-row total">
-                <span>Total Amount:</span>
-                <span>$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
-              </div>
-              ${invoice.paidAt ? `
-              <div class="invoice-row">
-                <span>Payment Date:</span>
-                <span>${new Date(invoice.paidAt).toLocaleDateString()}</span>
-              </div>
-              <div style="text-align: center; margin-top: 20px; color: green; font-weight: bold;">
-                PAID
-              </div>
-              ` : ''}
-            </div>
-            <p style="text-align: center; color: #666; font-size: 0.9em;">
-              Thank you for choosing USA Luxury Limo!
-            </p>
           </div>
         </body>
         </html>
