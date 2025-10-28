@@ -5310,7 +5310,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
-      res.send(Buffer.from(value.buffer || value));
+      
+      // Handle different possible return types from Object Storage
+      let buffer: Buffer;
+      if (Buffer.isBuffer(value)) {
+        buffer = value;
+      } else if (Array.isArray(value) && value.length > 0 && Buffer.isBuffer(value[0])) {
+        buffer = value[0];
+      } else {
+        buffer = Buffer.from(value as any);
+      }
+      
+      res.send(buffer);
     } catch (error) {
       console.error('Error serving CMS media:', error);
       res.status(500).json({ message: 'Failed to serve media' });
