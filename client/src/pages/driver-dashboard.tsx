@@ -31,7 +31,7 @@ interface Booking {
   id: string;
   driverId?: string;
   bookingType: 'transfer' | 'hourly';
-  status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+  status: 'pending' | 'pending_driver_acceptance' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
   pickupAddress: string;
   destinationAddress?: string;
   scheduledDateTime: string;
