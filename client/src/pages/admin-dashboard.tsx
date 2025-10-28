@@ -776,6 +776,8 @@ function InvoiceManagement() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [backfillDialogOpen, setBackfillDialogOpen] = useState(false);
+  const [backfillResult, setBackfillResult] = useState<any>(null);
   const [recipientEmail, setRecipientEmail] = useState("");
   const [editFormData, setEditFormData] = useState({
     subtotal: "",
@@ -859,6 +861,33 @@ function InvoiceManagement() {
     onError: (error: any) => {
       toast({
         title: "Failed to send invoice",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Backfill invoices mutation
+  const backfillInvoicesMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/admin/invoices/backfill", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to backfill invoices");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/invoices"] });
+      setBackfillResult(data);
+      toast({ 
+        title: "Backfill completed", 
+        description: `Created ${data.created} invoices, skipped ${data.skipped} existing`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to backfill invoices",
         description: error.message,
         variant: "destructive",
       });
@@ -982,18 +1011,28 @@ function InvoiceManagement() {
 
   return (
     <>
-      {/* Search Bar */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2">
+      {/* Action Bar */}
+      <div className="mb-6 flex items-center justify-between">
+        {/* Search Bar */}
+        <div className="flex items-center gap-2 flex-1 max-w-md">
           <Search className="w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search by invoice number or booking ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-md"
             data-testid="input-invoice-search"
           />
         </div>
+        
+        {/* Backfill Button */}
+        <Button
+          onClick={() => setBackfillDialogOpen(true)}
+          variant="outline"
+          data-testid="button-backfill-invoices"
+        >
+          <FileText className="w-4 h-4 mr-2" />
+          Backfill Missing Invoices
+        </Button>
       </div>
 
       {/* Invoices Table */}
@@ -1273,6 +1312,75 @@ function InvoiceManagement() {
             >
               {deleteInvoiceMutation.isPending ? "Deleting..." : "Delete Invoice"}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Backfill Invoices Dialog */}
+      <Dialog open={backfillDialogOpen} onOpenChange={setBackfillDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Backfill Missing Invoices</DialogTitle>
+            <DialogDescription>
+              This will automatically create invoices for all bookings that don't have one.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {backfillResult ? (
+            <div className="space-y-4">
+              <div className="p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
+                <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2">Backfill Completed!</h3>
+                <div className="space-y-1 text-sm text-green-800 dark:text-green-200">
+                  <p><strong>Total Bookings:</strong> {backfillResult.total}</p>
+                  <p><strong>Invoices Created:</strong> {backfillResult.created}</p>
+                  <p><strong>Already Existed:</strong> {backfillResult.skipped}</p>
+                  {backfillResult.errors > 0 && (
+                    <p className="text-red-600 dark:text-red-400"><strong>Errors:</strong> {backfillResult.errors}</p>
+                  )}
+                </div>
+              </div>
+              {backfillResult.errorDetails && backfillResult.errorDetails.length > 0 && (
+                <div className="p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
+                  <h4 className="font-semibold text-red-900 dark:text-red-100 mb-2">Error Details:</h4>
+                  <div className="space-y-1 text-xs text-red-800 dark:text-red-200 max-h-40 overflow-y-auto">
+                    {backfillResult.errorDetails.map((error: string, index: number) => (
+                      <p key={index}>{error}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-sm text-blue-900 dark:text-blue-100">
+                  This operation will scan all bookings and create invoices for those that are missing one. 
+                  Existing invoices will not be affected.
+                </p>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setBackfillDialogOpen(false);
+                setBackfillResult(null);
+              }} 
+              data-testid="button-close-backfill"
+            >
+              {backfillResult ? "Close" : "Cancel"}
+            </Button>
+            {!backfillResult && (
+              <Button
+                onClick={() => backfillInvoicesMutation.mutate()}
+                disabled={backfillInvoicesMutation.isPending}
+                data-testid="button-confirm-backfill"
+              >
+                {backfillInvoicesMutation.isPending ? "Processing..." : "Start Backfill"}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

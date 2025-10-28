@@ -2129,6 +2129,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Backfill invoices for all bookings that don't have one
+  app.post('/api/admin/invoices/backfill', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const result = await storage.backfillInvoices();
+      
+      res.json({
+        message: 'Backfill completed successfully',
+        ...result,
+      });
+    } catch (error) {
+      console.error('Invoice backfill error:', error);
+      res.status(500).json({ message: 'Failed to backfill invoices' });
+    }
+  });
+
   // Admin bookings management endpoints
   app.get('/api/admin/bookings', isAuthenticated, async (req: any, res) => {
     try {

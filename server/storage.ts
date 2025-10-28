@@ -121,6 +121,7 @@ export interface IStorage {
   getInvoice(id: string): Promise<Invoice | undefined>;
   updateInvoice(id: string, updates: Partial<Omit<Invoice, 'id' | 'createdAt'>>): Promise<Invoice | undefined>;
   deleteInvoice(id: string): Promise<void>;
+  backfillInvoices(): Promise<{ total: number; created: number; skipped: number; errors: number; errorDetails?: string[] }>;
   
   // Admin dashboard data
   getAdminDashboardStats(): Promise<{
@@ -383,6 +384,20 @@ export class DatabaseStorage implements IStorage {
       .insert(bookings)
       .values(bookingData)
       .returning();
+    
+    // Auto-create invoice for this booking
+    // If invoice creation fails, rollback the booking to maintain consistency
+    try {
+      const invoice = await this.createInvoiceForBooking(booking);
+      if (!invoice) {
+        throw new Error('Invoice creation returned undefined');
+      }
+    } catch (error) {
+      // Delete the booking if invoice creation failed
+      await db.delete(bookings).where(eq(bookings.id, booking.id));
+      throw new Error(`Failed to create invoice for booking: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    
     return booking;
   }
 
@@ -450,6 +465,15 @@ export class DatabaseStorage implements IStorage {
       .set({ ...updates, updatedAt: new Date() })
       .where(eq(bookings.id, id))
       .returning();
+    
+    // If pricing fields were updated, sync the invoice
+    // If sync fails, we need to ensure data integrity
+    if (booking && (updates.totalAmount !== undefined || updates.baseFare !== undefined || 
+        updates.distanceFare !== undefined || updates.timeFare !== undefined || 
+        updates.surcharges !== undefined || updates.paymentStatus !== undefined)) {
+      await this.syncInvoiceWithBooking(booking);
+    }
+    
     return booking;
   }
 
@@ -628,6 +652,187 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(invoices)
       .where(eq(invoices.id, id));
+  }
+
+  // Helper function to generate unique invoice numbers
+  // Note: The database has a unique constraint on invoice_number which prevents duplicates
+  // In case of concurrent creation, the database will reject duplicates and throw an error
+  private async generateInvoiceNumber(): Promise<string> {
+    const year = new Date().getFullYear();
+    
+    // Retry logic for handling concurrent invoice creation
+    const maxRetries = 3;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      // Get the latest invoice number for this year
+      const [latestInvoice] = await db
+        .select()
+        .from(invoices)
+        .where(like(invoices.invoiceNumber, `INV-${year}%`))
+        .orderBy(desc(invoices.invoiceNumber))
+        .limit(1);
+      
+      let sequenceNumber = 1;
+      
+      if (latestInvoice) {
+        // Extract the sequence number from the last invoice
+        const lastNumber = latestInvoice.invoiceNumber.split('-')[1];
+        const lastSequence = parseInt(lastNumber.substring(4)); // Skip the year
+        sequenceNumber = lastSequence + 1;
+      }
+      
+      // Format: INV-YYYYNNNNN (e.g., INV-20250001)
+      const paddedSequence = sequenceNumber.toString().padStart(5, '0');
+      const invoiceNumber = `INV-${year}${paddedSequence}`;
+      
+      // Check if this number already exists (race condition check)
+      const [existing] = await db
+        .select()
+        .from(invoices)
+        .where(eq(invoices.invoiceNumber, invoiceNumber))
+        .limit(1);
+      
+      if (!existing) {
+        return invoiceNumber; // Safe to use
+      }
+      
+      // If exists, retry (likely concurrent creation)
+      if (attempt < maxRetries - 1) {
+        await new Promise(resolve => setTimeout(resolve, 50 * (attempt + 1))); // Exponential backoff
+      }
+    }
+    
+    // Fallback: use timestamp for uniqueness if retries exhausted
+    const timestamp = Date.now().toString().slice(-5);
+    return `INV-${year}${timestamp}`;
+  }
+
+  // Helper function to create an invoice for a booking
+  private async createInvoiceForBooking(booking: Booking): Promise<Invoice | undefined> {
+    // Check if invoice already exists
+    const existing = await this.getInvoiceByBooking(booking.id);
+    if (existing) {
+      return existing; // Don't create duplicate
+    }
+
+    const totalAmount = parseFloat(booking.totalAmount || '0');
+    const taxAmount = 0; // For now, tax is 0 (no tax rate configured in the system)
+    const subtotal = totalAmount; // Since tax is 0, subtotal = total
+    
+    // Retry with different invoice numbers if we hit a duplicate constraint
+    // Use generous retry limit to handle high-concurrency scenarios
+    const maxRetries = 10;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const invoiceNumber = await this.generateInvoiceNumber();
+        
+        const invoiceData = {
+          bookingId: booking.id,
+          invoiceNumber,
+          subtotal: subtotal.toFixed(2),
+          taxAmount: taxAmount.toFixed(2),
+          totalAmount: totalAmount.toFixed(2),
+          paidAt: booking.paymentStatus === 'paid' ? new Date() : null,
+        };
+        
+        // Try to create the invoice
+        return await this.createInvoice(invoiceData);
+      } catch (error: any) {
+        // Check if this is a unique constraint violation on invoice_number
+        const isDuplicateError = error?.code === '23505' && error?.constraint === 'invoices_invoice_number_unique';
+        
+        if (isDuplicateError && attempt < maxRetries - 1) {
+          // Jittered exponential backoff to de-sync concurrent requests
+          const baseDelay = 50 * Math.pow(2, attempt); // Exponential: 50, 100, 200, 400...
+          const jitter = Math.random() * baseDelay * 0.5; // Add up to 50% jitter
+          const delay = baseDelay + jitter;
+          
+          console.log(`Invoice number collision detected (attempt ${attempt + 1}/${maxRetries}), retrying in ${Math.round(delay)}ms`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+        
+        // If it's not a duplicate error or we've exhausted retries, throw
+        throw error;
+      }
+    }
+    
+    // This line should never be reached, but TypeScript needs it
+    throw new Error('Failed to create invoice after maximum retries');
+  }
+
+  // Helper function to sync invoice with booking changes
+  private async syncInvoiceWithBooking(booking: Booking): Promise<void> {
+    const invoice = await this.getInvoiceByBooking(booking.id);
+    if (!invoice) {
+      // If no invoice exists, create one
+      await this.createInvoiceForBooking(booking);
+      return;
+    }
+
+    const totalAmount = parseFloat(booking.totalAmount || '0');
+    const taxAmount = 0; // No tax configured
+    const subtotal = totalAmount;
+
+    const updates: Partial<Omit<Invoice, 'id' | 'createdAt'>> = {
+      subtotal: subtotal.toFixed(2),
+      taxAmount: taxAmount.toFixed(2),
+      totalAmount: totalAmount.toFixed(2),
+    };
+
+    // Update paidAt if payment status changed to paid
+    if (booking.paymentStatus === 'paid' && !invoice.paidAt) {
+      updates.paidAt = new Date();
+    } else if (booking.paymentStatus !== 'paid' && invoice.paidAt) {
+      updates.paidAt = null;
+    }
+
+    // Let errors propagate for visibility
+    await this.updateInvoice(invoice.id, updates);
+  }
+
+  // Public method to backfill invoices for all bookings
+  async backfillInvoices(): Promise<{ 
+    total: number; 
+    created: number; 
+    skipped: number; 
+    errors: number; 
+    errorDetails?: string[] 
+  }> {
+    const allBookings = await this.getAllBookings();
+    
+    let created = 0;
+    let skipped = 0;
+    let errors = 0;
+    const errorDetails: string[] = [];
+
+    for (const booking of allBookings) {
+      try {
+        // Check if invoice already exists
+        const existingInvoice = await this.getInvoiceByBooking(booking.id);
+        
+        if (existingInvoice) {
+          skipped++;
+          continue;
+        }
+
+        // Create invoice using the helper method
+        await this.createInvoiceForBooking(booking);
+        created++;
+      } catch (error) {
+        errors++;
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        errorDetails.push(`Booking ${booking.id}: ${errorMessage}`);
+        console.error(`Error creating invoice for booking ${booking.id}:`, error);
+      }
+    }
+
+    return {
+      total: allBookings.length,
+      created,
+      skipped,
+      errors,
+      errorDetails: errors > 0 ? errorDetails : undefined,
+    };
   }
 
   async getAdminDashboardStats(): Promise<{
