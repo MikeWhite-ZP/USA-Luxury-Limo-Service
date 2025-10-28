@@ -1189,6 +1189,7 @@ export class DatabaseStorage implements IStorage {
       .set({ 
         driverId,
         driverPayment: finalDriverPayment,
+        status: 'pending_driver_acceptance',
         assignedAt: new Date(),
         updatedAt: new Date(),
       })
