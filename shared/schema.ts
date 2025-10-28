@@ -509,6 +509,11 @@ export const insertPaymentSystemSchema = createInsertSchema(paymentSystems).omit
   updatedAt: true,
 });
 
+export const insertInvoiceSchema = createInsertSchema(invoices).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertDriverDocumentSchema = createInsertSchema(driverDocuments).omit({
   id: true,
   uploadedAt: true,
@@ -636,6 +641,7 @@ export type InsertContact = z.infer<typeof insertContactSchema>;
 export type InsertSavedAddress = z.infer<typeof insertSavedAddressSchema>;
 export type InsertPricingRule = z.infer<typeof insertPricingRuleSchema>;
 export type InsertPaymentSystem = z.infer<typeof insertPaymentSystemSchema>;
+export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
 export type DriverDocument = typeof driverDocuments.$inferSelect;
 export type InsertDriverDocument = z.infer<typeof insertDriverDocumentSchema>;
 export type DriverRating = typeof driverRatings.$inferSelect;
