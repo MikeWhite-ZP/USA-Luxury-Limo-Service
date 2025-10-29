@@ -521,50 +521,60 @@ export default function DriverDashboard() {
     ) || [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* DARK HEADER - Modern Professional */}
-      <header className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700 shadow-xl">
-        <div className="max-w-7xl mx-auto px-6 py-5">
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Subtle Light Background Pattern */}
+      <div className="fixed inset-0 pointer-events-none opacity-40">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-emerald-50" />
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(16 185 129 / 0.05) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
+      </div>
+
+      {/* Modern Header */}
+      <header className="relative z-10 border-b border-slate-800/50 backdrop-blur-xl bg-gradient-to-r from-slate-900/95 via-slate-800/95 to-slate-900/95 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {/* Professional Icon */}
-              <div className="w-14 h-14 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Car className="w-7 h-7 text-white" />
+            <div className="flex items-center space-x-5">
+              {/* Avatar with gradient border */}
+              <div className="relative">
+                <div className="absolute -inset-1 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl opacity-75 blur" />
+                <div className="relative w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                  <Car className="w-8 h-8 text-white" />
+                </div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white" data-testid="driver-title">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-green-400 bg-clip-text text-transparent" data-testid="driver-title">
                   Driver Portal
                 </h1>
-                <p className="text-slate-300 text-sm mt-0.5" data-testid="driver-subtitle">
-                  Welcome, <span className="font-semibold">{user?.firstName || user?.email}</span>
+                <p className="text-slate-400 text-lg mt-1" data-testid="driver-subtitle">
+                  Welcome, <span className="text-white font-medium">{user?.firstName || user?.email}</span>
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center space-x-4">
               <Badge
-                className={driver?.isAvailable 
-                  ? "bg-green-600 hover:bg-green-600 text-white px-4 py-2 text-sm font-semibold" 
-                  : "bg-slate-700 text-slate-300 px-4 py-2 text-sm"}
+                variant={driver?.isAvailable ? "secondary" : "outline"}
+                className={driver?.isAvailable ? "bg-green-500 text-white px-4 py-2 text-sm font-medium" : "border-slate-600 text-slate-400 px-4 py-2 text-sm"}
                 data-testid="driver-status"
               >
-                {driver?.isAvailable ? "● Available" : "○ Offline"}
+                {driver?.isAvailable ? "Available" : "Offline"}
               </Badge>
-              <Button
-                onClick={() => (window.location.href = "/api/logout")}
-                variant="outline"
-                className="bg-slate-800 hover:bg-slate-700 text-white border-slate-600 hover:border-slate-500 px-5"
-                data-testid="button-logout"
-              >
-                Sign Out
-              </Button>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-orange-600 rounded-xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-300" />
+                <Button
+                  onClick={() => (window.location.href = "/api/logout")}
+                  className="relative bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 hover:border-slate-600 px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                  data-testid="button-logout"
+                >
+                  Sign Out
+                </Button>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* DARK NAVIGATION MENU */}
-        <div className="bg-slate-900 border-t border-slate-700">
+        {/* Modern Navigation Menu */}
+        <div className="relative z-10 border-b border-slate-800/50 backdrop-blur-xl bg-slate-900/80">
           <div className="max-w-7xl mx-auto px-6">
-            <nav className="flex gap-1">
+            <nav className="flex space-x-2 overflow-x-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#475569 transparent' }}>
               <button
                 onClick={() => setActiveTab("home")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
