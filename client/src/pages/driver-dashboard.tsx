@@ -1295,11 +1295,11 @@ export default function DriverDashboard() {
                   {getDocumentByType("vehicle_image") && (
                     <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-semibold text-gray-700">
                           Vehicle Plate:
                         </span>
                         <span
-                          className="text-sm"
+                          className="text-sm font-medium text-gray-900"
                           data-testid="plate-vehicle-image"
                         >
                           {getDocumentByType("vehicle_image")!.vehiclePlate ||
@@ -1309,30 +1309,33 @@ export default function DriverDashboard() {
                       {getDocumentByType("vehicle_image")!.status ===
                         "rejected" &&
                         getDocumentByType("vehicle_image")!.rejectionReason && (
-                          <div className="text-sm text-red-600 mt-2">
-                            <strong>Rejection Reason:</strong>{" "}
-                            {
-                              getDocumentByType("vehicle_image")!
-                                .rejectionReason
-                            }
+                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <p className="text-sm text-red-700">
+                              <strong className="font-semibold">Rejection Reason:</strong>{" "}
+                              {
+                                getDocumentByType("vehicle_image")!
+                                  .rejectionReason
+                              }
+                            </p>
                           </div>
                         )}
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-gray-500 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
                         Uploaded:{" "}
                         {new Date(
                           getDocumentByType("vehicle_image")!.uploadedAt,
-                        ).toLocaleString()}
+                        ).toLocaleDateString()}
                       </div>
                     </div>
                   )}
 
-                  <div className="space-y-3">
+                  <div className="space-y-4 pt-2">
                     <div>
-                      <Label htmlFor="vehicle-image-file">
+                      <Label htmlFor="vehicle-image-file" className="text-gray-700 font-medium mb-2">
                         {getDocumentByType("vehicle_image")
                           ? "Re-upload Image"
                           : "Upload Image"}{" "}
-                        (JPG/PNG, max 2MB)
+                        <span className="text-gray-500 font-normal">(JPG/PNG, max 2MB)</span>
                       </Label>
                       <Input
                         id="vehicle-image-file"
@@ -1347,11 +1350,12 @@ export default function DriverDashboard() {
                             },
                           }))
                         }
+                        className="mt-2 bg-white border-gray-300 hover:border-orange-400 transition-colors"
                         data-testid="input-vehicle-image-file"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="vehicle-image-plate">Vehicle Plate</Label>
+                      <Label htmlFor="vehicle-image-plate" className="text-gray-700 font-medium mb-2">Vehicle Plate</Label>
                       <Input
                         id="vehicle-image-plate"
                         type="text"
@@ -1365,6 +1369,7 @@ export default function DriverDashboard() {
                             },
                           }))
                         }
+                        className="mt-2 bg-white border-gray-300 focus:border-orange-500 focus:ring-orange-500"
                         data-testid="input-vehicle-image-expiry"
                         placeholder="Enter vehicle plate number"
                       />
@@ -1372,7 +1377,7 @@ export default function DriverDashboard() {
                     <Button
                       onClick={() => handleDocumentUpload("vehicle_image")}
                       disabled={uploadingDoc === "vehicle_image"}
-                      className="w-full"
+                      className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
                       data-testid="button-upload-vehicle-image"
                     >
                       {uploadingDoc === "vehicle_image"
@@ -1408,31 +1413,34 @@ export default function DriverDashboard() {
                   {assignedBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="border rounded-lg p-4 space-y-3"
+                      className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all space-y-3"
                       data-testid={`assigned-booking-${booking.id}`}
                     >
                       <div className="flex justify-between items-start">
-                        <div className="space-y-1 text-sm">
-                          <div data-testid={`assigned-pickup-${booking.id}`}>
-                            <strong>Pickup:</strong> {booking.pickupAddress}
+                        <div className="space-y-2 text-sm flex-1">
+                          <div className="text-gray-900" data-testid={`assigned-pickup-${booking.id}`}>
+                            <strong className="text-gray-700">Pickup:</strong> {booking.pickupAddress}
                           </div>
                           {booking.destinationAddress && (
                             <div
+                              className="text-gray-900"
                               data-testid={`assigned-destination-${booking.id}`}
                             >
-                              <strong>Destination:</strong>{" "}
+                              <strong className="text-gray-700">Destination:</strong>{" "}
                               {booking.destinationAddress}
                             </div>
                           )}
-                          <div data-testid={`assigned-time-${booking.id}`}>
-                            <strong>Scheduled:</strong>{" "}
+                          <div className="text-gray-900" data-testid={`assigned-time-${booking.id}`}>
+                            <strong className="text-gray-700">Scheduled:</strong>{" "}
                             {new Date(
                               booking.scheduledDateTime,
                             ).toLocaleString()}
                           </div>
-                          <div data-testid={`assigned-amount-${booking.id}`}>
-                            <strong>Your Payment:</strong> $
-                            {booking.driverPayment || "Not set"}
+                          <div className="text-gray-900" data-testid={`assigned-amount-${booking.id}`}>
+                            <strong className="text-gray-700">Your Payment:</strong>{" "}
+                            <span className="text-[#29b24a] font-bold">
+                              ${booking.driverPayment || "Not set"}
+                            </span>
                           </div>
                         </div>
                         <Badge
@@ -1441,6 +1449,7 @@ export default function DriverDashboard() {
                               ? "secondary"
                               : "default"
                           }
+                          className={booking.status === "pending_driver_acceptance" ? "bg-orange-600 text-white" : "bg-orange-600 text-white"}
                           data-testid={`assigned-status-${booking.id}`}
                         >
                           {booking.status === "pending_driver_acceptance"
@@ -1451,14 +1460,14 @@ export default function DriverDashboard() {
 
                       {/* Accept/Decline buttons for pending acceptance */}
                       {booking.status === "pending_driver_acceptance" && (
-                        <div className="flex space-x-2 pt-2">
+                        <div className="flex space-x-2 pt-3 border-t border-gray-200">
                           <Button
                             onClick={() => handleAcceptRide(booking.id)}
                             disabled={
                               acceptBookingMutation.isPending ||
                               declineBookingMutation.isPending
                             }
-                            className="flex-1 bg-green-600 hover:bg-green-700"
+                            className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold"
                             data-testid={`button-accept-${booking.id}`}
                           >
                             {acceptBookingMutation.isPending
@@ -1471,8 +1480,7 @@ export default function DriverDashboard() {
                               acceptBookingMutation.isPending ||
                               declineBookingMutation.isPending
                             }
-                            variant="destructive"
-                            className="flex-1"
+                            className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-semibold"
                             data-testid={`button-decline-${booking.id}`}
                           >
                             {declineBookingMutation.isPending
@@ -1484,10 +1492,11 @@ export default function DriverDashboard() {
 
                       {/* Complete button for in-progress rides */}
                       {booking.status === "in_progress" && (
-                        <div className="flex space-x-2">
+                        <div className="flex space-x-2 pt-3 border-t border-gray-200">
                           <Button
                             onClick={() => handleCompleteRide(booking.id)}
                             disabled={updateBookingMutation.isPending}
+                            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold"
                             data-testid={`button-complete-${booking.id}`}
                           >
                             Complete Ride
@@ -1499,10 +1508,12 @@ export default function DriverDashboard() {
                 </div>
               ) : (
                 <div
-                  className="text-center p-8 text-muted-foreground"
+                  className="text-center p-12"
                   data-testid="no-assigned-jobs-tab"
                 >
-                  No assigned jobs.
+                  <Briefcase className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <p className="text-gray-600 text-lg font-medium">No assigned jobs</p>
+                  <p className="text-gray-500 text-sm mt-2">New job assignments will appear here</p>
                 </div>
               )}
             </CardContent>
