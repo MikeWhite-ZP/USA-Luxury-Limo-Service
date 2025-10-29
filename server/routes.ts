@@ -8,7 +8,7 @@ import Stripe from "stripe";
 import multer from "multer";
 import crypto from "crypto";
 import { Client as ObjectStorageClient } from "@replit/object-storage";
-import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML } from "./email";
+import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML, getPaymentConfirmationEmailHTML } from "./email";
 import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS } from "./sms";
 import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityReport } from "./emailReports";
 import { db } from "./db";
@@ -2337,7 +2337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create payment intent for invoice payment (public - token-based auth)
-  app.post('/api/payment-intents/invoice', async (req, res) => {
+  app.post('/api/payment-intents/invoice', async (req: any, res) => {
     try {
       const { token, invoiceId } = req.body;
 
@@ -2374,21 +2374,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invoice already paid' });
       }
 
+      // Get booking to find passenger
+      const booking = await storage.getBooking(invoice.bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      const passenger = await storage.getUser(booking.passengerId);
+      
       // Create Stripe payment intent
       const amount = Math.round(parseFloat(invoice.totalAmount) * 100); // Convert to cents
 
-      const paymentIntent = await stripe.paymentIntents.create({
+      const paymentIntentData: any = {
         amount,
         currency: 'usd',
         metadata: {
           invoiceId: invoice.id,
           bookingId: invoice.bookingId,
           paymentToken: token,
+          passengerId: booking.passengerId,
         },
         automatic_payment_methods: {
           enabled: true,
         },
-      });
+      };
+
+      // If user is authenticated and has a Stripe customer ID, attach it to enable saved cards
+      if (req.user?.id && passenger?.stripeCustomerId) {
+        // Verify the authenticated user matches the passenger
+        if (req.user.id === booking.passengerId) {
+          paymentIntentData.customer = passenger.stripeCustomerId;
+          paymentIntentData.setup_future_usage = 'off_session'; // Allow saving card for future use
+        }
+      } else if (passenger?.email && !passenger.stripeCustomerId) {
+        // Create a Stripe customer for guest payments (for receipt emails)
+        try {
+          const customer = await stripe.customers.create({
+            email: passenger.email,
+            name: `${passenger.firstName} ${passenger.lastName}`,
+            metadata: {
+              userId: passenger.id,
+            },
+          });
+
+          // Save customer ID to user profile
+          await storage.updateStripeCustomerId(passenger.id, customer.id);
+          
+          paymentIntentData.customer = customer.id;
+        } catch (customerError) {
+          console.error('Failed to create Stripe customer:', customerError);
+          // Continue without customer ID - payment will still work
+        }
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
 
       res.json({
         clientSecret: paymentIntent.client_secret,
@@ -2426,6 +2465,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
               paymentIntent.id,
               'paid'
             );
+
+            // Send payment confirmation email
+            const booking = await storage.getBooking(invoice.bookingId);
+            const passenger = booking ? await storage.getUser(booking.passengerId) : null;
+
+            if (passenger && booking) {
+              // Get dynamic logo for email
+              let logoDataUri = '';
+              try {
+                const logoSetting = await storage.getCmsSetting('BRAND_LOGO_URL');
+                if (logoSetting?.value) {
+                  const logoPath = logoSetting.value;
+                  const fileKey = logoPath.includes('/file/') 
+                    ? logoPath.split('/file/')[1] 
+                    : logoPath.replace('/api/object-storage/', '');
+                  
+                  const ObjectStorage = await import('@replit/object-storage');
+                  const storage_client = new ObjectStorage.Client();
+                  const logoBuffer = await storage_client.downloadAsBytes(fileKey);
+                  
+                  if (logoBuffer) {
+                    const buffer = Array.isArray(logoBuffer) ? logoBuffer[0] : logoBuffer;
+                    const base64Logo = Buffer.from(buffer).toString('base64');
+                    const ext = fileKey.split('.').pop()?.toLowerCase();
+                    const mimeType = ext === 'png' ? 'image/png' : 
+                                    ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
+                                    ext === 'svg' ? 'image/svg+xml' : 'image/png';
+                    logoDataUri = `data:${mimeType};base64,${base64Logo}`;
+                  }
+                }
+              } catch (logoError) {
+                console.error('Error fetching logo for payment confirmation email:', logoError);
+              }
+
+              const emailHtml = getPaymentConfirmationEmailHTML({
+                passengerName: `${passenger.firstName} ${passenger.lastName}`,
+                invoiceNumber: invoice.invoiceNumber,
+                bookingId: booking.id,
+                amount: invoice.totalAmount,
+                paymentDate: new Date().toLocaleString(),
+                pickupAddress: booking.pickupAddress,
+                destinationAddress: booking.dropoffAddress,
+                scheduledDateTime: booking.scheduledDateTime,
+                paymentIntentId: paymentIntent.id,
+                logoDataUri,
+              });
+
+              await sendEmail({
+                to: passenger.email,
+                subject: `Payment Confirmed - Invoice #${invoice.invoiceNumber}`,
+                html: emailHtml,
+              });
+
+              console.log(`Payment confirmation email sent to ${passenger.email}`);
+            }
           }
 
           console.log(`Invoice ${invoiceId} marked as paid via payment intent ${paymentIntent.id}`);

@@ -520,6 +520,140 @@ export function getPasswordResetEmailHTML(data: {
   `;
 }
 
+export function getPaymentConfirmationEmailHTML(data: {
+  passengerName: string;
+  invoiceNumber: string;
+  bookingId: string;
+  amount: string;
+  paymentDate: string;
+  pickupAddress: string;
+  destinationAddress?: string;
+  scheduledDateTime: string;
+  paymentIntentId: string;
+  logoDataUri?: string;
+}): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+          .email-card { background: white; border-radius: 8px; overflow: hidden; }
+          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; }
+          .logo-img { max-height: 60px; max-width: 250px; margin: 0 auto 10px; display: block; }
+          .success-banner { background: #d4edda; color: #155724; padding: 20px; text-align: center; border-bottom: 3px solid #c3e6cb; }
+          .success-banner h2 { margin: 0; font-size: 24px; }
+          .content { padding: 30px; }
+          .amount-badge { background: #e8f5e9; color: #2e7d32; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; border: 2px solid #c3e6cb; }
+          .amount-badge .amount { font-size: 32px; font-weight: bold; margin: 10px 0; }
+          .details-section { margin: 25px 0; }
+          .section-title { font-weight: bold; color: #1a1a2e; font-size: 16px; margin-bottom: 15px; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; }
+          .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+          .detail-label { font-weight: bold; color: #555; }
+          .detail-value { color: #333; text-align: right; }
+          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; }
+          .button { display: inline-block; background: #1a1a2e; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="email-card">
+            <!-- Header -->
+            <div class="header">
+              ${data.logoDataUri ? `
+                <img src="${data.logoDataUri}" alt="USA Luxury Limo" class="logo-img" />
+              ` : `
+                <h1 style="margin: 0;">USA Luxury Limo</h1>
+              `}
+              <p style="margin: 10px 0 0 0;">Ride in Style, Always on Time</p>
+            </div>
+
+            <!-- Success Banner -->
+            <div class="success-banner">
+              <h2>✓ Payment Successful!</h2>
+              <p style="margin: 10px 0 0 0;">Thank you for your payment</p>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+              <p>Dear ${data.passengerName},</p>
+              <p>Your payment has been processed successfully. Below is your payment confirmation.</p>
+
+              <!-- Amount Paid -->
+              <div class="amount-badge">
+                <div style="font-size: 14px; color: #666;">Amount Paid</div>
+                <div class="amount">$${parseFloat(data.amount).toFixed(2)}</div>
+                <div style="font-size: 12px; color: #666;">Payment Date: ${data.paymentDate}</div>
+              </div>
+
+              <!-- Payment Details -->
+              <div class="details-section">
+                <div class="section-title">Payment Information</div>
+                <div class="detail-row">
+                  <span class="detail-label">Invoice Number</span>
+                  <span class="detail-value">${data.invoiceNumber}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Booking Reference</span>
+                  <span class="detail-value">#${data.bookingId.toUpperCase().substring(0, 8)}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Transaction ID</span>
+                  <span class="detail-value">${data.paymentIntentId.substring(0, 20)}...</span>
+                </div>
+              </div>
+
+              <!-- Journey Details -->
+              <div class="details-section">
+                <div class="section-title">Journey Details</div>
+                <div class="detail-row">
+                  <span class="detail-label">Scheduled Date & Time</span>
+                  <span class="detail-value">${new Date(data.scheduledDateTime).toLocaleString()}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Pickup Location</span>
+                  <span class="detail-value">${data.pickupAddress}</span>
+                </div>
+                ${data.destinationAddress ? `
+                <div class="detail-row">
+                  <span class="detail-label">Destination</span>
+                  <span class="detail-value">${data.destinationAddress}</span>
+                </div>
+                ` : ''}
+              </div>
+
+              <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; border-left: 4px solid #2196F3; margin: 20px 0;">
+                <p style="margin: 0; font-size: 14px;"><strong>📧 Receipt Sent</strong></p>
+                <p style="margin: 5px 0 0 0; font-size: 12px; color: #555;">
+                  A detailed receipt has been sent to your email by Stripe.
+                </p>
+              </div>
+
+              <p><strong>What's Next?</strong></p>
+              <ul style="color: #555;">
+                <li>Please be ready 10 minutes before your scheduled pickup time</li>
+                <li>Our driver will contact you before arrival</li>
+                <li>Save this email for your records</li>
+              </ul>
+
+              <p>If you have any questions or need to make changes to your booking, please contact us immediately.</p>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+              <p><strong>USA Luxury Limo</strong></p>
+              <p>Your journey, our passion.</p>
+              <p style="margin-top: 10px;">This is an automated confirmation email. Please do not reply.</p>
+            </div>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
 export function getTestEmailHTML(): string {
   return `
     <!DOCTYPE html>

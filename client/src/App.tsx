@@ -42,6 +42,7 @@ import MobileDriver from "@/pages/mobile-driver";
 import MobileDriverRideDetails from "@/pages/mobile-driver-ride-details";
 import MobileDispatcher from "@/pages/mobile-dispatcher";
 import PayInvoice from "@/pages/PayInvoice";
+import PaymentSuccess from "@/pages/PaymentSuccess";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -85,7 +86,7 @@ function Router() {
       
       {/* Payment routes (public - token-based auth) */}
       <Route path="/pay/:token" component={PayInvoice} />
-      <Route path="/pay/:token/success" component={() => <div>Payment Success Page</div>} />
+      <Route path="/pay/:token/success" component={PaymentSuccess} />
       
       {/* Authentication routes */}
       <Route path="/login" component={RoleLogin} />
