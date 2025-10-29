@@ -540,26 +540,32 @@ export default function AdminPricing() {
         }}
       />
 
-      <div className="max-w-7xl mx-auto p-6">
-        <Card data-testid="pricing-rules-card">
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle className="flex items-center space-x-2">
-                <DollarSign className="w-5 h-5" />
-                <span>Pricing Rules</span>
-              </CardTitle>
-              <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                setIsDialogOpen(open);
-                if (!open) {
-                  resetForm();
-                }
-              }}>
-                <DialogTrigger asChild>
-                  <Button data-testid="button-add-rule">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Pricing Rule
-                  </Button>
-                </DialogTrigger>
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Modern Header */}
+        <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-3 rounded-lg shadow-md">
+                <DollarSign className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Pricing Rules</h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Configure advanced pricing for all vehicle types and services</p>
+              </div>
+            </div>
+            
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) {
+                resetForm();
+              }
+            }}>
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md" data-testid="button-add-rule">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Pricing Rule
+                </Button>
+              </DialogTrigger>
                 <DialogContent className="max-w-4xl max-h-[90vh] bg-[#e2e3e8] text-[12px] flex flex-col" data-testid="dialog-pricing-form">
                   <DialogHeader className="flex-shrink-0">
                     <DialogTitle data-testid="dialog-title">
@@ -1049,8 +1055,11 @@ export default function AdminPricing() {
                 </DialogContent>
               </Dialog>
             </div>
-          </CardHeader>
-          <CardContent>
+          </div>
+        
+        {/* Content Card */}
+        <Card className="border-slate-200 dark:border-slate-700 shadow-sm" data-testid="pricing-rules-card">
+          <CardContent className="p-6">
             {rulesLoading ? (
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
