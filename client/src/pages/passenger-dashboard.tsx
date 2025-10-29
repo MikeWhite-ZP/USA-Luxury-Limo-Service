@@ -1408,15 +1408,22 @@ export default function PassengerDashboard() {
 
         {/* Saved Locations Section */}
         {activeSection === 'saved-locations' && (
-          <Card data-testid="saved-addresses">
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
+            <Card className="relative bg-slate-900/90 backdrop-blur-xl border-slate-800/50 shadow-2xl" data-testid="saved-addresses">
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle>Saved Locations</CardTitle>
+              <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-white" />
+                </div>
+                Saved Locations
+              </CardTitle>
               <Dialog open={addAddressOpen} onOpenChange={setAddAddressOpen}>
                 <DialogTrigger asChild>
                   <Button size="sm" className="bg-[#c9e8b0] text-[#000000]" data-testid="button-add-address">
                     <Plus className="w-4 h-4 mr-2" />
-                    Add Address
+                    Add Location
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg sm:max-w-md bg-[#ffffff]" data-testid="add-address-dialog">
@@ -1495,10 +1502,10 @@ export default function PassengerDashboard() {
               </Dialog>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="text-[#c2c2c2]">
             {addressesLoading ? (
               <div className="flex items-center justify-center p-8">
-                <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+                <div className="animate-spin w-6 h-6 border-4 border-indigo-500 border-t-transparent rounded-full" />
               </div>
             ) : addresses && addresses.length > 0 ? (
               <div className="space-y-3">
@@ -1507,28 +1514,29 @@ export default function PassengerDashboard() {
                   return (
                     <div
                       key={address.id}
-                      className="bg-muted rounded-lg p-4 group flex items-center justify-between gap-4"
+                      className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 group flex items-center justify-between gap-4 hover:border-indigo-500/50 transition-colors"
                       data-testid={`address-${address.id}`}
                     >
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
-                        <IconComponent className="w-5 h-5 text-primary flex-shrink-0" />
+                        <IconComponent className="w-5 h-5 text-indigo-400 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <span className="font-medium block" data-testid={`address-label-${address.id}`}>
+                          <span className="font-semibold text-white block" data-testid={`address-label-${address.id}`}>
                             {address.label}
                           </span>
-                          <p className="text-sm text-muted-foreground truncate" data-testid={`address-text-${address.id}`}>
+                          <p className="text-sm text-slate-400 truncate" data-testid={`address-text-${address.id}`}>
                             {address.address}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 flex-shrink-0">
                         <div className="text-center">
-                          <p className="text-xs mb-1 whitespace-nowrap font-medium text-[#38a4e8]">Easy Book With !</p>
+                          <p className="text-xs mb-1 whitespace-nowrap font-medium text-indigo-400">Quick Book</p>
                           <div className="flex gap-2">
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => window.location.href = `/?from=${encodeURIComponent(address.address)}`}
+                              className="bg-slate-700/50 border-slate-600 text-white hover:bg-indigo-600 hover:border-indigo-500"
                               data-testid={`button-from-${address.id}`}
                             >
                               From
@@ -1537,6 +1545,7 @@ export default function PassengerDashboard() {
                               size="sm"
                               variant="outline"
                               onClick={() => window.location.href = `/?to=${encodeURIComponent(address.address)}`}
+                              className="bg-slate-700/50 border-slate-600 text-white hover:bg-indigo-600 hover:border-indigo-500"
                               data-testid={`button-to-${address.id}`}
                             >
                               To
@@ -1548,7 +1557,7 @@ export default function PassengerDashboard() {
                             e.stopPropagation();
                             deleteAddressMutation.mutate(address.id);
                           }}
-                          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all"
+                          className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition-all"
                           data-testid={`button-delete-address-${address.id}`}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -1559,31 +1568,41 @@ export default function PassengerDashboard() {
                 })}
               </div>
             ) : (
-              <div className="text-center p-8 text-muted-foreground" data-testid="no-addresses">
-                No saved addresses yet. Add your frequently used locations for quick booking.
+              <div className="text-center p-12" data-testid="no-addresses">
+                <MapPin className="w-16 h-16 mx-auto mb-4 text-slate-600" />
+                <p className="text-slate-400 text-lg">No saved locations yet</p>
+                <p className="text-slate-500 text-sm mt-2">Add your frequently used locations for quick booking</p>
               </div>
             )}
           </CardContent>
         </Card>
+          </div>
         )}
 
         {/* Future Bookings Section */}
         {activeSection === 'future-bookings' && (
-          <Card data-testid="future-bookings-section">
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-600 to-amber-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
+            <Card className="relative bg-slate-900/90 backdrop-blur-xl border-slate-800/50 shadow-2xl" data-testid="future-bookings-section">
             <CardHeader>
-              <CardTitle>Future Bookings</CardTitle>
+              <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-white" />
+                </div>
+                Future Bookings
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="text-[#c2c2c2]">
               {bookingsLoading ? (
                 <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+                  <div className="animate-spin w-6 h-6 border-4 border-orange-500 border-t-transparent rounded-full" />
                 </div>
               ) : futureBookings.length > 0 ? (
                 <div className="space-y-4">
                   {futureBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="bg-muted rounded-lg p-4"
+                      className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 hover:border-orange-500/50 transition-colors"
                       data-testid={`future-booking-${booking.id}`}
                     >
                       <div className="flex justify-between items-start">
@@ -1650,31 +1669,41 @@ export default function PassengerDashboard() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center p-8 text-muted-foreground" data-testid="no-future-bookings">
-                  No upcoming bookings. Book your next ride with us!
+                <div className="text-center p-12" data-testid="no-future-bookings">
+                  <Calendar className="w-16 h-16 mx-auto mb-4 text-slate-600" />
+                  <p className="text-slate-400 text-lg">No upcoming bookings</p>
+                  <p className="text-slate-500 text-sm mt-2">Book your next ride with us!</p>
                 </div>
               )}
             </CardContent>
           </Card>
+          </div>
         )}
 
         {/* Past Bookings Section */}
         {activeSection === 'past-bookings' && (
-          <Card data-testid="past-bookings-section">
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-slate-600 to-gray-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
+            <Card className="relative bg-slate-900/90 backdrop-blur-xl border-slate-800/50 shadow-2xl" data-testid="past-bookings-section">
             <CardHeader>
-              <CardTitle>Past Bookings</CardTitle>
+              <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-600 to-gray-600 flex items-center justify-center">
+                  <History className="w-5 h-5 text-white" />
+                </div>
+                Past Bookings
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="text-[#c2c2c2]">
               {bookingsLoading ? (
                 <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+                  <div className="animate-spin w-6 h-6 border-4 border-slate-500 border-t-transparent rounded-full" />
                 </div>
               ) : pastBookings.length > 0 ? (
                 <div className="space-y-4">
                   {pastBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="bg-muted rounded-lg p-4"
+                      className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50"
                       data-testid={`past-booking-${booking.id}`}
                     >
                       <div className="flex justify-between items-start">
@@ -1742,288 +1771,343 @@ export default function PassengerDashboard() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center p-8 text-muted-foreground" data-testid="no-past-bookings">
-                  No past bookings found.
+                <div className="text-center p-12" data-testid="no-past-bookings">
+                  <History className="w-16 h-16 mx-auto mb-4 text-slate-600" />
+                  <p className="text-slate-400 text-lg">No past bookings found</p>
+                  <p className="text-slate-500 text-sm mt-2">Your completed rides will appear here</p>
                 </div>
               )}
             </CardContent>
           </Card>
+          </div>
         )}
 
         {/* Payment Methods Section */}
         {activeSection === 'payment-methods' && (
-          <Card data-testid="payment-methods-section">
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
+            <Card className="relative bg-slate-900/90 backdrop-blur-xl border-slate-800/50 shadow-2xl" data-testid="payment-methods-section">
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <CreditCard className="w-5 h-5" />
-                <span>Payment Methods</span>
+              <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-white" />
+                </div>
+                Payment Methods
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 text-[#c2c2c2]">
               <PaymentMethodsList />
             </CardContent>
           </Card>
+          </div>
         )}
 
         {/* Account Details Section */}
         {activeSection === 'account-details' && (
           <div className="grid gap-6">
             {/* Editable Profile Information Card */}
-            <Card data-testid="profile-card">
-              <CardHeader>
-                <CardTitle className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2 text-[#d82527]">
-                  <User className="w-5 h-5" />
-                  Account Information
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Update your personal information and contact details
-                </p>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleProfileSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="firstName" className="text-base font-medium">
-                        First Name *
-                      </Label>
-                      <Input
-                        id="firstName"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="Enter your first name"
-                        className="mt-2"
-                        data-testid="input-first-name"
-                      />
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
+              <Card className="relative bg-slate-900/90 backdrop-blur-xl border-slate-800/50 shadow-2xl" data-testid="profile-card">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center">
+                      <User className="w-5 h-5 text-white" />
                     </div>
-                    <div>
-                      <Label htmlFor="lastName" className="text-base font-medium">
-                        Last Name *
-                      </Label>
-                      <Input
-                        id="lastName"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Enter your last name"
-                        className="mt-2"
-                        data-testid="input-last-name"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="email" className="text-base font-medium flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
-                      Email Address *
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email"
-                      className="mt-2"
-                      data-testid="input-email"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="phone" className="text-base font-medium flex items-center gap-2">
-                      <Phone className="w-4 h-4" />
-                      Phone Number
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="Enter your phone number"
-                      className="mt-2"
-                      data-testid="input-phone"
-                    />
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <Button
-                      type="submit"
-                      disabled={updateProfileMutation.isPending}
-                      className="flex-1 bg-primary hover:bg-primary/90"
-                      data-testid="button-save"
-                    >
-                      {updateProfileMutation.isPending ? (
-                        <>Saving...</>
-                      ) : (
-                        <>
-                          <Save className="w-4 h-4 mr-2" />
-                          Save Changes
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-
-            {/* Password Update Card */}
-            <Card data-testid="password-card">
-              <CardHeader>
-                <CardTitle className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2 text-[#d82527]">
-                  Change Password
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Update your password to keep your account secure
-                </p>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handlePasswordSubmit} className="space-y-6">
-                  <div>
-                    <Label htmlFor="currentPassword" className="text-base font-medium">
-                      Current Password *
-                    </Label>
-                    <Input
-                      id="currentPassword"
-                      type="password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      placeholder="Enter current password"
-                      className="mt-2"
-                      data-testid="input-current-password"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="newPassword" className="text-base font-medium">
-                      New Password *
-                    </Label>
-                    <Input
-                      id="newPassword"
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter new password (min 8 characters)"
-                      className="mt-2"
-                      data-testid="input-new-password"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Password must be at least 8 characters with uppercase, lowercase, and numbers
-                    </p>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="confirmPassword" className="text-base font-medium">
-                      Confirm New Password *
-                    </Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Re-enter new password"
-                      className="mt-2"
-                      data-testid="input-confirm-password"
-                    />
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <Button
-                      type="submit"
-                      disabled={updatePasswordMutation.isPending}
-                      className="flex-1 bg-primary hover:bg-primary/90"
-                      data-testid="button-update-password"
-                    >
-                      {updatePasswordMutation.isPending ? (
-                        <>Updating...</>
-                      ) : (
-                        <>
-                          <Save className="w-4 h-4 mr-2" />
-                          Update Password
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-
-            {/* Account Details Card */}
-            <Card data-testid="account-details-card">
-              <CardHeader>
-                <CardTitle className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2 text-[#d82527]">Account Details</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  View your account information
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Account Type</p>
-                    <p className="font-medium capitalize" data-testid="text-role">
-                      {user?.role || 'N/A'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Account Status</p>
-                    <p className="font-medium" data-testid="text-status">
-                      {user?.isActive ? (
-                        <span className="text-green-600">Active</span>
-                      ) : (
-                        <span className="text-red-600">Inactive</span>
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Payment Card Status</p>
-                    <p className={`font-medium ${paymentCardStatus.color}`} data-testid="text-payment-status">
-                      {paymentCardStatus.status}
-                    </p>
-                  </div>
-                </div>
-                {paymentCardStatus.message && (
-                  <div className={`p-4 ${paymentCardStatus.bgColor} border ${paymentCardStatus.borderColor} rounded-lg`}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <p className={`text-sm font-medium ${paymentCardStatus.color}`}>
-                          ⚠️ Action Required
-                        </p>
-                        <p className="text-sm mt-1" style={{ color: paymentCardStatus.color.replace('text-', '') }}>
-                          {paymentCardStatus.message}
-                        </p>
+                    Account Information
+                  </CardTitle>
+                  <p className="text-sm text-slate-400">
+                    Update your personal information and contact details
+                  </p>
+                </CardHeader>
+                <CardContent className="text-[#c2c2c2]">
+                  <form onSubmit={handleProfileSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="firstName" className="text-base font-medium text-slate-200">
+                          First Name *
+                        </Label>
+                        <Input
+                          id="firstName"
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          placeholder="Enter your first name"
+                          className="mt-2 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                          data-testid="input-first-name"
+                        />
                       </div>
+                      <div>
+                        <Label htmlFor="lastName" className="text-base font-medium text-slate-200">
+                          Last Name *
+                        </Label>
+                        <Input
+                          id="lastName"
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          placeholder="Enter your last name"
+                          className="mt-2 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                          data-testid="input-last-name"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="email" className="text-base font-medium flex items-center gap-2 text-slate-200">
+                        <Mail className="w-4 h-4 text-blue-400" />
+                        Email Address *
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        className="mt-2 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                        data-testid="input-email"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="phone" className="text-base font-medium flex items-center gap-2 text-slate-200">
+                        <Phone className="w-4 h-4 text-blue-400" />
+                        Phone Number
+                      </Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="Enter your phone number"
+                        className="mt-2 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                        data-testid="input-phone"
+                      />
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
                       <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setActiveSection('payment-methods')}
-                        className="whitespace-nowrap"
-                        data-testid="button-manage-payment"
+                        type="submit"
+                        disabled={updateProfileMutation.isPending}
+                        className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white border-0 shadow-lg"
+                        data-testid="button-save"
                       >
-                        {paymentCardStatus.action}
+                        {updateProfileMutation.isPending ? (
+                          <>
+                            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4 mr-2" />
+                            Save Changes
+                          </>
+                        )}
                       </Button>
                     </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Password Update Card */}
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
+              <Card className="relative bg-slate-900/90 backdrop-blur-xl border-slate-800/50 shadow-2xl" data-testid="password-card">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
+                      <Save className="w-5 h-5 text-white" />
+                    </div>
+                    Change Password
+                  </CardTitle>
+                  <p className="text-sm text-slate-400">
+                    Update your password to keep your account secure
+                  </p>
+                </CardHeader>
+                <CardContent className="text-[#c2c2c2]">
+                  <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                    <div>
+                      <Label htmlFor="currentPassword" className="text-base font-medium text-slate-200">
+                        Current Password *
+                      </Label>
+                      <Input
+                        id="currentPassword"
+                        type="password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        placeholder="Enter current password"
+                        className="mt-2 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                        data-testid="input-current-password"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="newPassword" className="text-base font-medium text-slate-200">
+                        New Password *
+                      </Label>
+                      <Input
+                        id="newPassword"
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Enter new password (min 8 characters)"
+                        className="mt-2 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                        data-testid="input-new-password"
+                      />
+                      <p className="text-xs text-slate-500 mt-2 flex items-start gap-2">
+                        <span className="text-purple-400 mt-0.5">ℹ️</span>
+                        Password must be at least 8 characters with uppercase, lowercase, and numbers
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="confirmPassword" className="text-base font-medium text-slate-200">
+                        Confirm New Password *
+                      </Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Re-enter new password"
+                        className="mt-2 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                        data-testid="input-confirm-password"
+                      />
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                      <Button
+                        type="submit"
+                        disabled={updatePasswordMutation.isPending}
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0 shadow-lg"
+                        data-testid="button-update-password"
+                      >
+                        {updatePasswordMutation.isPending ? (
+                          <>
+                            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                            Updating...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4 mr-2" />
+                            Update Password
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Account Details Card */}
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
+              <Card className="relative bg-slate-900/90 backdrop-blur-xl border-slate-800/50 shadow-2xl" data-testid="account-details-card">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                    Account Details
+                  </CardTitle>
+                  <p className="text-sm text-slate-400">
+                    View your account information and privileges
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6 text-[#c2c2c2]">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+                      <p className="text-sm text-slate-400 mb-2">Account Type</p>
+                      <p className="font-bold text-lg text-white capitalize" data-testid="text-role">
+                        {user?.role || 'N/A'}
+                      </p>
+                    </div>
+                    <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+                      <p className="text-sm text-slate-400 mb-2">Account Status</p>
+                      <p className="font-bold text-lg" data-testid="text-status">
+                        {user?.isActive ? (
+                          <span className="text-green-400 flex items-center gap-2">
+                            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                            Active
+                          </span>
+                        ) : (
+                          <span className="text-red-400 flex items-center gap-2">
+                            <span className="w-2 h-2 bg-red-400 rounded-full" />
+                            Inactive
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+                      <p className="text-sm text-slate-400 mb-2">Payment Card</p>
+                      <p className={`font-bold text-lg ${paymentCardStatus.color}`} data-testid="text-payment-status">
+                        {paymentCardStatus.status}
+                      </p>
+                    </div>
                   </div>
-                )}
-                {user?.payLaterEnabled && (
-                  <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                    <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                      ✓ Pay Later Enabled
-                    </p>
-                    <p className="text-sm text-green-600 dark:text-green-300 mt-1">
-                      You have been granted pay later privileges by the administrator.
-                    </p>
-                  </div>
-                )}
-                {(user as any)?.discountType && ((user as any)?.discountValue ?? 0) > 0 && (
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                      Active Discount
-                    </p>
-                    <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
-                      {(user as any).discountType === 'percentage' 
-                        ? `${(user as any).discountValue}% off all bookings` 
-                        : `$${(user as any).discountValue} off all bookings`}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  
+                  {paymentCardStatus.message && (
+                    <div className="relative group/alert">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl opacity-20 group-hover/alert:opacity-30 blur transition-opacity" />
+                      <div className="relative p-4 bg-amber-950/30 border border-amber-800/50 rounded-xl backdrop-blur-sm">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <p className="text-sm font-bold text-amber-400 flex items-center gap-2 mb-2">
+                              <span className="text-lg">⚠️</span>
+                              Action Required
+                            </p>
+                            <p className="text-sm text-amber-200/80">
+                              {paymentCardStatus.message}
+                            </p>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setActiveSection('payment-methods')}
+                            className="whitespace-nowrap bg-amber-600 hover:bg-amber-500 text-white border-0"
+                            data-testid="button-manage-payment"
+                          >
+                            {paymentCardStatus.action}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {user?.payLaterEnabled && (
+                    <div className="relative group/privilege">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl opacity-20 group-hover/privilege:opacity-30 blur transition-opacity" />
+                      <div className="relative p-4 bg-green-950/30 border border-green-800/50 rounded-xl backdrop-blur-sm">
+                        <p className="text-sm font-bold text-green-400 flex items-center gap-2 mb-2">
+                          <span className="text-lg">✓</span>
+                          Pay Later Enabled
+                        </p>
+                        <p className="text-sm text-green-200/80">
+                          You have been granted pay later privileges by the administrator.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {(user as any)?.discountType && ((user as any)?.discountValue ?? 0) > 0 && (
+                    <div className="relative group/discount">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl opacity-20 group-hover/discount:opacity-30 blur transition-opacity" />
+                      <div className="relative p-4 bg-blue-950/30 border border-blue-800/50 rounded-xl backdrop-blur-sm">
+                        <p className="text-sm font-bold text-blue-400 flex items-center gap-2 mb-2">
+                          <span className="text-lg">🎉</span>
+                          Active Discount
+                        </p>
+                        <p className="text-sm text-blue-200/80">
+                          {(user as any).discountType === 'percentage' 
+                            ? `${(user as any).discountValue}% off all bookings` 
+                            : `$${(user as any).discountValue} off all bookings`}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
 
