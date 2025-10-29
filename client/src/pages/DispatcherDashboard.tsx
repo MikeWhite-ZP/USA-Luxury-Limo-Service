@@ -309,83 +309,100 @@ export default function DispatcherDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
       
-      <main className="flex-1 pt-24 pb-12">
+      {/* Dark Header Section - Dispatcher Control */}
+      <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 text-white pt-20 pb-12 shadow-xl">
         <div className="container mx-auto px-4">
-          {/* Welcome Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white" data-testid="dispatcher-welcome">
-              Dispatcher Control Center
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">
-              Welcome back, {user?.firstName || user?.email}
-            </p>
-            <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-              <div className="flex items-center space-x-2">
-                <Calendar className="w-4 h-4" />
-                <span>{new Date().toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}</span>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-3 rounded-xl shadow-lg">
+                  <Activity className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight" data-testid="dispatcher-welcome">
+                    Dispatcher Control Center
+                  </h1>
+                  <p className="text-slate-300 text-lg mt-1">
+                    Welcome back, <span className="font-semibold text-white">{user?.firstName || user?.email}</span>
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Clock className="w-4 h-4" />
-                <span>{new Date().toLocaleTimeString('en-US', { 
-                  hour: '2-digit', 
-                  minute: '2-digit'
-                })}</span>
+              <div className="flex items-center space-x-6 text-sm text-slate-300 ml-1">
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-4 h-4 text-cyan-400" />
+                  <span>{new Date().toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-4 h-4 text-cyan-400" />
+                  <span>{new Date().toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit'
+                  })}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Stats Overview */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Stats Overview - Inside Dark Header */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {statsCards.map((stat, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-300">
+              <div 
+                key={index} 
+                className="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:shadow-2xl hover:scale-105"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-slate-200">
                     {stat.title}
-                  </CardTitle>
-                  <div className={stat.color}>
-                    {stat.icon}
+                  </span>
+                  <div className="bg-white/20 p-2 rounded-lg">
+                    <div className="text-cyan-300">
+                      {stat.icon}
+                    </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white" data-testid={`stat-${index}-value`}>
-                    {stat.value}
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400" data-testid={`stat-${index}-change`}>
-                    {stat.change}
-                  </p>
-                </CardContent>
-              </Card>
+                </div>
+                <div className="text-3xl font-bold text-white mb-1" data-testid={`stat-${index}-value`}>
+                  {stat.value}
+                </div>
+                <p className="text-xs text-slate-300" data-testid={`stat-${index}-change`}>
+                  {stat.change}
+                </p>
+              </div>
             ))}
           </div>
+        </div>
+      </div>
 
+      {/* Light Main Content Area */}
+      <main className="flex-1 pb-12">
+        <div className="container mx-auto px-4">
           {/* Quick Actions */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white" data-testid="quick-actions-title">
+          <div className="my-10">
+            <h2 className="text-2xl font-bold mb-6 text-slate-800" data-testid="quick-actions-title">
               Quick Actions
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {quickActions.map((action, index) => (
                 <Card 
                   key={index} 
-                  className="group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1"
+                  className="group hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border-slate-200 bg-white"
                   onClick={action.action}
                 >
                   <CardHeader className="text-center p-6">
-                    <div className={`inline-flex items-center justify-center p-3 ${action.color} text-white rounded-xl mb-4 mx-auto group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`inline-flex items-center justify-center p-4 ${action.color} text-white rounded-2xl mb-4 mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                       {action.icon}
                     </div>
-                    <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors duration-300" data-testid={`action-${index}-title`}>
+                    <CardTitle className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors duration-300" data-testid={`action-${index}-title`}>
                       {action.title}
                     </CardTitle>
-                    <CardDescription className="text-sm" data-testid={`action-${index}-description`}>
+                    <CardDescription className="text-sm text-slate-600" data-testid={`action-${index}-description`}>
                       {action.description}
                     </CardDescription>
                   </CardHeader>
@@ -395,39 +412,41 @@ export default function DispatcherDashboard() {
           </div>
 
           {/* Recent Activity and Alerts */}
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-2 gap-8 mb-8">
             {/* Recent Activity */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Activity className="w-5 h-5" />
+            <Card className="shadow-lg border-slate-200 bg-white">
+              <CardHeader className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+                <CardTitle className="flex items-center space-x-2 text-slate-800">
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <Activity className="w-5 h-5 text-blue-600" />
+                  </div>
                   <span>Recent Activity</span>
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-slate-600">
                   Latest fleet operations and ride assignments
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                    <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Ride #R-2024-1205 assigned to Driver John D.</p>
-                      <p className="text-xs text-gray-500">2 minutes ago</p>
+                      <p className="text-sm font-semibold text-slate-800">Ride #R-2024-1205 assigned to Driver John D.</p>
+                      <p className="text-xs text-slate-500 mt-1">2 minutes ago</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                    <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Driver Maria S. went online at Downtown</p>
-                      <p className="text-xs text-gray-500">5 minutes ago</p>
+                      <p className="text-sm font-semibold text-slate-800">Driver Maria S. went online at Downtown</p>
+                      <p className="text-xs text-slate-500 mt-1">5 minutes ago</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200">
+                    <div className="w-2.5 h-2.5 bg-orange-500 rounded-full"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium">New ride request from Houston Airport</p>
-                      <p className="text-xs text-gray-500">8 minutes ago</p>
+                      <p className="text-sm font-semibold text-slate-800">New ride request from Houston Airport</p>
+                      <p className="text-xs text-slate-500 mt-1">8 minutes ago</p>
                     </div>
                   </div>
                 </div>
@@ -435,37 +454,39 @@ export default function DispatcherDashboard() {
             </Card>
 
             {/* System Alerts */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <AlertTriangle className="w-5 h-5" />
+            <Card className="shadow-lg border-slate-200 bg-white">
+              <CardHeader className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+                <CardTitle className="flex items-center space-x-2 text-slate-800">
+                  <div className="bg-orange-100 p-2 rounded-lg">
+                    <AlertTriangle className="w-5 h-5 text-orange-600" />
+                  </div>
                   <span>System Alerts</span>
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-slate-600">
                   Important notifications and warnings
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                    <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-yellow-50 to-amber-50 border-l-4 border-yellow-500 rounded-lg shadow-sm">
+                    <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">High demand detected in Galleria area</p>
-                      <p className="text-xs text-gray-500">Consider deploying additional drivers</p>
+                      <p className="text-sm font-semibold text-slate-800">High demand detected in Galleria area</p>
+                      <p className="text-xs text-slate-600 mt-1">Consider deploying additional drivers</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <Activity className="w-4 h-4 text-blue-600" />
+                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-500 rounded-lg shadow-sm">
+                    <Activity className="w-5 h-5 text-blue-600 flex-shrink-0" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Vehicle #V-101 due for maintenance</p>
-                      <p className="text-xs text-gray-500">Schedule maintenance appointment</p>
+                      <p className="text-sm font-semibold text-slate-800">Vehicle #V-101 due for maintenance</p>
+                      <p className="text-xs text-slate-600 mt-1">Schedule maintenance appointment</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                    <Users className="w-4 h-4 text-green-600" />
+                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg shadow-sm">
+                    <Users className="w-5 h-5 text-green-600 flex-shrink-0" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">All systems operational</p>
-                      <p className="text-xs text-gray-500">Fleet performance is optimal</p>
+                      <p className="text-sm font-semibold text-slate-800">All systems operational</p>
+                      <p className="text-xs text-slate-600 mt-1">Fleet performance is optimal</p>
                     </div>
                   </div>
                 </div>
