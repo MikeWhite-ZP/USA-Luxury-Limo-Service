@@ -1083,160 +1083,217 @@ export default function PassengerDashboard() {
   ) || [];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-green-600 text-white p-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-              <span className="text-lg font-bold">P</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Atmospheric Background Elements */}
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent pointer-events-none" />
+      <div className="fixed top-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+      <div className="fixed bottom-0 left-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
+
+      {/* Modern Header */}
+      <header className="relative z-10 border-b border-slate-800/50 backdrop-blur-xl bg-gradient-to-r from-slate-900/95 via-slate-800/95 to-slate-900/95 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-5">
+              {/* Avatar with gradient border */}
+              <div className="relative">
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-green-600 rounded-2xl opacity-75 blur" />
+                <div className="relative w-16 h-16 bg-gradient-to-br from-blue-600 to-green-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                  <User className="w-8 h-8 text-white" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-400 to-blue-400 bg-clip-text text-transparent" data-testid="passenger-title">
+                  Passenger Dashboard
+                </h1>
+                <p className="text-slate-400 text-lg mt-1" data-testid="passenger-subtitle">
+                  Welcome back, <span className="text-white font-medium">{user?.firstName || user?.email}</span>
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold" data-testid="passenger-title">Passenger Account</h1>
-              <p className="text-green-100" data-testid="passenger-subtitle">
-                Welcome, {user?.firstName || user?.email}
-              </p>
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-orange-600 rounded-xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-300" />
+              <Button 
+                onClick={() => window.location.href = '/api/logout'}
+                className="relative bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 hover:border-slate-600 px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                data-testid="button-logout"
+              >
+                Sign Out
+              </Button>
             </div>
           </div>
-          <Button 
-            onClick={() => window.location.href = '/api/logout'}
-            variant="secondary"
-            data-testid="button-logout"
-          >
-            Sign Out
-          </Button>
         </div>
       </header>
 
-      {/* Navigation Menu */}
-      <div className="border-b border-border bg-white">
+      {/* Modern Navigation Menu */}
+      <div className="relative z-10 border-b border-slate-800/50 backdrop-blur-xl bg-slate-900/80">
         <div className="max-w-7xl mx-auto px-6">
-          <nav className="flex space-x-8">
+          <nav className="flex space-x-2 overflow-x-auto"  style={{ scrollbarWidth: 'thin', scrollbarColor: '#475569 transparent' }}>
             <button
               onClick={() => setActiveSection('home')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                 activeSection === 'home'
-                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
+                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
               }`}
               data-testid="nav-home"
             >
-              <Home className="w-4 h-4" />
+              {activeSection === 'home' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+              )}
+              <Home className="w-5 h-5" />
               Home
             </button>
             <button
               onClick={() => setActiveSection('saved-locations')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                 activeSection === 'saved-locations'
-                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
+                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
               }`}
               data-testid="nav-saved-locations"
             >
-              <MapPin className="w-4 h-4" />
+              {activeSection === 'saved-locations' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+              )}
+              <MapPin className="w-5 h-5" />
               Saved Locations
             </button>
             <button
               onClick={() => setActiveSection('future-bookings')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                 activeSection === 'future-bookings'
-                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
+                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
               }`}
               data-testid="nav-future-bookings"
             >
-              <Calendar className="w-4 h-4" />
+              {activeSection === 'future-bookings' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+              )}
+              <Calendar className="w-5 h-5" />
               Future Bookings
             </button>
             <button
               onClick={() => setActiveSection('past-bookings')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                 activeSection === 'past-bookings'
-                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
+                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
               }`}
               data-testid="nav-past-bookings"
             >
-              <History className="w-4 h-4" />
+              {activeSection === 'past-bookings' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+              )}
+              <History className="w-5 h-5" />
               Past Bookings
             </button>
             <button
               onClick={() => setActiveSection('payment-methods')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                 activeSection === 'payment-methods'
-                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
+                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
               }`}
               data-testid="nav-payment-methods"
             >
-              <CreditCard className="w-4 h-4" />
+              {activeSection === 'payment-methods' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+              )}
+              <CreditCard className="w-5 h-5" />
               Payment Methods
             </button>
             <button
               onClick={() => setActiveSection('account-details')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                 activeSection === 'account-details'
-                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
+                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
               }`}
               data-testid="nav-account-details"
             >
-              <User className="w-4 h-4" />
+              {activeSection === 'account-details' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+              )}
+              <User className="w-5 h-5" />
               Account Details
             </button>
             <button
               onClick={() => setActiveSection('support')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                 activeSection === 'support'
-                  ? 'border-primary text-primary pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 pl-[5px] pr-[5px] pt-[5px] pb-[5px]'
+                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
               }`}
               data-testid="nav-support"
             >
-              <HelpCircle className="w-4 h-4" />
+              {activeSection === 'support' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+              )}
+              <HelpCircle className="w-5 h-5" />
               Support
             </button>
           </nav>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6 space-y-8">
+      <div className="relative z-10 max-w-7xl mx-auto p-8 space-y-8">
         {/* Home Section */}
         {activeSection === 'home' && (
           <>
             {/* Quick Actions */}
-            <Card data-testid="quick-actions">
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Button
-                    onClick={() => window.location.href = '/'}
-                    className="h-16 flex flex-col space-y-1 bg-[#d8e3d8e6] text-[#000000]"
-                    data-testid="button-book-ride"
-                  >
-                    <MapPin className="w-5 h-5" />
-                    <span>Book a Ride</span>
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    onClick={() => setActiveSection('past-bookings')}
-                    className="h-16 flex flex-col space-y-1 bg-[transparent] pt-[2px] pb-[2px] pl-[8px] pr-[8px]"
-                    data-testid="button-view-history"
-                  >
-                    <CreditCard className="w-5 h-5" />
-                    <span>View History</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="relative group" data-testid="quick-actions">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-green-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
+              <Card className="relative bg-slate-900/90 backdrop-blur-xl border-slate-800/50 shadow-2xl">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-green-600 flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-white" />
+                    </div>
+                    Quick Actions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="relative group/btn">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
+                      <Button
+                        onClick={() => window.location.href = '/'}
+                        className="relative h-20 w-full flex flex-col space-y-2 bg-gradient-to-br from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white border-0 shadow-xl group-hover/btn:scale-[1.02] transition-transform duration-300"
+                        data-testid="button-book-ride"
+                      >
+                        <MapPin className="w-6 h-6" />
+                        <span className="font-semibold">Book a Ride</span>
+                      </Button>
+                    </div>
+                    
+                    <div className="relative group/btn">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
+                      <Button
+                        onClick={() => setActiveSection('past-bookings')}
+                        className="relative h-20 w-full flex flex-col space-y-2 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 hover:border-slate-600 shadow-xl group-hover/btn:scale-[1.02] transition-transform duration-300"
+                        data-testid="button-view-history"
+                      >
+                        <History className="w-6 h-6" />
+                        <span className="font-semibold">View History</span>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Recent Bookings */}
-            <Card data-testid="recent-bookings">
+            <div className="relative group" data-testid="recent-bookings">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
+              <Card className="relative bg-slate-900/90 backdrop-blur-xl border-slate-800/50 shadow-2xl">
           <CardHeader>
-            <CardTitle>Recent Bookings</CardTitle>
+            <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-white" />
+              </div>
+              Recent Bookings
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {bookingsLoading ? (
@@ -1337,12 +1394,15 @@ export default function PassengerDashboard() {
                 ))}
               </div>
             ) : (
-              <div className="text-center p-8 text-muted-foreground" data-testid="no-bookings">
-                No bookings yet. Start your first ride with us!
+              <div className="text-center p-12" data-testid="no-bookings">
+                <Calendar className="w-16 h-16 mx-auto mb-4 text-slate-600" />
+                <p className="text-slate-400 text-lg">No bookings yet</p>
+                <p className="text-slate-500 text-sm mt-2">Start your first ride with us!</p>
               </div>
             )}
           </CardContent>
         </Card>
+        </div>
           </>
         )}
 
