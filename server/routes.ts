@@ -2336,6 +2336,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create payment intent for invoice payment (public - token-based auth)
+  app.post('/api/payment-intents/invoice', async (req, res) => {
+    try {
+      const { token, invoiceId } = req.body;
+
+      if (!token || !invoiceId) {
+        return res.status(400).json({ message: 'Token and invoice ID are required' });
+      }
+
+      // Validate payment token
+      const paymentToken = await storage.getPaymentToken(token);
+      
+      if (!paymentToken) {
+        return res.status(404).json({ message: 'Invalid payment token' });
+      }
+
+      if (new Date() > new Date(paymentToken.expiresAt)) {
+        return res.status(400).json({ message: 'Payment link has expired' });
+      }
+
+      if (paymentToken.used) {
+        return res.status(400).json({ message: 'Payment link has already been used' });
+      }
+
+      if (paymentToken.invoiceId !== invoiceId) {
+        return res.status(400).json({ message: 'Token does not match invoice' });
+      }
+
+      // Get invoice details
+      const invoice = await storage.getInvoice(invoiceId);
+      if (!invoice) {
+        return res.status(404).json({ message: 'Invoice not found' });
+      }
+
+      if (invoice.paidAt) {
+        return res.status(400).json({ message: 'Invoice already paid' });
+      }
+
+      // Create Stripe payment intent
+      const amount = Math.round(parseFloat(invoice.totalAmount) * 100); // Convert to cents
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount,
+        currency: 'usd',
+        metadata: {
+          invoiceId: invoice.id,
+          bookingId: invoice.bookingId,
+          paymentToken: token,
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+      });
+    } catch (error) {
+      console.error('Create invoice payment intent error:', error);
+      res.status(500).json({ message: 'Failed to create payment intent' });
+    }
+  });
+
+  // Stripe webhook for invoice payments
+  app.post('/api/webhooks/stripe/invoice-payment', async (req, res) => {
+    try {
+      const event = req.body;
+
+      // Handle payment intent succeeded
+      if (event.type === 'payment_intent.succeeded') {
+        const paymentIntent = event.data.object;
+        const { invoiceId, paymentToken } = paymentIntent.metadata;
+
+        if (invoiceId && paymentToken) {
+          // Update invoice as paid
+          await storage.updateInvoice(invoiceId, {
+            paidAt: new Date().toISOString(),
+          });
+
+          // Mark payment token as used
+          await storage.markPaymentTokenAsUsed(paymentToken);
+
+          // Update booking payment status
+          const invoice = await storage.getInvoice(invoiceId);
+          if (invoice) {
+            await storage.updateBookingPayment(
+              invoice.bookingId,
+              paymentIntent.id,
+              'paid'
+            );
+          }
+
+          console.log(`Invoice ${invoiceId} marked as paid via payment intent ${paymentIntent.id}`);
+        }
+      }
+
+      res.json({ received: true });
+    } catch (error) {
+      console.error('Stripe webhook error:', error);
+      res.status(500).json({ message: 'Webhook processing failed' });
+    }
+  });
+
   // Admin bookings management endpoints
   app.get('/api/admin/bookings', isAuthenticated, async (req: any, res) => {
     try {
