@@ -201,13 +201,13 @@ export function RoleLogin() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Animated Background Gradient */}
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 -z-10" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800/20 via-transparent to-transparent -z-10" />
+      {/* Light Background with Subtle Pattern */}
+      <div className="fixed inset-0 bg-gradient-to-br from-gray-50 via-white to-blue-50 -z-10" />
+      <div className="fixed inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(59 130 246 / 0.05) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
       
       {/* Floating orbs for visual interest */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -z-10 animate-pulse" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl -z-10 animate-pulse" />
+      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '1s' }} />
       
       <Header />
       
@@ -216,13 +216,13 @@ export function RoleLogin() {
           <div className="max-w-7xl mx-auto">
             {/* Header Section */}
             <div className="text-center mb-16">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 mb-6 shadow-2xl">
-                <Shield className="w-10 h-10 text-blue-400" />
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 shadow-xl mb-6">
+                <Shield className="w-10 h-10 text-white" />
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent" data-testid="page-title">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent" data-testid="page-title">
                 {selectedRole ? `${currentRole?.title} Portal` : 'Welcome Back'}
               </h1>
-              <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed" data-testid="page-subtitle">
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed" data-testid="page-subtitle">
                 {selectedRole 
                   ? 'Access your account to continue' 
                   : 'Select your role to access your personalized dashboard'}
@@ -230,7 +230,8 @@ export function RoleLogin() {
             </div>
 
             {!selectedRole ? (
-              /* Role Selection Grid */
+              <>
+              {/* Role Selection Grid */}
               <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
                 {roles.map((role) => (
                   <div
@@ -240,35 +241,35 @@ export function RoleLogin() {
                     data-testid={`role-card-${role.id}`}
                   >
                     {/* Glow effect on hover */}
-                    <div className={`absolute -inset-0.5 bg-gradient-to-r ${role.color} rounded-2xl opacity-0 group-hover:opacity-100 blur transition-all duration-500`} />
+                    <div className={`absolute -inset-0.5 bg-gradient-to-r ${role.color} rounded-2xl opacity-10 group-hover:opacity-30 blur transition-all duration-500`} />
                     
-                    <Card className="relative h-full bg-slate-900/90 backdrop-blur-xl border-slate-800/50 hover:border-slate-700 transition-all duration-300 cursor-pointer overflow-hidden group-hover:scale-[1.02] group-hover:shadow-2xl">
+                    <Card className="relative h-full bg-white border-gray-200 hover:border-gray-300 transition-all duration-300 cursor-pointer overflow-hidden group-hover:scale-[1.02] shadow-lg group-hover:shadow-2xl">
                       {/* Subtle gradient background */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${role.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${role.bgGradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
                       
                       <CardHeader className="relative text-center p-10 pb-6">
                         {/* Icon Container */}
                         <div className="relative mb-8">
-                          <div className={`inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-gradient-to-br ${role.color} shadow-2xl group-hover:scale-110 transition-transform duration-500`}>
+                          <div className={`inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-gradient-to-br ${role.color} shadow-xl group-hover:scale-110 transition-transform duration-500`}>
                             <div className="text-white">
                               {role.icon}
                             </div>
                           </div>
                           {/* Glow ring */}
-                          <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${role.color} blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500`} style={{ transform: 'scale(0.9)' }} />
+                          <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${role.color} blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500`} style={{ transform: 'scale(0.9)' }} />
                         </div>
                         
-                        <CardTitle className="text-2xl font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text transition-all duration-300" style={{ backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))` }} data-testid={`role-title-${role.id}`}>
+                        <CardTitle className="text-2xl font-bold text-gray-900 mb-4" data-testid={`role-title-${role.id}`}>
                           {role.title}
                         </CardTitle>
-                        <CardDescription className="text-base text-slate-400 leading-relaxed" data-testid={`role-description-${role.id}`}>
+                        <CardDescription className="text-base text-gray-600 leading-relaxed" data-testid={`role-description-${role.id}`}>
                           {role.description}
                         </CardDescription>
                       </CardHeader>
                       
                       <CardContent className="relative px-10 pb-10">
                         <Button 
-                          className={`w-full bg-gradient-to-r ${role.color} hover:shadow-xl hover:shadow-${role.id}-500/20 text-white font-semibold py-6 rounded-xl transition-all duration-300 border-0 text-base group-hover:scale-[1.02]`}
+                          className={`w-full bg-gradient-to-r ${role.color} hover:shadow-xl text-white font-semibold py-6 rounded-xl transition-all duration-300 border-0 text-base group-hover:scale-[1.02]`}
                           data-testid={`role-button-${role.id}`}
                         >
                           Continue as {role.title}
@@ -279,13 +280,15 @@ export function RoleLogin() {
                   </div>
                 ))}
               </div>
+              </>
             ) : (
-              /* Auth Form Section */
+              <>
+              {/* Auth Form Section */}
               <div className="max-w-xl mx-auto">
                 <Button 
                   variant="ghost" 
                   onClick={handleBack}
-                  className="mb-8 text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all duration-200"
+                  className="mb-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
                   data-testid="button-back"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
@@ -294,41 +297,41 @@ export function RoleLogin() {
 
                 {/* Glowing card wrapper */}
                 <div className="relative group">
-                  <div className={`absolute -inset-1 bg-gradient-to-r ${currentRole?.color} rounded-3xl opacity-20 group-hover:opacity-30 blur-xl transition-opacity duration-500`} />
+                  <div className={`absolute -inset-1 bg-gradient-to-r ${currentRole?.color} rounded-3xl opacity-10 group-hover:opacity-20 blur-xl transition-opacity duration-500`} />
                   
-                  <Card className="relative bg-slate-900/95 backdrop-blur-2xl border-slate-800/50 shadow-2xl" data-testid="auth-card">
+                  <Card className="relative bg-white border-gray-200 shadow-xl" data-testid="auth-card">
                     <CardHeader className="text-center pb-6 pt-12 px-10">
                       {/* Role Icon */}
                       <div className="relative inline-flex items-center justify-center mx-auto mb-6">
-                        <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${currentRole?.color} shadow-2xl flex items-center justify-center`}>
+                        <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${currentRole?.color} shadow-xl flex items-center justify-center`}>
                           <div className="text-white">
                             {currentRole?.icon}
                           </div>
                         </div>
-                        <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${currentRole?.color} blur-2xl opacity-40`} />
+                        <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${currentRole?.color} blur-2xl opacity-30`} />
                       </div>
                       
-                      <CardTitle className="text-3xl font-bold text-white mb-3" data-testid="auth-title">
+                      <CardTitle className="text-3xl font-bold text-gray-900 mb-3" data-testid="auth-title">
                         {currentRole?.title} Account
                       </CardTitle>
-                      <CardDescription className="text-slate-400 text-base" data-testid="auth-description">
+                      <CardDescription className="text-gray-600 text-base" data-testid="auth-description">
                         Sign in or create a new account to continue
                       </CardDescription>
                     </CardHeader>
                     
                     <CardContent className="px-10 pb-12">
                       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "login" | "signup")} data-testid="auth-tabs">
-                        <TabsList className="grid w-full grid-cols-2 mb-8 bg-slate-800/50 p-1.5 rounded-xl border border-slate-700/50">
+                        <TabsList className="grid w-full grid-cols-2 mb-8 bg-gray-100 p-1.5 rounded-xl border border-gray-200">
                           <TabsTrigger 
                             value="login" 
-                            className="rounded-lg data-[state=active]:bg-slate-700 data-[state=active]:text-white text-slate-400 font-medium transition-all duration-200"
+                            className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm text-gray-600 font-medium transition-all duration-200"
                             data-testid="tab-login"
                           >
                             Sign In
                           </TabsTrigger>
                           <TabsTrigger 
                             value="signup" 
-                            className="rounded-lg data-[state=active]:bg-slate-700 data-[state=active]:text-white text-slate-400 font-medium transition-all duration-200"
+                            className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm text-gray-600 font-medium transition-all duration-200"
                             data-testid="tab-signup"
                           >
                             Sign Up
@@ -339,9 +342,9 @@ export function RoleLogin() {
                         <TabsContent value="login">
                           <form onSubmit={handleLogin} className="space-y-6" data-testid="login-form">
                             <div className="space-y-2">
-                              <Label htmlFor="login-username" className="text-slate-300 font-medium">Username</Label>
+                              <Label htmlFor="login-username" className="text-gray-700 font-medium">Username</Label>
                               <div className="relative">
-                                <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
                                   id="login-username"
                                   type="text"
@@ -349,20 +352,20 @@ export function RoleLogin() {
                                   value={loginForm.username}
                                   onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
                                   required
-                                  className="pl-12 h-12 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-600 focus:ring-slate-600 rounded-xl"
+                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
                                   data-testid="input-login-username"
                                 />
                               </div>
                             </div>
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
-                                <Label htmlFor="login-password" className="text-slate-300 font-medium">Password</Label>
-                                <Link to="/forgot-password" className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200">
+                                <Label htmlFor="login-password" className="text-gray-700 font-medium">Password</Label>
+                                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500 transition-colors duration-200">
                                   Forgot Password?
                                 </Link>
                               </div>
                               <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
                                   id="login-password"
                                   type="password"
@@ -370,7 +373,7 @@ export function RoleLogin() {
                                   value={loginForm.password}
                                   onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
                                   required
-                                  className="pl-12 h-12 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-600 focus:ring-slate-600 rounded-xl"
+                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
                                   data-testid="input-login-password"
                                 />
                               </div>
@@ -391,34 +394,34 @@ export function RoleLogin() {
                           <form onSubmit={handleSignup} className="space-y-5" data-testid="signup-form">
                             <div className="grid grid-cols-2 gap-4">
                               <div className="space-y-2">
-                                <Label htmlFor="signup-firstname" className="text-slate-300 font-medium">First Name</Label>
+                                <Label htmlFor="signup-firstname" className="text-gray-700 font-medium">First Name</Label>
                                 <Input
                                   id="signup-firstname"
                                   type="text"
                                   placeholder="John"
                                   value={signupForm.firstName}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, firstName: e.target.value }))}
-                                  className="h-12 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-600 focus:ring-slate-600 rounded-xl"
+                                  className="h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
                                   data-testid="input-signup-firstname"
                                 />
                               </div>
                               <div className="space-y-2">
-                                <Label htmlFor="signup-lastname" className="text-slate-300 font-medium">Last Name</Label>
+                                <Label htmlFor="signup-lastname" className="text-gray-700 font-medium">Last Name</Label>
                                 <Input
                                   id="signup-lastname"
                                   type="text"
                                   placeholder="Doe"
                                   value={signupForm.lastName}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, lastName: e.target.value }))}
-                                  className="h-12 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-600 focus:ring-slate-600 rounded-xl"
+                                  className="h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
                                   data-testid="input-signup-lastname"
                                 />
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="signup-email" className="text-slate-300 font-medium">Email *</Label>
+                              <Label htmlFor="signup-email" className="text-gray-700 font-medium">Email *</Label>
                               <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
                                   id="signup-email"
                                   type="email"
@@ -426,15 +429,15 @@ export function RoleLogin() {
                                   value={signupForm.email}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
                                   required
-                                  className="pl-12 h-12 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-600 focus:ring-slate-600 rounded-xl"
+                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
                                   data-testid="input-signup-email"
                                 />
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="signup-username" className="text-slate-300 font-medium">Username *</Label>
+                              <Label htmlFor="signup-username" className="text-gray-700 font-medium">Username *</Label>
                               <div className="relative">
-                                <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
                                   id="signup-username"
                                   type="text"
@@ -442,15 +445,15 @@ export function RoleLogin() {
                                   value={signupForm.username}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, username: e.target.value }))}
                                   required
-                                  className="pl-12 h-12 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-600 focus:ring-slate-600 rounded-xl"
+                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
                                   data-testid="input-signup-username"
                                 />
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="signup-password" className="text-slate-300 font-medium">Password *</Label>
+                              <Label htmlFor="signup-password" className="text-gray-700 font-medium">Password *</Label>
                               <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
                                   id="signup-password"
                                   type="password"
@@ -459,7 +462,7 @@ export function RoleLogin() {
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
                                   required
                                   minLength={6}
-                                  className="pl-12 h-12 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-600 focus:ring-slate-600 rounded-xl"
+                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
                                   data-testid="input-signup-password"
                                 />
                               </div>
@@ -479,26 +482,27 @@ export function RoleLogin() {
                   </Card>
                 </div>
               </div>
+              </>
             )}
 
             {/* Admin Access Section */}
             <div className="mt-20 text-center">
               <div className="relative inline-block">
-                <div className="absolute -inset-1 bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700 rounded-2xl opacity-50 blur-lg" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300 rounded-2xl opacity-50 blur-lg" />
                 <Link 
                   to="/admin-login"
-                  className="relative flex items-center gap-4 px-8 py-5 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/50 rounded-2xl shadow-2xl hover:shadow-slate-700/50 transition-all duration-300 hover:scale-105 cursor-pointer group"
+                  className="relative flex items-center gap-4 px-8 py-5 bg-white border border-gray-300 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer group"
                   data-testid="link-admin-dashboard"
                 >
-                  <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600/30 group-hover:scale-110 transition-transform duration-300">
+                  <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-gray-700 to-gray-800 shadow-md group-hover:scale-110 transition-transform duration-300">
                     <img src={adminLogo} alt="USA Luxury Limo" className="w-9 h-9 object-contain" />
                   </div>
                   <div className="text-left">
-                    <div className="text-base font-bold text-white mb-0.5 flex items-center gap-2">
+                    <div className="text-base font-bold text-gray-900 mb-0.5 flex items-center gap-2">
                       Admin Access
-                      <Shield className="w-4 h-4 text-slate-400" />
+                      <Shield className="w-4 h-4 text-gray-600" />
                     </div>
-                    <div className="text-sm text-slate-400">Dashboard Login</div>
+                    <div className="text-sm text-gray-600">Dashboard Login</div>
                   </div>
                 </Link>
               </div>
