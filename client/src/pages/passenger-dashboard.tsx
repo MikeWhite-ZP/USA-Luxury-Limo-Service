@@ -1127,7 +1127,7 @@ export default function PassengerDashboard() {
 
       {/* Modern Navigation Menu */}
       <div className="relative z-10 border-b border-slate-800/50 backdrop-blur-xl bg-slate-900/80">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6 text-[14px] pl-[16px] pr-[16px]">
           <nav className="flex space-x-2 overflow-x-auto"  style={{ scrollbarWidth: 'thin', scrollbarColor: '#475569 transparent' }}>
             <button
               onClick={() => setActiveSection('home')}
