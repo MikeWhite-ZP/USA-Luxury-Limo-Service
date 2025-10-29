@@ -500,13 +500,17 @@ export default function DispatcherDashboard() {
 
       {/* Assign Ride Dialog */}
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto bg-[#ffffff]">
-          <DialogHeader>
-            <DialogTitle className="text-lg leading-none tracking-tight text-[#d82527] font-bold">Assign/Reassign Ride to Driver</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-0 border border-slate-200 p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl max-w-4xl max-h-[90vh] overflow-hidden bg-white">
+          <DialogHeader className="bg-white px-6 py-5 border-b border-slate-200">
+            <DialogTitle className="text-2xl font-semibold text-slate-900 flex items-center gap-3">
+              <UserCheck className="w-6 h-6 text-blue-600" />
+              Assign/Reassign Ride to Driver
+            </DialogTitle>
+            <DialogDescription className="text-slate-600 text-sm mt-2">
               Select a pending ride to assign or an assigned ride to change the driver
             </DialogDescription>
           </DialogHeader>
+          <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-slate-50">
 
           {/* Search and Filter Controls */}
           <div className="flex flex-wrap gap-3 mb-4">
@@ -548,8 +552,10 @@ export default function DispatcherDashboard() {
             {/* Pending & Assigned Bookings Combined Section */}
             <div className="md:col-span-2">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold flex items-center gap-2 text-[#028848]">
-                  <Clock className="w-4 h-4" />
+                <h3 className="font-bold text-lg flex items-center gap-2 text-slate-700">
+                  <div className="bg-blue-100 p-1.5 rounded-lg">
+                    <Clock className="w-4 h-4 text-blue-600" />
+                  </div>
                   All Bookings ({filteredBookings.length})
                 </h3>
                 {selectedBookingId && (
@@ -654,8 +660,10 @@ export default function DispatcherDashboard() {
 
             {/* Smart-Ranked Drivers Section */}
             <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2 text-[#0178f2]">
-                <Car className="w-4 h-4" />
+              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-slate-700">
+                <div className="bg-green-100 p-1.5 rounded-lg">
+                  <Car className="w-4 h-4 text-green-600" />
+                </div>
                 Available Drivers ({rankedDrivers.length})
               </h3>
               {!selectedBookingId ? (
@@ -777,7 +785,7 @@ export default function DispatcherDashboard() {
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+          <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-slate-200 bg-white px-6 py-4">
             <Button
               variant="outline"
               onClick={() => {
@@ -785,6 +793,7 @@ export default function DispatcherDashboard() {
                 setSelectedBookingId(null);
                 setSelectedDriverId("");
               }}
+              className="px-6 border-slate-300 hover:bg-slate-100 text-slate-700"
               data-testid="button-cancel-assign"
             >
               Cancel
@@ -792,28 +801,29 @@ export default function DispatcherDashboard() {
             <Button
               onClick={handleAssignSubmit}
               disabled={!selectedBookingId || !selectedDriverId || assignDriverMutation.isPending}
+              className="px-6 bg-blue-600 hover:bg-blue-700 text-white"
               data-testid="button-confirm-assign"
             >
               {getButtonText()}
             </Button>
+          </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Fleet Monitor Dialog */}
       <Dialog open={fleetMonitorOpen} onOpenChange={setFleetMonitorOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-6xl max-h-[90vh] overflow-y-auto bg-[#ffffff]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-0 border border-slate-200 p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl max-w-6xl max-h-[90vh] overflow-hidden bg-white">
+          <DialogHeader className="bg-white px-6 py-5 border-b border-slate-200">
+            <DialogTitle className="text-2xl font-semibold text-slate-900 flex items-center gap-3">
+              <MapPin className="w-6 h-6 text-green-600" />
               Fleet Monitor - Live Status
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-600 text-sm mt-2">
               Real-time overview of all drivers and vehicles in the fleet
             </DialogDescription>
           </DialogHeader>
-
-          <div className="mt-4">
+          <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-slate-50">
             {/* Summary Stats */}
             <div className="grid grid-cols-4 gap-4 mb-6">
               <Card className="bg-green-50">
@@ -975,16 +985,17 @@ export default function DispatcherDashboard() {
                 })
               )}
             </div>
-          </div>
 
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+          <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-slate-200 bg-white px-6 py-4">
             <Button
               variant="outline"
               onClick={() => setFleetMonitorOpen(false)}
+              className="px-6 border-slate-300 hover:bg-slate-100 text-slate-700"
               data-testid="button-close-fleet-monitor"
             >
               Close
             </Button>
+          </div>
           </div>
         </DialogContent>
       </Dialog>
