@@ -5672,6 +5672,139 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Driver Messages API Routes
+  // Send message to driver(s)
+  app.post('/api/driver-messages', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+
+      // Verify user has dispatcher or admin role
+      const user = await storage.getUser(userId);
+      if (!user || (user.role !== 'dispatcher' && user.role !== 'admin')) {
+        return res.status(403).json({ message: 'Dispatcher or Admin access required' });
+      }
+
+      const { driverId, messageType, subject, message, priority, deliveryMethod } = req.body;
+
+      if (!message || !deliveryMethod) {
+        return res.status(400).json({ message: 'Message and delivery method are required' });
+      }
+
+      // Create message record
+      const driverMessage = await storage.createDriverMessage({
+        senderId: userId,
+        driverId: driverId || null,
+        messageType: messageType || 'individual',
+        subject,
+        message,
+        priority: priority || 'normal',
+        deliveryMethod,
+      });
+
+      // Send the message based on delivery method
+      let smsSent = false;
+      let emailSent = false;
+      let errors: string[] = [];
+
+      // Get driver details for sending
+      const targetDrivers = driverId
+        ? [await storage.getUser(driverId)]
+        : await storage.getAllUsers().then(users => users.filter(u => u.role === 'driver'));
+
+      for (const driver of targetDrivers) {
+        if (!driver) continue;
+
+        try {
+          // Send SMS if requested
+          if (deliveryMethod === 'sms' || deliveryMethod === 'both') {
+            if (driver.phone) {
+              const smsResult = await sendSMS(driver.phone, message);
+              if (smsResult.success) {
+                smsSent = true;
+              } else {
+                errors.push(`SMS failed for ${driver.firstName}: ${smsResult.error}`);
+              }
+            }
+          }
+
+          // Send email if requested
+          if (deliveryMethod === 'email' || deliveryMethod === 'both') {
+            if (driver.email) {
+              const emailHTML = `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h2 style="color: #1a202c;">${subject || 'Message from Dispatch'}</h2>
+                  <p style="color: #4a5568; line-height: 1.6;">${message}</p>
+                  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+                  <p style="color: #718096; font-size: 14px;">This message was sent via the USA Luxury Limo dispatch system.</p>
+                </div>
+              `;
+              const emailResult = await sendEmail(
+                driver.email,
+                subject || 'Message from Dispatch',
+                emailHTML
+              );
+              if (emailResult.success) {
+                emailSent = true;
+              } else {
+                errors.push(`Email failed for ${driver.firstName}: ${emailResult.error}`);
+              }
+            }
+          }
+        } catch (error) {
+          console.error(`Error sending message to driver ${driver.id}:`, error);
+          errors.push(`Failed to send to ${driver.firstName}`);
+        }
+      }
+
+      // Update message status
+      const status = errors.length === 0 ? 'sent' : errors.length < targetDrivers.length ? 'sent' : 'failed';
+      await storage.updateDriverMessageStatus(
+        driverMessage.id,
+        status,
+        new Date(),
+        smsSent || emailSent ? new Date() : undefined,
+        errors.length > 0 ? errors.join('; ') : undefined
+      );
+
+      res.json({
+        success: true,
+        message: driverMessage,
+        smsSent,
+        emailSent,
+        errors: errors.length > 0 ? errors : undefined,
+      });
+    } catch (error) {
+      console.error('Error sending driver message:', error);
+      res.status(500).json({ message: 'Failed to send message' });
+    }
+  });
+
+  // Get all driver messages
+  app.get('/api/driver-messages', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+
+      // Verify user has dispatcher or admin role
+      const user = await storage.getUser(userId);
+      if (!user || (user.role !== 'dispatcher' && user.role !== 'admin')) {
+        return res.status(403).json({ message: 'Dispatcher or Admin access required' });
+      }
+
+      const { driverId } = req.query;
+      const messages = await storage.getDriverMessages(driverId as string | undefined);
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching driver messages:', error);
+      res.status(500).json({ message: 'Failed to fetch messages' });
+    }
+  });
+
   // Stripe webhook for payment status updates
   app.post('/api/stripe-webhook', async (req, res) => {
     try {
