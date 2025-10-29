@@ -1223,7 +1223,7 @@ export default function PassengerDashboard() {
               className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                 activeSection === 'support'
                   ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40 pl-[0px] pr-[0px]'
               }`}
               data-testid="nav-support"
             >
