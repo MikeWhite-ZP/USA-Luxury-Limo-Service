@@ -780,6 +780,7 @@ function InvoiceManagement() {
   const [backfillDialogOpen, setBackfillDialogOpen] = useState(false);
   const [backfillResult, setBackfillResult] = useState<any>(null);
   const [recipientEmail, setRecipientEmail] = useState("");
+  const [isLoadingEmail, setIsLoadingEmail] = useState(false);
   const [editFormData, setEditFormData] = useState({
     subtotal: "",
     taxAmount: "",
@@ -921,32 +922,64 @@ function InvoiceManagement() {
 
   const handleEmail = async (invoice: any) => {
     setSelectedInvoice(invoice);
+    setIsLoadingEmail(true);
+    
+    // Reset recipient email first
+    setRecipientEmail("");
     
     // Fetch booking to get passenger email
+    let passengerEmail = "";
+    let fetchSuccess = false;
+    
     try {
       const bookingResponse = await fetch(`/api/bookings/${invoice.bookingId}`, {
         credentials: 'include'
       });
-      if (bookingResponse.ok) {
-        const booking = await bookingResponse.json();
-        
-        // Fetch passenger (account owner) details
-        const passengerResponse = await fetch(`/api/users/${booking.passengerId}`, {
-          credentials: 'include'
-        });
-        if (passengerResponse.ok) {
-          const passenger = await passengerResponse.json();
-          if (passenger.email) {
-            setRecipientEmail(passenger.email);
-          }
-        }
+      
+      if (!bookingResponse.ok) {
+        throw new Error('Failed to fetch booking details');
+      }
+      
+      const booking = await bookingResponse.json();
+      
+      // Fetch passenger (account owner) details
+      const passengerResponse = await fetch(`/api/users/${booking.passengerId}`, {
+        credentials: 'include'
+      });
+      
+      if (!passengerResponse.ok) {
+        throw new Error('Failed to fetch passenger details');
+      }
+      
+      const passenger = await passengerResponse.json();
+      
+      if (passenger.email) {
+        passengerEmail = passenger.email;
+        fetchSuccess = true;
+      } else {
+        throw new Error('Passenger email not found');
       }
     } catch (error) {
       console.error('Error fetching passenger email:', error);
-      // Continue anyway, user can manually enter email
+      toast({
+        title: "Could not auto-populate email",
+        description: error instanceof Error ? error.message : "Please enter the email manually.",
+        variant: "destructive",
+      });
+      setIsLoadingEmail(false);
+      return; // Don't open dialog if fetch failed
     }
     
-    setEmailDialogOpen(true);
+    setIsLoadingEmail(false);
+    
+    // Only open dialog if we successfully fetched the email
+    if (fetchSuccess && passengerEmail) {
+      setRecipientEmail(passengerEmail);
+      // Small delay to ensure state is updated before opening dialog
+      setTimeout(() => {
+        setEmailDialogOpen(true);
+      }, 100);
+    }
   };
 
   const handleDelete = (invoice: any) => {
@@ -1109,10 +1142,11 @@ function InvoiceManagement() {
                         size="sm"
                         variant="outline"
                         onClick={() => handleEmail(invoice)}
+                        disabled={isLoadingEmail}
                         data-testid={`button-email-${invoice.id}`}
                       >
                         <Mail className="w-3 h-3 mr-1" />
-                        Email
+                        {isLoadingEmail ? "Loading..." : "Email"}
                       </Button>
                       <Button
                         size="sm"
