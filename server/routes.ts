@@ -2012,14 +2012,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const passenger = await storage.getUser(booking.passengerId);
 
-      // Get dynamic logo URL from CMS settings
-      const logoSetting = await storage.getCmsSetting('BRAND_LOGO_URL');
-      const logoUrl = logoSetting?.value || '';
-      
-      // Get base URL for logo (for email context)
-      const baseUrl = process.env.REPLIT_DEV_DOMAIN 
-        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
-        : 'https://your-domain.com';
+      // Get dynamic logo from object storage and convert to base64 for email embedding
+      let logoDataUri = '';
+      try {
+        const logoSetting = await storage.getCmsSetting('BRAND_LOGO_URL');
+        if (logoSetting?.value) {
+          // Extract the file key from the URL (e.g., /api/object-storage/file/logo.png -> logo.png)
+          const logoPath = logoSetting.value;
+          const fileKey = logoPath.includes('/file/') 
+            ? logoPath.split('/file/')[1] 
+            : logoPath.replace('/api/object-storage/', '');
+          
+          // Fetch logo from object storage
+          const ObjectStorage = await import('@replit/object-storage');
+          const storage_client = new ObjectStorage.Client();
+          const logoBuffer = await storage_client.downloadAsBytes(fileKey);
+          
+          if (logoBuffer) {
+            // Convert to base64 and create data URI
+            const buffer = Array.isArray(logoBuffer) ? logoBuffer[0] : logoBuffer;
+            const base64Logo = Buffer.from(buffer).toString('base64');
+            // Determine MIME type from file extension
+            const ext = fileKey.split('.').pop()?.toLowerCase();
+            const mimeType = ext === 'png' ? 'image/png' : 
+                            ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
+                            ext === 'svg' ? 'image/svg+xml' : 'image/png';
+            logoDataUri = `data:${mimeType};base64,${base64Logo}`;
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching logo for email:', error);
+        // Continue without logo
+      }
 
       const emailHtml = `
         <!DOCTYPE html>
@@ -2060,8 +2084,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             <div class="container">
               <!-- Header -->
               <div class="header">
-                ${logoUrl ? `
-                  <img src="${logoUrl.startsWith('http') ? logoUrl : baseUrl + logoUrl}" alt="USA Luxury Limo" class="logo-img" />
+                ${logoDataUri ? `
+                  <img src="${logoDataUri}" alt="USA Luxury Limo" class="logo-img" />
                 ` : `
                   <div class="logo">USA Luxury Limo</div>
                 `}
