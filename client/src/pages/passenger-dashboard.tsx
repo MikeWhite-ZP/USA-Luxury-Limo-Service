@@ -1237,7 +1237,7 @@ export default function PassengerDashboard() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto p-8 space-y-8">
+      <div className="relative z-10 max-w-7xl mx-auto p-8 space-y-8 text-[#c2c2c2]">
         {/* Home Section */}
         {activeSection === 'home' && (
           <>
