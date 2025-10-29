@@ -521,116 +521,163 @@ export default function DriverDashboard() {
     ) || [];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-blue-600 text-white p-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-              <span className="text-lg font-bold">D</span>
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Subtle Light Background Pattern */}
+      <div className="fixed inset-0 pointer-events-none opacity-40">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-emerald-50" />
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(16 185 129 / 0.05) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
+      </div>
+
+      {/* Modern Header */}
+      <header className="relative z-10 border-b border-slate-800/50 backdrop-blur-xl bg-gradient-to-r from-slate-900/95 via-slate-800/95 to-slate-900/95 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-5">
+              {/* Avatar with gradient border */}
+              <div className="relative">
+                <div className="absolute -inset-1 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl opacity-75 blur" />
+                <div className="relative w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                  <Car className="w-8 h-8 text-white" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-green-400 bg-clip-text text-transparent" data-testid="driver-title">
+                  Driver Portal
+                </h1>
+                <p className="text-slate-400 text-lg mt-1" data-testid="driver-subtitle">
+                  Welcome, <span className="text-white font-medium">{user?.firstName || user?.email}</span>
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold" data-testid="driver-title">
-                Driver Portal
-              </h1>
-              <p className="text-blue-100" data-testid="driver-subtitle">
-                Welcome, {user?.firstName || user?.email}
-              </p>
+            <div className="flex items-center space-x-4">
+              <Badge
+                variant={driver?.isAvailable ? "secondary" : "outline"}
+                className={driver?.isAvailable ? "bg-green-500 text-white px-4 py-2 text-sm font-medium" : "border-slate-600 text-slate-400 px-4 py-2 text-sm"}
+                data-testid="driver-status"
+              >
+                {driver?.isAvailable ? "Available" : "Offline"}
+              </Badge>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-orange-600 rounded-xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-300" />
+                <Button
+                  onClick={() => (window.location.href = "/api/logout")}
+                  className="relative bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 hover:border-slate-600 px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                  data-testid="button-logout"
+                >
+                  Sign Out
+                </Button>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Badge
-              variant={driver?.isAvailable ? "secondary" : "outline"}
-              className={driver?.isAvailable ? "bg-green-500 text-white" : ""}
-              data-testid="driver-status"
-            >
-              {driver?.isAvailable ? "Available" : "Offline"}
-            </Badge>
-            <Button
-              onClick={() => (window.location.href = "/api/logout")}
-              variant="secondary"
-              data-testid="button-logout"
-            >
-              Sign Out
-            </Button>
           </div>
         </div>
 
-        {/* Navigation Menu */}
-        <div className="max-w-7xl mx-auto mt-4 flex space-x-1 bg-white/10 rounded-lg p-1">
-          <Button
-            variant={activeTab === "home" ? "secondary" : "ghost"}
-            className={`flex-1 ${activeTab === "home" ? "bg-white text-blue-600" : "text-white hover:bg-white/20"}`}
-            onClick={() => setActiveTab("home")}
-            data-testid="nav-home"
-          >
-            <Home className="w-4 h-4 mr-2" />
-            Home
-          </Button>
-          <Button
-            variant={activeTab === "documents" ? "secondary" : "ghost"}
-            className={`flex-1 ${activeTab === "documents" ? "bg-white text-blue-600" : "text-white hover:bg-white/20"}`}
-            onClick={() => setActiveTab("documents")}
-            data-testid="nav-documents"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            Documents
-          </Button>
-          <Button
-            variant={activeTab === "assigned-jobs" ? "secondary" : "ghost"}
-            className={`flex-1 ${activeTab === "assigned-jobs" ? "bg-white text-blue-600" : "text-white hover:bg-white/20"}`}
-            onClick={() => setActiveTab("assigned-jobs")}
-            data-testid="nav-assigned-jobs"
-          >
-            <Briefcase className="w-4 h-4 mr-2" />
-            Assigned Jobs
-          </Button>
-          <Button
-            variant={activeTab === "settings" ? "secondary" : "ghost"}
-            className={`flex-1 ${activeTab === "settings" ? "bg-white text-blue-600" : "text-white hover:bg-white/20"}`}
-            onClick={() => setActiveTab("settings")}
-            data-testid="nav-settings"
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Account Settings
-          </Button>
+        {/* Modern Navigation Menu */}
+        <div className="relative z-10 border-b border-slate-800/50 backdrop-blur-xl bg-slate-900/80">
+          <div className="max-w-7xl mx-auto px-6">
+            <nav className="flex space-x-2 overflow-x-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#475569 transparent' }}>
+              <button
+                onClick={() => setActiveTab("home")}
+                className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
+                  activeTab === "home"
+                    ? 'text-green-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                }`}
+                data-testid="nav-home"
+              >
+                {activeTab === "home" && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-600 to-emerald-600" />
+                )}
+                <Home className="w-5 h-5" />
+                Home
+              </button>
+              <button
+                onClick={() => setActiveTab("documents")}
+                className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
+                  activeTab === "documents"
+                    ? 'text-green-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                }`}
+                data-testid="nav-documents"
+              >
+                {activeTab === "documents" && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-600 to-emerald-600" />
+                )}
+                <FileText className="w-5 h-5" />
+                Documents
+              </button>
+              <button
+                onClick={() => setActiveTab("assigned-jobs")}
+                className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
+                  activeTab === "assigned-jobs"
+                    ? 'text-green-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                }`}
+                data-testid="nav-assigned-jobs"
+              >
+                {activeTab === "assigned-jobs" && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-600 to-emerald-600" />
+                )}
+                <Briefcase className="w-5 h-5" />
+                Assigned Jobs
+              </button>
+              <button
+                onClick={() => setActiveTab("settings")}
+                className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
+                  activeTab === "settings"
+                    ? 'text-green-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                }`}
+                data-testid="nav-settings"
+              >
+                {activeTab === "settings" && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-600 to-emerald-600" />
+                )}
+                <Settings className="w-5 h-5" />
+                Account Settings
+              </button>
+            </nav>
+          </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto p-6 space-y-8">
+      <div className="relative z-10 max-w-7xl mx-auto p-8 space-y-8">
         {/* HOME TAB */}
         {activeTab === "home" && (
           <>
             {/* Performance Stats */}
             <div className="grid md:grid-cols-3 gap-6">
-              <Card data-testid="stat-earnings">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <DollarSign className="w-8 h-8 text-green-600" />
-                      <div>
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                          <Calendar className="w-3 h-3" />
-                          {earnings?.currentDate 
-                            ? new Date(earnings.currentDate).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric', 
-                                year: 'numeric' 
-                              })
-                            : "Today"}
-                        </p>
-                        <p
-                          className="text-xl font-bold"
-                          data-testid="today-earnings"
-                        >
-                          {earningsLoading ? (
-                            <span className="text-muted-foreground">Loading...</span>
-                          ) : (
-                            `$${earnings?.today?.toFixed(2) || '0.00'}`
-                          )}
-                        </p>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+                <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="stat-earnings">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center shadow-md">
+                          <DollarSign className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 flex items-center gap-2 font-medium">
+                            <Calendar className="w-3 h-3" />
+                            {earnings?.currentDate 
+                              ? new Date(earnings.currentDate).toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric', 
+                                  year: 'numeric' 
+                                })
+                              : "Today"}
+                          </p>
+                          <p
+                            className="text-2xl font-bold text-[#29b24a]"
+                            data-testid="today-earnings"
+                          >
+                            {earningsLoading ? (
+                              <span className="text-gray-400">Loading...</span>
+                            ) : (
+                              `$${earnings?.today?.toFixed(2) || '0.00'}`
+                            )}
+                          </p>
+                        </div>
                       </div>
-                    </div>
                     <Dialog open={earningsDialogOpen} onOpenChange={setEarningsDialogOpen}>
                       <DialogTrigger asChild>
                         <Button
@@ -690,129 +737,159 @@ export default function DriverDashboard() {
                   </div>
                 </CardContent>
               </Card>
+              </div>
 
-              <Card data-testid="stat-rides">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="w-8 h-8 text-blue-600" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Completed Rides
-                      </p>
-                      <p
-                        className="text-xl font-bold"
-                        data-testid="completed-rides"
-                      >
-                        {completedRides}
-                      </p>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+                <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="stat-rides">
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-md">
+                        <MapPin className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">
+                          Completed Rides
+                        </p>
+                        <p
+                          className="text-2xl font-bold text-gray-900"
+                          data-testid="completed-rides"
+                        >
+                          {completedRides}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
 
-              <Card data-testid="stat-rating">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <Star className="w-8 h-8 text-yellow-500" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Rating</p>
-                      <p
-                        className="text-xl font-bold"
-                        data-testid="driver-rating"
-                      >
-                        {driver?.rating || "0"}/5
-                      </p>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+                <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="stat-rating">
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-500 flex items-center justify-center shadow-md">
+                        <Star className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">Rating</p>
+                        <p
+                          className="text-2xl font-bold text-gray-900"
+                          data-testid="driver-rating"
+                        >
+                          {driver?.rating || "0"}/5
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
             {/* Accepted/Assigned Jobs */}
-            <Card data-testid="accepted-jobs">
-              <CardHeader>
-                <CardTitle>Accepted Jobs</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {assignedBookings && assignedBookings.length > 0 ? (
-                  <div className="space-y-4">
-                    {assignedBookings.map((booking) => (
-                      <div
-                        key={booking.id}
-                        className="border rounded-lg p-4 space-y-3"
-                        data-testid={`accepted-job-${booking.id}`}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="space-y-1 text-sm">
-                            <div data-testid={`accepted-pickup-${booking.id}`}>
-                              <strong>Pickup:</strong> {booking.pickupAddress}
-                            </div>
-                            {booking.destinationAddress && (
-                              <div
-                                data-testid={`accepted-destination-${booking.id}`}
-                              >
-                                <strong>Destination:</strong>{" "}
-                                {booking.destinationAddress}
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+              <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="accepted-jobs">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-md">
+                      <Briefcase className="w-5 h-5 text-white" />
+                    </div>
+                    Accepted Jobs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {assignedBookings && assignedBookings.length > 0 ? (
+                    <div className="space-y-4">
+                      {assignedBookings.map((booking) => (
+                        <div
+                          key={booking.id}
+                          className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all space-y-3"
+                          data-testid={`accepted-job-${booking.id}`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-2 text-sm flex-1">
+                              <div className="text-gray-900" data-testid={`accepted-pickup-${booking.id}`}>
+                                <strong className="text-gray-700">Pickup:</strong> {booking.pickupAddress}
                               </div>
-                            )}
-                            <div data-testid={`accepted-time-${booking.id}`}>
-                              <strong>Scheduled:</strong>{" "}
-                              {new Date(
-                                booking.scheduledDateTime,
-                              ).toLocaleString()}
+                              {booking.destinationAddress && (
+                                <div
+                                  className="text-gray-900"
+                                  data-testid={`accepted-destination-${booking.id}`}
+                                >
+                                  <strong className="text-gray-700">Destination:</strong>{" "}
+                                  {booking.destinationAddress}
+                                </div>
+                              )}
+                              <div className="text-gray-900" data-testid={`accepted-time-${booking.id}`}>
+                                <strong className="text-gray-700">Scheduled:</strong>{" "}
+                                {new Date(
+                                  booking.scheduledDateTime,
+                                ).toLocaleString()}
+                              </div>
+                              <div className="text-gray-900" data-testid={`accepted-amount-${booking.id}`}>
+                                <strong className="text-gray-700">Your Payment:</strong>{" "}
+                                <span className="text-[#29b24a] font-bold">
+                                  ${booking.driverPayment || "Not set"}
+                                </span>
+                              </div>
                             </div>
-                            <div data-testid={`accepted-amount-${booking.id}`}>
-                              <strong>Your Payment:</strong> $
-                              {booking.driverPayment || "Not set"}
-                            </div>
-                          </div>
-                          <Badge
-                            variant="default"
-                            data-testid={`accepted-status-${booking.id}`}
-                          >
-                            {booking.status}
-                          </Badge>
-                        </div>
-                        {booking.status === "in_progress" && (
-                          <div className="flex space-x-2">
-                            <Button
-                              onClick={() => handleCompleteRide(booking.id)}
-                              disabled={updateBookingMutation.isPending}
-                              data-testid={`button-complete-${booking.id}`}
+                            <Badge
+                              variant="default"
+                              className="bg-purple-600 text-white"
+                              data-testid={`accepted-status-${booking.id}`}
                             >
-                              Complete Ride
-                            </Button>
+                              {booking.status}
+                            </Badge>
                           </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div
-                    className="text-center p-8 text-muted-foreground"
-                    data-testid="no-accepted-jobs"
-                  >
-                    No accepted jobs yet.
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                          {booking.status === "in_progress" && (
+                            <div className="flex space-x-2 pt-3 border-t border-gray-200">
+                              <Button
+                                onClick={() => handleCompleteRide(booking.id)}
+                                disabled={updateBookingMutation.isPending}
+                                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white"
+                                data-testid={`button-complete-${booking.id}`}
+                              >
+                                Complete Ride
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div
+                      className="text-center p-12"
+                      data-testid="no-accepted-jobs"
+                    >
+                      <Briefcase className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                      <p className="text-gray-600 text-lg font-medium">No accepted jobs yet</p>
+                      <p className="text-gray-500 text-sm mt-2">New job assignments will appear here</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </>
         )}
 
         {/* DOCUMENTS TAB */}
         {activeTab === "documents" && (
-          <Card
-            data-testid="document-verification"
-            className="rounded-lg border shadow-sm bg-[#ffffff] text-[#23252f]"
-          >
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <FileText className="w-5 h-5" />
-                <span>Document Verification</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <Card
+              data-testid="document-verification"
+              className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow"
+            >
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-md">
+                    <FileText className="w-5 h-5 text-white" />
+                  </div>
+                  Document Verification
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Driver's License */}
                 <div className="space-y-4">
@@ -1273,15 +1350,23 @@ export default function DriverDashboard() {
               </div>
             </CardContent>
           </Card>
+          </div>
         )}
 
         {/* ASSIGNED JOBS TAB */}
         {activeTab === "assigned-jobs" && (
-          <Card data-testid="assigned-jobs-tab">
-            <CardHeader>
-              <CardTitle>My Assigned Jobs</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="assigned-jobs-tab">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center shadow-md">
+                    <Briefcase className="w-5 h-5 text-white" />
+                  </div>
+                  My Assigned Jobs
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
               {assignedBookings && assignedBookings.length > 0 ? (
                 <div className="space-y-4">
                   {assignedBookings.map((booking) => (
@@ -1386,15 +1471,23 @@ export default function DriverDashboard() {
               )}
             </CardContent>
           </Card>
+          </div>
         )}
 
         {/* SETTINGS TAB */}
         {activeTab === "settings" && (
-          <Card data-testid="menu-account">
-            <CardHeader>
-              <CardTitle>Account Settings</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="menu-account">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
+                    <Settings className="w-5 h-5 text-white" />
+                  </div>
+                  Account Settings
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
               <div className="space-y-4">
                 <div>
                   <Label>Driver ID</Label>
@@ -1575,6 +1668,7 @@ export default function DriverDashboard() {
               </div>
             </CardContent>
           </Card>
+          </div>
         )}
       </div>
     </div>
