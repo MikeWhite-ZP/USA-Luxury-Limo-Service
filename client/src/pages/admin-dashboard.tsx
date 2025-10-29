@@ -919,8 +919,33 @@ function InvoiceManagement() {
     setEditDialogOpen(true);
   };
 
-  const handleEmail = (invoice: any) => {
+  const handleEmail = async (invoice: any) => {
     setSelectedInvoice(invoice);
+    
+    // Fetch booking to get passenger email
+    try {
+      const bookingResponse = await fetch(`/api/bookings/${invoice.bookingId}`, {
+        credentials: 'include'
+      });
+      if (bookingResponse.ok) {
+        const booking = await bookingResponse.json();
+        
+        // Fetch passenger (account owner) details
+        const passengerResponse = await fetch(`/api/users/${booking.passengerId}`, {
+          credentials: 'include'
+        });
+        if (passengerResponse.ok) {
+          const passenger = await passengerResponse.json();
+          if (passenger.email) {
+            setRecipientEmail(passenger.email);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching passenger email:', error);
+      // Continue anyway, user can manually enter email
+    }
+    
     setEmailDialogOpen(true);
   };
 
