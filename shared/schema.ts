@@ -357,6 +357,17 @@ export const invoices = pgTable("invoices", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Payment tokens for secure invoice payment links
+export const paymentTokens = pgTable("payment_tokens", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  invoiceId: uuid("invoice_id").references(() => invoices.id).notNull(),
+  token: varchar("token", { length: 64 }).unique().notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  used: boolean("used").default(false),
+  usedAt: timestamp("used_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Contact form submissions
 export const contactSubmissions = pgTable("contact_submissions", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -514,6 +525,13 @@ export const insertInvoiceSchema = createInsertSchema(invoices).omit({
   createdAt: true,
 });
 
+export const insertPaymentTokenSchema = createInsertSchema(paymentTokens).omit({
+  id: true,
+  createdAt: true,
+  used: true,
+  usedAt: true,
+});
+
 export const insertDriverDocumentSchema = createInsertSchema(driverDocuments).omit({
   id: true,
   uploadedAt: true,
@@ -642,6 +660,8 @@ export type InsertSavedAddress = z.infer<typeof insertSavedAddressSchema>;
 export type InsertPricingRule = z.infer<typeof insertPricingRuleSchema>;
 export type InsertPaymentSystem = z.infer<typeof insertPaymentSystemSchema>;
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
+export type PaymentToken = typeof paymentTokens.$inferSelect;
+export type InsertPaymentToken = z.infer<typeof insertPaymentTokenSchema>;
 export type DriverDocument = typeof driverDocuments.$inferSelect;
 export type InsertDriverDocument = z.infer<typeof insertDriverDocumentSchema>;
 export type DriverRating = typeof driverRatings.$inferSelect;
