@@ -1323,7 +1323,7 @@ export default function PassengerDashboard() {
                         </div>
                       </div>
                       <div className="text-right space-y-1 flex flex-col items-end ml-4">
-                        <p className="font-bold text-foreground" data-testid={`booking-total-${booking.id}`}>
+                        <p className="font-bold text-[#29b24a]" data-testid={`booking-total-${booking.id}`}>
                           ${booking.totalAmount}
                         </p>
                         <Badge variant={getStatusColor(booking.status)} data-testid={`booking-status-${booking.id}`}>
@@ -1601,7 +1601,7 @@ export default function PassengerDashboard() {
                           </div>
                         </div>
                         <div className="text-right space-y-1 flex flex-col items-end ml-4">
-                          <p className="font-bold text-foreground" data-testid={`future-booking-total-${booking.id}`}>
+                          <p className="font-bold text-[#29b24a]" data-testid={`future-booking-total-${booking.id}`}>
                             ${booking.totalAmount}
                           </p>
                           <Badge variant={getStatusColor(booking.status)} data-testid={`future-booking-status-${booking.id}`}>
@@ -1692,7 +1692,7 @@ export default function PassengerDashboard() {
                           </div>
                         </div>
                         <div className="text-right space-y-1 flex flex-col items-end ml-4">
-                          <p className="font-bold text-foreground" data-testid={`past-booking-total-${booking.id}`}>
+                          <p className="font-bold text-[#29b24a]" data-testid={`past-booking-total-${booking.id}`}>
                             ${booking.totalAmount}
                           </p>
                           <Badge variant={getStatusColor(booking.status)} data-testid={`past-booking-status-${booking.id}`}>
@@ -2068,7 +2068,7 @@ export default function PassengerDashboard() {
                         </div>
                       </div>
                       <div className="text-right space-y-1 ml-4 flex flex-col items-end">
-                        <p className="font-bold text-lg text-foreground" data-testid={`history-booking-total-${booking.id}`}>
+                        <p className="font-bold text-lg text-[#29b24a]" data-testid={`history-booking-total-${booking.id}`}>
                           ${booking.totalAmount}
                         </p>
                         <Badge variant={getStatusColor(booking.status)} data-testid={`history-booking-status-${booking.id}`}>
