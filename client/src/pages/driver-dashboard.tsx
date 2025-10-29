@@ -890,31 +890,37 @@ export default function DriverDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-2 gap-8">
                 {/* Driver's License */}
-                <div className="space-y-4">
-                  <h4 className="font-semibold flex items-center justify-between">
-                    <span>Driver's License</span>
+                <div className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-2xl border border-blue-100 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-blue-200">
+                    <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-white" />
+                      </div>
+                      Driver's License
+                    </h4>
                     {getDocumentByType("driver_license") && (
                       <Badge
                         variant={getStatusBadgeVariant(
                           getDocumentByType("driver_license")!.status,
                         )}
+                        className="font-medium"
                         data-testid="status-driver-license"
                       >
                         {getDocumentByType("driver_license")!.status}
                       </Badge>
                     )}
-                  </h4>
+                  </div>
 
                   {getDocumentByType("driver_license") && (
-                    <div className="p-4 border rounded-lg bg-muted/50 space-y-2">
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-semibold text-gray-700">
                           Expiration Date:
                         </span>
                         <span
-                          className="text-sm"
+                          className="text-sm font-medium text-gray-900"
                           data-testid="expiry-driver-license"
                         >
                           {getDocumentByType("driver_license")!.expirationDate
@@ -930,30 +936,33 @@ export default function DriverDashboard() {
                         "rejected" &&
                         getDocumentByType("driver_license")!
                           .rejectionReason && (
-                          <div className="text-sm text-red-600 mt-2">
-                            <strong>Rejection Reason:</strong>{" "}
-                            {
-                              getDocumentByType("driver_license")!
-                                .rejectionReason
-                            }
+                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <p className="text-sm text-red-700">
+                              <strong className="font-semibold">Rejection Reason:</strong>{" "}
+                              {
+                                getDocumentByType("driver_license")!
+                                  .rejectionReason
+                              }
+                            </p>
                           </div>
                         )}
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-gray-500 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
                         Uploaded:{" "}
                         {new Date(
                           getDocumentByType("driver_license")!.uploadedAt,
-                        ).toLocaleString()}
+                        ).toLocaleDateString()}
                       </div>
                     </div>
                   )}
 
-                  <div className="space-y-3">
+                  <div className="space-y-4 pt-2">
                     <div>
-                      <Label htmlFor="driver-license-file">
+                      <Label htmlFor="driver-license-file" className="text-gray-700 font-medium mb-2">
                         {getDocumentByType("driver_license")
                           ? "Re-upload Document"
                           : "Upload Document"}{" "}
-                        (PDF/Image, max 2MB)
+                        <span className="text-gray-500 font-normal">(PDF/Image, max 2MB)</span>
                       </Label>
                       <Input
                         id="driver-license-file"
@@ -968,11 +977,12 @@ export default function DriverDashboard() {
                             },
                           }))
                         }
+                        className="mt-2 bg-white border-gray-300 hover:border-blue-400 transition-colors"
                         data-testid="input-driver-license-file"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="driver-license-expiry">
+                      <Label htmlFor="driver-license-expiry" className="text-gray-700 font-medium mb-2">
                         Expiration Date
                       </Label>
                       <Input
@@ -988,13 +998,14 @@ export default function DriverDashboard() {
                             },
                           }))
                         }
+                        className="mt-2 bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         data-testid="input-driver-license-expiry"
                       />
                     </div>
                     <Button
                       onClick={() => handleDocumentUpload("driver_license")}
                       disabled={uploadingDoc === "driver_license"}
-                      className="w-full"
+                      className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
                       data-testid="button-upload-driver-license"
                     >
                       {uploadingDoc === "driver_license"
@@ -1007,29 +1018,35 @@ export default function DriverDashboard() {
                 </div>
 
                 {/* Limo License */}
-                <div className="space-y-4">
-                  <h4 className="font-semibold flex items-center justify-between">
-                    <span>Limo License</span>
+                <div className="bg-gradient-to-br from-green-50 to-white p-6 rounded-2xl border border-green-100 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-green-200">
+                    <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-white" />
+                      </div>
+                      Limo License
+                    </h4>
                     {getDocumentByType("limo_license") && (
                       <Badge
                         variant={getStatusBadgeVariant(
                           getDocumentByType("limo_license")!.status,
                         )}
+                        className="font-medium"
                         data-testid="status-limo-license"
                       >
                         {getDocumentByType("limo_license")!.status}
                       </Badge>
                     )}
-                  </h4>
+                  </div>
 
                   {getDocumentByType("limo_license") && (
-                    <div className="p-4 border rounded-lg bg-muted/50 space-y-2">
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-semibold text-gray-700">
                           Expiration Date:
                         </span>
                         <span
-                          className="text-sm"
+                          className="text-sm font-medium text-gray-900"
                           data-testid="expiry-limo-license"
                         >
                           {getDocumentByType("limo_license")!.expirationDate
@@ -1044,27 +1061,30 @@ export default function DriverDashboard() {
                       {getDocumentByType("limo_license")!.status ===
                         "rejected" &&
                         getDocumentByType("limo_license")!.rejectionReason && (
-                          <div className="text-sm text-red-600 mt-2">
-                            <strong>Rejection Reason:</strong>{" "}
-                            {getDocumentByType("limo_license")!.rejectionReason}
+                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <p className="text-sm text-red-700">
+                              <strong className="font-semibold">Rejection Reason:</strong>{" "}
+                              {getDocumentByType("limo_license")!.rejectionReason}
+                            </p>
                           </div>
                         )}
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-gray-500 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
                         Uploaded:{" "}
                         {new Date(
                           getDocumentByType("limo_license")!.uploadedAt,
-                        ).toLocaleString()}
+                        ).toLocaleDateString()}
                       </div>
                     </div>
                   )}
 
-                  <div className="space-y-3">
+                  <div className="space-y-4 pt-2">
                     <div>
-                      <Label htmlFor="limo-license-file">
+                      <Label htmlFor="limo-license-file" className="text-gray-700 font-medium mb-2">
                         {getDocumentByType("limo_license")
                           ? "Re-upload Document"
                           : "Upload Document"}{" "}
-                        (PDF/Image, max 2MB)
+                        <span className="text-gray-500 font-normal">(PDF/Image, max 2MB)</span>
                       </Label>
                       <Input
                         id="limo-license-file"
@@ -1079,11 +1099,12 @@ export default function DriverDashboard() {
                             },
                           }))
                         }
+                        className="mt-2 bg-white border-gray-300 hover:border-green-400 transition-colors"
                         data-testid="input-limo-license-file"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="limo-license-expiry">
+                      <Label htmlFor="limo-license-expiry" className="text-gray-700 font-medium mb-2">
                         Expiration Date
                       </Label>
                       <Input
@@ -1099,13 +1120,14 @@ export default function DriverDashboard() {
                             },
                           }))
                         }
+                        className="mt-2 bg-white border-gray-300 focus:border-green-500 focus:ring-green-500"
                         data-testid="input-limo-license-expiry"
                       />
                     </div>
                     <Button
                       onClick={() => handleDocumentUpload("limo_license")}
                       disabled={uploadingDoc === "limo_license"}
-                      className="w-full"
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
                       data-testid="button-upload-limo-license"
                     >
                       {uploadingDoc === "limo_license"
@@ -1118,29 +1140,35 @@ export default function DriverDashboard() {
                 </div>
 
                 {/* Insurance Certificate */}
-                <div className="space-y-4">
-                  <h4 className="font-semibold flex items-center justify-between">
-                    <span>Insurance Certificate</span>
+                <div className="bg-gradient-to-br from-purple-50 to-white p-6 rounded-2xl border border-purple-100 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-purple-200">
+                    <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-white" />
+                      </div>
+                      Insurance Certificate
+                    </h4>
                     {getDocumentByType("insurance_certificate") && (
                       <Badge
                         variant={getStatusBadgeVariant(
                           getDocumentByType("insurance_certificate")!.status,
                         )}
+                        className="font-medium"
                         data-testid="status-insurance"
                       >
                         {getDocumentByType("insurance_certificate")!.status}
                       </Badge>
                     )}
-                  </h4>
+                  </div>
 
                   {getDocumentByType("insurance_certificate") && (
-                    <div className="p-4 border rounded-lg bg-muted/50 space-y-2">
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-semibold text-gray-700">
                           Expiration Date:
                         </span>
                         <span
-                          className="text-sm"
+                          className="text-sm font-medium text-gray-900"
                           data-testid="expiry-insurance"
                         >
                           {getDocumentByType("insurance_certificate")!
@@ -1157,32 +1185,35 @@ export default function DriverDashboard() {
                         "rejected" &&
                         getDocumentByType("insurance_certificate")!
                           .rejectionReason && (
-                          <div className="text-sm text-red-600 mt-2">
-                            <strong>Rejection Reason:</strong>{" "}
-                            {
-                              getDocumentByType("insurance_certificate")!
-                                .rejectionReason
-                            }
+                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <p className="text-sm text-red-700">
+                              <strong className="font-semibold">Rejection Reason:</strong>{" "}
+                              {
+                                getDocumentByType("insurance_certificate")!
+                                  .rejectionReason
+                              }
+                            </p>
                           </div>
                         )}
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-gray-500 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
                         Uploaded:{" "}
                         {new Date(
                           getDocumentByType(
                             "insurance_certificate",
                           )!.uploadedAt,
-                        ).toLocaleString()}
+                        ).toLocaleDateString()}
                       </div>
                     </div>
                   )}
 
-                  <div className="space-y-3">
+                  <div className="space-y-4 pt-2">
                     <div>
-                      <Label htmlFor="insurance-file">
+                      <Label htmlFor="insurance-file" className="text-gray-700 font-medium mb-2">
                         {getDocumentByType("insurance_certificate")
                           ? "Re-upload Document"
                           : "Upload Document"}{" "}
-                        (PDF/Image, max 2MB)
+                        <span className="text-gray-500 font-normal">(PDF/Image, max 2MB)</span>
                       </Label>
                       <Input
                         id="insurance-file"
@@ -1197,11 +1228,12 @@ export default function DriverDashboard() {
                             },
                           }))
                         }
+                        className="mt-2 bg-white border-gray-300 hover:border-purple-400 transition-colors"
                         data-testid="input-insurance-file"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="insurance-expiry">Expiration Date</Label>
+                      <Label htmlFor="insurance-expiry" className="text-gray-700 font-medium mb-2">Expiration Date</Label>
                       <Input
                         id="insurance-expiry"
                         type="date"
@@ -1217,6 +1249,7 @@ export default function DriverDashboard() {
                             },
                           }))
                         }
+                        className="mt-2 bg-white border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                         data-testid="input-insurance-expiry"
                       />
                     </div>
@@ -1225,7 +1258,7 @@ export default function DriverDashboard() {
                         handleDocumentUpload("insurance_certificate")
                       }
                       disabled={uploadingDoc === "insurance_certificate"}
-                      className="w-full"
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
                       data-testid="button-upload-insurance"
                     >
                       {uploadingDoc === "insurance_certificate"
@@ -1238,26 +1271,29 @@ export default function DriverDashboard() {
                 </div>
 
                 {/* Vehicle Image */}
-                <div className="space-y-4">
-                  <h4 className="font-semibold flex items-center justify-between">
-                    <span className="flex items-center space-x-2">
-                      <Car className="w-4 h-4" />
-                      <span>Vehicle Image</span>
-                    </span>
+                <div className="bg-gradient-to-br from-orange-50 to-white p-6 rounded-2xl border border-orange-100 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-orange-200">
+                    <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center">
+                        <Car className="w-4 h-4 text-white" />
+                      </div>
+                      Vehicle Image
+                    </h4>
                     {getDocumentByType("vehicle_image") && (
                       <Badge
                         variant={getStatusBadgeVariant(
                           getDocumentByType("vehicle_image")!.status,
                         )}
+                        className="font-medium"
                         data-testid="status-vehicle-image"
                       >
                         {getDocumentByType("vehicle_image")!.status}
                       </Badge>
                     )}
-                  </h4>
+                  </div>
 
                   {getDocumentByType("vehicle_image") && (
-                    <div className="p-4 border rounded-lg bg-muted/50 space-y-2">
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">
                           Vehicle Plate:
