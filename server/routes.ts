@@ -198,6 +198,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user by ID (admin only - for fetching passenger email for invoices)
+  app.get('/api/users/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      // Verify admin access
+      const currentUserId = req.user.id;
+      const currentUser = await storage.getUser(currentUserId);
+      
+      if (!currentUser || currentUser.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+      
+      const { id } = req.params;
+      const user = await storage.getUser(id);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Return user data (safe fields only)
+      res.json({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+      });
+    } catch (error) {
+      console.error("Error fetching user by ID:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // Forgot password - send reset email
   app.post('/api/auth/forgot-password', async (req, res) => {
     try {
