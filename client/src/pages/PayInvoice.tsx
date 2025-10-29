@@ -63,29 +63,50 @@ const PaymentForm = ({ token, invoiceData }: { token: string; invoiceData: Invoi
     setIsProcessing(true);
 
     try {
-      const result = await stripe.confirmPayment({
+      // Determine return URL based on user authentication
+      const returnUrl = user 
+        ? `${window.location.origin}/passenger?payment=success`
+        : `${window.location.origin}/pay/${token}/success`;
+
+      const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
-        redirect: 'if_required' as any,
+        confirmParams: {
+          return_url: returnUrl,
+        },
+        redirect: 'if_required', // Only redirect if 3DS is needed
       });
 
-      if (result.error) {
+      // Handle errors
+      if (error) {
         toast({
           title: "Payment Failed",
-          description: result.error.message || "Payment could not be processed.",
+          description: error.message || "Payment could not be processed.",
           variant: "destructive",
         });
-      } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+        setIsProcessing(false);
+        return;
+      }
+
+      // Handle successful payment (non-3DS cards)
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
         toast({
           title: "Payment Successful!",
           description: "Your invoice has been paid successfully.",
         });
         
-        // Redirect to success page or passenger dashboard
+        // Redirect to success page
         if (user) {
           setLocation('/passenger?payment=success');
         } else {
           setLocation(`/pay/${token}/success`);
         }
+      } else if (paymentIntent) {
+        // Payment requires additional actions (3DS will redirect automatically)
+        // This case shouldn't happen often as redirect happens automatically
+        toast({
+          title: "Processing Payment",
+          description: "Please complete the authentication step.",
+        });
       }
     } catch (error) {
       toast({
@@ -93,7 +114,6 @@ const PaymentForm = ({ token, invoiceData }: { token: string; invoiceData: Invoi
         description: "An unexpected error occurred during payment processing.",
         variant: "destructive",
       });
-    } finally {
       setIsProcessing(false);
     }
   };
