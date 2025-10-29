@@ -49,6 +49,9 @@ import {
   type MediaFolder,
   type PasswordResetToken,
   type InsertPasswordResetToken,
+  paymentTokens,
+  type PaymentToken,
+  type InsertPaymentToken,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -213,6 +216,12 @@ export interface IStorage {
   createPasswordResetToken(data: InsertPasswordResetToken): Promise<PasswordResetToken>;
   getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
   markPasswordResetTokenAsUsed(token: string): Promise<void>;
+  
+  // Payment Tokens
+  createPaymentToken(data: InsertPaymentToken): Promise<PaymentToken>;
+  getPaymentToken(token: string): Promise<PaymentToken | undefined>;
+  markPaymentTokenAsUsed(token: string): Promise<void>;
+  cleanupExpiredPaymentTokens(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1598,6 +1607,28 @@ export class DatabaseStorage implements IStorage {
 
   async markPasswordResetTokenAsUsed(token: string): Promise<void> {
     await db.update(passwordResetTokens).set({ used: true }).where(eq(passwordResetTokens.token, token));
+  }
+  
+  // Payment Token Methods
+  async createPaymentToken(data: InsertPaymentToken): Promise<PaymentToken> {
+    const [token] = await db.insert(paymentTokens).values(data).returning();
+    return token;
+  }
+
+  async getPaymentToken(token: string): Promise<PaymentToken | undefined> {
+    const [paymentToken] = await db.select().from(paymentTokens).where(eq(paymentTokens.token, token));
+    return paymentToken;
+  }
+
+  async markPaymentTokenAsUsed(token: string): Promise<void> {
+    await db.update(paymentTokens).set({ 
+      used: true,
+      usedAt: new Date() 
+    }).where(eq(paymentTokens.token, token));
+  }
+  
+  async cleanupExpiredPaymentTokens(): Promise<void> {
+    await db.delete(paymentTokens).where(sql`${paymentTokens.expiresAt} < NOW()`);
   }
 }
 

@@ -6,6 +6,7 @@ import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, ins
 import { z } from "zod";
 import Stripe from "stripe";
 import multer from "multer";
+import crypto from "crypto";
 import { Client as ObjectStorageClient } from "@replit/object-storage";
 import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML } from "./email";
 import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS } from "./sms";
@@ -2012,6 +2013,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const passenger = await storage.getUser(booking.passengerId);
 
+      // Generate payment token for invoice payment link (24 hour expiration)
+      let paymentToken = '';
+      if (!invoice.paidAt) {
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 24);
+        
+        await storage.createPaymentToken({
+          invoiceId: invoice.id,
+          token: token,
+          expiresAt: expiresAt,
+        });
+        
+        paymentToken = token;
+      }
+
       // Get dynamic logo from object storage and convert to base64 for email embedding
       let logoDataUri = '';
       try {
@@ -2187,7 +2204,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 <!-- Payment Link -->
                 <div class="payment-link">
                   <p style="margin-bottom: 10px;">Click here to Make Payment</p>
-                  <a href="${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'https://your-domain.com'}" class="payment-button">Make Payment</a>
+                  <a href="${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'https://your-domain.com'}/pay/${paymentToken}" class="payment-button">Make Payment</a>
                 </div>
                 `}
 
@@ -2243,6 +2260,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Invoice backfill error:', error);
       res.status(500).json({ message: 'Failed to backfill invoices' });
+    }
+  });
+
+  // Payment token validation endpoint (public - no auth required)
+  app.get('/api/payment-tokens/:token', async (req, res) => {
+    try {
+      const { token } = req.params;
+      
+      const paymentToken = await storage.getPaymentToken(token);
+      
+      if (!paymentToken) {
+        return res.status(404).json({ 
+          valid: false,
+          message: 'Payment link not found or has expired' 
+        });
+      }
+
+      // Check if token is expired
+      if (new Date() > new Date(paymentToken.expiresAt)) {
+        return res.status(400).json({ 
+          valid: false,
+          message: 'Payment link has expired' 
+        });
+      }
+
+      // Check if token has been used
+      if (paymentToken.used) {
+        return res.status(400).json({ 
+          valid: false,
+          message: 'This payment link has already been used' 
+        });
+      }
+
+      // Get invoice and booking details
+      const invoice = await storage.getInvoice(paymentToken.invoiceId);
+      if (!invoice) {
+        return res.status(404).json({ 
+          valid: false,
+          message: 'Invoice not found' 
+        });
+      }
+
+      // Check if invoice is already paid
+      if (invoice.paidAt) {
+        return res.status(400).json({ 
+          valid: false,
+          message: 'This invoice has already been paid',
+          invoice 
+        });
+      }
+
+      const booking = await storage.getBooking(invoice.bookingId);
+      if (!booking) {
+        return res.status(404).json({ 
+          valid: false,
+          message: 'Booking not found' 
+        });
+      }
+
+      const passenger = await storage.getUser(booking.passengerId);
+
+      res.json({
+        valid: true,
+        invoice,
+        booking,
+        passenger,
+      });
+    } catch (error) {
+      console.error('Payment token validation error:', error);
+      res.status(500).json({ 
+        valid: false,
+        message: 'Failed to validate payment link' 
+      });
     }
   });
 
