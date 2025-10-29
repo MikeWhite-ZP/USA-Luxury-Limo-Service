@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { 
@@ -27,7 +29,11 @@ import {
   Filter,
   Zap,
   Star,
-  Navigation
+  Navigation,
+  MessageSquare,
+  Send,
+  Mail,
+  Phone
 } from "lucide-react";
 import { rankDrivers, formatMatchInfo, getBestDriver, type DriverWithExtras, type RankedDriver } from "@/lib/driverMatching";
 
@@ -37,11 +43,20 @@ export default function DispatcherDashboard() {
   const queryClient = useQueryClient();
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [fleetMonitorOpen, setFleetMonitorOpen] = useState(false);
+  const [communicationDialogOpen, setCommunicationDialogOpen] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [selectedDriverId, setSelectedDriverId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"time" | "match">("match");
+  
+  // Driver Communication state
+  const [messageType, setMessageType] = useState<"individual" | "broadcast">("individual");
+  const [selectedDriverForMessage, setSelectedDriverForMessage] = useState<string>("");
+  const [messageSubject, setMessageSubject] = useState<string>("");
+  const [messageText, setMessageText] = useState<string>("");
+  const [messagePriority, setMessagePriority] = useState<"normal" | "high" | "urgent">("normal");
+  const [deliveryMethod, setDeliveryMethod] = useState<"sms" | "email" | "both">("both");
 
   const { data: dashboardStats } = useQuery({
     queryKey: ["/api/dispatcher/stats"],
@@ -65,6 +80,13 @@ export default function DispatcherDashboard() {
   const { data: enhancedDrivers } = useQuery<DriverWithExtras[]>({
     queryKey: ['/api/admin/drivers/for-assignment', selectedBooking?.scheduledDateTime],
     enabled: assignDialogOpen && !!selectedBooking,
+    retry: false,
+  });
+
+  // Fetch driver messages history
+  const { data: driverMessages } = useQuery<any[]>({
+    queryKey: ['/api/driver-messages'],
+    enabled: communicationDialogOpen,
     retry: false,
   });
 
@@ -163,11 +185,87 @@ export default function DispatcherDashboard() {
     },
   });
 
+  // Send message mutation
+  const sendMessageMutation = useMutation({
+    mutationFn: async (data: {
+      driverId?: string;
+      messageType: string;
+      subject?: string;
+      message: string;
+      priority: string;
+      deliveryMethod: string;
+    }) => {
+      const response = await apiRequest('POST', '/api/driver-messages', data);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to send message');
+      }
+      return await response.json();
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/driver-messages'] });
+      setCommunicationDialogOpen(false);
+      setMessageType('individual');
+      setSelectedDriverForMessage('');
+      setMessageSubject('');
+      setMessageText('');
+      setMessagePriority('normal');
+      setDeliveryMethod('both');
+      
+      toast({
+        title: "Message Sent",
+        description: result.smsSent && result.emailSent 
+          ? "Message sent via SMS and email"
+          : result.smsSent 
+          ? "Message sent via SMS"
+          : result.emailSent
+          ? "Message sent via email"
+          : "Message queued for delivery",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to Send Message",
+        description: error.message || "Could not send message to driver(s)",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleAssignClick = () => {
     setAssignDialogOpen(true);
     setSearchQuery("");
     setVehicleTypeFilter("all");
     setSortBy("match");
+  };
+
+  const handleSendMessage = () => {
+    if (!messageText.trim()) {
+      toast({
+        title: "Message Required",
+        description: "Please enter a message to send",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (messageType === 'individual' && !selectedDriverForMessage) {
+      toast({
+        title: "Driver Required",
+        description: "Please select a driver to send the message to",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    sendMessageMutation.mutate({
+      driverId: messageType === 'individual' ? selectedDriverForMessage : undefined,
+      messageType,
+      subject: messageSubject,
+      message: messageText,
+      priority: messagePriority,
+      deliveryMethod,
+    });
   };
 
   const handleAssignSubmit = () => {
@@ -295,8 +393,8 @@ export default function DispatcherDashboard() {
     {
       title: "Driver Communication",
       description: "Send messages or alerts to drivers",
-      icon: <RadioIcon className="w-6 h-6" />,
-      action: () => console.log("Driver communication"),
+      icon: <MessageSquare className="w-6 h-6" />,
+      action: () => setCommunicationDialogOpen(true),
       color: "bg-purple-500"
     },
     {
@@ -996,6 +1094,234 @@ export default function DispatcherDashboard() {
               Close
             </Button>
           </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Driver Communication Dialog */}
+      <Dialog open={communicationDialogOpen} onOpenChange={setCommunicationDialogOpen}>
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-0 border border-slate-200 p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl max-w-2xl max-h-[90vh] overflow-hidden bg-white">
+          <DialogHeader className="bg-white px-6 py-5 border-b border-slate-200">
+            <DialogTitle className="text-2xl font-semibold text-slate-900 flex items-center gap-3">
+              <MessageSquare className="w-6 h-6 text-purple-600" />
+              Driver Communication
+            </DialogTitle>
+            <DialogDescription className="text-slate-600 text-sm mt-2">
+              Send messages or alerts to your driver team
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-slate-50">
+            <div className="space-y-5">
+              {/* Message Type */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Message Type</Label>
+                <Select value={messageType} onValueChange={(v) => setMessageType(v as "individual" | "broadcast")}>
+                  <SelectTrigger className="w-full bg-white" data-testid="select-message-type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">Individual Driver</SelectItem>
+                    <SelectItem value="broadcast">Broadcast to All Drivers</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Driver Selection (only for individual messages) */}
+              {messageType === 'individual' && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-slate-700">Select Driver</Label>
+                  <Select value={selectedDriverForMessage} onValueChange={setSelectedDriverForMessage}>
+                    <SelectTrigger className="w-full bg-white" data-testid="select-driver">
+                      <SelectValue placeholder="Choose a driver..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {activeDrivers.map((driver: any) => (
+                        <SelectItem key={driver.id} value={driver.id}>
+                          {driver.firstName} {driver.lastName} - {driver.email}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Subject */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Subject (optional)</Label>
+                <Input
+                  placeholder="Message subject..."
+                  value={messageSubject}
+                  onChange={(e) => setMessageSubject(e.target.value)}
+                  className="bg-white"
+                  data-testid="input-subject"
+                />
+              </div>
+
+              {/* Message */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Message *</Label>
+                <Textarea
+                  placeholder="Type your message here..."
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  className="min-h-[120px] bg-white"
+                  data-testid="textarea-message"
+                />
+              </div>
+
+              {/* Priority */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Priority</Label>
+                <Select value={messagePriority} onValueChange={(v) => setMessagePriority(v as "normal" | "high" | "urgent")}>
+                  <SelectTrigger className="w-full bg-white" data-testid="select-priority">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Delivery Method */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Delivery Method</Label>
+                <Select value={deliveryMethod} onValueChange={(v) => setDeliveryMethod(v as "sms" | "email" | "both")}>
+                  <SelectTrigger className="w-full bg-white" data-testid="select-delivery-method">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="both">
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        <Phone className="w-4 h-4" />
+                        <span>Email & SMS</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="email">
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        <span>Email Only</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="sms">
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-4 h-4" />
+                        <span>SMS Only</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Preview/Info */}
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-blue-900">
+                    <p className="font-medium mb-1">Sending to:</p>
+                    <p>
+                      {messageType === 'broadcast' 
+                        ? `All active drivers (${activeDrivers.length} drivers)` 
+                        : selectedDriverForMessage 
+                        ? activeDrivers.find((d: any) => d.id === selectedDriverForMessage)?.firstName + ' ' + activeDrivers.find((d: any) => d.id === selectedDriverForMessage)?.lastName
+                        : 'No driver selected'
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Message History */}
+              <div className="mt-8 pt-6 border-t border-slate-200">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent Messages</h3>
+                <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                  {!driverMessages || driverMessages.length === 0 ? (
+                    <div className="text-center p-8 border rounded-lg bg-white">
+                      <MessageSquare className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                      <p className="text-sm text-slate-500">No messages sent yet</p>
+                    </div>
+                  ) : (
+                    driverMessages.map((msg: any) => (
+                      <Card key={msg.id} className="bg-white">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Badge variant={msg.messageType === 'broadcast' ? 'default' : 'secondary'} className="text-xs">
+                                  {msg.messageType}
+                                </Badge>
+                                <Badge 
+                                  variant="outline" 
+                                  className={`text-xs ${
+                                    msg.priority === 'urgent' ? 'border-red-500 text-red-700' :
+                                    msg.priority === 'high' ? 'border-orange-500 text-orange-700' :
+                                    'border-slate-300 text-slate-600'
+                                  }`}
+                                >
+                                  {msg.priority}
+                                </Badge>
+                              </div>
+                              {msg.subject && (
+                                <p className="font-medium text-sm text-slate-900 mb-1">{msg.subject}</p>
+                              )}
+                              <p className="text-sm text-slate-600 line-clamp-2">{msg.message}</p>
+                            </div>
+                            <Badge 
+                              className={`ml-3 ${
+                                msg.status === 'sent' || msg.status === 'delivered' ? 'bg-green-100 text-green-700' :
+                                msg.status === 'failed' ? 'bg-red-100 text-red-700' :
+                                'bg-slate-100 text-slate-700'
+                              }`}
+                            >
+                              {msg.status}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-4 text-xs text-slate-500 mt-2">
+                            <div className="flex items-center gap-1">
+                              {msg.deliveryMethod === 'both' ? (
+                                <>
+                                  <Mail className="w-3 h-3" />
+                                  <Phone className="w-3 h-3" />
+                                </>
+                              ) : msg.deliveryMethod === 'email' ? (
+                                <Mail className="w-3 h-3" />
+                              ) : (
+                                <Phone className="w-3 h-3" />
+                              )}
+                              <span>{msg.deliveryMethod}</span>
+                            </div>
+                            <span>•</span>
+                            <span>{new Date(msg.createdAt).toLocaleString()}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-4 pt-6 border-t border-slate-200 bg-white px-6 py-4">
+            <Button
+              variant="outline"
+              onClick={() => setCommunicationDialogOpen(false)}
+              className="px-6 border-slate-300 hover:bg-slate-100 text-slate-700"
+              data-testid="button-cancel-communication"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSendMessage}
+              disabled={sendMessageMutation.isPending}
+              className="px-6 bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+              data-testid="button-send-message"
+            >
+              <Send className="w-4 h-4" />
+              {sendMessageMutation.isPending ? 'Sending...' : 'Send Message'}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
