@@ -61,6 +61,7 @@ interface DashboardStats {
   totalRevenue: string;
   monthlyRevenue: string;
   totalCommission: string;
+  monthlyCommission: string;
   activeBookings: number;
   totalDrivers: number;
   activeDrivers: number;
@@ -3498,10 +3499,22 @@ export default function AdminDashboard() {
             <CardContent className="p-7">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-400 mb-2">Total Commission</p>
-                  <p className="text-4xl font-bold text-white tracking-tight" data-testid="total-commission">
-                    ${statsLoading ? "..." : parseFloat(stats?.totalCommission || "0").toFixed(2)}
-                  </p>
+                  <p className="text-sm font-medium text-slate-400 mb-3">Commission</p>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">This Month</p>
+                      <p className="text-3xl font-bold text-white tracking-tight" data-testid="monthly-commission">
+                        ${statsLoading ? "..." : parseFloat(stats?.monthlyCommission || "0").toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="h-px bg-slate-700/50" />
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">All Time</p>
+                      <p className="text-2xl font-semibold text-slate-300 tracking-tight" data-testid="total-commission">
+                        ${statsLoading ? "..." : parseFloat(stats?.totalCommission || "0").toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/10 ring-1 ring-purple-500/20">
                   <DollarSign className="h-6 w-6 text-purple-400" />

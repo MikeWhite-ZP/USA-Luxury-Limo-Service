@@ -849,6 +849,7 @@ export class DatabaseStorage implements IStorage {
     totalRevenue: string;
     monthlyRevenue: string;
     totalCommission: string;
+    monthlyCommission: string;
     activeBookings: number;
     totalDrivers: number;
     activeDrivers: number;
@@ -910,6 +911,9 @@ export class DatabaseStorage implements IStorage {
       const growth = ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100;
       revenueGrowth = growth.toFixed(1);
     }
+
+    // Calculate monthly commission based on current month revenue
+    const monthlyCommission = (currentMonthRevenue * (commissionPercentage / 100)).toFixed(2);
 
     // Active bookings count
     const [activeBookingsResult] = await db
@@ -1039,6 +1043,7 @@ export class DatabaseStorage implements IStorage {
       totalRevenue: revenueResult?.total || '0',
       monthlyRevenue: currentMonthRevenueResult?.total || '0',
       totalCommission,
+      monthlyCommission,
       activeBookings: activeBookingsResult?.count || 0,
       totalDrivers: totalDriversResult?.count || 0,
       activeDrivers: activeDriversResult?.count || 0,
