@@ -112,10 +112,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl">
                 <DropdownMenuItem 
                   onClick={() => {
-                    if (location !== '/admin-dashboard') {
-                      setLocation('/admin-dashboard');
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onCredentialsClick?.('api');
+                    } else {
+                      setLocation('/admin#credentials-api');
                     }
-                    setTimeout(() => onCredentialsClick?.('api'), 100);
                   }}
                   className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-api-credentials"
@@ -125,10 +126,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
-                    if (location !== '/admin-dashboard') {
-                      setLocation('/admin-dashboard');
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onCredentialsClick?.('payment');
+                    } else {
+                      setLocation('/admin#credentials-payment');
                     }
-                    setTimeout(() => onCredentialsClick?.('payment'), 100);
                   }}
                   className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-payment-systems"
@@ -155,10 +157,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl">
                 <DropdownMenuItem 
                   onClick={() => {
-                    if (location !== '/admin-dashboard') {
-                      setLocation('/admin-dashboard');
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onUserManagerClick?.('all');
+                    } else {
+                      setLocation('/admin#users-all');
                     }
-                    setTimeout(() => onUserManagerClick?.('all'), 100);
                   }}
                   className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-all-users"
@@ -169,10 +172,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={() => {
-                    if (location !== '/admin-dashboard') {
-                      setLocation('/admin-dashboard');
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onUserManagerClick?.('passenger');
+                    } else {
+                      setLocation('/admin#users-passenger');
                     }
-                    setTimeout(() => onUserManagerClick?.('passenger'), 100);
                   }}
                   className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-passengers"
@@ -182,10 +186,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
-                    if (location !== '/admin-dashboard') {
-                      setLocation('/admin-dashboard');
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onUserManagerClick?.('driver');
+                    } else {
+                      setLocation('/admin#users-driver');
                     }
-                    setTimeout(() => onUserManagerClick?.('driver'), 100);
                   }}
                   className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-drivers"
@@ -195,10 +200,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
-                    if (location !== '/admin-dashboard') {
-                      setLocation('/admin-dashboard');
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onUserManagerClick?.('dispatcher');
+                    } else {
+                      setLocation('/admin#users-dispatcher');
                     }
-                    setTimeout(() => onUserManagerClick?.('dispatcher'), 100);
                   }}
                   className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-dispatchers"
@@ -208,10 +214,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
-                    if (location !== '/admin-dashboard') {
-                      setLocation('/admin-dashboard');
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onUserManagerClick?.('admin');
+                    } else {
+                      setLocation('/admin#users-admin');
                     }
-                    setTimeout(() => onUserManagerClick?.('admin'), 100);
                   }}
                   className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-admins"
@@ -238,10 +245,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl">
                 <DropdownMenuItem 
                   onClick={() => {
-                    if (location !== '/admin-dashboard') {
-                      setLocation('/admin-dashboard');
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onSettingsClick?.('commission');
+                    } else {
+                      setLocation('/admin#settings-commission');
                     }
-                    setTimeout(() => onSettingsClick?.('commission'), 100);
                   }}
                   className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-system-commission"
@@ -251,10 +259,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
-                    if (location !== '/admin-dashboard') {
-                      setLocation('/admin-dashboard');
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onSettingsClick?.('email');
+                    } else {
+                      setLocation('/admin#settings-email');
                     }
-                    setTimeout(() => onSettingsClick?.('email'), 100);
                   }}
                   className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-email-settings"
@@ -264,10 +273,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
-                    if (location !== '/admin-dashboard') {
-                      setLocation('/admin-dashboard');
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onSettingsClick?.('sms');
+                    } else {
+                      setLocation('/admin#settings-sms');
                     }
-                    setTimeout(() => onSettingsClick?.('sms'), 100);
                   }}
                   className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-sms-settings"
@@ -294,10 +304,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl">
                 <DropdownMenuItem 
                   onClick={() => {
-                    if (location !== '/admin-dashboard') {
-                      setLocation('/admin-dashboard');
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onCMSClick?.('pages');
+                    } else {
+                      setLocation('/admin#cms-pages');
                     }
-                    setTimeout(() => onCMSClick?.('pages'), 100);
                   }}
                   className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-cms-pages"
@@ -307,10 +318,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
-                    if (location !== '/admin-dashboard') {
-                      setLocation('/admin-dashboard');
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onCMSClick?.('media');
+                    } else {
+                      setLocation('/admin#cms-media');
                     }
-                    setTimeout(() => onCMSClick?.('media'), 100);
                   }}
                   className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-cms-media"
@@ -326,10 +338,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               size="sm"
               className="text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
               onClick={() => {
-                if (location !== '/admin-dashboard') {
-                  setLocation('/admin-dashboard');
+                if (location === '/admin' || location === '/admin-dashboard') {
+                  onBookingsClick?.();
+                } else {
+                  setLocation('/admin#bookings');
                 }
-                setTimeout(() => onBookingsClick?.(), 100);
               }}
               data-testid="nav-bookings"
             >
@@ -342,10 +355,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               size="sm"
               className="text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
               onClick={() => {
-                if (location !== '/admin-dashboard') {
-                  setLocation('/admin-dashboard');
+                if (location === '/admin' || location === '/admin-dashboard') {
+                  onInvoicesClick?.();
+                } else {
+                  setLocation('/admin#invoices');
                 }
-                setTimeout(() => onInvoicesClick?.(), 100);
               }}
               data-testid="nav-invoices"
             >

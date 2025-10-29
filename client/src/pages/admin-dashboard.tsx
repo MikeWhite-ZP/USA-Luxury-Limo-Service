@@ -1677,6 +1677,87 @@ export default function AdminDashboard() {
     }
   }, [isAuthenticated, user, isLoading, toast]);
 
+  // Handle hash-based navigation for direct links from other pages
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'admin') return;
+    
+    const hash = window.location.hash.substring(1); // Remove the #
+    if (!hash) return;
+
+    // Parse the hash (format: section-subsection)
+    const [section, subsection] = hash.split('-');
+
+    // Trigger the appropriate section based on hash
+    setTimeout(() => {
+      if (section === 'credentials') {
+        setVisibleCredentialsSection(subsection as 'api' | 'payment');
+        setVisibleSettingsSection(null);
+        setVisibleCMSSection(null);
+        setShowUserManager(false);
+        setShowBookings(false);
+        setShowInvoices(false);
+        setTimeout(() => {
+          const targetId = subsection === 'api' ? 'credentials-section' : 'payment-section';
+          document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else if (section === 'users') {
+        setSelectedUserType(subsection as 'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin');
+        setShowUserManager(true);
+        setVisibleCredentialsSection(null);
+        setVisibleSettingsSection(null);
+        setVisibleCMSSection(null);
+        setShowBookings(false);
+        setShowInvoices(false);
+        setTimeout(() => {
+          document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else if (section === 'settings') {
+        setVisibleSettingsSection(subsection as 'commission' | 'email' | 'sms');
+        setVisibleCredentialsSection(null);
+        setVisibleCMSSection(null);
+        setShowUserManager(false);
+        setShowBookings(false);
+        setShowInvoices(false);
+        setTimeout(() => {
+          document.getElementById('settings-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else if (section === 'cms') {
+        setVisibleCMSSection(subsection as 'pages' | 'media');
+        setVisibleCredentialsSection(null);
+        setVisibleSettingsSection(null);
+        setShowUserManager(false);
+        setShowBookings(false);
+        setShowInvoices(false);
+        setTimeout(() => {
+          document.getElementById('cms-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else if (section === 'bookings') {
+        setShowBookings(true);
+        setVisibleCredentialsSection(null);
+        setVisibleSettingsSection(null);
+        setVisibleCMSSection(null);
+        setShowUserManager(false);
+        setShowInvoices(false);
+        setTimeout(() => {
+          document.getElementById('bookings-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else if (section === 'invoices') {
+        setShowInvoices(true);
+        setVisibleCredentialsSection(null);
+        setVisibleSettingsSection(null);
+        setVisibleCMSSection(null);
+        setShowUserManager(false);
+        setShowBookings(false);
+        setTimeout(() => {
+          document.getElementById('invoices-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+
+      // Clear the hash after processing
+      window.history.replaceState(null, '', window.location.pathname);
+    }, 100);
+  }, [isAuthenticated, user]);
+
   // Fetch existing system settings
   const { data: settingsData } = useQuery<{
     credentials: Array<{
