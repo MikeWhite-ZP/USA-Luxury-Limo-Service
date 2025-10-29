@@ -48,6 +48,7 @@ import {
   Mail,
   Eye,
   Printer,
+  Receipt,
 } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
@@ -1082,7 +1083,7 @@ function InvoiceManagement() {
             data-testid="button-backfill-invoices"
           >
             <FileText className="w-4 h-4" />
-            Backfill Missing
+            Backfill Missing Invoices
           </Button>
 
           {/* Search Bar */}
@@ -5927,14 +5928,27 @@ export default function AdminDashboard() {
 
         {/* Invoice Management Section */}
         {showInvoices && (
-          <Card id="invoices-section">
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold">Invoice Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <InvoiceManagement />
-            </CardContent>
-          </Card>
+          <div id="invoices-section" className="space-y-6">
+            {/* Modern Header */}
+            <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-lg shadow-md">
+                  <Receipt className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Invoice Management</h2>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Create, manage, and track all customer invoices</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Content */}
+            <Card className="border-slate-200 dark:border-slate-700 shadow-sm">
+              <CardContent className="p-6">
+                <InvoiceManagement />
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
       {/* Payment Configuration Dialog */}

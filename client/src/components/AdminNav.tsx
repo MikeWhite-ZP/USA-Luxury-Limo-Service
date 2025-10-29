@@ -5,6 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   Key,
@@ -21,6 +22,7 @@ import {
   FileText,
   Image,
   Receipt,
+  LayoutDashboard,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -46,23 +48,47 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
   };
 
   return (
-    <header className="bg-primary text-primary-foreground sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold" data-testid="admin-header">
-            USA Luxury Limo - Admin Portal
-          </h1>
+    <header className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white sticky top-0 z-50 shadow-lg border-b border-slate-700">
+      <div className="max-w-7xl mx-auto">
+        {/* Top Bar */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/50">
+          <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-2 rounded-lg shadow-md">
+              <LayoutDashboard className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight" data-testid="admin-header">
+                USA Luxury Limo
+              </h1>
+              <p className="text-xs text-slate-400 font-medium">Admin Portal</p>
+            </div>
+          </div>
+          
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-200"
+            onClick={handleLogout}
+            disabled={logoutMutation.isPending}
+            data-testid="nav-logout"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
+          </Button>
         </div>
-      </div>
-      <div className="border-t border-white/20 text-[12px]">
-        <div className="max-w-7xl mx-auto px-6">
-          <nav className="flex space-x-1" data-testid="admin-nav">
+
+        {/* Navigation Bar */}
+        <div className="px-6">
+          <nav className="flex items-center gap-1 -mb-px" data-testid="admin-nav">
             <Link href="/admin-pricing">
               <Button 
                 variant="ghost" 
-                className={`text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 ${
-                  location === '/admin-pricing' ? 'border-white' : 'border-transparent'
-                } hover:border-white/50`}
+                size="sm"
+                className={`relative text-sm font-medium transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5 ${
+                  location === '/admin-pricing' 
+                    ? 'bg-slate-700/50 text-white border-b-2 border-blue-500' 
+                    : 'text-slate-300 hover:text-white hover:bg-slate-700/30'
+                }`}
                 data-testid="nav-pricing"
               >
                 <DollarSign className="w-4 h-4 mr-2" />
@@ -74,15 +100,16 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:text-accent-foreground h-10 px-4 py-2 text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50 text-[12px]"
+                  size="sm"
+                  className="text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
                   data-testid="nav-credentials"
                 >
                   <Key className="w-4 h-4 mr-2" />
                   Credentials
-                  <ChevronDown className="w-4 h-4 ml-1" />
+                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="bg-[#ffffff]">
+              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl">
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
@@ -90,11 +117,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     setTimeout(() => onCredentialsClick?.('api'), 100);
                   }}
-                  className="hover:bg-black hover:text-white cursor-pointer"
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-api-credentials"
                 >
-                  <Key className="w-4 h-4 mr-2" />
-                  API Credentials
+                  <Key className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">API Credentials</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -103,11 +130,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     setTimeout(() => onCredentialsClick?.('payment'), 100);
                   }}
-                  className="hover:bg-black hover:text-white cursor-pointer"
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-payment-systems"
                 >
-                  <DollarSign className="w-4 h-4 mr-2" />
-                  Payment Systems
+                  <DollarSign className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Payment Systems</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -116,15 +143,16 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                  size="sm"
+                  className="text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
                   data-testid="nav-user-manager"
                 >
                   <Users className="w-4 h-4 mr-2" />
-                  User Manager
-                  <ChevronDown className="w-4 h-4 ml-1" />
+                  Users
+                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="bg-[#ffffff]">
+              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl">
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
@@ -132,12 +160,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     setTimeout(() => onUserManagerClick?.('all'), 100);
                   }}
-                  className="hover:bg-black hover:text-white cursor-pointer"
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-all-users"
                 >
-                  <Users className="w-4 h-4 mr-2" />
-                  All Users
+                  <Users className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">All Users</span>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
@@ -145,11 +174,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     setTimeout(() => onUserManagerClick?.('passenger'), 100);
                   }}
-                  className="hover:bg-black hover:text-white cursor-pointer"
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-passengers"
                 >
-                  <Users className="w-4 h-4 mr-2" />
-                  Passengers
+                  <Users className="w-4 h-4 mr-3 text-blue-500" />
+                  <span className="font-medium">Passengers</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -158,11 +187,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     setTimeout(() => onUserManagerClick?.('driver'), 100);
                   }}
-                  className="hover:bg-black hover:text-white cursor-pointer"
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-drivers"
                 >
-                  <Car className="w-4 h-4 mr-2" />
-                  Drivers
+                  <Car className="w-4 h-4 mr-3 text-green-500" />
+                  <span className="font-medium">Drivers</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -171,11 +200,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     setTimeout(() => onUserManagerClick?.('dispatcher'), 100);
                   }}
-                  className="hover:bg-black hover:text-white cursor-pointer"
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-dispatchers"
                 >
-                  <SettingsIcon className="w-4 h-4 mr-2" />
-                  Dispatchers
+                  <SettingsIcon className="w-4 h-4 mr-3 text-purple-500" />
+                  <span className="font-medium">Dispatchers</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -184,11 +213,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     setTimeout(() => onUserManagerClick?.('admin'), 100);
                   }}
-                  className="hover:bg-black hover:text-white cursor-pointer"
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-admins"
                 >
-                  <Star className="w-4 h-4 mr-2" />
-                  Admins
+                  <Star className="w-4 h-4 mr-3 text-yellow-500" />
+                  <span className="font-medium">Admins</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -197,15 +226,16 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                  size="sm"
+                  className="text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
                   data-testid="nav-settings"
                 >
                   <SettingsIcon className="w-4 h-4 mr-2" />
                   Settings
-                  <ChevronDown className="w-4 h-4 ml-1" />
+                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="bg-[#ffffff]">
+              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl">
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
@@ -213,11 +243,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     setTimeout(() => onSettingsClick?.('commission'), 100);
                   }}
-                  className="hover:bg-black hover:text-white cursor-pointer"
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-system-commission"
                 >
-                  <Percent className="w-4 h-4 mr-2" />
-                  System Commission
+                  <Percent className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">System Commission</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -226,11 +256,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     setTimeout(() => onSettingsClick?.('email'), 100);
                   }}
-                  className="hover:bg-black hover:text-white cursor-pointer"
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-email-settings"
                 >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Email Settings
+                  <Mail className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Email Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -239,11 +269,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     setTimeout(() => onSettingsClick?.('sms'), 100);
                   }}
-                  className="hover:bg-black hover:text-white cursor-pointer"
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-sms-settings"
                 >
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  SMS Notifications
+                  <MessageSquare className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">SMS Notifications</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -252,15 +282,16 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+                  size="sm"
+                  className="text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
                   data-testid="nav-cms"
                 >
                   <FileText className="w-4 h-4 mr-2" />
                   CMS
-                  <ChevronDown className="w-4 h-4 ml-1" />
+                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="bg-[#ffffff]">
+              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl">
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location !== '/admin-dashboard') {
@@ -268,11 +299,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     setTimeout(() => onCMSClick?.('pages'), 100);
                   }}
-                  className="hover:bg-black hover:text-white cursor-pointer"
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-cms-pages"
                 >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Pages
+                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Pages</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -281,18 +312,19 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                     }
                     setTimeout(() => onCMSClick?.('media'), 100);
                   }}
-                  className="hover:bg-black hover:text-white cursor-pointer"
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
                   data-testid="nav-cms-media"
                 >
-                  <Image className="w-4 h-4 mr-2" />
-                  Media & Images
+                  <Image className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Media & Images</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             
             <Button 
               variant="ghost" 
-              className="text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+              size="sm"
+              className="text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
               onClick={() => {
                 if (location !== '/admin-dashboard') {
                   setLocation('/admin-dashboard');
@@ -307,7 +339,8 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
             
             <Button 
               variant="ghost" 
-              className="text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
+              size="sm"
+              className="text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
               onClick={() => {
                 if (location !== '/admin-dashboard') {
                   setLocation('/admin-dashboard');
@@ -318,19 +351,6 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
             >
               <Receipt className="w-4 h-4 mr-2" />
               Invoices
-            </Button>
-            
-            <div className="flex-grow" />
-            
-            <Button 
-              variant="ghost" 
-              className="text-[12px] text-primary-foreground hover:bg-white/10 rounded-none border-b-2 border-transparent hover:border-white/50"
-              onClick={handleLogout}
-              disabled={logoutMutation.isPending}
-              data-testid="nav-logout"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
             </Button>
           </nav>
         </div>
