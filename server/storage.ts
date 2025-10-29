@@ -52,6 +52,9 @@ import {
   paymentTokens,
   type PaymentToken,
   type InsertPaymentToken,
+  driverMessages,
+  type DriverMessage,
+  type InsertDriverMessage,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -222,6 +225,12 @@ export interface IStorage {
   getPaymentToken(token: string): Promise<PaymentToken | undefined>;
   markPaymentTokenAsUsed(token: string): Promise<void>;
   cleanupExpiredPaymentTokens(): Promise<void>;
+  
+  // Driver Messages
+  createDriverMessage(message: InsertDriverMessage): Promise<DriverMessage>;
+  getDriverMessages(driverId?: string): Promise<DriverMessage[]>;
+  getDriverMessage(id: string): Promise<DriverMessage | undefined>;
+  updateDriverMessageStatus(id: string, status: string, sentAt?: Date, deliveredAt?: Date, errorMessage?: string): Promise<DriverMessage | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1634,6 +1643,49 @@ export class DatabaseStorage implements IStorage {
   
   async cleanupExpiredPaymentTokens(): Promise<void> {
     await db.delete(paymentTokens).where(sql`${paymentTokens.expiresAt} < NOW()`);
+  }
+  
+  // Driver Messages Methods
+  async createDriverMessage(message: InsertDriverMessage): Promise<DriverMessage> {
+    const [result] = await db.insert(driverMessages).values({
+      ...message,
+      createdAt: new Date(),
+    }).returning();
+    return result;
+  }
+
+  async getDriverMessages(driverId?: string): Promise<DriverMessage[]> {
+    if (driverId) {
+      return await db.select().from(driverMessages)
+        .where(eq(driverMessages.driverId, driverId))
+        .orderBy(desc(driverMessages.createdAt));
+    }
+    return await db.select().from(driverMessages).orderBy(desc(driverMessages.createdAt));
+  }
+
+  async getDriverMessage(id: string): Promise<DriverMessage | undefined> {
+    const [message] = await db.select().from(driverMessages).where(eq(driverMessages.id, id));
+    return message;
+  }
+
+  async updateDriverMessageStatus(
+    id: string, 
+    status: string, 
+    sentAt?: Date, 
+    deliveredAt?: Date, 
+    errorMessage?: string
+  ): Promise<DriverMessage | undefined> {
+    const updates: any = { status };
+    if (sentAt) updates.sentAt = sentAt;
+    if (deliveredAt) updates.deliveredAt = deliveredAt;
+    if (errorMessage) updates.errorMessage = errorMessage;
+    
+    const [result] = await db
+      .update(driverMessages)
+      .set(updates)
+      .where(eq(driverMessages.id, id))
+      .returning();
+    return result;
   }
 }
 

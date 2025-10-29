@@ -636,6 +636,32 @@ export const insertPasswordResetTokenSchema = createInsertSchema(passwordResetTo
   createdAt: true,
 });
 
+// Driver communications/messages
+export const driverMessages = pgTable("driver_messages", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  senderId: varchar("sender_id").references(() => users.id).notNull(),
+  driverId: varchar("driver_id").references(() => users.id),
+  messageType: varchar("message_type", { enum: ["individual", "broadcast", "alert"] }).default("individual").notNull(),
+  subject: varchar("subject"),
+  message: text("message").notNull(),
+  priority: varchar("priority", { enum: ["normal", "high", "urgent"] }).default("normal"),
+  deliveryMethod: varchar("delivery_method", { enum: ["sms", "email", "both"] }).default("both").notNull(),
+  status: varchar("status", { enum: ["pending", "sent", "delivered", "failed"] }).default("pending"),
+  sentAt: timestamp("sent_at"),
+  deliveredAt: timestamp("delivered_at"),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertDriverMessageSchema = createInsertSchema(driverMessages).omit({
+  id: true,
+  createdAt: true,
+  status: true,
+  sentAt: true,
+  deliveredAt: true,
+  errorMessage: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -672,3 +698,5 @@ export type CmsContent = typeof cmsContent.$inferSelect;
 export type InsertCmsContent = z.infer<typeof insertCmsContentSchema>;
 export type CmsMedia = typeof cmsMedia.$inferSelect;
 export type InsertCmsMedia = z.infer<typeof insertCmsMediaSchema>;
+export type DriverMessage = typeof driverMessages.$inferSelect;
+export type InsertDriverMessage = z.infer<typeof insertDriverMessageSchema>;
