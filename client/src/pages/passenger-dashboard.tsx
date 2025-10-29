@@ -1295,7 +1295,7 @@ export default function PassengerDashboard() {
               Recent Bookings
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="text-[#c2c2c2]">
             {bookingsLoading ? (
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
