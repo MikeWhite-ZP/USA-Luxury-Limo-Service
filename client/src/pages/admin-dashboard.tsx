@@ -46,6 +46,8 @@ import {
   Search,
   Image,
   Mail,
+  Eye,
+  Printer,
 } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
@@ -1070,115 +1072,172 @@ function InvoiceManagement() {
 
   return (
     <>
-      {/* Action Bar */}
-      <div className="mb-6 flex items-center justify-between">
+      {/* Header with Action Bar */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Invoices</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage and track all customer invoices
+            </p>
+          </div>
+          <Button
+            onClick={() => setBackfillDialogOpen(true)}
+            variant="outline"
+            className="gap-2"
+            data-testid="button-backfill-invoices"
+          >
+            <FileText className="w-4 h-4" />
+            Backfill Missing
+          </Button>
+        </div>
+
         {/* Search Bar */}
-        <div className="flex items-center gap-2 flex-1 max-w-md">
-          <Search className="w-4 h-4 text-muted-foreground" />
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search by invoice number or booking ID..."
+            placeholder="Search invoices..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
             data-testid="input-invoice-search"
           />
         </div>
-        
-        {/* Backfill Button */}
-        <Button
-          onClick={() => setBackfillDialogOpen(true)}
-          variant="outline"
-          data-testid="button-backfill-invoices"
-        >
-          <FileText className="w-4 h-4 mr-2" />
-          Backfill Missing Invoices
-        </Button>
       </div>
 
-      {/* Invoices Table */}
-      <div className="border rounded-lg overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-muted">
-            <tr>
-              <th className="text-left p-3 font-semibold">Invoice #</th>
-              <th className="text-left p-3 font-semibold">Date</th>
-              <th className="text-left p-3 font-semibold">Booking ID</th>
-              <th className="text-right p-3 font-semibold">Amount</th>
-              <th className="text-center p-3 font-semibold">Status</th>
-              <th className="text-center p-3 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredInvoices && filteredInvoices.length > 0 ? (
-              filteredInvoices.map((invoice) => (
-                <tr key={invoice.id} className="border-t hover:bg-muted/50" data-testid={`invoice-row-${invoice.id}`}>
-                  <td className="p-3">{invoice.invoiceNumber}</td>
-                  <td className="p-3">{new Date(invoice.createdAt).toLocaleDateString()}</td>
-                  <td className="p-3 font-mono text-sm" data-testid={`booking-id-${invoice.id}`}>#{invoice.bookingId.toUpperCase().substring(0, 8)}</td>
-                  <td className="p-3 text-right font-semibold">${parseFloat(invoice.totalAmount).toFixed(2)}</td>
-                  <td className="p-3 text-center">
-                    <Badge variant={invoice.paidAt ? "default" : "secondary"} data-testid={`invoice-status-${invoice.id}`}>
+      {/* Invoices Grid */}
+      <div className="space-y-3">
+        {/* Table Header - Hidden on mobile */}
+        <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-muted/50 rounded-lg text-sm font-medium text-muted-foreground">
+          <div className="col-span-2">Invoice</div>
+          <div className="col-span-2">Date</div>
+          <div className="col-span-2">Booking ID</div>
+          <div className="col-span-2 text-right">Amount</div>
+          <div className="col-span-1 text-center">Status</div>
+          <div className="col-span-3 text-right">Actions</div>
+        </div>
+
+        {/* Invoice Cards */}
+        {filteredInvoices && filteredInvoices.length > 0 ? (
+          filteredInvoices.map((invoice) => (
+            <Card key={invoice.id} className="hover:shadow-md transition-shadow" data-testid={`invoice-row-${invoice.id}`}>
+              <CardContent className="p-6">
+                <div className="grid md:grid-cols-12 gap-4 items-center">
+                  {/* Invoice Number */}
+                  <div className="col-span-12 md:col-span-2">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-primary hidden md:block" />
+                      <div>
+                        <p className="text-xs text-muted-foreground md:hidden">Invoice</p>
+                        <p className="font-semibold">{invoice.invoiceNumber}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Date */}
+                  <div className="col-span-6 md:col-span-2">
+                    <p className="text-xs text-muted-foreground md:hidden">Date</p>
+                    <p className="text-sm">{new Date(invoice.createdAt).toLocaleDateString()}</p>
+                  </div>
+
+                  {/* Booking ID */}
+                  <div className="col-span-6 md:col-span-2">
+                    <p className="text-xs text-muted-foreground md:hidden">Booking</p>
+                    <p className="font-mono text-sm text-muted-foreground" data-testid={`booking-id-${invoice.id}`}>
+                      #{invoice.bookingId.toUpperCase().substring(0, 8)}
+                    </p>
+                  </div>
+
+                  {/* Amount */}
+                  <div className="col-span-6 md:col-span-2 md:text-right">
+                    <p className="text-xs text-muted-foreground md:hidden">Amount</p>
+                    <p className="text-lg font-bold">${parseFloat(invoice.totalAmount).toFixed(2)}</p>
+                  </div>
+
+                  {/* Status */}
+                  <div className="col-span-6 md:col-span-1 md:text-center">
+                    <Badge 
+                      variant={invoice.paidAt ? "default" : "secondary"}
+                      className={invoice.paidAt ? "bg-green-500 hover:bg-green-600" : ""}
+                      data-testid={`invoice-status-${invoice.id}`}
+                    >
                       {invoice.paidAt ? "Paid" : "Unpaid"}
                     </Badge>
-                  </td>
-                  <td className="p-3">
-                    <div className="flex items-center justify-center gap-2">
+                  </div>
+
+                  {/* Actions */}
+                  <div className="col-span-12 md:col-span-3">
+                    <div className="flex items-center justify-start md:justify-end gap-1 flex-wrap">
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => handleView(invoice)}
+                        className="h-8"
                         data-testid={`button-view-${invoice.id}`}
                       >
+                        <Eye className="w-3.5 h-3.5 mr-1.5" />
                         View
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => handlePrint(invoice)}
+                        className="h-8"
                         data-testid={`button-print-${invoice.id}`}
                       >
+                        <Printer className="w-3.5 h-3.5 mr-1.5" />
                         Print
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => handleEmail(invoice)}
                         disabled={isLoadingEmail}
+                        className="h-8"
                         data-testid={`button-email-${invoice.id}`}
                       >
-                        <Mail className="w-3 h-3 mr-1" />
-                        {isLoadingEmail ? "Loading..." : "Email"}
+                        <Mail className="w-3.5 h-3.5 mr-1.5" />
+                        {isLoadingEmail ? "..." : "Email"}
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => handleEdit(invoice)}
+                        className="h-8"
                         data-testid={`button-edit-${invoice.id}`}
                       >
-                        <Edit2 className="w-3 h-3 mr-1" />
+                        <Edit2 className="w-3.5 h-3.5 mr-1.5" />
                         Edit
                       </Button>
                       <Button
                         size="sm"
-                        variant="destructive"
+                        variant="ghost"
                         onClick={() => handleDelete(invoice)}
+                        className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                         data-testid={`button-delete-${invoice.id}`}
                       >
-                        <Trash2 className="w-3 h-3 mr-1" />
+                        <Trash2 className="w-3.5 h-3.5 mr-1.5" />
                         Delete
                       </Button>
                     </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={6} className="text-center p-8 text-muted-foreground" data-testid="no-invoices">
-                  No invoices found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <CardContent className="p-12">
+              <div className="text-center" data-testid="no-invoices">
+                <FileText className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No invoices found</h3>
+                <p className="text-sm text-muted-foreground">
+                  {searchQuery ? "Try adjusting your search terms" : "Invoices will appear here once created"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* View Dialog */}
