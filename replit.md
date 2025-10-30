@@ -16,6 +16,13 @@ Preferred communication style: Simple, everyday language.
 - **Professional Blue Card**: Consistent bg-blue-50, border-blue-200, rounded-lg design
 - **Color-Coded Amounts**: Orange for surge pricing, green for discounts, blue for totals
 
+**Cross-Browser DateTime Support**:
+- Implemented react-datepicker for consistent date and time selection across ALL browsers (Chrome, Firefox, Safari, Edge, etc.)
+- Professional calendar picker with blue theme matching the application design
+- Time selection menu with 15-minute intervals for easy scheduling
+- Custom styling with blue header, rounded corners, and smooth hover effects
+- Prevents past date selection (minDate set to today)
+
 **Left Panel (Journey Details)**:
 - **Main Header**: Blue-to-indigo gradient header with white MapPin icon badge showing Booking ID
 - **Journey Details Card**: Blue gradient header (blue-100 to indigo-100) with blue-600 icon badge

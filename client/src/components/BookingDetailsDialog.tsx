@@ -33,6 +33,8 @@ import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet'
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { RouteLayer } from './RouteLayer';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 // Fix Leaflet default icon issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -620,10 +622,29 @@ export function BookingDetailsDialog({
                   {/* Scheduled DateTime */}
                   <div>
                     <Label>Scheduled Date & Time *</Label>
-                    <Input
-                      type="datetime-local"
-                      value={formData.scheduledDateTime}
-                      onChange={(e) => setFormData({ ...formData, scheduledDateTime: e.target.value })}
+                    <DatePicker
+                      selected={formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : null}
+                      onChange={(date: Date | null) => {
+                        if (date) {
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          const hours = String(date.getHours()).padStart(2, '0');
+                          const minutes = String(date.getMinutes()).padStart(2, '0');
+                          const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                          setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                        } else {
+                          setFormData({ ...formData, scheduledDateTime: '' });
+                        }
+                      }}
+                      showTimeSelect
+                      timeFormat="HH:mm"
+                      timeIntervals={15}
+                      dateFormat="MMMM d, yyyy h:mm aa"
+                      minDate={new Date()}
+                      className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      placeholderText="Select date and time"
+                      wrapperClassName="w-full"
                       data-testid="input-scheduled-datetime"
                     />
                   </div>
