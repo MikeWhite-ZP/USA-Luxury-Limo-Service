@@ -123,7 +123,7 @@ export function AddressAutocomplete({
   return (
     <div id={`${id}-container`} className="space-y-2">
       <Label htmlFor={id}>
-        {label} {required && <span className="text-red-500">*</span>}
+        {label}
       </Label>
 
       <div className="flex gap-2">
