@@ -5805,10 +5805,10 @@ export default function AdminDashboard() {
         {/* User Accounts Management */}
         {showUserManager && (
           <Card id="user-manager-section" data-testid="user-accounts" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50/30 border-b border-slate-200">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50/30 border-b border-slate-200">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-3 text-slate-900">
-                  <div className="bg-blue-600 p-2 rounded-lg">
+                  <div className="bg-purple-600 p-2 rounded-lg">
                     <Users className="w-5 h-5 text-white" />
                   </div>
                   <span>
@@ -5829,20 +5829,20 @@ export default function AdminDashboard() {
                     disabled={backfillDriversMutation.isPending}
                     variant="outline"
                     size="sm"
-                    className="border-slate-300 hover:bg-slate-50"
+                    className="border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300"
                     data-testid="button-backfill-drivers"
                   >
                     {backfillDriversMutation.isPending ? (
-                      <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full mr-2" />
+                      <div className="animate-spin w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full mr-2" />
                     ) : (
-                      <Check className="w-4 h-4 mr-2 text-green-600" />
+                      <Check className="w-4 h-4 mr-2" />
                     )}
                     Fix Driver Records
                   </Button>
                   <Button
                     onClick={openAddUserDialog}
                     size="sm"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-purple-600 hover:bg-purple-700 text-white"
                     data-testid="button-add-user"
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -5854,42 +5854,49 @@ export default function AdminDashboard() {
             <CardContent className="pt-6">
               {usersLoading ? (
                 <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full" />
+                  <div className="animate-spin w-6 h-6 border-4 border-purple-600 border-t-transparent rounded-full" />
                 </div>
               ) : allUsers && allUsers.length > 0 ? (
                 <div className="space-y-4">
+                  <p className="text-sm text-slate-600">
+                    Manage user accounts, roles, and permissions across your platform.
+                  </p>
+
                   {/* Search Input */}
                   <div className="flex items-center gap-2">
-                    <Input
-                      type="text"
-                      placeholder="Search by name, email, or phone..."
-                      value={userSearchQuery}
-                      onChange={(e) => setUserSearchQuery(e.target.value)}
-                      className="max-w-md border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                      data-testid="input-search-users"
-                    />
+                    <div className="relative flex-1 max-w-md">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        type="text"
+                        placeholder="Search by name, email, or phone..."
+                        value={userSearchQuery}
+                        onChange={(e) => setUserSearchQuery(e.target.value)}
+                        className="pl-10 border-slate-300 focus:border-purple-500 focus:ring-purple-500"
+                        data-testid="input-search-users"
+                      />
+                    </div>
                   </div>
 
-                  <div className="border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                  <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white">
                     <table className="w-full">
-                      <thead className="bg-slate-50 border-b border-slate-200">
+                      <thead className="bg-gradient-to-r from-slate-50 to-purple-50/20 border-b border-slate-200">
                         <tr>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                          <th className="text-left p-4 text-sm font-semibold text-slate-700">
                             User
                           </th>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                          <th className="text-left p-4 text-sm font-semibold text-slate-700">
                             Email
                           </th>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                          <th className="text-left p-4 text-sm font-semibold text-slate-700">
                             Role
                           </th>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                          <th className="text-left p-4 text-sm font-semibold text-slate-700">
                             Status
                           </th>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                          <th className="text-left p-4 text-sm font-semibold text-slate-700">
                             Star Rating
                           </th>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                          <th className="text-left p-4 text-sm font-semibold text-slate-700">
                             Actions
                           </th>
                         </tr>
@@ -5917,37 +5924,37 @@ export default function AdminDashboard() {
                           .map((u) => (
                             <tr
                               key={u.id}
-                              className="border-t border-slate-200 hover:bg-blue-50/30 transition-colors"
+                              className="border-t border-slate-200 hover:bg-purple-50/20 transition-colors"
                               data-testid={`user-row-${u.id}`}
                             >
-                              <td className="p-3">
+                              <td className="p-4">
                                 <div>
                                   <p
-                                    className="font-medium text-slate-900"
+                                    className="font-semibold text-slate-900"
                                     data-testid={`user-name-${u.id}`}
                                   >
                                     {u.firstName} {u.lastName}
                                   </p>
-                                  <p className="text-xs text-slate-500">
+                                  <p className="text-xs text-slate-500 mt-0.5">
                                     Joined{" "}
                                     {new Date(u.createdAt).toLocaleDateString()}
                                   </p>
                                 </div>
                               </td>
-                              <td className="p-3">
+                              <td className="p-4">
                                 <p
-                                  className="text-sm text-slate-700"
+                                  className="text-sm text-slate-700 font-medium"
                                   data-testid={`user-email-${u.id}`}
                                 >
                                   {u.email}
                                 </p>
                                 {u.phone && (
-                                  <p className="text-xs text-slate-500">
+                                  <p className="text-xs text-slate-500 mt-0.5">
                                     {u.phone}
                                   </p>
                                 )}
                               </td>
-                              <td className="p-3">
+                              <td className="p-4">
                                 <Select
                                   value={u.role}
                                   onValueChange={(role) =>
@@ -6056,37 +6063,37 @@ export default function AdminDashboard() {
                                   </span>
                                 )}
                               </td>
-                              <td className="p-3">
+                              <td className="p-4">
                                 <div className="flex items-center gap-2">
                                   {u.role === "driver" && (
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      className="border-slate-300 hover:bg-blue-50 hover:border-blue-400 text-slate-700"
+                                      className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
                                       onClick={() => {
                                         setSelectedDriverForDocs(u);
                                         setDocumentsDialogOpen(true);
                                       }}
                                       data-testid={`button-documents-${u.id}`}
                                     >
-                                      <FileText className="w-3 h-3 mr-1" />
-                                      Documents
+                                      <FileText className="w-3.5 h-3.5 mr-1.5" />
+                                      Docs
                                     </Button>
                                   )}
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="border-slate-300 hover:bg-blue-50 hover:border-blue-400 text-slate-700"
+                                    className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
                                     onClick={() => openEditUserDialog(u)}
                                     data-testid={`button-edit-user-${u.id}`}
                                   >
-                                    <Pencil className="w-3 h-3 mr-1" />
+                                    <Pencil className="w-3.5 h-3.5 mr-1.5" />
                                     Edit
                                   </Button>
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="border-red-300 hover:bg-red-50 hover:border-red-400 text-red-600"
+                                    className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
                                     onClick={() => {
                                       if (
                                         confirm(
@@ -6099,7 +6106,7 @@ export default function AdminDashboard() {
                                     disabled={deleteUserMutation.isPending}
                                     data-testid={`button-delete-user-${u.id}`}
                                   >
-                                    <Trash2 className="w-3 h-3 mr-1" />
+                                    <Trash2 className="w-3.5 h-3.5 mr-1.5" />
                                     Delete
                                   </Button>
                                 </div>
@@ -6109,11 +6116,14 @@ export default function AdminDashboard() {
                       </tbody>
                     </table>
                   </div>
-                  <div className="text-xs text-slate-600 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <strong className="text-slate-900">Star Rating:</strong> Shows the average rating for
-                    drivers based on passenger feedback after completed rides.
-                    Ratings are on a 5-star scale, with ratings displayed only
-                    for drivers.
+                  <div className="text-sm text-slate-700 p-4 bg-purple-50 rounded-xl border border-purple-200">
+                    <div className="flex items-start gap-2">
+                      <Star className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="font-semibold text-purple-900">About Star Ratings:</strong>{" "}
+                        <span>Driver ratings are calculated from passenger feedback after completed rides. All ratings use a 5-star scale and are only displayed for users with the driver role.</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : (
