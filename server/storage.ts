@@ -137,12 +137,14 @@ export interface IStorage {
     totalRevenue: string;
     monthlyRevenue: string;
     totalCommission: string;
+    monthlyCommission: string;
     activeBookings: number;
     totalDrivers: number;
     activeDrivers: number;
     averageRating: string;
     pendingBookings: number;
     pendingDrivers: number;
+    awaitingDriverApproval: number;
     revenueGrowth: string;
     ratingImprovement: string;
   }>;
@@ -1185,6 +1187,14 @@ export class DatabaseStorage implements IStorage {
       ratingImprovement = (recentRating - previousRating).toFixed(1);
     }
 
+    // Awaiting driver approval count (status = 'pending_driver_acceptance')
+    const [awaitingDriverApprovalResult] = await db
+      .select({ 
+        count: sql<number>`COUNT(*)` 
+      })
+      .from(bookings)
+      .where(eq(bookings.status, 'pending_driver_acceptance'));
+
     return {
       totalRevenue: revenueResult?.total || '0',
       monthlyRevenue: currentMonthRevenueResult?.total || '0',
@@ -1196,6 +1206,7 @@ export class DatabaseStorage implements IStorage {
       averageRating: ratingResult?.avg || '0',
       pendingBookings: pendingBookingsResult?.count || 0,
       pendingDrivers: pendingDriversResult?.count || 0,
+      awaitingDriverApproval: awaitingDriverApprovalResult?.count || 0,
       revenueGrowth,
       ratingImprovement,
     };

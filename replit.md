@@ -7,6 +7,13 @@ USA Luxury Limo is a full-stack Progressive Web Application (PWA) designed as a 
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 30, 2025)
+**Admin Dashboard Enhancement**: Added "Awaiting Driver Approval" stat card with modern professional styling:
+- New card displays count of bookings waiting for driver acceptance (status: pending_driver_acceptance)
+- Rose/pink gradient design with Clock icon for visual distinction
+- Shows contextual notice when jobs are waiting
+- Dashboard now has 6 stat cards in clean 2-row grid layout (3 columns per row)
+- Maintains consistent dark-themed card design with gradient headers and hover effects
+
 **Itemized Pricing Breakdown**: Complete transparency in fare calculations with detailed component display:
 - Added pricing breakdown fields to bookings/invoices: baseFare, gratuityAmount, airportFeeAmount, surgePricingMultiplier, surgePricingAmount
 - Enhanced price calculation workflow: base fare → surge pricing (multiplier × base) → add gratuity → add airport fees → apply discount

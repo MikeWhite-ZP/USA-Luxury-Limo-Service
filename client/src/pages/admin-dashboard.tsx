@@ -51,6 +51,7 @@ import {
   Receipt,
   AlertCircle,
   CheckCircle2,
+  Clock,
 } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
@@ -70,6 +71,7 @@ interface DashboardStats {
   averageRating: string;
   pendingBookings: number;
   pendingDrivers: number;
+  awaitingDriverApproval: number;
   revenueGrowth: string;
   ratingImprovement: string;
 }
@@ -3708,6 +3710,32 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
                   <Star className="h-6 w-6 text-amber-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="group relative overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-slate-900 to-slate-800 shadow-[0_15px_35px_rgba(17,20,24,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(17,20,24,0.35)]"
+            data-testid="stat-awaiting-approval"
+          >
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-pink-500" />
+            <CardContent className="p-7">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-slate-400 mb-2">Awaiting Driver Approval</p>
+                  <p className="text-4xl font-bold text-white tracking-tight mb-1" data-testid="awaiting-driver-approval">
+                    {statsLoading ? "..." : stats?.awaitingDriverApproval || 0}
+                  </p>
+                  <p className="text-xs text-slate-500">Jobs waiting for drivers</p>
+                  {!statsLoading && stats && stats.awaitingDriverApproval > 0 && (
+                    <p className="text-sm font-medium text-rose-400 mt-1" data-testid="awaiting-approval-notice">
+                      Requires driver acceptance
+                    </p>
+                  )}
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/10 ring-1 ring-rose-500/20">
+                  <Clock className="h-6 w-6 text-rose-400" />
                 </div>
               </div>
             </CardContent>
