@@ -101,6 +101,12 @@ export function setupAuth(app: Express) {
           return done(null, false, { message: "Invalid username or password" });
         }
         
+        // Check if user account is active
+        if (!user.isActive) {
+          console.log('[AUTH] Account is inactive');
+          return done(null, false, { message: "Account is inactive. Please contact an administrator." });
+        }
+        
         return done(null, user);
       } catch (error) {
         console.error('[AUTH] Error during authentication:', error);
@@ -250,15 +256,21 @@ export function setupAuth(app: Express) {
       
       // Create user with hashed password
       const hashedPassword = await hashPassword(password);
+      
+      // Determine default isActive based on role
+      // Admin accounts start as inactive and must be activated by existing admins
+      const userRole = role || "passenger";
+      const defaultIsActive = userRole === "admin" ? false : true;
+      
       const user = await storage.createUser({
         username,
         password: hashedPassword,
         email,
         firstName,
         lastName,
-        role: role || "passenger",
+        role: userRole,
         oauthProvider: "local",
-        isActive: true,
+        isActive: defaultIsActive,
       });
       
       // Log the user in
