@@ -5693,10 +5693,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Message and delivery method are required' });
       }
 
+      // Validate driver ID for individual messages
+      if (messageType === 'individual' && driverId) {
+        const driver = await storage.getUser(driverId);
+        if (!driver || driver.role !== 'driver') {
+          return res.status(400).json({ message: 'Invalid driver ID' });
+        }
+      }
+
       // Create message record
       const driverMessage = await storage.createDriverMessage({
         senderId: userId,
-        driverId: driverId || null,
+        driverId: messageType === 'broadcast' ? null : (driverId || null),
         messageType: messageType || 'individual',
         subject,
         message,
@@ -5712,7 +5720,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get driver details for sending
       const targetDrivers = driverId
         ? [await storage.getUser(driverId)]
-        : await storage.getAllUsers().then(users => users.filter(u => u.role === 'driver'));
+        : await storage.getAllUsers().then(users => 
+            users.filter(u => u.role === 'driver' && u.isActive)
+          );
 
       for (const driver of targetDrivers) {
         if (!driver) continue;
@@ -5741,15 +5751,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   <p style="color: #718096; font-size: 14px;">This message was sent via the USA Luxury Limo dispatch system.</p>
                 </div>
               `;
-              const emailResult = await sendEmail(
-                driver.email,
-                subject || 'Message from Dispatch',
-                emailHTML
-              );
-              if (emailResult.success) {
+              const emailResult = await sendEmail({
+                to: driver.email,
+                subject: subject || 'Message from Dispatch',
+                html: emailHTML,
+              });
+              if (emailResult) {
                 emailSent = true;
               } else {
-                errors.push(`Email failed for ${driver.firstName}: ${emailResult.error}`);
+                errors.push(`Email failed for ${driver.firstName}`);
               }
             }
           }
