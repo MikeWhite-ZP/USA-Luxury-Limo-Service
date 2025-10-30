@@ -6,6 +6,14 @@ USA Luxury Limo is a full-stack Progressive Web Application (PWA) designed as a 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (October 30, 2025)
+**Admin Dashboard & Pricing Redesign**: Completed comprehensive redesign with modern professional light theme:
+- **Color Palette**: Replaced all red/orange/amber themes with blue/indigo/slate/green Tailwind utilities
+- **Gradient Headers**: All major dashboard cards now feature gradient headers (blue/indigo/green/purple) with colored icon badges
+- **No Hex Colors**: Eliminated all hardcoded hex values (#9e0202, #de0d0d, #f79952, etc.) in favor of Tailwind classes
+- **Professional Styling**: Consistent light theme with slate borders, smooth hover effects, and semantic status badges
+- **Sections Updated**: Payment Systems (green), System Settings (slate), CMS (blue/indigo), Bookings (purple), Pricing (blue)
+
 ## System Architecture
 
 ### UI/UX
