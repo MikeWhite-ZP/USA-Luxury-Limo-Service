@@ -834,9 +834,13 @@ export class DatabaseStorage implements IStorage {
       return existing; // Don't create duplicate
     }
 
+    // Get discount information from booking
+    const regularPrice = parseFloat(booking.regularPrice || booking.totalAmount || '0');
+    const discountPercentage = booking.discountPercentage ? parseFloat(booking.discountPercentage) : 0;
+    const discountAmount = booking.discountAmount ? parseFloat(booking.discountAmount) : 0;
     const totalAmount = parseFloat(booking.totalAmount || '0');
     const taxAmount = 0; // For now, tax is 0 (no tax rate configured in the system)
-    const subtotal = totalAmount; // Since tax is 0, subtotal = total
+    const subtotal = regularPrice; // Subtotal is regular price before discount
     
     // Retry with different invoice numbers if we hit a duplicate constraint
     // Use generous retry limit to handle high-concurrency scenarios
@@ -849,6 +853,8 @@ export class DatabaseStorage implements IStorage {
           bookingId: booking.id,
           invoiceNumber,
           subtotal: subtotal.toFixed(2),
+          discountPercentage: discountPercentage > 0 ? discountPercentage.toFixed(2) : null,
+          discountAmount: discountAmount > 0 ? discountAmount.toFixed(2) : null,
           taxAmount: taxAmount.toFixed(2),
           totalAmount: totalAmount.toFixed(2),
           paidAt: booking.paymentStatus === 'paid' ? new Date() : null,
@@ -889,12 +895,18 @@ export class DatabaseStorage implements IStorage {
       return;
     }
 
+    // Get discount information from booking
+    const regularPrice = parseFloat(booking.regularPrice || booking.totalAmount || '0');
+    const discountPercentage = booking.discountPercentage ? parseFloat(booking.discountPercentage) : 0;
+    const discountAmount = booking.discountAmount ? parseFloat(booking.discountAmount) : 0;
     const totalAmount = parseFloat(booking.totalAmount || '0');
     const taxAmount = 0; // No tax configured
-    const subtotal = totalAmount;
+    const subtotal = regularPrice; // Subtotal is regular price before discount
 
     const updates: Partial<Omit<Invoice, 'id' | 'createdAt'>> = {
       subtotal: subtotal.toFixed(2),
+      discountPercentage: discountPercentage > 0 ? discountPercentage.toFixed(2) : null,
+      discountAmount: discountAmount > 0 ? discountAmount.toFixed(2) : null,
       taxAmount: taxAmount.toFixed(2),
       totalAmount: totalAmount.toFixed(2),
     };

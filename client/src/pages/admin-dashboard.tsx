@@ -1629,6 +1629,9 @@ export default function AdminDashboard() {
     destinationAddress: "",
     scheduledDateTime: "",
     totalAmount: "",
+    regularPrice: "",
+    discountPercentage: "",
+    discountAmount: "",
     vehicleTypeId: "",
     bookingType: "transfer" as "transfer" | "hourly",
     status: "pending" as
@@ -2308,14 +2311,24 @@ export default function AdminDashboard() {
       const data = await response.json();
 
       if (data.price) {
-        setCalculatedPrice(data.price);
+        setCalculatedPrice(data.finalPrice || data.price);
+        
+        // Build description with discount info if applicable
+        let description = `Total: $${data.finalPrice || data.price}`;
+        if (data.discountAmount && parseFloat(data.discountAmount) > 0) {
+          description = `Regular Price: $${data.regularPrice}\nDiscount (${data.discountPercentage}%): -$${data.discountAmount}\nFinal Price: $${data.finalPrice}`;
+        }
+        
         setBookingFormData({
           ...bookingFormData,
-          totalAmount: String(data.price),
+          totalAmount: String(data.finalPrice || data.price),
+          regularPrice: data.regularPrice,
+          discountPercentage: data.discountPercentage,
+          discountAmount: data.discountAmount,
         });
         toast({
           title: "Price Calculated",
-          description: `Total: $${data.price}`,
+          description,
         });
       }
     } catch (error) {

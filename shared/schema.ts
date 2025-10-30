@@ -235,7 +235,10 @@ export const bookings = pgTable("bookings", {
     addedBy?: string;
     addedAt?: string;
   }>>().default(sql`'[]'::jsonb`), // Additional charges array
-  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }),
+  regularPrice: decimal("regular_price", { precision: 10, scale: 2 }), // Price before discount
+  discountPercentage: decimal("discount_percentage", { precision: 5, scale: 2 }), // User's discount %
+  discountAmount: decimal("discount_amount", { precision: 10, scale: 2 }), // Calculated discount
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }), // Final price after discount
   driverPayment: decimal("driver_payment", { precision: 10, scale: 2 }), // Amount driver gets paid (editable by admin/dispatcher)
   
   // Payment
@@ -350,9 +353,11 @@ export const invoices = pgTable("invoices", {
   id: uuid("id").defaultRandom().primaryKey(),
   bookingId: uuid("booking_id").references(() => bookings.id).notNull(),
   invoiceNumber: varchar("invoice_number").unique().notNull(),
-  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(), // Regular price before discount
+  discountPercentage: decimal("discount_percentage", { precision: 5, scale: 2 }), // Discount %
+  discountAmount: decimal("discount_amount", { precision: 10, scale: 2 }), // Discount amount
   taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }).default("0.00"),
-  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(), // Final amount after discount
   paidAt: timestamp("paid_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });

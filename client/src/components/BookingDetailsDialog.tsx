@@ -87,6 +87,9 @@ interface BookingFormData {
   viaPoints: ViaPoint[];
   scheduledDateTime: string;
   totalAmount: string;
+  regularPrice?: string;
+  discountPercentage?: string;
+  discountAmount?: string;
   requestedHours: string;
   passengerCount: number;
   luggageCount: number;
@@ -1364,6 +1367,26 @@ export function BookingDetailsDialog({
                       </p>
                     )}
                   </div>
+
+                  {/* Discount Breakdown - Show when discount exists */}
+                  {editingBooking && (editingBooking.discountPercentage || editingBooking.regularPrice) && parseFloat(editingBooking.discountAmount || '0') > 0 && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 space-y-2">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-700">Regular Price:</span>
+                        <span className="font-semibold text-gray-900">${editingBooking.regularPrice || editingBooking.totalAmount}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-green-700">
+                          Discount ({editingBooking.discountPercentage}%):
+                        </span>
+                        <span className="font-semibold text-green-700">-${editingBooking.discountAmount}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-base pt-2 border-t border-green-300">
+                        <span className="font-bold text-gray-900">Discounted Price:</span>
+                        <span className="font-bold text-green-700 text-lg">${editingBooking.totalAmount}</span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Additional Charges Section */}
                   {editingBooking && editingBooking.surcharges && (editingBooking.surcharges as any[]).length > 0 && (

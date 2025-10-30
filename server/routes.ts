@@ -4653,6 +4653,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         vehicleType,
         serviceType,
         price: breakdown.finalTotal.toFixed(2),
+        regularPrice: breakdown.total.toFixed(2), // Price before discount
+        discountPercentage: discountType === 'percentage' ? discountValue : 0,
+        discountAmount: discountAmount.toFixed(2),
+        finalPrice: breakdown.finalTotal.toFixed(2), // Price after discount
         breakdown,
         ruleId: rule.id,
         discount: discountAmount > 0 ? {
