@@ -153,7 +153,7 @@ export const pricingRules = pgTable("pricing_rules", {
   
   // Surge pricing: [{dayOfWeek: number, startTime: string, endTime: string, multiplier: number}]
   surgePricing: jsonb("surge_pricing").$type<Array<{
-    dayOfWeek: number; // 0-6 (Sunday-Saturday)
+    dayOfWeek: number; // -1 (All Days), 0-6 (Sunday-Saturday)
     startTime: string; // HH:MM format
     endTime: string; // HH:MM format
     multiplier: number; // e.g., 1.5 for 50% surge
@@ -430,7 +430,7 @@ const meetAndGreetSchema = z.object({
 });
 
 const surgePricingSchema = z.object({
-  dayOfWeek: z.number().min(0).max(6), // 0-6 (Sunday-Saturday)
+  dayOfWeek: z.number().min(-1).max(6), // -1 (All Days), 0-6 (Sunday-Saturday)
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/), // HH:MM format
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/), // HH:MM format
   multiplier: z.number().min(1).max(5), // 1x to 5x surge
