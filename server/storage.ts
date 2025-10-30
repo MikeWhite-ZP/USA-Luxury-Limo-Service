@@ -834,6 +834,13 @@ export class DatabaseStorage implements IStorage {
       return existing; // Don't create duplicate
     }
 
+    // Get pricing breakdown from booking
+    const baseFare = booking.baseFare ? parseFloat(booking.baseFare) : 0;
+    const gratuityAmount = booking.gratuityAmount ? parseFloat(booking.gratuityAmount) : 0;
+    const airportFeeAmount = booking.airportFeeAmount ? parseFloat(booking.airportFeeAmount) : 0;
+    const surgePricingMultiplier = booking.surgePricingMultiplier ? parseFloat(booking.surgePricingMultiplier) : null;
+    const surgePricingAmount = booking.surgePricingAmount ? parseFloat(booking.surgePricingAmount) : 0;
+    
     // Get discount information from booking
     const regularPrice = parseFloat(booking.regularPrice || booking.totalAmount || '0');
     const discountPercentage = booking.discountPercentage ? parseFloat(booking.discountPercentage) : 0;
@@ -852,6 +859,11 @@ export class DatabaseStorage implements IStorage {
         const invoiceData = {
           bookingId: booking.id,
           invoiceNumber,
+          baseFare: baseFare > 0 ? baseFare.toFixed(2) : null,
+          gratuityAmount: gratuityAmount > 0 ? gratuityAmount.toFixed(2) : null,
+          airportFeeAmount: airportFeeAmount > 0 ? airportFeeAmount.toFixed(2) : null,
+          surgePricingMultiplier: surgePricingMultiplier,
+          surgePricingAmount: surgePricingAmount > 0 ? surgePricingAmount.toFixed(2) : null,
           subtotal: subtotal.toFixed(2),
           discountPercentage: discountPercentage > 0 ? discountPercentage.toFixed(2) : null,
           discountAmount: discountAmount > 0 ? discountAmount.toFixed(2) : null,
@@ -895,6 +907,13 @@ export class DatabaseStorage implements IStorage {
       return;
     }
 
+    // Get pricing breakdown from booking
+    const baseFare = booking.baseFare ? parseFloat(booking.baseFare) : 0;
+    const gratuityAmount = booking.gratuityAmount ? parseFloat(booking.gratuityAmount) : 0;
+    const airportFeeAmount = booking.airportFeeAmount ? parseFloat(booking.airportFeeAmount) : 0;
+    const surgePricingMultiplier = booking.surgePricingMultiplier ? parseFloat(booking.surgePricingMultiplier) : null;
+    const surgePricingAmount = booking.surgePricingAmount ? parseFloat(booking.surgePricingAmount) : 0;
+    
     // Get discount information from booking
     const regularPrice = parseFloat(booking.regularPrice || booking.totalAmount || '0');
     const discountPercentage = booking.discountPercentage ? parseFloat(booking.discountPercentage) : 0;
@@ -904,6 +923,11 @@ export class DatabaseStorage implements IStorage {
     const subtotal = regularPrice; // Subtotal is regular price before discount
 
     const updates: Partial<Omit<Invoice, 'id' | 'createdAt'>> = {
+      baseFare: baseFare > 0 ? baseFare.toFixed(2) : null,
+      gratuityAmount: gratuityAmount > 0 ? gratuityAmount.toFixed(2) : null,
+      airportFeeAmount: airportFeeAmount > 0 ? airportFeeAmount.toFixed(2) : null,
+      surgePricingMultiplier: surgePricingMultiplier,
+      surgePricingAmount: surgePricingAmount > 0 ? surgePricingAmount.toFixed(2) : null,
       subtotal: subtotal.toFixed(2),
       discountPercentage: discountPercentage > 0 ? discountPercentage.toFixed(2) : null,
       discountAmount: discountAmount > 0 ? discountAmount.toFixed(2) : null,
