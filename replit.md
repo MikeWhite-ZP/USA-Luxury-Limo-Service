@@ -7,6 +7,15 @@ USA Luxury Limo is a full-stack Progressive Web Application (PWA) designed as a 
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 30, 2025)
+**API Credentials Redesign**: Modern, professional light theme for credentials management:
+- Indigo/blue gradient header with icon badge matching Payment Systems and System Settings
+- Enhanced credential cards with rounded corners, shadows, and hover effects
+- Color-coded status badges (green for configured, gray for not configured)
+- Purple/blue badges for ENV/DB source indicators
+- Improved edit form with indigo background and better spacing
+- Styled action buttons with color-coded hover states (indigo for edit, red for delete)
+- Professional typography and consistent light theme palette
+
 **Admin Dashboard Enhancement**: Added "Awaiting Driver Approval" stat card with modern professional styling:
 - New card displays count of bookings waiting for driver acceptance (status: pending_driver_acceptance)
 - Rose/pink gradient design with Clock icon for visual distinction

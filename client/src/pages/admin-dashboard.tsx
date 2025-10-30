@@ -3744,16 +3744,18 @@ export default function AdminDashboard() {
 
         {/* API Credentials Management */}
         {visibleCredentialsSection === "api" && (
-          <Card id="credentials-section" data-testid="credentials-management">
-            <CardHeader>
+          <Card id="credentials-section" data-testid="credentials-management" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50/30 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center space-x-2">
-                  <Key className="w-5 h-5" />
+                <CardTitle className="flex items-center gap-3 text-slate-900">
+                  <div className="bg-indigo-600 p-2 rounded-lg">
+                    <Key className="w-5 h-5 text-white" />
+                  </div>
                   <span>API Credentials</span>
                 </CardTitle>
                 <Button
                   onClick={() => setIsAddingNew(true)}
-                  variant="outline"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
                   size="sm"
                   data-testid="button-add-credential"
                 >
@@ -3762,7 +3764,11 @@ export default function AdminDashboard() {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="pt-6 space-y-4">
+              <p className="text-sm text-slate-600 mb-4">
+                Manage API keys and external service credentials for your application.
+              </p>
+
               {/* Existing Credentials (excluding Stripe and SMTP - moved to their respective sections) */}
               <div className="space-y-3">
                 {credentials
@@ -3775,58 +3781,64 @@ export default function AdminDashboard() {
                   .map((credential) => (
                     <div
                       key={credential.key}
-                      className="border rounded-lg p-4"
+                      className="border border-slate-200 rounded-xl p-5 bg-white hover:border-slate-300 transition-all shadow-sm hover:shadow"
                       data-testid={`credential-${credential.key.toLowerCase()}`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 mb-2">
                             <h4
-                              className="font-semibold"
+                              className="font-semibold text-lg text-slate-900"
                               data-testid={`credential-label-${credential.key.toLowerCase()}`}
                             >
                               {credential.label}
                             </h4>
-                            <Badge variant="outline" className="text-xs">
+                            <Badge className="bg-indigo-100 text-indigo-700 border-indigo-200 hover:bg-indigo-200 text-xs">
                               {credential.category}
                             </Badge>
                             {credential.hasValue && (
                               <Badge
-                                variant={
-                                  credential.usesEnv ? "secondary" : "default"
+                                className={
+                                  credential.usesEnv 
+                                    ? "bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200 text-xs"
+                                    : "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 text-xs"
                                 }
-                                className="text-xs"
                                 data-testid={`credential-status-${credential.key.toLowerCase()}`}
                               >
                                 {credential.usesEnv ? "ENV" : "DB"}
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground mt-1">
+                          <p className="text-sm text-slate-600 mb-2">
                             {credential.description}
                           </p>
 
                           {editingKey === credential.key ? (
-                            <div className="mt-3 space-y-2">
+                            <div className="mt-3 space-y-3 bg-indigo-50 p-4 rounded-lg border border-indigo-200">
                               {loadingValue ? (
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+                                <div className="flex items-center gap-2 text-sm text-slate-600">
+                                  <div className="animate-spin w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full" />
                                   Loading current value...
                                 </div>
                               ) : (
-                                <Input
-                                  type="text"
-                                  placeholder="Enter new value"
-                                  value={newKeyValue}
-                                  onChange={(e) =>
-                                    setNewKeyValue(e.target.value)
-                                  }
-                                  data-testid={`input-edit-${credential.key.toLowerCase()}`}
-                                />
+                                <div>
+                                  <Label className="text-xs text-slate-700 mb-1">New Value</Label>
+                                  <Input
+                                    type="text"
+                                    placeholder="Enter new value"
+                                    value={newKeyValue}
+                                    onChange={(e) =>
+                                      setNewKeyValue(e.target.value)
+                                    }
+                                    className="border-slate-300"
+                                    data-testid={`input-edit-${credential.key.toLowerCase()}`}
+                                  />
+                                </div>
                               )}
                               <div className="flex gap-2">
                                 <Button
                                   size="sm"
+                                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
                                   onClick={() =>
                                     handleUpdateCredential(credential.key)
                                   }
@@ -3842,6 +3854,7 @@ export default function AdminDashboard() {
                                 <Button
                                   size="sm"
                                   variant="outline"
+                                  className="border-slate-300 hover:bg-slate-100"
                                   onClick={() => {
                                     setEditingKey(null);
                                     setNewKeyValue("");
@@ -3854,10 +3867,18 @@ export default function AdminDashboard() {
                               </div>
                             </div>
                           ) : (
-                            <div className="mt-2 text-xs text-muted-foreground">
-                              {credential.hasValue
-                                ? `Configured ${credential.usesEnv ? "(from environment variable)" : "(from database)"}`
-                                : "Not configured"}
+                            <div className="flex items-center gap-2">
+                              {credential.hasValue ? (
+                                <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 bg-green-50 text-green-700 rounded-md border border-green-200">
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>Configured {credential.usesEnv ? "(from environment)" : "(from database)"}</span>
+                                </div>
+                              ) : (
+                                <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 bg-slate-100 text-slate-600 rounded-md border border-slate-200">
+                                  <AlertCircle className="w-3.5 h-3.5" />
+                                  <span>Not configured</span>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -3867,6 +3888,7 @@ export default function AdminDashboard() {
                             <Button
                               size="sm"
                               variant="outline"
+                              className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300"
                               onClick={() =>
                                 handleEditCredential(credential.key)
                               }
@@ -3878,13 +3900,14 @@ export default function AdminDashboard() {
                               <Button
                                 size="sm"
                                 variant="outline"
+                                className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
                                 onClick={() =>
                                   handleDeleteCredential(credential.key)
                                 }
                                 disabled={deleteCredentialMutation.isPending}
                                 data-testid={`button-delete-${credential.key.toLowerCase()}`}
                               >
-                                <Trash2 className="w-4 h-4 text-destructive" />
+                                <Trash2 className="w-4 h-4" />
                               </Button>
                             )}
                           </div>
@@ -3897,36 +3920,44 @@ export default function AdminDashboard() {
               {/* Add New Credential Form */}
               {isAddingNew && (
                 <div
-                  className="border border-dashed rounded-lg p-4 space-y-3"
+                  className="border-2 border-dashed border-indigo-200 rounded-xl p-5 bg-indigo-50/30 space-y-4"
                   data-testid="add-credential-form"
                 >
-                  <h4 className="font-semibold">Add New Credential</h4>
-                  <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-indigo-600 p-1.5 rounded-lg">
+                      <Plus className="w-4 h-4 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-lg text-slate-900">Add New Credential</h4>
+                  </div>
+                  <div className="space-y-3">
                     <div>
-                      <Label htmlFor="new-key-name">Credential Name</Label>
+                      <Label htmlFor="new-key-name" className="text-sm text-slate-700 font-medium">Credential Name</Label>
                       <Input
                         id="new-key-name"
                         placeholder="e.g., MAILGUN_API_KEY"
                         value={newKeyName}
                         onChange={(e) => setNewKeyName(e.target.value)}
+                        className="mt-1.5 border-slate-300"
                         data-testid="input-new-credential-name"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="new-key-value">Credential Value</Label>
+                      <Label htmlFor="new-key-value" className="text-sm text-slate-700 font-medium">Credential Value</Label>
                       <Input
                         id="new-key-value"
                         type="password"
                         placeholder="Enter credential value"
                         value={newKeyValue}
                         onChange={(e) => setNewKeyValue(e.target.value)}
+                        className="mt-1.5 border-slate-300"
                         data-testid="input-new-credential-value"
                       />
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 pt-2">
                     <Button
                       size="sm"
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white"
                       onClick={handleAddNewCredential}
                       disabled={updateCredentialMutation.isPending}
                       data-testid="button-save-new-credential"
@@ -3937,6 +3968,7 @@ export default function AdminDashboard() {
                     <Button
                       size="sm"
                       variant="outline"
+                      className="border-slate-300 hover:bg-slate-100"
                       onClick={() => {
                         setIsAddingNew(false);
                         setNewKeyName("");
