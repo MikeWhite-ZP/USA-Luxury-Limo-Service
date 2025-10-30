@@ -668,7 +668,7 @@ export const emergencyIncidents = pgTable("emergency_incidents", {
   reporterId: varchar("reporter_id").references(() => users.id).notNull(),
   incidentType: varchar("incident_type", { enum: ["accident", "breakdown", "medical", "safety", "other"] }).notNull(),
   severity: varchar("severity", { enum: ["low", "medium", "high", "critical"] }).default("medium").notNull(),
-  bookingId: varchar("booking_id").references(() => bookings.id),
+  bookingId: uuid("booking_id").references(() => bookings.id),
   driverId: varchar("driver_id").references(() => users.id),
   location: varchar("location"),
   locationCoordinates: varchar("location_coordinates"),

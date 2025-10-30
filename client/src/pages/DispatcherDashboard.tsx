@@ -60,7 +60,7 @@ export default function DispatcherDashboard() {
   const [deliveryMethod, setDeliveryMethod] = useState<"sms" | "email" | "both">("both");
   
   // Emergency Support state
-  const [incidentType, setIncidentType] = useState<"accident" | "breakdown" | "medical" | "security" | "other">("accident");
+  const [incidentType, setIncidentType] = useState<"accident" | "breakdown" | "medical" | "safety" | "other">("accident");
   const [incidentSeverity, setIncidentSeverity] = useState<"low" | "medium" | "high" | "critical">("medium");
   const [incidentDriverId, setIncidentDriverId] = useState<string>("");
   const [incidentLocation, setIncidentLocation] = useState<string>("");
@@ -1471,7 +1471,7 @@ export default function DispatcherDashboard() {
                 data-testid="button-tab-active"
               >
                 <Activity className="w-4 h-4 mr-2" />
-                Active Incidents ({emergencyIncidents?.filter((i: any) => i.status === 'active' || i.status === 'in-progress').length || 0})
+                Active Incidents ({emergencyIncidents?.filter((i: any) => i.status === 'open' || i.status === 'in_progress').length || 0})
               </Button>
             </div>
 
@@ -1492,7 +1492,7 @@ export default function DispatcherDashboard() {
                               <SelectItem value="accident">Accident</SelectItem>
                               <SelectItem value="breakdown">Vehicle Breakdown</SelectItem>
                               <SelectItem value="medical">Medical Emergency</SelectItem>
-                              <SelectItem value="security">Security Issue</SelectItem>
+                              <SelectItem value="safety">Safety Issue</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
                             </SelectContent>
                           </Select>
@@ -1598,12 +1598,12 @@ export default function DispatcherDashboard() {
                               </Badge>
                               <Badge 
                                 className={`${
-                                  incident.status === 'active' || incident.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                                  incident.status === 'open' || incident.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
                                   incident.status === 'resolved' ? 'bg-green-100 text-green-700' :
                                   'bg-slate-100 text-slate-700'
                                 }`}
                               >
-                                {incident.status}
+                                {incident.status.replace('_', ' ')}
                               </Badge>
                             </div>
                             <div className="grid grid-cols-2 gap-3 text-sm mb-3">
@@ -1626,12 +1626,12 @@ export default function DispatcherDashboard() {
                             </div>
                           </div>
                           <div className="flex gap-2 ml-4">
-                            {incident.status === 'active' && (
+                            {incident.status === 'open' && (
                               <Button
                                 size="sm"
                                 onClick={() => updateIncidentMutation.mutate({ 
                                   id: incident.id, 
-                                  updates: { status: 'in-progress' } 
+                                  updates: { status: 'in_progress' } 
                                 })}
                                 className="bg-blue-600 hover:bg-blue-700 text-white"
                                 data-testid={`button-progress-${incident.id}`}
@@ -1639,7 +1639,7 @@ export default function DispatcherDashboard() {
                                 In Progress
                               </Button>
                             )}
-                            {(incident.status === 'active' || incident.status === 'in-progress') && (
+                            {(incident.status === 'open' || incident.status === 'in_progress') && (
                               <Button
                                 size="sm"
                                 onClick={() => updateIncidentMutation.mutate({ 
