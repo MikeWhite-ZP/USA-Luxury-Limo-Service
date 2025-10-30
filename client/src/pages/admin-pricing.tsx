@@ -1053,6 +1053,71 @@ export default function AdminPricing() {
                             </div>
                           ))}
                         </div>
+
+                        {/* Surge Pricing */}
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-semibold">Surge Pricing</h3>
+                            <Button type="button" size="sm" onClick={addSurgePricing} data-testid="button-add-surge-hourly">
+                              <Plus className="w-4 h-4 mr-1" />
+                              Add Surge Period
+                            </Button>
+                          </div>
+                          {formData.surgePricing.map((surge, index) => (
+                            <div key={index} className="grid grid-cols-5 gap-2 items-end">
+                              <div>
+                                <Label>Day of Week</Label>
+                                <Select
+                                  value={surge.dayOfWeek.toString()}
+                                  onValueChange={(value) => updateSurgePricing(index, 'dayOfWeek', parseInt(value))}
+                                >
+                                  <SelectTrigger data-testid={`select-day-hourly-${index}`}>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-white">
+                                    {daysOfWeek.map((day) => (
+                                      <SelectItem key={day.value} value={day.value.toString()}>
+                                        {day.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label>Start Time</Label>
+                                <Input
+                                  type="time"
+                                  value={surge.startTime}
+                                  onChange={(e) => updateSurgePricing(index, 'startTime', e.target.value)}
+                                  data-testid={`input-start-time-hourly-${index}`}
+                                />
+                              </div>
+                              <div>
+                                <Label>End Time</Label>
+                                <Input
+                                  type="time"
+                                  value={surge.endTime}
+                                  onChange={(e) => updateSurgePricing(index, 'endTime', e.target.value)}
+                                  data-testid={`input-end-time-hourly-${index}`}
+                                />
+                              </div>
+                              <div>
+                                <Label>Multiplier</Label>
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  placeholder="1.5"
+                                  value={surge.multiplier}
+                                  onChange={(e) => updateSurgePricing(index, 'multiplier', parseFloat(e.target.value) || 1)}
+                                  data-testid={`input-multiplier-hourly-${index}`}
+                                />
+                              </div>
+                              <Button type="button" variant="destructive" size="sm" onClick={() => removeSurgePricing(index)}>
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
                       </TabsContent>
                     </Tabs>
 
