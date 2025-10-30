@@ -14,6 +14,16 @@ Preferred communication style: Simple, everyday language.
 - **Professional Styling**: Consistent light theme with slate borders, smooth hover effects, and semantic status badges
 - **Sections Updated**: Payment Systems (green), System Settings (slate), CMS (blue/indigo), Bookings (purple), Pricing (blue)
 
+**Admin Security Enhancement**: Improved admin account security:
+- New admin accounts created as inactive by default, requiring manual activation by existing admins
+- Login protection prevents inactive users from accessing the system
+- User Management interface updated with professional gradient styling and status indicators
+
+**User Deletion Fix**: Comprehensive cascading delete implementation:
+- Properly handles all foreign key constraints (invoices → payment tokens, bookings → ratings, emergency incidents, messages)
+- Safe deletion order: payment tokens → invoices → ratings → bookings → driver data → user
+- Prevents database constraint violations when deleting users with bookings, invoices, or driver records
+
 ## System Architecture
 
 ### UI/UX
