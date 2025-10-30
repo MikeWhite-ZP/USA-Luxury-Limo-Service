@@ -984,6 +984,26 @@ export default function AdminPricing() {
                             </div>
                           </div>
                         </div>
+
+                        {/* Gratuity */}
+                        <div className="space-y-4">
+                          <h3 className="font-semibold">Gratuity</h3>
+                          <div className="grid grid-cols-3 gap-4">
+                            <div>
+                              <Label htmlFor="gratuityPercentHourly">Gratuity (%)</Label>
+                              <Input
+                                id="gratuityPercentHourly"
+                                type="number"
+                                step="0.01"
+                                placeholder="20.00"
+                                className="border-slate-300"
+                                value={formData.gratuityPercent}
+                                onChange={(e) => setFormData(prev => ({ ...prev, gratuityPercent: e.target.value }))}
+                                data-testid="input-gratuity-hourly"
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </TabsContent>
                     </Tabs>
 
