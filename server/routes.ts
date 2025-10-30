@@ -4584,7 +4584,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         breakdown.subtotal = breakdown.timeFare;
       }
 
-      // Apply gratuity
+      // Check for surge pricing if date and time provided
+      // IMPORTANT: Apply surge pricing to base fare ONLY, before adding gratuity/airport fees
+      breakdown.surgeAmount = 0;
+      if (date && time && rule.surgePricing && rule.surgePricing.length > 0) {
+        const requestDate = new Date(`${date}T${time}`);
+        const dayOfWeek = requestDate.getDay();
+        const timeStr = time; // HH:MM format
+
+        for (const surge of rule.surgePricing) {
+          // Check if surge applies: either specific day matches OR surge is for "All Days" (-1)
+          const dayMatches = surge.dayOfWeek === dayOfWeek || surge.dayOfWeek === -1;
+          const timeMatches = timeStr >= surge.startTime && timeStr <= surge.endTime;
+          
+          if (dayMatches && timeMatches) {
+            breakdown.surgeMultiplier = parseFloat(String(surge.multiplier));
+            // Calculate surge amount: (multiplier - 1) * base fare
+            // Example: 1.5x multiplier on $100 base = 0.5 * $100 = $50 surge fee
+            breakdown.surgeAmount = (breakdown.surgeMultiplier - 1) * breakdown.subtotal;
+            break;
+          }
+        }
+      }
+
+      // Apply gratuity as percentage of base fare (before surge)
       if (rule.gratuityPercent) {
         const gratuityPercent = parseFloat(rule.gratuityPercent);
         breakdown.gratuity = breakdown.subtotal * (gratuityPercent / 100);
@@ -4605,24 +4628,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         breakdown.meetAndGreetFee = parseFloat(String(rule.meetAndGreet.charge || 0));
       }
 
-      // Check for surge pricing if date and time provided
-      if (date && time && rule.surgePricing && rule.surgePricing.length > 0) {
-        const requestDate = new Date(`${date}T${time}`);
-        const dayOfWeek = requestDate.getDay();
-        const timeStr = time; // HH:MM format
-
-        for (const surge of rule.surgePricing) {
-          if (surge.dayOfWeek === dayOfWeek && 
-              timeStr >= surge.startTime && 
-              timeStr <= surge.endTime) {
-            breakdown.surgeMultiplier = parseFloat(String(surge.multiplier));
-            break;
-          }
-        }
-      }
-
       // Calculate final total before discount
-      breakdown.total = (breakdown.subtotal + breakdown.gratuity + breakdown.airportFee + breakdown.meetAndGreetFee) * breakdown.surgeMultiplier;
+      // Order: Base Fare + Surge Amount + Gratuity + Airport Fee + Meet & Greet
+      breakdown.total = breakdown.subtotal + breakdown.surgeAmount + breakdown.gratuity + breakdown.airportFee + breakdown.meetAndGreetFee;
 
       // Apply passenger discount if userId provided
       let discountAmount = 0;
@@ -4657,6 +4665,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         discountPercentage: discountType === 'percentage' ? discountValue : 0,
         discountAmount: discountAmount.toFixed(2),
         finalPrice: breakdown.finalTotal.toFixed(2), // Price after discount
+        // Detailed breakdown fields for database storage
+        baseFare: breakdown.subtotal.toFixed(2),
+        gratuityAmount: breakdown.gratuity.toFixed(2),
+        airportFeeAmount: breakdown.airportFee.toFixed(2),
+        surgePricingMultiplier: breakdown.surgeMultiplier,
+        surgePricingAmount: breakdown.surgeAmount.toFixed(2),
         breakdown,
         ruleId: rule.id,
         discount: discountAmount > 0 ? {
