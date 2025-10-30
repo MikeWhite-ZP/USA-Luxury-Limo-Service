@@ -2325,6 +2325,11 @@ export default function AdminDashboard() {
           regularPrice: data.regularPrice,
           discountPercentage: data.discountPercentage,
           discountAmount: data.discountAmount,
+          baseFare: data.baseFare,
+          gratuityAmount: data.gratuityAmount,
+          airportFeeAmount: data.airportFeeAmount,
+          surgePricingMultiplier: data.surgePricingMultiplier,
+          surgePricingAmount: data.surgePricingAmount,
         });
         toast({
           title: "Price Calculated",
