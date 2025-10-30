@@ -5696,8 +5696,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate driver ID for individual messages
       if (messageType === 'individual' && driverId) {
         const driver = await storage.getUser(driverId);
-        if (!driver || driver.role !== 'driver') {
-          return res.status(400).json({ message: 'Invalid driver ID' });
+        console.log('🔍 Driver validation - ID:', driverId, 'Found:', !!driver, 'Role:', driver?.role);
+        if (!driver) {
+          return res.status(400).json({ message: 'Driver not found' });
+        }
+        if (driver.role !== 'driver') {
+          return res.status(400).json({ message: `Invalid role: ${driver.role}. Must be a driver.` });
         }
       }
 

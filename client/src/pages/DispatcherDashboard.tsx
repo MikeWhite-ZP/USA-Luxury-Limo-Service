@@ -1149,7 +1149,7 @@ export default function DispatcherDashboard() {
                     </SelectTrigger>
                     <SelectContent>
                       {activeDrivers.map((driver: any) => (
-                        <SelectItem key={driver.id} value={driver.id}>
+                        <SelectItem key={driver.id} value={driver.userId}>
                           {driver.firstName} {driver.lastName} - {driver.email}
                         </SelectItem>
                       ))}
@@ -1238,7 +1238,7 @@ export default function DispatcherDashboard() {
                       {messageType === 'broadcast' 
                         ? `All active drivers (${activeDrivers.length} drivers)` 
                         : selectedDriverForMessage 
-                        ? activeDrivers.find((d: any) => d.id === selectedDriverForMessage)?.firstName + ' ' + activeDrivers.find((d: any) => d.id === selectedDriverForMessage)?.lastName
+                        ? activeDrivers.find((d: any) => d.userId === selectedDriverForMessage)?.firstName + ' ' + activeDrivers.find((d: any) => d.userId === selectedDriverForMessage)?.lastName
                         : 'No driver selected'
                       }
                     </p>
