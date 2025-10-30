@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquare, Send, CheckCircle, XCircle, Loader2, Eye, EyeOff, Save } from 'lucide-react';
+import { MessageSquare, Send, CheckCircle, XCircle, Loader2, Eye, EyeOff, Save, Settings, AlertCircle, Check } from 'lucide-react';
 
 interface TwilioStatus {
   connected: boolean;
@@ -214,58 +214,67 @@ export function AdminSMSSettings() {
   };
 
   return (
-    <Card id="settings-section" data-testid="sms-settings">
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <MessageSquare className="w-5 h-5" />
+    <Card id="settings-section" data-testid="sms-settings" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+      <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50/30 border-b border-slate-200">
+        <CardTitle className="flex items-center gap-3 text-slate-900">
+          <div className="bg-purple-600 p-2 rounded-lg">
+            <MessageSquare className="w-5 h-5 text-white" />
+          </div>
           <span>SMS Notifications (Twilio)</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="pt-6">
         {loading ? (
           <div className="flex items-center justify-center p-8">
-            <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+            <div className="animate-spin w-6 h-6 border-4 border-purple-600 border-t-transparent rounded-full" />
           </div>
         ) : (
-          <>
+          <div className="space-y-6">
             {/* Enable/Disable Toggle */}
-            <div className="border rounded-lg p-4 space-y-3">
-              <div className="flex items-center justify-between">
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="bg-purple-100 p-1.5 rounded-lg">
+                  <Settings className="w-4 h-4 text-purple-700" />
+                </div>
+                <h3 className="font-semibold text-slate-900">SMS Notifications Control</h3>
+              </div>
+              <div className="flex items-center justify-between bg-white rounded-lg p-4 border border-slate-200">
                 <div>
-                  <h4 className="font-semibold">SMS Notifications</h4>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <h4 className="font-semibold text-slate-900">SMS Notifications</h4>
+                  <p className="text-sm text-slate-600 mt-1">
                     {credentials.enabled ? 'SMS notifications are active' : 'SMS notifications are disabled'}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`text-sm font-semibold ${credentials.enabled ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`text-sm font-semibold ${credentials.enabled ? 'text-green-600' : 'text-slate-400'}`}>
                     {credentials.enabled ? 'ON' : 'OFF'}
                   </span>
-                  <div className={`relative inline-flex items-center rounded-full p-1 transition-colors ${
-                    credentials.enabled ? 'bg-green-600' : 'bg-red-600'
-                  }`}>
-                    <Switch
-                      checked={credentials.enabled}
-                      onCheckedChange={handleToggleEnabled}
-                      data-testid="switch-sms-enabled"
-                      className="data-[state=checked]:bg-green-700 data-[state=unchecked]:bg-red-700"
-                    />
-                  </div>
+                  <Switch
+                    checked={credentials.enabled}
+                    onCheckedChange={handleToggleEnabled}
+                    data-testid="switch-sms-enabled"
+                    className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-slate-300"
+                  />
                 </div>
               </div>
             </div>
 
             {/* Connection Status */}
-            <div className="border rounded-lg p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <h4 className="font-semibold">Connection Status</h4>
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="bg-blue-100 p-1.5 rounded-lg">
+                    <CheckCircle className="w-4 h-4 text-blue-700" />
+                  </div>
+                  <h3 className="font-semibold text-slate-900">Connection Status</h3>
+                </div>
                 {status?.connected ? (
-                  <Badge className="bg-green-600" data-testid="badge-sms-connected">
+                  <Badge className="bg-green-600 text-white border-green-700" data-testid="badge-sms-connected">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Connected
                   </Badge>
                 ) : (
-                  <Badge variant="destructive" data-testid="badge-sms-disconnected">
+                  <Badge className="bg-red-100 text-red-800 border-red-200" data-testid="badge-sms-disconnected">
                     <XCircle className="w-3 h-3 mr-1" />
                     Not Connected
                   </Badge>
@@ -277,6 +286,7 @@ export function AdminSMSSettings() {
                 variant="outline"
                 onClick={checkStatus}
                 disabled={loading}
+                className="border-blue-300 text-blue-700 hover:bg-blue-50"
                 data-testid="button-refresh-status"
               >
                 <Loader2 className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
@@ -285,23 +295,30 @@ export function AdminSMSSettings() {
             </div>
 
             {/* Twilio Credentials */}
-            <div className="border rounded-lg p-4 space-y-4">
+            <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="font-semibold">Twilio Credentials</h4>
+                <div className="flex items-center gap-2">
+                  <div className="bg-indigo-100 p-1.5 rounded-lg">
+                    <Settings className="w-4 h-4 text-indigo-700" />
+                  </div>
+                  <h3 className="font-semibold text-slate-900">Twilio Credentials</h3>
+                </div>
                 {!editing && (
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setEditing(true)}
+                    className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
                     data-testid="button-edit-credentials"
                   >
+                    <Settings className="w-4 h-4 mr-2" />
                     Edit Credentials
                   </Button>
                 )}
               </div>
 
               {editing ? (
-                <div className="space-y-4">
+                <div className="space-y-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
                   <div className="space-y-2">
                     <Label htmlFor="account-sid">Account SID</Label>
                     <Input
@@ -357,10 +374,11 @@ export function AdminSMSSettings() {
                     </p>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 pt-2">
                     <Button
                       onClick={handleSaveCredentials}
                       disabled={saving}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white"
                       data-testid="button-save-credentials"
                     >
                       {saving ? (
@@ -382,6 +400,7 @@ export function AdminSMSSettings() {
                         setShowAuthToken(false);
                         checkStatus();
                       }}
+                      className="border-slate-300"
                       data-testid="button-cancel-edit"
                     >
                       Cancel
@@ -389,22 +408,22 @@ export function AdminSMSSettings() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Account SID:</span>
-                    <span className="font-mono text-xs" data-testid="text-account-sid">
+                <div className="space-y-3 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200">
+                    <span className="text-sm font-medium text-slate-700">Account SID:</span>
+                    <span className="font-mono text-xs text-slate-900" data-testid="text-account-sid">
                       {credentials.accountSid ? `${credentials.accountSid.substring(0, 12)}...` : 'Not configured'}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Auth Token:</span>
-                    <span className="font-mono text-xs" data-testid="text-auth-token">
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200">
+                    <span className="text-sm font-medium text-slate-700">Auth Token:</span>
+                    <span className="font-mono text-xs text-slate-900" data-testid="text-auth-token">
                       {status?.hasAuthToken ? '••••••••••••••••' : 'Not configured'}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Phone Number:</span>
-                    <span className="font-mono text-xs" data-testid="text-phone-number">
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200">
+                    <span className="text-sm font-medium text-slate-700">Phone Number:</span>
+                    <span className="font-mono text-xs text-slate-900" data-testid="text-phone-number">
                       {credentials.phoneNumber || 'Not configured'}
                     </span>
                   </div>
@@ -414,76 +433,124 @@ export function AdminSMSSettings() {
 
             {/* Test SMS */}
             {credentials.enabled && status?.connected && (
-              <div className="border rounded-lg p-4 space-y-3">
-                <h4 className="font-semibold">Test SMS Notification</h4>
-                <p className="text-sm text-muted-foreground">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="bg-green-100 p-1.5 rounded-lg">
+                    <Send className="w-4 h-4 text-green-700" />
+                  </div>
+                  <h3 className="font-semibold text-slate-900">Test SMS Notification</h3>
+                </div>
+                <p className="text-sm text-slate-600 mb-4">
                   Send a test SMS to verify your Twilio configuration is working correctly.
                 </p>
 
-                <div className="space-y-2">
-                  <Label htmlFor="test-phone">Phone Number</Label>
-                  <Input
-                    id="test-phone"
-                    type="tel"
-                    placeholder="+1234567890"
-                    value={testPhoneNumber}
-                    onChange={(e) => setTestPhoneNumber(e.target.value)}
-                    data-testid="input-test-phone"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Include country code (e.g., +1 for US)
-                  </p>
-                </div>
+                <div className="space-y-3 bg-white p-4 rounded-lg border border-slate-200">
+                  <div className="space-y-2">
+                    <Label htmlFor="test-phone" className="text-slate-900">Phone Number</Label>
+                    <Input
+                      id="test-phone"
+                      type="tel"
+                      placeholder="+1234567890"
+                      value={testPhoneNumber}
+                      onChange={(e) => setTestPhoneNumber(e.target.value)}
+                      className="border-slate-300 focus:border-green-500 focus:ring-green-500"
+                      data-testid="input-test-phone"
+                    />
+                    <p className="text-xs text-slate-600">
+                      Include country code (e.g., +1 for US)
+                    </p>
+                  </div>
 
-                <Button
-                  onClick={handleTestSMS}
-                  disabled={sendingTest || !testPhoneNumber}
-                  data-testid="button-send-test-sms"
-                >
-                  {sendingTest ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2" />
-                      Send Test SMS
-                    </>
-                  )}
-                </Button>
+                  <Button
+                    onClick={handleTestSMS}
+                    disabled={sendingTest || !testPhoneNumber}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    data-testid="button-send-test-sms"
+                  >
+                    {sendingTest ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Send Test SMS
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             )}
 
             {/* SMS Notification Settings Info */}
-            <div className="border rounded-lg p-4 space-y-3 bg-muted/50">
-              <h4 className="font-semibold text-sm">Automated SMS Notifications</h4>
-              <p className="text-sm text-muted-foreground">
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="bg-amber-100 p-1.5 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-amber-700" />
+                </div>
+                <h3 className="font-semibold text-slate-900">Automated SMS Notifications</h3>
+              </div>
+              <p className="text-sm text-slate-700 mb-3">
                 When enabled, SMS notifications will be automatically sent for:
               </p>
-              <ul className="text-sm text-muted-foreground space-y-1 ml-4">
-                <li>• Booking confirmations to passengers</li>
-                <li>• Booking status updates (confirmed, in progress, completed)</li>
-                <li>• Driver assignments to drivers</li>
-              </ul>
-              <p className="text-xs text-muted-foreground mt-3">
-                <strong>Note:</strong> SMS notifications will only be sent if SMS is enabled and the user has a valid phone number on file.
-              </p>
+              <div className="space-y-2 mb-4">
+                <div className="flex items-start gap-2 bg-white p-3 rounded-lg border border-amber-200">
+                  <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-slate-700">Booking confirmations to passengers</span>
+                </div>
+                <div className="flex items-start gap-2 bg-white p-3 rounded-lg border border-amber-200">
+                  <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-slate-700">Booking status updates (confirmed, in progress, completed)</span>
+                </div>
+                <div className="flex items-start gap-2 bg-white p-3 rounded-lg border border-amber-200">
+                  <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-slate-700">Driver assignments to drivers</span>
+                </div>
+              </div>
+              <div className="bg-white border border-amber-200 rounded-lg p-3">
+                <p className="text-xs text-slate-600">
+                  <strong className="text-amber-700">Note:</strong> SMS notifications will only be sent if SMS is enabled and the user has a valid phone number on file.
+                </p>
+              </div>
             </div>
 
             {/* Configuration Guide */}
-            <div className="text-xs text-muted-foreground p-3 bg-muted rounded-lg space-y-2">
-              <strong>Setup Instructions:</strong>
-              <ol className="list-decimal ml-4 space-y-1">
-                <li>Sign up for a Twilio account at twilio.com</li>
-                <li>Get your Account SID and Auth Token from the Twilio Console</li>
-                <li>Purchase a phone number in the Twilio Console</li>
-                <li>Enter your credentials above and click "Save Credentials"</li>
-                <li>Enable SMS notifications using the toggle switch</li>
-                <li>Send a test SMS to verify everything is working</li>
+            <div className="bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-300 rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="bg-blue-100 p-1.5 rounded-lg">
+                  <Settings className="w-4 h-4 text-blue-700" />
+                </div>
+                <h3 className="font-semibold text-slate-900">Setup Instructions</h3>
+              </div>
+              <ol className="space-y-2">
+                <li className="flex gap-3 items-start">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0 mt-0.5">1</span>
+                  <span className="text-sm text-slate-700">Sign up for a Twilio account at twilio.com</span>
+                </li>
+                <li className="flex gap-3 items-start">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0 mt-0.5">2</span>
+                  <span className="text-sm text-slate-700">Get your Account SID and Auth Token from the Twilio Console</span>
+                </li>
+                <li className="flex gap-3 items-start">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0 mt-0.5">3</span>
+                  <span className="text-sm text-slate-700">Purchase a phone number in the Twilio Console</span>
+                </li>
+                <li className="flex gap-3 items-start">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0 mt-0.5">4</span>
+                  <span className="text-sm text-slate-700">Enter your credentials above and click "Save Credentials"</span>
+                </li>
+                <li className="flex gap-3 items-start">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0 mt-0.5">5</span>
+                  <span className="text-sm text-slate-700">Enable SMS notifications using the toggle switch</span>
+                </li>
+                <li className="flex gap-3 items-start">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0 mt-0.5">6</span>
+                  <span className="text-sm text-slate-700">Send a test SMS to verify everything is working</span>
+                </li>
               </ol>
             </div>
-          </>
+          </div>
         )}
       </CardContent>
     </Card>
