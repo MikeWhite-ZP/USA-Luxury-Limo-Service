@@ -96,6 +96,8 @@ Preferred communication style: Simple, everyday language.
 - Invoice display shows itemized breakdown: Base Fare, Surge Pricing (multiplier + amount), Gratuity, Airport Fees, Subtotal, Discount, Total
 - Surge pricing correctly applies only to base fare (not to gratuity or airport fees)
 - "All Days" option (-1 value) in surge pricing applies rules across entire week
+- **Complete State Management**: All pricing fields (baseFare, gratuityAmount, airportFeeAmount, surgePricingMultiplier, surgePricingAmount, discountPercentage, discountAmount) fully integrated into bookingFormData state across all initialization points (initial state, openAddBookingDialog, openEditBookingDialog, saveBookingMutation reset)
+- **Data Type Consistency**: String-to-number conversions handled properly in API submission to ensure validation passes
 
 **User Discount System**: Comprehensive discount tracking and display across bookings and invoices:
 - Added discount fields to bookings table (regularPrice, discountPercentage, discountAmount)

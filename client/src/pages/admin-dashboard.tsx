@@ -1634,6 +1634,11 @@ export default function AdminDashboard() {
     regularPrice: "",
     discountPercentage: "",
     discountAmount: "",
+    baseFare: "",
+    gratuityAmount: "",
+    airportFeeAmount: "",
+    surgePricingMultiplier: "",
+    surgePricingAmount: "",
     vehicleTypeId: "",
     bookingType: "transfer" as "transfer" | "hourly",
     status: "pending" as
@@ -2518,6 +2523,13 @@ export default function AdminDashboard() {
         requestedHours: data.requestedHours
           ? parseInt(data.requestedHours)
           : undefined,
+        // Convert numeric values to strings for schema validation
+        surgePricingMultiplier: data.surgePricingMultiplier 
+          ? String(data.surgePricingMultiplier)
+          : undefined,
+        discountPercentage: data.discountPercentage
+          ? String(data.discountPercentage)
+          : undefined,
       };
 
       const method = editingBooking ? "PATCH" : "POST";
@@ -2548,6 +2560,11 @@ export default function AdminDashboard() {
         regularPrice: "",
         discountPercentage: "",
         discountAmount: "",
+        baseFare: "",
+        gratuityAmount: "",
+        airportFeeAmount: "",
+        surgePricingMultiplier: "",
+        surgePricingAmount: "",
         vehicleTypeId: "",
         bookingType: "transfer",
         status: "pending",
@@ -2961,6 +2978,11 @@ export default function AdminDashboard() {
       regularPrice: "",
       discountPercentage: "",
       discountAmount: "",
+      baseFare: "",
+      gratuityAmount: "",
+      airportFeeAmount: "",
+      surgePricingMultiplier: "",
+      surgePricingAmount: "",
       vehicleTypeId: "",
       bookingType: "transfer",
       status: "pending",
@@ -3025,6 +3047,11 @@ export default function AdminDashboard() {
       regularPrice: booking.regularPrice?.toString() || "",
       discountPercentage: booking.discountPercentage?.toString() || "",
       discountAmount: booking.discountAmount?.toString() || "",
+      baseFare: booking.baseFare?.toString() || "",
+      gratuityAmount: booking.gratuityAmount?.toString() || "",
+      airportFeeAmount: booking.airportFeeAmount?.toString() || "",
+      surgePricingMultiplier: booking.surgePricingMultiplier?.toString() || "",
+      surgePricingAmount: booking.surgePricingAmount?.toString() || "",
       vehicleTypeId: booking.vehicleTypeId || "",
       bookingType: booking.bookingType || "transfer",
       status: booking.status || "pending",
