@@ -7,6 +7,13 @@ USA Luxury Limo is a full-stack Progressive Web Application (PWA) designed as a 
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 30, 2025)
+**Itemized Pricing Breakdown**: Complete transparency in fare calculations with detailed component display:
+- Added pricing breakdown fields to bookings/invoices: baseFare, gratuityAmount, airportFeeAmount, surgePricingMultiplier, surgePricingAmount
+- Enhanced price calculation workflow: base fare → surge pricing (multiplier × base) → add gratuity → add airport fees → apply discount
+- Invoice display shows itemized breakdown: Base Fare, Surge Pricing (multiplier + amount), Gratuity, Airport Fees, Subtotal, Discount, Total
+- Surge pricing correctly applies only to base fare (not to gratuity or airport fees)
+- "All Days" option (-1 value) in surge pricing applies rules across entire week
+
 **User Discount System**: Comprehensive discount tracking and display across bookings and invoices:
 - Added discount fields to bookings table (regularPrice, discountPercentage, discountAmount)
 - Added discount fields to invoices table for transparent billing
