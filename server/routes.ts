@@ -3291,6 +3291,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create temporary password (user should reset)
       const tempPassword = Math.random().toString(36).slice(-10);
       
+      // Determine default isActive based on role
+      // Admin accounts start as inactive and must be activated by existing admins
+      let defaultIsActive = true;
+      if (role === 'admin') {
+        defaultIsActive = false;
+      }
+      
       const newUser = await storage.createUser({
         email,
         password: tempPassword,
@@ -3298,7 +3305,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastName: lastName || '',
         phone: phone || '',
         role: role || 'passenger',
-        isActive: isActive !== undefined ? isActive : true,
+        isActive: isActive !== undefined ? isActive : defaultIsActive,
         payLaterEnabled: payLaterEnabled || false,
       });
 
