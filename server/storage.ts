@@ -310,11 +310,102 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteUser(id: string): Promise<boolean> {
-    const result = await db
-      .delete(users)
-      .where(eq(users.id, id))
-      .returning();
-    return result.length > 0;
+    try {
+      // Get all user bookings to delete related data
+      const userBookings = await db
+        .select({ id: bookings.id })
+        .from(bookings)
+        .where(eq(bookings.passengerId, id));
+      
+      const bookingIds = userBookings.map(b => b.id);
+      
+      // Get driver info if user is a driver
+      const driver = await this.getDriverByUserId(id);
+      let driverBookingIds: string[] = [];
+      
+      if (driver) {
+        const driverBookings = await db
+          .select({ id: bookings.id })
+          .from(bookings)
+          .where(eq(bookings.driverId, driver.id));
+        driverBookingIds = driverBookings.map(b => b.id);
+      }
+      
+      // Combine all booking IDs to delete
+      const allBookingIds = [...new Set([...bookingIds, ...driverBookingIds])];
+      
+      // Delete in correct order to respect foreign key constraints
+      
+      // 1. Delete payment tokens for all invoices related to bookings
+      for (const bookingId of allBookingIds) {
+        const bookingInvoices = await db
+          .select({ id: invoices.id })
+          .from(invoices)
+          .where(eq(invoices.bookingId, bookingId));
+        
+        for (const invoice of bookingInvoices) {
+          await db.delete(paymentTokens).where(eq(paymentTokens.invoiceId, invoice.id));
+        }
+      }
+      
+      // 2. Delete invoices for all bookings
+      for (const bookingId of allBookingIds) {
+        await db.delete(invoices).where(eq(invoices.bookingId, bookingId));
+      }
+      
+      // 3. Delete driver ratings for all bookings
+      for (const bookingId of allBookingIds) {
+        await db.delete(driverRatings).where(eq(driverRatings.bookingId, bookingId));
+      }
+      
+      // 4. Nullify emergency incident references
+      for (const bookingId of allBookingIds) {
+        await db
+          .update(emergencyIncidents)
+          .set({ bookingId: null })
+          .where(eq(emergencyIncidents.bookingId, bookingId));
+      }
+      
+      // Nullify emergency incident driverId references for this user
+      await db
+        .update(emergencyIncidents)
+        .set({ driverId: null })
+        .where(eq(emergencyIncidents.driverId, id));
+      
+      // 5. Delete driver messages sent by or to this user
+      await db.delete(driverMessages).where(eq(driverMessages.senderId, id));
+      await db.delete(driverMessages).where(eq(driverMessages.driverId, id));
+      
+      // 6. Delete saved addresses
+      await db.delete(savedAddresses).where(eq(savedAddresses.userId, id));
+      
+      // 7. Delete password reset tokens
+      await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, id));
+      
+      // 8. Delete all bookings
+      for (const bookingId of allBookingIds) {
+        await db.delete(bookings).where(eq(bookings.id, bookingId));
+      }
+      
+      // 9. If user is a driver, delete driver-specific data
+      if (driver) {
+        // Delete driver documents
+        await db.delete(driverDocuments).where(eq(driverDocuments.driverId, driver.id));
+        
+        // Delete driver record
+        await db.delete(drivers).where(eq(drivers.id, driver.id));
+      }
+      
+      // 10. Finally, delete the user
+      const result = await db
+        .delete(users)
+        .where(eq(users.id, id))
+        .returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
   }
 
   async createDriver(driverData: InsertDriver): Promise<Driver> {
