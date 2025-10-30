@@ -1005,6 +1005,54 @@ export default function AdminPricing() {
                             </div>
                           </div>
                         </div>
+
+                        {/* Airport Fees */}
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-semibold">Airport Fees</h3>
+                            <Button type="button" size="sm" onClick={addAirportFee} data-testid="button-add-airport-fee-hourly">
+                              <Plus className="w-4 h-4 mr-1" />
+                              Add Airport
+                            </Button>
+                          </div>
+                          {formData.airportFees.map((fee, index) => (
+                            <div key={index} className="grid grid-cols-4 gap-2 items-end">
+                              <div>
+                                <Label>Airport Code</Label>
+                                <Input
+                                  placeholder="IAH"
+                                  value={fee.airportCode}
+                                  onChange={(e) => updateAirportFee(index, 'airportCode', e.target.value)}
+                                  data-testid={`input-airport-code-hourly-${index}`}
+                                />
+                              </div>
+                              <div>
+                                <Label>Fee ($)</Label>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  value={fee.fee}
+                                  onChange={(e) => updateAirportFee(index, 'fee', parseFloat(e.target.value) || 0)}
+                                  data-testid={`input-airport-fee-hourly-${index}`}
+                                />
+                              </div>
+                              <div>
+                                <Label>Waiver (min)</Label>
+                                <Input
+                                  type="number"
+                                  placeholder="Optional"
+                                  className="border-slate-300"
+                                  value={fee.waiverMinutes || ""}
+                                  onChange={(e) => updateAirportFee(index, 'waiverMinutes', e.target.value ? parseInt(e.target.value) : undefined)}
+                                  data-testid={`input-waiver-hourly-${index}`}
+                                />
+                              </div>
+                              <Button type="button" variant="destructive" size="sm" onClick={() => removeAirportFee(index)}>
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
                       </TabsContent>
                     </Tabs>
 
