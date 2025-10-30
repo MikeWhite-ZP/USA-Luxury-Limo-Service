@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
-import { User, Mail, Phone, ArrowLeft, Save, Lock, Eye, EyeOff } from "lucide-react";
+import { User, Mail, Phone, ArrowLeft, Save, Lock, Eye, EyeOff, Shield, Calendar, CheckCircle2 } from "lucide-react";
 import Header from "@/components/Header";
 
 export default function AccountPage() {
@@ -197,48 +198,82 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-50">
       <Header />
       
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Button
           variant="ghost"
           onClick={() => setLocation('/')}
-          className="mb-6"
+          className="mb-6 hover:bg-slate-100"
           data-testid="button-back"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Home
         </Button>
 
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Account Settings</h1>
+          <p className="text-slate-600">Manage your personal information and security preferences</p>
+        </div>
+
         <div className="grid gap-6">
-          {/* Account Details Card - Moved to Top */}
-          <Card data-testid="account-details-card" className="bg-[#f2e9e9]">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-[#d82527]">Account Details</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Account Type</p>
-                  <p className="font-medium capitalize text-sm" data-testid="text-role">
-                    {user?.role || 'N/A'}
-                  </p>
+          {/* Account Overview Card */}
+          <Card data-testid="account-details-card" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-slate-50 border-b border-slate-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg">
+                    <Shield className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-slate-900 text-xl">Account Overview</CardTitle>
+                    <CardDescription className="text-slate-600 mt-1">Your account information and status</CardDescription>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Account Status</p>
-                  <p className="font-medium text-sm" data-testid="text-status">
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="bg-blue-100 p-1.5 rounded-lg">
+                      <User className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <p className="text-xs font-medium text-slate-600">Account Type</p>
+                  </div>
+                  <Badge className="bg-blue-600 hover:bg-blue-700 text-white" data-testid="text-role">
+                    {user?.role || 'N/A'}
+                  </Badge>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="bg-green-100 p-1.5 rounded-lg">
+                      <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    </div>
+                    <p className="text-xs font-medium text-slate-600">Account Status</p>
+                  </div>
+                  <div data-testid="text-status">
                     {user?.isActive ? (
-                      <span className="text-green-600">Active</span>
+                      <Badge className="bg-green-600 hover:bg-green-700 text-white">
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        Active
+                      </Badge>
                     ) : (
-                      <span className="text-red-600">Inactive</span>
+                      <Badge variant="destructive">Inactive</Badge>
                     )}
-                  </p>
+                  </div>
                 </div>
                 {user?.createdAt && (
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Member Since</p>
-                    <p className="font-medium text-sm" data-testid="text-created-at">
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="bg-purple-100 p-1.5 rounded-lg">
+                        <Calendar className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <p className="text-xs font-medium text-slate-600">Member Since</p>
+                    </div>
+                    <p className="font-semibold text-slate-900" data-testid="text-created-at">
                       {new Date(user.createdAt).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
@@ -252,21 +287,25 @@ export default function AccountPage() {
           </Card>
 
           {/* Profile Information Card */}
-          <Card data-testid="profile-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#d82527]">
-                <User className="w-5 h-5" />
-                Account Information
-              </CardTitle>
-              <CardDescription>
-                Update your personal information and contact details
-              </CardDescription>
+          <Card data-testid="profile-card" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+            <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50/30 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="bg-slate-600 p-2.5 rounded-xl shadow-lg">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-slate-900 text-xl">Personal Information</CardTitle>
+                  <CardDescription className="text-slate-600 mt-1">
+                    Update your personal information and contact details
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="firstName" className="text-base font-medium">
+                    <Label htmlFor="firstName" className="text-sm font-semibold text-slate-700 mb-2 block">
                       First Name *
                     </Label>
                     <Input
@@ -274,12 +313,12 @@ export default function AccountPage() {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="Enter your first name"
-                      className="mt-2"
+                      className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                       data-testid="input-first-name"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="lastName" className="text-base font-medium">
+                    <Label htmlFor="lastName" className="text-sm font-semibold text-slate-700 mb-2 block">
                       Last Name *
                     </Label>
                     <Input
@@ -287,15 +326,17 @@ export default function AccountPage() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Enter your last name"
-                      className="mt-2"
+                      className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                       data-testid="input-last-name"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="email" className="text-base font-medium flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
+                  <Label htmlFor="email" className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                    <div className="bg-blue-100 p-1 rounded">
+                      <Mail className="w-3.5 h-3.5 text-blue-600" />
+                    </div>
                     Email Address *
                   </Label>
                   <Input
@@ -304,14 +345,16 @@ export default function AccountPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    className="mt-2"
+                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                     data-testid="input-email"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="phone" className="text-base font-medium flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
+                  <Label htmlFor="phone" className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                    <div className="bg-green-100 p-1 rounded">
+                      <Phone className="w-3.5 h-3.5 text-green-600" />
+                    </div>
                     Phone Number
                   </Label>
                   <Input
@@ -320,17 +363,17 @@ export default function AccountPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Enter your phone number"
-                    className="mt-2"
+                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                     data-testid="input-phone"
                   />
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-3 pt-4 border-t border-slate-100">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setLocation('/')}
-                    className="flex-1"
+                    className="flex-1 border-slate-300 hover:bg-slate-100"
                     data-testid="button-cancel"
                   >
                     Cancel
@@ -338,7 +381,7 @@ export default function AccountPage() {
                   <Button
                     type="submit"
                     disabled={updateProfileMutation.isPending}
-                    className="flex-1 bg-primary hover:bg-primary/90"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-md"
                     data-testid="button-save"
                   >
                     {updateProfileMutation.isPending ? (
@@ -356,35 +399,40 @@ export default function AccountPage() {
           </Card>
 
           {/* Change Password Card */}
-          <Card data-testid="change-password-card" className="bg-[#f5f5ed]">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#d82527]">
-                <Lock className="w-5 h-5" />
-                Change Password
-              </CardTitle>
-              <CardDescription>
-                Update your password to keep your account secure
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handlePasswordSubmit} className="space-y-4">
+          <Card data-testid="change-password-card" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+            <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50/30 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="bg-amber-600 p-2.5 rounded-xl shadow-lg">
+                  <Lock className="w-5 h-5 text-white" />
+                </div>
                 <div>
-                  <Label htmlFor="currentPassword" className="text-base font-medium">
+                  <CardTitle className="text-slate-900 text-xl">Security Settings</CardTitle>
+                  <CardDescription className="text-slate-600 mt-1">
+                    Update your password to keep your account secure
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <form onSubmit={handlePasswordSubmit} className="space-y-5">
+                <div>
+                  <Label htmlFor="currentPassword" className="text-sm font-semibold text-slate-700 mb-2 block">
                     Current Password *
                   </Label>
-                  <div className="relative mt-2">
+                  <div className="relative">
                     <Input
                       id="currentPassword"
                       type={showCurrentPassword ? "text" : "password"}
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="Enter your current password"
+                      className="border-slate-300 focus:border-amber-500 focus:ring-amber-500 pr-10"
                       data-testid="input-current-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
                       data-testid="toggle-current-password"
                     >
                       {showCurrentPassword ? (
@@ -397,22 +445,23 @@ export default function AccountPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="newPassword" className="text-base font-medium">
+                  <Label htmlFor="newPassword" className="text-sm font-semibold text-slate-700 mb-2 block">
                     New Password *
                   </Label>
-                  <div className="relative mt-2">
+                  <div className="relative">
                     <Input
                       id="newPassword"
                       type={showNewPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter your new password"
+                      className="border-slate-300 focus:border-amber-500 focus:ring-amber-500 pr-10"
                       data-testid="input-new-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
                       data-testid="toggle-new-password"
                     >
                       {showNewPassword ? (
@@ -422,28 +471,29 @@ export default function AccountPage() {
                       )}
                     </button>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-slate-500 mt-2 bg-amber-50 p-2 rounded border border-amber-200">
                     Minimum 8 characters with uppercase, lowercase, and numbers
                   </p>
                 </div>
 
                 <div>
-                  <Label htmlFor="confirmPassword" className="text-base font-medium">
+                  <Label htmlFor="confirmPassword" className="text-sm font-semibold text-slate-700 mb-2 block">
                     Confirm New Password *
                   </Label>
-                  <div className="relative mt-2">
+                  <div className="relative">
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm your new password"
+                      className="border-slate-300 focus:border-amber-500 focus:ring-amber-500 pr-10"
                       data-testid="input-confirm-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
                       data-testid="toggle-confirm-password"
                     >
                       {showConfirmPassword ? (
@@ -455,7 +505,7 @@ export default function AccountPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-3 pt-4 border-t border-slate-100">
                   <Button
                     type="button"
                     variant="outline"
@@ -464,7 +514,7 @@ export default function AccountPage() {
                       setNewPassword('');
                       setConfirmPassword('');
                     }}
-                    className="flex-1"
+                    className="flex-1 border-slate-300 hover:bg-slate-100"
                     data-testid="button-cancel-password"
                   >
                     Clear
@@ -472,7 +522,7 @@ export default function AccountPage() {
                   <Button
                     type="submit"
                     disabled={updatePasswordMutation.isPending}
-                    className="flex-1 bg-primary hover:bg-primary/90"
+                    className="flex-1 bg-amber-600 hover:bg-amber-700 text-white shadow-md"
                     data-testid="button-update-password"
                   >
                     {updatePasswordMutation.isPending ? (
