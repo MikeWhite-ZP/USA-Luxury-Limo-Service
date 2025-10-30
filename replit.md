@@ -26,14 +26,22 @@ Preferred communication style: Simple, everyday language.
 - Custom styling with blue header, rounded corners, and smooth hover effects
 - Prevents past date selection (minDate set to today)
 
-**Left Panel (Journey Details)**:
+**Left Panel (Journey Details) - Modern Professional Redesign**:
 - **Main Header**: Blue-to-indigo gradient header with white MapPin icon badge showing Booking ID
-- **Journey Details Card**: Blue gradient header (blue-100 to indigo-100) with blue-600 icon badge
+- **Journey Details Card**: 
+  - Professional light theme with refined spacing (p-6, space-y-6)
+  - Icon-enhanced labels with color-coded icons (blue User, green/red MapPin, amber Navigation, indigo Clock)
+  - Grouped sections with subtle background colors for visual hierarchy
+  - Enhanced passenger search dropdown with two-line display (name + email/phone)
+  - Booking Type & Vehicle section with slate-50 background and border
+  - Via Points section with amber-50 background highlighting with individual stop cards
+  - Schedule section with indigo-50 background containing date and time pickers
+  - Time dropdowns with helpful labels (Hour, Minute, Period) beneath each selector
+  - Refined borders (slate-200, slate-300) and improved focus states
 - **Passenger Details Card**: Purple gradient header (purple-100 to pink-100) with purple-600 icon badge
 - **Flight Information Card**: Emerald gradient header (emerald-100 to teal-100) with emerald-600 icon badge
 - **Journey Log Card**: Amber gradient header (amber-100 to orange-100) with amber-600 icon badge
-- **Via Points Button**: Blue-themed with border-blue-300, text-blue-700, hover effects
-- **Slate-50 Background**: Professional light background color for entire left panel
+- **Professional Light Theme**: Consistent slate/blue/indigo/green/amber color palette throughout
 - **Removed ALL Hardcoded Hex Colors**: No more #ff0000, #0052ff, etc.
 
 **Right Panel (Dispatch & Invoice)**:

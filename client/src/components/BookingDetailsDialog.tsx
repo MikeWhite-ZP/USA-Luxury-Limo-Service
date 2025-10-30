@@ -399,10 +399,13 @@ export function BookingDetailsDialog({
                     <CardTitle className="text-lg font-semibold text-blue-900">Journey Details</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="p-6 space-y-6">
                   {/* Passenger Selection */}
-                  <div>
-                    <Label>Passenger *</Label>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <User className="w-4 h-4 text-blue-600" />
+                      Passenger *
+                    </Label>
                     <div className="relative">
                       <Input
                         placeholder="Search by name, email, or phone..."
@@ -426,10 +429,11 @@ export function BookingDetailsDialog({
                             setUserSearchQuery(' ');
                           }
                         }}
+                        className="bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                         data-testid="input-passenger-search"
                       />
                       {userSearchQuery && allUsers && allUsers.length > 0 && (
-                        <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-60 overflow-y-auto">
                           {allUsers
                             .filter(u => u.role === 'passenger')
                             .filter(u => {
@@ -448,14 +452,15 @@ export function BookingDetailsDialog({
                               <button
                                 key={passenger.id}
                                 type="button"
-                                className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                                className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-slate-100 last:border-0 text-sm transition-colors"
                                 onClick={() => {
                                   setFormData({ ...formData, passengerId: passenger.id });
                                   setUserSearchQuery('');
                                 }}
                                 data-testid={`passenger-option-${passenger.id}`}
                               >
-                                {passenger.firstName} {passenger.lastName} ({passenger.email}) - {passenger.phone || 'N/A'}
+                                <div className="font-medium text-slate-900">{passenger.firstName} {passenger.lastName}</div>
+                                <div className="text-xs text-slate-500">{passenger.email} • {passenger.phone || 'N/A'}</div>
                               </button>
                             ))}
                         </div>
@@ -464,14 +469,17 @@ export function BookingDetailsDialog({
                   </div>
 
                   {/* Booking Type & Vehicle */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Booking Type *</Label>
+                  <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <Car className="w-4 h-4 text-blue-600" />
+                        Booking Type *
+                      </Label>
                       <Select
                         value={formData.bookingType}
                         onValueChange={(value) => setFormData({ ...formData, bookingType: value as 'transfer' | 'hourly' })}
                       >
-                        <SelectTrigger data-testid="select-booking-type">
+                        <SelectTrigger data-testid="select-booking-type" className="bg-white border-slate-300">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -481,13 +489,16 @@ export function BookingDetailsDialog({
                       </Select>
                     </div>
                     
-                    <div>
-                      <Label>Vehicle Type *</Label>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <Car className="w-4 h-4 text-blue-600" />
+                        Vehicle Type *
+                      </Label>
                       <Select
                         value={formData.vehicleTypeId}
                         onValueChange={(value) => setFormData({ ...formData, vehicleTypeId: value })}
                       >
-                        <SelectTrigger data-testid="select-vehicle-type">
+                        <SelectTrigger data-testid="select-vehicle-type" className="bg-white border-slate-300">
                           <SelectValue placeholder="Select vehicle" />
                         </SelectTrigger>
                         <SelectContent>
@@ -501,267 +512,304 @@ export function BookingDetailsDialog({
                     </div>
                   </div>
 
-                  {/* Pickup Address with Saved Addresses */}
-                  <AddressAutocomplete
-                    id="pickup-address"
-                    label="Pickup Address"
-                    value={formData.pickupAddress}
-                    onChange={(value, coords) => {
-                      setFormData({ ...formData, pickupAddress: value, pickupCoords: coords || null });
-                    }}
-                    placeholder="Enter pickup address"
-                    userId={formData.passengerId}
-                    required={true}
-                    data-testid="input-pickup-address"
-                  />
+                  {/* Addresses Section */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-green-600" />
+                        Pickup Address *
+                      </Label>
+                      <AddressAutocomplete
+                        id="pickup-address"
+                        label=""
+                        value={formData.pickupAddress}
+                        onChange={(value, coords) => {
+                          setFormData({ ...formData, pickupAddress: value, pickupCoords: coords || null });
+                        }}
+                        placeholder="Enter pickup address"
+                        userId={formData.passengerId}
+                        required={true}
+                        data-testid="input-pickup-address"
+                      />
+                    </div>
 
-                  {/* Via Points Section - Hidden for Hourly Service */}
-                  {formData.bookingType !== 'hourly' && (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <Label className="font-semibold text-slate-700">Via Points (Optional)</Label>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            const newViaPoints = [...(formData.viaPoints || []), { address: '', lat: 0, lon: 0 }];
-                            setFormData({ ...formData, viaPoints: newViaPoints });
-                          }}
-                          data-testid="button-add-via-point"
-                          className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
-                        >
-                          <Plus className="w-3 h-3 mr-1" />
-                          Add Via Point
-                        </Button>
-                      </div>
-                      
-                      {formData.viaPoints && formData.viaPoints.length > 0 && (
-                        <div className="space-y-3">
-                          {formData.viaPoints.map((viaPoint, index) => (
-                            <div key={index} className="relative">
-                              <AddressAutocomplete
-                                id={`via-point-${index}`}
-                                label={`Via Point ${index + 1}`}
-                                value={viaPoint.address}
-                                onChange={(value, coords) => {
-                                  const newViaPoints = [...(formData.viaPoints || [])];
-                                  newViaPoints[index] = {
-                                    address: value,
-                                    lat: coords?.lat || 0,
-                                    lon: coords?.lon || 0,
-                                  };
-                                  setFormData({ ...formData, viaPoints: newViaPoints });
-                                }}
-                                placeholder="Enter via point address"
-                                userId={formData.passengerId}
-                                required={false}
-                                data-testid={`input-via-point-${index}`}
-                              />
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => {
-                                  const newViaPoints = (formData.viaPoints || []).filter((_, i) => i !== index);
-                                  setFormData({ ...formData, viaPoints: newViaPoints });
-                                }}
-                                className="absolute top-0 right-0 text-red-600 hover:text-red-800 hover:bg-red-50"
-                                data-testid={`button-remove-via-point-${index}`}
-                              >
-                                <XCircle className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          ))}
+                    {/* Via Points Section - Hidden for Hourly Service */}
+                    {formData.bookingType !== 'hourly' && (
+                      <div className="space-y-3 bg-amber-50 p-4 rounded-lg border border-amber-200">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                            <Navigation className="w-4 h-4 text-amber-600" />
+                            Via Points (Optional)
+                          </Label>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              const newViaPoints = [...(formData.viaPoints || []), { address: '', lat: 0, lon: 0 }];
+                              setFormData({ ...formData, viaPoints: newViaPoints });
+                            }}
+                            data-testid="button-add-via-point"
+                            className="border-amber-400 bg-white text-amber-700 hover:bg-amber-100 hover:border-amber-500 shadow-sm"
+                          >
+                            <Plus className="w-3 h-3 mr-1" />
+                            Add Via Point
+                          </Button>
                         </div>
-                      )}
-                    </div>
-                  )}
+                        
+                        {formData.viaPoints && formData.viaPoints.length > 0 && (
+                          <div className="space-y-3">
+                            {formData.viaPoints.map((viaPoint, index) => (
+                              <div key={index} className="relative bg-white p-3 rounded-md border border-amber-200">
+                                <AddressAutocomplete
+                                  id={`via-point-${index}`}
+                                  label={`Stop ${index + 1}`}
+                                  value={viaPoint.address}
+                                  onChange={(value, coords) => {
+                                    const newViaPoints = [...(formData.viaPoints || [])];
+                                    newViaPoints[index] = {
+                                      address: value,
+                                      lat: coords?.lat || 0,
+                                      lon: coords?.lon || 0,
+                                    };
+                                    setFormData({ ...formData, viaPoints: newViaPoints });
+                                  }}
+                                  placeholder="Enter via point address"
+                                  userId={formData.passengerId}
+                                  required={false}
+                                  data-testid={`input-via-point-${index}`}
+                                />
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    const newViaPoints = (formData.viaPoints || []).filter((_, i) => i !== index);
+                                    setFormData({ ...formData, viaPoints: newViaPoints });
+                                  }}
+                                  className="absolute top-1 right-1 text-red-600 hover:text-red-800 hover:bg-red-50"
+                                  data-testid={`button-remove-via-point-${index}`}
+                                >
+                                  <XCircle className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
 
-                  {/* Destination Address with Saved Addresses - Hidden for Hourly Service */}
-                  {formData.bookingType !== 'hourly' && (
-                    <AddressAutocomplete
-                      id="destination-address"
-                      label="Destination Address"
-                      value={formData.destinationAddress}
-                      onChange={(value, coords) => {
-                        setFormData({ ...formData, destinationAddress: value, destinationCoords: coords || null });
-                      }}
-                      placeholder="Enter destination address"
-                      userId={formData.passengerId}
-                      required={true}
-                      data-testid="input-destination-address"
-                    />
-                  )}
+                    {/* Destination Address - Hidden for Hourly Service */}
+                    {formData.bookingType !== 'hourly' && (
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-red-600" />
+                          Destination Address *
+                        </Label>
+                        <AddressAutocomplete
+                          id="destination-address"
+                          label=""
+                          value={formData.destinationAddress}
+                          onChange={(value, coords) => {
+                            setFormData({ ...formData, destinationAddress: value, destinationCoords: coords || null });
+                          }}
+                          placeholder="Enter destination address"
+                          userId={formData.passengerId}
+                          required={true}
+                          data-testid="input-destination-address"
+                        />
+                      </div>
+                    )}
 
-                  {/* Duration for Hourly */}
-                  {formData.bookingType === 'hourly' && (
-                    <div>
-                      <Label>Duration (Hours) *</Label>
-                      <Select
-                        value={formData.requestedHours}
-                        onValueChange={(value) => setFormData({ ...formData, requestedHours: value })}
-                      >
-                        <SelectTrigger data-testid="select-requested-hours">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="2">2 hours</SelectItem>
-                          <SelectItem value="3">3 hours</SelectItem>
-                          <SelectItem value="4">4 hours</SelectItem>
-                          <SelectItem value="5">5 hours</SelectItem>
-                          <SelectItem value="6">6 hours</SelectItem>
-                          <SelectItem value="8">8 hours</SelectItem>
-                          <SelectItem value="10">10 hours</SelectItem>
-                          <SelectItem value="12">12 hours</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {/* Scheduled DateTime */}
-                  <div>
-                    <Label>Scheduled Date *</Label>
-                    <DatePicker
-                      selected={formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : null}
-                      onChange={(date: Date | null) => {
-                        if (date) {
-                          // Extract existing time or use default
-                          let hour = 9;
-                          let minute = 0;
-                          let period = 'AM';
-                          
-                          if (formData.scheduledDateTime) {
-                            const existingDate = new Date(formData.scheduledDateTime);
-                            const existingHours = existingDate.getHours();
-                            hour = existingHours === 0 ? 12 : existingHours > 12 ? existingHours - 12 : existingHours;
-                            minute = existingDate.getMinutes();
-                            period = existingHours >= 12 ? 'PM' : 'AM';
-                          }
-                          
-                          // Convert to 24-hour format
-                          let hours24 = hour;
-                          if (period === 'AM' && hour === 12) hours24 = 0;
-                          else if (period === 'PM' && hour !== 12) hours24 = hour + 12;
-                          
-                          const year = date.getFullYear();
-                          const month = String(date.getMonth() + 1).padStart(2, '0');
-                          const day = String(date.getDate()).padStart(2, '0');
-                          const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-                          setFormData({ ...formData, scheduledDateTime: formattedDateTime });
-                        }
-                      }}
-                      dateFormat="MMMM d, yyyy"
-                      minDate={new Date()}
-                      className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      placeholderText="Select date"
-                      wrapperClassName="w-full"
-                      data-testid="input-scheduled-date"
-                    />
+                    {/* Duration for Hourly */}
+                    {formData.bookingType === 'hourly' && (
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-blue-600" />
+                          Duration (Hours) *
+                        </Label>
+                        <Select
+                          value={formData.requestedHours}
+                          onValueChange={(value) => setFormData({ ...formData, requestedHours: value })}
+                        >
+                          <SelectTrigger data-testid="select-requested-hours" className="bg-white border-slate-300">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="2">2 hours</SelectItem>
+                            <SelectItem value="3">3 hours</SelectItem>
+                            <SelectItem value="4">4 hours</SelectItem>
+                            <SelectItem value="5">5 hours</SelectItem>
+                            <SelectItem value="6">6 hours</SelectItem>
+                            <SelectItem value="8">8 hours</SelectItem>
+                            <SelectItem value="10">10 hours</SelectItem>
+                            <SelectItem value="12">12 hours</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Time Selection */}
-                  <div>
-                    <Label>Scheduled Time *</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {/* Hour */}
-                      <Select
-                        value={(() => {
-                          if (!formData.scheduledDateTime) return "9";
-                          const date = new Date(formData.scheduledDateTime);
-                          const hours = date.getHours();
-                          return String(hours === 0 ? 12 : hours > 12 ? hours - 12 : hours);
-                        })()}
-                        onValueChange={(value) => {
-                          const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
-                          const currentMinute = date.getMinutes();
-                          const currentHours = date.getHours();
-                          const period = currentHours >= 12 ? 'PM' : 'AM';
-                          
-                          let hours24 = parseInt(value);
-                          if (period === 'AM' && hours24 === 12) hours24 = 0;
-                          else if (period === 'PM' && hours24 !== 12) hours24 = hours24 + 12;
-                          
-                          const year = date.getFullYear();
-                          const month = String(date.getMonth() + 1).padStart(2, '0');
-                          const day = String(date.getDate()).padStart(2, '0');
-                          const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
-                          setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                  {/* Schedule Section */}
+                  <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-indigo-600" />
+                        Scheduled Date *
+                      </Label>
+                      <DatePicker
+                        selected={formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : null}
+                        onChange={(date: Date | null) => {
+                          if (date) {
+                            // Extract existing time or use default
+                            let hour = 9;
+                            let minute = 0;
+                            let period = 'AM';
+                            
+                            if (formData.scheduledDateTime) {
+                              const existingDate = new Date(formData.scheduledDateTime);
+                              const existingHours = existingDate.getHours();
+                              hour = existingHours === 0 ? 12 : existingHours > 12 ? existingHours - 12 : existingHours;
+                              minute = existingDate.getMinutes();
+                              period = existingHours >= 12 ? 'PM' : 'AM';
+                            }
+                            
+                            // Convert to 24-hour format
+                            let hours24 = hour;
+                            if (period === 'AM' && hour === 12) hours24 = 0;
+                            else if (period === 'PM' && hour !== 12) hours24 = hour + 12;
+                            
+                            const year = date.getFullYear();
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const day = String(date.getDate()).padStart(2, '0');
+                            const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                            setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                          }
                         }}
-                      >
-                        <SelectTrigger data-testid="select-hour">
-                          <SelectValue placeholder="Hour" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(hour => (
-                            <SelectItem key={hour} value={String(hour)}>{hour}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        dateFormat="MMMM d, yyyy"
+                        minDate={new Date()}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md bg-white text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
+                        placeholderText="Select date"
+                        wrapperClassName="w-full"
+                        data-testid="input-scheduled-date"
+                      />
+                    </div>
 
-                      {/* Minute */}
-                      <Select
-                        value={(() => {
-                          if (!formData.scheduledDateTime) return "00";
-                          const date = new Date(formData.scheduledDateTime);
-                          return String(date.getMinutes()).padStart(2, '0');
-                        })()}
-                        onValueChange={(value) => {
-                          const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
-                          const currentHours = date.getHours();
-                          
-                          const year = date.getFullYear();
-                          const month = String(date.getMonth() + 1).padStart(2, '0');
-                          const day = String(date.getDate()).padStart(2, '0');
-                          const formattedDateTime = `${year}-${month}-${day}T${String(currentHours).padStart(2, '0')}:${value}`;
-                          setFormData({ ...formData, scheduledDateTime: formattedDateTime });
-                        }}
-                      >
-                        <SelectTrigger data-testid="select-minute">
-                          <SelectValue placeholder="Min" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map(min => (
-                            <SelectItem key={min} value={min}>{min}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    {/* Time Selection */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-indigo-600" />
+                        Scheduled Time *
+                      </Label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {/* Hour */}
+                        <div>
+                          <Select
+                            value={(() => {
+                              if (!formData.scheduledDateTime) return "9";
+                              const date = new Date(formData.scheduledDateTime);
+                              const hours = date.getHours();
+                              return String(hours === 0 ? 12 : hours > 12 ? hours - 12 : hours);
+                            })()}
+                            onValueChange={(value) => {
+                              const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
+                              const currentMinute = date.getMinutes();
+                              const currentHours = date.getHours();
+                              const period = currentHours >= 12 ? 'PM' : 'AM';
+                              
+                              let hours24 = parseInt(value);
+                              if (period === 'AM' && hours24 === 12) hours24 = 0;
+                              else if (period === 'PM' && hours24 !== 12) hours24 = hours24 + 12;
+                              
+                              const year = date.getFullYear();
+                              const month = String(date.getMonth() + 1).padStart(2, '0');
+                              const day = String(date.getDate()).padStart(2, '0');
+                              const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+                              setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                            }}
+                          >
+                            <SelectTrigger data-testid="select-hour" className="bg-white border-slate-300">
+                              <SelectValue placeholder="Hour" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(hour => (
+                                <SelectItem key={hour} value={String(hour)}>{String(hour).padStart(2, '0')}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-slate-500 mt-1 text-center">Hour</p>
+                        </div>
 
-                      {/* AM/PM */}
-                      <Select
-                        value={(() => {
-                          if (!formData.scheduledDateTime) return "AM";
-                          const date = new Date(formData.scheduledDateTime);
-                          return date.getHours() >= 12 ? 'PM' : 'AM';
-                        })()}
-                        onValueChange={(value) => {
-                          const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
-                          const currentHours = date.getHours();
-                          const currentMinute = date.getMinutes();
-                          
-                          // Get 12-hour format hour
-                          const hour12 = currentHours === 0 ? 12 : currentHours > 12 ? currentHours - 12 : currentHours;
-                          
-                          // Convert to 24-hour based on new AM/PM
-                          let hours24 = hour12;
-                          if (value === 'AM' && hour12 === 12) hours24 = 0;
-                          else if (value === 'PM' && hour12 !== 12) hours24 = hour12 + 12;
-                          
-                          const year = date.getFullYear();
-                          const month = String(date.getMonth() + 1).padStart(2, '0');
-                          const day = String(date.getDate()).padStart(2, '0');
-                          const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
-                          setFormData({ ...formData, scheduledDateTime: formattedDateTime });
-                        }}
-                      >
-                        <SelectTrigger data-testid="select-period">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="AM">AM</SelectItem>
-                          <SelectItem value="PM">PM</SelectItem>
-                        </SelectContent>
-                      </Select>
+                        {/* Minute */}
+                        <div>
+                          <Select
+                            value={(() => {
+                              if (!formData.scheduledDateTime) return "00";
+                              const date = new Date(formData.scheduledDateTime);
+                              return String(date.getMinutes()).padStart(2, '0');
+                            })()}
+                            onValueChange={(value) => {
+                              const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
+                              const currentHours = date.getHours();
+                              
+                              const year = date.getFullYear();
+                              const month = String(date.getMonth() + 1).padStart(2, '0');
+                              const day = String(date.getDate()).padStart(2, '0');
+                              const formattedDateTime = `${year}-${month}-${day}T${String(currentHours).padStart(2, '0')}:${value}`;
+                              setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                            }}
+                          >
+                            <SelectTrigger data-testid="select-minute" className="bg-white border-slate-300">
+                              <SelectValue placeholder="Min" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map(min => (
+                                <SelectItem key={min} value={min}>{min}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-slate-500 mt-1 text-center">Minute</p>
+                        </div>
+
+                        {/* AM/PM */}
+                        <div>
+                          <Select
+                            value={(() => {
+                              if (!formData.scheduledDateTime) return "AM";
+                              const date = new Date(formData.scheduledDateTime);
+                              return date.getHours() >= 12 ? 'PM' : 'AM';
+                            })()}
+                            onValueChange={(value) => {
+                              const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
+                              const currentHours = date.getHours();
+                              const currentMinute = date.getMinutes();
+                              
+                              // Get 12-hour format hour
+                              const hour12 = currentHours === 0 ? 12 : currentHours > 12 ? currentHours - 12 : currentHours;
+                              
+                              // Convert to 24-hour based on new AM/PM
+                              let hours24 = hour12;
+                              if (value === 'AM' && hour12 === 12) hours24 = 0;
+                              else if (value === 'PM' && hour12 !== 12) hours24 = hour12 + 12;
+                              
+                              const year = date.getFullYear();
+                              const month = String(date.getMonth() + 1).padStart(2, '0');
+                              const day = String(date.getDate()).padStart(2, '0');
+                              const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+                              setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                            }}
+                          >
+                            <SelectTrigger data-testid="select-period" className="bg-white border-slate-300">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="AM">AM</SelectItem>
+                              <SelectItem value="PM">PM</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-slate-500 mt-1 text-center">Period</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
