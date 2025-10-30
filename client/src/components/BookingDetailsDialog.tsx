@@ -90,6 +90,11 @@ interface BookingFormData {
   regularPrice?: string;
   discountPercentage?: string;
   discountAmount?: string;
+  baseFare?: string;
+  gratuityAmount?: string;
+  airportFeeAmount?: string;
+  surgePricingMultiplier?: string;
+  surgePricingAmount?: string;
   requestedHours: string;
   passengerCount: number;
   luggageCount: number;
@@ -1400,8 +1405,8 @@ export function BookingDetailsDialog({
                     </div>
                   </div>
 
-                  {/* Detailed Pricing Breakdown - Show when booking has pricing details */}
-                  {editingBooking && editingBooking.baseFare && (
+                  {/* Detailed Pricing Breakdown - Show when calculation has pricing details OR editing booking has pricing details */}
+                  {((formData.baseFare && calculatedPrice) || (editingBooking && editingBooking.baseFare)) && (
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <h4 className="text-sm font-semibold text-blue-900 mb-3">Fare Breakdown</h4>
                       
@@ -1409,62 +1414,65 @@ export function BookingDetailsDialog({
                         {/* Base Fare */}
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-slate-700">Base Fare:</span>
-                          <span className="text-sm font-semibold text-slate-900">${editingBooking.baseFare}</span>
+                          <span className="text-sm font-semibold text-slate-900">${formData.baseFare || editingBooking?.baseFare}</span>
                         </div>
 
                         {/* Surge Pricing */}
-                        {editingBooking.surgePricingMultiplier && parseFloat(editingBooking.surgePricingMultiplier) > 1 && (
+                        {((formData.surgePricingMultiplier && parseFloat(formData.surgePricingMultiplier) > 1) || 
+                          (editingBooking?.surgePricingMultiplier && parseFloat(editingBooking.surgePricingMultiplier) > 1)) && (
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-slate-700">
-                              Surge Pricing ({editingBooking.surgePricingMultiplier}x):
+                              Surge Pricing ({formData.surgePricingMultiplier || editingBooking?.surgePricingMultiplier}x):
                             </span>
-                            <span className="text-sm font-semibold text-orange-600">+${editingBooking.surgePricingAmount}</span>
+                            <span className="text-sm font-semibold text-orange-600">+${formData.surgePricingAmount || editingBooking?.surgePricingAmount}</span>
                           </div>
                         )}
 
                         {/* Gratuity */}
-                        {editingBooking.gratuityAmount && parseFloat(editingBooking.gratuityAmount) > 0 && (
+                        {((formData.gratuityAmount && parseFloat(formData.gratuityAmount) > 0) ||
+                          (editingBooking?.gratuityAmount && parseFloat(editingBooking.gratuityAmount) > 0)) && (
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-slate-700">Gratuity:</span>
-                            <span className="text-sm font-semibold text-slate-900">+${editingBooking.gratuityAmount}</span>
+                            <span className="text-sm font-semibold text-slate-900">+${formData.gratuityAmount || editingBooking?.gratuityAmount}</span>
                           </div>
                         )}
 
                         {/* Airport Fee */}
-                        {editingBooking.airportFeeAmount && parseFloat(editingBooking.airportFeeAmount) > 0 && (
+                        {((formData.airportFeeAmount && parseFloat(formData.airportFeeAmount) > 0) ||
+                          (editingBooking?.airportFeeAmount && parseFloat(editingBooking.airportFeeAmount) > 0)) && (
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-slate-700">Airport Fee:</span>
-                            <span className="text-sm font-semibold text-slate-900">+${editingBooking.airportFeeAmount}</span>
+                            <span className="text-sm font-semibold text-slate-900">+${formData.airportFeeAmount || editingBooking?.airportFeeAmount}</span>
                           </div>
                         )}
 
                         {/* Subtotal before discount */}
                         <div className="flex justify-between items-center pt-2 border-t border-blue-200">
                           <span className="text-sm font-semibold text-slate-900">Subtotal:</span>
-                          <span className="text-sm font-bold text-slate-900">${editingBooking.regularPrice || editingBooking.totalAmount}</span>
+                          <span className="text-sm font-bold text-slate-900">${formData.regularPrice || editingBooking?.regularPrice || formData.totalAmount || editingBooking?.totalAmount}</span>
                         </div>
 
                         {/* Discount if applicable */}
-                        {parseFloat(editingBooking.discountAmount || '0') > 0 && (
+                        {(parseFloat(formData.discountAmount || editingBooking?.discountAmount || '0') > 0) && (
                           <>
                             <div className="flex justify-between items-center">
                               <span className="text-sm font-semibold text-green-700">
-                                Discount ({editingBooking.discountPercentage}%):
+                                Discount ({formData.discountPercentage || editingBooking?.discountPercentage}%):
                               </span>
-                              <span className="text-sm font-bold text-green-600">-${editingBooking.discountAmount}</span>
+                              <span className="text-sm font-bold text-green-600">-${formData.discountAmount || editingBooking?.discountAmount}</span>
                             </div>
                             <div className="flex justify-between items-center pt-2 border-t border-blue-200">
                               <span className="font-bold text-blue-900">Total Amount:</span>
-                              <span className="font-bold text-blue-700 text-xl">${editingBooking.totalAmount}</span>
+                              <span className="font-bold text-blue-700 text-xl">${formData.totalAmount || editingBooking?.totalAmount}</span>
                             </div>
                           </>
                         )}
 
                         {/* If no discount, show total directly */}
-                        {parseFloat(editingBooking.discountAmount || '0') === 0 && (
+                        {parseFloat(formData.discountAmount || editingBooking?.discountAmount || '0') === 0 && (
                           <div className="flex justify-between items-center pt-2 border-t border-blue-200">
                             <span className="font-bold text-blue-900">Total Amount:</span>
-                            <span className="font-bold text-blue-700 text-xl">${editingBooking.totalAmount}</span>
+                            <span className="font-bold text-blue-700 text-xl">${formData.totalAmount || editingBooking?.totalAmount}</span>
                           </div>
                         )}
                       </div>

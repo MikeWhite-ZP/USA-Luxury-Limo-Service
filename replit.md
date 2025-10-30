@@ -7,7 +7,14 @@ USA Luxury Limo is a full-stack Progressive Web Application (PWA) designed as a 
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 30, 2025)
-**BookingDetailsDialog Complete Redesign**: Comprehensive modern professional light theme transformation across entire booking dialog:
+**BookingDetailsDialog Complete Redesign & Pricing Breakdown**: Comprehensive modern professional light theme transformation with automatic pricing breakdown display:
+
+**Pricing Breakdown Enhancement**:
+- **Automatic Display**: Fare breakdown now shows immediately after clicking "Calculate" button
+- **Detailed Components**: Shows Base Fare, Surge Pricing (orange), Gratuity, Airport Fee, Subtotal, Discount (green), and Total Amount (blue)
+- **Works for Both**: Displays for new bookings after calculation AND existing bookings with pricing data
+- **Professional Blue Card**: Consistent bg-blue-50, border-blue-200, rounded-lg design
+- **Color-Coded Amounts**: Orange for surge pricing, green for discounts, blue for totals
 
 **Left Panel (Journey Details)**:
 - **Main Header**: Blue-to-indigo gradient header with white MapPin icon badge showing Booking ID
