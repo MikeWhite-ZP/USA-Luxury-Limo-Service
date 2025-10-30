@@ -542,15 +542,15 @@ export default function AdminPricing() {
 
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Modern Header */}
-        <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50/30 border border-slate-200 rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-3 rounded-lg shadow-md">
+              <div className="bg-blue-600 p-3 rounded-lg shadow-md">
                 <DollarSign className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Pricing Rules</h2>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Configure advanced pricing for all vehicle types and services</p>
+                <h2 className="text-2xl font-bold text-slate-900">Pricing Rules</h2>
+                <p className="text-sm text-slate-600 mt-1">Configure advanced pricing for all vehicle types and services</p>
               </div>
             </div>
             
@@ -561,32 +561,32 @@ export default function AdminPricing() {
               }
             }}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md" data-testid="button-add-rule">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md font-semibold" data-testid="button-add-rule">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Pricing Rule
                 </Button>
               </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[90vh] bg-[#e2e3e8] text-[12px] flex flex-col" data-testid="dialog-pricing-form">
-                  <DialogHeader className="flex-shrink-0">
-                    <DialogTitle data-testid="dialog-title">
+                <DialogContent className="max-w-4xl max-h-[90vh] bg-white flex flex-col" data-testid="dialog-pricing-form">
+                  <DialogHeader className="flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50/30 -mx-6 -mt-6 px-6 py-4 border-b border-slate-200 rounded-t-lg">
+                    <DialogTitle className="text-slate-900 font-semibold text-xl" data-testid="dialog-title">
                       {editingRule ? "Edit Pricing Rule" : "Create New Pricing Rule"}
                     </DialogTitle>
                   </DialogHeader>
-                  <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto flex-1 pr-2">
+                  <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto flex-1 pr-2 text-sm">
                     {/* Basic Configuration */}
                     <div className="space-y-4">
-                      <h3 className="font-semibold text-lg">Basic Configuration</h3>
+                      <h3 className="font-semibold text-lg text-slate-900">Basic Configuration</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="vehicleType">Vehicle Type *</Label>
+                          <Label htmlFor="vehicleType" className="text-slate-700 font-medium">Vehicle Type *</Label>
                           <Select
                             value={formData.vehicleType}
                             onValueChange={(value) => setFormData(prev => ({ ...prev, vehicleType: value }))}
                           >
-                            <SelectTrigger data-testid="select-vehicle-type">
+                            <SelectTrigger className="mt-2 border-slate-300" data-testid="select-vehicle-type">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-[#d3d3d3]">
+                            <SelectContent className="bg-white">
                               {vehicleTypes.map((type) => (
                                 <SelectItem key={type.value} value={type.value}>
                                   {type.label}
@@ -597,15 +597,15 @@ export default function AdminPricing() {
                         </div>
 
                         <div>
-                          <Label htmlFor="serviceType">Service Type *</Label>
+                          <Label htmlFor="serviceType" className="text-slate-700 font-medium">Service Type *</Label>
                           <Select
                             value={formData.serviceType}
                             onValueChange={(value) => setFormData(prev => ({ ...prev, serviceType: value }))}
                           >
-                            <SelectTrigger data-testid="select-service-type">
+                            <SelectTrigger className="mt-2 border-slate-300" data-testid="select-service-type">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-[#d3d3d3]">
+                            <SelectContent className="bg-white">
                               {serviceTypes.map((type) => (
                                 <SelectItem key={type.value} value={type.value}>
                                   {type.label}
@@ -687,34 +687,34 @@ export default function AdminPricing() {
                                 </div>
                                 
                                 {formData.distanceTiers.map((tier, index) => (
-                                  <div key={index} className="flex items-center gap-2 bg-[#f5f5dc] p-2 rounded pl-[4px] pr-[4px] pt-[3px] pb-[3px] mt-[2px] mb-[2px]">
-                                    <div className="w-24 text-sm font-medium">{getTierLabel(index)}</div>
+                                  <div key={index} className="flex items-center gap-2 bg-blue-50 border border-blue-200 p-2 rounded">
+                                    <div className="w-24 text-sm font-medium text-slate-700">{getTierLabel(index)}</div>
                                     {!tier.isRemaining && (
                                       <>
                                         <Input
                                           type="number"
                                           step="0.01"
                                           placeholder="20"
-                                          className="w-32 pl-[8px] pr-[8px] pt-[4px] pb-[4px] mt-[0px] mb-[0px] bg-[#ffffff]"
+                                          className="w-32 border-slate-300"
                                           value={tier.miles}
                                           onChange={(e) => updateDistanceTier(index, 'miles', parseFloat(e.target.value) || 0)}
                                           data-testid={`input-tier-miles-${index}`}
                                         />
-                                        <span className="text-sm">mile</span>
+                                        <span className="text-sm text-slate-600">mile</span>
                                       </>
                                     )}
-                                    <span className="text-sm">@</span>
-                                    <span className="text-sm font-bold bg-black text-white px-2 py-1 rounded">$</span>
+                                    <span className="text-sm text-slate-600">@</span>
+                                    <span className="text-sm font-semibold bg-slate-900 text-white px-2 py-1 rounded">$</span>
                                     <Input
                                       type="number"
                                       step="0.01"
                                       placeholder="0"
-                                      className="w-32 bg-[#ffffff] pt-[4px] pb-[4px] pl-[8px] pr-[8px]"
+                                      className="w-32 border-slate-300"
                                       value={tier.ratePerMile}
                                       onChange={(e) => updateDistanceTier(index, 'ratePerMile', parseFloat(e.target.value) || 0)}
                                       data-testid={`input-tier-rate-${index}`}
                                     />
-                                    <Button type="button" variant="destructive" size="sm" onClick={() => removeDistanceTier(index)}>
+                                    <Button type="button" variant="destructive" size="sm" className="bg-red-600 hover:bg-red-700" onClick={() => removeDistanceTier(index)}>
                                       <X className="w-4 h-4" />
                                     </Button>
                                   </div>
@@ -782,7 +782,7 @@ export default function AdminPricing() {
                                 type="number"
                                 step="0.01"
                                 placeholder="20.00"
-                                className="bg-[#ffffff]"
+                                className="border-slate-300"
                                 value={formData.gratuityPercent}
                                 onChange={(e) => setFormData(prev => ({ ...prev, gratuityPercent: e.target.value }))}
                                 data-testid="input-gratuity"
@@ -826,7 +826,7 @@ export default function AdminPricing() {
                                 <Input
                                   type="number"
                                   placeholder="Optional"
-                                  className="bg-[#ffffff]"
+                                  className="border-slate-300"
                                   value={fee.waiverMinutes || ""}
                                   onChange={(e) => updateAirportFee(index, 'waiverMinutes', e.target.value ? parseInt(e.target.value) : undefined)}
                                   data-testid={`input-waiver-${index}`}
@@ -858,11 +858,11 @@ export default function AdminPricing() {
                               <Label htmlFor="meetGreetEnabled">Enable Meet & Greet</Label>
                             </div>
                             <div>
-                              <Label>Charge ($)</Label>
+                              <Label className="text-slate-700 font-medium">Charge ($)</Label>
                               <Input
                                 type="number"
                                 step="0.01"
-                                className="bg-[#ffffff]"
+                                className="border-slate-300 mt-2"
                                 value={formData.meetAndGreet.charge}
                                 onChange={(e) => setFormData(prev => ({ 
                                   ...prev, 
@@ -895,7 +895,7 @@ export default function AdminPricing() {
                                   <SelectTrigger data-testid={`select-day-${index}`}>
                                     <SelectValue />
                                   </SelectTrigger>
-                                  <SelectContent className="bg-[#d3d3d3]">
+                                  <SelectContent className="bg-white">
                                     {daysOfWeek.map((day) => (
                                       <SelectItem key={day.value} value={day.value.toString()}>
                                         {day.label}
@@ -992,22 +992,22 @@ export default function AdminPricing() {
                       <h3 className="font-semibold text-lg">Schedule & Status</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="effectiveStart">Effective From</Label>
+                          <Label htmlFor="effectiveStart" className="text-slate-700 font-medium">Effective From</Label>
                           <Input
                             id="effectiveStart"
                             type="date"
-                            className="bg-[#ffffff]"
+                            className="border-slate-300 mt-2"
                             value={formData.effectiveStart}
                             onChange={(e) => setFormData(prev => ({ ...prev, effectiveStart: e.target.value }))}
                             data-testid="input-effective-start"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="effectiveEnd">Effective Until</Label>
+                          <Label htmlFor="effectiveEnd" className="text-slate-700 font-medium">Effective Until</Label>
                           <Input
                             id="effectiveEnd"
                             type="date"
-                            className="bg-[#ffffff]"
+                            className="border-slate-300 mt-2"
                             value={formData.effectiveEnd}
                             onChange={(e) => setFormData(prev => ({ ...prev, effectiveEnd: e.target.value }))}
                             data-testid="input-effective-end"
@@ -1027,10 +1027,11 @@ export default function AdminPricing() {
                       </div>
                     </div>
 
-                    <div className="flex justify-end space-x-2 pt-4 mt-4 border-t border-gray-300 sticky bottom-0 bg-[#e2e3e8]">
+                    <div className="flex justify-end space-x-2 pt-4 mt-4 border-t border-slate-200 sticky bottom-0 bg-white">
                       <Button
                         type="button"
                         variant="outline"
+                        className="border-slate-300 hover:bg-slate-100"
                         onClick={() => {
                           setIsDialogOpen(false);
                           resetForm();
@@ -1041,6 +1042,7 @@ export default function AdminPricing() {
                       </Button>
                       <Button
                         type="submit"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
                         disabled={createMutation.isPending || updateMutation.isPending}
                         data-testid="button-submit"
                       >
@@ -1058,7 +1060,7 @@ export default function AdminPricing() {
           </div>
         
         {/* Content Card */}
-        <Card className="border-slate-200 dark:border-slate-700 shadow-sm" data-testid="pricing-rules-card">
+        <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white" data-testid="pricing-rules-card">
           <CardContent className="p-6">
             {rulesLoading ? (
               <div className="flex items-center justify-center p-8">
@@ -1102,7 +1104,7 @@ export default function AdminPricing() {
                           {rule.surgePricing?.length || 0} periods
                         </TableCell>
                         <TableCell data-testid={`status-${rule.id}`}>
-                          <Badge variant={rule.isActive ? "default" : "secondary"}>
+                          <Badge className={rule.isActive ? "bg-green-100 text-green-800 border-green-200" : "bg-slate-100 text-slate-700 border-slate-200"}>
                             {rule.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
@@ -1111,6 +1113,7 @@ export default function AdminPricing() {
                             <Button
                               size="sm"
                               variant="outline"
+                              className="border-slate-300 hover:bg-slate-100"
                               onClick={() => handleEdit(rule)}
                               data-testid={`button-edit-${rule.id}`}
                             >
@@ -1119,6 +1122,7 @@ export default function AdminPricing() {
                             <Button
                               size="sm"
                               variant="destructive"
+                              className="bg-red-600 hover:bg-red-700 text-white"
                               onClick={() => handleDelete(rule.id)}
                               data-testid={`button-delete-${rule.id}`}
                             >
@@ -1132,7 +1136,7 @@ export default function AdminPricing() {
                 </Table>
               </div>
             ) : (
-              <div className="text-center p-8 text-muted-foreground" data-testid="no-rules">
+              <div className="text-center p-8 text-slate-600 bg-slate-50 rounded-lg border border-slate-200" data-testid="no-rules">
                 No pricing rules configured yet. Add your first pricing rule to get started.
               </div>
             )}

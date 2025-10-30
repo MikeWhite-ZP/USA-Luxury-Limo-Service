@@ -49,6 +49,8 @@ import {
   Eye,
   Printer,
   Receipt,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
@@ -3899,14 +3901,16 @@ export default function AdminDashboard() {
 
         {/* Payment Systems Configuration */}
         {visibleCredentialsSection === "payment" && (
-          <Card id="payment-section" data-testid="payment-systems">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <DollarSign className="w-5 h-5" />
+          <Card id="payment-section" data-testid="payment-systems" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50/30 border-b border-slate-200">
+              <CardTitle className="flex items-center gap-3 text-slate-900">
+                <div className="bg-green-600 p-2 rounded-lg">
+                  <DollarSign className="w-5 h-5 text-white" />
+                </div>
                 <span>Payment Systems</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {paymentSystemsLoading ? (
                 <div className="flex items-center justify-center p-8">
                   <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
@@ -3934,28 +3938,33 @@ export default function AdminDashboard() {
                       return (
                         <div
                           key={provider}
-                          className={`border rounded-lg p-4 ${isActive ? "border-primary bg-primary/5" : ""}`}
+                          className={`border rounded-xl p-5 transition-all ${
+                            isActive
+                              ? "border-green-300 bg-green-50 shadow-md"
+                              : "border-slate-200 bg-white hover:border-slate-300"
+                          }`}
                           data-testid={`payment-system-${provider}`}
                         >
-                          <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
                               <h4
-                                className="font-semibold text-lg"
+                                className="font-semibold text-lg text-slate-900"
                                 data-testid={`payment-provider-${provider}`}
                               >
                                 {providerLabels[provider]}
                               </h4>
                               {isActive && (
                                 <Badge
-                                  className="bg-green-600"
+                                  className="bg-green-600 hover:bg-green-700 text-white"
                                   data-testid={`badge-active-${provider}`}
                                 >
+                                  <CheckCircle2 className="w-3 h-3 mr-1" />
                                   Active
                                 </Badge>
                               )}
                               {system && !isActive && (
                                 <Badge
-                                  variant="outline"
+                                  className="bg-blue-100 text-blue-700 border-blue-200"
                                   data-testid={`badge-configured-${provider}`}
                                 >
                                   Configured
@@ -3965,6 +3974,7 @@ export default function AdminDashboard() {
                             {!isActive && system && (
                               <Button
                                 size="sm"
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
                                 onClick={() =>
                                   setActivePaymentSystemMutation.mutate(
                                     provider,
@@ -3981,28 +3991,28 @@ export default function AdminDashboard() {
                           </div>
 
                           {system ? (
-                            <div className="space-y-2 text-sm">
+                            <div className="space-y-2.5 text-sm bg-slate-50 rounded-lg p-3 border border-slate-200">
                               <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">
+                                <span className="text-slate-600 font-medium">
                                   Public Key:
                                 </span>
-                                <span className="font-mono text-xs">
+                                <span className="font-mono text-xs text-slate-900 bg-white px-2 py-1 rounded border border-slate-200">
                                   {system.publicKey ? "••••••••" : "Not set"}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">
+                                <span className="text-slate-600 font-medium">
                                   Secret Key:
                                 </span>
-                                <span className="font-mono text-xs">
+                                <span className="font-mono text-xs text-slate-900 bg-white px-2 py-1 rounded border border-slate-200">
                                   {system.secretKey ? "••••••••" : "Not set"}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">
+                                <span className="text-slate-600 font-medium">
                                   Webhook Secret:
                                 </span>
-                                <span className="font-mono text-xs">
+                                <span className="font-mono text-xs text-slate-900 bg-white px-2 py-1 rounded border border-slate-200">
                                   {system.webhookSecret
                                     ? "••••••••"
                                     : "Not set"}
@@ -4010,7 +4020,7 @@ export default function AdminDashboard() {
                               </div>
                             </div>
                           ) : (
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200">
                               Not configured. Add credentials to enable this
                               payment provider.
                             </div>
@@ -4019,7 +4029,7 @@ export default function AdminDashboard() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="mt-3"
+                            className="mt-4 border-slate-300 hover:bg-slate-100"
                             onClick={() =>
                               openConfigDialog(
                                 provider as "stripe" | "paypal" | "square",
@@ -4029,12 +4039,12 @@ export default function AdminDashboard() {
                           >
                             {system ? (
                               <>
-                                <Edit2 className="w-4 h-4 mr-1" />
+                                <Edit2 className="w-4 h-4 mr-2" />
                                 Edit Configuration
                               </>
                             ) : (
                               <>
-                                <Plus className="w-4 h-4 mr-1" />
+                                <Plus className="w-4 h-4 mr-2" />
                                 Configure {providerLabels[provider]}
                               </>
                             )}
@@ -4045,12 +4055,14 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Help Text */}
-                  <div className="text-xs text-muted-foreground mt-4 p-3 bg-muted rounded-lg">
-                    <strong>Note:</strong> Only one payment system can be active
-                    at a time. The active system will be used for all payment
-                    processing throughout the application. Set environment
-                    variables STRIPE_SECRET_KEY and STRIPE_PUBLIC_KEY for Stripe
-                    integration.
+                  <div className="text-sm text-slate-700 mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="font-semibold text-blue-900">Note:</strong>{" "}
+                        <span>Only one payment system can be active at a time. The active system will be used for all payment processing throughout the application. Set environment variables STRIPE_SECRET_KEY and STRIPE_PUBLIC_KEY for Stripe integration.</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -4060,14 +4072,16 @@ export default function AdminDashboard() {
 
         {/* System Settings */}
         {visibleSettingsSection === "commission" && (
-          <Card id="settings-section" data-testid="system-settings">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Settings className="w-5 h-5" />
+          <Card id="settings-section" data-testid="system-settings" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+            <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50/30 border-b border-slate-200">
+              <CardTitle className="flex items-center gap-3 text-slate-900">
+                <div className="bg-slate-600 p-2 rounded-lg">
+                  <Settings className="w-5 h-5 text-white" />
+                </div>
                 <span>System Commission Settings</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {commissionLoading ? (
                 <div className="flex items-center justify-center p-8">
                   <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
@@ -4163,15 +4177,17 @@ export default function AdminDashboard() {
           <Card
             id="cms-section"
             data-testid="cms-pages-management"
-            className="rounded-lg border text-card-foreground shadow-sm mt-[0px] mb-[0px] bg-[#ffffff]"
+            className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white"
           >
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-[#9e0202]">
-                <FileText className="w-5 h-5" />
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50/30 border-b border-slate-200">
+              <CardTitle className="flex items-center gap-3 text-slate-900">
+                <div className="bg-blue-600 p-2 rounded-lg">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
                 <span>Pages Management</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <BrandSettings />
             </CardContent>
           </Card>
@@ -4182,15 +4198,17 @@ export default function AdminDashboard() {
           <Card
             id="cms-section"
             data-testid="cms-media-management"
-            className="rounded-lg border text-card-foreground shadow-sm mt-[0px] mb-[0px] bg-[#ffffff]"
+            className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white"
           >
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Image className="w-5 h-5" />
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50/30 border-b border-slate-200">
+              <CardTitle className="flex items-center gap-3 text-slate-900">
+                <div className="bg-indigo-600 p-2 rounded-lg">
+                  <Image className="w-5 h-5 text-white" />
+                </div>
                 <span>Media & Images Management</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <MediaLibrary />
             </CardContent>
           </Card>
@@ -4201,34 +4219,36 @@ export default function AdminDashboard() {
           <Card
             id="bookings-section"
             data-testid="bookings-management"
-            className="rounded-lg border text-card-foreground shadow-sm text-[12px] bg-[#ffffff] mt-[0px] mb-[0px]"
+            className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white"
           >
-            <CardHeader>
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50/30 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center space-x-2">
-                  <MessageSquare className="w-5 h-5" />
-                  <span className="text-[#de0d0d]">Bookings Management</span>
+                <CardTitle className="flex items-center gap-3 text-slate-900">
+                  <div className="bg-purple-600 p-2 rounded-lg">
+                    <MessageSquare className="w-5 h-5 text-white" />
+                  </div>
+                  <span>Bookings Management</span>
                 </CardTitle>
                 <Button
                   onClick={openAddBookingDialog}
                   size="sm"
                   data-testid="button-add-booking"
-                  className="font-bold"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Booking
                 </Button>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {/* Segmented Status Menu */}
               <div className="mb-6 flex flex-wrap gap-2" data-testid="booking-segment-menu">
                 <button
                   onClick={() => setBookingSegmentFilter("all")}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     bookingSegmentFilter === "all"
-                      ? "bg-[#f79952] text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                   }`}
                   data-testid="segment-all"
                 >
@@ -4236,10 +4256,10 @@ export default function AdminDashboard() {
                 </button>
                 <button
                   onClick={() => setBookingSegmentFilter("pending")}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     bookingSegmentFilter === "pending"
-                      ? "bg-[#f79952] text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                   }`}
                   data-testid="segment-pending"
                 >
@@ -4247,10 +4267,10 @@ export default function AdminDashboard() {
                 </button>
                 <button
                   onClick={() => setBookingSegmentFilter("confirmed")}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     bookingSegmentFilter === "confirmed"
-                      ? "bg-[#f79952] text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                   }`}
                   data-testid="segment-confirmed"
                 >
@@ -4258,10 +4278,10 @@ export default function AdminDashboard() {
                 </button>
                 <button
                   onClick={() => setBookingSegmentFilter("in_progress")}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     bookingSegmentFilter === "in_progress"
-                      ? "bg-[#f79952] text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                   }`}
                   data-testid="segment-in-progress"
                 >
@@ -4269,10 +4289,10 @@ export default function AdminDashboard() {
                 </button>
                 <button
                   onClick={() => setBookingSegmentFilter("completed")}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     bookingSegmentFilter === "completed"
-                      ? "bg-[#f79952] text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                   }`}
                   data-testid="segment-completed"
                 >
@@ -4280,10 +4300,10 @@ export default function AdminDashboard() {
                 </button>
                 <button
                   onClick={() => setBookingSegmentFilter("cancelled")}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     bookingSegmentFilter === "cancelled"
-                      ? "bg-[#f79952] text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                   }`}
                   data-testid="segment-cancelled"
                 >
@@ -4294,9 +4314,9 @@ export default function AdminDashboard() {
               {/* Filters */}
               <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label>Date From</Label>
+                  <Label className="text-slate-700 font-medium">Date From</Label>
                   <Input
-                    className="bg-[#ffffff]"
+                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500 mt-2"
                     type="date"
                     value={bookingDateFrom}
                     onChange={(e) => setBookingDateFrom(e.target.value)}
@@ -4305,9 +4325,9 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <Label>Date To</Label>
+                  <Label className="text-slate-700 font-medium">Date To</Label>
                   <Input
-                    className="bg-[#ffffff]"
+                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500 mt-2"
                     type="date"
                     value={bookingDateTo}
                     onChange={(e) => setBookingDateTo(e.target.value)}
@@ -4316,9 +4336,9 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <Label>Search</Label>
+                  <Label className="text-slate-700 font-medium">Search</Label>
                   <Input
-                    className="bg-[#ffffff]"
+                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500 mt-2"
                     placeholder="Passenger, Driver, ID..."
                     value={bookingSearch}
                     onChange={(e) => setBookingSearch(e.target.value)}
@@ -4336,53 +4356,47 @@ export default function AdminDashboard() {
                   {filteredBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="border rounded-lg p-4 space-y-3 bg-[#f0f0f0] pt-[10px] pb-[10px] pl-[10px] pr-[10px]"
+                      className="border border-slate-200 rounded-xl p-5 space-y-4 bg-white hover:shadow-md transition-shadow"
                       data-testid={`booking-${booking.id}`}
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2 mb-3">
                             <h4
-                              className="font-semibold"
+                              className="font-semibold text-slate-900"
                               data-testid={`booking-id-${booking.id}`}
                             >
                               #{booking.id.substring(0, 8)}
                             </h4>
                             <Badge
-                              variant={
-                                booking.status === "pending"
-                                  ? "outline"
-                                  : booking.status === "confirmed"
-                                    ? "default"
-                                    : booking.status === "in_progress"
-                                      ? "secondary"
-                                      : booking.status === "completed"
-                                        ? "default"
-                                        : "destructive"
-                              }
                               className={
                                 booking.status === "pending"
-                                  ? "bg-[#f79952]"
-                                  : ""
+                                  ? "bg-yellow-100 text-yellow-800 border-yellow-200"
+                                  : booking.status === "confirmed"
+                                    ? "bg-blue-100 text-blue-800 border-blue-200"
+                                    : booking.status === "in_progress"
+                                      ? "bg-indigo-100 text-indigo-800 border-indigo-200"
+                                      : booking.status === "completed"
+                                        ? "bg-green-100 text-green-800 border-green-200"
+                                        : "bg-red-100 text-red-800 border-red-200"
                               }
                               data-testid={`booking-status-${booking.id}`}
                             >
                               {booking.status}
                             </Badge>
                             <Badge
-                              variant="outline"
-                              className="bg-[#dee8ca]"
+                              className="bg-slate-100 text-slate-700 border-slate-200"
                               data-testid={`booking-type-${booking.id}`}
                             >
                               {booking.bookingType}
                             </Badge>
                           </div>
 
-                          <div className="grid md:grid-cols-2 gap-4 text-[12px]">
+                          <div className="grid md:grid-cols-2 gap-4 text-sm">
                             <div>
-                              <p className="text-muted-foreground">Passenger</p>
+                              <p className="text-slate-600 text-xs font-medium mb-1">Passenger</p>
                               <p
-                                className="font-medium"
+                                className="font-semibold text-slate-900"
                                 data-testid={`booking-passenger-${booking.id}`}
                               >
                                 {booking.passengerName || "Not assigned"}
@@ -4390,9 +4404,9 @@ export default function AdminDashboard() {
                             </div>
 
                             <div>
-                              <p className="text-muted-foreground">Pickup</p>
+                              <p className="text-slate-600 text-xs font-medium mb-1">Pickup</p>
                               <p
-                                className="font-medium"
+                                className="font-semibold text-slate-900"
                                 data-testid={`booking-pickup-${booking.id}`}
                               >
                                 {booking.pickupAddress}
@@ -4400,11 +4414,11 @@ export default function AdminDashboard() {
                             </div>
 
                             <div>
-                              <p className="text-muted-foreground">
+                              <p className="text-slate-600 text-xs font-medium mb-1">
                                 Destination
                               </p>
                               <p
-                                className="font-medium"
+                                className="font-semibold text-slate-900"
                                 data-testid={`booking-destination-${booking.id}`}
                               >
                                 {booking.destinationAddress || "Hourly Service"}
@@ -4412,11 +4426,11 @@ export default function AdminDashboard() {
                             </div>
 
                             <div>
-                              <p className="text-muted-foreground">
+                              <p className="text-slate-600 text-xs font-medium mb-1">
                                 Scheduled Time
                               </p>
                               <p
-                                className="font-medium"
+                                className="font-semibold text-slate-900"
                                 data-testid={`booking-schedule-${booking.id}`}
                               >
                                 {new Date(
@@ -4426,12 +4440,12 @@ export default function AdminDashboard() {
                             </div>
 
                             {booking.specialInstructions && (
-                              <div className="md:col-span-2">
-                                <p className="text-[#8a1313] font-bold text-[12px]">
+                              <div className="md:col-span-2 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                <p className="text-blue-900 font-semibold text-sm mb-1">
                                   Special Instructions
                                 </p>
                                 <p
-                                  className="font-medium"
+                                  className="text-slate-700"
                                   data-testid={`booking-instructions-${booking.id}`}
                                 >
                                   {booking.specialInstructions}
@@ -4440,11 +4454,11 @@ export default function AdminDashboard() {
                             )}
 
                             <div>
-                              <p className="text-muted-foreground">
+                              <p className="text-slate-600 text-xs font-medium mb-1">
                                 Total Amount
                               </p>
                               <p
-                                className="font-bold text-lg"
+                                className="font-bold text-lg text-blue-600"
                                 data-testid={`booking-amount-${booking.id}`}
                               >
                                 ${booking.totalAmount}
