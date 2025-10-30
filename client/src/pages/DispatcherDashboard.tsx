@@ -1049,7 +1049,7 @@ export default function DispatcherDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">Available</p>
-                      <p className="text-2xl font-bold text-green-600">
+                      <p className="text-2xl font-bold text-green-600" data-testid="stat-available">
                         {allDrivers?.filter((d: any) => d.isAvailable).length || 0}
                       </p>
                     </div>
@@ -1062,8 +1062,13 @@ export default function DispatcherDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">On Ride</p>
-                      <p className="text-2xl font-bold text-blue-600">
-                        {allDrivers?.filter((d: any) => !d.isAvailable).length || 0}
+                      <p className="text-2xl font-bold text-blue-600" data-testid="stat-on-ride">
+                        {allDrivers?.filter((d: any) => {
+                          const hasCurrentRide = allBookings?.some(
+                            (b: any) => b.driverId === d.id && (b.status === 'in_progress' || b.status === 'pending')
+                          );
+                          return !d.isAvailable && hasCurrentRide;
+                        }).length || 0}
                       </p>
                     </div>
                     <Activity className="w-8 h-8 text-blue-600" />
@@ -1075,8 +1080,13 @@ export default function DispatcherDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">Offline</p>
-                      <p className="text-2xl font-bold text-orange-600">
-                        {allDrivers?.filter((d: any) => !d.isActive).length || 0}
+                      <p className="text-2xl font-bold text-orange-600" data-testid="stat-offline">
+                        {allDrivers?.filter((d: any) => {
+                          const hasCurrentRide = allBookings?.some(
+                            (b: any) => b.driverId === d.id && (b.status === 'in_progress' || b.status === 'pending')
+                          );
+                          return !d.isAvailable && !hasCurrentRide;
+                        }).length || 0}
                       </p>
                     </div>
                     <Clock className="w-8 h-8 text-orange-600" />
@@ -1088,7 +1098,7 @@ export default function DispatcherDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">Total Fleet</p>
-                      <p className="text-2xl font-bold text-purple-600">
+                      <p className="text-2xl font-bold text-purple-600" data-testid="stat-total">
                         {allDrivers?.length || 0}
                       </p>
                     </div>
