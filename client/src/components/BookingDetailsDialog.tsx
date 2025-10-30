@@ -621,32 +621,148 @@ export function BookingDetailsDialog({
 
                   {/* Scheduled DateTime */}
                   <div>
-                    <Label>Scheduled Date & Time *</Label>
+                    <Label>Scheduled Date *</Label>
                     <DatePicker
                       selected={formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : null}
                       onChange={(date: Date | null) => {
                         if (date) {
+                          // Extract existing time or use default
+                          let hour = 9;
+                          let minute = 0;
+                          let period = 'AM';
+                          
+                          if (formData.scheduledDateTime) {
+                            const existingDate = new Date(formData.scheduledDateTime);
+                            const existingHours = existingDate.getHours();
+                            hour = existingHours === 0 ? 12 : existingHours > 12 ? existingHours - 12 : existingHours;
+                            minute = existingDate.getMinutes();
+                            period = existingHours >= 12 ? 'PM' : 'AM';
+                          }
+                          
+                          // Convert to 24-hour format
+                          let hours24 = hour;
+                          if (period === 'AM' && hour === 12) hours24 = 0;
+                          else if (period === 'PM' && hour !== 12) hours24 = hour + 12;
+                          
                           const year = date.getFullYear();
                           const month = String(date.getMonth() + 1).padStart(2, '0');
                           const day = String(date.getDate()).padStart(2, '0');
-                          const hours = String(date.getHours()).padStart(2, '0');
-                          const minutes = String(date.getMinutes()).padStart(2, '0');
-                          const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                          const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
                           setFormData({ ...formData, scheduledDateTime: formattedDateTime });
-                        } else {
-                          setFormData({ ...formData, scheduledDateTime: '' });
                         }
                       }}
-                      showTimeSelect
-                      timeFormat="HH:mm"
-                      timeIntervals={15}
-                      dateFormat="MMMM d, yyyy h:mm aa"
+                      dateFormat="MMMM d, yyyy"
                       minDate={new Date()}
                       className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      placeholderText="Select date and time"
+                      placeholderText="Select date"
                       wrapperClassName="w-full"
-                      data-testid="input-scheduled-datetime"
+                      data-testid="input-scheduled-date"
                     />
+                  </div>
+
+                  {/* Time Selection */}
+                  <div>
+                    <Label>Scheduled Time *</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {/* Hour */}
+                      <Select
+                        value={(() => {
+                          if (!formData.scheduledDateTime) return "9";
+                          const date = new Date(formData.scheduledDateTime);
+                          const hours = date.getHours();
+                          return String(hours === 0 ? 12 : hours > 12 ? hours - 12 : hours);
+                        })()}
+                        onValueChange={(value) => {
+                          const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
+                          const currentMinute = date.getMinutes();
+                          const currentHours = date.getHours();
+                          const period = currentHours >= 12 ? 'PM' : 'AM';
+                          
+                          let hours24 = parseInt(value);
+                          if (period === 'AM' && hours24 === 12) hours24 = 0;
+                          else if (period === 'PM' && hours24 !== 12) hours24 = hours24 + 12;
+                          
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+                          setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                        }}
+                      >
+                        <SelectTrigger data-testid="select-hour">
+                          <SelectValue placeholder="Hour" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(hour => (
+                            <SelectItem key={hour} value={String(hour)}>{hour}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {/* Minute */}
+                      <Select
+                        value={(() => {
+                          if (!formData.scheduledDateTime) return "00";
+                          const date = new Date(formData.scheduledDateTime);
+                          return String(date.getMinutes()).padStart(2, '0');
+                        })()}
+                        onValueChange={(value) => {
+                          const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
+                          const currentHours = date.getHours();
+                          
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          const formattedDateTime = `${year}-${month}-${day}T${String(currentHours).padStart(2, '0')}:${value}`;
+                          setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                        }}
+                      >
+                        <SelectTrigger data-testid="select-minute">
+                          <SelectValue placeholder="Min" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map(min => (
+                            <SelectItem key={min} value={min}>{min}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {/* AM/PM */}
+                      <Select
+                        value={(() => {
+                          if (!formData.scheduledDateTime) return "AM";
+                          const date = new Date(formData.scheduledDateTime);
+                          return date.getHours() >= 12 ? 'PM' : 'AM';
+                        })()}
+                        onValueChange={(value) => {
+                          const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
+                          const currentHours = date.getHours();
+                          const currentMinute = date.getMinutes();
+                          
+                          // Get 12-hour format hour
+                          const hour12 = currentHours === 0 ? 12 : currentHours > 12 ? currentHours - 12 : currentHours;
+                          
+                          // Convert to 24-hour based on new AM/PM
+                          let hours24 = hour12;
+                          if (value === 'AM' && hour12 === 12) hours24 = 0;
+                          else if (value === 'PM' && hour12 !== 12) hours24 = hour12 + 12;
+                          
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+                          setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                        }}
+                      >
+                        <SelectTrigger data-testid="select-period">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="AM">AM</SelectItem>
+                          <SelectItem value="PM">PM</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

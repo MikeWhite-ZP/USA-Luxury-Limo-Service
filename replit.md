@@ -17,9 +17,12 @@ Preferred communication style: Simple, everyday language.
 - **Color-Coded Amounts**: Orange for surge pricing, green for discounts, blue for totals
 
 **Cross-Browser DateTime Support**:
-- Implemented react-datepicker for consistent date and time selection across ALL browsers (Chrome, Firefox, Safari, Edge, etc.)
+- Implemented react-datepicker for consistent date selection across ALL browsers (Chrome, Firefox, Safari, Edge, etc.)
 - Professional calendar picker with blue theme matching the application design
-- Time selection menu with 15-minute intervals for easy scheduling
+- Custom time selector with three separate dropdowns:
+  - **Hours**: 1-12 (12-hour format)
+  - **Minutes**: 00-55 with 5-minute intervals (00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
+  - **AM/PM**: Clear AM/PM selection
 - Custom styling with blue header, rounded corners, and smooth hover effects
 - Prevents past date selection (minDate set to today)
 
