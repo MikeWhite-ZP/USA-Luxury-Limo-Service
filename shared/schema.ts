@@ -229,6 +229,10 @@ export const bookings = pgTable("bookings", {
   baseFare: decimal("base_fare", { precision: 10, scale: 2 }),
   distanceFare: decimal("distance_fare", { precision: 10, scale: 2 }),
   timeFare: decimal("time_fare", { precision: 10, scale: 2 }),
+  gratuityAmount: decimal("gratuity_amount", { precision: 10, scale: 2 }), // Gratuity from pricing rules
+  airportFeeAmount: decimal("airport_fee_amount", { precision: 10, scale: 2 }), // Airport fee applied
+  surgePricingMultiplier: decimal("surge_pricing_multiplier", { precision: 5, scale: 2 }), // Surge multiplier (e.g., 1.5 for 50% increase)
+  surgePricingAmount: decimal("surge_pricing_amount", { precision: 10, scale: 2 }), // Additional amount from surge pricing
   surcharges: jsonb("surcharges").$type<Array<{
     description: string;
     amount: number;
@@ -353,6 +357,11 @@ export const invoices = pgTable("invoices", {
   id: uuid("id").defaultRandom().primaryKey(),
   bookingId: uuid("booking_id").references(() => bookings.id).notNull(),
   invoiceNumber: varchar("invoice_number").unique().notNull(),
+  baseFare: decimal("base_fare", { precision: 10, scale: 2 }), // Base fare before surge/gratuity
+  gratuityAmount: decimal("gratuity_amount", { precision: 10, scale: 2 }), // Gratuity from pricing rules
+  airportFeeAmount: decimal("airport_fee_amount", { precision: 10, scale: 2 }), // Airport fee applied
+  surgePricingMultiplier: decimal("surge_pricing_multiplier", { precision: 5, scale: 2 }), // Surge multiplier
+  surgePricingAmount: decimal("surge_pricing_amount", { precision: 10, scale: 2 }), // Additional amount from surge
   subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(), // Regular price before discount
   discountPercentage: decimal("discount_percentage", { precision: 5, scale: 2 }), // Discount %
   discountAmount: decimal("discount_amount", { precision: 10, scale: 2 }), // Discount amount
