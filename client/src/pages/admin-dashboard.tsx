@@ -5717,11 +5717,13 @@ export default function AdminDashboard() {
 
         {/* User Accounts Management */}
         {showUserManager && (
-          <Card id="user-manager-section" data-testid="user-accounts">
-            <CardHeader>
+          <Card id="user-manager-section" data-testid="user-accounts" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50/30 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center space-x-2">
-                  <Users className="w-5 h-5" />
+                <CardTitle className="flex items-center gap-3 text-slate-900">
+                  <div className="bg-blue-600 p-2 rounded-lg">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
                   <span>
                     {selectedUserType === "all"
                       ? "All Users"
@@ -5740,18 +5742,20 @@ export default function AdminDashboard() {
                     disabled={backfillDriversMutation.isPending}
                     variant="outline"
                     size="sm"
+                    className="border-slate-300 hover:bg-slate-50"
                     data-testid="button-backfill-drivers"
                   >
                     {backfillDriversMutation.isPending ? (
-                      <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full mr-2" />
+                      <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full mr-2" />
                     ) : (
-                      <Check className="w-4 h-4 mr-2" />
+                      <Check className="w-4 h-4 mr-2 text-green-600" />
                     )}
                     Fix Driver Records
                   </Button>
                   <Button
                     onClick={openAddUserDialog}
                     size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
                     data-testid="button-add-user"
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -5760,10 +5764,10 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {usersLoading ? (
                 <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+                  <div className="animate-spin w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full" />
                 </div>
               ) : allUsers && allUsers.length > 0 ? (
                 <div className="space-y-4">
@@ -5774,31 +5778,31 @@ export default function AdminDashboard() {
                       placeholder="Search by name, email, or phone..."
                       value={userSearchQuery}
                       onChange={(e) => setUserSearchQuery(e.target.value)}
-                      className="max-w-md"
+                      className="max-w-md border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                       data-testid="input-search-users"
                     />
                   </div>
 
-                  <div className="border rounded-lg overflow-hidden">
+                  <div className="border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                     <table className="w-full">
-                      <thead className="bg-muted/50">
+                      <thead className="bg-slate-50 border-b border-slate-200">
                         <tr>
-                          <th className="text-left p-3 text-sm font-semibold">
+                          <th className="text-left p-3 text-sm font-semibold text-slate-700">
                             User
                           </th>
-                          <th className="text-left p-3 text-sm font-semibold">
+                          <th className="text-left p-3 text-sm font-semibold text-slate-700">
                             Email
                           </th>
-                          <th className="text-left p-3 text-sm font-semibold">
+                          <th className="text-left p-3 text-sm font-semibold text-slate-700">
                             Role
                           </th>
-                          <th className="text-left p-3 text-sm font-semibold">
+                          <th className="text-left p-3 text-sm font-semibold text-slate-700">
                             Status
                           </th>
-                          <th className="text-left p-3 text-sm font-semibold">
+                          <th className="text-left p-3 text-sm font-semibold text-slate-700">
                             Star Rating
                           </th>
-                          <th className="text-left p-3 text-sm font-semibold">
+                          <th className="text-left p-3 text-sm font-semibold text-slate-700">
                             Actions
                           </th>
                         </tr>
@@ -5826,18 +5830,18 @@ export default function AdminDashboard() {
                           .map((u) => (
                             <tr
                               key={u.id}
-                              className="border-t hover:bg-muted/20 transition-colors"
+                              className="border-t border-slate-200 hover:bg-blue-50/30 transition-colors"
                               data-testid={`user-row-${u.id}`}
                             >
                               <td className="p-3">
                                 <div>
                                   <p
-                                    className="font-medium"
+                                    className="font-medium text-slate-900"
                                     data-testid={`user-name-${u.id}`}
                                   >
                                     {u.firstName} {u.lastName}
                                   </p>
-                                  <p className="text-xs text-muted-foreground">
+                                  <p className="text-xs text-slate-500">
                                     Joined{" "}
                                     {new Date(u.createdAt).toLocaleDateString()}
                                   </p>
@@ -5845,13 +5849,13 @@ export default function AdminDashboard() {
                               </td>
                               <td className="p-3">
                                 <p
-                                  className="text-sm"
+                                  className="text-sm text-slate-700"
                                   data-testid={`user-email-${u.id}`}
                                 >
                                   {u.email}
                                 </p>
                                 {u.phone && (
-                                  <p className="text-xs text-muted-foreground">
+                                  <p className="text-xs text-slate-500">
                                     {u.phone}
                                   </p>
                                 )}
@@ -5874,12 +5878,12 @@ export default function AdminDashboard() {
                                   disabled={updateUserMutation.isPending}
                                 >
                                   <SelectTrigger
-                                    className="w-32"
+                                    className="w-32 border-slate-300"
                                     data-testid={`select-role-${u.id}`}
                                   >
                                     <SelectValue />
                                   </SelectTrigger>
-                                  <SelectContent>
+                                  <SelectContent className="bg-white">
                                     <SelectItem value="passenger">
                                       Passenger
                                     </SelectItem>
@@ -5905,12 +5909,12 @@ export default function AdminDashboard() {
                                   disabled={updateUserMutation.isPending}
                                 >
                                   <SelectTrigger
-                                    className="w-28"
+                                    className="w-28 border-slate-300"
                                     data-testid={`select-status-${u.id}`}
                                   >
                                     <SelectValue />
                                   </SelectTrigger>
-                                  <SelectContent>
+                                  <SelectContent className="bg-white">
                                     <SelectItem value="active">
                                       Active
                                     </SelectItem>
@@ -5927,7 +5931,7 @@ export default function AdminDashboard() {
                                     className="flex items-center gap-1"
                                     data-testid={`driver-rating-${u.id}`}
                                   >
-                                    <span className="text-sm font-medium">
+                                    <span className="text-sm font-medium text-slate-900">
                                       {parseFloat(
                                         (u as any).driverInfo.rating || "0",
                                       ).toFixed(1)}
@@ -5944,8 +5948,8 @@ export default function AdminDashboard() {
                                                   "0",
                                               ),
                                             )
-                                              ? "text-yellow-400 fill-current"
-                                              : "text-gray-300"
+                                              ? "text-amber-400 fill-current"
+                                              : "text-slate-300"
                                           }`}
                                           fill="none"
                                           strokeLinecap="round"
@@ -5960,7 +5964,7 @@ export default function AdminDashboard() {
                                     </div>
                                   </div>
                                 ) : (
-                                  <span className="text-sm text-muted-foreground">
+                                  <span className="text-sm text-slate-500">
                                     N/A
                                   </span>
                                 )}
@@ -5971,6 +5975,7 @@ export default function AdminDashboard() {
                                     <Button
                                       variant="outline"
                                       size="sm"
+                                      className="border-slate-300 hover:bg-blue-50 hover:border-blue-400 text-slate-700"
                                       onClick={() => {
                                         setSelectedDriverForDocs(u);
                                         setDocumentsDialogOpen(true);
@@ -5984,6 +5989,7 @@ export default function AdminDashboard() {
                                   <Button
                                     variant="outline"
                                     size="sm"
+                                    className="border-slate-300 hover:bg-blue-50 hover:border-blue-400 text-slate-700"
                                     onClick={() => openEditUserDialog(u)}
                                     data-testid={`button-edit-user-${u.id}`}
                                   >
@@ -5993,6 +5999,7 @@ export default function AdminDashboard() {
                                   <Button
                                     variant="outline"
                                     size="sm"
+                                    className="border-red-300 hover:bg-red-50 hover:border-red-400 text-red-600"
                                     onClick={() => {
                                       if (
                                         confirm(
@@ -6015,8 +6022,8 @@ export default function AdminDashboard() {
                       </tbody>
                     </table>
                   </div>
-                  <div className="text-xs text-muted-foreground p-3 bg-muted rounded-lg">
-                    <strong>Star Rating:</strong> Shows the average rating for
+                  <div className="text-xs text-slate-600 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <strong className="text-slate-900">Star Rating:</strong> Shows the average rating for
                     drivers based on passenger feedback after completed rides.
                     Ratings are on a 5-star scale, with ratings displayed only
                     for drivers.
@@ -6024,7 +6031,7 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <div
-                  className="text-center p-8 text-muted-foreground"
+                  className="text-center p-8 text-slate-500"
                   data-testid="no-users"
                 >
                   No users found.
