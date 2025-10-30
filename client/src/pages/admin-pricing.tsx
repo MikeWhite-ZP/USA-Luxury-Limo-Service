@@ -1060,60 +1060,68 @@ export default function AdminPricing() {
           </div>
         
         {/* Content Card */}
-        <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white" data-testid="pricing-rules-card">
-          <CardContent className="p-6">
+        <Card className="border-slate-200 shadow-md bg-white overflow-hidden" data-testid="pricing-rules-card">
+          <CardContent className="p-0">
             {rulesLoading ? (
-              <div className="flex items-center justify-center p-8">
-                <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+              <div className="flex items-center justify-center p-12">
+                <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" />
               </div>
             ) : pricingRules && pricingRules.length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Vehicle Type</TableHead>
-                      <TableHead>Service Type</TableHead>
-                      <TableHead>Base/Hourly Rate</TableHead>
-                      <TableHead>Gratuity</TableHead>
-                      <TableHead>Airport Fees</TableHead>
-                      <TableHead>Surge Rules</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
+                    <TableRow className="bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-50 hover:to-indigo-50 border-b-2 border-blue-200">
+                      <TableHead className="font-semibold text-slate-700 h-12">Vehicle Type</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Service Type</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Base/Hourly Rate</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Gratuity</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Airport Fees</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Surge Rules</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Status</TableHead>
+                      <TableHead className="font-semibold text-slate-700 text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {pricingRules.map((rule) => (
-                      <TableRow key={rule.id} data-testid={`rule-row-${rule.id}`}>
-                        <TableCell data-testid={`vehicle-type-${rule.id}`}>
+                      <TableRow 
+                        key={rule.id} 
+                        data-testid={`rule-row-${rule.id}`}
+                        className="hover:bg-slate-50 transition-colors border-b border-slate-100"
+                      >
+                        <TableCell data-testid={`vehicle-type-${rule.id}`} className="font-medium text-slate-900">
                           {getVehicleTypeLabel(rule.vehicleType)}
                         </TableCell>
-                        <TableCell data-testid={`service-type-${rule.id}`}>
+                        <TableCell data-testid={`service-type-${rule.id}`} className="text-slate-700">
                           {getServiceTypeLabel(rule.serviceType)}
                         </TableCell>
-                        <TableCell data-testid={`rate-${rule.id}`}>
+                        <TableCell data-testid={`rate-${rule.id}`} className="font-semibold text-blue-700">
                           {rule.serviceType === 'transfer' && rule.baseRate ? `$${rule.baseRate}` : 
                            rule.serviceType === 'hourly' && rule.hourlyRate ? `$${rule.hourlyRate}/hr` : '-'}
                         </TableCell>
-                        <TableCell data-testid={`gratuity-${rule.id}`}>
+                        <TableCell data-testid={`gratuity-${rule.id}`} className="text-slate-600">
                           {rule.gratuityPercent ? `${rule.gratuityPercent}%` : '-'}
                         </TableCell>
-                        <TableCell data-testid={`airport-fees-${rule.id}`}>
-                          {rule.airportFees?.length || 0} airports
+                        <TableCell data-testid={`airport-fees-${rule.id}`} className="text-slate-600">
+                          <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-sm">
+                            {rule.airportFees?.length || 0} airports
+                          </span>
                         </TableCell>
-                        <TableCell data-testid={`surge-rules-${rule.id}`}>
-                          {rule.surgePricing?.length || 0} periods
+                        <TableCell data-testid={`surge-rules-${rule.id}`} className="text-slate-600">
+                          <span className="inline-flex items-center px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 text-sm">
+                            {rule.surgePricing?.length || 0} periods
+                          </span>
                         </TableCell>
                         <TableCell data-testid={`status-${rule.id}`}>
-                          <Badge className={rule.isActive ? "bg-green-100 text-green-800 border-green-200" : "bg-slate-100 text-slate-700 border-slate-200"}>
+                          <Badge className={rule.isActive ? "bg-green-100 text-green-800 border-green-200 font-medium" : "bg-slate-100 text-slate-700 border-slate-200 font-medium"}>
                             {rule.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="flex space-x-2">
+                          <div className="flex justify-center space-x-2">
                             <Button
                               size="sm"
                               variant="outline"
-                              className="border-slate-300 hover:bg-slate-100"
+                              className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-colors"
                               onClick={() => handleEdit(rule)}
                               data-testid={`button-edit-${rule.id}`}
                             >
@@ -1121,8 +1129,8 @@ export default function AdminPricing() {
                             </Button>
                             <Button
                               size="sm"
-                              variant="destructive"
-                              className="bg-red-600 hover:bg-red-700 text-white"
+                              variant="outline"
+                              className="border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-900 transition-colors"
                               onClick={() => handleDelete(rule.id)}
                               data-testid={`button-delete-${rule.id}`}
                             >
@@ -1136,8 +1144,10 @@ export default function AdminPricing() {
                 </Table>
               </div>
             ) : (
-              <div className="text-center p-8 text-slate-600 bg-slate-50 rounded-lg border border-slate-200" data-testid="no-rules">
-                No pricing rules configured yet. Add your first pricing rule to get started.
+              <div className="text-center p-12 m-6 text-slate-600 bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg border-2 border-dashed border-slate-300" data-testid="no-rules">
+                <DollarSign className="w-12 h-12 mx-auto mb-3 text-slate-400" />
+                <p className="font-medium text-slate-700">No pricing rules configured yet</p>
+                <p className="text-sm text-slate-500 mt-1">Add your first pricing rule to get started.</p>
               </div>
             )}
           </CardContent>
