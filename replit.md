@@ -119,6 +119,15 @@ Preferred communication style: Simple, everyday language.
 - **Professional Styling**: Consistent light theme with slate borders, smooth hover effects, and semantic status badges
 - **Sections Updated**: Payment Systems (green), System Settings (slate), CMS (blue/indigo), Bookings (purple), Pricing (blue)
 
+**System Commission Settings Redesign**: Modern, professional light theme transformation:
+- **Indigo/Blue Gradient Header**: Updated from slate to indigo gradient with icon badge for consistency
+- **Current Rate Display**: Large, prominent commission percentage display (4xl font) with indigo gradient background and icon
+- **Enhanced Update Form**: Clean white card with blue icon badge, better input styling (indigo focus states), and full-width button option
+- **Improved "How it Works" Section**: Individual white cards for each step with color-coded indicators (blue, indigo, green, amber dots)
+- **Better Typography**: Enhanced spacing, rounded-xl corners, and professional slate/blue color palette throughout
+- **Visual Hierarchy**: Clear separation between description, current value, update form, and explanation sections
+- **Loading State**: Updated spinner color to match indigo theme
+
 **Admin Security Enhancement**: Improved admin account security:
 - New admin accounts created as inactive by default, requiring manual activation by existing admins
 - Login protection prevents inactive users from accessing the system

@@ -4187,9 +4187,9 @@ export default function AdminDashboard() {
         {/* System Settings */}
         {visibleSettingsSection === "commission" && (
           <Card id="settings-section" data-testid="system-settings" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50/30 border-b border-slate-200">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50/30 border-b border-slate-200">
               <CardTitle className="flex items-center gap-3 text-slate-900">
-                <div className="bg-slate-600 p-2 rounded-lg">
+                <div className="bg-indigo-600 p-2 rounded-lg">
                   <Settings className="w-5 h-5 text-white" />
                 </div>
                 <span>System Commission Settings</span>
@@ -4198,79 +4198,144 @@ export default function AdminDashboard() {
             <CardContent className="pt-6">
               {commissionLoading ? (
                 <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+                  <div className="animate-spin w-6 h-6 border-4 border-indigo-600 border-t-transparent rounded-full" />
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    {systemCommission?.description ||
-                      "Configure the commission percentage applied to ride total costs for driver payments when prices are not manually updated during dispatching."}
-                  </p>
-
-                  <div className="max-w-md space-y-3">
-                    <div>
-                      <Label htmlFor="commission-percentage">
-                        Commission Percentage (%)
-                      </Label>
-                      <Input
-                        id="commission-percentage"
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        value={commissionPercentage}
-                        onChange={(e) =>
-                          setCommissionPercentage(e.target.value)
-                        }
-                        placeholder="Enter percentage (0-100)"
-                        data-testid="input-commission-percentage"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Current value: {systemCommission?.percentage || 0}%
-                      </p>
-                    </div>
-
-                    <Button
-                      onClick={handleUpdateCommission}
-                      disabled={updateCommissionMutation.isPending}
-                      data-testid="button-update-commission"
-                    >
-                      {updateCommissionMutation.isPending ? (
-                        <>
-                          <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                          Updating...
-                        </>
-                      ) : (
-                        <>
-                          <Check className="w-4 h-4 mr-2" />
-                          Update Commission
-                        </>
-                      )}
-                    </Button>
+                <div className="space-y-6">
+                  {/* Description */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      {systemCommission?.description ||
+                        "Configure the commission percentage applied to ride total costs for driver payments when prices are not manually updated during dispatching."}
+                    </p>
                   </div>
 
-                  <div className="mt-6 p-4 bg-muted rounded-lg">
-                    <h4 className="font-semibold text-sm mb-2">
-                      How it works:
-                    </h4>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>
-                        • When a booking is created, the system calculates the
-                        total ride cost
-                      </li>
-                      <li>
-                        • The commission percentage is applied to determine the
-                        driver's payment
-                      </li>
-                      <li>
-                        • Admins and dispatchers can manually override this
-                        during dispatching
-                      </li>
-                      <li>
-                        • This setting provides a default when manual updates
-                        aren't made
-                      </li>
-                    </ul>
+                  {/* Current Value Display */}
+                  <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200 rounded-xl p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-slate-600 mb-1">Current Commission Rate</p>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-4xl font-bold text-indigo-700">
+                            {systemCommission?.percentage || 0}
+                          </span>
+                          <span className="text-2xl font-semibold text-indigo-600">%</span>
+                        </div>
+                      </div>
+                      <div className="bg-white rounded-full p-4 shadow-sm">
+                        <Settings className="w-8 h-8 text-indigo-600" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Update Form */}
+                  <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="bg-blue-100 p-1.5 rounded-lg">
+                        <Settings className="w-4 h-4 text-blue-700" />
+                      </div>
+                      <h3 className="font-semibold text-slate-900">Update Commission</h3>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <Label htmlFor="commission-percentage" className="text-slate-700 font-medium flex items-center gap-2">
+                          <span>Commission Percentage (%)</span>
+                        </Label>
+                        <Input
+                          id="commission-percentage"
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          value={commissionPercentage}
+                          onChange={(e) =>
+                            setCommissionPercentage(e.target.value)
+                          }
+                          placeholder="Enter percentage (0-100)"
+                          className="mt-2 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
+                          data-testid="input-commission-percentage"
+                        />
+                        <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                          Enter a value between 0% and 100%
+                        </p>
+                      </div>
+
+                      <Button
+                        onClick={handleUpdateCommission}
+                        disabled={updateCommissionMutation.isPending}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold w-full sm:w-auto"
+                        data-testid="button-update-commission"
+                      >
+                        {updateCommissionMutation.isPending ? (
+                          <>
+                            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                            Updating Commission...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4 mr-2" />
+                            Update Commission Rate
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* How it Works */}
+                  <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 border border-slate-200 rounded-xl p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="bg-blue-600 p-1.5 rounded-lg">
+                        <AlertCircle className="w-4 h-4 text-white" />
+                      </div>
+                      <h4 className="font-semibold text-slate-900">How Commission Works</h4>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                        <div className="bg-blue-100 rounded-full p-1 mt-0.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm text-slate-700 leading-relaxed">
+                            When a booking is created, the system calculates the total ride cost based on distance, time, and vehicle type
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                        <div className="bg-indigo-100 rounded-full p-1 mt-0.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-indigo-600"></div>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm text-slate-700 leading-relaxed">
+                            The commission percentage is applied to determine the driver's payment (e.g., 25% commission means driver receives 75% of ride cost)
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                        <div className="bg-green-100 rounded-full p-1 mt-0.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-green-600"></div>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm text-slate-700 leading-relaxed">
+                            Admins and dispatchers can manually override the driver payment during dispatching for special circumstances
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                        <div className="bg-amber-100 rounded-full p-1 mt-0.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-amber-600"></div>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm text-slate-700 leading-relaxed">
+                            This setting provides a consistent default commission rate when manual updates aren't made
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
