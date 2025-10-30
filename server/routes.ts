@@ -5819,6 +5819,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Emergency Incidents API Routes
+  // Create emergency incident
+  app.post('/api/emergency-incidents', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+
+      // Verify user has dispatcher or admin role
+      const user = await storage.getUser(userId);
+      if (!user || (user.role !== 'dispatcher' && user.role !== 'admin')) {
+        return res.status(403).json({ message: 'Dispatcher or Admin access required' });
+      }
+
+      const incident = await storage.createEmergencyIncident({
+        ...req.body,
+        reporterId: userId,
+      });
+
+      res.json({ success: true, incident });
+    } catch (error) {
+      console.error('Error creating emergency incident:', error);
+      res.status(500).json({ message: 'Failed to create incident' });
+    }
+  });
+
+  // Get all emergency incidents
+  app.get('/api/emergency-incidents', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+
+      // Verify user has dispatcher or admin role
+      const user = await storage.getUser(userId);
+      if (!user || (user.role !== 'dispatcher' && user.role !== 'admin')) {
+        return res.status(403).json({ message: 'Dispatcher or Admin access required' });
+      }
+
+      const { status } = req.query;
+      const incidents = await storage.getEmergencyIncidents(status as string | undefined);
+      
+      // Enrich with reporter and driver info
+      const enrichedIncidents = await Promise.all(
+        incidents.map(async (incident) => {
+          const reporter = await storage.getUser(incident.reporterId);
+          const driver = incident.driverId ? await storage.getUser(incident.driverId) : null;
+          const assignee = incident.assignedTo ? await storage.getUser(incident.assignedTo) : null;
+          
+          return {
+            ...incident,
+            reporterName: reporter ? `${reporter.firstName} ${reporter.lastName}` : 'Unknown',
+            driverName: driver ? `${driver.firstName} ${driver.lastName}` : null,
+            assigneeName: assignee ? `${assignee.firstName} ${assignee.lastName}` : null,
+          };
+        })
+      );
+
+      res.json(enrichedIncidents);
+    } catch (error) {
+      console.error('Error fetching emergency incidents:', error);
+      res.status(500).json({ message: 'Failed to fetch incidents' });
+    }
+  });
+
+  // Update emergency incident
+  app.patch('/api/emergency-incidents/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+
+      // Verify user has dispatcher or admin role
+      const user = await storage.getUser(userId);
+      if (!user || (user.role !== 'dispatcher' && user.role !== 'admin')) {
+        return res.status(403).json({ message: 'Dispatcher or Admin access required' });
+      }
+
+      const { id } = req.params;
+      const incident = await storage.updateEmergencyIncident(id, req.body);
+
+      if (!incident) {
+        return res.status(404).json({ message: 'Incident not found' });
+      }
+
+      res.json({ success: true, incident });
+    } catch (error) {
+      console.error('Error updating emergency incident:', error);
+      res.status(500).json({ message: 'Failed to update incident' });
+    }
+  });
+
   // Stripe webhook for payment status updates
   app.post('/api/stripe-webhook', async (req, res) => {
     try {

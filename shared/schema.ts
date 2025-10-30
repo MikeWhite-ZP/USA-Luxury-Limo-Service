@@ -662,6 +662,32 @@ export const insertDriverMessageSchema = createInsertSchema(driverMessages).omit
   errorMessage: true,
 });
 
+// Emergency incidents
+export const emergencyIncidents = pgTable("emergency_incidents", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  reporterId: varchar("reporter_id").references(() => users.id).notNull(),
+  incidentType: varchar("incident_type", { enum: ["accident", "breakdown", "medical", "safety", "other"] }).notNull(),
+  severity: varchar("severity", { enum: ["low", "medium", "high", "critical"] }).default("medium").notNull(),
+  bookingId: varchar("booking_id").references(() => bookings.id),
+  driverId: varchar("driver_id").references(() => users.id),
+  location: varchar("location"),
+  locationCoordinates: varchar("location_coordinates"),
+  description: text("description").notNull(),
+  status: varchar("status", { enum: ["open", "in_progress", "resolved", "closed"] }).default("open").notNull(),
+  assignedTo: varchar("assigned_to").references(() => users.id),
+  resolutionNotes: text("resolution_notes"),
+  emergencyServicesContacted: boolean("emergency_services_contacted").default(false),
+  resolvedAt: timestamp("resolved_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertEmergencyIncidentSchema = createInsertSchema(emergencyIncidents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -700,3 +726,5 @@ export type CmsMedia = typeof cmsMedia.$inferSelect;
 export type InsertCmsMedia = z.infer<typeof insertCmsMediaSchema>;
 export type DriverMessage = typeof driverMessages.$inferSelect;
 export type InsertDriverMessage = z.infer<typeof insertDriverMessageSchema>;
+export type EmergencyIncident = typeof emergencyIncidents.$inferSelect;
+export type InsertEmergencyIncident = z.infer<typeof insertEmergencyIncidentSchema>;

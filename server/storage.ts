@@ -55,6 +55,9 @@ import {
   driverMessages,
   type DriverMessage,
   type InsertDriverMessage,
+  emergencyIncidents,
+  type EmergencyIncident,
+  type InsertEmergencyIncident,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -231,6 +234,12 @@ export interface IStorage {
   getDriverMessages(driverId?: string): Promise<DriverMessage[]>;
   getDriverMessage(id: string): Promise<DriverMessage | undefined>;
   updateDriverMessageStatus(id: string, status: string, sentAt?: Date, deliveredAt?: Date, errorMessage?: string): Promise<DriverMessage | undefined>;
+  
+  // Emergency Incidents
+  createEmergencyIncident(incident: InsertEmergencyIncident): Promise<EmergencyIncident>;
+  getEmergencyIncidents(status?: string): Promise<EmergencyIncident[]>;
+  getEmergencyIncident(id: string): Promise<EmergencyIncident | undefined>;
+  updateEmergencyIncident(id: string, updates: Partial<EmergencyIncident>): Promise<EmergencyIncident | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1684,6 +1693,42 @@ export class DatabaseStorage implements IStorage {
       .update(driverMessages)
       .set(updates)
       .where(eq(driverMessages.id, id))
+      .returning();
+    return result;
+  }
+  
+  // Emergency Incidents Methods
+  async createEmergencyIncident(incident: InsertEmergencyIncident): Promise<EmergencyIncident> {
+    const [result] = await db.insert(emergencyIncidents).values({
+      ...incident,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }).returning();
+    return result;
+  }
+
+  async getEmergencyIncidents(status?: string): Promise<EmergencyIncident[]> {
+    if (status) {
+      return await db.select().from(emergencyIncidents)
+        .where(eq(emergencyIncidents.status, status))
+        .orderBy(desc(emergencyIncidents.createdAt));
+    }
+    return await db.select().from(emergencyIncidents).orderBy(desc(emergencyIncidents.createdAt));
+  }
+
+  async getEmergencyIncident(id: string): Promise<EmergencyIncident | undefined> {
+    const [incident] = await db.select().from(emergencyIncidents).where(eq(emergencyIncidents.id, id));
+    return incident;
+  }
+
+  async updateEmergencyIncident(id: string, updates: Partial<EmergencyIncident>): Promise<EmergencyIncident | undefined> {
+    const [result] = await db
+      .update(emergencyIncidents)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(emergencyIncidents.id, id))
       .returning();
     return result;
   }
