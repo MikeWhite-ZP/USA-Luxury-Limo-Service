@@ -152,6 +152,7 @@ export interface IStorage {
     activeDrivers: number;
     activeRides: number;
     pendingRequests: number;
+    pendingApprovals: number;
     fleetUtilization: string;
   }>;
   
@@ -1077,6 +1078,7 @@ export class DatabaseStorage implements IStorage {
     activeDrivers: number;
     activeRides: number;
     pendingRequests: number;
+    pendingApprovals: number;
     fleetUtilization: string;
   }> {
     // Active drivers count (drivers who are available and fully verified)
@@ -1109,6 +1111,14 @@ export class DatabaseStorage implements IStorage {
       })
       .from(bookings)
       .where(eq(bookings.status, 'pending'));
+
+    // Pending approvals count (drivers waiting for verification)
+    const [pendingApprovalsResult] = await db
+      .select({ 
+        count: sql<number>`COUNT(*)` 
+      })
+      .from(drivers)
+      .where(eq(drivers.verificationStatus, 'pending'));
 
     // Fleet utilization calculation
     // Total active vehicles
@@ -1143,6 +1153,7 @@ export class DatabaseStorage implements IStorage {
       activeDrivers: activeDriversResult?.count || 0,
       activeRides: activeRidesResult?.count || 0,
       pendingRequests: pendingRequestsResult?.count || 0,
+      pendingApprovals: pendingApprovalsResult?.count || 0,
       fleetUtilization: `${utilization}%`,
     };
   }

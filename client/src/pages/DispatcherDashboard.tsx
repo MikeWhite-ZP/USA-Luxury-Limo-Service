@@ -461,29 +461,36 @@ export default function DispatcherDashboard() {
     {
       title: "Active Drivers",
       value: (dashboardStats as any)?.activeDrivers?.toString() || "0",
-      change: "Available and verified drivers",
-      icon: <Car className="w-6 h-6" />,
+      change: "Verified & available",
+      icon: <Car className="w-5 h-5" />,
       color: "text-green-600"
     },
     {
       title: "Active Rides",
       value: (dashboardStats as any)?.activeRides?.toString() || "0",
-      change: "Currently in progress",
-      icon: <Activity className="w-6 h-6" />,
+      change: "In progress",
+      icon: <Activity className="w-5 h-5" />,
       color: "text-blue-600"
     },
     {
       title: "Pending Requests",
       value: (dashboardStats as any)?.pendingRequests?.toString() || "0",
       change: "Awaiting assignment",
-      icon: <Clock className="w-6 h-6" />,
+      icon: <Clock className="w-5 h-5" />,
       color: "text-orange-600"
+    },
+    {
+      title: "Pending Approvals",
+      value: (dashboardStats as any)?.pendingApprovals?.toString() || "0",
+      change: "Need verification",
+      icon: <UserCheck className="w-5 h-5" />,
+      color: "text-amber-600"
     },
     {
       title: "Fleet Utilization",
       value: (dashboardStats as any)?.fleetUtilization || "0%",
-      change: "Vehicles currently in use",
-      icon: <BarChart3 className="w-6 h-6" />,
+      change: "Vehicles in use",
+      icon: <BarChart3 className="w-5 h-5" />,
       color: "text-purple-600"
     }
   ];
@@ -563,26 +570,26 @@ export default function DispatcherDashboard() {
           </div>
 
           {/* Stats Overview - Inside Dark Header */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {statsCards.map((stat, index) => (
               <div 
                 key={index} 
-                className="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:shadow-2xl hover:scale-105"
+                className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:shadow-2xl hover:scale-105"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-medium text-slate-200">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-slate-200 line-clamp-1">
                     {stat.title}
                   </span>
-                  <div className="bg-white/20 p-2 rounded-lg">
+                  <div className="bg-white/20 p-1.5 rounded-lg flex-shrink-0">
                     <div className="text-cyan-300">
                       {stat.icon}
                     </div>
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-white mb-1" data-testid={`stat-${index}-value`}>
+                <div className="text-2xl font-bold text-white mb-0.5" data-testid={`stat-${index}-value`}>
                   {stat.value}
                 </div>
-                <p className="text-xs text-slate-300" data-testid={`stat-${index}-change`}>
+                <p className="text-xs text-slate-300 line-clamp-1" data-testid={`stat-${index}-change`}>
                   {stat.change}
                 </p>
               </div>
