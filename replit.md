@@ -7,6 +7,19 @@ USA Luxury Limo is a full-stack Progressive Web Application (PWA) designed as a 
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 30, 2025)
+**User Discount System**: Comprehensive discount tracking and display across bookings and invoices:
+- Added discount fields to bookings table (regularPrice, discountPercentage, discountAmount)
+- Added discount fields to invoices table for transparent billing
+- Price calculation API now returns detailed breakdown: regular price, discount amount, final price
+- BookingDetailsDialog displays discount breakdown with green-themed UI when applicable
+- All pricing flows now store and display discount information for complete transparency
+
+**Pricing Enhancements**: Hourly services now have feature parity with transfer services:
+- Added Airport Fees configuration for hourly bookings (airport code, fee, waiver minutes)
+- Added Surge Pricing functionality for hourly bookings (day/time-based multipliers)
+- "All Days" option (-1 value) in surge pricing for week-wide rules
+- Schema validation updated to support -1 to 6 range for day selection
+
 **Admin Dashboard & Pricing Redesign**: Completed comprehensive redesign with modern professional light theme:
 - **Color Palette**: Replaced all red/orange/amber themes with blue/indigo/slate/green Tailwind utilities
 - **Gradient Headers**: All major dashboard cards now feature gradient headers (blue/indigo/green/purple) with colored icon badges
