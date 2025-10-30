@@ -1322,150 +1322,162 @@ export function BookingDetailsDialog({
                   )}
 
                   {/* Payment Method */}
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Payment Method</p>
-                    <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                      <DollarSign className="w-4 h-4" />
-                      <span className="text-sm">Card Payment</span>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 className="text-sm font-semibold text-blue-900 mb-3">Payment Method</h4>
+                    <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-100">
+                      <div className="bg-blue-100 p-2 rounded-full">
+                        <DollarSign className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <span className="text-sm font-medium text-slate-900">Card Payment</span>
                     </div>
                   </div>
 
                   {/* Journey Fare */}
-                  <div>
-                    <Label>Journey Fare</Label>
-                    <div className="flex gap-2 mt-1">
-                      <div className="relative flex-1">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={formData.totalAmount}
-                          onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
-                          placeholder="0.00"
-                          className="pl-9"
-                          data-testid="input-total-amount"
-                        />
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 className="text-sm font-semibold text-blue-900 mb-3">Journey Fare</h4>
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600" />
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={formData.totalAmount}
+                            onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
+                            placeholder="0.00"
+                            className="pl-9 border-blue-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
+                            data-testid="input-total-amount"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={onCalculatePrice}
+                          disabled={
+                            isCalculatingPrice ||
+                            !formData.vehicleTypeId ||
+                            !formData.pickupAddress ||
+                            (formData.bookingType === 'transfer' && !formData.destinationAddress)
+                          }
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                          data-testid="button-calculate-price"
+                        >
+                          {isCalculatingPrice ? 'Calculating...' : 'Calculate'}
+                        </Button>
                       </div>
-                      <Button
-                        type="button"
-                        onClick={onCalculatePrice}
-                        disabled={
-                          isCalculatingPrice ||
-                          !formData.vehicleTypeId ||
-                          !formData.pickupAddress ||
-                          (formData.bookingType === 'transfer' && !formData.destinationAddress)
-                        }
-                        variant="outline"
-                        data-testid="button-calculate-price"
-                      >
-                        {isCalculatingPrice ? 'Calculating...' : 'Calculate'}
-                      </Button>
+                      {calculatedPrice && (
+                        <div className="flex items-center gap-2 p-2 bg-blue-100 rounded-lg border border-blue-200">
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+                          <p className="text-xs text-blue-900 font-medium">
+                            Calculated: ${calculatedPrice} (editable)
+                          </p>
+                        </div>
+                      )}
                     </div>
-                    {calculatedPrice && (
-                      <p className="text-xs text-gray-600 mt-1">
-                        Calculated: ${calculatedPrice} (editable)
-                      </p>
-                    )}
                   </div>
 
                   {/* Detailed Pricing Breakdown - Show when booking has pricing details */}
                   {editingBooking && editingBooking.baseFare && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
-                      <h4 className="text-sm font-semibold text-blue-900 mb-2">Fare Breakdown</h4>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-blue-900 mb-3">Fare Breakdown</h4>
                       
-                      {/* Base Fare */}
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-700">Base Fare:</span>
-                        <span className="font-semibold text-gray-900">${editingBooking.baseFare}</span>
-                      </div>
-
-                      {/* Surge Pricing */}
-                      {editingBooking.surgePricingMultiplier && parseFloat(editingBooking.surgePricingMultiplier) > 1 && (
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-700">
-                            Surge Pricing ({editingBooking.surgePricingMultiplier}x):
-                          </span>
-                          <span className="font-semibold text-orange-600">+${editingBooking.surgePricingAmount}</span>
+                      <div className="space-y-2.5">
+                        {/* Base Fare */}
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-700">Base Fare:</span>
+                          <span className="text-sm font-semibold text-slate-900">${editingBooking.baseFare}</span>
                         </div>
-                      )}
 
-                      {/* Gratuity */}
-                      {editingBooking.gratuityAmount && parseFloat(editingBooking.gratuityAmount) > 0 && (
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-700">Gratuity:</span>
-                          <span className="font-semibold text-gray-900">+${editingBooking.gratuityAmount}</span>
-                        </div>
-                      )}
-
-                      {/* Airport Fee */}
-                      {editingBooking.airportFeeAmount && parseFloat(editingBooking.airportFeeAmount) > 0 && (
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-700">Airport Fee:</span>
-                          <span className="font-semibold text-gray-900">+${editingBooking.airportFeeAmount}</span>
-                        </div>
-                      )}
-
-                      {/* Subtotal before discount */}
-                      <div className="flex justify-between items-center text-sm pt-2 border-t border-blue-300">
-                        <span className="font-semibold text-gray-900">Subtotal:</span>
-                        <span className="font-bold text-gray-900">${editingBooking.regularPrice || editingBooking.totalAmount}</span>
-                      </div>
-
-                      {/* Discount if applicable */}
-                      {parseFloat(editingBooking.discountAmount || '0') > 0 && (
-                        <>
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-green-700">
-                              Discount ({editingBooking.discountPercentage}%):
+                        {/* Surge Pricing */}
+                        {editingBooking.surgePricingMultiplier && parseFloat(editingBooking.surgePricingMultiplier) > 1 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-slate-700">
+                              Surge Pricing ({editingBooking.surgePricingMultiplier}x):
                             </span>
-                            <span className="font-semibold text-green-700">-${editingBooking.discountAmount}</span>
+                            <span className="text-sm font-semibold text-orange-600">+${editingBooking.surgePricingAmount}</span>
                           </div>
-                          <div className="flex justify-between items-center text-base pt-2 border-t border-blue-300">
-                            <span className="font-bold text-gray-900">Total Amount:</span>
-                            <span className="font-bold text-blue-700 text-lg">${editingBooking.totalAmount}</span>
-                          </div>
-                        </>
-                      )}
+                        )}
 
-                      {/* If no discount, show total directly */}
-                      {parseFloat(editingBooking.discountAmount || '0') === 0 && (
-                        <div className="flex justify-between items-center text-base pt-2 border-t border-blue-300">
-                          <span className="font-bold text-gray-900">Total Amount:</span>
-                          <span className="font-bold text-blue-700 text-lg">${editingBooking.totalAmount}</span>
+                        {/* Gratuity */}
+                        {editingBooking.gratuityAmount && parseFloat(editingBooking.gratuityAmount) > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-slate-700">Gratuity:</span>
+                            <span className="text-sm font-semibold text-slate-900">+${editingBooking.gratuityAmount}</span>
+                          </div>
+                        )}
+
+                        {/* Airport Fee */}
+                        {editingBooking.airportFeeAmount && parseFloat(editingBooking.airportFeeAmount) > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-slate-700">Airport Fee:</span>
+                            <span className="text-sm font-semibold text-slate-900">+${editingBooking.airportFeeAmount}</span>
+                          </div>
+                        )}
+
+                        {/* Subtotal before discount */}
+                        <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                          <span className="text-sm font-semibold text-slate-900">Subtotal:</span>
+                          <span className="text-sm font-bold text-slate-900">${editingBooking.regularPrice || editingBooking.totalAmount}</span>
                         </div>
-                      )}
+
+                        {/* Discount if applicable */}
+                        {parseFloat(editingBooking.discountAmount || '0') > 0 && (
+                          <>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-semibold text-green-700">
+                                Discount ({editingBooking.discountPercentage}%):
+                              </span>
+                              <span className="text-sm font-bold text-green-600">-${editingBooking.discountAmount}</span>
+                            </div>
+                            <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                              <span className="font-bold text-blue-900">Total Amount:</span>
+                              <span className="font-bold text-blue-700 text-xl">${editingBooking.totalAmount}</span>
+                            </div>
+                          </>
+                        )}
+
+                        {/* If no discount, show total directly */}
+                        {parseFloat(editingBooking.discountAmount || '0') === 0 && (
+                          <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                            <span className="font-bold text-blue-900">Total Amount:</span>
+                            <span className="font-bold text-blue-700 text-xl">${editingBooking.totalAmount}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
                   {/* Legacy Discount Breakdown - Show when discount exists but no detailed breakdown */}
                   {editingBooking && !editingBooking.baseFare && (editingBooking.discountPercentage || editingBooking.regularPrice) && parseFloat(editingBooking.discountAmount || '0') > 0 && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 space-y-2">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-700">Regular Price:</span>
-                        <span className="font-semibold text-gray-900">${editingBooking.regularPrice || editingBooking.totalAmount}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-green-700">
-                          Discount ({editingBooking.discountPercentage}%):
-                        </span>
-                        <span className="font-semibold text-green-700">-${editingBooking.discountAmount}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-base pt-2 border-t border-green-300">
-                        <span className="font-bold text-gray-900">Discounted Price:</span>
-                        <span className="font-bold text-green-700 text-lg">${editingBooking.totalAmount}</span>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-blue-900 mb-3">Pricing Details</h4>
+                      <div className="space-y-2.5">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-700">Regular Price:</span>
+                          <span className="text-sm font-semibold text-slate-900">${editingBooking.regularPrice || editingBooking.totalAmount}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-semibold text-green-700">
+                            Discount ({editingBooking.discountPercentage}%):
+                          </span>
+                          <span className="text-sm font-bold text-green-600">-${editingBooking.discountAmount}</span>
+                        </div>
+                        <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                          <span className="font-bold text-blue-900">Discounted Price:</span>
+                          <span className="font-bold text-blue-700 text-xl">${editingBooking.totalAmount}</span>
+                        </div>
                       </div>
                     </div>
                   )}
 
                   {/* Additional Charges Section */}
                   {editingBooking && editingBooking.surcharges && (editingBooking.surcharges as any[]).length > 0 && (
-                    <div className="pt-3 border-t">
-                      <Label className="text-sm font-semibold mb-2">Additional Charges</Label>
-                      <div className="space-y-1 mt-2">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-blue-900 mb-3">Additional Charges</h4>
+                      <div className="space-y-2">
                         {((editingBooking.surcharges as any[]) || []).map((charge: any, index: number) => (
-                          <div key={index} className="flex justify-between items-center text-sm p-2 bg-gray-50 rounded">
-                            <span className="text-gray-700">{charge.description}</span>
-                            <span className="font-semibold">${charge.amount.toFixed(2)}</span>
+                          <div key={index} className="flex justify-between items-center text-sm p-3 bg-white rounded-lg border border-blue-100">
+                            <span className="text-slate-700 font-medium">{charge.description}</span>
+                            <span className="font-semibold text-slate-900">+${charge.amount.toFixed(2)}</span>
                           </div>
                         ))}
                       </div>
@@ -1474,70 +1486,73 @@ export function BookingDetailsDialog({
 
                   {/* Add Additional Charge Button & Form (Admin/Dispatcher only) */}
                   {editingBooking && canManageCharges && (
-                    <div className="pt-3 border-t">
+                    <div>
                       {!showAdditionalChargeForm ? (
                         <Button
                           type="button"
                           variant="outline"
                           onClick={() => setShowAdditionalChargeForm(true)}
-                          className="w-full"
+                          className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 font-medium py-3"
                           data-testid="button-show-additional-charge-form"
                         >
                           <Plus className="w-4 h-4 mr-2" />
                           Add Additional Charge
                         </Button>
                       ) : (
-                        <div className="space-y-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                          <div>
-                            <Label className="text-xs">Explanation</Label>
-                            <Input
-                              type="text"
-                              value={chargeDescription}
-                              onChange={(e) => setChargeDescription(e.target.value)}
-                              placeholder="e.g., Airport fee, Wait time, etc."
-                              className="mt-1"
-                              data-testid="input-charge-description"
-                            />
-                          </div>
-                          <div>
-                            <Label className="text-xs">Amount</Label>
-                            <div className="relative mt-1">
-                              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <h4 className="text-sm font-semibold text-blue-900 mb-3">Add Additional Charge</h4>
+                          <div className="space-y-3">
+                            <div>
+                              <Label className="text-sm font-medium text-slate-700">Description</Label>
                               <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={chargeAmount}
-                                onChange={(e) => setChargeAmount(e.target.value)}
-                                placeholder="0.00"
-                                className="pl-9"
-                                data-testid="input-charge-amount"
+                                type="text"
+                                value={chargeDescription}
+                                onChange={(e) => setChargeDescription(e.target.value)}
+                                placeholder="e.g., Airport fee, Wait time, etc."
+                                className="mt-1.5 border-blue-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
+                                data-testid="input-charge-description"
                               />
                             </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => {
-                                setShowAdditionalChargeForm(false);
-                                setChargeDescription('');
-                                setChargeAmount('');
-                              }}
-                              className="flex-1"
-                              data-testid="button-cancel-charge"
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              type="button"
-                              onClick={handleAddCharge}
-                              disabled={addChargeMutation.isPending}
-                              className="flex-1 bg-blue-600 hover:bg-blue-700"
-                              data-testid="button-add-charge"
-                            >
-                              {addChargeMutation.isPending ? 'Adding...' : 'Add Charge'}
-                            </Button>
+                            <div>
+                              <Label className="text-sm font-medium text-slate-700">Amount</Label>
+                              <div className="relative mt-1.5">
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600" />
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  value={chargeAmount}
+                                  onChange={(e) => setChargeAmount(e.target.value)}
+                                  placeholder="0.00"
+                                  className="pl-9 border-blue-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
+                                  data-testid="input-charge-amount"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex gap-2 pt-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                  setShowAdditionalChargeForm(false);
+                                  setChargeDescription('');
+                                  setChargeAmount('');
+                                }}
+                                className="flex-1 border-slate-300 hover:bg-slate-100"
+                                data-testid="button-cancel-charge"
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                type="button"
+                                onClick={handleAddCharge}
+                                disabled={addChargeMutation.isPending}
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                                data-testid="button-add-charge"
+                              >
+                                {addChargeMutation.isPending ? 'Adding...' : 'Add Charge'}
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -1545,10 +1560,10 @@ export function BookingDetailsDialog({
                   )}
 
                   {/* Total Fare */}
-                  <div className="pt-4 border-t">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-lg p-5">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold">Total Fare</span>
-                      <span className="text-3xl font-bold text-blue-600">
+                      <span className="text-lg font-bold text-blue-900">Total Fare</span>
+                      <span className="text-3xl font-bold text-blue-700">
                         ${formData.totalAmount || '0.00'}
                       </span>
                     </div>
@@ -1556,19 +1571,18 @@ export function BookingDetailsDialog({
 
                   {/* Payment Actions (Admin/Dispatcher only) */}
                   {editingBooking && canManageCharges && (
-                    <div className="space-y-2 pt-4 border-t">
+                    <div className="space-y-3">
                       <Button 
-                        variant="outline" 
                         onClick={handleAuthorizePayment}
                         disabled={authorizePaymentMutation.isPending}
-                        className="w-full bg-[#e6e6e6] pl-[0px] pr-[0px] pt-[0px] pb-[0px] text-[12px] text-[#c90606]"
+                        className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3"
                         data-testid="button-authorize-payment"
                       >
-                        {authorizePaymentMutation.isPending ? 'Processing...' : 'Authorize & Capture'}
+                        {authorizePaymentMutation.isPending ? 'Processing...' : 'Authorize & Capture Payment'}
                       </Button>
                       <Button 
                         variant="outline" 
-                        className="w-full bg-[#e6e6e6] text-[#2600f0] pl-[0px] pr-[0px] pt-[0px] pb-[0px] mt-[0px] mb-[0px] text-[12px]"
+                        className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 font-semibold py-3"
                         data-testid="button-send-proforma"
                       >
                         Send Proforma Invoice
