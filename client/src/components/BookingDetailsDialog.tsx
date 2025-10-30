@@ -369,16 +369,28 @@ export function BookingDetailsDialog({
         <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] h-[95vh] overflow-hidden">
           
           {/* LEFT PANEL - Journey Visualization */}
-          <div className="overflow-y-auto p-6 bg-gray-50 border-r text-[12px] pl-[0px] pr-[0px] pt-[0px] pb-[0px]">
-            <h2 className="text-2xl font-bold text-[#0052ff] mt-[0px] mb-[0px]">
-              {editingBooking ? `Booking ID: ${editingBooking.id.substring(0, 8)}` : 'New Booking'}
-            </h2>
+          <div className="overflow-y-auto p-6 bg-slate-50 border-r">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-4 mb-6 shadow-md">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/20 p-2.5 rounded-lg">
+                  <MapPin className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-white">
+                  {editingBooking ? `Booking ID: ${editingBooking.id.substring(0, 8)}` : 'New Booking'}
+                </h2>
+              </div>
+            </div>
 
             {/* Address Input Section with Saved Addresses */}
             <div className="space-y-4 mb-6">
-              <Card>
-                <CardHeader className="flex flex-col space-y-1.5 p-6 text-[12px]">
-                  <CardTitle className="text-lg text-[#ff0000]">Journey Details</CardTitle>
+              <Card className="border-blue-200 shadow-sm">
+                <CardHeader className="bg-gradient-to-r from-blue-100 to-indigo-100 border-b border-blue-200">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-blue-600 p-2 rounded-lg">
+                      <MapPin className="w-4 h-4 text-white" />
+                    </div>
+                    <CardTitle className="text-lg font-semibold text-blue-900">Journey Details</CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Passenger Selection */}
@@ -499,8 +511,8 @@ export function BookingDetailsDialog({
                   {/* Via Points Section - Hidden for Hourly Service */}
                   {formData.bookingType !== 'hourly' && (
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between pt-[0px] pb-[0px] text-[13px]">
-                        <Label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#ff0000] text-[12px]">Via Points (Optional)</Label>
+                      <div className="flex items-center justify-between">
+                        <Label className="font-semibold text-slate-700">Via Points (Optional)</Label>
                         <Button
                           type="button"
                           size="sm"
@@ -510,7 +522,7 @@ export function BookingDetailsDialog({
                             setFormData({ ...formData, viaPoints: newViaPoints });
                           }}
                           data-testid="button-add-via-point"
-                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 text-xs text-[#ff0000] bg-[#ffffff]"
+                          className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
                         >
                           <Plus className="w-3 h-3 mr-1" />
                           Add Via Point
@@ -616,12 +628,14 @@ export function BookingDetailsDialog({
 
             {/* Passenger Details Section */}
             <div className="mb-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2 text-[#ff0000]">
-                    <User className="w-5 h-5" />
-                    Passenger & Luggage Details
-                  </CardTitle>
+              <Card className="border-purple-200 shadow-sm">
+                <CardHeader className="bg-gradient-to-r from-purple-100 to-pink-100 border-b border-purple-200">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-purple-600 p-2 rounded-lg">
+                      <User className="w-4 h-4 text-white" />
+                    </div>
+                    <CardTitle className="text-lg font-semibold text-purple-900">Passenger & Luggage Details</CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-3 gap-4">
@@ -710,12 +724,14 @@ export function BookingDetailsDialog({
 
             {/* Flight Search Section */}
             <div className="mb-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2 text-[#ff0000]">
-                    <Plane className="w-5 h-5" />
-                    Add Flight Information (Optional)
-                  </CardTitle>
+              <Card className="border-emerald-200 shadow-sm">
+                <CardHeader className="bg-gradient-to-r from-emerald-100 to-teal-100 border-b border-emerald-200">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-emerald-600 p-2 rounded-lg">
+                      <Plane className="w-4 h-4 text-white" />
+                    </div>
+                    <CardTitle className="text-lg font-semibold text-emerald-900">Add Flight Information (Optional)</CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-sm text-gray-600">
@@ -746,11 +762,11 @@ export function BookingDetailsDialog({
                   {(formData.flightNumber || selectedFlight) && (
                     <div className="mt-4">
                       {selectedFlight ? (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-[12px] pl-[0px] pr-[0px] pt-[0px] pb-[0px]">
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
                           <div className="flex justify-between items-start mb-3">
                             <div>
-                              <p className="font-bold text-green-800">{selectedFlight.airline}</p>
-                              <p className="text-sm text-green-700">Flight {selectedFlight.flightNumber}</p>
+                              <p className="font-bold text-emerald-900">{selectedFlight.airline}</p>
+                              <p className="text-sm text-emerald-700">Flight {selectedFlight.flightNumber}</p>
                             </div>
                             <button
                               onClick={() => {
@@ -764,7 +780,7 @@ export function BookingDetailsDialog({
                                   flightArrivalAirport: '',
                                 });
                               }}
-                              className="text-green-600 hover:text-green-800 text-sm"
+                              className="text-emerald-700 hover:text-emerald-900 text-sm font-medium"
                               data-testid="button-clear-flight"
                             >
                               Clear
@@ -772,26 +788,26 @@ export function BookingDetailsDialog({
                           </div>
                           <div className="grid grid-cols-2 gap-3 text-sm">
                             <div>
-                              <p className="text-xs text-green-600 font-medium">Departure</p>
-                              <p className="text-green-800">{selectedFlight.departureAirport}</p>
+                              <p className="text-xs text-emerald-700 font-semibold">Departure</p>
+                              <p className="text-emerald-900 font-medium">{selectedFlight.departureAirport}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-green-600 font-medium">Arrival</p>
-                              <p className="text-green-800">{selectedFlight.arrivalAirport}</p>
+                              <p className="text-xs text-emerald-700 font-semibold">Arrival</p>
+                              <p className="text-emerald-900 font-medium">{selectedFlight.arrivalAirport}</p>
                             </div>
                           </div>
                         </div>
                       ) : (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                          <p className="font-bold text-blue-800">{formData.flightAirline}</p>
-                          <p className="text-sm text-blue-700">Flight {formData.flightNumber}</p>
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                          <p className="font-bold text-emerald-900">{formData.flightAirline}</p>
+                          <p className="text-sm text-emerald-700">Flight {formData.flightNumber}</p>
                           {formData.flightDepartureAirport && formData.flightArrivalAirport && (
                             <div className="grid grid-cols-2 gap-3 text-sm mt-2">
                               <div>
-                                <p className="text-xs text-blue-600">From: {formData.flightDepartureAirport}</p>
+                                <p className="text-xs text-emerald-700 font-semibold">From: {formData.flightDepartureAirport}</p>
                               </div>
                               <div>
-                                <p className="text-xs text-blue-600">To: {formData.flightArrivalAirport}</p>
+                                <p className="text-xs text-emerald-700 font-semibold">To: {formData.flightArrivalAirport}</p>
                               </div>
                             </div>
                           )}
@@ -806,9 +822,14 @@ export function BookingDetailsDialog({
             {/* Journey Log Timeline */}
             {editingBooking && (
               <div className="mb-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg text-[#ff0000]">Journey Log</CardTitle>
+                <Card className="border-amber-200 shadow-sm">
+                  <CardHeader className="bg-gradient-to-r from-amber-100 to-orange-100 border-b border-amber-200">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-amber-600 p-2 rounded-lg">
+                        <Clock className="w-4 h-4 text-white" />
+                      </div>
+                      <CardTitle className="text-lg font-semibold text-amber-900">Journey Log</CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2 text-xs">
@@ -1085,12 +1106,14 @@ export function BookingDetailsDialog({
           <div className="overflow-y-auto p-6 bg-white">
             {/* Dispatch Job Section (Top) */}
             <div className="mb-6">
-              <Card className="bg-blue-50">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2 text-[#ff0000]">
-                    <Car className="w-5 h-5" />
-                    Dispatch Job
-                  </CardTitle>
+              <Card className="border-indigo-200 shadow-sm">
+                <CardHeader className="bg-gradient-to-r from-indigo-100 to-violet-100 border-b border-indigo-200">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-indigo-600 p-2 rounded-lg">
+                      <Car className="w-4 h-4 text-white" />
+                    </div>
+                    <CardTitle className="text-lg font-semibold text-indigo-900">Dispatch Job</CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Vehicle Selection */}
@@ -1151,7 +1174,7 @@ export function BookingDetailsDialog({
                             setTempSelectedDriverId('');
                             setTempDriverPayment(driverPayment || '');
                           }}
-                          className="w-full bg-[#b1dee0]"
+                          className="w-full border-indigo-300 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-400 font-medium"
                           data-testid="button-change-driver"
                         >
                           <Car className="w-4 h-4 mr-2" />
@@ -1297,13 +1320,15 @@ export function BookingDetailsDialog({
 
             {/* Invoice Section (Bottom) */}
             <div>
-              <Card>
-                <CardHeader>
+              <Card className="border-blue-200 shadow-sm">
+                <CardHeader className="bg-gradient-to-r from-blue-100 to-cyan-100 border-b border-blue-200">
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg flex items-center gap-2 text-[#ff0000]">
-                      <FileText className="w-5 h-5" />
-                      Invoice
-                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <div className="bg-blue-600 p-2 rounded-lg">
+                        <FileText className="w-4 h-4 text-white" />
+                      </div>
+                      <CardTitle className="text-lg font-semibold text-blue-900">Invoice</CardTitle>
+                    </div>
                     {editingBooking && (
                       <Badge variant={editingBooking.status === 'completed' ? 'default' : 'secondary'}>
                         {editingBooking.status === 'pending' ? 'UNPAID' : 
