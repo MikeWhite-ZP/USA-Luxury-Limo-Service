@@ -392,17 +392,19 @@ function AdminEmailSettings({ user }: { user: any }) {
   };
 
   return (
-    <Card id="settings-section" data-testid="email-settings">
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Settings className="w-5 h-5" />
+    <Card id="settings-section" data-testid="email-settings" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50/30 border-b border-slate-200">
+        <CardTitle className="flex items-center gap-3 text-slate-900">
+          <div className="bg-blue-600 p-2 rounded-lg">
+            <Mail className="w-5 h-5 text-white" />
+          </div>
           <span>Email Settings</span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         {isLoading ? (
           <div className="flex items-center justify-center p-8">
-            <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+            <div className="animate-spin w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full" />
           </div>
         ) : (
           <Tabs
@@ -410,289 +412,418 @@ function AdminEmailSettings({ user }: { user: any }) {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="admin-email" data-testid="tab-admin-email">
+            <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1">
+              <TabsTrigger value="admin-email" data-testid="tab-admin-email" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                 Contact Email
               </TabsTrigger>
-              <TabsTrigger value="system-admin-email" data-testid="tab-system-admin-email">
+              <TabsTrigger value="system-admin-email" data-testid="tab-system-admin-email" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                 Report Email
               </TabsTrigger>
               <TabsTrigger
                 value="smtp-settings"
                 data-testid="tab-smtp-settings"
+                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
               >
                 SMTP Settings
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="admin-email" className="space-y-4 mt-4">
-              <p className="text-sm text-muted-foreground">
-                Configure the system-wide admin email address. Contact form
-                submissions will be sent to this email address.
-              </p>
-
-              <div className="max-w-md space-y-3">
-                <div>
-                  <Label htmlFor="admin-email">Admin Email Address</Label>
-                  <Input
-                    id="admin-email"
-                    type="email"
-                    value={adminEmail}
-                    onChange={(e) => setAdminEmail(e.target.value)}
-                    placeholder="admin@example.com"
-                    data-testid="input-admin-email"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Current value:{" "}
-                    {emailSetting &&
-                    typeof emailSetting === "object" &&
-                    "value" in emailSetting
-                      ? (emailSetting as any).value
-                      : "Not set"}
-                  </p>
-                </div>
-
-                <Button
-                  onClick={handleUpdate}
-                  disabled={updateEmailMutation.isPending}
-                  data-testid="button-update-email"
-                >
-                  {updateEmailMutation.isPending ? (
-                    <>
-                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4 mr-2" />
-                      Update Email
-                    </>
-                  )}
-                </Button>
+            <TabsContent value="admin-email" className="space-y-6 mt-6">
+              {/* Description */}
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <p className="text-sm text-slate-700 leading-relaxed">
+                  Configure the system-wide admin email address. Contact form
+                  submissions will be sent to this email address.
+                </p>
               </div>
 
-              <div className="mt-6 p-4 bg-muted rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Usage:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>
-                    • This email receives all contact form submissions from
-                    passengers
-                  </li>
-                  <li>• Make sure the email address is monitored regularly</li>
-                  <li>• You can update this email at any time</li>
-                </ul>
+              {/* Current Value Display */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="bg-blue-600 rounded-full p-2">
+                    <Mail className="w-4 h-4 text-white" />
+                  </div>
+                  <p className="text-sm font-medium text-slate-600">Current Contact Email</p>
+                </div>
+                <p className="text-lg font-semibold text-blue-700">
+                  {emailSetting &&
+                  typeof emailSetting === "object" &&
+                  "value" in emailSetting
+                    ? (emailSetting as any).value
+                    : "Not set"}
+                </p>
+              </div>
+
+              {/* Update Form */}
+              <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="bg-blue-100 p-1.5 rounded-lg">
+                    <Settings className="w-4 h-4 text-blue-700" />
+                  </div>
+                  <h3 className="font-semibold text-slate-900">Update Contact Email</h3>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="admin-email" className="text-slate-700 font-medium">
+                      Admin Email Address
+                    </Label>
+                    <Input
+                      id="admin-email"
+                      type="email"
+                      value={adminEmail}
+                      onChange={(e) => setAdminEmail(e.target.value)}
+                      placeholder="admin@example.com"
+                      className="mt-2 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                      data-testid="input-admin-email"
+                    />
+                  </div>
+
+                  <Button
+                    onClick={handleUpdate}
+                    disabled={updateEmailMutation.isPending}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                    data-testid="button-update-email"
+                  >
+                    {updateEmailMutation.isPending ? (
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4 mr-2" />
+                        Update Contact Email
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Usage Information */}
+              <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 border border-slate-200 rounded-xl p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="bg-blue-600 p-1.5 rounded-lg">
+                    <AlertCircle className="w-4 h-4 text-white" />
+                  </div>
+                  <h4 className="font-semibold text-slate-900">Usage Information</h4>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                    <div className="bg-blue-100 rounded-full p-1 mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+                    </div>
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      This email receives all contact form submissions from passengers
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                    <div className="bg-indigo-100 rounded-full p-1 mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-600"></div>
+                    </div>
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      Make sure the email address is monitored regularly
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                    <div className="bg-green-100 rounded-full p-1 mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-600"></div>
+                    </div>
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      You can update this email at any time
+                    </p>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="system-admin-email" className="space-y-4 mt-4">
-              <p className="text-sm text-muted-foreground">
-                Configure the system admin email address for automated email reports. 
-                All booking activity, driver status changes, and cancellation reports will be sent here.
-              </p>
-
-              <div className="max-w-md space-y-3">
-                <div>
-                  <Label htmlFor="system-admin-email">System Admin Email Address</Label>
-                  <Input
-                    id="system-admin-email"
-                    type="email"
-                    value={systemAdminEmail}
-                    onChange={(e) => setSystemAdminEmail(e.target.value)}
-                    placeholder="reports@example.com"
-                    data-testid="input-system-admin-email"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Current value:{" "}
-                    {systemEmailSetting &&
-                    typeof systemEmailSetting === "object" &&
-                    "value" in systemEmailSetting
-                      ? (systemEmailSetting as any).value
-                      : "Not set"}
-                  </p>
-                </div>
-
-                <Button
-                  onClick={handleSystemAdminEmailUpdate}
-                  disabled={updateSystemAdminEmailMutation.isPending}
-                  data-testid="button-update-system-admin-email"
-                >
-                  {updateSystemAdminEmailMutation.isPending ? (
-                    <>
-                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4 mr-2" />
-                      Update Email
-                    </>
-                  )}
-                </Button>
+            <TabsContent value="system-admin-email" className="space-y-6 mt-6">
+              {/* Description */}
+              <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+                <p className="text-sm text-slate-700 leading-relaxed">
+                  Configure the system admin email address for automated email reports. 
+                  All booking activity, driver status changes, and cancellation reports will be sent here.
+                </p>
               </div>
 
-              <div className="mt-6 p-4 bg-muted rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Report Types:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• New booking confirmations with full details</li>
-                  <li>• Cancellation reports (passenger, driver, or automatic)</li>
-                  <li>• Driver activity updates (acceptance, on the way, arrived, on board)</li>
-                  <li>• All reports include booking ID, passenger info, and timestamps</li>
-                </ul>
+              {/* Current Value Display */}
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="bg-indigo-600 rounded-full p-2">
+                    <Mail className="w-4 h-4 text-white" />
+                  </div>
+                  <p className="text-sm font-medium text-slate-600">Current Report Email</p>
+                </div>
+                <p className="text-lg font-semibold text-indigo-700">
+                  {systemEmailSetting &&
+                  typeof systemEmailSetting === "object" &&
+                  "value" in systemEmailSetting
+                    ? (systemEmailSetting as any).value
+                    : "Not set"}
+                </p>
+              </div>
+
+              {/* Update Form */}
+              <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="bg-indigo-100 p-1.5 rounded-lg">
+                    <Settings className="w-4 h-4 text-indigo-700" />
+                  </div>
+                  <h3 className="font-semibold text-slate-900">Update Report Email</h3>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="system-admin-email" className="text-slate-700 font-medium">
+                      System Admin Email Address
+                    </Label>
+                    <Input
+                      id="system-admin-email"
+                      type="email"
+                      value={systemAdminEmail}
+                      onChange={(e) => setSystemAdminEmail(e.target.value)}
+                      placeholder="reports@example.com"
+                      className="mt-2 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
+                      data-testid="input-system-admin-email"
+                    />
+                  </div>
+
+                  <Button
+                    onClick={handleSystemAdminEmailUpdate}
+                    disabled={updateSystemAdminEmailMutation.isPending}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
+                    data-testid="button-update-system-admin-email"
+                  >
+                    {updateSystemAdminEmailMutation.isPending ? (
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4 mr-2" />
+                        Update Report Email
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Report Types */}
+              <div className="bg-gradient-to-br from-slate-50 to-indigo-50/30 border border-slate-200 rounded-xl p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="bg-indigo-600 p-1.5 rounded-lg">
+                    <AlertCircle className="w-4 h-4 text-white" />
+                  </div>
+                  <h4 className="font-semibold text-slate-900">Report Types</h4>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                    <div className="bg-blue-100 rounded-full p-1 mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+                    </div>
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      New booking confirmations with full details
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                    <div className="bg-indigo-100 rounded-full p-1 mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-600"></div>
+                    </div>
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      Cancellation reports (passenger, driver, or automatic)
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                    <div className="bg-purple-100 rounded-full p-1 mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-purple-600"></div>
+                    </div>
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      Driver activity updates (acceptance, on the way, arrived, on board)
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                    <div className="bg-green-100 rounded-full p-1 mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-600"></div>
+                    </div>
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      All reports include booking ID, passenger info, and timestamps
+                    </p>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="smtp-settings" className="space-y-4 mt-4">
-              <p className="text-sm text-muted-foreground">
-                Configure SMTP server settings to enable email sending
-                functionality throughout the system.
-              </p>
+            <TabsContent value="smtp-settings" className="space-y-6 mt-6">
+              {/* Description */}
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                <p className="text-sm text-slate-700 leading-relaxed">
+                  Configure SMTP server settings to enable email sending
+                  functionality throughout the system.
+                </p>
+              </div>
 
               {smtpLoading ? (
                 <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
+                  <div className="animate-spin w-6 h-6 border-4 border-green-600 border-t-transparent rounded-full" />
                 </div>
               ) : (
-                <div className="max-w-2xl space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="smtp-host">SMTP Host *</Label>
-                      <Input
-                        id="smtp-host"
-                        value={smtpSettings.host}
-                        onChange={(e) =>
-                          setSmtpSettings({
-                            ...smtpSettings,
-                            host: e.target.value,
-                          })
-                        }
-                        placeholder="smtp.gmail.com"
-                        data-testid="input-smtp-host"
-                      />
+                <div className="space-y-6">
+                  {/* SMTP Configuration Form */}
+                  <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-5">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="bg-green-100 p-1.5 rounded-lg">
+                        <Settings className="w-4 h-4 text-green-700" />
+                      </div>
+                      <h3 className="font-semibold text-slate-900">SMTP Server Configuration</h3>
                     </div>
-                    <div>
-                      <Label htmlFor="smtp-port">Port *</Label>
-                      <Input
-                        id="smtp-port"
-                        value={smtpSettings.port}
-                        onChange={(e) =>
-                          setSmtpSettings({
-                            ...smtpSettings,
-                            port: e.target.value,
-                          })
-                        }
-                        placeholder="587"
-                        data-testid="input-smtp-port"
-                      />
-                    </div>
-                  </div>
 
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="smtp-secure"
-                      checked={smtpSettings.secure}
-                      onChange={(e) =>
-                        setSmtpSettings({
-                          ...smtpSettings,
-                          secure: e.target.checked,
-                        })
-                      }
-                      className="w-4 h-4"
-                      data-testid="checkbox-smtp-secure"
-                    />
-                    <Label htmlFor="smtp-secure" className="cursor-pointer">
-                      Use SSL/TLS (port 465)
-                    </Label>
-                  </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="smtp-host" className="text-slate-700 font-medium">SMTP Host *</Label>
+                        <Input
+                          id="smtp-host"
+                          value={smtpSettings.host}
+                          onChange={(e) =>
+                            setSmtpSettings({
+                              ...smtpSettings,
+                              host: e.target.value,
+                            })
+                          }
+                          placeholder="smtp.gmail.com"
+                          className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500"
+                          data-testid="input-smtp-host"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="smtp-port" className="text-slate-700 font-medium">Port *</Label>
+                        <Input
+                          id="smtp-port"
+                          value={smtpSettings.port}
+                          onChange={(e) =>
+                            setSmtpSettings({
+                              ...smtpSettings,
+                              port: e.target.value,
+                            })
+                          }
+                          placeholder="587"
+                          className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500"
+                          data-testid="input-smtp-port"
+                        />
+                      </div>
+                    </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="smtp-user">SMTP Username *</Label>
-                      <Input
-                        id="smtp-user"
-                        value={smtpSettings.user}
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                      <input
+                        type="checkbox"
+                        id="smtp-secure"
+                        checked={smtpSettings.secure}
                         onChange={(e) =>
                           setSmtpSettings({
                             ...smtpSettings,
-                            user: e.target.value,
+                            secure: e.target.checked,
                           })
                         }
-                        placeholder="your-email@gmail.com"
-                        data-testid="input-smtp-user"
+                        className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500"
+                        data-testid="checkbox-smtp-secure"
                       />
-                    </div>
-                    <div>
-                      <Label htmlFor="smtp-password">SMTP Password</Label>
-                      <Input
-                        id="smtp-password"
-                        type="password"
-                        value={smtpSettings.password}
-                        onChange={(e) =>
-                          setSmtpSettings({
-                            ...smtpSettings,
-                            password: e.target.value,
-                          })
-                        }
-                        placeholder={
-                          smtpData?.hasPassword ? "••••••••" : "Enter password"
-                        }
-                        data-testid="input-smtp-password"
-                      />
-                      {smtpData?.hasPassword && !smtpSettings.password && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Password is already set. Leave blank to keep current
-                          password.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="smtp-from-email">
-                        From Email Address *
+                      <Label htmlFor="smtp-secure" className="cursor-pointer text-slate-700 font-medium">
+                        Use SSL/TLS (port 465)
                       </Label>
-                      <Input
-                        id="smtp-from-email"
-                        type="email"
-                        value={smtpSettings.fromEmail}
-                        onChange={(e) =>
-                          setSmtpSettings({
-                            ...smtpSettings,
-                            fromEmail: e.target.value,
-                          })
-                        }
-                        placeholder="noreply@yourdomain.com"
-                        data-testid="input-smtp-from-email"
-                      />
                     </div>
-                    <div>
-                      <Label htmlFor="smtp-from-name">From Name</Label>
-                      <Input
-                        id="smtp-from-name"
-                        value={smtpSettings.fromName}
-                        onChange={(e) =>
-                          setSmtpSettings({
-                            ...smtpSettings,
-                            fromName: e.target.value,
-                          })
-                        }
-                        placeholder="USA Luxury Limo"
-                        data-testid="input-smtp-from-name"
-                      />
-                    </div>
-                  </div>
 
-                  <div className="flex space-x-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="smtp-user" className="text-slate-700 font-medium">SMTP Username *</Label>
+                        <Input
+                          id="smtp-user"
+                          value={smtpSettings.user}
+                          onChange={(e) =>
+                            setSmtpSettings({
+                              ...smtpSettings,
+                              user: e.target.value,
+                            })
+                          }
+                          placeholder="your-email@gmail.com"
+                          className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500"
+                          data-testid="input-smtp-user"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="smtp-password" className="text-slate-700 font-medium">SMTP Password</Label>
+                        <Input
+                          id="smtp-password"
+                          type="password"
+                          value={smtpSettings.password}
+                          onChange={(e) =>
+                            setSmtpSettings({
+                              ...smtpSettings,
+                              password: e.target.value,
+                            })
+                          }
+                          placeholder={
+                            smtpData?.hasPassword ? "••••••••" : "Enter password"
+                          }
+                          className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500"
+                          data-testid="input-smtp-password"
+                        />
+                        {smtpData?.hasPassword && !smtpSettings.password && (
+                          <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                            Password is already set. Leave blank to keep current password.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="smtp-from-email" className="text-slate-700 font-medium">
+                          From Email Address *
+                        </Label>
+                        <Input
+                          id="smtp-from-email"
+                          type="email"
+                          value={smtpSettings.fromEmail}
+                          onChange={(e) =>
+                            setSmtpSettings({
+                              ...smtpSettings,
+                              fromEmail: e.target.value,
+                            })
+                          }
+                          placeholder="noreply@yourdomain.com"
+                          className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500"
+                          data-testid="input-smtp-from-email"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="smtp-from-name" className="text-slate-700 font-medium">From Name</Label>
+                        <Input
+                          id="smtp-from-name"
+                          value={smtpSettings.fromName}
+                          onChange={(e) =>
+                            setSmtpSettings({
+                              ...smtpSettings,
+                              fromName: e.target.value,
+                            })
+                          }
+                          placeholder="USA Luxury Limo"
+                          className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500"
+                          data-testid="input-smtp-from-name"
+                        />
+                      </div>
+                    </div>
+
                     <Button
                       onClick={handleSMTPUpdate}
                       disabled={updateSMTPMutation.isPending}
+                      className="bg-green-600 hover:bg-green-700 text-white font-semibold"
                       data-testid="button-save-smtp"
                     >
                       {updateSMTPMutation.isPending ? (
                         <>
                           <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                          Saving...
+                          Saving Configuration...
                         </>
                       ) : (
                         <>
@@ -703,66 +834,144 @@ function AdminEmailSettings({ user }: { user: any }) {
                     </Button>
                   </div>
 
-                  <div className="mt-6 p-4 bg-muted rounded-lg space-y-3">
-                    <h4 className="font-semibold text-sm">
-                      Test Email Configuration
-                    </h4>
-                    <p className="text-xs text-muted-foreground">
-                      Send a test email to verify your SMTP settings are working
-                      correctly.
+                  {/* Test Email Configuration */}
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="bg-blue-600 p-1.5 rounded-lg">
+                        <Mail className="w-4 h-4 text-white" />
+                      </div>
+                      <h4 className="font-semibold text-slate-900">Test Email Configuration</h4>
+                    </div>
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      Send a test email to verify your SMTP settings are working correctly.
                     </p>
-                    <div className="flex space-x-3">
+                    <div className="flex gap-3">
                       <Input
                         type="email"
                         value={testEmail}
                         onChange={(e) => setTestEmail(e.target.value)}
                         placeholder="test@example.com"
+                        className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                         data-testid="input-test-email"
                       />
                       <Button
                         onClick={handleTestEmail}
                         disabled={testSMTPMutation.isPending}
                         variant="outline"
+                        className="border-blue-300 text-blue-700 hover:bg-blue-50"
                         data-testid="button-send-test-email"
                       >
                         {testSMTPMutation.isPending ? (
                           <>
-                            <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full mr-2" />
+                            <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full mr-2" />
                             Sending...
                           </>
                         ) : (
-                          "Send Test Email"
+                          <>
+                            <Mail className="w-4 h-4 mr-2" />
+                            Send Test
+                          </>
                         )}
                       </Button>
                     </div>
                   </div>
 
-                  <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <h4 className="font-semibold text-sm mb-2 text-blue-900 dark:text-blue-100">
-                      Common SMTP Providers:
-                    </h4>
-                    <ul className="text-xs text-blue-800 dark:text-blue-200 space-y-1">
-                      <li>
-                        • <strong>Gmail:</strong> smtp.gmail.com, Port 587,
-                        SSL/TLS: No (Use App Password, not regular password)
-                      </li>
-                      <li>
-                        • <strong>Outlook/Office 365:</strong>{" "}
-                        smtp.office365.com, Port 587, SSL/TLS: No
-                      </li>
-                      <li>
-                        • <strong>Yahoo:</strong> smtp.mail.yahoo.com, Port 587,
-                        SSL/TLS: No
-                      </li>
-                      <li>
-                        • <strong>SendGrid:</strong> smtp.sendgrid.net, Port
-                        587, SSL/TLS: No
-                      </li>
-                    </ul>
-                    <div className="mt-3 p-2 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded text-xs text-yellow-900 dark:text-yellow-100">
-                      <strong>Important:</strong> For Port 587, set SSL/TLS to{" "}
-                      <strong>No</strong> (uses STARTTLS). For Port 465, set
-                      SSL/TLS to <strong>Yes</strong> (direct SSL).
+                  {/* SMTP Providers Information */}
+                  <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 border border-slate-200 rounded-xl p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="bg-slate-600 p-1.5 rounded-lg">
+                        <AlertCircle className="w-4 h-4 text-white" />
+                      </div>
+                      <h4 className="font-semibold text-slate-900">Common SMTP Providers</h4>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="bg-white rounded-lg p-4 border border-slate-200">
+                        <p className="text-sm font-semibold text-slate-900 mb-2">Gmail</p>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div>
+                            <span className="text-slate-500">Host:</span>{" "}
+                            <span className="font-mono text-slate-700">smtp.gmail.com</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">Port:</span>{" "}
+                            <span className="font-mono text-slate-700">587</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">SSL/TLS:</span>{" "}
+                            <span className="font-mono text-slate-700">No</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-amber-700 mt-2 bg-amber-50 p-2 rounded border border-amber-200">
+                          Use App Password, not regular password
+                        </p>
+                      </div>
+
+                      <div className="bg-white rounded-lg p-4 border border-slate-200">
+                        <p className="text-sm font-semibold text-slate-900 mb-2">Outlook/Office 365</p>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div>
+                            <span className="text-slate-500">Host:</span>{" "}
+                            <span className="font-mono text-slate-700">smtp.office365.com</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">Port:</span>{" "}
+                            <span className="font-mono text-slate-700">587</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">SSL/TLS:</span>{" "}
+                            <span className="font-mono text-slate-700">No</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-white rounded-lg p-4 border border-slate-200">
+                        <p className="text-sm font-semibold text-slate-900 mb-2">Yahoo</p>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div>
+                            <span className="text-slate-500">Host:</span>{" "}
+                            <span className="font-mono text-slate-700">smtp.mail.yahoo.com</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">Port:</span>{" "}
+                            <span className="font-mono text-slate-700">587</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">SSL/TLS:</span>{" "}
+                            <span className="font-mono text-slate-700">No</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-white rounded-lg p-4 border border-slate-200">
+                        <p className="text-sm font-semibold text-slate-900 mb-2">SendGrid</p>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div>
+                            <span className="text-slate-500">Host:</span>{" "}
+                            <span className="font-mono text-slate-700">smtp.sendgrid.net</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">Port:</span>{" "}
+                            <span className="font-mono text-slate-700">587</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">SSL/TLS:</span>{" "}
+                            <span className="font-mono text-slate-700">No</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <div className="text-sm">
+                          <p className="font-semibold text-amber-900 mb-1">Important Configuration Notes</p>
+                          <p className="text-amber-800">
+                            For Port <strong>587</strong>, set SSL/TLS to <strong>No</strong> (uses STARTTLS). 
+                            For Port <strong>465</strong>, set SSL/TLS to <strong>Yes</strong> (direct SSL).
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
