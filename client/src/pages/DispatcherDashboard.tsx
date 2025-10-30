@@ -44,6 +44,7 @@ export default function DispatcherDashboard() {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [fleetMonitorOpen, setFleetMonitorOpen] = useState(false);
   const [communicationDialogOpen, setCommunicationDialogOpen] = useState(false);
+  const [emergencySupportOpen, setEmergencySupportOpen] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [selectedDriverId, setSelectedDriverId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -57,6 +58,14 @@ export default function DispatcherDashboard() {
   const [messageText, setMessageText] = useState<string>("");
   const [messagePriority, setMessagePriority] = useState<"normal" | "high" | "urgent">("normal");
   const [deliveryMethod, setDeliveryMethod] = useState<"sms" | "email" | "both">("both");
+  
+  // Emergency Support state
+  const [incidentType, setIncidentType] = useState<"accident" | "breakdown" | "medical" | "security" | "other">("accident");
+  const [incidentSeverity, setIncidentSeverity] = useState<"low" | "medium" | "high" | "critical">("medium");
+  const [incidentDriverId, setIncidentDriverId] = useState<string>("");
+  const [incidentLocation, setIncidentLocation] = useState<string>("");
+  const [incidentDescription, setIncidentDescription] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<"create" | "active">("create");
 
   const { data: dashboardStats } = useQuery({
     queryKey: ["/api/dispatcher/stats"],
@@ -87,6 +96,13 @@ export default function DispatcherDashboard() {
   const { data: driverMessages } = useQuery<any[]>({
     queryKey: ['/api/driver-messages'],
     enabled: communicationDialogOpen,
+    retry: false,
+  });
+
+  // Fetch emergency incidents
+  const { data: emergencyIncidents } = useQuery<any[]>({
+    queryKey: ['/api/emergency-incidents'],
+    enabled: emergencySupportOpen,
     retry: false,
   });
 
@@ -245,6 +261,71 @@ export default function DispatcherDashboard() {
     },
   });
 
+  // Create emergency incident mutation
+  const createIncidentMutation = useMutation({
+    mutationFn: async (data: {
+      incidentType: string;
+      severity: string;
+      driverId?: string;
+      location: string;
+      description: string;
+    }) => {
+      const response = await apiRequest('POST', '/api/emergency-incidents', data);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create incident');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/emergency-incidents'] });
+      setIncidentType('accident');
+      setIncidentSeverity('medium');
+      setIncidentDriverId('');
+      setIncidentLocation('');
+      setIncidentDescription('');
+      setActiveTab('active');
+      
+      toast({
+        title: "Incident Reported",
+        description: "Emergency incident has been created and logged",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to Report Incident",
+        description: error.message || "Could not create emergency incident",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update emergency incident mutation
+  const updateIncidentMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
+      const response = await apiRequest('PATCH', `/api/emergency-incidents/${id}`, updates);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update incident');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/emergency-incidents'] });
+      toast({
+        title: "Incident Updated",
+        description: "Emergency incident status has been updated",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Could not update incident",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleAssignClick = () => {
     setAssignDialogOpen(true);
     setSearchQuery("");
@@ -278,6 +359,25 @@ export default function DispatcherDashboard() {
       message: messageText,
       priority: messagePriority,
       deliveryMethod,
+    });
+  };
+
+  const handleCreateIncident = () => {
+    if (!incidentLocation.trim() || !incidentDescription.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide location and description for the incident",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createIncidentMutation.mutate({
+      incidentType,
+      severity: incidentSeverity,
+      driverId: incidentDriverId || undefined,
+      location: incidentLocation,
+      description: incidentDescription,
     });
   };
 
@@ -414,7 +514,7 @@ export default function DispatcherDashboard() {
       title: "Emergency Support",
       description: "Handle urgent requests and incidents",
       icon: <AlertTriangle className="w-6 h-6" />,
-      action: () => console.log("Emergency support"),
+      action: () => setEmergencySupportOpen(true),
       color: "bg-red-500"
     }
   ];
@@ -1335,6 +1435,253 @@ export default function DispatcherDashboard() {
               <Send className="w-4 h-4" />
               {sendMessageMutation.isPending ? 'Sending...' : 'Send Message'}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Emergency Support Dialog */}
+      <Dialog open={emergencySupportOpen} onOpenChange={setEmergencySupportOpen}>
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-0 border border-slate-200 p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl max-w-4xl max-h-[90vh] overflow-hidden bg-white">
+          <DialogHeader className="bg-white px-6 py-5 border-b border-slate-200">
+            <DialogTitle className="text-2xl font-semibold text-slate-900 flex items-center gap-3">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+              Emergency Support
+            </DialogTitle>
+            <DialogDescription className="text-slate-600 text-sm mt-2">
+              Report and manage emergency incidents and urgent situations
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-slate-50">
+            {/* Tabs */}
+            <div className="flex gap-2 mb-6">
+              <Button
+                variant={activeTab === 'create' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('create')}
+                className={activeTab === 'create' ? 'bg-red-600 hover:bg-red-700 text-white' : 'border-slate-300 hover:bg-slate-100 text-slate-700'}
+                data-testid="button-tab-create"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Report Incident
+              </Button>
+              <Button
+                variant={activeTab === 'active' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('active')}
+                className={activeTab === 'active' ? 'bg-red-600 hover:bg-red-700 text-white' : 'border-slate-300 hover:bg-slate-100 text-slate-700'}
+                data-testid="button-tab-active"
+              >
+                <Activity className="w-4 h-4 mr-2" />
+                Active Incidents ({emergencyIncidents?.filter((i: any) => i.status === 'active' || i.status === 'in-progress').length || 0})
+              </Button>
+            </div>
+
+            {/* Create Incident Tab */}
+            {activeTab === 'create' && (
+              <div className="space-y-6">
+                <Card className="bg-white border-slate-200">
+                  <CardContent className="p-6">
+                    <div className="grid gap-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-slate-700 font-medium mb-2 block">Incident Type</Label>
+                          <Select value={incidentType} onValueChange={(value: any) => setIncidentType(value)}>
+                            <SelectTrigger className="bg-white border-slate-300" data-testid="select-incident-type">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border-slate-200">
+                              <SelectItem value="accident">Accident</SelectItem>
+                              <SelectItem value="breakdown">Vehicle Breakdown</SelectItem>
+                              <SelectItem value="medical">Medical Emergency</SelectItem>
+                              <SelectItem value="security">Security Issue</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <Label className="text-slate-700 font-medium mb-2 block">Severity Level</Label>
+                          <Select value={incidentSeverity} onValueChange={(value: any) => setIncidentSeverity(value)}>
+                            <SelectTrigger className="bg-white border-slate-300" data-testid="select-severity">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border-slate-200">
+                              <SelectItem value="low">Low</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="high">High</SelectItem>
+                              <SelectItem value="critical">Critical</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-slate-700 font-medium mb-2 block">Driver (Optional)</Label>
+                        <Select value={incidentDriverId} onValueChange={setIncidentDriverId}>
+                          <SelectTrigger className="bg-white border-slate-300" data-testid="select-driver">
+                            <SelectValue placeholder="Select driver if applicable" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-slate-200">
+                            <SelectItem value="">No driver selected</SelectItem>
+                            {activeDrivers?.map((driver: any) => (
+                              <SelectItem key={driver.userId} value={driver.userId}>
+                                {driver.firstName} {driver.lastName} - {driver.vehicleModel}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label className="text-slate-700 font-medium mb-2 block">Location</Label>
+                        <Input
+                          value={incidentLocation}
+                          onChange={(e) => setIncidentLocation(e.target.value)}
+                          placeholder="Enter incident location"
+                          className="bg-white border-slate-300"
+                          data-testid="input-location"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-slate-700 font-medium mb-2 block">Description</Label>
+                        <Textarea
+                          value={incidentDescription}
+                          onChange={(e) => setIncidentDescription(e.target.value)}
+                          placeholder="Provide detailed description of the incident"
+                          rows={4}
+                          className="bg-white border-slate-300"
+                          data-testid="textarea-description"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Active Incidents Tab */}
+            {activeTab === 'active' && (
+              <div className="space-y-4">
+                {!emergencyIncidents || emergencyIncidents.length === 0 ? (
+                  <Card className="bg-white border-slate-200">
+                    <CardContent className="p-8 text-center">
+                      <AlertTriangle className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                      <p className="text-slate-600">No emergency incidents reported</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  emergencyIncidents.map((incident: any) => (
+                    <Card key={incident.id} className="bg-white border-slate-200">
+                      <CardContent className="p-5">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <Badge 
+                                className={`${
+                                  incident.incidentType === 'medical' ? 'bg-red-100 text-red-700' :
+                                  incident.incidentType === 'accident' ? 'bg-orange-100 text-orange-700' :
+                                  incident.incidentType === 'breakdown' ? 'bg-yellow-100 text-yellow-700' :
+                                  'bg-slate-100 text-slate-700'
+                                }`}
+                              >
+                                {incident.incidentType}
+                              </Badge>
+                              <Badge 
+                                className={`${
+                                  incident.severity === 'critical' ? 'bg-red-100 text-red-700' :
+                                  incident.severity === 'high' ? 'bg-orange-100 text-orange-700' :
+                                  incident.severity === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                  'bg-blue-100 text-blue-700'
+                                }`}
+                              >
+                                {incident.severity}
+                              </Badge>
+                              <Badge 
+                                className={`${
+                                  incident.status === 'active' || incident.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                                  incident.status === 'resolved' ? 'bg-green-100 text-green-700' :
+                                  'bg-slate-100 text-slate-700'
+                                }`}
+                              >
+                                {incident.status}
+                              </Badge>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                              <div>
+                                <span className="text-slate-500">Location:</span>
+                                <p className="text-slate-900 font-medium">{incident.location}</p>
+                              </div>
+                              {incident.driverName && (
+                                <div>
+                                  <span className="text-slate-500">Driver:</span>
+                                  <p className="text-slate-900 font-medium">{incident.driverName}</p>
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-sm text-slate-700">{incident.description}</p>
+                            <div className="flex items-center gap-4 text-xs text-slate-500 mt-3">
+                              <span>Reported by: {incident.reporterName}</span>
+                              <span>•</span>
+                              <span>{new Date(incident.createdAt).toLocaleString()}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 ml-4">
+                            {incident.status === 'active' && (
+                              <Button
+                                size="sm"
+                                onClick={() => updateIncidentMutation.mutate({ 
+                                  id: incident.id, 
+                                  updates: { status: 'in-progress' } 
+                                })}
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                data-testid={`button-progress-${incident.id}`}
+                              >
+                                In Progress
+                              </Button>
+                            )}
+                            {(incident.status === 'active' || incident.status === 'in-progress') && (
+                              <Button
+                                size="sm"
+                                onClick={() => updateIncidentMutation.mutate({ 
+                                  id: incident.id, 
+                                  updates: { status: 'resolved' } 
+                                })}
+                                className="bg-green-600 hover:bg-green-700 text-white"
+                                data-testid={`button-resolve-${incident.id}`}
+                              >
+                                Resolve
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end gap-3 mt-4 pt-6 border-t border-slate-200 bg-white px-6 py-4">
+            <Button
+              variant="outline"
+              onClick={() => setEmergencySupportOpen(false)}
+              className="px-6 border-slate-300 hover:bg-slate-100 text-slate-700"
+              data-testid="button-cancel-emergency"
+            >
+              Close
+            </Button>
+            {activeTab === 'create' && (
+              <Button
+                onClick={handleCreateIncident}
+                disabled={createIncidentMutation.isPending}
+                className="px-6 bg-red-600 hover:bg-red-700 text-white flex items-center gap-2"
+                data-testid="button-submit-incident"
+              >
+                <AlertTriangle className="w-4 h-4" />
+                {createIncidentMutation.isPending ? 'Reporting...' : 'Report Incident'}
+              </Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
