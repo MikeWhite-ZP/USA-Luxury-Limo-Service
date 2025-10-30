@@ -1288,12 +1288,12 @@ function InvoiceManagement() {
   return (
     <>
       {/* Action Bar */}
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="flex items-center justify-between gap-4">
           <Button
             onClick={() => setBackfillDialogOpen(true)}
             variant="outline"
-            className="gap-2"
+            className="gap-2 border-indigo-300 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-400"
             data-testid="button-backfill-invoices"
           >
             <FileText className="w-4 h-4" />
@@ -1302,12 +1302,12 @@ function InvoiceManagement() {
 
           {/* Search Bar */}
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
               placeholder="Search invoices..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className="pl-9 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
               data-testid="input-invoice-search"
             />
           </div>
@@ -1317,7 +1317,7 @@ function InvoiceManagement() {
       {/* Invoices Grid */}
       <div className="space-y-3">
         {/* Table Header - Hidden on mobile */}
-        <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-muted/50 rounded-lg text-sm font-medium text-muted-foreground">
+        <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-gradient-to-r from-slate-100 to-slate-50 rounded-lg text-sm font-semibold text-slate-900 border border-slate-200">
           <div className="col-span-2">Invoice</div>
           <div className="col-span-2">Date</div>
           <div className="col-span-2">Booking ID</div>
@@ -1329,45 +1329,46 @@ function InvoiceManagement() {
         {/* Invoice Cards */}
         {filteredInvoices && filteredInvoices.length > 0 ? (
           filteredInvoices.map((invoice) => (
-            <Card key={invoice.id} className="hover:shadow-md transition-shadow" data-testid={`invoice-row-${invoice.id}`}>
+            <Card key={invoice.id} className="border-slate-200 bg-white hover:shadow-md transition-all hover:border-indigo-200" data-testid={`invoice-row-${invoice.id}`}>
               <CardContent className="p-6">
                 <div className="grid md:grid-cols-12 gap-4 items-center">
                   {/* Invoice Number */}
                   <div className="col-span-12 md:col-span-2">
                     <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-primary hidden md:block" />
+                      <div className="bg-indigo-100 p-1.5 rounded-lg hidden md:block">
+                        <FileText className="w-3.5 h-3.5 text-indigo-700" />
+                      </div>
                       <div>
-                        <p className="text-xs text-muted-foreground md:hidden">Invoice</p>
-                        <p className="font-semibold">{invoice.invoiceNumber}</p>
+                        <p className="text-xs text-slate-600 md:hidden">Invoice</p>
+                        <p className="font-semibold text-slate-900">{invoice.invoiceNumber}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Date */}
                   <div className="col-span-6 md:col-span-2">
-                    <p className="text-xs text-muted-foreground md:hidden">Date</p>
-                    <p className="text-sm">{new Date(invoice.createdAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-slate-600 md:hidden">Date</p>
+                    <p className="text-sm text-slate-700">{new Date(invoice.createdAt).toLocaleDateString()}</p>
                   </div>
 
                   {/* Booking ID */}
                   <div className="col-span-6 md:col-span-2">
-                    <p className="text-xs text-muted-foreground md:hidden">Booking</p>
-                    <p className="font-mono text-sm text-muted-foreground" data-testid={`booking-id-${invoice.id}`}>
+                    <p className="text-xs text-slate-600 md:hidden">Booking</p>
+                    <p className="font-mono text-sm text-slate-600 bg-slate-100 px-2 py-1 rounded inline-block" data-testid={`booking-id-${invoice.id}`}>
                       #{invoice.bookingId.toUpperCase().substring(0, 8)}
                     </p>
                   </div>
 
                   {/* Amount */}
                   <div className="col-span-6 md:col-span-2 md:text-right">
-                    <p className="text-xs text-muted-foreground md:hidden">Amount</p>
-                    <p className="text-lg font-bold">${parseFloat(invoice.totalAmount).toFixed(2)}</p>
+                    <p className="text-xs text-slate-600 md:hidden">Amount</p>
+                    <p className="text-lg font-bold text-slate-900">${parseFloat(invoice.totalAmount).toFixed(2)}</p>
                   </div>
 
                   {/* Status */}
                   <div className="col-span-6 md:col-span-1 md:text-center">
                     <Badge 
-                      variant={invoice.paidAt ? "default" : "secondary"}
-                      className={invoice.paidAt ? "bg-green-500 hover:bg-green-600" : ""}
+                      className={invoice.paidAt ? "bg-green-600 text-white border-green-700 hover:bg-green-700" : "bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200"}
                       data-testid={`invoice-status-${invoice.id}`}
                     >
                       {invoice.paidAt ? "Paid" : "Unpaid"}
@@ -1381,7 +1382,7 @@ function InvoiceManagement() {
                         size="sm"
                         variant="ghost"
                         onClick={() => handleView(invoice)}
-                        className="h-8"
+                        className="h-8 text-indigo-700 hover:bg-indigo-50"
                         data-testid={`button-view-${invoice.id}`}
                       >
                         <Eye className="w-3.5 h-3.5 mr-1.5" />
@@ -1391,7 +1392,7 @@ function InvoiceManagement() {
                         size="sm"
                         variant="ghost"
                         onClick={() => handlePrint(invoice)}
-                        className="h-8"
+                        className="h-8 text-slate-700 hover:bg-slate-100"
                         data-testid={`button-print-${invoice.id}`}
                       >
                         <Printer className="w-3.5 h-3.5 mr-1.5" />
@@ -1402,7 +1403,7 @@ function InvoiceManagement() {
                         variant="ghost"
                         onClick={() => handleEmail(invoice)}
                         disabled={isLoadingEmail}
-                        className="h-8"
+                        className="h-8 text-blue-700 hover:bg-blue-50"
                         data-testid={`button-email-${invoice.id}`}
                       >
                         <Mail className="w-3.5 h-3.5 mr-1.5" />
@@ -1412,7 +1413,7 @@ function InvoiceManagement() {
                         size="sm"
                         variant="ghost"
                         onClick={() => handleEdit(invoice)}
-                        className="h-8"
+                        className="h-8 text-green-700 hover:bg-green-50"
                         data-testid={`button-edit-${invoice.id}`}
                       >
                         <Edit2 className="w-3.5 h-3.5 mr-1.5" />
@@ -1422,7 +1423,7 @@ function InvoiceManagement() {
                         size="sm"
                         variant="ghost"
                         onClick={() => handleDelete(invoice)}
-                        className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="h-8 text-red-700 hover:bg-red-50"
                         data-testid={`button-delete-${invoice.id}`}
                       >
                         <Trash2 className="w-3.5 h-3.5 mr-1.5" />
@@ -1435,12 +1436,14 @@ function InvoiceManagement() {
             </Card>
           ))
         ) : (
-          <Card>
+          <Card className="border-slate-200 bg-gradient-to-br from-slate-50 to-white">
             <CardContent className="p-12">
               <div className="text-center" data-testid="no-invoices">
-                <FileText className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No invoices found</h3>
-                <p className="text-sm text-muted-foreground">
+                <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8 text-indigo-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2 text-slate-900">No invoices found</h3>
+                <p className="text-sm text-slate-600">
                   {searchQuery ? "Try adjusting your search terms" : "Invoices will appear here once created"}
                 </p>
               </div>
@@ -6447,21 +6450,19 @@ export default function AdminDashboard() {
         {showInvoices && (
           <div id="invoices-section" className="space-y-6">
             {/* Modern Header */}
-            <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
-              <div className="flex items-center gap-4">
-                <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-lg shadow-md">
-                  <Receipt className="w-6 h-6 text-white" />
+            <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+              <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50/30 border-b border-slate-200">
+                <div className="flex items-center gap-3">
+                  <div className="bg-indigo-600 p-2 rounded-lg">
+                    <Receipt className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-slate-900">Invoice Management</CardTitle>
+                    <p className="text-sm text-slate-600 mt-1">Create, manage, and track all customer invoices</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Invoice Management</h2>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Create, manage, and track all customer invoices</p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Content */}
-            <Card className="border-slate-200 dark:border-slate-700 shadow-sm">
-              <CardContent className="p-6">
+              </CardHeader>
+              <CardContent className="pt-6">
                 <InvoiceManagement />
               </CardContent>
             </Card>
