@@ -137,15 +137,28 @@ export default function DispatcherDashboard() {
 
   // Smart-ranked drivers based on selected booking
   const rankedDrivers: RankedDriver[] = useMemo(() => {
-    if (!enhancedDrivers || !selectedBooking) return [];
+    if (!selectedBooking) return [];
     
-    return rankDrivers(enhancedDrivers, {
+    // Use enhancedDrivers if available (has conflict detection), otherwise use all active drivers
+    const driversToRank = enhancedDrivers && enhancedDrivers.length > 0 
+      ? enhancedDrivers 
+      : activeDrivers.map((d: any) => ({
+          ...d,
+          hasConflict: false,
+          conflictingBooking: null,
+          matchReasons: [],
+          warnings: [],
+        }));
+    
+    if (!driversToRank || driversToRank.length === 0) return [];
+    
+    return rankDrivers(driversToRank, {
       pickupAddress: selectedBooking.pickupAddress,
       pickupCoordinates: selectedBooking.pickupCoordinates,
       scheduledDateTime: selectedBooking.scheduledDateTime,
       passengerCount: selectedBooking.passengerCount,
     });
-  }, [enhancedDrivers, selectedBooking]);
+  }, [enhancedDrivers, selectedBooking, activeDrivers]);
 
   // Get unique vehicle types for filter
   const vehicleTypes = useMemo(() => {
