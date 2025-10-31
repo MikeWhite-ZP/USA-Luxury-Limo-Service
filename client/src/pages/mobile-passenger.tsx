@@ -61,25 +61,10 @@ export default function MobilePassenger() {
     return null;
   }
 
-  // Separate bookings into active/upcoming and past
-  const now = new Date();
-  
-  // Active rides: currently in progress or happening soon
-  const activeStatuses = ['confirmed', 'on_the_way', 'arrived', 'on_board', 'in_progress'];
-  const activeBookings = bookings?.filter(b => 
-    activeStatuses.includes(b.status || '') && 
-    b.status !== 'completed' && 
-    b.status !== 'cancelled'
+  // Separate bookings into upcoming and past
+  const upcomingBookings = bookings?.filter(b => 
+    b.status !== 'completed' && b.status !== 'cancelled'
   ) || [];
-  
-  // Upcoming rides: scheduled for future, not yet active
-  const upcomingOnlyBookings = bookings?.filter(b => 
-    b.status === 'pending' && 
-    new Date(b.scheduledDateTime) >= now
-  ) || [];
-  
-  // Combine active (first) and upcoming bookings
-  const upcomingBookings = [...activeBookings, ...upcomingOnlyBookings];
   
   // Past rides: completed or cancelled
   const pastBookings = bookings?.filter(b => 
@@ -108,7 +93,6 @@ export default function MobilePassenger() {
 
   const menuItems = [
     { id: 'home' as Section, label: 'Home', icon: Home },
-    { id: 'new-booking' as Section, label: 'New Booking', icon: Plus },
     { id: 'saved-locations' as Section, label: 'Saved', icon: MapPin },
     { id: 'invoices' as Section, label: 'Invoices', icon: FileText },
     { id: 'payment' as Section, label: 'Payment', icon: CreditCard },
@@ -199,7 +183,7 @@ export default function MobilePassenger() {
           <>
             {/* Quick Action Button */}
             <Button
-              onClick={() => setActiveSection('new-booking')}
+              onClick={() => navigate('/mobile-booking')}
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 rounded-2xl text-lg font-semibold shadow-lg transition-all transform active:scale-95"
               data-testid="button-new-booking-home"
             >
@@ -338,34 +322,6 @@ export default function MobilePassenger() {
 
             
           </>
-        )}
-
-        {/* New Booking Section */}
-        {activeSection === 'new-booking' && (
-          <div className="space-y-4">
-            <Card className="shadow-md border-slate-200">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Plus className="w-5 h-5 text-blue-600" />
-                  Create New Booking
-                </CardTitle>
-                <CardDescription>Book your luxury ride</CardDescription>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="text-center py-8">
-                  <Button
-                    onClick={() => navigate('/mobile-booking')}
-                    size="lg"
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                    data-testid="button-start-booking"
-                  >
-                    <Plus className="w-5 h-5 mr-2" />
-                    Start Booking Process
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         )}
 
         {/* Saved Locations Section */}
