@@ -8,8 +8,8 @@ import Stripe from "stripe";
 import multer from "multer";
 import crypto from "crypto";
 import { Client as ObjectStorageClient } from "@replit/object-storage";
-import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML, getPaymentConfirmationEmailHTML } from "./email";
-import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS } from "./sms";
+import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML, getPaymentConfirmationEmailHTML, getDriverOnTheWayEmailHTML, getDriverArrivedEmailHTML, getBookingCancelledEmailHTML } from "./email";
+import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS, sendDriverOnTheWaySMS, sendDriverArrivedSMS, sendBookingCancelledSMS, sendAdminNewBookingAlertSMS } from "./sms";
 import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityReport } from "./emailReports";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -701,16 +701,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const booking = await storage.createBooking(bookingData);
       
-      // Send system admin report (fire-and-forget)
+      // Send notifications (fire-and-forget)
       (async () => {
         try {
           const passenger = await storage.getUser(userId);
           const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+          
           if (passenger && vehicleType) {
+            // 1. Send admin email report
             await sendNewBookingReport(booking, passenger, vehicleType.name || 'Unknown Vehicle');
+            
+            // 2. Send passenger confirmation email
+            const scheduledDateTime = new Date(booking.scheduledDateTime).toLocaleString('en-US', {
+              dateStyle: 'full',
+              timeStyle: 'short'
+            });
+            
+            await sendEmail({
+              to: passenger.email,
+              subject: `Booking Confirmation - USA Luxury Limo #${booking.id.slice(0, 8)}`,
+              html: getBookingConfirmationEmailHTML({
+                passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
+                bookingId: booking.id.slice(0, 8),
+                pickupAddress: booking.pickupAddress,
+                destinationAddress: booking.destinationAddress || 'N/A',
+                scheduledDateTime,
+                vehicleType: vehicleType.name || 'Luxury Vehicle',
+                totalAmount: booking.totalAmount || '0.00',
+                status: booking.status || 'pending'
+              })
+            });
+            
+            // 3. Send passenger confirmation SMS
+            if (passenger.phone) {
+              await sendBookingConfirmationSMS(
+                passenger.phone,
+                booking.id,
+                booking.pickupAddress,
+                new Date(booking.scheduledDateTime)
+              );
+            }
+            
+            // 4. Send admin SMS alert  
+            const adminEmailSetting = await storage.getSystemSetting('SYSTEM_ADMIN_EMAIL');
+            if (adminEmailSetting?.value) {
+              // Try to get admin phone for SMS
+              const adminUsers = await storage.getAllUsers();
+              const adminUser = adminUsers.find(u => u.role === 'admin' && u.email === adminEmailSetting.value);
+              if (adminUser?.phone) {
+                await sendAdminNewBookingAlertSMS(
+                  adminUser.phone,
+                  booking.id,
+                  `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim(),
+                  booking.pickupAddress,
+                  new Date(booking.scheduledDateTime),
+                  booking.totalAmount || '0.00'
+                );
+              }
+            }
+            
+            // 5. Send dispatcher email notifications
+            const allUsers = await storage.getAllUsers();
+            const dispatchers = allUsers.filter(u => u.role === 'dispatcher');
+            for (const dispatcher of dispatchers) {
+              await sendEmail({
+                to: dispatcher.email,
+                subject: `New Booking Alert - USA Luxury Limo #${booking.id.slice(0, 8)}`,
+                html: getBookingConfirmationEmailHTML({
+                  passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
+                  bookingId: booking.id.slice(0, 8),
+                  pickupAddress: booking.pickupAddress,
+                  destinationAddress: booking.destinationAddress || 'N/A',
+                  scheduledDateTime,
+                  vehicleType: vehicleType.name || 'Luxury Vehicle',
+                  totalAmount: booking.totalAmount || '0.00',
+                  status: booking.status || 'pending'
+                })
+              });
+            }
           }
         } catch (error) {
-          console.error('[EMAIL REPORT] Failed to send new booking report:', error);
+          console.error('[NOTIFICATIONS] Failed to send booking notifications:', error);
         }
       })();
       
@@ -1125,33 +1196,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       (async () => {
         try {
           const passenger = await storage.getUser(booking.passengerId);
-          if (passenger) {
-            const message = `Your driver ${user.firstName} ${user.lastName} is on the way! Pickup at ${booking.pickupAddress} at ${scheduledTime.toLocaleString()}.`;
+          const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+          
+          if (passenger && vehicleType) {
+            const scheduledDateTime = scheduledTime.toLocaleString('en-US', {
+              dateStyle: 'full',
+              timeStyle: 'short'
+            });
             
-            if (booking.passengerPhone || passenger.phone) {
-              await sendSMS(booking.passengerPhone || passenger.phone!, message);
-            }
-
+            // Send email notification to passenger
             if (passenger.email) {
               await sendEmail({
                 to: passenger.email,
-                subject: 'Driver On the Way',
-                html: `<h2>Driver On the Way</h2><p>${message}</p><p>Vehicle: ${driver.vehiclePlate || 'N/A'}</p>`,
+                subject: `Driver On The Way - USA Luxury Limo #${booking.id.slice(0, 8)}`,
+                html: getDriverOnTheWayEmailHTML({
+                  passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
+                  bookingId: booking.id.slice(0, 8),
+                  driverName: `${user.firstName} ${user.lastName}`,
+                  driverPhone: user.phone || 'N/A',
+                  vehicleType: vehicleType.name || 'Luxury Vehicle',
+                  pickupAddress: booking.pickupAddress,
+                  scheduledDateTime,
+                  estimatedArrival: undefined
+                }),
               });
             }
             
-            // Send system admin activity report
-            const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
-            if (vehicleType) {
-              await sendDriverActivityReport({
-                type: 'on_the_way',
-                booking: updatedBooking,
-                driver: user,
-                passenger,
-                vehicleTypeName: vehicleType.name || 'Unknown Vehicle',
-                timestamp: now,
-              });
+            // Send SMS notification to passenger
+            if (booking.passengerPhone || passenger.phone) {
+              await sendDriverOnTheWaySMS(
+                booking.passengerPhone || passenger.phone!,
+                `${user.firstName} ${user.lastName}`,
+                vehicleType.name || 'Luxury Vehicle'
+              );
             }
+            
+            // Send system admin activity report
+            await sendDriverActivityReport({
+              type: 'on_the_way',
+              booking: updatedBooking,
+              driver: user,
+              passenger,
+              vehicleTypeName: vehicleType.name || 'Unknown Vehicle',
+              timestamp: now,
+            });
           }
         } catch (error) {
           console.error('Error sending on-the-way notification:', error);
@@ -1226,33 +1314,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       (async () => {
         try {
           const passenger = await storage.getUser(booking.passengerId);
-          if (passenger) {
-            const message = `Your driver ${user.firstName} ${user.lastName} has arrived at ${booking.pickupAddress}!`;
-            
-            if (booking.passengerPhone || passenger.phone) {
-              await sendSMS(booking.passengerPhone || passenger.phone!, message);
-            }
-
+          const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+          
+          if (passenger && vehicleType) {
+            // Send email notification to passenger
             if (passenger.email) {
               await sendEmail({
                 to: passenger.email,
-                subject: 'Driver Has Arrived',
-                html: `<h2>Driver Has Arrived</h2><p>${message}</p><p>Vehicle: ${driver.vehiclePlate || 'N/A'}</p>`,
+                subject: `Driver Has Arrived - USA Luxury Limo #${booking.id.slice(0, 8)}`,
+                html: getDriverArrivedEmailHTML({
+                  passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
+                  bookingId: booking.id.slice(0, 8),
+                  driverName: `${user.firstName} ${user.lastName}`,
+                  driverPhone: user.phone || 'N/A',
+                  vehicleType: vehicleType.name || 'Luxury Vehicle',
+                  pickupAddress: booking.pickupAddress
+                }),
               });
             }
             
-            // Send system admin activity report
-            const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
-            if (vehicleType) {
-              await sendDriverActivityReport({
-                type: 'arrived',
-                booking: updatedBooking,
-                driver: user,
-                passenger,
-                vehicleTypeName: vehicleType.name || 'Unknown Vehicle',
-                timestamp: now,
-              });
+            // Send SMS notification to passenger
+            if (booking.passengerPhone || passenger.phone) {
+              await sendDriverArrivedSMS(
+                booking.passengerPhone || passenger.phone!,
+                `${user.firstName} ${user.lastName}`,
+                vehicleType.name || 'Luxury Vehicle',
+                booking.pickupAddress
+              );
             }
+            
+            // Send system admin activity report
+            await sendDriverActivityReport({
+              type: 'arrived',
+              booking: updatedBooking,
+              driver: user,
+              passenger,
+              vehicleTypeName: vehicleType.name || 'Unknown Vehicle',
+              timestamp: now,
+            });
           }
         } catch (error) {
           console.error('Error sending arrived notification:', error);
@@ -1470,12 +1569,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update booking status to cancelled
       const updatedBooking = await storage.updateBooking(id, { status: 'cancelled', cancelledAt: new Date(), cancelReason: req.body.reason || 'Cancelled by user' });
       
-      // Send system admin report (fire-and-forget)
+      // Send cancellation notifications (fire-and-forget)
       (async () => {
         try {
           const passenger = await storage.getUser(booking.passengerId);
           const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
           if (passenger && vehicleType) {
+            // 1. Send system admin report
             await sendCancelledBookingReport(
               updatedBooking,
               passenger,
@@ -1483,9 +1583,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
               'passenger',
               req.body.reason || 'No reason provided'
             );
+            
+            // 2. Send passenger cancellation email
+            const scheduledDateTime = new Date(updatedBooking.scheduledDateTime).toLocaleString('en-US', {
+              dateStyle: 'full',
+              timeStyle: 'short'
+            });
+            
+            await sendEmail({
+              to: passenger.email,
+              subject: `Booking Cancelled - USA Luxury Limo #${updatedBooking.id.slice(0, 8)}`,
+              html: getBookingCancelledEmailHTML({
+                passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
+                bookingId: updatedBooking.id.slice(0, 8),
+                pickupAddress: updatedBooking.pickupAddress,
+                destinationAddress: updatedBooking.destinationAddress || undefined,
+                scheduledDateTime,
+                cancelReason: updatedBooking.cancelReason || undefined
+              })
+            });
+            
+            // 3. Send passenger cancellation SMS
+            if (passenger.phone) {
+              await sendBookingCancelledSMS(passenger.phone, updatedBooking.id);
+            }
           }
         } catch (error) {
-          console.error('[EMAIL REPORT] Failed to send cancellation report:', error);
+          console.error('[NOTIFICATIONS] Failed to send cancellation notifications:', error);
         }
       })();
       
@@ -3583,20 +3707,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const passenger = updatedBooking.passengerId ? await storage.getUser(updatedBooking.passengerId) : null;
           const vehicleType = await storage.getVehicleType(updatedBooking.vehicleTypeId);
           
+          const scheduledDateTime = new Date(updatedBooking.scheduledDateTime).toLocaleString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'America/Chicago'
+          });
+          
+          // Send notifications to driver
           if (driver?.userId) {
             const driverUser = await storage.getUser(driver.userId);
             
             if (driverUser?.email) {
-              const scheduledDateTime = new Date(updatedBooking.scheduledDateTime).toLocaleString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                timeZone: 'America/Chicago'
-              });
-
               await sendEmail({
                 to: driverUser.email,
                 subject: `New Ride Assignment - ${updatedBooking.id}`,
@@ -3613,7 +3738,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 }),
               });
 
-              // Send SMS notification if phone number is available
+              // Send SMS notification to driver if phone number is available
               if (driverUser.phone && passenger) {
                 try {
                   await sendDriverAssignmentSMS(
@@ -3624,8 +3749,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     updatedBooking.driverPayment || undefined
                   );
                 } catch (smsError) {
-                  console.error('Failed to send driver assignment SMS:', smsError);
-                  // Continue even if SMS fails
+                  console.error('Failed to send driver assignment SMS to driver:', smsError);
+                }
+              }
+            }
+          }
+          
+          // Send notifications to passenger about driver assignment
+          if (passenger && driver?.userId) {
+            const driverUser = await storage.getUser(driver.userId);
+            
+            if (driverUser) {
+              // Send passenger email about driver assignment
+              await sendEmail({
+                to: passenger.email,
+                subject: `Driver Assigned - USA Luxury Limo #${updatedBooking.id.slice(0, 8)}`,
+                html: getBookingStatusUpdateEmailHTML({
+                  passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
+                  bookingId: updatedBooking.id.slice(0, 8),
+                  oldStatus: 'pending',
+                  newStatus: 'confirmed',
+                  pickupAddress: updatedBooking.pickupAddress,
+                  scheduledDateTime
+                })
+              });
+              
+              // Send passenger SMS about driver assignment
+              if (passenger.phone) {
+                try {
+                  await sendBookingStatusUpdateSMS(
+                    passenger.phone,
+                    updatedBooking.id,
+                    'confirmed'
+                  );
+                } catch (smsError) {
+                  console.error('Failed to send driver assignment SMS to passenger:', smsError);
                 }
               }
             }
