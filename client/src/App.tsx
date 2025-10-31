@@ -59,6 +59,7 @@ function Router() {
   return (
     <Switch>
       {/* Mobile PWA Routes */}
+      <Route path="/mobile" component={MobileSplash} />
       <Route path="/mobile-splash" component={MobileSplash} />
       <Route path="/mobile-login" component={MobileLogin} />
       <Route path="/mobile-passenger" component={MobilePassenger} />
