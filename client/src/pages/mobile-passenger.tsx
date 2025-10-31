@@ -437,25 +437,25 @@ export default function MobilePassenger() {
 
         {/* Saved Locations Section */}
         {activeSection === 'saved-locations' && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <Card className="shadow-md border-slate-200">
-              <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b">
-                <div className="flex justify-between items-start">
+              <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b p-3">
+                <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-blue-600" />
+                    <CardTitle className="text-sm flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-blue-600" />
                       Saved Locations
                     </CardTitle>
-                    <CardDescription>Quick access to your favorite places</CardDescription>
+                    <CardDescription className="text-xs mt-0.5">Your favorite places</CardDescription>
                   </div>
                   <Dialog open={addAddressOpen} onOpenChange={setAddAddressOpen}>
                     <DialogTrigger asChild>
                       <Button
                         size="sm"
-                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm"
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm h-7 px-2 text-xs"
                         data-testid="button-add-location"
                       >
-                        <Plus className="w-4 h-4 mr-1" />
+                        <Plus className="w-3 h-3 mr-1" />
                         Add
                       </Button>
                     </DialogTrigger>
@@ -536,61 +536,61 @@ export default function MobilePassenger() {
                   </Dialog>
                 </div>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-3">
                 {savedAddressesLoading ? (
-                  <div className="text-center py-8 text-gray-500">Loading...</div>
+                  <div className="text-center py-6 text-gray-500 text-sm">Loading...</div>
                 ) : !savedAddresses || savedAddresses.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <MapPin className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No saved locations yet</p>
-                    <p className="text-sm mt-2">Save locations during booking for quick access</p>
+                  <div className="text-center py-6 text-gray-500">
+                    <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No saved locations yet</p>
+                    <p className="text-xs mt-1">Save locations during booking</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {savedAddresses.map((location) => (
                       <div
                         key={location.id}
-                        className="bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-400 hover:shadow-md transition-all"
+                        className="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-blue-400 hover:shadow-sm transition-all"
                         data-testid={`saved-location-${location.id}`}
                       >
-                        <div className="flex items-start gap-3 mb-3">
-                          <div className="bg-blue-100 p-2 rounded-lg flex-shrink-0">
-                            <MapPin className="w-5 h-5 text-blue-600" />
+                        <div className="flex items-start gap-2 mb-2">
+                          <div className="bg-blue-100 p-1.5 rounded-md flex-shrink-0">
+                            <MapPin className="w-3.5 h-3.5 text-blue-600" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold text-gray-900">{location.label}</h3>
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <h3 className="font-semibold text-gray-900 text-xs">{location.label}</h3>
                               {location.isDefault && (
-                                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                                <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-medium rounded-full">
                                   Default
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-gray-600 break-words">{location.address}</p>
+                            <p className="text-[11px] text-gray-600 break-words leading-tight">{location.address}</p>
                           </div>
                         </div>
                         
                         {/* Action Buttons */}
-                        <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
-                          <div className="flex-1 grid grid-cols-2 gap-2">
+                        <div className="flex items-center gap-1.5 pt-2 border-t border-slate-100">
+                          <div className="flex-1 grid grid-cols-2 gap-1.5">
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => navigate(`/booking?from=${encodeURIComponent(location.address)}`)}
-                              className="bg-white border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-xs"
+                              className="bg-white border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-[10px] h-7 px-2"
                               data-testid={`button-from-${location.id}`}
                             >
-                              <Navigation className="w-3 h-3 mr-1" />
+                              <Navigation className="w-2.5 h-2.5 mr-0.5" />
                               From
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => navigate(`/booking?to=${encodeURIComponent(location.address)}`)}
-                              className="bg-white border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-xs"
+                              className="bg-white border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-[10px] h-7 px-2"
                               data-testid={`button-to-${location.id}`}
                             >
-                              <MapPin className="w-3 h-3 mr-1" />
+                              <MapPin className="w-2.5 h-2.5 mr-0.5" />
                               To
                             </Button>
                           </div>
@@ -602,10 +602,10 @@ export default function MobilePassenger() {
                                 deleteAddressMutation.mutate(location.id);
                               }
                             }}
-                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2"
+                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-1.5 h-7 w-7"
                             data-testid={`button-delete-${location.id}`}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3 h-3" />
                           </Button>
                         </div>
                       </div>
