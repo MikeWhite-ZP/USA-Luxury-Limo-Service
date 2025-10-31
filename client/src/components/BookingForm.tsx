@@ -1827,7 +1827,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </div>
 
           {/* Date and Time Row */}
-          <div className="grid grid-cols-[3fr_2fr] gap-4">
+          <div className="grid grid-cols-[2fr_3fr] gap-4">
             <div>
               <Label htmlFor="date" className="text-base font-semibold text-gray-700">Date *</Label>
               <Input
@@ -1950,7 +1950,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </div>
 
           {/* Date and Time Row */}
-          <div className="grid grid-cols-[3fr_2fr] gap-4">
+          <div className="grid grid-cols-[2fr_3fr] gap-4">
             <div>
               <Label htmlFor="date" className="text-base font-semibold text-gray-700">Date *</Label>
               <Input
