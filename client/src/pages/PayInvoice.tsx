@@ -341,12 +341,12 @@ export default function PayInvoice() {
                       </div>
                     </div>
 
-                    {invoiceData.booking.dropoffAddress && (
+                    {invoiceData.booking.destinationAddress && (
                       <div className="flex items-start space-x-2">
                         <MapPin className="w-4 h-4 mt-1 text-red-500 flex-shrink-0" />
                         <div className="flex-1">
                           <p className="text-xs text-muted-foreground">Destination</p>
-                          <p className="font-medium" data-testid="dropoff-address">{invoiceData.booking.dropoffAddress}</p>
+                          <p className="font-medium" data-testid="dropoff-address">{invoiceData.booking.destinationAddress}</p>
                         </div>
                       </div>
                     )}

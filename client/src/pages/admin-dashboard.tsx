@@ -1520,15 +1520,15 @@ function InvoiceManagement() {
               <span class="info-label">From :</span>
               <span class="info-value">${booking.pickupAddress}</span>
             </div>
-            ${booking.bookingType === 'hourly' && booking.hours ? `
+            ${booking.bookingType === 'hourly' && booking.requestedHours ? `
             <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">Total Booking Hours :</span>
-              <span class="info-value">${booking.hours} ${booking.hours === 1 ? 'Hour' : 'Hours'}</span>
+              <span class="info-label">Duration:</span>
+              <span class="info-value">${booking.requestedHours} ${booking.requestedHours === 1 ? 'Hour' : 'Hours'}</span>
             </div>
-            ` : booking.dropoffAddress ? `
+            ` : booking.destinationAddress ? `
             <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">To :</span>
-              <span class="info-value">${booking.dropoffAddress}</span>
+              <span class="info-label">Destination:</span>
+              <span class="info-value">${booking.destinationAddress}</span>
             </div>
             ` : ''}
           </div>
@@ -1814,18 +1814,18 @@ function InvoiceManagement() {
                         {selectedInvoice.booking.pickupAddress}
                       </p>
                     </div>
-                    {selectedInvoice.booking.bookingType === 'hourly' && selectedInvoice.booking.hours ? (
+                    {selectedInvoice.booking.bookingType === 'hourly' && selectedInvoice.booking.requestedHours ? (
                       <div>
-                        <p className="text-blue-900 font-semibold mb-1.5">Total Booking Hours :</p>
+                        <p className="text-blue-900 font-semibold mb-1.5">Duration:</p>
                         <p className="text-slate-900 font-bold text-lg" data-testid="view-booking-hours">
-                          {selectedInvoice.booking.hours} {selectedInvoice.booking.hours === 1 ? 'Hour' : 'Hours'}
+                          {selectedInvoice.booking.requestedHours} {selectedInvoice.booking.requestedHours === 1 ? 'Hour' : 'Hours'}
                         </p>
                       </div>
-                    ) : selectedInvoice.booking.dropoffAddress ? (
+                    ) : selectedInvoice.booking.destinationAddress ? (
                       <div>
-                        <p className="text-blue-900 font-semibold mb-1.5">To :</p>
+                        <p className="text-blue-900 font-semibold mb-1.5">Destination:</p>
                         <p className="text-slate-900 leading-relaxed" data-testid="view-destination-address">
-                          {selectedInvoice.booking.dropoffAddress}
+                          {selectedInvoice.booking.destinationAddress}
                         </p>
                       </div>
                     ) : null}

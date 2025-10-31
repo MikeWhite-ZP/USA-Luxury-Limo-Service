@@ -745,9 +745,9 @@ function InvoicesList() {
                 <p className="text-gray-600">
                   <span className="font-medium text-gray-900">From:</span> {invoice.booking.pickupAddress}
                 </p>
-                {invoice.booking.dropoffAddress && (
+                {invoice.booking.destinationAddress && (
                   <p className="text-gray-600">
-                    <span className="font-medium text-gray-900">To:</span> {invoice.booking.dropoffAddress}
+                    <span className="font-medium text-gray-900">To:</span> {invoice.booking.destinationAddress}
                   </p>
                 )}
               </div>

@@ -3300,7 +3300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 amount: invoice.totalAmount,
                 paymentDate: new Date().toLocaleString(),
                 pickupAddress: booking.pickupAddress,
-                destinationAddress: booking.dropoffAddress,
+                destinationAddress: booking.destinationAddress,
                 scheduledDateTime: booking.scheduledDateTime,
                 paymentIntentId: paymentIntent.id,
                 logoDataUri,

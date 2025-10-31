@@ -363,15 +363,15 @@ export default function MobileInvoices() {
               <span class="info-label">From :</span>
               <span class="info-value">${booking.pickupAddress}</span>
             </div>
-            ${booking.bookingType === 'hourly' && booking.hours ? `
+            ${booking.bookingType === 'hourly' && booking.requestedHours ? `
             <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">Total Booking Hours :</span>
-              <span class="info-value">${booking.hours} ${booking.hours === 1 ? 'Hour' : 'Hours'}</span>
+              <span class="info-label">Duration:</span>
+              <span class="info-value">${booking.requestedHours} ${booking.requestedHours === 1 ? 'Hour' : 'Hours'}</span>
             </div>
-            ` : booking.dropoffAddress ? `
+            ` : booking.destinationAddress ? `
             <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">To :</span>
-              <span class="info-value">${booking.dropoffAddress}</span>
+              <span class="info-label">Destination:</span>
+              <span class="info-value">${booking.destinationAddress}</span>
             </div>
             ` : ''}
           </div>
@@ -522,9 +522,9 @@ export default function MobileInvoices() {
                       <p className="text-slate-600">
                         <span className="font-medium text-slate-900">From:</span> {invoice.booking.pickupAddress}
                       </p>
-                      {invoice.booking.dropoffAddress && (
+                      {invoice.booking.destinationAddress && (
                         <p className="text-slate-600">
-                          <span className="font-medium text-slate-900">To:</span> {invoice.booking.dropoffAddress}
+                          <span className="font-medium text-slate-900">To:</span> {invoice.booking.destinationAddress}
                         </p>
                       )}
                       <p className="text-slate-600">
