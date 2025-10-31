@@ -386,13 +386,14 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               userId: user?.id
             });
             const priceData = await priceResponse.json();
+            const finalPrice = priceData.price || priceData.finalPrice;
             return { 
               vehicleType: vehicleTypeSlug, 
-              price: priceData.price,
+              price: finalPrice,
               breakdown: {
-                regularPrice: priceData.regularPrice || priceData.price,
+                regularPrice: priceData.regularPrice || finalPrice,
                 discountAmount: priceData.discountAmount || '0',
-                finalPrice: priceData.finalPrice || priceData.price
+                finalPrice: finalPrice
               }
             };
           } catch (error) {
@@ -440,13 +441,14 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               userId: user?.id
             });
             const priceData = await priceResponse.json();
+            const finalPrice = priceData.price || priceData.finalPrice;
             return { 
               vehicleType: vehicleTypeSlug, 
-              price: priceData.price,
+              price: finalPrice,
               breakdown: {
-                regularPrice: priceData.regularPrice || priceData.price,
+                regularPrice: priceData.regularPrice || finalPrice,
                 discountAmount: priceData.discountAmount || '0',
-                finalPrice: priceData.finalPrice || priceData.price
+                finalPrice: finalPrice
               }
             };
           } catch (error) {
