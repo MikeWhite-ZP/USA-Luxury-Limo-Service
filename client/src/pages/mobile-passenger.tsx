@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -16,7 +16,9 @@ import {
   Home,
   User,
   Menu,
-  X
+  X,
+  Trash2,
+  Navigation
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,6 +29,18 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Booking } from '@shared/schema';
 
 type Section = 'home' | 'new-booking' | 'saved-locations' | 'invoices' | 'payment' | 'account';
@@ -34,9 +48,17 @@ type Section = 'home' | 'new-booking' | 'saved-locations' | 'invoices' | 'paymen
 export default function MobilePassenger() {
   const [, navigate] = useLocation();
   const { user, isLoading: authLoading, logoutMutation } = useAuth();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [activeSection, setActiveSection] = useState<Section>('home');
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Add location dialog state
+  const [addAddressOpen, setAddAddressOpen] = useState(false);
+  const [newAddress, setNewAddress] = useState({ label: '', address: '', lat: '', lon: '' });
+  const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false);
 
   // Fetch user's bookings
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
@@ -49,6 +71,89 @@ export default function MobilePassenger() {
     queryKey: ['/api/saved-addresses'],
     enabled: !!user,
   });
+
+  // TomTom address search
+  useEffect(() => {
+    if (!newAddress.address || newAddress.address.length < 3) {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsSearchingAddress(true);
+      try {
+        const response = await fetch(
+          `https://api.tomtom.com/search/2/search/${encodeURIComponent(newAddress.address)}.json?key=${import.meta.env.VITE_TOMTOM_API_KEY}&limit=5&countrySet=US`
+        );
+        const data = await response.json();
+        setAddressSuggestions(data.results || []);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Error searching address:', error);
+      } finally {
+        setIsSearchingAddress(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [newAddress.address]);
+
+  // Add address mutation
+  const addAddressMutation = useMutation({
+    mutationFn: async (data: { label: string; address: string; lat: string; lon: string }) => {
+      const response = await apiRequest('POST', '/api/saved-addresses', data);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/saved-addresses'] });
+      setAddAddressOpen(false);
+      setNewAddress({ label: '', address: '', lat: '', lon: '' });
+      toast({
+        title: 'Location Saved',
+        description: 'The address has been added to your saved locations.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to save address',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Delete address mutation
+  const deleteAddressMutation = useMutation({
+    mutationFn: async (addressId: string) => {
+      const response = await apiRequest('DELETE', `/api/saved-addresses/${addressId}`);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/saved-addresses'] });
+      toast({
+        title: 'Location Deleted',
+        description: 'Address has been removed from your saved locations.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to delete address',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleAddressSelect = (suggestion: any) => {
+    setNewAddress({
+      ...newAddress,
+      address: suggestion.address.freeformAddress,
+      lat: suggestion.position.lat.toString(),
+      lon: suggestion.position.lon.toString(),
+    });
+    setShowSuggestions(false);
+  };
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -335,11 +440,101 @@ export default function MobilePassenger() {
           <div className="space-y-4">
             <Card className="shadow-md border-slate-200">
               <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-blue-600" />
-                  Saved Locations
-                </CardTitle>
-                <CardDescription>Quick access to your favorite places</CardDescription>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-blue-600" />
+                      Saved Locations
+                    </CardTitle>
+                    <CardDescription>Quick access to your favorite places</CardDescription>
+                  </div>
+                  <Dialog open={addAddressOpen} onOpenChange={setAddAddressOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm"
+                        data-testid="button-add-location"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Add
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-white max-w-[90vw] sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Add New Location</DialogTitle>
+                        <DialogDescription>Save a location for quick booking</DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="address-label">Label</Label>
+                          <Input
+                            id="address-label"
+                            placeholder="Home, Work, Gym, etc."
+                            value={newAddress.label}
+                            onChange={(e) => setNewAddress(prev => ({ ...prev, label: e.target.value }))}
+                            data-testid="input-address-label"
+                          />
+                        </div>
+                        <div className="relative">
+                          <Label htmlFor="address-text">Address</Label>
+                          <Input
+                            id="address-text"
+                            placeholder="123 Main Street, City, State"
+                            value={newAddress.address}
+                            onChange={(e) => setNewAddress(prev => ({ ...prev, address: e.target.value }))}
+                            onFocus={() => {
+                              if (addressSuggestions.length > 0) {
+                                setShowSuggestions(true);
+                              }
+                            }}
+                            data-testid="input-address-text"
+                            autoComplete="off"
+                          />
+                          {isSearchingAddress && (
+                            <div className="absolute right-3 top-9 pointer-events-none">
+                              <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full" />
+                            </div>
+                          )}
+                          {showSuggestions && addressSuggestions.length > 0 && (
+                            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                              {addressSuggestions.map((suggestion, index) => (
+                                <button
+                                  key={index}
+                                  type="button"
+                                  className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0 transition-colors"
+                                  onClick={() => handleAddressSelect(suggestion)}
+                                  data-testid={`suggestion-${index}`}
+                                >
+                                  <div className="flex items-start space-x-2">
+                                    <MapPin className="w-4 h-4 mt-1 text-blue-600 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-medium text-gray-900 truncate">
+                                        {suggestion.address.freeformAddress}
+                                      </p>
+                                      {suggestion.address.country && (
+                                        <p className="text-xs text-gray-500 truncate">
+                                          {suggestion.address.countrySubdivision}, {suggestion.address.country}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <Button
+                          onClick={() => addAddressMutation.mutate(newAddress)}
+                          disabled={addAddressMutation.isPending || !newAddress.label || !newAddress.address}
+                          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                          data-testid="button-save-address"
+                        >
+                          {addAddressMutation.isPending ? 'Saving...' : 'Save Location'}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </CardHeader>
               <CardContent className="p-6">
                 {savedAddressesLoading ? (
@@ -355,11 +550,11 @@ export default function MobilePassenger() {
                     {savedAddresses.map((location) => (
                       <div
                         key={location.id}
-                        className="bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-400 hover:bg-blue-50/50 transition-all"
+                        className="bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-400 hover:shadow-md transition-all"
                         data-testid={`saved-location-${location.id}`}
                       >
-                        <div className="flex items-start gap-3">
-                          <div className="bg-blue-100 p-2 rounded-lg">
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="bg-blue-100 p-2 rounded-lg flex-shrink-0">
                             <MapPin className="w-5 h-5 text-blue-600" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -373,6 +568,45 @@ export default function MobilePassenger() {
                             </div>
                             <p className="text-sm text-gray-600 break-words">{location.address}</p>
                           </div>
+                        </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
+                          <div className="flex-1 grid grid-cols-2 gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => navigate(`/booking?from=${encodeURIComponent(location.address)}`)}
+                              className="bg-white border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-xs"
+                              data-testid={`button-from-${location.id}`}
+                            >
+                              <Navigation className="w-3 h-3 mr-1" />
+                              From
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => navigate(`/booking?to=${encodeURIComponent(location.address)}`)}
+                              className="bg-white border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-xs"
+                              data-testid={`button-to-${location.id}`}
+                            >
+                              <MapPin className="w-3 h-3 mr-1" />
+                              To
+                            </Button>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              if (window.confirm(`Delete "${location.label}"?`)) {
+                                deleteAddressMutation.mutate(location.id);
+                              }
+                            }}
+                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2"
+                            data-testid={`button-delete-${location.id}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
                       </div>
                     ))}
