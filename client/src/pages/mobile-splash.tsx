@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Car, UserCircle, Radio, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { setDevicePreference } from '@/lib/deviceDetection';
 import chauffeurImage from "@assets/khalid_1759128435991.webp";
 import usaLuxuryLogo from "@assets/logo_1761944723746.png";
 
@@ -241,12 +242,15 @@ export default function MobileSplash() {
               className="text-center mt-10"
             >
               <button
-                onClick={() => navigate('/')}
+                onClick={() => {
+                  setDevicePreference('desktop');
+                  navigate('/');
+                }}
                 className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-all text-sm group"
-                data-testid="button-back-home"
+                data-testid="button-view-desktop-site"
               >
                 <span className="group-hover:-translate-x-1 transition-transform">←</span>
-                <span>Back to website</span>
+                <span>View Desktop Site</span>
               </button>
             </motion.div>
           </motion.div>

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import DeviceRedirect from "@/components/DeviceRedirect";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import Booking from "@/pages/booking";
@@ -97,7 +98,7 @@ function Router() {
       <Route path="/reset-password" component={ResetPassword} />
       
       {!isAuthenticated ? (
-        <Route path="/" component={Landing} />
+        <Route path="/" component={DeviceRedirect} />
       ) : (
         <>
           <Route path="/" component={Home} />
