@@ -2361,17 +2361,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 <div class="section">
                   <div class="section-title">🚗 Journey Information</div>
                   <div class="info-row">
-                    <span class="info-label">From :</span>
+                    <span class="info-label">Pickup Location:</span>
                     <span class="info-value">${booking.pickupAddress}</span>
                   </div>
                   ${booking.bookingType === 'hourly' && booking.hours ? `
                   <div class="info-row">
-                    <span class="info-label">Total Booking Hours :</span>
+                    <span class="info-label">Duration:</span>
                     <span class="info-value">${booking.hours} ${booking.hours === 1 ? 'Hour' : 'Hours'}</span>
                   </div>
                   ` : booking.dropoffAddress ? `
                   <div class="info-row">
-                    <span class="info-label">To :</span>
+                    <span class="info-label">Destination:</span>
                     <span class="info-value">${booking.dropoffAddress}</span>
                   </div>
                   ` : ''}
@@ -2935,17 +2935,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 <div class="section">
                   <div class="section-title">🚗 Journey Information</div>
                   <div class="info-row">
-                    <span class="info-label">From :</span>
+                    <span class="info-label">Pickup Location:</span>
                     <span class="info-value">${booking.pickupAddress}</span>
                   </div>
                   ${booking.bookingType === 'hourly' && booking.hours ? `
                   <div class="info-row">
-                    <span class="info-label">Total Booking Hours :</span>
+                    <span class="info-label">Duration:</span>
                     <span class="info-value">${booking.hours} ${booking.hours === 1 ? 'Hour' : 'Hours'}</span>
                   </div>
                   ` : booking.dropoffAddress ? `
                   <div class="info-row">
-                    <span class="info-label">To :</span>
+                    <span class="info-label">Destination:</span>
                     <span class="info-value">${booking.dropoffAddress}</span>
                   </div>
                   ` : ''}
