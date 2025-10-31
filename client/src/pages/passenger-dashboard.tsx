@@ -19,6 +19,7 @@ import { insertContactSchema } from "@shared/schema";
 import type { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import BookingForm from "@/components/BookingForm";
 
 const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 const stripePromise = STRIPE_PUBLIC_KEY ? loadStripe(STRIPE_PUBLIC_KEY) : null;
@@ -472,7 +473,7 @@ export default function PassengerDashboard() {
   const queryClient = useQueryClient();
   
   // Navigation state
-  const [activeSection, setActiveSection] = useState<'home' | 'saved-locations' | 'future-bookings' | 'past-bookings' | 'payment-methods' | 'account-details' | 'support'>('home');
+  const [activeSection, setActiveSection] = useState<'home' | 'booking' | 'saved-locations' | 'future-bookings' | 'past-bookings' | 'payment-methods' | 'account-details' | 'support'>('home');
   
   // Profile editing state
   const [firstName, setFirstName] = useState(user?.firstName || '');
@@ -1259,7 +1260,7 @@ export default function PassengerDashboard() {
                     <div className="relative group/btn">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
                       <Button
-                        onClick={() => window.location.href = '/booking'}
+                        onClick={() => setActiveSection('booking')}
                         className="relative h-20 w-full flex flex-col space-y-2 bg-gradient-to-br from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white border-0 shadow-xl group-hover/btn:scale-[1.02] transition-transform duration-300"
                         data-testid="button-book-ride"
                       >
@@ -1405,6 +1406,28 @@ export default function PassengerDashboard() {
         </Card>
         </div>
           </>
+        )}
+
+        {/* Booking Section */}
+        {activeSection === 'booking' && (
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center shadow-md">
+                    <MapPin className="w-5 h-5 text-white" />
+                  </div>
+                  Book Your Luxury Transportation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-8">
+                  <BookingForm />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* Saved Locations Section */}
