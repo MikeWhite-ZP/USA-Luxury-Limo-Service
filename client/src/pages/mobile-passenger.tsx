@@ -58,7 +58,8 @@ export default function MobilePassenger() {
   const upcomingBookings = bookings?.filter(b => new Date(b.scheduledDateTime) >= now && b.status !== 'completed' && b.status !== 'cancelled') || [];
   const pastBookings = bookings?.filter(b => new Date(b.scheduledDateTime) < now || b.status === 'completed' || b.status === 'cancelled') || [];
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string | null) => {
+    if (!status) return 'bg-gray-100 text-gray-800';
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'confirmed': return 'bg-blue-100 text-blue-800';
@@ -69,7 +70,8 @@ export default function MobilePassenger() {
     }
   };
 
-  const formatStatus = (status: string) => {
+  const formatStatus = (status: string | null) => {
+    if (!status) return 'Unknown';
     return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
