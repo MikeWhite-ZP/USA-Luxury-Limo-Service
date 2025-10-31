@@ -1987,19 +1987,22 @@ export default function PassengerDashboard() {
         {/* Booking Section */}
         {activeSection === 'booking' && (
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center shadow-md">
-                    <MapPin className="w-5 h-5 text-white" />
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-b-0">
+                <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-md">
+                    <MapPin className="w-6 h-6 text-white" />
                   </div>
                   Book Your Luxury Transportation
                 </CardTitle>
+                <p className="text-blue-100 mt-2 text-sm">Premium rides at your fingertips</p>
               </CardHeader>
-              <CardContent>
-                <div className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-8">
-                  <BookingForm />
+              <CardContent className="p-0">
+                <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+                  <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+                    <BookingForm />
+                  </div>
                 </div>
               </CardContent>
             </Card>
