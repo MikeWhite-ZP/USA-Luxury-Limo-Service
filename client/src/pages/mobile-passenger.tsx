@@ -53,16 +53,39 @@ export default function MobilePassenger() {
     return null;
   }
 
-  // Separate bookings into upcoming and past
+  // Separate bookings into active/upcoming and past
   const now = new Date();
-  const upcomingBookings = bookings?.filter(b => new Date(b.scheduledDateTime) >= now && b.status !== 'completed' && b.status !== 'cancelled') || [];
-  const pastBookings = bookings?.filter(b => new Date(b.scheduledDateTime) < now || b.status === 'completed' || b.status === 'cancelled') || [];
+  
+  // Active rides: currently in progress or happening soon
+  const activeStatuses = ['confirmed', 'on_the_way', 'arrived', 'on_board', 'in_progress'];
+  const activeBookings = bookings?.filter(b => 
+    activeStatuses.includes(b.status || '') && 
+    b.status !== 'completed' && 
+    b.status !== 'cancelled'
+  ) || [];
+  
+  // Upcoming rides: scheduled for future, not yet active
+  const upcomingOnlyBookings = bookings?.filter(b => 
+    b.status === 'pending' && 
+    new Date(b.scheduledDateTime) >= now
+  ) || [];
+  
+  // Combine active (first) and upcoming bookings
+  const upcomingBookings = [...activeBookings, ...upcomingOnlyBookings];
+  
+  // Past rides: completed or cancelled
+  const pastBookings = bookings?.filter(b => 
+    b.status === 'completed' || b.status === 'cancelled'
+  ) || [];
 
   const getStatusColor = (status: string | null) => {
     if (!status) return 'bg-gray-100 text-gray-800';
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'confirmed': return 'bg-blue-100 text-blue-800';
+      case 'on_the_way': return 'bg-indigo-100 text-indigo-800 animate-pulse';
+      case 'arrived': return 'bg-cyan-100 text-cyan-800 animate-pulse';
+      case 'on_board': return 'bg-purple-100 text-purple-800 animate-pulse';
       case 'in_progress': return 'bg-purple-100 text-purple-800';
       case 'completed': return 'bg-green-100 text-green-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
