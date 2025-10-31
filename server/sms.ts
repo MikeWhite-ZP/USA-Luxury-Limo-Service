@@ -148,4 +148,49 @@ export async function sendTestSMS(phoneNumber: string): Promise<SMSResult> {
   return sendSMS(phoneNumber, message);
 }
 
+export async function sendDriverOnTheWaySMS(
+  phoneNumber: string,
+  driverName: string,
+  vehicleType: string,
+  estimatedArrival?: string
+): Promise<SMSResult> {
+  const arrivalInfo = estimatedArrival ? `\nETA: ${estimatedArrival}` : '';
+  const message = `USA Luxury Limo - Driver On The Way!\n\nYour driver ${driverName} is heading to your pickup location in a ${vehicleType}.${arrivalInfo}\n\nPlease be ready!`;
+  
+  return sendSMS(phoneNumber, message);
+}
+
+export async function sendDriverArrivedSMS(
+  phoneNumber: string,
+  driverName: string,
+  vehicleType: string,
+  pickupAddress: string
+): Promise<SMSResult> {
+  const message = `USA Luxury Limo - Driver Arrived!\n\nYour driver ${driverName} has arrived at ${pickupAddress}. Please proceed to your ${vehicleType}.\n\nThank you!`;
+  
+  return sendSMS(phoneNumber, message);
+}
+
+export async function sendBookingCancelledSMS(
+  phoneNumber: string,
+  bookingId: string
+): Promise<SMSResult> {
+  const message = `USA Luxury Limo - Booking Cancelled\n\nBooking ID: ${bookingId.substring(0, 8)}\n\nYour booking has been cancelled. For assistance, please contact us.`;
+  
+  return sendSMS(phoneNumber, message);
+}
+
+export async function sendAdminNewBookingAlertSMS(
+  phoneNumber: string,
+  bookingId: string,
+  passengerName: string,
+  pickupAddress: string,
+  scheduledTime: Date,
+  totalAmount: string
+): Promise<SMSResult> {
+  const message = `USA Limo - NEW BOOKING\n\nID: ${bookingId.substring(0, 8)}\nPassenger: ${passengerName}\nPickup: ${pickupAddress}\nTime: ${scheduledTime.toLocaleString()}\nAmount: $${totalAmount}\n\nCheck admin dashboard for details.`;
+  
+  return sendSMS(phoneNumber, message);
+}
+
 export { getTwilioConnectionStatus, isTwilioEnabled };

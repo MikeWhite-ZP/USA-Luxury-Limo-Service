@@ -1012,6 +1012,256 @@ export function getTestEmailHTML(): string {
   `;
 }
 
+export function getDriverOnTheWayEmailHTML(data: {
+  passengerName: string;
+  bookingId: string;
+  driverName: string;
+  driverPhone: string;
+  vehicleType: string;
+  pickupAddress: string;
+  scheduledDateTime: string;
+  estimatedArrival?: string;
+}): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
+          .alert-banner { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 5px solid #2563eb; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .driver-info { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .detail-row { padding: 10px 0; border-bottom: 1px solid #eee; }
+          .detail-label { font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
+          .detail-value { color: #333; }
+          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0;">🚗 Driver On The Way!</h1>
+            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+          </div>
+          <div class="content">
+            <p>Dear ${data.passengerName},</p>
+            
+            <div class="alert-banner">
+              <h3 style="margin-top: 0; color: #1e40af;">Your driver is on the way to pick you up!</h3>
+              <p style="margin-bottom: 0; font-size: 16px;">${data.estimatedArrival ? `Estimated arrival: <strong>${data.estimatedArrival}</strong>` : 'Please be ready for pickup.'}</p>
+            </div>
+            
+            <div class="driver-info">
+              <h3 style="margin-top: 0;">Driver Information</h3>
+              <div class="detail-row">
+                <span class="detail-label">Driver Name:</span>
+                <span class="detail-value">${data.driverName}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Contact Number:</span>
+                <span class="detail-value"><a href="tel:${data.driverPhone}">${data.driverPhone}</a></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Vehicle Type:</span>
+                <span class="detail-value">${data.vehicleType}</span>
+              </div>
+            </div>
+
+            <div class="driver-info">
+              <h3 style="margin-top: 0;">Booking Details</h3>
+              <div class="detail-row">
+                <span class="detail-label">Booking ID:</span>
+                <span class="detail-value">${data.bookingId}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Pickup Location:</span>
+                <span class="detail-value">${data.pickupAddress}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Scheduled Time:</span>
+                <span class="detail-value">${data.scheduledDateTime}</span>
+              </div>
+            </div>
+
+            <p><strong>Please Note:</strong></p>
+            <ul>
+              <li>Be ready and waiting at your pickup location</li>
+              <li>Keep your phone nearby in case the driver needs to contact you</li>
+              <li>Have your luggage ready for a smooth pickup</li>
+            </ul>
+          </div>
+          <div class="footer">
+            <p><strong>USA Luxury Limo</strong></p>
+            <p>Your journey, our passion.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+export function getDriverArrivedEmailHTML(data: {
+  passengerName: string;
+  bookingId: string;
+  driverName: string;
+  driverPhone: string;
+  vehicleType: string;
+  pickupAddress: string;
+}): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
+          .alert-banner { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-left: 5px solid #16a34a; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+          .driver-info { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .detail-row { padding: 10px 0; border-bottom: 1px solid #eee; }
+          .detail-label { font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
+          .detail-value { color: #333; }
+          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0;">📍 Driver Has Arrived!</h1>
+            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+          </div>
+          <div class="content">
+            <p>Dear ${data.passengerName},</p>
+            
+            <div class="alert-banner">
+              <h2 style="margin: 0; color: #15803d; font-size: 24px;">✓ Your driver has arrived at the pickup location!</h2>
+              <p style="margin: 10px 0 0 0; font-size: 16px;">Please proceed to your vehicle.</p>
+            </div>
+            
+            <div class="driver-info">
+              <h3 style="margin-top: 0;">Driver Information</h3>
+              <div class="detail-row">
+                <span class="detail-label">Driver Name:</span>
+                <span class="detail-value">${data.driverName}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Contact Number:</span>
+                <span class="detail-value"><a href="tel:${data.driverPhone}">${data.driverPhone}</a></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Vehicle Type:</span>
+                <span class="detail-value">${data.vehicleType}</span>
+              </div>
+            </div>
+
+            <div class="driver-info">
+              <h3 style="margin-top: 0;">Pickup Location</h3>
+              <p style="margin: 0; padding: 15px; background: #fef3c7; border-radius: 4px;">
+                📍 ${data.pickupAddress}
+              </p>
+            </div>
+
+            <p><strong>What to do next:</strong></p>
+            <ul>
+              <li>Proceed to the pickup location immediately</li>
+              <li>Look for your ${data.vehicleType}</li>
+              <li>Contact the driver if you have trouble locating the vehicle</li>
+              <li>Have your belongings ready to load</li>
+            </ul>
+          </div>
+          <div class="footer">
+            <p><strong>USA Luxury Limo</strong></p>
+            <p>Enjoy your ride!</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+export function getBookingCancelledEmailHTML(data: {
+  passengerName: string;
+  bookingId: string;
+  pickupAddress: string;
+  destinationAddress?: string;
+  scheduledDateTime: string;
+  cancelReason?: string;
+}): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
+          .alert-box { background: #fee2e2; border: 2px solid #dc2626; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .booking-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .detail-row { padding: 10px 0; border-bottom: 1px solid #eee; }
+          .detail-label { font-weight: bold; color: #555; }
+          .detail-value { color: #333; }
+          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0;">❌ Booking Cancelled</h1>
+            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+          </div>
+          <div class="content">
+            <p>Dear ${data.passengerName},</p>
+            
+            <div class="alert-box">
+              <h3 style="margin-top: 0; color: #dc2626;">Your booking has been cancelled</h3>
+              <p>Booking ID: <strong>${data.bookingId}</strong></p>
+              ${data.cancelReason ? `
+              <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 4px;">
+                <strong>Cancellation Reason:</strong><br>
+                ${data.cancelReason}
+              </div>
+              ` : ''}
+            </div>
+            
+            <div class="booking-details">
+              <h3 style="margin-top: 0;">Cancelled Booking Details</h3>
+              <div class="detail-row">
+                <span class="detail-label">Booking ID:</span>
+                <span class="detail-value">${data.bookingId}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Pickup Location:</span>
+                <span class="detail-value">${data.pickupAddress}</span>
+              </div>
+              ${data.destinationAddress ? `
+              <div class="detail-row">
+                <span class="detail-label">Destination:</span>
+                <span class="detail-value">${data.destinationAddress}</span>
+              </div>
+              ` : ''}
+              <div class="detail-row">
+                <span class="detail-label">Scheduled Date & Time:</span>
+                <span class="detail-value">${data.scheduledDateTime}</span>
+              </div>
+            </div>
+
+            <p>If you need to make a new booking, please visit our website or contact us directly.</p>
+            <p>If you believe this cancellation was made in error, please contact our support team immediately.</p>
+          </div>
+          <div class="footer">
+            <p><strong>USA Luxury Limo</strong></p>
+            <p>We hope to serve you again in the future.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
 // Clear transporter cache (useful when settings are updated)
 export function clearEmailCache() {
   cachedTransporter = null;
