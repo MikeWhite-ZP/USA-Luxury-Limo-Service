@@ -1116,7 +1116,7 @@ export default function PassengerDashboard() {
               <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-orange-600 rounded-xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-300" />
               <Button 
                 onClick={() => window.location.href = '/api/logout'}
-                className="relative bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 hover:border-slate-600 px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                className="relative bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 hover:border-slate-600 px-6 py-3 rounded-xl font-medium transition-all duration-300 mt-[0px] mb-[0px] text-center pl-[12px] pr-[12px] text-[12px]"
                 data-testid="button-logout"
               >
                 Sign Out
