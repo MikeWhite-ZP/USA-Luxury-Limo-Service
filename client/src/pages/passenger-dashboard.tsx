@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone, FileText, Eye, Printer } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone, FileText, Eye, Printer, ChevronDown } from "lucide-react";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useForm } from "react-hook-form";
@@ -1699,38 +1700,48 @@ export default function PassengerDashboard() {
               <span className="hidden sm:inline">Saved Locations</span>
               <span className="sm:hidden text-[10px]">Saved</span>
             </button>
-            <button
-              onClick={() => setActiveSection('future-bookings')}
-              className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
-                activeSection === 'future-bookings'
-                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
-              }`}
-              data-testid="nav-future-bookings"
-            >
-              {activeSection === 'future-bookings' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
-              )}
-              <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline">Future Bookings</span>
-              <span className="sm:hidden text-[10px]">Future</span>
-            </button>
-            <button
-              onClick={() => setActiveSection('past-bookings')}
-              className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
-                activeSection === 'past-bookings'
-                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
-              }`}
-              data-testid="nav-past-bookings"
-            >
-              {activeSection === 'past-bookings' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
-              )}
-              <History className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline">Past Bookings</span>
-              <span className="sm:hidden text-[10px]">Past</span>
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
+                    activeSection === 'future-bookings' || activeSection === 'past-bookings'
+                      ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                  }`}
+                  data-testid="nav-bookings"
+                >
+                  {(activeSection === 'future-bookings' || activeSection === 'past-bookings') && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+                  )}
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">Bookings</span>
+                  <span className="sm:hidden text-[10px]">Bookings</span>
+                  <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 ml-0.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                align="start" 
+                className="bg-slate-900 border-slate-700 text-white min-w-[180px]"
+                data-testid="bookings-dropdown"
+              >
+                <DropdownMenuItem
+                  onClick={() => setActiveSection('future-bookings')}
+                  className="cursor-pointer hover:bg-slate-800 focus:bg-slate-800 text-white"
+                  data-testid="nav-future-bookings"
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  <span>Future Bookings</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setActiveSection('past-bookings')}
+                  className="cursor-pointer hover:bg-slate-800 focus:bg-slate-800 text-white"
+                  data-testid="nav-past-bookings"
+                >
+                  <History className="w-4 h-4 mr-2" />
+                  <span>Past Bookings</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <button
               onClick={() => setActiveSection('invoices')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
