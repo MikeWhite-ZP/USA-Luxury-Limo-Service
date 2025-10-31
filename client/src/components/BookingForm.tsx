@@ -242,6 +242,11 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
   // Store calculated prices for each vehicle
   const [calculatedPrices, setCalculatedPrices] = useState<Record<string, string>>({});
+  const [priceBreakdowns, setPriceBreakdowns] = useState<Record<string, {
+    regularPrice: string;
+    discountAmount: string;
+    finalPrice: string;
+  }>>({});
 
   // Convert vehicle display name to pricing rule slug
   const getVehicleSlug = (vehicleName: string): string => {
@@ -381,10 +386,18 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               userId: user?.id
             });
             const priceData = await priceResponse.json();
-            return { vehicleType: vehicleTypeSlug, price: priceData.price };
+            return { 
+              vehicleType: vehicleTypeSlug, 
+              price: priceData.price,
+              breakdown: {
+                regularPrice: priceData.regularPrice || priceData.price,
+                discountAmount: priceData.discountAmount || '0',
+                finalPrice: priceData.finalPrice || priceData.price
+              }
+            };
           } catch (error) {
             console.error(`Failed to calculate price for ${vehicleTypeSlug}:`, error);
-            return { vehicleType: vehicleTypeSlug, price: null };
+            return { vehicleType: vehicleTypeSlug, price: null, breakdown: null };
           }
         });
 
@@ -393,8 +406,13 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           if (price) acc[vehicleType] = price;
           return acc;
         }, {} as Record<string, string>);
+        const breakdownMap = prices.reduce((acc, { vehicleType, breakdown }) => {
+          if (breakdown) acc[vehicleType] = breakdown;
+          return acc;
+        }, {} as Record<string, { regularPrice: string; discountAmount: string; finalPrice: string }>);
 
         setCalculatedPrices(priceMap);
+        setPriceBreakdowns(breakdownMap);
 
         return {
           ...distanceData,
@@ -422,10 +440,18 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               userId: user?.id
             });
             const priceData = await priceResponse.json();
-            return { vehicleType: vehicleTypeSlug, price: priceData.price };
+            return { 
+              vehicleType: vehicleTypeSlug, 
+              price: priceData.price,
+              breakdown: {
+                regularPrice: priceData.regularPrice || priceData.price,
+                discountAmount: priceData.discountAmount || '0',
+                finalPrice: priceData.finalPrice || priceData.price
+              }
+            };
           } catch (error) {
             console.error(`Failed to calculate price for ${vehicleTypeSlug}:`, error);
-            return { vehicleType: vehicleTypeSlug, price: null };
+            return { vehicleType: vehicleTypeSlug, price: null, breakdown: null };
           }
         });
 
@@ -434,8 +460,13 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           if (price) acc[vehicleType] = price;
           return acc;
         }, {} as Record<string, string>);
+        const breakdownMap = prices.reduce((acc, { vehicleType, breakdown }) => {
+          if (breakdown) acc[vehicleType] = breakdown;
+          return acc;
+        }, {} as Record<string, { regularPrice: string; discountAmount: string; finalPrice: string }>);
 
         setCalculatedPrices(priceMap);
+        setPriceBreakdowns(breakdownMap);
 
         return {
           distanceKm: 0,
@@ -1025,10 +1056,32 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     
                     {/* Price */}
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-primary" data-testid={`price-${vehicle.id}`}>
-                        ${calculatedPrice}
-                      </p>
-                      <p className="text-xs text-gray-500">Total Price</p>
+                      {(() => {
+                        const breakdown = priceBreakdowns[vehicleSlug];
+                        const hasDiscount = breakdown && parseFloat(breakdown.discountAmount) > 0;
+                        
+                        return hasDiscount ? (
+                          <div className="space-y-0.5">
+                            <p className="text-xs text-gray-500 line-through">
+                              ${breakdown.regularPrice}
+                            </p>
+                            <p className="text-xs text-green-600 font-semibold">
+                              - ${breakdown.discountAmount} discount
+                            </p>
+                            <p className="text-2xl font-bold text-primary" data-testid={`price-${vehicle.id}`}>
+                              ${breakdown.finalPrice}
+                            </p>
+                            <p className="text-xs text-gray-500">Your Price</p>
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="text-2xl font-bold text-primary" data-testid={`price-${vehicle.id}`}>
+                              ${calculatedPrice}
+                            </p>
+                            <p className="text-xs text-gray-500">Total Price</p>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 );
