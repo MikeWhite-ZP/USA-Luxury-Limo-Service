@@ -11,6 +11,14 @@ Preferred communication style: Simple, everyday language.
 ### UI/UX
 The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui components (Radix UI) styled with Tailwind CSS. It functions as a PWA with installable capabilities and offline support. Role-based login provides distinct blue (passenger), green (driver), and purple (dispatcher) themed dashboards. The design emphasizes a modern, professional light theme with consistent gradient headers, rounded corners, and a professional color palette (blue/indigo/purple/pink/emerald/amber/orange/cyan). All styling uses Tailwind utility classes, avoiding hardcoded hex values.
 
+**Device Detection & Auto-Redirect:**
+- Automatic device detection routes mobile browsers to the `/mobile` PWA interface and desktop browsers to the standard web interface
+- Detection based on user agent, screen width (<768px), and touch capability
+- Manual preference override system stored in localStorage allows users to switch between mobile and desktop views
+- Mobile users can access desktop site via "View Desktop Site" link on mobile splash page
+- Desktop users can access mobile PWA via "Open Mobile Version" button on landing page
+- Preferences persist across sessions and override automatic detection
+
 **Admin Dashboard Design:**
 - **Dashboard Stats**: Six color-coded stat cards with light gradient backgrounds (amber for Revenue, purple/pink for Commission, blue/cyan for Active Bookings, green/emerald for Drivers, orange/amber for Customer Satisfaction, red/rose for Awaiting Driver Approval). Each card features an icon badge, semi-transparent white data containers with backdrop blur, and smooth hover animations.
 - **Admin Settings Sections**: Consistent gradient headers with icon badges across all sections (System Commission with indigo/blue, Email Settings with blue/indigo/green tabs, SMS Settings with purple/pink). Modern card-based layouts with color-coded information sections and professional typography.
