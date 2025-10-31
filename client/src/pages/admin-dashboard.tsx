@@ -5507,18 +5507,6 @@ export default function AdminDashboard() {
 
                             <div className="space-y-1">
                               <p className="text-slate-600 text-xs font-semibold uppercase tracking-wide">
-                                Destination
-                              </p>
-                              <p
-                                className="font-semibold text-slate-900 leading-tight"
-                                data-testid={`booking-destination-${booking.id}`}
-                              >
-                                {booking.destinationAddress || "Hourly Service"}
-                              </p>
-                            </div>
-
-                            <div className="space-y-1">
-                              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wide">
                                 Scheduled Time
                               </p>
                               <p
@@ -5528,6 +5516,18 @@ export default function AdminDashboard() {
                                 {new Date(
                                   booking.scheduledDateTime,
                                 ).toLocaleString()}
+                              </p>
+                            </div>
+
+                            <div className="space-y-1">
+                              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wide">
+                                Destination
+                              </p>
+                              <p
+                                className="font-semibold text-slate-900 leading-tight"
+                                data-testid={`booking-destination-${booking.id}`}
+                              >
+                                {booking.destinationAddress || "Hourly Service"}
                               </p>
                             </div>
 
