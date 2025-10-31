@@ -5658,6 +5658,23 @@ export default function AdminDashboard() {
                             Edit
                           </Button>
 
+                          {booking.status !== "cancelled" && booking.status !== "completed" && (
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setBookingToCancel(booking.id);
+                                setCancellationReason("");
+                                setCancelDialogOpen(true);
+                              }}
+                              data-testid={`button-cancel-booking-${booking.id}`}
+                              className="w-full h-9 text-orange-700 border-orange-300 bg-orange-50 hover:bg-orange-100 font-semibold"
+                              variant="outline"
+                            >
+                              <X className="w-3.5 h-3.5 mr-1.5" />
+                              Cancel
+                            </Button>
+                          )}
+
                           <Button
                             size="sm"
                             onClick={() => {
