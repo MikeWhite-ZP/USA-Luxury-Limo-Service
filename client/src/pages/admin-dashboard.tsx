@@ -2546,6 +2546,9 @@ export default function AdminDashboard() {
   const [isSearchingFlight, setIsSearchingFlight] = useState(false);
   const [deleteConfirmDialogOpen, setDeleteConfirmDialogOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
+  const [cancellationReason, setCancellationReason] = useState("");
 
   // Redirect to home if not authenticated or not admin
   useEffect(() => {
