@@ -21,7 +21,13 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
 - **Database**: PostgreSQL (Neon for hosting) with Drizzle ORM.
 - **Authentication**: Replit Auth with OpenID Connect, PostgreSQL-backed session management, and scrypt hashing for multi-role access (passenger, driver, admin). Admin accounts require manual activation.
 - **Core Features**:
-    - **Notifications**: Twilio for SMS and Nodemailer for email, with admin-configurable settings and HTML templates.
+    - **Notifications**: Comprehensive email and SMS notification system across all booking lifecycle events. Twilio for SMS and Nodemailer for email, with admin-configurable settings and professional HTML templates. Notifications use fire-and-forget async pattern to avoid blocking API responses.
+        - **Booking Creation**: Email + SMS to passenger, email + SMS to admin, email to all dispatchers
+        - **Booking Cancellation**: Email + SMS to passenger, admin email report
+        - **Driver Assignment**: Email + SMS to driver (assignment details), email + SMS to passenger (driver assigned)
+        - **Driver Status Updates**: Email + SMS to passenger when driver is "on the way" or "arrived"
+        - **Email Templates** (6): Booking confirmation, booking cancelled, booking status update, driver assignment, driver on the way, driver arrived
+        - **SMS Templates** (4): Booking confirmation, booking cancelled, driver assignment, booking status update, driver on the way, driver arrived, admin new booking alert
     - **Payment**: Integration with multiple providers (Stripe, PayPal, Square), supporting "Pay Now" / "Pay Later" and surcharge management.
     - **Geolocation & Flight Data**: TomTom API for geocoding and AeroDataBox API for real-time flight information.
     - **Booking & Dispatch**: A 4-step booking flow, intelligent driver assignment (proximity, capacity, rating, workload, conflicts), and a two-stage job acceptance workflow. Includes itemized pricing breakdown with base fare, surge pricing, gratuity, airport fees, and discounts, supporting both transfer and hourly services.
