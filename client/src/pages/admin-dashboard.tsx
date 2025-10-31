@@ -5350,77 +5350,79 @@ export default function AdminDashboard() {
                   {filteredBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="border border-slate-200 rounded-xl p-5 space-y-4 bg-white hover:shadow-md transition-shadow"
+                      className="border-2 border-slate-200 rounded-xl p-6 space-y-5 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:border-slate-300 transition-all"
                       data-testid={`booking-${booking.id}`}
                     >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-3">
+                      <div className="flex justify-between items-start gap-6">
+                        <div className="flex-1 space-y-4">
+                          {/* Header Row */}
+                          <div className="flex items-center gap-2 flex-wrap">
                             <h4
-                              className="font-semibold text-slate-900"
+                              className="font-bold text-slate-900 text-base"
                               data-testid={`booking-id-${booking.id}`}
                             >
-                              #{booking.id.substring(0, 8)}
+                              #{booking.id.substring(0, 8).toUpperCase()}
                             </h4>
                             <Badge
                               className={
                                 booking.status === "pending"
-                                  ? "bg-yellow-100 text-yellow-800 border-yellow-200"
+                                  ? "bg-amber-100 text-amber-800 border-amber-300 font-semibold"
                                   : booking.status === "confirmed"
-                                    ? "bg-blue-100 text-blue-800 border-blue-200"
+                                    ? "bg-blue-100 text-blue-800 border-blue-300 font-semibold"
                                     : booking.status === "in_progress"
-                                      ? "bg-indigo-100 text-indigo-800 border-indigo-200"
+                                      ? "bg-purple-100 text-purple-800 border-purple-300 font-semibold"
                                       : booking.status === "completed"
-                                        ? "bg-green-100 text-green-800 border-green-200"
-                                        : "bg-red-100 text-red-800 border-red-200"
+                                        ? "bg-green-100 text-green-800 border-green-300 font-semibold"
+                                        : "bg-red-100 text-red-800 border-red-300 font-semibold"
                               }
                               data-testid={`booking-status-${booking.id}`}
                             >
-                              {booking.status}
+                              {booking.status.replace('_', ' ').toUpperCase()}
                             </Badge>
                             <Badge
-                              className="bg-slate-100 text-slate-700 border-slate-200"
+                              className="bg-slate-100 text-slate-800 border-slate-300 font-semibold"
                               data-testid={`booking-type-${booking.id}`}
                             >
-                              {booking.bookingType}
+                              {booking.bookingType.toUpperCase()}
                             </Badge>
                           </div>
 
-                          <div className="grid md:grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <p className="text-slate-600 text-xs font-medium mb-1">Passenger</p>
+                          {/* Booking Details Grid */}
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wide">Passenger</p>
                               <p
-                                className="font-semibold text-slate-900"
+                                className="font-bold text-slate-900"
                                 data-testid={`booking-passenger-${booking.id}`}
                               >
                                 {booking.passengerName || "Not assigned"}
                               </p>
                             </div>
 
-                            <div>
-                              <p className="text-slate-600 text-xs font-medium mb-1">Pickup</p>
+                            <div className="space-y-1">
+                              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wide">Pickup</p>
                               <p
-                                className="font-semibold text-slate-900"
+                                className="font-semibold text-slate-900 leading-tight"
                                 data-testid={`booking-pickup-${booking.id}`}
                               >
                                 {booking.pickupAddress}
                               </p>
                             </div>
 
-                            <div>
-                              <p className="text-slate-600 text-xs font-medium mb-1">
+                            <div className="space-y-1">
+                              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wide">
                                 Destination
                               </p>
                               <p
-                                className="font-semibold text-slate-900"
+                                className="font-semibold text-slate-900 leading-tight"
                                 data-testid={`booking-destination-${booking.id}`}
                               >
                                 {booking.destinationAddress || "Hourly Service"}
                               </p>
                             </div>
 
-                            <div>
-                              <p className="text-slate-600 text-xs font-medium mb-1">
+                            <div className="space-y-1">
+                              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wide">
                                 Scheduled Time
                               </p>
                               <p
@@ -5434,12 +5436,15 @@ export default function AdminDashboard() {
                             </div>
 
                             {booking.specialInstructions && (
-                              <div className="md:col-span-2 bg-blue-50 p-3 rounded-lg border border-blue-200">
-                                <p className="text-blue-900 font-semibold text-sm mb-1">
+                              <div className="md:col-span-2 bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
+                                <p className="text-blue-900 font-bold text-sm mb-1.5 flex items-center gap-2">
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
                                   Special Instructions
                                 </p>
                                 <p
-                                  className="text-slate-700"
+                                  className="text-slate-700 leading-relaxed"
                                   data-testid={`booking-instructions-${booking.id}`}
                                 >
                                   {booking.specialInstructions}
@@ -5447,12 +5452,12 @@ export default function AdminDashboard() {
                               </div>
                             )}
 
-                            <div>
-                              <p className="text-slate-600 text-xs font-medium mb-1">
+                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">
+                              <p className="text-slate-700 text-xs font-semibold mb-1">
                                 Total Amount
                               </p>
                               <p
-                                className="font-bold text-lg text-blue-600"
+                                className="font-bold text-2xl text-blue-700"
                                 data-testid={`booking-amount-${booking.id}`}
                               >
                                 ${booking.totalAmount}
@@ -5460,12 +5465,12 @@ export default function AdminDashboard() {
                             </div>
 
                             {booking.driverId && (
-                              <div>
-                                <p className="text-muted-foreground">
+                              <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-3 rounded-lg border border-green-200">
+                                <p className="text-slate-700 text-xs font-semibold mb-1">
                                   Driver Payment
                                 </p>
                                 <p
-                                  className="font-bold text-lg text-green-600"
+                                  className="font-bold text-2xl text-green-700"
                                   data-testid={`booking-driver-payment-${booking.id}`}
                                 >
                                   ${booking.driverPayment || "Not set"}
@@ -5475,7 +5480,8 @@ export default function AdminDashboard() {
                           </div>
                         </div>
 
-                        <div className="flex flex-col gap-2 ml-4">
+                        {/* Actions Sidebar */}
+                        <div className="flex flex-col gap-2.5 min-w-[180px]">
                           <Select
                             value={booking.status}
                             onValueChange={(value) =>
@@ -5487,7 +5493,7 @@ export default function AdminDashboard() {
                             disabled={updateBookingStatusMutation.isPending}
                           >
                             <SelectTrigger
-                              className="w-40 bg-[#ffffff]"
+                              className="w-full bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                               data-testid={`select-status-${booking.id}`}
                             >
                               <SelectValue />
@@ -5515,43 +5521,43 @@ export default function AdminDashboard() {
                           </Select>
 
                           {/* Driver Information */}
-                          <div className="mt-2">
+                          <div className="bg-white border-2 border-slate-200 rounded-lg p-3">
                             {booking.driverId ? (
                               <div
-                                className="flex items-center gap-3 p-2 border rounded-lg bg-white"
+                                className="flex items-start gap-2"
                                 data-testid={`booking-driver-${booking.id}`}
                               >
                                 {booking.driverProfileImageUrl ? (
                                   <img
                                     src={booking.driverProfileImageUrl}
                                     alt="Driver"
-                                    className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                                    className="w-10 h-10 rounded-full object-cover border-2 border-slate-200"
                                   />
                                 ) : (
-                                  <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
+                                  <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-700 font-bold text-sm">
                                     {booking.driverFirstName?.[0]}
                                     {booking.driverLastName?.[0]}
                                   </div>
                                 )}
-                                <div className="flex-1">
-                                  <p className="font-semibold">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-semibold text-slate-900 text-sm leading-tight">
                                     {booking.driverFirstName}{" "}
                                     {booking.driverLastName}
                                   </p>
                                   {booking.driverPhone && (
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-xs text-slate-600 mt-0.5">
                                       {booking.driverPhone}
                                     </p>
                                   )}
                                   {booking.driverVehiclePlate && (
-                                    <p className="text-xs font-mono bg-gray-100 px-2 py-0.5 rounded inline-block mt-1">
+                                    <p className="text-xs font-mono bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded inline-block mt-1">
                                       {booking.driverVehiclePlate}
                                     </p>
                                   )}
                                 </div>
                               </div>
                             ) : (
-                              <p className="text-sm text-muted-foreground p-2">
+                              <p className="text-sm text-slate-600 text-center py-1">
                                 No driver assigned
                               </p>
                             )}
@@ -5559,10 +5565,8 @@ export default function AdminDashboard() {
 
                           <Button
                             size="sm"
-                            variant="outline"
                             onClick={() => {
                               setAssigningBookingId(booking.id);
-                              // Pre-populate with current driver and payment if editing
                               if (booking.driverId) {
                                 setSelectedDriverForAssignment(booking.driverId);
                                 setManualDriverPayment(booking.driverPayment || "");
@@ -5571,28 +5575,26 @@ export default function AdminDashboard() {
                               setAssignDriverDialogOpen(true);
                             }}
                             data-testid={`button-assign-driver-${booking.id}`}
-                            className="bg-[#e5d3d3] pl-[0px] pr-[0px] text-[12px]"
+                            className="w-full h-9 text-indigo-700 border-indigo-300 bg-indigo-50 hover:bg-indigo-100 font-semibold"
+                            variant="outline"
                           >
-                            <Car className="w-4 h-4 mr-2" />
-                            {booking.driverId
-                              ? "Change Driver"
-                              : "Assign Driver"}
+                            <Car className="w-3.5 h-3.5 mr-1.5" />
+                            {booking.driverId ? "Change" : "Assign"}
                           </Button>
 
                           <Button
                             size="sm"
-                            variant="outline"
                             onClick={() => openEditBookingDialog(booking)}
                             data-testid={`button-edit-booking-${booking.id}`}
-                            className="bg-[#c9edd0] text-[12px] pl-[0px] pr-[0px]"
+                            className="w-full h-9 text-green-700 border-green-300 bg-green-50 hover:bg-green-100 font-semibold"
+                            variant="outline"
                           >
-                            <Edit2 className="w-4 h-4 mr-2" />
+                            <Edit2 className="w-3.5 h-3.5 mr-1.5" />
                             Edit
                           </Button>
 
                           <Button
                             size="sm"
-                            variant="outline"
                             onClick={() => {
                               if (
                                 confirm(
@@ -5604,9 +5606,10 @@ export default function AdminDashboard() {
                             }}
                             disabled={deleteBookingMutation.isPending}
                             data-testid={`button-delete-booking-${booking.id}`}
-                            className="bg-[#8da8e38a] pl-[0px] pr-[0px] text-[12px]"
+                            className="w-full h-9 text-red-700 border-red-300 bg-red-50 hover:bg-red-100 font-semibold"
+                            variant="outline"
                           >
-                            <Trash2 className="w-4 h-4 mr-2" />
+                            <Trash2 className="w-3.5 h-3.5 mr-1.5" />
                             Delete
                           </Button>
                         </div>
@@ -5616,10 +5619,14 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <div
-                  className="text-center p-8 text-muted-foreground"
+                  className="text-center p-12 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-xl"
                   data-testid="no-bookings"
                 >
-                  No bookings found.
+                  <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MessageSquare className="w-8 h-8 text-slate-600" />
+                  </div>
+                  <p className="text-slate-900 font-semibold text-lg mb-1">No bookings found</p>
+                  <p className="text-slate-600">Bookings matching your filters will appear here</p>
                 </div>
               )}
             </CardContent>
@@ -5640,7 +5647,7 @@ export default function AdminDashboard() {
             }
           }}
         >
-          <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#ffffff]">
+          <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white">
             <DialogHeader>
               <DialogTitle>
                 {assigningBookingId && bookings?.find(b => b.id === assigningBookingId)?.driverId 
@@ -5782,7 +5789,7 @@ export default function AdminDashboard() {
           open={editDriverPaymentDialogOpen}
           onOpenChange={setEditDriverPaymentDialogOpen}
         >
-          <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#ffffff]">
+          <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white">
             <DialogHeader>
               <DialogTitle>Edit Driver Payment</DialogTitle>
             </DialogHeader>
@@ -5928,7 +5935,7 @@ export default function AdminDashboard() {
                         setUserSearchQuery(" ");
                       }
                     }}
-                    className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
+                    className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
                     data-testid="input-passenger-search"
                   />
                   {userSearchQuery && allUsers && allUsers.length > 0 && (
@@ -5992,7 +5999,7 @@ export default function AdminDashboard() {
                   >
                     <SelectTrigger
                       id="booking-type"
-                      className="bg-[#ffffff] text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
+                      className="bg-white text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
                       data-testid="select-booking-type"
                     >
                       <SelectValue />
@@ -6017,7 +6024,7 @@ export default function AdminDashboard() {
                   >
                     <SelectTrigger
                       id="vehicle-type"
-                      className="bg-[#ffffff] text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
+                      className="bg-white text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
                       data-testid="select-vehicle-type"
                     >
                       <SelectValue placeholder="Select vehicle" />
@@ -6086,7 +6093,7 @@ export default function AdminDashboard() {
                   >
                     <SelectTrigger
                       id="requested-hours"
-                      className="bg-[#ffffff] text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
+                      className="bg-white text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
                       data-testid="select-requested-hours"
                     >
                       <SelectValue />
@@ -6122,7 +6129,7 @@ export default function AdminDashboard() {
                       })
                     }
                     data-testid="input-scheduled-datetime"
-                    className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
+                    className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
                   />
                 </div>
 
@@ -6142,7 +6149,7 @@ export default function AdminDashboard() {
                       }
                       placeholder="0.00"
                       data-testid="input-total-amount"
-                      className="flex-1 pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
+                      className="flex-1 pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
                     />
                     <Button
                       type="button"
@@ -6190,7 +6197,7 @@ export default function AdminDashboard() {
                         })
                       }
                       data-testid="input-passenger-count"
-                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
+                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
                     />
                   </div>
 
@@ -6208,7 +6215,7 @@ export default function AdminDashboard() {
                         })
                       }
                       data-testid="input-luggage-count"
-                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
+                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
                     />
                   </div>
 
@@ -6275,7 +6282,7 @@ export default function AdminDashboard() {
                         }
                         placeholder="Full name"
                         data-testid="input-passenger-name"
-                        className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
+                        className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
                       />
                     </div>
 
@@ -6296,7 +6303,7 @@ export default function AdminDashboard() {
                           }
                           placeholder="email@example.com"
                           data-testid="input-passenger-email"
-                          className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
+                          className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
                         />
                       </div>
 
@@ -6316,7 +6323,7 @@ export default function AdminDashboard() {
                           }
                           placeholder="+1234567890"
                           data-testid="input-passenger-phone"
-                          className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
+                          className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
                         />
                       </div>
                     </div>
@@ -6401,7 +6408,7 @@ export default function AdminDashboard() {
                         }
                       }}
                       data-testid="input-flight-search"
-                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-[#ffffff]"
+                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
                     />
                   </div>
                   <Button
@@ -6630,7 +6637,7 @@ export default function AdminDashboard() {
                 >
                   <SelectTrigger
                     id="booking-status"
-                    className="bg-[#ffffff] text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
+                    className="bg-white text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
                     data-testid="select-booking-status"
                   >
                     <SelectValue />
@@ -7070,7 +7077,7 @@ export default function AdminDashboard() {
       </div>
       {/* Payment Configuration Dialog */}
       <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#ffffff]">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white">
           <DialogHeader>
             <DialogTitle>
               Configure{" "}
@@ -7316,7 +7323,7 @@ export default function AdminDashboard() {
       </Dialog>
       {/* Add/Edit User Dialog */}
       <Dialog open={userDialogOpen} onOpenChange={setUserDialogOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#ffffff]">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white">
           <DialogHeader>
             <DialogTitle>
               {editingUser ? "Edit User" : "Add New User"}
@@ -7594,7 +7601,7 @@ export default function AdminDashboard() {
       </Dialog>
       {/* Driver Documents Dialog */}
       <Dialog open={documentsDialogOpen} onOpenChange={setDocumentsDialogOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#ffffff] sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               Driver Documents - {selectedDriverForDocs?.firstName}{" "}
