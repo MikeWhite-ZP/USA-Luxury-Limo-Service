@@ -1773,6 +1773,43 @@ function InvoiceManagement() {
                 </div>
               </div>
 
+              {/* Journey Information */}
+              {selectedInvoice.booking && (
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50/50 p-5 rounded-xl border border-blue-200">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="bg-blue-100 p-1.5 rounded-lg">
+                      <svg className="w-4 h-4 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                      </svg>
+                    </div>
+                    <h3 className="font-bold text-lg text-slate-900">Journey Information</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-blue-900 font-semibold mb-1.5">From :</p>
+                      <p className="text-slate-900 leading-relaxed" data-testid="view-pickup-address">
+                        {selectedInvoice.booking.pickupAddress}
+                      </p>
+                    </div>
+                    {selectedInvoice.booking.bookingType === 'hourly' && selectedInvoice.booking.hours ? (
+                      <div>
+                        <p className="text-blue-900 font-semibold mb-1.5">Total Booking Hours :</p>
+                        <p className="text-slate-900 font-bold text-lg" data-testid="view-booking-hours">
+                          {selectedInvoice.booking.hours} {selectedInvoice.booking.hours === 1 ? 'Hour' : 'Hours'}
+                        </p>
+                      </div>
+                    ) : selectedInvoice.booking.dropoffAddress ? (
+                      <div>
+                        <p className="text-blue-900 font-semibold mb-1.5">To :</p>
+                        <p className="text-slate-900 leading-relaxed" data-testid="view-destination-address">
+                          {selectedInvoice.booking.dropoffAddress}
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              )}
+
               {/* Detailed Pricing Breakdown */}
               <div className="bg-white border border-slate-200 rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-4">
