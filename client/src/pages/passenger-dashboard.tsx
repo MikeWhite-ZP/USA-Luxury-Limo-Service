@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone } from "lucide-react";
+import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone, FileText, Eye, Printer } from "lucide-react";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useForm } from "react-hook-form";
@@ -278,6 +278,543 @@ function PaymentMethodsList() {
   );
 }
 
+function InvoicesList() {
+  const { toast } = useToast();
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [isLoadingEmail, setIsLoadingEmail] = useState(false);
+
+  // Fetch passenger invoices
+  const { data: invoices, isLoading } = useQuery<any[]>({
+    queryKey: ['/api/passenger/invoices'],
+  });
+
+  // Email invoice mutation
+  const emailInvoiceMutation = useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const response = await fetch(`/api/passenger/invoices/${id}/email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to send email');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Email Sent',
+        description: 'Invoice has been sent to your email address',
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to send invoice email',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleView = (invoice: any) => {
+    setSelectedInvoice(invoice);
+    setViewDialogOpen(true);
+  };
+
+  const handleEmail = (invoice: any) => {
+    setIsLoadingEmail(true);
+    emailInvoiceMutation.mutate(
+      { id: invoice.id },
+      {
+        onSettled: () => {
+          setIsLoadingEmail(false);
+        },
+      }
+    );
+  };
+
+  const handlePrint = async (invoice: any) => {
+    const booking = invoice.booking;
+    
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    let pricingRows = '';
+    
+    if (booking?.baseFare) {
+      pricingRows += `
+        <div class="pricing-row">
+          <span class="pricing-label">Base Fare</span>
+          <span class="pricing-value">$${parseFloat(booking.baseFare).toFixed(2)}</span>
+        </div>
+      `;
+    }
+    
+    if (booking?.surgePricingAmount && parseFloat(booking.surgePricingAmount) > 0) {
+      const multiplier = booking.surgePricingMultiplier ? ` (${booking.surgePricingMultiplier}x)` : '';
+      pricingRows += `
+        <div class="pricing-row">
+          <span class="pricing-label">Surge Pricing${multiplier}</span>
+          <span class="pricing-value pricing-surge">+$${parseFloat(booking.surgePricingAmount).toFixed(2)}</span>
+        </div>
+      `;
+    }
+    
+    if (booking?.gratuityAmount && parseFloat(booking.gratuityAmount) > 0) {
+      pricingRows += `
+        <div class="pricing-row">
+          <span class="pricing-label">Gratuity (Tip)</span>
+          <span class="pricing-value">+$${parseFloat(booking.gratuityAmount).toFixed(2)}</span>
+        </div>
+      `;
+    }
+    
+    if (booking?.airportFeeAmount && parseFloat(booking.airportFeeAmount) > 0) {
+      pricingRows += `
+        <div class="pricing-row">
+          <span class="pricing-label">Airport Fee</span>
+          <span class="pricing-value">+$${parseFloat(booking.airportFeeAmount).toFixed(2)}</span>
+        </div>
+      `;
+    }
+    
+    if (booking?.discountAmount && parseFloat(booking.discountAmount) > 0) {
+      const percentage = booking.discountPercentage ? ` (${booking.discountPercentage}%)` : '';
+      pricingRows += `
+        <div class="pricing-row">
+          <span class="pricing-label">Discount${percentage}</span>
+          <span class="pricing-value pricing-discount">-$${parseFloat(booking.discountAmount).toFixed(2)}</span>
+        </div>
+      `;
+    }
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Invoice #${invoice.invoiceNumber}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            padding: 48px; 
+            max-width: 850px; 
+            margin: 0 auto;
+            background: #ffffff;
+            color: #0f172a;
+            line-height: 1.6;
+          }
+          .header { 
+            text-align: center; 
+            border-bottom: 3px solid #f59e0b;
+            padding-bottom: 24px; 
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 32px;
+            border-radius: 12px;
+          }
+          .header h1 { 
+            font-size: 36px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+          }
+          .header .invoice-number { 
+            font-size: 18px;
+            color: #f59e0b;
+            font-weight: 600;
+            margin-top: 12px;
+          }
+          .info-section {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+          }
+          .info-section h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+          }
+          .info-item {
+            display: flex;
+            flex-direction: column;
+          }
+          .info-label {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 4px;
+          }
+          .info-value {
+            font-size: 15px;
+            color: #0f172a;
+            font-weight: 600;
+          }
+          .pricing-section {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+          }
+          .pricing-section h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          .pricing-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f1f5f9;
+          }
+          .pricing-row:last-child {
+            border-bottom: none;
+          }
+          .pricing-label {
+            font-size: 15px;
+            color: #0f172a;
+            font-weight: 500;
+          }
+          .pricing-value {
+            font-size: 15px;
+            color: #0f172a;
+            font-weight: 600;
+          }
+          .pricing-surge {
+            color: #ea580c;
+          }
+          .pricing-discount {
+            color: #16a34a;
+          }
+          .total-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 3px solid #f59e0b;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+          }
+          .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .total-label {
+            font-size: 20px;
+            color: #0f172a;
+            font-weight: 700;
+          }
+          .total-value {
+            font-size: 28px;
+            color: #f59e0b;
+            font-weight: 800;
+          }
+          .payment-status {
+            text-align: center;
+            margin-top: 32px;
+            padding: 20px;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 3px solid #10b981;
+            border-radius: 12px;
+          }
+          .payment-status-text {
+            color: #065f46;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: 2px;
+          }
+          .footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 2px solid #e2e8f0;
+            text-align: center;
+          }
+          .footer p {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 500;
+          }
+          .footer .thank-you {
+            font-size: 16px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 8px;
+          }
+          @media print {
+            body { 
+              padding: 24px;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>USA Luxury Limo</h1>
+          <div class="invoice-number">Invoice #${invoice.invoiceNumber}</div>
+        </div>
+        
+        <div class="info-section">
+          <h2>Invoice Information</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Invoice Date</span>
+              <span class="info-value">${new Date(invoice.createdAt).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Booking ID</span>
+              <span class="info-value">#${invoice.bookingId.toUpperCase().substring(0, 8)}</span>
+            </div>
+            ${invoice.paidAt ? `
+              <div class="info-item">
+                <span class="info-label">Payment Date</span>
+                <span class="info-value">${new Date(invoice.paidAt).toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</span>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+        
+        ${booking ? `
+        <div class="info-section">
+          <h2>🚗 Journey Information</h2>
+          <div class="info-grid">
+            <div class="info-item" style="grid-column: span 2;">
+              <span class="info-label">From:</span>
+              <span class="info-value">${booking.pickupAddress}</span>
+            </div>
+            ${booking.bookingType === 'hourly' && booking.hours ? `
+            <div class="info-item" style="grid-column: span 2;">
+              <span class="info-label">Total Booking Hours:</span>
+              <span class="info-value">${booking.hours} ${booking.hours === 1 ? 'Hour' : 'Hours'}</span>
+            </div>
+            ` : booking.dropoffAddress ? `
+            <div class="info-item" style="grid-column: span 2;">
+              <span class="info-label">To:</span>
+              <span class="info-value">${booking.dropoffAddress}</span>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+        ` : ''}
+        
+        <div class="pricing-section">
+          <h2>📋 Detailed Pricing Breakdown</h2>
+          ${pricingRows || `
+            <div class="pricing-row">
+              <span class="pricing-label">Journey Fare</span>
+              <span class="pricing-value">$${parseFloat(invoice.subtotal).toFixed(2)}</span>
+            </div>
+          `}
+          
+          <div class="total-section">
+            <div class="total-row">
+              <span class="total-label">Total Amount</span>
+              <span class="total-value">$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+        
+        ${invoice.paidAt ? `
+          <div class="payment-status">
+            <div class="payment-status-text">✓ PAYMENT RECEIVED</div>
+          </div>
+        ` : ''}
+        
+        <div class="footer">
+          <p class="thank-you">Thank you for choosing USA Luxury Limo!</p>
+          <p>All prices include statutory taxes and transportation expenses</p>
+        </div>
+        
+        <script>
+          window.onload = () => {
+            window.print();
+            window.onafterprint = () => window.close();
+          };
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin w-6 h-6 border-4 border-amber-500 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!invoices || invoices.length === 0) {
+    return (
+      <div className="text-center p-12" data-testid="no-invoices">
+        <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+        <p className="text-gray-600 text-lg font-medium">No invoices found</p>
+        <p className="text-gray-500 text-sm mt-2">Invoices will appear here once your rides are complete</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="space-y-4">
+        {invoices.map((invoice) => (
+          <div
+            key={invoice.id}
+            className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-amber-300 hover:shadow-md transition-all"
+            data-testid={`invoice-${invoice.id}`}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <p className="font-bold text-gray-900 text-lg" data-testid={`invoice-number-${invoice.id}`}>
+                  {invoice.invoiceNumber}
+                </p>
+                <p className="text-sm text-gray-600" data-testid={`invoice-date-${invoice.id}`}>
+                  {new Date(invoice.createdAt).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                  })}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-amber-600" data-testid={`invoice-amount-${invoice.id}`}>
+                  ${parseFloat(invoice.totalAmount).toFixed(2)}
+                </p>
+                <Badge
+                  className={`mt-1 ${
+                    invoice.paidAt
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-amber-100 text-amber-800'
+                  }`}
+                  data-testid={`invoice-status-${invoice.id}`}
+                >
+                  {invoice.paidAt ? 'Paid' : 'Unpaid'}
+                </Badge>
+              </div>
+            </div>
+
+            {invoice.booking && (
+              <div className="text-sm space-y-1 mb-4">
+                <p className="text-gray-600">
+                  <span className="font-medium text-gray-900">From:</span> {invoice.booking.pickupAddress}
+                </p>
+                {invoice.booking.dropoffAddress && (
+                  <p className="text-gray-600">
+                    <span className="font-medium text-gray-900">To:</span> {invoice.booking.dropoffAddress}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="flex gap-2 pt-3 border-t border-gray-100">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleView(invoice)}
+                className="flex-1 text-indigo-700 border-indigo-300 hover:bg-indigo-50"
+                data-testid={`button-view-${invoice.id}`}
+              >
+                <Eye className="w-4 h-4 mr-1.5" />
+                View
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handlePrint(invoice)}
+                className="flex-1 text-gray-700 border-gray-300 hover:bg-gray-50"
+                data-testid={`button-print-${invoice.id}`}
+              >
+                <Printer className="w-4 h-4 mr-1.5" />
+                Print
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleEmail(invoice)}
+                disabled={isLoadingEmail}
+                className="flex-1 text-amber-700 border-amber-300 hover:bg-amber-50"
+                data-testid={`button-email-${invoice.id}`}
+              >
+                <Mail className="w-4 h-4 mr-1.5" />
+                {isLoadingEmail ? "..." : "Email"}
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* View Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-[500px] bg-white max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="border-b border-gray-200 pb-4">
+            <DialogTitle className="text-xl font-bold text-gray-900">Invoice Details</DialogTitle>
+            <DialogDescription>Complete pricing breakdown</DialogDescription>
+          </DialogHeader>
+          {selectedInvoice && (
+            <div className="space-y-6">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 p-5 rounded-xl border border-gray-200">
+                <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                  <div>
+                    <p className="text-gray-600 mb-1.5 font-medium">Invoice Number</p>
+                    <p className="font-bold text-gray-900" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 mb-1.5 font-medium">Date</p>
+                    <p className="text-gray-900" data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-gray-600 mb-1.5 font-medium">Total Amount</p>
+                    <p className="text-3xl font-bold text-amber-600" data-testid="view-total-amount">
+                      ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-gray-600 mb-1.5 font-medium">Status</p>
+                    <Badge className={selectedInvoice.paidAt ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}>
+                      {selectedInvoice.paidAt ? 'Paid' : 'Unpaid'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 function ContactSupportForm({ user }: { user: any }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -473,7 +1010,7 @@ export default function PassengerDashboard() {
   const queryClient = useQueryClient();
   
   // Navigation state
-  const [activeSection, setActiveSection] = useState<'home' | 'booking' | 'saved-locations' | 'future-bookings' | 'past-bookings' | 'payment-methods' | 'account-details' | 'support'>('home');
+  const [activeSection, setActiveSection] = useState<'home' | 'booking' | 'saved-locations' | 'future-bookings' | 'past-bookings' | 'invoices' | 'payment-methods' | 'account-details' | 'support'>('home');
   
   // Profile editing state
   const [firstName, setFirstName] = useState(user?.firstName || '');
@@ -1195,6 +1732,22 @@ export default function PassengerDashboard() {
               <span className="sm:hidden text-[10px]">Past</span>
             </button>
             <button
+              onClick={() => setActiveSection('invoices')}
+              className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
+                activeSection === 'invoices'
+                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+              }`}
+              data-testid="nav-invoices"
+            >
+              {activeSection === 'invoices' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+              )}
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Invoices</span>
+              <span className="sm:hidden text-[10px]">Invoices</span>
+            </button>
+            <button
               onClick={() => setActiveSection('payment-methods')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'payment-methods'
@@ -1810,6 +2363,27 @@ export default function PassengerDashboard() {
               )}
             </CardContent>
           </Card>
+          </div>
+        )}
+
+        {/* Invoices Section */}
+        {activeSection === 'invoices' && (
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="invoices-section">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center shadow-md">
+                    <FileText className="w-5 h-5 text-white" />
+                  </div>
+                  My Invoices
+                </CardTitle>
+                <p className="text-sm text-gray-600">View and manage your ride invoices</p>
+              </CardHeader>
+              <CardContent>
+                <InvoicesList />
+              </CardContent>
+            </Card>
           </div>
         )}
 

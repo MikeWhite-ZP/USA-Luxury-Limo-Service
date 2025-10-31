@@ -1946,7 +1946,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get all bookings for this passenger
-      const userBookings = await storage.getUserBookings(userId);
+      const userBookings = await storage.getBookingsByUser(userId);
       
       // Get all invoices
       const allInvoices = await storage.getAllInvoices();
