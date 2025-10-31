@@ -537,60 +537,350 @@ export function getPaymentConfirmationEmailHTML(data: {
     <html>
       <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
-          .email-card { background: white; border-radius: 8px; overflow: hidden; }
-          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; }
-          .logo-img { max-height: 60px; max-width: 250px; margin: 0 auto 10px; display: block; }
-          .success-banner { background: #d4edda; color: #155724; padding: 20px; text-align: center; border-bottom: 3px solid #c3e6cb; }
-          .success-banner h2 { margin: 0; font-size: 24px; }
-          .content { padding: 30px; }
-          .amount-badge { background: #e8f5e9; color: #2e7d32; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; border: 2px solid #c3e6cb; }
-          .amount-badge .amount { font-size: 32px; font-weight: bold; margin: 10px 0; }
-          .details-section { margin: 25px 0; }
-          .section-title { font-weight: bold; color: #1a1a2e; font-size: 16px; margin-bottom: 15px; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; }
-          .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-          .detail-label { font-weight: bold; color: #555; }
-          .detail-value { color: #333; text-align: right; }
-          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; }
-          .button { display: inline-block; background: #1a1a2e; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6; 
+            color: #1e293b; 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 20px;
+          }
+          .email-wrapper { max-width: 680px; margin: 0 auto; }
+          .email-card { 
+            background: #ffffff; 
+            border-radius: 16px; 
+            overflow: hidden; 
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+          }
+          
+          /* Header with Logo */
+          .header { 
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+          }
+          .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
+          }
+          .logo-container {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+          .logo-img { 
+            max-height: 50px; 
+            max-width: 220px; 
+            display: block;
+          }
+          .company-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+          }
+          .tagline {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 15px;
+            margin-top: 8px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+          }
+          
+          /* Success Banner */
+          .success-banner {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-left: 5px solid #10b981;
+            padding: 25px 30px;
+            text-align: center;
+          }
+          .success-icon {
+            width: 60px;
+            height: 60px;
+            background: #10b981;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+          }
+          .success-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #065f46;
+            margin-bottom: 5px;
+          }
+          .success-subtitle {
+            color: #047857;
+            font-size: 15px;
+          }
+          
+          /* Content Area */
+          .content { 
+            padding: 40px 30px;
+            background: #ffffff;
+          }
+          .greeting {
+            font-size: 17px;
+            color: #334155;
+            margin-bottom: 12px;
+            font-weight: 600;
+          }
+          .intro-text {
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 15px;
+          }
+          
+          /* Amount Card */
+          .amount-card {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 2px solid #93c5fd;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+          }
+          .amount-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #3b82f6;
+            font-weight: 600;
+            margin-bottom: 10px;
+          }
+          .amount-value {
+            font-size: 48px;
+            font-weight: 800;
+            color: #1d4ed8;
+            margin: 10px 0;
+            letter-spacing: -1px;
+          }
+          .amount-date {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 10px;
+          }
+          
+          /* Details Section */
+          .details-section {
+            margin: 35px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+          }
+          .section-header {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            padding: 15px 20px;
+            border-bottom: 2px solid #cbd5e1;
+          }
+          .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          .section-icon {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+          }
+          .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            align-items: flex-start;
+          }
+          .detail-row:last-child { border-bottom: none; }
+          .detail-label {
+            font-weight: 600;
+            color: #64748b;
+            font-size: 14px;
+            flex: 0 0 40%;
+          }
+          .detail-value {
+            color: #1e293b;
+            text-align: right;
+            font-size: 14px;
+            flex: 1;
+            font-weight: 500;
+          }
+          
+          /* Info Box */
+          .info-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+          }
+          .info-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+          }
+          .info-text {
+            font-size: 13px;
+            color: #78350f;
+            line-height: 1.5;
+          }
+          
+          /* What's Next Section */
+          .next-steps {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+          }
+          .next-steps-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          .next-steps ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+          }
+          .next-steps li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.6;
+          }
+          .next-steps li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 20px;
+            height: 20px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+          }
+          
+          /* Footer */
+          .footer {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 30px;
+            text-align: center;
+            border-top: 3px solid #e2e8f0;
+          }
+          .footer-logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+          }
+          .footer-tagline {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 15px;
+            font-style: italic;
+          }
+          .footer-note {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+          }
+          
+          /* Responsive */
+          @media only screen and (max-width: 600px) {
+            body { padding: 10px; }
+            .content, .success-banner { padding: 25px 20px; }
+            .header { padding: 30px 20px; }
+            .amount-value { font-size: 36px; }
+            .detail-row { flex-direction: column; gap: 5px; }
+            .detail-label, .detail-value { flex: 1; text-align: left; }
+          }
         </style>
       </head>
       <body>
-        <div class="container">
+        <div class="email-wrapper">
           <div class="email-card">
-            <!-- Header -->
+            <!-- Header with Logo -->
             <div class="header">
               ${data.logoDataUri ? `
-                <img src="${data.logoDataUri}" alt="USA Luxury Limo" class="logo-img" />
+                <div class="logo-container">
+                  <img src="${data.logoDataUri}" alt="USA Luxury Limo" class="logo-img" />
+                </div>
               ` : `
-                <h1 style="margin: 0;">USA Luxury Limo</h1>
+                <div class="logo-container">
+                  <h1 class="company-name">USA LUXURY LIMO</h1>
+                </div>
               `}
-              <p style="margin: 10px 0 0 0;">Ride in Style, Always on Time</p>
+              <p class="tagline">Ride in Style, Always on Time</p>
             </div>
 
             <!-- Success Banner -->
             <div class="success-banner">
-              <h2>✓ Payment Successful!</h2>
-              <p style="margin: 10px 0 0 0;">Thank you for your payment</p>
+              <div class="success-icon">✓</div>
+              <h2 class="success-title">Payment Successful!</h2>
+              <p class="success-subtitle">Thank you for choosing USA Luxury Limo</p>
             </div>
 
             <!-- Content -->
             <div class="content">
-              <p>Dear ${data.passengerName},</p>
-              <p>Your payment has been processed successfully. Below is your payment confirmation.</p>
+              <p class="greeting">Dear ${data.passengerName},</p>
+              <p class="intro-text">Your payment has been processed successfully. Below is your payment confirmation and booking details.</p>
 
               <!-- Amount Paid -->
-              <div class="amount-badge">
-                <div style="font-size: 14px; color: #666;">Amount Paid</div>
-                <div class="amount">$${parseFloat(data.amount).toFixed(2)}</div>
-                <div style="font-size: 12px; color: #666;">Payment Date: ${data.paymentDate}</div>
+              <div class="amount-card">
+                <div class="amount-label">Total Amount Paid</div>
+                <div class="amount-value">$${parseFloat(data.amount).toFixed(2)}</div>
+                <div class="amount-date">Payment Date: ${data.paymentDate}</div>
               </div>
 
-              <!-- Payment Details -->
+              <!-- Payment Information -->
               <div class="details-section">
-                <div class="section-title">Payment Information</div>
+                <div class="section-header">
+                  <div class="section-title">
+                    <span class="section-icon">💳</span>
+                    Payment Information
+                  </div>
+                </div>
                 <div class="detail-row">
                   <span class="detail-label">Invoice Number</span>
                   <span class="detail-value">${data.invoiceNumber}</span>
@@ -607,7 +897,12 @@ export function getPaymentConfirmationEmailHTML(data: {
 
               <!-- Journey Details -->
               <div class="details-section">
-                <div class="section-title">Journey Details</div>
+                <div class="section-header">
+                  <div class="section-title">
+                    <span class="section-icon">🚗</span>
+                    Journey Details
+                  </div>
+                </div>
                 <div class="detail-row">
                   <span class="detail-label">Scheduled Date & Time</span>
                   <span class="detail-value">${new Date(data.scheduledDateTime).toLocaleString()}</span>
@@ -624,28 +919,42 @@ export function getPaymentConfirmationEmailHTML(data: {
                 ` : ''}
               </div>
 
-              <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; border-left: 4px solid #2196F3; margin: 20px 0;">
-                <p style="margin: 0; font-size: 14px;"><strong>📧 Receipt Sent</strong></p>
-                <p style="margin: 5px 0 0 0; font-size: 12px; color: #555;">
-                  A detailed receipt has been sent to your email by Stripe.
+              <!-- Receipt Notice -->
+              <div class="info-box">
+                <div class="info-title">
+                  <span>📧</span> Receipt Sent
+                </div>
+                <p class="info-text">
+                  A detailed payment receipt has been sent to your email by Stripe for your records.
                 </p>
               </div>
 
-              <p><strong>What's Next?</strong></p>
-              <ul style="color: #555;">
-                <li>Please be ready 10 minutes before your scheduled pickup time</li>
-                <li>Our driver will contact you before arrival</li>
-                <li>Save this email for your records</li>
-              </ul>
+              <!-- What's Next -->
+              <div class="next-steps">
+                <div class="next-steps-title">
+                  <span>📋</span> What's Next?
+                </div>
+                <ul>
+                  <li>Please be ready 10 minutes before your scheduled pickup time</li>
+                  <li>Our professional driver will contact you prior to arrival</li>
+                  <li>Save this confirmation email for your records</li>
+                  <li>Contact us immediately if you need to make any changes</li>
+                </ul>
+              </div>
 
-              <p>If you have any questions or need to make changes to your booking, please contact us immediately.</p>
+              <p style="color: #64748b; font-size: 14px; margin-top: 25px;">
+                If you have any questions or concerns about your booking, please don't hesitate to contact our customer support team.
+              </p>
             </div>
 
             <!-- Footer -->
             <div class="footer">
-              <p><strong>USA Luxury Limo</strong></p>
-              <p>Your journey, our passion.</p>
-              <p style="margin-top: 10px;">This is an automated confirmation email. Please do not reply.</p>
+              <p class="footer-logo">USA LUXURY LIMO</p>
+              <p class="footer-tagline">Your Journey, Our Passion</p>
+              <p class="footer-note">
+                This is an automated confirmation email. Please do not reply directly to this message.<br>
+                For support, please contact our customer service team.
+              </p>
             </div>
           </div>
         </div>

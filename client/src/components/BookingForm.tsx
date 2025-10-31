@@ -1665,7 +1665,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   }
 
   return (
-    <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-2xl">
+    <div className="backdrop-blur-sm rounded-2xl p-8 shadow-2xl pl-[10px] pr-[10px] pt-[10px] pb-[10px] text-[12px] bg-[white]">
       {/* Enhanced Service Type Tabs */}
       <div className="flex mb-8 border-b-2 border-gray-200">
         <button
@@ -1691,7 +1691,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           Hourly
         </button>
       </div>
-
       {/* Transfer Form */}
       {activeTab === 'transfer' && (
         <div className="space-y-6">
@@ -1892,7 +1891,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </Button>
         </div>
       )}
-
       {/* Hourly Form */}
       {activeTab === 'hourly' && (
         <div className="space-y-6">
@@ -2016,7 +2014,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </Button>
         </div>
       )}
-
       {/* Flight Selection Dialog */}
       <Dialog open={showFlightDialog} onOpenChange={setShowFlightDialog}>
         <DialogContent className="sm:max-w-2xl" data-testid="flight-selection-dialog">
@@ -2066,7 +2063,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </div>
         </DialogContent>
       </Dialog>
-
       {/* Payment Options Dialog */}
       <Dialog open={showPaymentOptions} onOpenChange={setShowPaymentOptions}>
         <DialogContent className="sm:max-w-md" data-testid="payment-options-dialog">
