@@ -271,9 +271,9 @@ export default function MobilePassenger() {
     },
   });
 
-  // Initialize profile form when user data loads or edit mode is enabled
+  // Initialize profile form when edit mode is enabled
   useEffect(() => {
-    if (user && isEditingProfile && !profileForm.email) {
+    if (user && isEditingProfile) {
       setProfileForm({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
@@ -950,7 +950,13 @@ export default function MobilePassenger() {
                         variant="outline"
                         onClick={() => {
                           setIsEditingProfile(false);
-                          setProfileForm({ firstName: '', lastName: '', email: '', phone: '' });
+                          // Reset form to current user data
+                          setProfileForm({
+                            firstName: user.firstName || '',
+                            lastName: user.lastName || '',
+                            email: user.email || '',
+                            phone: user.phone || ''
+                          });
                         }}
                         className="h-7 text-xs px-2 border-slate-300 text-slate-700"
                         data-testid="button-cancel-edit"
