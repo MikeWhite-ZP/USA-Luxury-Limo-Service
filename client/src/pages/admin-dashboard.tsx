@@ -3509,7 +3509,7 @@ export default function AdminDashboard() {
   // Cancel booking mutation
   const cancelBookingMutation = useMutation({
     mutationFn: async ({ bookingId, reason }: { bookingId: string; reason: string }) => {
-      const response = await apiRequest("POST", `/api/bookings/${bookingId}/cancel`, { reason });
+      const response = await apiRequest("PATCH", `/api/bookings/${bookingId}/cancel`, { reason });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || "Failed to cancel booking");
