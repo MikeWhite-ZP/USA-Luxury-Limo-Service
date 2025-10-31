@@ -1126,13 +1126,13 @@ export default function PassengerDashboard() {
         </div>
       </header>
 
-      {/* Modern Navigation Menu */}
+      {/* Modern Navigation Menu - Mobile Optimized */}
       <div className="relative z-10 border-b border-slate-800/50 backdrop-blur-xl bg-slate-900/80">
-        <div className="max-w-7xl mx-auto px-6 text-[14px] pl-[16px] pr-[16px]">
-          <nav className="flex space-x-2 overflow-x-auto"  style={{ scrollbarWidth: 'thin', scrollbarColor: '#475569 transparent' }}>
+        <div className="max-w-7xl mx-auto px-2 sm:px-6">
+          <nav className="flex space-x-1 sm:space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent pb-px" style={{ scrollbarWidth: 'thin', scrollbarColor: '#475569 transparent' }}>
             <button
               onClick={() => setActiveSection('home')}
-              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
+              className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'home'
                   ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
@@ -1142,12 +1142,13 @@ export default function PassengerDashboard() {
               {activeSection === 'home' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
               )}
-              <Home className="w-5 h-5" />
-              Home
+              <Home className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Home</span>
+              <span className="sm:hidden text-[10px]">Home</span>
             </button>
             <button
               onClick={() => setActiveSection('saved-locations')}
-              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
+              className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'saved-locations'
                   ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
@@ -1157,12 +1158,13 @@ export default function PassengerDashboard() {
               {activeSection === 'saved-locations' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
               )}
-              <MapPin className="w-5 h-5" />
-              Saved Locations
+              <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Saved Locations</span>
+              <span className="sm:hidden text-[10px]">Saved</span>
             </button>
             <button
               onClick={() => setActiveSection('future-bookings')}
-              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
+              className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'future-bookings'
                   ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
@@ -1172,12 +1174,13 @@ export default function PassengerDashboard() {
               {activeSection === 'future-bookings' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
               )}
-              <Calendar className="w-5 h-5" />
-              Future Bookings
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Future Bookings</span>
+              <span className="sm:hidden text-[10px]">Future</span>
             </button>
             <button
               onClick={() => setActiveSection('past-bookings')}
-              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
+              className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'past-bookings'
                   ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
@@ -1187,12 +1190,13 @@ export default function PassengerDashboard() {
               {activeSection === 'past-bookings' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
               )}
-              <History className="w-5 h-5" />
-              Past Bookings
+              <History className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Past Bookings</span>
+              <span className="sm:hidden text-[10px]">Past</span>
             </button>
             <button
               onClick={() => setActiveSection('payment-methods')}
-              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
+              className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'payment-methods'
                   ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
@@ -1202,12 +1206,13 @@ export default function PassengerDashboard() {
               {activeSection === 'payment-methods' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
               )}
-              <CreditCard className="w-5 h-5" />
-              Payment Methods
+              <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Payment Methods</span>
+              <span className="sm:hidden text-[10px]">Payment</span>
             </button>
             <button
               onClick={() => setActiveSection('account-details')}
-              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
+              className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'account-details'
                   ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
@@ -1217,12 +1222,13 @@ export default function PassengerDashboard() {
               {activeSection === 'account-details' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
               )}
-              <User className="w-5 h-5" />
-              Account Details
+              <User className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Account Details</span>
+              <span className="sm:hidden text-[10px]">Account</span>
             </button>
             <button
               onClick={() => setActiveSection('support')}
-              className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
+              className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'support'
                   ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
@@ -1232,8 +1238,9 @@ export default function PassengerDashboard() {
               {activeSection === 'support' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
               )}
-              <HelpCircle className="w-5 h-5" />
-              Support
+              <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Support</span>
+              <span className="sm:hidden text-[10px]">Support</span>
             </button>
           </nav>
         </div>
