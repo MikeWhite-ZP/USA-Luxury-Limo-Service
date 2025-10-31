@@ -19,7 +19,11 @@ import {
   X,
   Trash2,
   Navigation,
-  Edit2
+  Edit2,
+  Save,
+  Lock,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -66,6 +70,23 @@ export default function MobilePassenger() {
   const [showEditSuggestions, setShowEditSuggestions] = useState(false);
   const [isSearchingAddress, setIsSearchingAddress] = useState(false);
   const [isSearchingEditAddress, setIsSearchingEditAddress] = useState(false);
+
+  // Account editing state
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: ''
+  });
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Fetch user's bookings
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
@@ -204,6 +225,63 @@ export default function MobilePassenger() {
       });
     },
   });
+
+  // Update profile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: { firstName: string; lastName: string; email: string; phone?: string }) => {
+      const response = await apiRequest('PATCH', '/api/user/profile', data);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      setIsEditingProfile(false);
+      toast({
+        title: 'Profile Updated',
+        description: 'Your profile has been updated successfully.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update profile',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Update password mutation
+  const updatePasswordMutation = useMutation({
+    mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
+      const response = await apiRequest('PATCH', '/api/user/password', data);
+      return await response.json();
+    },
+    onSuccess: () => {
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      toast({
+        title: 'Password Updated',
+        description: 'Your password has been changed successfully.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update password',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Initialize profile form when user data loads or edit mode is enabled
+  useEffect(() => {
+    if (user && isEditingProfile && !profileForm.email) {
+      setProfileForm({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || ''
+      });
+    }
+  }, [user, isEditingProfile]);
 
   const handleAddressSelect = (suggestion: any) => {
     setNewAddress({
@@ -843,36 +921,224 @@ export default function MobilePassenger() {
 
         {/* Account Section */}
         {activeSection === 'account' && (
-          <div className="space-y-4">
-            <Card className="shadow-md border-slate-200">
-              <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <User className="w-5 h-5 text-blue-600" />
-                  Account Settings
-                </CardTitle>
-                <CardDescription>Manage your profile</CardDescription>
+          <div className="space-y-3">
+            {/* Profile Information Card */}
+            <Card className="shadow-sm border-slate-200">
+              <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-sm flex items-center gap-1.5">
+                      <User className="w-4 h-4 text-blue-600" />
+                      Profile Information
+                    </CardTitle>
+                  </div>
+                  {!isEditingProfile ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setIsEditingProfile(true)}
+                      className="h-7 text-xs px-2 border-blue-300 text-blue-700 hover:bg-blue-50"
+                      data-testid="button-edit-profile"
+                    >
+                      <Edit2 className="w-3 h-3 mr-1" />
+                      Edit
+                    </Button>
+                  ) : (
+                    <div className="flex gap-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setIsEditingProfile(false);
+                          setProfileForm({ firstName: '', lastName: '', email: '', phone: '' });
+                        }}
+                        className="h-7 text-xs px-2 border-slate-300 text-slate-700"
+                        data-testid="button-cancel-edit"
+                      >
+                        <X className="w-3 h-3 mr-1" />
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => updateProfileMutation.mutate(profileForm)}
+                        disabled={updateProfileMutation.isPending}
+                        className="h-7 text-xs px-2 bg-blue-600 hover:bg-blue-700"
+                        data-testid="button-save-profile"
+                      >
+                        <Save className="w-3 h-3 mr-1" />
+                        {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <div className="bg-slate-50 rounded-lg p-4">
-                  <div className="space-y-3">
+              <CardContent className="p-3 space-y-2">
+                {!isEditingProfile ? (
+                  <div className="bg-slate-50 rounded-lg p-2.5 space-y-2">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Name</label>
-                      <p className="text-base font-medium mt-1">{user.firstName} {user.lastName}</p>
+                      <label className="text-xs font-medium text-gray-500">Name</label>
+                      <p className="text-sm font-medium mt-0.5" data-testid="text-name">{user.firstName} {user.lastName}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Email</label>
-                      <p className="text-base font-medium mt-1">{user.email || 'Not provided'}</p>
+                      <label className="text-xs font-medium text-gray-500">Email</label>
+                      <p className="text-sm font-medium mt-0.5" data-testid="text-email">{user.email || 'Not provided'}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Phone</label>
-                      <p className="text-base font-medium mt-1">{user.phone || 'Not provided'}</p>
+                      <label className="text-xs font-medium text-gray-500">Phone</label>
+                      <p className="text-sm font-medium mt-0.5" data-testid="text-phone">{user.phone || 'Not provided'}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Username</label>
-                      <p className="text-base font-medium mt-1">{user.username}</p>
+                      <label className="text-xs font-medium text-gray-500">Username</label>
+                      <p className="text-sm font-medium mt-0.5" data-testid="text-username">{user.username}</p>
                     </div>
                   </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label htmlFor="firstName" className="text-xs text-slate-600">First Name</Label>
+                        <Input
+                          id="firstName"
+                          value={profileForm.firstName}
+                          onChange={(e) => setProfileForm({ ...profileForm, firstName: e.target.value })}
+                          className="h-8 text-sm mt-1"
+                          data-testid="input-firstName"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="lastName" className="text-xs text-slate-600">Last Name</Label>
+                        <Input
+                          id="lastName"
+                          value={profileForm.lastName}
+                          onChange={(e) => setProfileForm({ ...profileForm, lastName: e.target.value })}
+                          className="h-8 text-sm mt-1"
+                          data-testid="input-lastName"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="email" className="text-xs text-slate-600">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={profileForm.email}
+                        onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                        className="h-8 text-sm mt-1"
+                        data-testid="input-email"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="phone" className="text-xs text-slate-600">Phone</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={profileForm.phone}
+                        onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                        className="h-8 text-sm mt-1"
+                        data-testid="input-phone"
+                      />
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Password Change Card */}
+            <Card className="shadow-sm border-slate-200">
+              <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b p-3">
+                <CardTitle className="text-sm flex items-center gap-1.5">
+                  <Lock className="w-4 h-4 text-orange-600" />
+                  Change Password
+                </CardTitle>
+                <CardDescription className="text-xs mt-0.5">Update your account password</CardDescription>
+              </CardHeader>
+              <CardContent className="p-3 space-y-2">
+                <div>
+                  <Label htmlFor="currentPassword" className="text-xs text-slate-600">Current Password</Label>
+                  <div className="relative mt-1">
+                    <Input
+                      id="currentPassword"
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={passwordForm.currentPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                      className="h-8 text-sm pr-8"
+                      data-testid="input-currentPassword"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      data-testid="button-toggle-current-password"
+                    >
+                      {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
+                <div>
+                  <Label htmlFor="newPassword" className="text-xs text-slate-600">New Password</Label>
+                  <div className="relative mt-1">
+                    <Input
+                      id="newPassword"
+                      type={showNewPassword ? "text" : "password"}
+                      value={passwordForm.newPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                      className="h-8 text-sm pr-8"
+                      data-testid="input-newPassword"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      data-testid="button-toggle-new-password"
+                    >
+                      {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-1">Must be 8+ characters with uppercase, lowercase, and number</p>
+                </div>
+                <div>
+                  <Label htmlFor="confirmPassword" className="text-xs text-slate-600">Confirm New Password</Label>
+                  <div className="relative mt-1">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                      className="h-8 text-sm pr-8"
+                      data-testid="input-confirmPassword"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      data-testid="button-toggle-confirm-password"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => {
+                    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+                      toast({
+                        title: 'Error',
+                        description: 'New passwords do not match',
+                        variant: 'destructive',
+                      });
+                      return;
+                    }
+                    updatePasswordMutation.mutate({
+                      currentPassword: passwordForm.currentPassword,
+                      newPassword: passwordForm.newPassword,
+                    });
+                  }}
+                  disabled={updatePasswordMutation.isPending || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
+                  className="w-full h-8 text-xs bg-orange-600 hover:bg-orange-700"
+                  data-testid="button-change-password"
+                >
+                  <Lock className="w-3 h-3 mr-1" />
+                  {updatePasswordMutation.isPending ? 'Updating...' : 'Update Password'}
+                </Button>
               </CardContent>
             </Card>
           </div>
