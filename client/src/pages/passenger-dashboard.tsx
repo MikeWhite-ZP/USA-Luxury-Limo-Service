@@ -401,105 +401,110 @@ function InvoicesList() {
       <head>
         <title>Invoice #${invoice.invoiceNumber}</title>
         <style>
+          @page {
+            size: letter;
+            margin: 0.5in 0.5in 0.4in 0.5in;
+          }
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            padding: 48px; 
-            max-width: 850px; 
+            padding: 20px; 
+            max-width: 100%; 
             margin: 0 auto;
             background: #ffffff;
             color: #0f172a;
-            line-height: 1.6;
+            line-height: 1.4;
+            font-size: 11pt;
           }
           .header { 
             text-align: center; 
-            border-bottom: 3px solid #f59e0b;
-            padding-bottom: 24px; 
-            margin-bottom: 40px;
+            border-bottom: 2px solid #f59e0b;
+            padding-bottom: 12px; 
+            margin-bottom: 20px;
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            padding: 32px;
-            border-radius: 12px;
+            padding: 18px;
+            border-radius: 8px;
           }
           .header h1 { 
-            font-size: 36px;
+            font-size: 24pt;
             font-weight: 800;
             color: #1e293b;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             letter-spacing: -0.5px;
           }
           .header .invoice-number { 
-            font-size: 18px;
+            font-size: 12pt;
             color: #f59e0b;
             font-weight: 600;
-            margin-top: 12px;
+            margin-top: 6px;
           }
           .info-section {
             background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 14px;
+            margin-bottom: 16px;
           }
           .info-section h2 {
-            font-size: 16px;
+            font-size: 11pt;
             font-weight: 700;
             color: #334155;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
           }
           .info-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            gap: 10px;
           }
           .info-item {
             display: flex;
             flex-direction: column;
           }
           .info-label {
-            font-size: 13px;
+            font-size: 9pt;
             color: #64748b;
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
           }
           .info-value {
-            font-size: 15px;
+            font-size: 10pt;
             color: #0f172a;
             font-weight: 600;
           }
           .pricing-section {
             background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 14px;
+            margin-bottom: 16px;
           }
           .pricing-section h2 {
-            font-size: 16px;
+            font-size: 11pt;
             font-weight: 700;
             color: #334155;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
           }
           .pricing-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 0;
+            padding: 8px 0;
             border-bottom: 1px solid #f1f5f9;
           }
           .pricing-row:last-child {
             border-bottom: none;
           }
           .pricing-label {
-            font-size: 15px;
+            font-size: 10pt;
             color: #0f172a;
             font-weight: 500;
           }
           .pricing-value {
-            font-size: 15px;
+            font-size: 10pt;
             color: #0f172a;
             font-weight: 600;
           }
@@ -511,10 +516,10 @@ function InvoicesList() {
           }
           .total-section {
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 3px solid #f59e0b;
-            border-radius: 12px;
-            padding: 24px;
-            margin-top: 24px;
+            border: 2px solid #f59e0b;
+            border-radius: 6px;
+            padding: 14px;
+            margin-top: 12px;
           }
           .total-row {
             display: flex;
@@ -522,49 +527,59 @@ function InvoicesList() {
             align-items: center;
           }
           .total-label {
-            font-size: 20px;
+            font-size: 14pt;
             color: #0f172a;
             font-weight: 700;
           }
           .total-value {
-            font-size: 28px;
+            font-size: 20pt;
             color: #f59e0b;
             font-weight: 800;
           }
           .payment-status {
             text-align: center;
-            margin-top: 32px;
-            padding: 20px;
+            margin-top: 16px;
+            padding: 12px;
             background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            border: 3px solid #10b981;
-            border-radius: 12px;
+            border: 2px solid #10b981;
+            border-radius: 6px;
           }
           .payment-status-text {
             color: #065f46;
             font-weight: 800;
-            font-size: 20px;
-            letter-spacing: 2px;
+            font-size: 13pt;
+            letter-spacing: 1.5px;
           }
           .footer {
-            margin-top: 48px;
-            padding-top: 24px;
-            border-top: 2px solid #e2e8f0;
+            margin-top: 20px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
             text-align: center;
           }
           .footer p {
             color: #64748b;
-            font-size: 13px;
+            font-size: 9pt;
             font-weight: 500;
+            line-height: 1.3;
           }
           .footer .thank-you {
-            font-size: 16px;
+            font-size: 11pt;
             font-weight: 600;
             color: #334155;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
           }
           @media print {
             body { 
-              padding: 24px;
+              padding: 0;
+            }
+            .header {
+              page-break-inside: avoid;
+            }
+            .info-section {
+              page-break-inside: avoid;
+            }
+            .pricing-section {
+              page-break-inside: avoid;
             }
           }
         </style>
@@ -608,17 +623,17 @@ function InvoicesList() {
           <h2>🚗 Journey Information</h2>
           <div class="info-grid">
             <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">From:</span>
+              <span class="info-label">Pickup Location:</span>
               <span class="info-value">${booking.pickupAddress}</span>
             </div>
             ${booking.bookingType === 'hourly' && booking.hours ? `
             <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">Total Booking Hours:</span>
+              <span class="info-label">Duration:</span>
               <span class="info-value">${booking.hours} ${booking.hours === 1 ? 'Hour' : 'Hours'}</span>
             </div>
             ` : booking.dropoffAddress ? `
             <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">To:</span>
+              <span class="info-label">Destination:</span>
               <span class="info-value">${booking.dropoffAddress}</span>
             </div>
             ` : ''}
