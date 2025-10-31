@@ -3505,6 +3505,36 @@ export default function AdminDashboard() {
     },
   });
 
+  // Cancel booking mutation
+  const cancelBookingMutation = useMutation({
+    mutationFn: async ({ bookingId, reason }: { bookingId: string; reason: string }) => {
+      const response = await apiRequest("POST", `/api/bookings/${bookingId}/cancel`, { reason });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to cancel booking");
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/dashboard"] });
+      toast({
+        title: "Booking Cancelled",
+        description: "Booking has been cancelled successfully.",
+      });
+      setCancelDialogOpen(false);
+      setBookingToCancel(null);
+      setCancellationReason("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Filter bookings based on criteria
   const filteredBookings = bookings?.filter((booking) => {
     // Segment filter - filter based on segment tabs
