@@ -1219,9 +1219,73 @@ function InvoiceManagement() {
     setDeleteDialogOpen(true);
   };
 
-  const handlePrint = (invoice: any) => {
+  const handlePrint = async (invoice: any) => {
+    // Fetch booking details to get detailed pricing
+    let booking = null;
+    try {
+      const bookingResponse = await fetch(`/api/bookings/${invoice.bookingId}`, {
+        credentials: 'include'
+      });
+      
+      if (bookingResponse.ok) {
+        booking = await bookingResponse.json();
+      }
+    } catch (error) {
+      console.error('Error fetching booking details:', error);
+    }
+
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
+
+    // Build detailed pricing rows
+    let pricingRows = '';
+    
+    if (booking?.baseFare) {
+      pricingRows += `
+        <div class="pricing-row">
+          <span class="pricing-label">Base Fare</span>
+          <span class="pricing-value">$${parseFloat(booking.baseFare).toFixed(2)}</span>
+        </div>
+      `;
+    }
+    
+    if (booking?.surgePricingAmount && parseFloat(booking.surgePricingAmount) > 0) {
+      const multiplier = booking.surgePricingMultiplier ? ` (${booking.surgePricingMultiplier}x)` : '';
+      pricingRows += `
+        <div class="pricing-row">
+          <span class="pricing-label">Surge Pricing${multiplier}</span>
+          <span class="pricing-value pricing-surge">+$${parseFloat(booking.surgePricingAmount).toFixed(2)}</span>
+        </div>
+      `;
+    }
+    
+    if (booking?.gratuityAmount && parseFloat(booking.gratuityAmount) > 0) {
+      pricingRows += `
+        <div class="pricing-row">
+          <span class="pricing-label">Gratuity (Tip)</span>
+          <span class="pricing-value">+$${parseFloat(booking.gratuityAmount).toFixed(2)}</span>
+        </div>
+      `;
+    }
+    
+    if (booking?.airportFeeAmount && parseFloat(booking.airportFeeAmount) > 0) {
+      pricingRows += `
+        <div class="pricing-row">
+          <span class="pricing-label">Airport Fee</span>
+          <span class="pricing-value">+$${parseFloat(booking.airportFeeAmount).toFixed(2)}</span>
+        </div>
+      `;
+    }
+    
+    if (booking?.discountAmount && parseFloat(booking.discountAmount) > 0) {
+      const percentage = booking.discountPercentage ? ` (${booking.discountPercentage}%)` : '';
+      pricingRows += `
+        <div class="pricing-row">
+          <span class="pricing-label">Discount${percentage}</span>
+          <span class="pricing-value pricing-discount">-$${parseFloat(booking.discountAmount).toFixed(2)}</span>
+        </div>
+      `;
+    }
 
     const printContent = `
       <!DOCTYPE html>
@@ -1229,59 +1293,253 @@ function InvoiceManagement() {
       <head>
         <title>Invoice #${invoice.invoiceNumber}</title>
         <style>
-          body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
-          .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
-          .header h1 { margin: 0; font-size: 32px; }
-          .header p { margin: 5px 0; color: #666; }
-          .invoice-details { margin: 30px 0; }
-          .invoice-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #ddd; }
-          .invoice-row.total { font-weight: bold; font-size: 1.3em; border-top: 3px solid #000; border-bottom: 3px solid #000; margin-top: 20px; }
-          .label { font-weight: 600; }
-          .footer { margin-top: 50px; text-align: center; color: #666; font-size: 14px; }
-          @media print { body { padding: 0; } }
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            padding: 48px; 
+            max-width: 850px; 
+            margin: 0 auto;
+            background: #ffffff;
+            color: #0f172a;
+            line-height: 1.6;
+          }
+          
+          .header { 
+            text-align: center; 
+            border-bottom: 3px solid #4f46e5;
+            padding-bottom: 24px; 
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 32px;
+            border-radius: 12px;
+          }
+          .header h1 { 
+            font-size: 36px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+          }
+          .header .invoice-number { 
+            font-size: 18px;
+            color: #4f46e5;
+            font-weight: 600;
+            margin-top: 12px;
+          }
+          
+          .info-section {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+          }
+          .info-section h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+          }
+          .info-item {
+            display: flex;
+            flex-direction: column;
+          }
+          .info-label {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 4px;
+          }
+          .info-value {
+            font-size: 15px;
+            color: #0f172a;
+            font-weight: 600;
+          }
+          .booking-id {
+            font-family: 'Courier New', monospace;
+            background: #cbd5e1;
+            padding: 4px 12px;
+            border-radius: 6px;
+            display: inline-block;
+          }
+          
+          .pricing-section {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+          }
+          .pricing-section h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          .pricing-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f1f5f9;
+          }
+          .pricing-row:last-child {
+            border-bottom: none;
+          }
+          .pricing-label {
+            font-size: 15px;
+            color: #0f172a;
+            font-weight: 500;
+          }
+          .pricing-value {
+            font-size: 15px;
+            color: #0f172a;
+            font-weight: 600;
+          }
+          .pricing-surge {
+            color: #ea580c;
+          }
+          .pricing-discount {
+            color: #16a34a;
+          }
+          
+          .total-section {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border: 3px solid #3b82f6;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+          }
+          .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .total-label {
+            font-size: 20px;
+            color: #0f172a;
+            font-weight: 700;
+          }
+          .total-value {
+            font-size: 28px;
+            color: #1d4ed8;
+            font-weight: 800;
+          }
+          
+          .payment-status {
+            text-align: center;
+            margin-top: 32px;
+            padding: 20px;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 3px solid #10b981;
+            border-radius: 12px;
+          }
+          .payment-status-text {
+            color: #065f46;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: 2px;
+          }
+          
+          .footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 2px solid #e2e8f0;
+            text-align: center;
+          }
+          .footer p {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 500;
+          }
+          .footer .thank-you {
+            font-size: 16px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 8px;
+          }
+          
+          @media print {
+            body { 
+              padding: 24px;
+            }
+          }
         </style>
       </head>
       <body>
         <div class="header">
           <h1>USA Luxury Limo</h1>
-          <p>Invoice #${invoice.invoiceNumber}</p>
+          <div class="invoice-number">Invoice #${invoice.invoiceNumber}</div>
         </div>
-        <div class="invoice-details">
-          <div class="invoice-row">
-            <span class="label">Invoice Date:</span>
-            <span>${new Date(invoice.createdAt).toLocaleDateString()}</span>
-          </div>
-          <div class="invoice-row">
-            <span class="label">Booking ID:</span>
-            <span>#${invoice.bookingId.toUpperCase().substring(0, 8)}</span>
-          </div>
-          ${invoice.paidAt ? `
-            <div class="invoice-row">
-              <span class="label">Payment Date:</span>
-              <span>${new Date(invoice.paidAt).toLocaleDateString()}</span>
+        
+        <div class="info-section">
+          <h2>Invoice Information</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Invoice Date</span>
+              <span class="info-value">${new Date(invoice.createdAt).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}</span>
             </div>
-          ` : ''}
-          <div class="invoice-row" style="margin-top: 30px;">
-            <span class="label">Subtotal:</span>
-            <span>$${parseFloat(invoice.subtotal).toFixed(2)}</span>
-          </div>
-          <div class="invoice-row">
-            <span class="label">Tax:</span>
-            <span>$${parseFloat(invoice.taxAmount).toFixed(2)}</span>
-          </div>
-          <div class="invoice-row total">
-            <span class="label">Total Amount:</span>
-            <span>$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
-          </div>
-          ${invoice.paidAt ? `
-            <div style="text-align: center; margin-top: 30px; padding: 15px; background-color: #d4edda; border-radius: 5px; color: #155724; font-weight: bold; font-size: 18px;">
-              PAID
+            <div class="info-item">
+              <span class="info-label">Booking ID</span>
+              <span class="info-value booking-id">#${invoice.bookingId.toUpperCase().substring(0, 8)}</span>
             </div>
-          ` : ''}
+            ${invoice.paidAt ? `
+              <div class="info-item">
+                <span class="info-label">Payment Date</span>
+                <span class="info-value">${new Date(invoice.paidAt).toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</span>
+              </div>
+            ` : ''}
+          </div>
         </div>
+        
+        <div class="pricing-section">
+          <h2>📋 Detailed Pricing Breakdown</h2>
+          ${pricingRows || `
+            <div class="pricing-row">
+              <span class="pricing-label">Journey Fare</span>
+              <span class="pricing-value">$${parseFloat(invoice.subtotal).toFixed(2)}</span>
+            </div>
+          `}
+          
+          <div class="total-section">
+            <div class="total-row">
+              <span class="total-label">Total Amount</span>
+              <span class="total-value">$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+        
+        ${invoice.paidAt ? `
+          <div class="payment-status">
+            <div class="payment-status-text">✓ PAYMENT RECEIVED</div>
+          </div>
+        ` : ''}
+        
         <div class="footer">
-          <p>Thank you for choosing USA Luxury Limo!</p>
+          <p class="thank-you">Thank you for choosing USA Luxury Limo!</p>
+          <p>All prices include statutory taxes and transportation expenses</p>
         </div>
+        
         <script>
           window.onload = () => {
             window.print();
