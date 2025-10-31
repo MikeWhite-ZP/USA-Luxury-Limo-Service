@@ -1512,6 +1512,29 @@ function InvoiceManagement() {
           </div>
         </div>
         
+        ${booking ? `
+        <div class="info-section">
+          <h2>🚗 Journey Information</h2>
+          <div class="info-grid">
+            <div class="info-item" style="grid-column: span 2;">
+              <span class="info-label">From :</span>
+              <span class="info-value">${booking.pickupAddress}</span>
+            </div>
+            ${booking.bookingType === 'hourly' && booking.hours ? `
+            <div class="info-item" style="grid-column: span 2;">
+              <span class="info-label">Total Booking Hours :</span>
+              <span class="info-value">${booking.hours} ${booking.hours === 1 ? 'Hour' : 'Hours'}</span>
+            </div>
+            ` : booking.dropoffAddress ? `
+            <div class="info-item" style="grid-column: span 2;">
+              <span class="info-label">To :</span>
+              <span class="info-value">${booking.dropoffAddress}</span>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+        ` : ''}
+        
         <div class="pricing-section">
           <h2>📋 Detailed Pricing Breakdown</h2>
           ${pricingRows || `
