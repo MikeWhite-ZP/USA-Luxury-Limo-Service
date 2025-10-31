@@ -2544,6 +2544,8 @@ export default function AdminDashboard() {
   const [flightSearchInput, setFlightSearchInput] = useState("");
   const [selectedFlight, setSelectedFlight] = useState<any>(null);
   const [isSearchingFlight, setIsSearchingFlight] = useState(false);
+  const [deleteConfirmDialogOpen, setDeleteConfirmDialogOpen] = useState(false);
+  const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
 
   // Redirect to home if not authenticated or not admin
   useEffect(() => {
@@ -5657,14 +5659,8 @@ export default function AdminDashboard() {
                             size="sm"
                             onClick={() => {
                               console.log('🗑️ Delete button clicked for booking:', booking.id);
-                              const confirmed = confirm(
-                                `Are you sure you want to delete booking #${booking.id.substring(0, 8)}?`,
-                              );
-                              console.log('🗑️ User confirmed deletion:', confirmed);
-                              if (confirmed) {
-                                console.log('🗑️ Triggering delete mutation for booking:', booking.id);
-                                deleteBookingMutation.mutate(booking.id);
-                              }
+                              setBookingToDelete(booking.id);
+                              setDeleteConfirmDialogOpen(true);
                             }}
                             disabled={deleteBookingMutation.isPending}
                             data-testid={`button-delete-booking-${booking.id}`}
@@ -7941,6 +7937,49 @@ export default function AdminDashboard() {
               data-testid="button-close-documents"
             >
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Booking Confirmation Dialog */}
+      <Dialog open={deleteConfirmDialogOpen} onOpenChange={setDeleteConfirmDialogOpen}>
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="w-5 h-5" />
+              Delete Booking
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete booking #{bookingToDelete?.substring(0, 8)}? 
+              This action cannot be undone and will permanently delete all related data including invoices, ratings, and incident reports.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteConfirmDialogOpen(false);
+                setBookingToDelete(null);
+              }}
+              data-testid="button-cancel-delete"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (bookingToDelete) {
+                  console.log('🗑️ User confirmed deletion, triggering mutation for:', bookingToDelete);
+                  deleteBookingMutation.mutate(bookingToDelete);
+                  setDeleteConfirmDialogOpen(false);
+                  setBookingToDelete(null);
+                }
+              }}
+              disabled={deleteBookingMutation.isPending}
+              data-testid="button-confirm-delete"
+            >
+              {deleteBookingMutation.isPending ? "Deleting..." : "Delete Booking"}
             </Button>
           </DialogFooter>
         </DialogContent>
