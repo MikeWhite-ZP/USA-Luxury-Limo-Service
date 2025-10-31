@@ -18,7 +18,8 @@ import {
   Menu,
   X,
   Trash2,
-  Navigation
+  Navigation,
+  Edit2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -55,10 +56,16 @@ export default function MobilePassenger() {
 
   // Add location dialog state
   const [addAddressOpen, setAddAddressOpen] = useState(false);
+  const [editAddressOpen, setEditAddressOpen] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<any>(null);
   const [newAddress, setNewAddress] = useState({ label: '', address: '', lat: '', lon: '' });
+  const [editAddress, setEditAddress] = useState({ label: '', address: '', lat: '', lon: '' });
   const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
+  const [editSuggestions, setEditSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showEditSuggestions, setShowEditSuggestions] = useState(false);
   const [isSearchingAddress, setIsSearchingAddress] = useState(false);
+  const [isSearchingEditAddress, setIsSearchingEditAddress] = useState(false);
 
   // Fetch user's bookings
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
@@ -72,7 +79,7 @@ export default function MobilePassenger() {
     enabled: !!user,
   });
 
-  // TomTom address search
+  // TomTom address search for new address
   useEffect(() => {
     if (!newAddress.address || newAddress.address.length < 3) {
       setAddressSuggestions([]);
@@ -99,6 +106,33 @@ export default function MobilePassenger() {
     return () => clearTimeout(timeoutId);
   }, [newAddress.address]);
 
+  // TomTom address search for edit address
+  useEffect(() => {
+    if (!editAddress.address || editAddress.address.length < 3) {
+      setEditSuggestions([]);
+      setShowEditSuggestions(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsSearchingEditAddress(true);
+      try {
+        const response = await fetch(
+          `https://api.tomtom.com/search/2/search/${encodeURIComponent(editAddress.address)}.json?key=${import.meta.env.VITE_TOMTOM_API_KEY}&limit=5&countrySet=US`
+        );
+        const data = await response.json();
+        setEditSuggestions(data.results || []);
+        setShowEditSuggestions(true);
+      } catch (error) {
+        console.error('Error searching address:', error);
+      } finally {
+        setIsSearchingEditAddress(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [editAddress.address]);
+
   // Add address mutation
   const addAddressMutation = useMutation({
     mutationFn: async (data: { label: string; address: string; lat: string; lon: string }) => {
@@ -118,6 +152,32 @@ export default function MobilePassenger() {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save address',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Edit address mutation
+  const editAddressMutation = useMutation({
+    mutationFn: async (data: { id: string; label: string; address: string; lat: string; lon: string }) => {
+      const { id, ...updateData } = data;
+      const response = await apiRequest('PATCH', `/api/saved-addresses/${id}`, updateData);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/saved-addresses'] });
+      setEditAddressOpen(false);
+      setEditingAddress(null);
+      setEditAddress({ label: '', address: '', lat: '', lon: '' });
+      toast({
+        title: 'Location Updated',
+        description: 'The address has been updated successfully.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update address',
         variant: 'destructive',
       });
     },
@@ -153,6 +213,27 @@ export default function MobilePassenger() {
       lon: suggestion.position.lon.toString(),
     });
     setShowSuggestions(false);
+  };
+
+  const handleEditAddressSelect = (suggestion: any) => {
+    setEditAddress({
+      ...editAddress,
+      address: suggestion.address.freeformAddress,
+      lat: suggestion.position.lat.toString(),
+      lon: suggestion.position.lon.toString(),
+    });
+    setShowEditSuggestions(false);
+  };
+
+  const handleEditClick = (location: any) => {
+    setEditingAddress(location);
+    setEditAddress({
+      label: location.label,
+      address: location.address,
+      lat: location.lat || '',
+      lon: location.lon || '',
+    });
+    setEditAddressOpen(true);
   };
 
   const handleLogout = () => {
@@ -571,29 +652,38 @@ export default function MobilePassenger() {
                         </div>
                         
                         {/* Action Buttons */}
-                        <div className="flex items-center gap-1.5 pt-2 border-t border-slate-100">
-                          <div className="flex-1 grid grid-cols-2 gap-1.5">
+                        <div className="flex items-center gap-1 pt-2 border-t border-slate-100">
+                          <div className="flex-1 grid grid-cols-2 gap-1">
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => navigate(`/booking?from=${encodeURIComponent(location.address)}`)}
-                              className="bg-white border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-[10px] h-7 px-2"
+                              className="bg-white border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-[9px] h-6 px-1.5"
                               data-testid={`button-from-${location.id}`}
                             >
-                              <Navigation className="w-2.5 h-2.5 mr-0.5" />
+                              <Navigation className="w-2 h-2 mr-0.5" />
                               From
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => navigate(`/booking?to=${encodeURIComponent(location.address)}`)}
-                              className="bg-white border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-[10px] h-7 px-2"
+                              className="bg-white border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-[9px] h-6 px-1.5"
                               data-testid={`button-to-${location.id}`}
                             >
-                              <MapPin className="w-2.5 h-2.5 mr-0.5" />
+                              <MapPin className="w-2 h-2 mr-0.5" />
                               To
                             </Button>
                           </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEditClick(location)}
+                            className="text-gray-400 hover:text-blue-600 hover:bg-blue-50 p-1 h-6 w-6"
+                            data-testid={`button-edit-${location.id}`}
+                          >
+                            <Edit2 className="w-2.5 h-2.5" />
+                          </Button>
                           <Button
                             size="sm"
                             variant="ghost"
@@ -602,10 +692,10 @@ export default function MobilePassenger() {
                                 deleteAddressMutation.mutate(location.id);
                               }
                             }}
-                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-1.5 h-7 w-7"
+                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-1 h-6 w-6"
                             data-testid={`button-delete-${location.id}`}
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="w-2.5 h-2.5" />
                           </Button>
                         </div>
                       </div>
@@ -614,6 +704,84 @@ export default function MobilePassenger() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Edit Address Dialog */}
+            <Dialog open={editAddressOpen} onOpenChange={setEditAddressOpen}>
+              <DialogContent className="bg-white max-w-[90vw] sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Edit Location</DialogTitle>
+                  <DialogDescription>Update your saved location</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="edit-address-label">Label</Label>
+                    <Input
+                      id="edit-address-label"
+                      placeholder="Home, Work, Gym, etc."
+                      value={editAddress.label}
+                      onChange={(e) => setEditAddress(prev => ({ ...prev, label: e.target.value }))}
+                      data-testid="input-edit-address-label"
+                    />
+                  </div>
+                  <div className="relative">
+                    <Label htmlFor="edit-address-text">Address</Label>
+                    <Input
+                      id="edit-address-text"
+                      placeholder="123 Main Street, City, State"
+                      value={editAddress.address}
+                      onChange={(e) => setEditAddress(prev => ({ ...prev, address: e.target.value }))}
+                      onFocus={() => {
+                        if (editSuggestions.length > 0) {
+                          setShowEditSuggestions(true);
+                        }
+                      }}
+                      data-testid="input-edit-address-text"
+                      autoComplete="off"
+                    />
+                    {isSearchingEditAddress && (
+                      <div className="absolute right-3 top-9 pointer-events-none">
+                        <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full" />
+                      </div>
+                    )}
+                    {showEditSuggestions && editSuggestions.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {editSuggestions.map((suggestion, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0 transition-colors"
+                            onClick={() => handleEditAddressSelect(suggestion)}
+                            data-testid={`edit-suggestion-${index}`}
+                          >
+                            <div className="flex items-start space-x-2">
+                              <MapPin className="w-4 h-4 mt-1 text-blue-600 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {suggestion.address.freeformAddress}
+                                </p>
+                                {suggestion.address.country && (
+                                  <p className="text-xs text-gray-500 truncate">
+                                    {suggestion.address.countrySubdivision}, {suggestion.address.country}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    onClick={() => editingAddress && editAddressMutation.mutate({ id: editingAddress.id, ...editAddress })}
+                    disabled={editAddressMutation.isPending || !editAddress.label || !editAddress.address}
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                    data-testid="button-update-address"
+                  >
+                    {editAddressMutation.isPending ? 'Updating...' : 'Update Location'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
 
