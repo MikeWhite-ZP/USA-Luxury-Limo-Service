@@ -7,6 +7,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -7987,6 +7988,67 @@ export default function AdminDashboard() {
               data-testid="button-close-documents"
             >
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel Booking Dialog */}
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-orange-600">
+              <X className="w-5 h-5" />
+              Cancel Booking
+            </DialogTitle>
+            <DialogDescription>
+              Please provide a reason for cancelling booking #{bookingToCancel?.substring(0, 8)}. This information will be saved for future reference.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="cancellation-reason">Cancellation Reason *</Label>
+              <Textarea
+                id="cancellation-reason"
+                placeholder="Enter the reason for cancellation..."
+                value={cancellationReason}
+                onChange={(e) => setCancellationReason(e.target.value)}
+                rows={4}
+                className="mt-2 resize-none"
+                data-testid="textarea-cancel-reason"
+              />
+              <p className="text-sm text-muted-foreground mt-2">
+                This reason will be recorded and may be shared with the customer.
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCancelDialogOpen(false);
+                setBookingToCancel(null);
+                setCancellationReason("");
+              }}
+              data-testid="button-cancel-dialog"
+            >
+              Close
+            </Button>
+            <Button
+              variant="default"
+              onClick={() => {
+                if (bookingToCancel && cancellationReason.trim()) {
+                  cancelBookingMutation.mutate({
+                    bookingId: bookingToCancel,
+                    reason: cancellationReason.trim(),
+                  });
+                }
+              }}
+              disabled={!cancellationReason.trim() || cancelBookingMutation.isPending}
+              data-testid="button-confirm-cancel"
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {cancelBookingMutation.isPending ? "Cancelling..." : "Cancel Booking"}
             </Button>
           </DialogFooter>
         </DialogContent>
