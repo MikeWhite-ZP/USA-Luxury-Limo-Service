@@ -1259,7 +1259,7 @@ export default function PassengerDashboard() {
                     <div className="relative group/btn">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
                       <Button
-                        onClick={() => window.location.href = '/'}
+                        onClick={() => window.location.href = '/booking'}
                         className="relative h-20 w-full flex flex-col space-y-2 bg-gradient-to-br from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white border-0 shadow-xl group-hover/btn:scale-[1.02] transition-transform duration-300"
                         data-testid="button-book-ride"
                       >
