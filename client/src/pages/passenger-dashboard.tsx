@@ -757,16 +757,6 @@ function InvoicesList() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => handleView(invoice)}
-                className="flex-1 text-indigo-700 border-indigo-300 hover:bg-indigo-50"
-                data-testid={`button-view-${invoice.id}`}
-              >
-                <Eye className="w-4 h-4 mr-1.5" />
-                View
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
                 onClick={() => handlePrint(invoice)}
                 className="flex-1 text-gray-700 border-gray-300 hover:bg-gray-50"
                 data-testid={`button-print-${invoice.id}`}
