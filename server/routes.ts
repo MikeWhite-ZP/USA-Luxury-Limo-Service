@@ -1935,6 +1935,502 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Passenger invoice endpoints
+  app.get('/api/passenger/invoices', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+
+      // Get all bookings for this passenger
+      const userBookings = await storage.getUserBookings(userId);
+      
+      // Get all invoices
+      const allInvoices = await storage.getAllInvoices();
+      
+      // Filter invoices that belong to this passenger's bookings
+      const passengerBookingIds = new Set(userBookings.map(b => b.id));
+      const passengerInvoices = allInvoices.filter(inv => passengerBookingIds.has(inv.bookingId));
+      
+      // Enrich with booking data
+      const enrichedInvoices = await Promise.all(
+        passengerInvoices.map(async (invoice) => {
+          const booking = await storage.getBooking(invoice.bookingId);
+          return {
+            ...invoice,
+            booking
+          };
+        })
+      );
+      
+      res.json(enrichedInvoices);
+    } catch (error) {
+      console.error('Get passenger invoices error:', error);
+      res.status(500).json({ message: 'Failed to fetch invoices' });
+    }
+  });
+
+  app.post('/api/passenger/invoices/:id/email', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+
+      const invoice = await storage.getInvoice(req.params.id);
+      if (!invoice) {
+        return res.status(404).json({ message: 'Invoice not found' });
+      }
+
+      const booking = await storage.getBooking(invoice.bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: 'Associated booking not found' });
+      }
+
+      // Verify this invoice belongs to the requesting passenger
+      if (booking.passengerId !== userId) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      const passenger = await storage.getUser(booking.passengerId);
+
+      // Use passenger's email as default recipient
+      const recipientEmail = user.email;
+
+      // Generate payment token for invoice payment link (24 hour expiration)
+      let paymentToken = '';
+      if (!invoice.paidAt) {
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 24);
+        
+        await storage.createPaymentToken({
+          invoiceId: invoice.id,
+          token: token,
+          expiresAt: expiresAt,
+        });
+        
+        paymentToken = token;
+      }
+
+      // Get dynamic logo from object storage and convert to base64 for email embedding
+      let logoDataUri = '';
+      try {
+        const logoSetting = await storage.getCmsSetting('BRAND_LOGO_URL');
+        if (logoSetting?.value) {
+          const logoPath = logoSetting.value;
+          const fileKey = logoPath.includes('/file/') 
+            ? logoPath.split('/file/')[1] 
+            : logoPath.replace('/api/object-storage/', '');
+          
+          const ObjectStorage = await import('@replit/object-storage');
+          const storage_client = new ObjectStorage.Client();
+          const logoBuffer = await storage_client.downloadAsBytes(fileKey);
+          
+          if (logoBuffer) {
+            const buffer = Array.isArray(logoBuffer) ? logoBuffer[0] : logoBuffer;
+            const base64Logo = Buffer.from(buffer).toString('base64');
+            const ext = fileKey.split('.').pop()?.toLowerCase();
+            const mimeType = ext === 'png' ? 'image/png' : 
+                            ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
+                            ext === 'svg' ? 'image/svg+xml' : 'image/png';
+            logoDataUri = `data:${mimeType};base64,${base64Logo}`;
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching logo for email:', error);
+      }
+
+      // Build detailed pricing rows
+      let pricingRows = '';
+      
+      if (booking.baseFare) {
+        pricingRows += `
+          <div class="pricing-row">
+            <span class="pricing-label">Base Fare</span>
+            <span class="pricing-value">$${parseFloat(booking.baseFare).toFixed(2)}</span>
+          </div>
+        `;
+      }
+      
+      if (booking.surgePricingAmount && parseFloat(booking.surgePricingAmount) > 0) {
+        const multiplier = booking.surgePricingMultiplier ? ` (${booking.surgePricingMultiplier}x)` : '';
+        pricingRows += `
+          <div class="pricing-row">
+            <span class="pricing-label">Surge Pricing${multiplier}</span>
+            <span class="pricing-value pricing-surge">+$${parseFloat(booking.surgePricingAmount).toFixed(2)}</span>
+          </div>
+        `;
+      }
+      
+      if (booking.gratuityAmount && parseFloat(booking.gratuityAmount) > 0) {
+        pricingRows += `
+          <div class="pricing-row">
+            <span class="pricing-label">Gratuity (Tip)</span>
+            <span class="pricing-value">+$${parseFloat(booking.gratuityAmount).toFixed(2)}</span>
+          </div>
+        `;
+      }
+      
+      if (booking.airportFeeAmount && parseFloat(booking.airportFeeAmount) > 0) {
+        pricingRows += `
+          <div class="pricing-row">
+            <span class="pricing-label">Airport Fee</span>
+            <span class="pricing-value">+$${parseFloat(booking.airportFeeAmount).toFixed(2)}</span>
+          </div>
+        `;
+      }
+      
+      if (booking.discountAmount && parseFloat(booking.discountAmount) > 0) {
+        const percentage = booking.discountPercentage ? ` (${booking.discountPercentage}%)` : '';
+        pricingRows += `
+          <div class="pricing-row">
+            <span class="pricing-label">Discount${percentage}</span>
+            <span class="pricing-value pricing-discount">-$${parseFloat(booking.discountAmount).toFixed(2)}</span>
+          </div>
+        `;
+      }
+
+      const emailHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { 
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+              line-height: 1.6;
+              color: #0f172a;
+              background-color: #f8fafc;
+            }
+            .email-wrapper { background-color: #f8fafc; padding: 24px; }
+            .container { 
+              max-width: 650px; 
+              margin: 0 auto; 
+              background-color: #ffffff; 
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .header { 
+              background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+              padding: 32px 24px;
+              border-bottom: 3px solid #4f46e5;
+              text-align: center;
+            }
+            .logo { 
+              font-size: 28px; 
+              font-weight: 800; 
+              color: #1e293b; 
+              margin-bottom: 8px;
+              letter-spacing: -0.5px;
+            }
+            .logo-img { 
+              max-height: 70px; 
+              max-width: 280px; 
+              margin: 0 auto 12px; 
+              display: block;
+            }
+            .tagline { 
+              font-size: 14px; 
+              color: #64748b; 
+              font-weight: 500;
+            }
+            .success-banner { 
+              background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+              padding: 20px;
+              text-align: center;
+              border-bottom: 3px solid #10b981;
+            }
+            .success-banner h2 { 
+              color: #065f46; 
+              font-size: 20px;
+              margin: 0;
+              font-weight: 800;
+              letter-spacing: 1px;
+            }
+            .content { padding: 32px 24px; }
+            .greeting { 
+              margin-bottom: 24px;
+              color: #334155;
+            }
+            .greeting p { margin-bottom: 8px; }
+            .section { 
+              margin-bottom: 28px;
+              background: #f8fafc;
+              border: 2px solid #e2e8f0;
+              border-radius: 10px;
+              padding: 20px;
+            }
+            .section-title { 
+              font-weight: 700;
+              font-size: 16px;
+              margin-bottom: 16px;
+              color: #334155;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              padding-bottom: 8px;
+              border-bottom: 2px solid #cbd5e1;
+            }
+            .info-row { 
+              display: flex;
+              justify-content: space-between;
+              padding: 10px 0;
+              border-bottom: 1px solid #f1f5f9;
+            }
+            .info-row:last-child { border-bottom: none; }
+            .info-label { 
+              font-weight: 600;
+              color: #64748b;
+              flex: 0 0 40%;
+              font-size: 14px;
+            }
+            .info-value { 
+              color: #0f172a;
+              flex: 1;
+              text-align: right;
+              font-weight: 500;
+              font-size: 14px;
+            }
+            .pricing-section {
+              background: white;
+              border: 2px solid #e2e8f0;
+              border-radius: 10px;
+              padding: 20px;
+              margin-bottom: 28px;
+            }
+            .pricing-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 12px 0;
+              border-bottom: 1px solid #f1f5f9;
+            }
+            .pricing-row:last-child { border-bottom: none; }
+            .pricing-label {
+              font-size: 15px;
+              color: #0f172a;
+              font-weight: 500;
+            }
+            .pricing-value {
+              font-size: 15px;
+              color: #0f172a;
+              font-weight: 600;
+            }
+            .pricing-surge {
+              color: #ea580c;
+            }
+            .pricing-discount {
+              color: #16a34a;
+            }
+            .total-section {
+              background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+              border: 3px solid #3b82f6;
+              border-radius: 10px;
+              padding: 20px;
+              margin-top: 20px;
+            }
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .total-label {
+              font-size: 18px;
+              color: #0f172a;
+              font-weight: 700;
+            }
+            .total-value {
+              font-size: 24px;
+              color: #1d4ed8;
+              font-weight: 800;
+            }
+            .payment-link { 
+              text-align: center;
+              margin: 24px 0;
+              padding: 24px;
+              background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+              border-radius: 10px;
+              border: 2px solid #3b82f6;
+            }
+            .payment-link p {
+              color: #1e40af;
+              font-weight: 600;
+              margin-bottom: 16px;
+              font-size: 16px;
+            }
+            .payment-button { 
+              display: inline-block;
+              background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+              color: #ffffff;
+              padding: 14px 36px;
+              text-decoration: none;
+              border-radius: 8px;
+              font-weight: 700;
+              font-size: 16px;
+              box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+              transition: all 0.2s;
+            }
+            .payment-button:hover {
+              background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            }
+            .paid-badge { 
+              background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+              color: #065f46;
+              padding: 20px;
+              text-align: center;
+              font-weight: 800;
+              font-size: 20px;
+              border-radius: 10px;
+              margin: 24px 0;
+              border: 3px solid #10b981;
+              letter-spacing: 2px;
+            }
+            .footer-note { 
+              font-size: 13px;
+              color: #64748b;
+              text-align: center;
+              padding: 24px;
+              border-top: 2px solid #e2e8f0;
+              margin-top: 28px;
+              background: #f8fafc;
+              border-radius: 8px;
+            }
+            .footer-note strong {
+              color: #334155;
+              font-weight: 600;
+            }
+            @media only screen and (max-width: 600px) {
+              .email-wrapper { padding: 12px; }
+              .content { padding: 20px 16px; }
+              .section { padding: 16px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="email-wrapper">
+            <div class="container">
+              <div class="header">
+                ${logoDataUri ? `
+                  <img src="${logoDataUri}" alt="USA Luxury Limo" class="logo-img" />
+                ` : `
+                  <div class="logo">USA Luxury Limo</div>
+                `}
+                <div class="tagline">Ride in Style, Always on Time</div>
+              </div>
+
+              <div class="success-banner">
+                <h2>✓ INVOICE READY</h2>
+              </div>
+
+              <div class="content">
+                <div class="greeting">
+                  <p><strong>Dear ${passenger?.firstName || 'Customer'},</strong></p>
+                  <p>Thank you for booking with USA Luxury Limo Service! Below is your detailed invoice.</p>
+                </div>
+
+                <div class="section">
+                  <div class="section-title">📋 Invoice Information</div>
+                  <div class="info-row">
+                    <span class="info-label">Invoice Number</span>
+                    <span class="info-value">${invoice.invoiceNumber}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Date & time</span>
+                    <span class="info-value">${new Date(booking.scheduledDateTime).toLocaleString('en-US', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Booking REF#</span>
+                    <span class="info-value">#${booking.id.toUpperCase().substring(0, 8)}</span>
+                  </div>
+                </div>
+
+                <div class="section">
+                  <div class="section-title">🚗 Journey Information</div>
+                  <div class="info-row">
+                    <span class="info-label">From</span>
+                    <span class="info-value">${booking.pickupAddress}</span>
+                  </div>
+                  ${booking.dropoffAddress ? `
+                  <div class="info-row">
+                    <span class="info-label">To</span>
+                    <span class="info-value">${booking.dropoffAddress}</span>
+                  </div>
+                  ` : ''}
+                </div>
+
+                <div class="pricing-section">
+                  <div class="section-title">💰 Detailed Pricing Breakdown</div>
+                  ${pricingRows || `
+                    <div class="pricing-row">
+                      <span class="pricing-label">Journey Fare</span>
+                      <span class="pricing-value">$${parseFloat(invoice.subtotal).toFixed(2)}</span>
+                    </div>
+                  `}
+                  
+                  <div class="total-section">
+                    <div class="total-row">
+                      <span class="total-label">Total Amount</span>
+                      <span class="total-value">$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                ${invoice.paidAt ? `
+                <div class="paid-badge">
+                  ✓ PAYMENT RECEIVED
+                </div>
+                ` : `
+                <div class="payment-link">
+                  <p>Click the button below to complete your payment securely</p>
+                  <a href="${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'https://your-domain.com'}/pay/${paymentToken}" class="payment-button">Make Payment Now</a>
+                </div>
+                `}
+
+                <div class="footer-note">
+                  <p>💡 <em>All prices include statutory taxes and transportation expenses</em></p>
+                  <br>
+                  <p>Best regards,<br><strong>USA Luxury Limo Service</strong></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const emailSent = await sendEmail({
+        to: recipientEmail,
+        subject: `Invoice #${invoice.invoiceNumber} - USA Luxury Limo`,
+        html: emailHtml,
+      });
+
+      if (!emailSent) {
+        return res.status(500).json({ 
+          message: 'Failed to send email. Please check SMTP settings.' 
+        });
+      }
+
+      res.json({ message: 'Invoice sent successfully to your email' });
+    } catch (error) {
+      console.error('Email invoice error:', error);
+      res.status(500).json({ message: 'Failed to send invoice email' });
+    }
+  });
+
   // Invoice management endpoints
   app.get('/api/invoices', isAuthenticated, async (req: any, res) => {
     try {

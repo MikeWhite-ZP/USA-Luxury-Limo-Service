@@ -27,6 +27,7 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
     - **Booking & Dispatch**: A 4-step booking flow, intelligent driver assignment (proximity, capacity, rating, workload, conflicts), and a two-stage job acceptance workflow. Includes itemized pricing breakdown with base fare, surge pricing, gratuity, airport fees, and discounts, supporting both transfer and hourly services.
     - **Driver Management**: Document upload/tracking (Replit Object Storage), real-time GPS tracking, navigation integration, and driver payment/credential management.
     - **User/Admin Features**: User account management with cascading delete, contact support, system settings, a Dispatcher Dashboard with real-time statistics, and API credential management.
+    - **Invoice Management**: Complete invoice system with modern light-themed interface for both admin and passengers. Admin can view, edit, print, and email invoices with detailed pricing breakdowns. Passengers can view, print, and email their own invoices via the /mobile-invoices page. All invoice displays (dialog, print, email) show itemized pricing including base fare, surge pricing, gratuity, airport fees, and discounts with consistent color coding (orange for surge, green for discounts, blue for totals).
     - **CMS**: Component-based Content Management System for brand identity, media asset management (Replit Object Storage), and content editing.
 
 ## External Dependencies
