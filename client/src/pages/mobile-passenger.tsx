@@ -12,7 +12,11 @@ import {
   Clock,
   CheckCircle2,
   MapPin,
-  DollarSign
+  DollarSign,
+  Home,
+  User,
+  Menu,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,10 +29,14 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Booking } from '@shared/schema';
 
+type Section = 'home' | 'new-booking' | 'saved-locations' | 'invoices' | 'payment' | 'account';
+
 export default function MobilePassenger() {
   const [, navigate] = useLocation();
   const { user, isLoading: authLoading, logoutMutation } = useAuth();
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [activeSection, setActiveSection] = useState<Section>('home');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Fetch user's bookings
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
@@ -98,58 +106,115 @@ export default function MobilePassenger() {
     return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
+  const menuItems = [
+    { id: 'home' as Section, label: 'Home', icon: Home },
+    { id: 'new-booking' as Section, label: 'New Booking', icon: Plus },
+    { id: 'saved-locations' as Section, label: 'Saved', icon: MapPin },
+    { id: 'invoices' as Section, label: 'Invoices', icon: FileText },
+    { id: 'payment' as Section, label: 'Payment', icon: CreditCard },
+    { id: 'account' as Section, label: 'Account', icon: User },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-20">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 pb-8 rounded-b-3xl shadow-lg">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">Welcome</h1>
-            <p className="text-blue-100 mt-1">{user.firstName || ''} {user.lastName || ''}</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 pb-20">
+      {/* Modern Header */}
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white shadow-xl">
+        <div className="px-6 pt-6 pb-4">
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h1 className="text-2xl font-bold">Welcome Back</h1>
+              <p className="text-blue-100 mt-1 text-sm">{user.firstName || ''} {user.lastName || ''}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="text-white hover:bg-white/20"
+                data-testid="button-menu"
+              >
+                {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                className="text-white hover:bg-white/20"
+                data-testid="button-logout"
+              >
+                <LogOut className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleLogout}
-            className="text-white hover:bg-white/20"
-            data-testid="button-logout"
-          >
-            <LogOut className="w-5 h-5" />
-          </Button>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+              <p className="text-blue-100 text-xs">Active</p>
+              <p className="text-xl font-bold mt-1">{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
+            </div>
+            <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+              <p className="text-blue-100 text-xs">Upcoming</p>
+              <p className="text-xl font-bold mt-1">{upcomingBookings.length}</p>
+            </div>
+            <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+              <p className="text-blue-100 text-xs">Total</p>
+              <p className="text-xl font-bold mt-1">{bookings?.length || 0}</p>
+            </div>
+          </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-            <p className="text-blue-100 text-sm">Upcoming</p>
-            <p className="text-2xl font-bold mt-1">{upcomingBookings.length}</p>
-          </div>
-          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-            <p className="text-blue-100 text-sm">Total Rides</p>
-            <p className="text-2xl font-bold mt-1">{bookings?.length || 0}</p>
+        {/* Navigation Menu */}
+        <div className="px-4 pt-2 pb-0 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-2 min-w-max">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeSection === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => { setActiveSection(item.id); setMenuOpen(false); }}
+                  className={`flex flex-col items-center gap-1.5 px-4 py-3 rounded-t-xl transition-all ${
+                    isActive
+                      ? 'bg-gradient-to-br from-slate-50 via-white to-blue-50/20 text-blue-600 shadow-lg'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                  data-testid={`nav-${item.id}`}
+                >
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600' : ''}`} />
+                  <span className={`text-xs font-medium whitespace-nowrap ${isActive ? 'text-blue-700' : ''}`}>
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="px-4 -mt-6 mb-6">
-        <Button
-          onClick={() => navigate('/mobile-booking')}
-          className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-6 rounded-2xl text-lg font-semibold shadow-lg transition-all transform active:scale-95"
-          data-testid="button-new-booking"
-        >
-          <Plus className="w-6 h-6 mr-2" />
-          Book New Ride
-        </Button>
       </div>
 
       {/* Main Content */}
-      <div className="px-4 space-y-4">
-        {/* Bookings Section */}
-        <Card className="shadow-md">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">My Rides</CardTitle>
-          </CardHeader>
+      <div className="px-4 py-6 space-y-4">
+        {/* Home Section */}
+        {activeSection === 'home' && (
+          <>
+            {/* Quick Action Button */}
+            <Button
+              onClick={() => setActiveSection('new-booking')}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 rounded-2xl text-lg font-semibold shadow-lg transition-all transform active:scale-95"
+              data-testid="button-new-booking-home"
+            >
+              <Plus className="w-6 h-6 mr-2" />
+              Book New Ride
+            </Button>
+
+            {/* Bookings Section */}
+            <Card className="shadow-md border-slate-200">
+              <CardHeader className="pb-3 bg-gradient-to-r from-slate-50 to-white">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Car className="w-5 h-5 text-blue-600" />
+                  My Rides
+                </CardTitle>
+              </CardHeader>
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'upcoming' | 'past')} className="w-full">
               <TabsList className="w-full grid grid-cols-2 bg-gray-100 mx-4 mb-3" style={{width: 'calc(100% - 2rem)'}}>
@@ -271,28 +336,152 @@ export default function MobilePassenger() {
           </CardContent>
         </Card>
 
-        {/* Quick Links */}
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            variant="outline"
-            onClick={() => navigate('/mobile-invoices')}
-            className="h-24 flex-col gap-2 border-2"
-            data-testid="button-invoices"
-          >
-            <FileText className="w-6 h-6 text-blue-600" />
-            <span className="text-sm font-medium">Invoices</span>
-          </Button>
-          
-          <Button
-            variant="outline"
-            onClick={() => navigate('/mobile-payment-methods')}
-            className="h-24 flex-col gap-2 border-2"
-            data-testid="button-payment-methods"
-          >
-            <CreditCard className="w-6 h-6 text-green-600" />
-            <span className="text-sm font-medium">Payment</span>
-          </Button>
-        </div>
+            
+          </>
+        )}
+
+        {/* New Booking Section */}
+        {activeSection === 'new-booking' && (
+          <div className="space-y-4">
+            <Card className="shadow-md border-slate-200">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Plus className="w-5 h-5 text-blue-600" />
+                  Create New Booking
+                </CardTitle>
+                <CardDescription>Book your luxury ride</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="text-center py-8">
+                  <Button
+                    onClick={() => navigate('/mobile-booking')}
+                    size="lg"
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                    data-testid="button-start-booking"
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    Start Booking Process
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Saved Locations Section */}
+        {activeSection === 'saved-locations' && (
+          <div className="space-y-4">
+            <Card className="shadow-md border-slate-200">
+              <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-blue-600" />
+                  Saved Locations
+                </CardTitle>
+                <CardDescription>Quick access to your favorite places</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="text-center py-8 text-gray-500">
+                  <MapPin className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>No saved locations yet</p>
+                  <p className="text-sm mt-2">Save locations during booking for quick access</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Invoices Section */}
+        {activeSection === 'invoices' && (
+          <div className="space-y-4">
+            <Card className="shadow-md border-slate-200">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  My Invoices
+                </CardTitle>
+                <CardDescription>View and manage your invoices</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="text-center py-8">
+                  <Button
+                    onClick={() => navigate('/mobile-invoices')}
+                    size="lg"
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                    data-testid="button-view-invoices"
+                  >
+                    <FileText className="w-5 h-5 mr-2" />
+                    View All Invoices
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Payment Section */}
+        {activeSection === 'payment' && (
+          <div className="space-y-4">
+            <Card className="shadow-md border-slate-200">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <CreditCard className="w-5 h-5 text-green-600" />
+                  Payment Methods
+                </CardTitle>
+                <CardDescription>Manage your payment options</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="text-center py-8">
+                  <Button
+                    onClick={() => navigate('/mobile-payment-methods')}
+                    size="lg"
+                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                    data-testid="button-manage-payment"
+                  >
+                    <CreditCard className="w-5 h-5 mr-2" />
+                    Manage Payment Methods
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Account Section */}
+        {activeSection === 'account' && (
+          <div className="space-y-4">
+            <Card className="shadow-md border-slate-200">
+              <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <User className="w-5 h-5 text-blue-600" />
+                  Account Settings
+                </CardTitle>
+                <CardDescription>Manage your profile</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="bg-slate-50 rounded-lg p-4">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Name</label>
+                      <p className="text-base font-medium mt-1">{user.firstName} {user.lastName}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Email</label>
+                      <p className="text-base font-medium mt-1">{user.email || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Phone</label>
+                      <p className="text-base font-medium mt-1">{user.phone || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Username</label>
+                      <p className="text-base font-medium mt-1">{user.username}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
