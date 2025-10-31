@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Car, UserCircle, Radio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import chauffeurImage from "@assets/khalid_1759128435991.webp";
+import usaLuxuryLogo from "@assets/logo_1761944723746.png";
 
 type SplashStage = 'logo' | 'chauffeur' | 'role-selection';
 type UserRole = 'passenger' | 'driver' | 'dispatcher';
@@ -55,7 +56,11 @@ export default function MobileSplash() {
               transition={{ duration: 1.5, ease: "easeInOut" }}
               className="inline-block mb-6"
             >
-              <Car className="w-32 h-32 text-white" />
+              <img 
+                src={usaLuxuryLogo} 
+                alt="USA Luxury Limo" 
+                className="w-64 h-auto"
+              />
             </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
