@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -63,6 +63,9 @@ export default function MobileLogin() {
           setIsLoading(false);
           return;
         }
+
+        // Update the auth cache with the logged-in user
+        queryClient.setQueryData(['/api/user'], user);
 
         toast({
           title: 'Welcome!',
