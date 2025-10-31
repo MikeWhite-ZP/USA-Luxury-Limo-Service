@@ -1891,52 +1891,248 @@ function InvoiceManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-white">
+        <DialogContent className="sm:max-w-[600px] bg-white max-h-[90vh] overflow-y-auto">
           <DialogHeader className="border-b border-slate-200 pb-4">
             <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-2 rounded-lg">
+              <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-2 rounded-lg shadow-md">
                 <Edit2 className="w-5 h-5 text-white" />
               </div>
-              <DialogTitle className="text-xl font-bold text-slate-900">Edit Invoice</DialogTitle>
+              <div>
+                <DialogTitle className="text-xl font-bold text-slate-900">Edit Invoice</DialogTitle>
+                <p className="text-sm text-slate-600 mt-0.5">Update pricing details and amounts</p>
+              </div>
             </div>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit-subtotal">Subtotal</Label>
-              <Input
-                id="edit-subtotal"
-                type="number"
-                step="0.01"
-                value={editFormData.subtotal}
-                onChange={(e) => setEditFormData({ ...editFormData, subtotal: e.target.value })}
-                data-testid="input-edit-subtotal"
-              />
+          {selectedInvoice && (
+            <div className="space-y-6">
+              {/* Invoice Information */}
+              <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 p-5 rounded-xl border border-slate-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="bg-slate-100 p-1.5 rounded-lg">
+                    <FileText className="w-4 h-4 text-slate-700" />
+                  </div>
+                  <h3 className="font-bold text-base text-slate-900">Invoice Information</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-slate-600 mb-1 font-medium">Invoice Number</p>
+                    <p className="font-bold text-slate-900">{selectedInvoice.invoiceNumber}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-600 mb-1 font-medium">Booking ID</p>
+                    <p className="font-mono text-xs bg-slate-200 text-slate-900 px-2 py-1 rounded inline-block">
+                      #{selectedInvoice.bookingId.toUpperCase().substring(0, 8)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Detailed Pricing Breakdown */}
+              <div className="bg-white border-2 border-slate-200 rounded-xl p-5">
+                <div className="flex items-center gap-2 mb-5">
+                  <div className="bg-blue-100 p-1.5 rounded-lg">
+                    <Receipt className="w-4 h-4 text-blue-700" />
+                  </div>
+                  <h3 className="font-bold text-base text-slate-900">Detailed Pricing Breakdown</h3>
+                </div>
+                
+                <div className="space-y-4">
+                  {/* Base Fare */}
+                  <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <Label htmlFor="edit-base-fare" className="text-slate-900 font-semibold mb-2 block">
+                      Base Fare
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-900 font-semibold">$</span>
+                      <Input
+                        id="edit-base-fare"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={editFormData.subtotal}
+                        onChange={(e) => setEditFormData({ ...editFormData, subtotal: e.target.value })}
+                        className="pl-7 h-11 border-slate-300 focus:border-slate-500 focus:ring-slate-500 bg-white text-slate-900 font-semibold"
+                        data-testid="input-edit-base-fare"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Surge Pricing */}
+                  <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                    <Label className="text-slate-900 font-semibold mb-3 block flex items-center gap-2">
+                      <span>Surge Pricing</span>
+                      <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
+                        Optional
+                      </span>
+                    </Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor="edit-surge-multiplier" className="text-xs text-slate-700 mb-1.5 block">
+                          Multiplier (e.g., 1.5x)
+                        </Label>
+                        <Input
+                          id="edit-surge-multiplier"
+                          type="number"
+                          step="0.1"
+                          min="1"
+                          placeholder="1.0"
+                          className="h-10 border-orange-300 focus:border-orange-500 focus:ring-orange-500 bg-white"
+                          data-testid="input-edit-surge-multiplier"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-surge-amount" className="text-xs text-slate-700 mb-1.5 block">
+                          Amount
+                        </Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-600 font-semibold">$</span>
+                          <Input
+                            id="edit-surge-amount"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="0.00"
+                            className="pl-7 h-10 border-orange-300 focus:border-orange-500 focus:ring-orange-500 bg-white text-orange-600 font-semibold"
+                            data-testid="input-edit-surge-amount"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Gratuity */}
+                  <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <Label htmlFor="edit-gratuity" className="text-slate-900 font-semibold mb-2 block flex items-center gap-2">
+                      <span>Gratuity (Tip)</span>
+                      <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-semibold">
+                        Optional
+                      </span>
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-900 font-semibold">$</span>
+                      <Input
+                        id="edit-gratuity"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        className="pl-7 h-11 border-slate-300 focus:border-slate-500 focus:ring-slate-500 bg-white text-slate-900 font-semibold"
+                        data-testid="input-edit-gratuity"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Airport Fee */}
+                  <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <Label htmlFor="edit-airport-fee" className="text-slate-900 font-semibold mb-2 block flex items-center gap-2">
+                      <span>Airport Fee</span>
+                      <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-semibold">
+                        Optional
+                      </span>
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-900 font-semibold">$</span>
+                      <Input
+                        id="edit-airport-fee"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        className="pl-7 h-11 border-slate-300 focus:border-slate-500 focus:ring-slate-500 bg-white text-slate-900 font-semibold"
+                        data-testid="input-edit-airport-fee"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Discount */}
+                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <Label className="text-slate-900 font-semibold mb-3 block flex items-center gap-2">
+                      <span>Discount</span>
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
+                        Optional
+                      </span>
+                    </Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor="edit-discount-percentage" className="text-xs text-slate-700 mb-1.5 block">
+                          Percentage (%)
+                        </Label>
+                        <Input
+                          id="edit-discount-percentage"
+                          type="number"
+                          step="1"
+                          min="0"
+                          max="100"
+                          placeholder="0"
+                          className="h-10 border-green-300 focus:border-green-500 focus:ring-green-500 bg-white"
+                          data-testid="input-edit-discount-percentage"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-discount-amount" className="text-xs text-slate-700 mb-1.5 block">
+                          Amount
+                        </Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-600 font-semibold">$</span>
+                          <Input
+                            id="edit-discount-amount"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="0.00"
+                            className="pl-7 h-10 border-green-300 focus:border-green-500 focus:ring-green-500 bg-white text-green-600 font-semibold"
+                            data-testid="input-edit-discount-amount"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Total Amount */}
+                  <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-300 shadow-sm">
+                    <Label htmlFor="edit-total" className="text-slate-900 font-bold mb-3 block text-base">
+                      Total Amount
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-700 font-bold text-lg">$</span>
+                      <Input
+                        id="edit-total"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={editFormData.totalAmount}
+                        onChange={(e) => setEditFormData({ ...editFormData, totalAmount: e.target.value })}
+                        className="pl-9 h-14 border-blue-400 focus:border-blue-600 focus:ring-blue-600 bg-white text-blue-700 font-bold text-xl"
+                        data-testid="input-edit-total"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Helper Note */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="bg-blue-100 p-1.5 rounded-lg mt-0.5">
+                    <svg className="w-4 h-4 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-blue-900 leading-relaxed">
+                    <strong className="font-semibold">Pro Tip:</strong> Enter detailed pricing components for transparent invoicing. 
+                    The total will be calculated automatically or can be adjusted manually if needed.
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="edit-tax">Tax Amount</Label>
-              <Input
-                id="edit-tax"
-                type="number"
-                step="0.01"
-                value={editFormData.taxAmount}
-                onChange={(e) => setEditFormData({ ...editFormData, taxAmount: e.target.value })}
-                data-testid="input-edit-tax"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-total">Total Amount</Label>
-              <Input
-                id="edit-total"
-                type="number"
-                step="0.01"
-                value={editFormData.totalAmount}
-                onChange={(e) => setEditFormData({ ...editFormData, totalAmount: e.target.value })}
-                data-testid="input-edit-total"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)} data-testid="button-cancel-edit">
+          )}
+          <DialogFooter className="border-t border-slate-200 pt-4 gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setEditDialogOpen(false)} 
+              className="border-slate-300 text-slate-700 hover:bg-slate-50"
+              data-testid="button-cancel-edit"
+            >
               Cancel
             </Button>
             <Button
@@ -1947,6 +2143,7 @@ function InvoiceManagement() {
                 });
               }}
               disabled={updateInvoiceMutation.isPending}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-md"
               data-testid="button-save-edit"
             >
               {updateInvoiceMutation.isPending ? "Saving..." : "Save Changes"}
