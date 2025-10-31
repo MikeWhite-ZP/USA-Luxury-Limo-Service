@@ -1406,29 +1406,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const userId = req.user.id;
+      console.log(`🗑️ DELETE BOOKING REQUEST - Booking ID: ${id}, User ID: ${userId}`);
       
       // Get the booking first
       const booking = await storage.getBooking(id);
       if (!booking) {
+        console.log(`❌ Booking not found: ${id}`);
         return res.status(404).json({ message: 'Booking not found' });
       }
+      console.log(`✅ Booking found: ${id}, Status: ${booking.status}, Passenger: ${booking.passengerId}`);
 
       const user = await storage.getUser(userId);
+      console.log(`✅ User found: ${user?.username || user?.email}, Role: ${user?.role}`);
       
       // Check permissions: must be admin or booking owner
       if (booking.passengerId !== userId && user?.role !== 'admin') {
+        console.log(`❌ Permission denied - User is not admin and not booking owner`);
         return res.status(403).json({ message: 'Not authorized to delete this booking' });
       }
 
       // Only allow deleting pending bookings (unless admin)
       if (booking.status !== 'pending' && user?.role !== 'admin') {
+        console.log(`❌ Cannot delete - Booking status is ${booking.status} and user is not admin`);
         return res.status(400).json({ message: 'Only pending bookings can be deleted' });
       }
 
+      console.log(`🗑️ Proceeding to delete booking ${id}...`);
       await storage.deleteBooking(id);
+      console.log(`✅ Booking ${id} deleted successfully`);
       res.json({ success: true });
     } catch (error) {
-      console.error('Delete booking error:', error);
+      console.error('❌ Delete booking error:', error);
       res.status(500).json({ message: 'Failed to delete booking' });
     }
   });
