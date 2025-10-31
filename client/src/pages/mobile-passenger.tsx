@@ -165,8 +165,8 @@ export default function MobilePassenger() {
         </div>
 
         {/* Navigation Menu */}
-        <div className="px-4 pt-2 pb-0 overflow-x-auto scrollbar-hide">
-          <div className="flex gap-2 min-w-max">
+        <div className="px-2 pt-2 pb-0 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1 min-w-max">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id;
@@ -174,15 +174,15 @@ export default function MobilePassenger() {
                 <button
                   key={item.id}
                   onClick={() => { setActiveSection(item.id); setMenuOpen(false); }}
-                  className={`flex flex-col items-center gap-1.5 px-4 py-3 rounded-t-xl transition-all ${
+                  className={`flex flex-col items-center gap-0.5 px-2.5 py-2 rounded-t-lg transition-all ${
                     isActive
                       ? 'bg-gradient-to-br from-slate-50 via-white to-blue-50/20 text-blue-600 shadow-lg'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                   data-testid={`nav-${item.id}`}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600' : ''}`} />
-                  <span className={`text-xs font-medium whitespace-nowrap ${isActive ? 'text-blue-700' : ''}`}>
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : ''}`} />
+                  <span className={`text-[10px] font-medium whitespace-nowrap ${isActive ? 'text-blue-700' : ''}`}>
                     {item.label}
                   </span>
                 </button>
