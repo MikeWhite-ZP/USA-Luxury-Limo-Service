@@ -5656,11 +5656,13 @@ export default function AdminDashboard() {
                           <Button
                             size="sm"
                             onClick={() => {
-                              if (
-                                confirm(
-                                  `Are you sure you want to delete booking #${booking.id.substring(0, 8)}?`,
-                                )
-                              ) {
+                              console.log('🗑️ Delete button clicked for booking:', booking.id);
+                              const confirmed = confirm(
+                                `Are you sure you want to delete booking #${booking.id.substring(0, 8)}?`,
+                              );
+                              console.log('🗑️ User confirmed deletion:', confirmed);
+                              if (confirmed) {
+                                console.log('🗑️ Triggering delete mutation for booking:', booking.id);
                                 deleteBookingMutation.mutate(booking.id);
                               }
                             }}
