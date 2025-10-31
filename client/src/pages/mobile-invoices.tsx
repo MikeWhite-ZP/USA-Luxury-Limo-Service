@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { FileText, ArrowLeft, Eye, Printer, Mail, Receipt, Search } from 'lucide-react';
+import { FileText, ArrowLeft, Eye, Printer, Mail, Receipt, Search, Calendar, X } from 'lucide-react';
 
 export default function MobileInvoices() {
   const [, navigate] = useLocation();
@@ -18,6 +18,8 @@ export default function MobileInvoices() {
   const queryClient = useQueryClient();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
@@ -62,10 +64,27 @@ export default function MobileInvoices() {
     },
   });
 
-  const filteredInvoices = invoices?.filter(invoice => 
-    invoice.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    invoice.booking?.pickupAddress?.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredInvoices = invoices?.filter(invoice => {
+    // Text search filter
+    const matchesSearch = !searchQuery || 
+      invoice.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      invoice.booking?.pickupAddress?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Date range filter
+    const invoiceDate = new Date(invoice.createdAt);
+    const matchesStartDate = !startDate || invoiceDate >= new Date(startDate);
+    const matchesEndDate = !endDate || invoiceDate <= new Date(endDate + 'T23:59:59');
+    
+    return matchesSearch && matchesStartDate && matchesEndDate;
+  }) || [];
+
+  const hasActiveFilters = searchQuery || startDate || endDate;
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setStartDate('');
+    setEndDate('');
+  };
 
   const handleView = (invoice: any) => {
     setSelectedInvoice(invoice);
@@ -447,7 +466,7 @@ export default function MobileInvoices() {
       </div>
 
       {/* Search Bar */}
-      <div className="px-4 -mt-6 mb-6">
+      <div className="px-4 -mt-6 mb-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
           <Input
@@ -461,8 +480,68 @@ export default function MobileInvoices() {
         </div>
       </div>
 
+      {/* Date Range Filters */}
+      <div className="px-4 mb-6">
+        <div className="bg-white shadow-md rounded-lg p-4 border border-slate-200">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-semibold text-slate-900">Filter by Date</span>
+            </div>
+            {hasActiveFilters && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={clearFilters}
+                className="h-7 px-2 text-xs text-slate-600 hover:text-red-600 hover:bg-red-50"
+                data-testid="button-clear-filters"
+              >
+                <X className="w-3 h-3 mr-1" />
+                Clear
+              </Button>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="start-date" className="text-xs text-slate-600 mb-1.5 block">From</Label>
+              <Input
+                id="start-date"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="h-9 text-sm border-slate-300"
+                data-testid="input-start-date"
+              />
+            </div>
+            <div>
+              <Label htmlFor="end-date" className="text-xs text-slate-600 mb-1.5 block">To</Label>
+              <Input
+                id="end-date"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="h-9 text-sm border-slate-300"
+                data-testid="input-end-date"
+              />
+            </div>
+          </div>
+          {(startDate || endDate) && (
+            <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+              <span>📅</span>
+              {startDate && endDate ? (
+                <span>Showing invoices from {new Date(startDate).toLocaleDateString()} to {new Date(endDate).toLocaleDateString()}</span>
+              ) : startDate ? (
+                <span>Showing invoices from {new Date(startDate).toLocaleDateString()} onwards</span>
+              ) : (
+                <span>Showing invoices up to {new Date(endDate).toLocaleDateString()}</span>
+              )}
+            </p>
+          )}
+        </div>
+      </div>
+
       {/* Invoices List */}
-      <div className="px-4 space-y-4">
+      <div className="px-4 space-y-3">
         {isLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto" />
@@ -484,15 +563,15 @@ export default function MobileInvoices() {
           </Card>
         ) : (
           filteredInvoices.map((invoice) => (
-            <Card key={invoice.id} className="border-slate-200 bg-white shadow-md hover:shadow-lg transition-shadow">
+            <Card key={invoice.id} className="border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
               <CardContent className="p-0">
-                <div className="p-4 space-y-3">
+                <div className="p-3 space-y-2">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-bold text-slate-900 text-lg" data-testid={`invoice-number-${invoice.id}`}>
+                      <p className="font-bold text-slate-900 text-sm" data-testid={`invoice-number-${invoice.id}`}>
                         {invoice.invoiceNumber}
                       </p>
-                      <p className="text-sm text-slate-600" data-testid={`invoice-date-${invoice.id}`}>
+                      <p className="text-xs text-slate-600" data-testid={`invoice-date-${invoice.id}`}>
                         {new Date(invoice.createdAt).toLocaleDateString('en-US', { 
                           year: 'numeric', 
                           month: 'short', 
@@ -501,11 +580,11 @@ export default function MobileInvoices() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-blue-700" data-testid={`invoice-amount-${invoice.id}`}>
+                      <p className="text-lg font-bold text-blue-700" data-testid={`invoice-amount-${invoice.id}`}>
                         ${parseFloat(invoice.totalAmount).toFixed(2)}
                       </p>
                       <span
-                        className={`inline-block text-xs px-2 py-1 rounded-full font-semibold ${
+                        className={`inline-block text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
                           invoice.paidAt
                             ? 'bg-green-100 text-green-800'
                             : 'bg-amber-100 text-amber-800'
@@ -518,40 +597,40 @@ export default function MobileInvoices() {
                   </div>
 
                   {invoice.booking && (
-                    <div className="text-sm space-y-1">
-                      <p className="text-slate-600">
+                    <div className="text-xs space-y-0.5">
+                      <p className="text-slate-600 leading-tight">
                         <span className="font-medium text-slate-900">From:</span> {invoice.booking.pickupAddress}
                       </p>
                       {invoice.booking.destinationAddress && (
-                        <p className="text-slate-600">
+                        <p className="text-slate-600 leading-tight">
                           <span className="font-medium text-slate-900">To:</span> {invoice.booking.destinationAddress}
                         </p>
                       )}
-                      <p className="text-slate-600">
-                        <span className="font-medium text-slate-900">Booking ID:</span> #{invoice.bookingId.toUpperCase().substring(0, 8)}
+                      <p className="text-slate-600 leading-tight">
+                        <span className="font-medium text-slate-900">ID:</span> #{invoice.bookingId.toUpperCase().substring(0, 8)}
                       </p>
                     </div>
                   )}
 
-                  <div className="flex gap-2 pt-2 border-t border-slate-100">
+                  <div className="flex gap-1.5 pt-2 border-t border-slate-100">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleView(invoice)}
-                      className="flex-1 h-10 text-indigo-700 border-indigo-300 hover:bg-indigo-50"
+                      className="flex-1 h-7 text-indigo-700 border-indigo-300 hover:bg-indigo-50 text-[10px] px-1"
                       data-testid={`button-view-${invoice.id}`}
                     >
-                      <Eye className="w-4 h-4 mr-1.5" />
+                      <Eye className="w-3 h-3 mr-0.5" />
                       View
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handlePrint(invoice)}
-                      className="flex-1 h-10 text-slate-700 border-slate-300 hover:bg-slate-50"
+                      className="flex-1 h-7 text-slate-700 border-slate-300 hover:bg-slate-50 text-[10px] px-1"
                       data-testid={`button-print-${invoice.id}`}
                     >
-                      <Printer className="w-4 h-4 mr-1.5" />
+                      <Printer className="w-3 h-3 mr-0.5" />
                       Print
                     </Button>
                     <Button
@@ -559,10 +638,10 @@ export default function MobileInvoices() {
                       variant="outline"
                       onClick={() => handleEmail(invoice)}
                       disabled={isLoadingEmail}
-                      className="flex-1 h-10 text-blue-700 border-blue-300 hover:bg-blue-50"
+                      className="flex-1 h-7 text-blue-700 border-blue-300 hover:bg-blue-50 text-[10px] px-1"
                       data-testid={`button-email-${invoice.id}`}
                     >
-                      <Mail className="w-4 h-4 mr-1.5" />
+                      <Mail className="w-3 h-3 mr-0.5" />
                       {isLoadingEmail ? "..." : "Email"}
                     </Button>
                   </div>
