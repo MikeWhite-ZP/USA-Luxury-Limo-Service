@@ -44,6 +44,12 @@ export default function MobilePassenger() {
     enabled: !!user,
   });
 
+  // Fetch user's saved addresses
+  const { data: savedAddresses, isLoading: savedAddressesLoading } = useQuery<any[]>({
+    queryKey: ['/api/saved-addresses'],
+    enabled: !!user,
+  });
+
   const handleLogout = () => {
     logoutMutation.mutate();
   };
@@ -336,11 +342,42 @@ export default function MobilePassenger() {
                 <CardDescription>Quick access to your favorite places</CardDescription>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="text-center py-8 text-gray-500">
-                  <MapPin className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No saved locations yet</p>
-                  <p className="text-sm mt-2">Save locations during booking for quick access</p>
-                </div>
+                {savedAddressesLoading ? (
+                  <div className="text-center py-8 text-gray-500">Loading...</div>
+                ) : !savedAddresses || savedAddresses.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <MapPin className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No saved locations yet</p>
+                    <p className="text-sm mt-2">Save locations during booking for quick access</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {savedAddresses.map((location) => (
+                      <div
+                        key={location.id}
+                        className="bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-400 hover:bg-blue-50/50 transition-all"
+                        data-testid={`saved-location-${location.id}`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="bg-blue-100 p-2 rounded-lg">
+                            <MapPin className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-semibold text-gray-900">{location.label}</h3>
+                              {location.isDefault && (
+                                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600 break-words">{location.address}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
