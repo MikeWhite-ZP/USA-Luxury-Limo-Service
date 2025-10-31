@@ -1122,8 +1122,23 @@ function InvoiceManagement() {
     );
   });
 
-  const handleView = (invoice: any) => {
-    setSelectedInvoice(invoice);
+  const handleView = async (invoice: any) => {
+    // Fetch booking details to get pricing breakdown
+    try {
+      const bookingResponse = await fetch(`/api/bookings/${invoice.bookingId}`, {
+        credentials: 'include'
+      });
+      
+      if (bookingResponse.ok) {
+        const booking = await bookingResponse.json();
+        setSelectedInvoice({ ...invoice, booking });
+      } else {
+        setSelectedInvoice(invoice);
+      }
+    } catch (error) {
+      console.error('Error fetching booking details:', error);
+      setSelectedInvoice(invoice);
+    }
     setViewDialogOpen(true);
   };
 
@@ -1454,71 +1469,162 @@ function InvoiceManagement() {
 
       {/* View Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-[#ffffff] text-[#333333]">
-          <DialogHeader className="border-b pb-4">
-            <DialogTitle className="text-xl font-bold">Invoice Details</DialogTitle>
+        <DialogContent className="sm:max-w-[700px] bg-white">
+          <DialogHeader className="border-b border-slate-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-lg">
+                <FileText className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold text-slate-900">Invoice Details</DialogTitle>
+                <p className="text-sm text-slate-600 mt-0.5">Complete pricing breakdown and payment information</p>
+              </div>
+            </div>
           </DialogHeader>
           {selectedInvoice && (
             <div className="space-y-6">
               {/* Invoice Header Section */}
-              <div className="bg-[#f8f9fa] p-4 rounded-lg border border-gray-200">
-                <h3 className="font-bold text-lg mb-3">Invoice Information</h3>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+              <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 p-5 rounded-xl border border-slate-200">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="bg-indigo-100 p-1.5 rounded-lg">
+                    <FileText className="w-4 h-4 text-indigo-700" />
+                  </div>
+                  <h3 className="font-bold text-lg text-slate-900">Invoice Information</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
                   <div>
-                    <p className="text-gray-600 mb-1">Invoice Number</p>
-                    <p className="font-semibold" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
+                    <p className="text-slate-600 mb-1.5 font-medium">Invoice Number</p>
+                    <p className="font-bold text-slate-900" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">Date</p>
-                    <p data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
+                    <p className="text-slate-600 mb-1.5 font-medium">Date</p>
+                    <p className="text-slate-900" data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-gray-600 mb-1">Booking ID</p>
-                    <p className="font-mono text-xs" data-testid="view-booking-id">#{selectedInvoice.bookingId.toUpperCase().substring(0, 8)}</p>
+                    <p className="text-slate-600 mb-1.5 font-medium">Booking ID</p>
+                    <p className="font-mono text-sm bg-slate-200 text-slate-900 px-3 py-1.5 rounded-lg inline-block" data-testid="view-booking-id">
+                      #{selectedInvoice.bookingId.toUpperCase().substring(0, 8)}
+                    </p>
                   </div>
                   {selectedInvoice.paidAt && (
                     <div className="col-span-2">
-                      <p className="text-gray-600 mb-1">Payment Date</p>
-                      <p data-testid="view-payment-date">{new Date(selectedInvoice.paidAt).toLocaleDateString()}</p>
+                      <p className="text-slate-600 mb-1.5 font-medium">Payment Date</p>
+                      <p className="text-slate-900" data-testid="view-payment-date">{new Date(selectedInvoice.paidAt).toLocaleDateString()}</p>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Fare Breakdown Section */}
-              <div className="border-t border-b py-4">
-                <h3 className="font-bold text-lg mb-3">Fare Breakdown</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-gray-600">Journey Fare</span>
-                    <span className="font-semibold" data-testid="view-subtotal">${parseFloat(selectedInvoice.subtotal).toFixed(2)}</span>
+              {/* Detailed Pricing Breakdown */}
+              <div className="bg-white border border-slate-200 rounded-xl p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="bg-blue-100 p-1.5 rounded-lg">
+                    <Receipt className="w-4 h-4 text-blue-700" />
                   </div>
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-gray-600">Sub Total</span>
-                    <span className="font-semibold">${parseFloat(selectedInvoice.subtotal).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between py-3 bg-[#f8f9fa] px-3 -mx-3 rounded">
-                    <span className="font-bold text-base">Total Journey Fare</span>
-                    <span className="font-bold text-base" data-testid="view-total">${parseFloat(selectedInvoice.totalAmount).toFixed(2)}</span>
+                  <h3 className="font-bold text-lg text-slate-900">Detailed Pricing Breakdown</h3>
+                </div>
+                <div className="space-y-3">
+                  {/* Base Fare */}
+                  {selectedInvoice.booking?.baseFare && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
+                      <span className="text-slate-900 font-medium">Base Fare</span>
+                      <span className="font-semibold text-slate-900" data-testid="view-base-fare">
+                        ${parseFloat(selectedInvoice.booking.baseFare).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Surge Pricing */}
+                  {selectedInvoice.booking?.surgePricingAmount && parseFloat(selectedInvoice.booking.surgePricingAmount) > 0 && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-900 font-medium">Surge Pricing</span>
+                        {selectedInvoice.booking?.surgePricingMultiplier && (
+                          <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
+                            {selectedInvoice.booking.surgePricingMultiplier}x
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-semibold text-orange-600" data-testid="view-surge-pricing">
+                        +${parseFloat(selectedInvoice.booking.surgePricingAmount).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Gratuity */}
+                  {selectedInvoice.booking?.gratuityAmount && parseFloat(selectedInvoice.booking.gratuityAmount) > 0 && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
+                      <span className="text-slate-900 font-medium">Gratuity (Tip)</span>
+                      <span className="font-semibold text-slate-900" data-testid="view-gratuity">
+                        +${parseFloat(selectedInvoice.booking.gratuityAmount).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Airport Fee */}
+                  {selectedInvoice.booking?.airportFeeAmount && parseFloat(selectedInvoice.booking.airportFeeAmount) > 0 && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
+                      <span className="text-slate-900 font-medium">Airport Fee</span>
+                      <span className="font-semibold text-slate-900" data-testid="view-airport-fee">
+                        +${parseFloat(selectedInvoice.booking.airportFeeAmount).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Discount */}
+                  {selectedInvoice.booking?.discountAmount && parseFloat(selectedInvoice.booking.discountAmount) > 0 && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-900 font-medium">Discount</span>
+                        {selectedInvoice.booking?.discountPercentage && (
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
+                            {selectedInvoice.booking.discountPercentage}%
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-semibold text-green-600" data-testid="view-discount">
+                        -${parseFloat(selectedInvoice.booking.discountAmount).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Total */}
+                  <div className="flex justify-between items-center py-4 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 -mx-4 rounded-lg mt-3 border-t-2 border-blue-200">
+                    <span className="font-bold text-lg text-slate-900">Total Amount</span>
+                    <span className="font-bold text-xl text-blue-700" data-testid="view-total">
+                      ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Payment Status */}
               {selectedInvoice.paidAt && (
-                <div className="text-center p-4 bg-[#d4edda] border border-[#c3e6cb] rounded-lg">
-                  <p className="text-[#155724] font-bold text-lg">PAID</p>
+                <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="bg-green-600 p-1.5 rounded-full">
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <p className="text-green-800 font-bold text-lg">PAYMENT RECEIVED</p>
+                  </div>
                 </div>
               )}
 
               {/* Footer Note */}
-              <div className="text-xs text-gray-500 text-center pt-2">
-                * All prices include all statutory taxes and all expenses for your transportation service.
+              <div className="text-xs text-slate-500 text-center pt-2 bg-slate-50 py-3 rounded-lg border border-slate-200">
+                <p className="font-medium">💡 All prices include statutory taxes and transportation expenses</p>
               </div>
             </div>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setViewDialogOpen(false)} data-testid="button-close-view">
+          <DialogFooter className="border-t border-slate-200 pt-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setViewDialogOpen(false)} 
+              className="border-slate-300 text-slate-700 hover:bg-slate-50"
+              data-testid="button-close-view"
+            >
               Close
             </Button>
           </DialogFooter>
@@ -1527,9 +1633,14 @@ function InvoiceManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-[#ffffff]">
-          <DialogHeader>
-            <DialogTitle>Edit Invoice</DialogTitle>
+        <DialogContent className="sm:max-w-[500px] bg-white">
+          <DialogHeader className="border-b border-slate-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-2 rounded-lg">
+                <Edit2 className="w-5 h-5 text-white" />
+              </div>
+              <DialogTitle className="text-xl font-bold text-slate-900">Edit Invoice</DialogTitle>
+            </div>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -1588,10 +1699,17 @@ function InvoiceManagement() {
 
       {/* Email Dialog */}
       <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-[#ffffff]">
-          <DialogHeader>
-            <DialogTitle>Email Invoice</DialogTitle>
-            <DialogDescription>Send this invoice to a customer via email.</DialogDescription>
+        <DialogContent className="sm:max-w-[500px] bg-white">
+          <DialogHeader className="border-b border-slate-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-blue-500 to-cyan-600 p-2 rounded-lg">
+                <Mail className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold text-slate-900">Email Invoice</DialogTitle>
+                <DialogDescription className="text-slate-600 mt-0.5">Send this invoice to a customer via email</DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -1630,17 +1748,26 @@ function InvoiceManagement() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-[#ffffff]">
-          <DialogHeader>
-            <DialogTitle>Delete Invoice</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this invoice? This action cannot be undone.
-            </DialogDescription>
+        <DialogContent className="sm:max-w-[500px] bg-white">
+          <DialogHeader className="border-b border-red-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-red-500 to-rose-600 p-2 rounded-lg">
+                <Trash2 className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold text-slate-900">Delete Invoice</DialogTitle>
+                <DialogDescription className="text-slate-600 mt-0.5">
+                  This action cannot be undone. The invoice will be permanently removed.
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
           {selectedInvoice && (
-            <div className="p-4 bg-muted rounded-lg">
-              <p><strong>Invoice #:</strong> {selectedInvoice.invoiceNumber}</p>
-              <p><strong>Amount:</strong> ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}</p>
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="space-y-2 text-sm">
+                <p className="text-slate-900"><strong className="font-semibold">Invoice #:</strong> {selectedInvoice.invoiceNumber}</p>
+                <p className="text-slate-900"><strong className="font-semibold">Amount:</strong> ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}</p>
+              </div>
             </div>
           )}
           <DialogFooter>
@@ -1665,31 +1792,43 @@ function InvoiceManagement() {
 
       {/* Backfill Invoices Dialog */}
       <Dialog open={backfillDialogOpen} onOpenChange={setBackfillDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-[#ffffff]">
-          <DialogHeader>
-            <DialogTitle>Backfill Missing Invoices</DialogTitle>
-            <DialogDescription>
-              This will automatically create invoices for all bookings that don't have one.
-            </DialogDescription>
+        <DialogContent className="sm:max-w-[600px] bg-white">
+          <DialogHeader className="border-b border-slate-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-lg">
+                <FileText className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold text-slate-900">Backfill Missing Invoices</DialogTitle>
+                <DialogDescription className="text-slate-600 mt-0.5">
+                  Automatically create invoices for bookings that don't have one
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
           
           {backfillResult ? (
             <div className="space-y-4">
-              <div className="p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
-                <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2">Backfill Completed!</h3>
-                <div className="space-y-1 text-sm text-green-800 dark:text-green-200">
-                  <p><strong>Total Bookings:</strong> {backfillResult.total}</p>
-                  <p><strong>Invoices Created:</strong> {backfillResult.created}</p>
-                  <p><strong>Already Existed:</strong> {backfillResult.skipped}</p>
+              <div className="p-5 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="bg-green-600 p-1.5 rounded-full">
+                    <Check className="w-4 h-4 text-white" />
+                  </div>
+                  <h3 className="font-bold text-green-900">Backfill Completed!</h3>
+                </div>
+                <div className="space-y-2 text-sm text-green-800">
+                  <p><strong className="font-semibold">Total Bookings:</strong> {backfillResult.total}</p>
+                  <p><strong className="font-semibold">Invoices Created:</strong> {backfillResult.created}</p>
+                  <p><strong className="font-semibold">Already Existed:</strong> {backfillResult.skipped}</p>
                   {backfillResult.errors > 0 && (
-                    <p className="text-red-600 dark:text-red-400"><strong>Errors:</strong> {backfillResult.errors}</p>
+                    <p className="text-red-700"><strong className="font-semibold">Errors:</strong> {backfillResult.errors}</p>
                   )}
                 </div>
               </div>
               {backfillResult.errorDetails && backfillResult.errorDetails.length > 0 && (
-                <div className="p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
-                  <h4 className="font-semibold text-red-900 dark:text-red-100 mb-2">Error Details:</h4>
-                  <div className="space-y-1 text-xs text-red-800 dark:text-red-200 max-h-40 overflow-y-auto">
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <h4 className="font-semibold text-red-900 mb-2">Error Details:</h4>
+                  <div className="space-y-1 text-xs text-red-800 max-h-40 overflow-y-auto">
                     {backfillResult.errorDetails.map((error: string, index: number) => (
                       <p key={index}>{error}</p>
                     ))}
@@ -1699,11 +1838,16 @@ function InvoiceManagement() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
-                <p className="text-sm text-blue-900 dark:text-blue-100">
-                  This operation will scan all bookings and create invoices for those that are missing one. 
-                  Existing invoices will not be affected.
-                </p>
+              <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <div className="bg-blue-100 p-1.5 rounded-lg mt-0.5">
+                    <AlertCircle className="w-4 h-4 text-blue-700" />
+                  </div>
+                  <p className="text-sm text-blue-900 leading-relaxed">
+                    This operation will scan all bookings and create invoices for those that are missing one. 
+                    Existing invoices will not be affected.
+                  </p>
+                </div>
               </div>
             </div>
           )}
