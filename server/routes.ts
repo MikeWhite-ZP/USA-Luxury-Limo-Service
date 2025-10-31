@@ -2095,6 +2095,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Continue without logo
       }
 
+      // Build detailed pricing rows
+      let pricingRows = '';
+      
+      if (booking.baseFare) {
+        pricingRows += `
+          <div class="pricing-row">
+            <span class="pricing-label">Base Fare</span>
+            <span class="pricing-value">$${parseFloat(booking.baseFare).toFixed(2)}</span>
+          </div>
+        `;
+      }
+      
+      if (booking.surgePricingAmount && parseFloat(booking.surgePricingAmount) > 0) {
+        const multiplier = booking.surgePricingMultiplier ? ` (${booking.surgePricingMultiplier}x)` : '';
+        pricingRows += `
+          <div class="pricing-row">
+            <span class="pricing-label">Surge Pricing${multiplier}</span>
+            <span class="pricing-value pricing-surge">+$${parseFloat(booking.surgePricingAmount).toFixed(2)}</span>
+          </div>
+        `;
+      }
+      
+      if (booking.gratuityAmount && parseFloat(booking.gratuityAmount) > 0) {
+        pricingRows += `
+          <div class="pricing-row">
+            <span class="pricing-label">Gratuity (Tip)</span>
+            <span class="pricing-value">+$${parseFloat(booking.gratuityAmount).toFixed(2)}</span>
+          </div>
+        `;
+      }
+      
+      if (booking.airportFeeAmount && parseFloat(booking.airportFeeAmount) > 0) {
+        pricingRows += `
+          <div class="pricing-row">
+            <span class="pricing-label">Airport Fee</span>
+            <span class="pricing-value">+$${parseFloat(booking.airportFeeAmount).toFixed(2)}</span>
+          </div>
+        `;
+      }
+      
+      if (booking.discountAmount && parseFloat(booking.discountAmount) > 0) {
+        const percentage = booking.discountPercentage ? ` (${booking.discountPercentage}%)` : '';
+        pricingRows += `
+          <div class="pricing-row">
+            <span class="pricing-label">Discount${percentage}</span>
+            <span class="pricing-value pricing-discount">-$${parseFloat(booking.discountAmount).toFixed(2)}</span>
+          </div>
+        `;
+      }
+
       const emailHtml = `
         <!DOCTYPE html>
         <html>
@@ -2103,30 +2153,233 @@ export async function registerRoutes(app: Express): Promise<Server> {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f5f5f5; }
-            .email-wrapper { background-color: #f5f5f5; padding: 20px; }
-            .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-            .header { padding: 20px; border-bottom: 3px solid #4CAF50; text-align: center; }
-            .logo { font-size: 24px; font-weight: bold; color: #000; margin-bottom: 5px; }
-            .logo-img { max-height: 60px; max-width: 250px; margin: 0 auto 10px; display: block; }
-            .tagline { font-size: 12px; color: #666; }
-            .success-banner { background-color: #d4edda; padding: 15px; text-align: center; margin: 0; border-bottom: 1px solid #c3e6cb; }
-            .success-banner h2 { color: #155724; font-size: 18px; margin: 0; }
-            .content { padding: 30px 20px; }
-            .greeting { margin-bottom: 20px; }
-            .section { margin-bottom: 25px; }
-            .section-title { font-weight: bold; font-size: 16px; margin-bottom: 15px; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; }
-            .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
-            .info-label { font-weight: bold; color: #555; flex: 0 0 40%; }
-            .info-value { color: #333; flex: 1; text-align: left; }
-            .fare-breakdown { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; }
-            .fare-row { display: flex; justify-content: space-between; padding: 8px 0; }
-            .fare-total { background-color: #e9ecef; padding: 12px; margin-top: 10px; border-radius: 3px; }
-            .fare-total .fare-row { font-weight: bold; font-size: 16px; }
-            .payment-link { text-align: center; margin: 20px 0; }
-            .payment-button { display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; }
-            .footer-note { font-size: 12px; color: #666; text-align: center; padding: 20px; border-top: 1px solid #e0e0e0; margin-top: 20px; }
-            .paid-badge { background-color: #d4edda; color: #155724; padding: 15px; text-align: center; font-weight: bold; font-size: 18px; border-radius: 5px; margin: 20px 0; border: 2px solid #c3e6cb; }
+            body { 
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+              line-height: 1.6;
+              color: #0f172a;
+              background-color: #f8fafc;
+            }
+            .email-wrapper { background-color: #f8fafc; padding: 24px; }
+            .container { 
+              max-width: 650px; 
+              margin: 0 auto; 
+              background-color: #ffffff; 
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            
+            /* Header */
+            .header { 
+              background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+              padding: 32px 24px;
+              border-bottom: 3px solid #4f46e5;
+              text-align: center;
+            }
+            .logo { 
+              font-size: 28px; 
+              font-weight: 800; 
+              color: #1e293b; 
+              margin-bottom: 8px;
+              letter-spacing: -0.5px;
+            }
+            .logo-img { 
+              max-height: 70px; 
+              max-width: 280px; 
+              margin: 0 auto 12px; 
+              display: block;
+            }
+            .tagline { 
+              font-size: 14px; 
+              color: #64748b; 
+              font-weight: 500;
+            }
+            
+            /* Success Banner */
+            .success-banner { 
+              background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+              padding: 20px;
+              text-align: center;
+              border-bottom: 3px solid #10b981;
+            }
+            .success-banner h2 { 
+              color: #065f46; 
+              font-size: 20px;
+              margin: 0;
+              font-weight: 800;
+              letter-spacing: 1px;
+            }
+            
+            /* Content */
+            .content { padding: 32px 24px; }
+            .greeting { 
+              margin-bottom: 24px;
+              color: #334155;
+            }
+            .greeting p { margin-bottom: 8px; }
+            
+            /* Sections */
+            .section { 
+              margin-bottom: 28px;
+              background: #f8fafc;
+              border: 2px solid #e2e8f0;
+              border-radius: 10px;
+              padding: 20px;
+            }
+            .section-title { 
+              font-weight: 700;
+              font-size: 16px;
+              margin-bottom: 16px;
+              color: #334155;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              padding-bottom: 8px;
+              border-bottom: 2px solid #cbd5e1;
+            }
+            .info-row { 
+              display: flex;
+              justify-content: space-between;
+              padding: 10px 0;
+              border-bottom: 1px solid #f1f5f9;
+            }
+            .info-row:last-child { border-bottom: none; }
+            .info-label { 
+              font-weight: 600;
+              color: #64748b;
+              flex: 0 0 40%;
+              font-size: 14px;
+            }
+            .info-value { 
+              color: #0f172a;
+              flex: 1;
+              text-align: right;
+              font-weight: 500;
+              font-size: 14px;
+            }
+            
+            /* Pricing Section */
+            .pricing-section {
+              background: white;
+              border: 2px solid #e2e8f0;
+              border-radius: 10px;
+              padding: 20px;
+              margin-bottom: 28px;
+            }
+            .pricing-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 12px 0;
+              border-bottom: 1px solid #f1f5f9;
+            }
+            .pricing-row:last-child { border-bottom: none; }
+            .pricing-label {
+              font-size: 15px;
+              color: #0f172a;
+              font-weight: 500;
+            }
+            .pricing-value {
+              font-size: 15px;
+              color: #0f172a;
+              font-weight: 600;
+            }
+            .pricing-surge {
+              color: #ea580c;
+            }
+            .pricing-discount {
+              color: #16a34a;
+            }
+            
+            /* Total Section */
+            .total-section {
+              background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+              border: 3px solid #3b82f6;
+              border-radius: 10px;
+              padding: 20px;
+              margin-top: 20px;
+            }
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .total-label {
+              font-size: 18px;
+              color: #0f172a;
+              font-weight: 700;
+            }
+            .total-value {
+              font-size: 24px;
+              color: #1d4ed8;
+              font-weight: 800;
+            }
+            
+            /* Payment */
+            .payment-link { 
+              text-align: center;
+              margin: 24px 0;
+              padding: 24px;
+              background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+              border-radius: 10px;
+              border: 2px solid #3b82f6;
+            }
+            .payment-link p {
+              color: #1e40af;
+              font-weight: 600;
+              margin-bottom: 16px;
+              font-size: 16px;
+            }
+            .payment-button { 
+              display: inline-block;
+              background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+              color: #ffffff;
+              padding: 14px 36px;
+              text-decoration: none;
+              border-radius: 8px;
+              font-weight: 700;
+              font-size: 16px;
+              box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+              transition: all 0.2s;
+            }
+            .payment-button:hover {
+              background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            }
+            
+            /* Paid Badge */
+            .paid-badge { 
+              background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+              color: #065f46;
+              padding: 20px;
+              text-align: center;
+              font-weight: 800;
+              font-size: 20px;
+              border-radius: 10px;
+              margin: 24px 0;
+              border: 3px solid #10b981;
+              letter-spacing: 2px;
+            }
+            
+            /* Footer */
+            .footer-note { 
+              font-size: 13px;
+              color: #64748b;
+              text-align: center;
+              padding: 24px;
+              border-top: 2px solid #e2e8f0;
+              margin-top: 28px;
+              background: #f8fafc;
+              border-radius: 8px;
+            }
+            .footer-note strong {
+              color: #334155;
+              font-weight: 600;
+            }
+            
+            @media only screen and (max-width: 600px) {
+              .email-wrapper { padding: 12px; }
+              .content { padding: 20px 16px; }
+              .section { padding: 16px; }
+            }
           </style>
         </head>
         <body>
@@ -2144,26 +2397,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
               <!-- Success Banner -->
               <div class="success-banner">
-                <h2>Invoice Ready!</h2>
+                <h2>✓ INVOICE READY</h2>
               </div>
 
               <!-- Content -->
               <div class="content">
                 <div class="greeting">
-                  <p>Dear ${passenger?.firstName || 'Customer'},</p>
-                  <p style="margin-top: 10px;">Thank you for booking with USA Luxury Limo Service! Below is your invoice.</p>
+                  <p><strong>Dear ${passenger?.firstName || 'Customer'},</strong></p>
+                  <p>Thank you for booking with USA Luxury Limo Service! Below is your detailed invoice.</p>
                 </div>
 
                 <!-- Invoice Information -->
                 <div class="section">
-                  <div class="section-title">Invoice Information</div>
+                  <div class="section-title">📋 Invoice Information</div>
                   <div class="info-row">
                     <span class="info-label">Invoice Number</span>
                     <span class="info-value">${invoice.invoiceNumber}</span>
                   </div>
                   <div class="info-row">
                     <span class="info-label">Date & time</span>
-                    <span class="info-value">${new Date(booking.scheduledDateTime).toLocaleString()}</span>
+                    <span class="info-value">${new Date(booking.scheduledDateTime).toLocaleString('en-US', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}</span>
                   </div>
                   <div class="info-row">
                     <span class="info-label">Booking REF#</span>
@@ -2173,7 +2432,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
                 <!-- Journey Information -->
                 <div class="section">
-                  <div class="section-title">Journey Information</div>
+                  <div class="section-title">🚗 Journey Information</div>
                   <div class="info-row">
                     <span class="info-label">From</span>
                     <span class="info-value">${booking.pickupAddress}</span>
@@ -2188,7 +2447,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
                 <!-- Account -->
                 <div class="section">
-                  <div class="section-title">Account</div>
+                  <div class="section-title">👤 Account Details</div>
                   <div class="info-row">
                     <span class="info-label">Name</span>
                     <span class="info-value">${passenger?.firstName} ${passenger?.lastName}</span>
@@ -2207,23 +2466,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   ` : ''}
                 </div>
 
-                <!-- Fare Breakdown -->
-                <div class="section">
-                  <div class="section-title">Fare Breakdown</div>
-                  <div class="fare-breakdown">
-                    <div class="fare-row">
-                      <span>Journey Fare</span>
-                      <span>$${parseFloat(invoice.subtotal).toFixed(2)}</span>
+                <!-- Detailed Pricing Breakdown -->
+                <div class="pricing-section">
+                  <div class="section-title">💰 Detailed Pricing Breakdown</div>
+                  ${pricingRows || `
+                    <div class="pricing-row">
+                      <span class="pricing-label">Journey Fare</span>
+                      <span class="pricing-value">$${parseFloat(invoice.subtotal).toFixed(2)}</span>
                     </div>
-                    <div class="fare-row" style="border-top: 1px solid #dee2e6; padding-top: 10px; margin-top: 5px;">
-                      <span>Sub Total</span>
-                      <span>$${parseFloat(invoice.subtotal).toFixed(2)}</span>
-                    </div>
-                    <div class="fare-total">
-                      <div class="fare-row">
-                        <span>Total Journey Fare</span>
-                        <span>$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
-                      </div>
+                  `}
+                  
+                  <div class="total-section">
+                    <div class="total-row">
+                      <span class="total-label">Total Amount</span>
+                      <span class="total-value">$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -2231,22 +2487,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 ${invoice.paidAt ? `
                 <!-- Payment Status -->
                 <div class="paid-badge">
-                  ✓ PAID
+                  ✓ PAYMENT RECEIVED
                 </div>
                 ` : `
                 <!-- Payment Link -->
                 <div class="payment-link">
-                  <p style="margin-bottom: 10px;">Click here to Make Payment</p>
-                  <a href="${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'https://your-domain.com'}/pay/${paymentToken}" class="payment-button">Make Payment</a>
+                  <p>Click the button below to complete your payment securely</p>
+                  <a href="${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'https://your-domain.com'}/pay/${paymentToken}" class="payment-button">Make Payment Now</a>
                 </div>
                 `}
 
                 <!-- Footer Note -->
                 <div class="footer-note">
-                  * All prices include all statutory taxes and all expenses for your transportation service.
-                  <br><br>
-                  Best regards,<br>
-                  <strong>USA Luxury Limo Service</strong>
+                  <p>💡 <em>All prices include statutory taxes and transportation expenses</em></p>
+                  <br>
+                  <p>Best regards,<br><strong>USA Luxury Limo Service</strong></p>
                 </div>
               </div>
             </div>
