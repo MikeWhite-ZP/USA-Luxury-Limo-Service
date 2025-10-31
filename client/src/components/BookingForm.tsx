@@ -53,6 +53,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   const [pickupAddress, setPickupAddress] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
+  const [hour, setHour] = useState('12');
+  const [minute, setMinute] = useState('00');
+  const [period, setPeriod] = useState<'AM' | 'PM'>('PM');
   const [duration, setDuration] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState<string>('');
   
@@ -103,6 +106,18 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
   const paymentMethods = paymentData?.paymentMethods || [];
 
+  // Sync time state from hour, minute, and period
+  useEffect(() => {
+    let hours = parseInt(hour);
+    if (period === 'PM' && hours !== 12) {
+      hours += 12;
+    } else if (period === 'AM' && hours === 12) {
+      hours = 0;
+    }
+    const formattedTime = `${hours.toString().padStart(2, '0')}:${minute}`;
+    setTime(formattedTime);
+  }, [hour, minute, period]);
+
   // Set minimum date to today and restore saved booking data
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -140,6 +155,26 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         setPickupAddress(data.pickupAddress || '');
         setDate(data.date || today);
         setTime(data.time || '');
+        
+        // Parse time into hour, minute, period if not already saved
+        if (data.hour && data.minute && data.period) {
+          setHour(data.hour);
+          setMinute(data.minute);
+          setPeriod(data.period);
+        } else if (data.time) {
+          // Parse 24-hour time format into 12-hour components
+          const [hours24, mins] = data.time.split(':').map(Number);
+          const isPM = hours24 >= 12;
+          const hours12 = hours24 === 0 ? 12 : hours24 > 12 ? hours24 - 12 : hours24;
+          setHour(hours12.toString());
+          setMinute(mins.toString().padStart(2, '0'));
+          setPeriod(isPM ? 'PM' : 'AM');
+        } else {
+          setHour('12');
+          setMinute('00');
+          setPeriod('PM');
+        }
+        
         setDuration(data.duration || '');
         setSelectedVehicle(data.selectedVehicle || '');
         setViaPoints(data.viaPoints || []);
@@ -423,6 +458,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           pickupAddress,
           date,
           time,
+          hour,
+          minute,
+          period,
           duration,
           selectedVehicle: '',
           viaPoints,
@@ -557,6 +595,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           pickupAddress,
           date,
           time,
+          hour,
+          minute,
+          period,
           duration,
           selectedVehicle,
           viaPoints,
@@ -809,6 +850,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         pickupAddress,
         date,
         time,
+        hour,
+        minute,
+        period,
         duration,
         selectedVehicle,
         viaPoints,
@@ -1798,15 +1842,42 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               />
             </div>
             <div>
-              <Label htmlFor="time" className="text-base font-semibold text-gray-700">Time *</Label>
-              <Input
-                id="time"
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="mt-2 p-3 text-base border-2 border-gray-300 rounded-lg focus:border-primary"
-                data-testid="input-time"
-              />
+              <Label className="text-base font-semibold text-gray-700">Time *</Label>
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                <Select value={hour} onValueChange={setHour}>
+                  <SelectTrigger className="p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-hour">
+                    <SelectValue placeholder="Hour" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
+                      <SelectItem key={h} value={h.toString()}>
+                        {h}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={minute} onValueChange={setMinute}>
+                  <SelectTrigger className="p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-minute">
+                    <SelectValue placeholder="Min" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 12 }, (_, i) => i * 5).map((m) => (
+                      <SelectItem key={m} value={m.toString().padStart(2, '0')}>
+                        {m.toString().padStart(2, '0')}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={period} onValueChange={(value) => setPeriod(value as 'AM' | 'PM')}>
+                  <SelectTrigger className="p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-period">
+                    <SelectValue placeholder="AM/PM" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="AM">AM</SelectItem>
+                    <SelectItem value="PM">PM</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
@@ -1895,15 +1966,42 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               />
             </div>
             <div>
-              <Label htmlFor="time" className="text-base font-semibold text-gray-700">Time *</Label>
-              <Input
-                id="time"
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="mt-2 p-3 text-base border-2 border-gray-300 rounded-lg focus:border-primary"
-                data-testid="input-time"
-              />
+              <Label className="text-base font-semibold text-gray-700">Time *</Label>
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                <Select value={hour} onValueChange={setHour}>
+                  <SelectTrigger className="p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-hour">
+                    <SelectValue placeholder="Hour" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
+                      <SelectItem key={h} value={h.toString()}>
+                        {h}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={minute} onValueChange={setMinute}>
+                  <SelectTrigger className="p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-minute">
+                    <SelectValue placeholder="Min" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 12 }, (_, i) => i * 5).map((m) => (
+                      <SelectItem key={m} value={m.toString().padStart(2, '0')}>
+                        {m.toString().padStart(2, '0')}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={period} onValueChange={(value) => setPeriod(value as 'AM' | 'PM')}>
+                  <SelectTrigger className="p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-period">
+                    <SelectValue placeholder="AM/PM" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="AM">AM</SelectItem>
+                    <SelectItem value="PM">PM</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
