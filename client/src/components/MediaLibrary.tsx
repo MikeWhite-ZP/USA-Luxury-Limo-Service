@@ -10,7 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Upload, Image as ImageIcon, Trash2, Edit2, FolderOpen, X } from 'lucide-react';
+import { Loader2, Upload, Image as ImageIcon, Trash2, Edit2, FolderOpen, X, Star, CheckCircle2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 type CmsMedia = {
   id: string;
@@ -43,6 +44,13 @@ export default function MediaLibrary() {
   const { data: allMedia, isLoading } = useQuery<CmsMedia[]>({
     queryKey: ['/api/admin/cms/media'],
   });
+
+  // Fetch current site logo
+  const { data: siteLogoData } = useQuery<{ logo: { id: string; url: string; altText: string; fileName: string; } | null }>({
+    queryKey: ['/api/site-logo'],
+  });
+
+  const activeSiteLogoId = siteLogoData?.logo?.id;
 
   // Filter media by folder
   const displayedMedia = selectedFolder === 'all' 
@@ -106,6 +114,7 @@ export default function MediaLibrary() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/site-logo'] });
       toast({
         title: 'Success',
         description: 'Media deleted successfully',
@@ -115,6 +124,27 @@ export default function MediaLibrary() {
       toast({
         title: 'Error',
         description: 'Failed to delete media',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Set as site logo mutation
+  const setSiteLogoMutation = useMutation({
+    mutationFn: async (mediaId: string) => {
+      return apiRequest('POST', '/api/admin/site-logo', { mediaId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/site-logo'] });
+      toast({
+        title: 'Success',
+        description: 'Site logo updated successfully',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Error',
+        description: 'Failed to set site logo',
         variant: 'destructive',
       });
     },
@@ -206,9 +236,9 @@ export default function MediaLibrary() {
           {displayedMedia && displayedMedia.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="grid-media">
               {displayedMedia.map((media) => (
-                <Card key={media.id} className="overflow-hidden group relative" data-testid={`card-media-${media.id}`}>
+                <Card key={media.id} className={`overflow-hidden group relative ${media.id === activeSiteLogoId ? 'ring-2 ring-green-500' : ''}`} data-testid={`card-media-${media.id}`}>
                   {/* Image Preview */}
-                  <div className="aspect-square bg-muted flex items-center justify-center overflow-hidden">
+                  <div className="aspect-square bg-muted flex items-center justify-center overflow-hidden relative">
                     {media.fileType.startsWith('image/') ? (
                       <img
                         src={media.fileUrl}
@@ -218,6 +248,12 @@ export default function MediaLibrary() {
                       />
                     ) : (
                       <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                    )}
+                    {media.id === activeSiteLogoId && (
+                      <Badge className="absolute top-2 right-2 bg-green-600" data-testid={`badge-active-logo-${media.id}`}>
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        Active
+                      </Badge>
                     )}
                   </div>
 
@@ -256,6 +292,23 @@ export default function MediaLibrary() {
                         <Trash2 className="w-4 h-4" />
                       )}
                     </Button>
+                    {media.folder === 'logos' && (
+                      <Button
+                        size="sm"
+                        variant={media.id === activeSiteLogoId ? "default" : "secondary"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (media.id !== activeSiteLogoId) {
+                            setSiteLogoMutation.mutate(media.id);
+                          }
+                        }}
+                        disabled={setSiteLogoMutation.isPending || media.id === activeSiteLogoId}
+                        className={`pointer-events-auto ${media.id === activeSiteLogoId ? "bg-green-600 hover:bg-green-700" : ""}`}
+                        data-testid={`button-set-logo-${media.id}`}
+                      >
+                        <Star className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
 
                   {/* Media Info */}

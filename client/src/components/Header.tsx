@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useLocation } from "wouter";
-import logoImage from "@assets/logo_1759125364025.png";
+import { useSiteLogo } from "@/hooks/useSiteLogo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +16,7 @@ export default function Header() {
   const { user, isAuthenticated } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
   const [location, setLocation] = useLocation();
+  const { logoUrl, logoAltText } = useSiteLogo();
 
   const handleNavClick = (href: string) => {
     // If we're not on the home page (root "/"), navigate to home first then scroll
@@ -44,8 +45,8 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <img 
-              src={logoImage} 
-              alt="USA Luxury Limo" 
+              src={logoUrl} 
+              alt={logoAltText} 
               className="h-12 w-auto object-contain"
               data-testid="logo"
             />

@@ -6515,6 +6515,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint to get site logo
+  app.get('/api/site-logo', async (req, res) => {
+    try {
+      const logoSetting = await storage.getCmsSetting('site_logo');
+      
+      if (!logoSetting || !logoSetting.value) {
+        return res.json({ logo: null });
+      }
+      
+      // Get the media item
+      const media = await storage.getCmsMediaById(logoSetting.value);
+      
+      if (!media) {
+        return res.json({ logo: null });
+      }
+      
+      res.json({ 
+        logo: {
+          id: media.id,
+          url: media.fileUrl,
+          altText: media.altText,
+          fileName: media.fileName
+        }
+      });
+    } catch (error) {
+      console.error('Get site logo error:', error);
+      res.status(500).json({ message: 'Failed to fetch site logo' });
+    }
+  });
+
+  // Set site logo (admin only)
+  app.post('/api/admin/site-logo', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { mediaId } = req.body;
+      const userId = req.adminUser.id;
+      
+      if (!mediaId) {
+        return res.status(400).json({ message: 'Media ID is required' });
+      }
+      
+      // Verify the media exists
+      const media = await storage.getCmsMediaById(mediaId);
+      if (!media) {
+        return res.status(404).json({ message: 'Media not found' });
+      }
+      
+      // Save to CMS settings
+      await storage.upsertCmsSetting({
+        key: 'site_logo',
+        value: mediaId,
+        category: 'branding',
+        description: 'Site-wide logo',
+        updatedBy: userId
+      });
+      
+      res.json({ success: true, media });
+    } catch (error) {
+      console.error('Set site logo error:', error);
+      res.status(500).json({ message: 'Failed to set site logo' });
+    }
+  });
+
   // CMS Media Routes
   app.get('/api/admin/cms/media', isAuthenticated, requireAdmin, async (req: any, res) => {
     try {

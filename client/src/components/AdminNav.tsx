@@ -25,6 +25,7 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useSiteLogo } from "@/hooks/useSiteLogo";
 
 interface AdminNavProps {
   onCredentialsClick?: (section: 'api' | 'payment') => void;
@@ -38,6 +39,7 @@ interface AdminNavProps {
 export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onSettingsClick, onCMSClick }: AdminNavProps) {
   const [location, setLocation] = useLocation();
   const { logoutMutation } = useAuth();
+  const { logoUrl, logoAltText } = useSiteLogo();
 
   const handleLogout = () => {
     logoutMutation.mutate(undefined, {
@@ -53,13 +55,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
         {/* Top Bar */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/50">
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-2 rounded-lg shadow-md">
-              <LayoutDashboard className="w-6 h-6 text-white" />
-            </div>
+            <img 
+              src={logoUrl} 
+              alt={logoAltText} 
+              className="h-12 w-auto object-contain"
+              data-testid="admin-logo"
+            />
             <div>
-              <h1 className="text-xl font-bold tracking-tight" data-testid="admin-header">
-                USA Luxury Limo
-              </h1>
               <p className="text-xs text-slate-400 font-medium">Admin Portal</p>
             </div>
           </div>

@@ -1,10 +1,11 @@
 import { Twitter, Linkedin, Facebook, Smartphone } from "lucide-react";
 import { useLocation } from "wouter";
-import logoImage from "@assets/logo_1759125364025.png";
 import { setDevicePreference } from "@/lib/deviceDetection";
+import { useSiteLogo } from "@/hooks/useSiteLogo";
 
 export default function Footer() {
   const [location, setLocation] = useLocation();
+  const { logoUrl, logoAltText } = useSiteLogo();
   
   const handleNavClick = (href: string) => {
     // If we're on the home/landing page, scroll to section
@@ -34,8 +35,8 @@ export default function Footer() {
           <div className="md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <img 
-                src={logoImage} 
-                alt="USA Luxury Limo" 
+                src={logoUrl} 
+                alt={logoAltText} 
                 className="h-12 w-auto object-contain"
                 data-testid="footer-logo"
               />
