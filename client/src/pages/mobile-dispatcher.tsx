@@ -74,10 +74,20 @@ export default function MobileDispatcher() {
     queryKey: ['/api/admin/drivers'],
   });
 
-  // Filter bookings
-  const pendingBookings = bookings?.filter((b) => b.status === 'pending' && !b.driverId) || [];
-  const assignedBookings = bookings?.filter((b) => b.status === 'pending' && b.driverId) || [];
-  const activeBookings = bookings?.filter((b) => b.status === 'confirmed' || b.status === 'in_progress') || [];
+  // Filter bookings (exclude past-due bookings)
+  const now = new Date();
+  const pendingBookings = bookings?.filter((b) => {
+    const isPast = new Date(b.scheduledDateTime) < now;
+    return b.status === 'pending' && !b.driverId && !isPast;
+  }) || [];
+  const assignedBookings = bookings?.filter((b) => {
+    const isPast = new Date(b.scheduledDateTime) < now;
+    return b.status === 'pending' && b.driverId && !isPast;
+  }) || [];
+  const activeBookings = bookings?.filter((b) => {
+    const isPast = new Date(b.scheduledDateTime) < now;
+    return (b.status === 'confirmed' || b.status === 'in_progress') && !isPast;
+  }) || [];
   
   // Filter drivers
   const availableDrivers = drivers?.filter((d) => d.isAvailable && d.verificationStatus === 'verified') || [];

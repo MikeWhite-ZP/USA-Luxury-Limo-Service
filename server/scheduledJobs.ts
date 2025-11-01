@@ -11,32 +11,40 @@ export async function autoCancelExpiredBookings() {
   try {
     const now = new Date();
     
-    // Get all bookings that are past scheduled time and not progressed
+    // Get all bookings that are past scheduled time
     const bookings = await storage.getAllBookings();
     
     for (const booking of bookings) {
       const scheduledTime = new Date(booking.scheduledDateTime);
-      const minutesPast = (now.getTime() - scheduledTime.getTime()) / (1000 * 60);
+      const isPast = scheduledTime < now;
       
       // Auto-cancel if:
-      // 1. Scheduled time has passed by more than 30 minutes
-      // 2. Has a driver assigned (driverId exists)
-      // 3. Status is confirmed/on_the_way/arrived/on_board (driver accepted but hasn't completed)
-      // 4. Not already cancelled or auto-cancelled
-      const shouldCancel = 
-        minutesPast > 30 &&
-        booking.driverId &&
-        booking.status &&
-        ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(booking.status) &&
-        !booking.autoCancelledAt;
+      // 1. Scheduled time has passed
+      // 2. Status is still active (not completed or cancelled)
+      // 3. Not already auto-cancelled
+      const isActiveStatus = booking.status && [
+        'pending',
+        'pending_driver_acceptance', 
+        'confirmed',
+        'on_the_way',
+        'arrived',
+        'on_board',
+        'in_progress'
+      ].includes(booking.status);
+      
+      const shouldCancel = isPast && isActiveStatus && !booking.autoCancelledAt;
       
       if (shouldCancel) {
-        console.log(`[AUTO-CANCEL] Cancelling expired booking ${booking.id}`);
+        const hadDriver = !!booking.driverId;
+        console.log(`[AUTO-CANCEL] Cancelling expired booking ${booking.id} (had driver: ${hadDriver})`);
         
+        // Cancel and release driver
         const updatedBooking = await storage.updateBooking(booking.id, {
           status: 'cancelled' as any,
+          driverId: null, // Release driver from this job
+          driverPayment: null, // Clear driver payment
           autoCancelledAt: now,
-          cancelReason: 'Automatically cancelled - scheduled time passed without driver starting trip',
+          cancelReason: 'Automatically cancelled - scheduled time passed',
         });
         
         // Notify passenger
@@ -63,7 +71,7 @@ export async function autoCancelExpiredBookings() {
           }
           
           // Send system admin cancellation report
-          if (passenger) {
+          if (passenger && updatedBooking) {
             const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
             if (vehicleType) {
               await sendCancelledBookingReport(
@@ -71,7 +79,7 @@ export async function autoCancelExpiredBookings() {
                 passenger,
                 vehicleType.name || 'Unknown Vehicle',
                 'system',
-                'Automatically cancelled - scheduled time passed without driver starting trip'
+                'Automatically cancelled - scheduled time passed'
               );
             }
           }
