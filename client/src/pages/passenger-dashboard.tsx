@@ -284,6 +284,7 @@ function InvoicesList() {
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [isLoadingEmail, setIsLoadingEmail] = useState(false);
+  const [printInvoice, setPrintInvoice] = useState<any>(null);
 
   // Fetch passenger invoices
   const { data: invoices, isLoading } = useQuery<any[]>({
@@ -341,378 +342,329 @@ function InvoicesList() {
   };
 
   const handlePrint = async (invoice: any) => {
+    setPrintInvoice(invoice);
+    setTimeout(() => {
+      window.print();
+      setPrintInvoice(null);
+    }, 100);
+  };
+
+  const renderPrintableInvoice = (invoice: any) => {
+    if (!invoice) return null;
     const booking = invoice.booking;
     
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-
-    let pricingRows = '';
-    
-    if (booking?.baseFare) {
-      pricingRows += `
-        <div class="pricing-row">
-          <span class="pricing-label">Base Fare</span>
-          <span class="pricing-value">$${parseFloat(booking.baseFare).toFixed(2)}</span>
-        </div>
-      `;
-    }
-    
-    if (booking?.surgePricingAmount && parseFloat(booking.surgePricingAmount) > 0) {
-      const multiplier = booking.surgePricingMultiplier ? ` (${booking.surgePricingMultiplier}x)` : '';
-      pricingRows += `
-        <div class="pricing-row">
-          <span class="pricing-label">Surge Pricing${multiplier}</span>
-          <span class="pricing-value pricing-surge">+$${parseFloat(booking.surgePricingAmount).toFixed(2)}</span>
-        </div>
-      `;
-    }
-    
-    if (booking?.gratuityAmount && parseFloat(booking.gratuityAmount) > 0) {
-      pricingRows += `
-        <div class="pricing-row">
-          <span class="pricing-label">Gratuity (Tip)</span>
-          <span class="pricing-value">+$${parseFloat(booking.gratuityAmount).toFixed(2)}</span>
-        </div>
-      `;
-    }
-    
-    if (booking?.airportFeeAmount && parseFloat(booking.airportFeeAmount) > 0) {
-      pricingRows += `
-        <div class="pricing-row">
-          <span class="pricing-label">Airport Fee</span>
-          <span class="pricing-value">+$${parseFloat(booking.airportFeeAmount).toFixed(2)}</span>
-        </div>
-      `;
-    }
-    
-    if (booking?.discountAmount && parseFloat(booking.discountAmount) > 0) {
-      const percentage = booking.discountPercentage ? ` (${booking.discountPercentage}%)` : '';
-      pricingRows += `
-        <div class="pricing-row">
-          <span class="pricing-label">Discount${percentage}</span>
-          <span class="pricing-value pricing-discount">-$${parseFloat(booking.discountAmount).toFixed(2)}</span>
-        </div>
-      `;
-    }
-
-    const printContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Invoice #${invoice.invoiceNumber}</title>
-        <style>
-          @page {
-            size: letter;
-            margin: 0.5in 0.5in 0.4in 0.5in;
+    return (
+      <div className="print-only-content">
+        <style>{`
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+            .print-only-content,
+            .print-only-content * {
+              visibility: visible;
+            }
+            .print-only-content {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
           }
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            padding: 20px; 
-            max-width: 100%; 
-            margin: 0 auto;
-            background: #ffffff;
-            color: #0f172a;
-            line-height: 1.4;
-            font-size: 11pt;
-          }
-          .header { 
-            text-align: center; 
-            border-bottom: 2px solid #f59e0b;
-            padding-bottom: 12px; 
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            padding: 18px;
-            border-radius: 8px;
-          }
-          .header h1 { 
-            font-size: 24pt;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 4px;
-            letter-spacing: -0.5px;
-          }
-          .header .invoice-number { 
-            font-size: 12pt;
-            color: #f59e0b;
-            font-weight: 600;
-            margin-top: 6px;
-          }
-          .info-section {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 14px;
-            margin-bottom: 16px;
-          }
-          .info-section h2 {
-            font-size: 11pt;
-            font-weight: 700;
-            color: #334155;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-          }
-          .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-          }
-          .info-item {
-            display: flex;
-            flex-direction: column;
-          }
-          .info-label {
-            font-size: 9pt;
-            color: #64748b;
-            font-weight: 500;
-            margin-bottom: 2px;
-          }
-          .info-value {
-            font-size: 10pt;
-            color: #0f172a;
-            font-weight: 600;
-          }
-          .pricing-section {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 14px;
-            margin-bottom: 16px;
-          }
-          .pricing-section h2 {
-            font-size: 11pt;
-            font-weight: 700;
-            color: #334155;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-          }
-          .pricing-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #f1f5f9;
-          }
-          .pricing-row:last-child {
-            border-bottom: none;
-          }
-          .pricing-label {
-            font-size: 10pt;
-            color: #0f172a;
-            font-weight: 500;
-          }
-          .pricing-value {
-            font-size: 10pt;
-            color: #0f172a;
-            font-weight: 600;
-          }
-          .pricing-surge {
-            color: #ea580c;
-          }
-          .pricing-discount {
-            color: #16a34a;
-          }
-          .total-section {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 2px solid #f59e0b;
-            border-radius: 6px;
-            padding: 14px;
-            margin-top: 12px;
-          }
-          .total-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-          .total-label {
-            font-size: 14pt;
-            color: #0f172a;
-            font-weight: 700;
-          }
-          .total-value {
-            font-size: 20pt;
-            color: #f59e0b;
-            font-weight: 800;
-          }
-          .payment-status {
-            text-align: center;
-            margin-top: 16px;
-            padding: 12px;
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            border: 2px solid #10b981;
-            border-radius: 6px;
-          }
-          .payment-status-text {
-            color: #065f46;
-            font-weight: 800;
-            font-size: 13pt;
-            letter-spacing: 1.5px;
-          }
-          .footer {
-            margin-top: 20px;
-            padding-top: 12px;
-            border-top: 1px solid #e2e8f0;
-            text-align: center;
-          }
-          .footer p {
-            color: #64748b;
-            font-size: 9pt;
-            font-weight: 500;
-            line-height: 1.3;
-          }
-          .footer .thank-you {
-            font-size: 11pt;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 4px;
-          }
-          .print-button-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-          }
-          .print-button {
-            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-            transition: all 0.2s ease;
-          }
-          .print-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
-          }
-          .print-button:active {
-            transform: translateY(0);
+          .print-only-content {
+            display: none;
           }
           @media print {
-            body { 
-              padding: 0;
+            .print-only-content {
+              display: block !important;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+              padding: 20px;
+              max-width: 100%;
+              margin: 0 auto;
+              background: #ffffff;
+              color: #0f172a;
+              line-height: 1.4;
+              font-size: 11pt;
             }
-            .header {
+            .print-header {
+              text-align: center;
+              border-bottom: 2px solid #f59e0b;
+              padding: 18px;
+              margin-bottom: 20px;
+              background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+              border-radius: 8px;
               page-break-inside: avoid;
             }
-            .info-section {
+            .print-header h1 {
+              font-size: 24pt;
+              font-weight: 800;
+              color: #1e293b;
+              margin-bottom: 4px;
+            }
+            .print-invoice-number {
+              font-size: 12pt;
+              color: #f59e0b;
+              font-weight: 600;
+              margin-top: 6px;
+            }
+            .print-info-section {
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 6px;
+              padding: 14px;
+              margin-bottom: 16px;
               page-break-inside: avoid;
             }
-            .pricing-section {
+            .print-info-section h2 {
+              font-size: 11pt;
+              font-weight: 700;
+              color: #334155;
+              margin-bottom: 10px;
+              text-transform: uppercase;
+            }
+            .print-info-grid {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 10px;
+            }
+            .print-info-item {
+              display: flex;
+              flex-direction: column;
+            }
+            .print-info-label {
+              font-size: 9pt;
+              color: #64748b;
+              font-weight: 500;
+              margin-bottom: 2px;
+            }
+            .print-info-value {
+              font-size: 10pt;
+              color: #0f172a;
+              font-weight: 600;
+            }
+            .print-pricing-section {
+              background: white;
+              border: 1px solid #e2e8f0;
+              border-radius: 6px;
+              padding: 14px;
+              margin-bottom: 16px;
               page-break-inside: avoid;
             }
-            .print-button-container {
-              display: none;
+            .print-pricing-section h2 {
+              font-size: 11pt;
+              font-weight: 700;
+              color: #334155;
+              margin-bottom: 12px;
+              text-transform: uppercase;
+            }
+            .print-pricing-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 8px 0;
+              border-bottom: 1px solid #f1f5f9;
+            }
+            .print-pricing-row:last-child {
+              border-bottom: none;
+            }
+            .print-pricing-label {
+              font-size: 10pt;
+              color: #0f172a;
+              font-weight: 500;
+            }
+            .print-pricing-value {
+              font-size: 10pt;
+              color: #0f172a;
+              font-weight: 600;
+            }
+            .print-pricing-surge {
+              color: #ea580c;
+            }
+            .print-pricing-discount {
+              color: #16a34a;
+            }
+            .print-total-section {
+              background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+              border: 2px solid #f59e0b;
+              border-radius: 6px;
+              padding: 14px;
+              margin-top: 12px;
+            }
+            .print-total-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .print-total-label {
+              font-size: 14pt;
+              color: #0f172a;
+              font-weight: 700;
+            }
+            .print-total-value {
+              font-size: 20pt;
+              color: #f59e0b;
+              font-weight: 800;
+            }
+            .print-payment-status {
+              text-align: center;
+              margin-top: 16px;
+              padding: 12px;
+              background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+              border: 2px solid #10b981;
+              border-radius: 6px;
+            }
+            .print-payment-status-text {
+              color: #065f46;
+              font-weight: 800;
+              font-size: 13pt;
+            }
+            .print-footer {
+              margin-top: 20px;
+              padding-top: 12px;
+              border-top: 1px solid #e2e8f0;
+              text-align: center;
+            }
+            .print-footer p {
+              color: #64748b;
+              font-size: 9pt;
+              font-weight: 500;
+            }
+            .print-footer .thank-you {
+              font-size: 11pt;
+              font-weight: 600;
+              color: #334155;
+              margin-bottom: 4px;
             }
           }
-        </style>
-      </head>
-      <body>
-        <div class="print-button-container">
-          <button class="print-button" onclick="window.print()">🖨️ Print Invoice</button>
-        </div>
-        
-        <div class="header">
+        `}</style>
+        <div className="print-header">
           <h1>USA Luxury Limo</h1>
-          <div class="invoice-number">Invoice #${invoice.invoiceNumber}</div>
+          <div className="print-invoice-number">Invoice #{invoice.invoiceNumber}</div>
         </div>
         
-        <div class="info-section">
+        <div className="print-info-section">
           <h2>Invoice Information</h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Invoice Date</span>
-              <span class="info-value">${new Date(invoice.createdAt).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Booking ID</span>
-              <span class="info-value">#${invoice.bookingId.toUpperCase().substring(0, 8)}</span>
-            </div>
-            ${invoice.paidAt ? `
-              <div class="info-item">
-                <span class="info-label">Payment Date</span>
-                <span class="info-value">${new Date(invoice.paidAt).toLocaleDateString('en-US', { 
+          <div className="print-info-grid">
+            <div className="print-info-item">
+              <span className="print-info-label">Invoice Date</span>
+              <span className="print-info-value">
+                {new Date(invoice.createdAt).toLocaleDateString('en-US', { 
                   year: 'numeric', 
                   month: 'long', 
                   day: 'numeric' 
-                })}</span>
+                })}
+              </span>
+            </div>
+            <div className="print-info-item">
+              <span className="print-info-label">Booking ID</span>
+              <span className="print-info-value">#{invoice.bookingId.toUpperCase().substring(0, 8)}</span>
+            </div>
+            {invoice.paidAt && (
+              <div className="print-info-item">
+                <span className="print-info-label">Payment Date</span>
+                <span className="print-info-value">
+                  {new Date(invoice.paidAt).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </span>
               </div>
-            ` : ''}
+            )}
           </div>
         </div>
         
-        ${booking ? `
-        <div class="info-section">
-          <h2>🚗 Journey Information</h2>
-          <div class="info-grid">
-            <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">Pickup Location:</span>
-              <span class="info-value">${booking.pickupAddress}</span>
+        {booking && (
+          <div className="print-info-section">
+            <h2>🚗 Journey Information</h2>
+            <div className="print-info-grid">
+              <div className="print-info-item" style={{ gridColumn: 'span 2' }}>
+                <span className="print-info-label">Pickup Location:</span>
+                <span className="print-info-value">{booking.pickupAddress}</span>
+              </div>
+              {booking.bookingType === 'hourly' && booking.requestedHours ? (
+                <div className="print-info-item" style={{ gridColumn: 'span 2' }}>
+                  <span className="print-info-label">Duration:</span>
+                  <span className="print-info-value">
+                    {booking.requestedHours} {booking.requestedHours === 1 ? 'Hour' : 'Hours'}
+                  </span>
+                </div>
+              ) : booking.destinationAddress ? (
+                <div className="print-info-item" style={{ gridColumn: 'span 2' }}>
+                  <span className="print-info-label">Destination:</span>
+                  <span className="print-info-value">{booking.destinationAddress}</span>
+                </div>
+              ) : null}
             </div>
-            ${booking.bookingType === 'hourly' && booking.requestedHours ? `
-            <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">Duration:</span>
-              <span class="info-value">${booking.requestedHours} ${booking.requestedHours === 1 ? 'Hour' : 'Hours'}</span>
-            </div>
-            ` : booking.destinationAddress ? `
-            <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">Destination:</span>
-              <span class="info-value">${booking.destinationAddress}</span>
-            </div>
-            ` : ''}
           </div>
-        </div>
-        ` : ''}
+        )}
         
-        <div class="pricing-section">
+        <div className="print-pricing-section">
           <h2>📋 Detailed Pricing Breakdown</h2>
-          ${pricingRows || `
-            <div class="pricing-row">
-              <span class="pricing-label">Journey Fare</span>
-              <span class="pricing-value">$${parseFloat(invoice.subtotal).toFixed(2)}</span>
+          {booking?.baseFare && (
+            <div className="print-pricing-row">
+              <span className="print-pricing-label">Base Fare</span>
+              <span className="print-pricing-value">${parseFloat(booking.baseFare).toFixed(2)}</span>
             </div>
-          `}
+          )}
+          {booking?.surgePricingAmount && parseFloat(booking.surgePricingAmount) > 0 && (
+            <div className="print-pricing-row">
+              <span className="print-pricing-label">
+                Surge Pricing{booking.surgePricingMultiplier ? ` (${booking.surgePricingMultiplier}x)` : ''}
+              </span>
+              <span className="print-pricing-value print-pricing-surge">
+                +${parseFloat(booking.surgePricingAmount).toFixed(2)}
+              </span>
+            </div>
+          )}
+          {booking?.gratuityAmount && parseFloat(booking.gratuityAmount) > 0 && (
+            <div className="print-pricing-row">
+              <span className="print-pricing-label">Gratuity (Tip)</span>
+              <span className="print-pricing-value">+${parseFloat(booking.gratuityAmount).toFixed(2)}</span>
+            </div>
+          )}
+          {booking?.airportFeeAmount && parseFloat(booking.airportFeeAmount) > 0 && (
+            <div className="print-pricing-row">
+              <span className="print-pricing-label">Airport Fee</span>
+              <span className="print-pricing-value">+${parseFloat(booking.airportFeeAmount).toFixed(2)}</span>
+            </div>
+          )}
+          {booking?.discountAmount && parseFloat(booking.discountAmount) > 0 && (
+            <div className="print-pricing-row">
+              <span className="print-pricing-label">
+                Discount{booking.discountPercentage ? ` (${booking.discountPercentage}%)` : ''}
+              </span>
+              <span className="print-pricing-value print-pricing-discount">
+                -${parseFloat(booking.discountAmount).toFixed(2)}
+              </span>
+            </div>
+          )}
+          {!booking?.baseFare && (
+            <div className="print-pricing-row">
+              <span className="print-pricing-label">Journey Fare</span>
+              <span className="print-pricing-value">${parseFloat(invoice.subtotal).toFixed(2)}</span>
+            </div>
+          )}
           
-          <div class="total-section">
-            <div class="total-row">
-              <span class="total-label">Total Amount</span>
-              <span class="total-value">$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
+          <div className="print-total-section">
+            <div className="print-total-row">
+              <span className="print-total-label">Total Amount</span>
+              <span className="print-total-value">${parseFloat(invoice.totalAmount).toFixed(2)}</span>
             </div>
           </div>
         </div>
         
-        ${invoice.paidAt ? `
-          <div class="payment-status">
-            <div class="payment-status-text">✓ PAYMENT RECEIVED</div>
+        {invoice.paidAt && (
+          <div className="print-payment-status">
+            <div className="print-payment-status-text">✓ PAYMENT RECEIVED</div>
           </div>
-        ` : ''}
+        )}
         
-        <div class="footer">
-          <p class="thank-you">Thank you for choosing USA Luxury Limo!</p>
+        <div className="print-footer">
+          <p className="thank-you">Thank you for choosing USA Luxury Limo!</p>
           <p>All prices include statutory taxes and transportation expenses</p>
         </div>
-        
-        <script>
-          window.onload = () => {
-            window.print();
-            window.onafterprint = () => window.close();
-          };
-        </script>
-      </body>
-      </html>
-    `;
-
-    printWindow.document.write(printContent);
-    printWindow.document.close();
+      </div>
+    );
   };
 
   if (isLoading) {
@@ -735,6 +687,7 @@ function InvoicesList() {
 
   return (
     <>
+      {printInvoice && renderPrintableInvoice(printInvoice)}
       <div className="space-y-4">
         {invoices.map((invoice) => (
           <div
