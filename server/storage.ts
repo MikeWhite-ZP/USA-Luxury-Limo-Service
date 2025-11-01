@@ -334,7 +334,7 @@ export class DatabaseStorage implements IStorage {
       }
       
       // Combine all booking IDs to delete
-      const allBookingIds = [...new Set([...bookingIds, ...driverBookingIds])];
+      const allBookingIds = Array.from(new Set([...bookingIds, ...driverBookingIds]));
       
       // Delete in correct order to respect foreign key constraints
       
@@ -374,6 +374,15 @@ export class DatabaseStorage implements IStorage {
         .set({ driverId: null })
         .where(eq(emergencyIncidents.driverId, id));
       
+      // Delete emergency incidents reported by this user (reporterId is required, can't be null)
+      await db.delete(emergencyIncidents).where(eq(emergencyIncidents.reporterId, id));
+      
+      // Nullify emergency incident assignedTo references for this user
+      await db
+        .update(emergencyIncidents)
+        .set({ assignedTo: null })
+        .where(eq(emergencyIncidents.assignedTo, id));
+      
       // 5. Delete driver messages sent by or to this user
       await db.delete(driverMessages).where(eq(driverMessages.senderId, id));
       await db.delete(driverMessages).where(eq(driverMessages.driverId, id));
@@ -384,12 +393,39 @@ export class DatabaseStorage implements IStorage {
       // 7. Delete password reset tokens
       await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, id));
       
-      // 8. Delete all bookings
+      // 8. Nullify references in driver documents (reviewedBy)
+      await db
+        .update(driverDocuments)
+        .set({ reviewedBy: null })
+        .where(eq(driverDocuments.reviewedBy, id));
+      
+      // 9. Nullify references in system settings (updatedBy)
+      await db
+        .update(systemSettings)
+        .set({ updatedBy: null })
+        .where(eq(systemSettings.updatedBy, id));
+      
+      // 10. Nullify references in CMS settings (updatedBy)
+      await db
+        .update(cmsSettings)
+        .set({ updatedBy: null })
+        .where(eq(cmsSettings.updatedBy, id));
+      
+      // 11. Nullify references in CMS content (updatedBy)
+      await db
+        .update(cmsContent)
+        .set({ updatedBy: null })
+        .where(eq(cmsContent.updatedBy, id));
+      
+      // 12. Delete CMS media uploaded by this user
+      await db.delete(cmsMedia).where(eq(cmsMedia.uploadedBy, id));
+      
+      // 13. Delete all bookings
       for (const bookingId of allBookingIds) {
         await db.delete(bookings).where(eq(bookings.id, bookingId));
       }
       
-      // 9. If user is a driver, delete driver-specific data
+      // 14. If user is a driver, delete driver-specific data
       if (driver) {
         // Delete driver documents
         await db.delete(driverDocuments).where(eq(driverDocuments.driverId, driver.id));
@@ -398,7 +434,7 @@ export class DatabaseStorage implements IStorage {
         await db.delete(drivers).where(eq(drivers.id, driver.id));
       }
       
-      // 10. Finally, delete the user
+      // 15. Finally, delete the user
       const result = await db
         .delete(users)
         .where(eq(users.id, id))
