@@ -55,12 +55,14 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
         {/* Top Bar */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/50">
           <div className="flex items-center gap-3">
-            <img 
-              src={logoUrl} 
-              alt={logoAltText} 
-              className="h-12 w-auto object-contain"
-              data-testid="admin-logo"
-            />
+            <Link href="/">
+              <img 
+                src={logoUrl} 
+                alt={logoAltText} 
+                className="h-12 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
+                data-testid="admin-logo"
+              />
+            </Link>
             <div>
               <p className="text-[24px] font-bold text-[#ffffff] pl-[30px] pr-[30px] text-center">Admin Portal</p>
             </div>
