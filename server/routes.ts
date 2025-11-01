@@ -6577,6 +6577,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint to get site hero image
+  app.get('/api/site-hero', async (req, res) => {
+    try {
+      const heroSetting = await storage.getCmsSetting('site_hero');
+      
+      if (!heroSetting || !heroSetting.value) {
+        return res.json({ hero: null });
+      }
+      
+      // Get the media item
+      const media = await storage.getCmsMediaById(heroSetting.value);
+      
+      if (!media) {
+        return res.json({ hero: null });
+      }
+      
+      res.json({ 
+        hero: {
+          id: media.id,
+          url: media.fileUrl,
+          altText: media.altText,
+          fileName: media.fileName
+        }
+      });
+    } catch (error) {
+      console.error('Get site hero error:', error);
+      res.status(500).json({ message: 'Failed to fetch site hero image' });
+    }
+  });
+
+  // Set site hero image (admin only)
+  app.post('/api/admin/site-hero', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { mediaId } = req.body;
+      const userId = req.adminUser.id;
+      
+      if (!mediaId) {
+        return res.status(400).json({ message: 'Media ID is required' });
+      }
+      
+      // Verify the media exists
+      const media = await storage.getCmsMediaById(mediaId);
+      if (!media) {
+        return res.status(404).json({ message: 'Media not found' });
+      }
+      
+      // Save to CMS settings
+      await storage.upsertCmsSetting({
+        key: 'site_hero',
+        value: mediaId,
+        category: 'branding',
+        description: 'Site-wide hero background image',
+        updatedBy: userId
+      });
+      
+      res.json({ success: true, media });
+    } catch (error) {
+      console.error('Set site hero error:', error);
+      res.status(500).json({ message: 'Failed to set site hero image' });
+    }
+  });
+
   // CMS Media Routes
   app.get('/api/admin/cms/media', isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
@@ -6698,6 +6760,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (logoSetting && logoSetting.value === id) {
         // Clear the site logo setting before deleting the media
         await storage.deleteCmsSetting('site_logo');
+      }
+      
+      // Check if this media is the active site hero image
+      const heroSetting = await storage.getCmsSetting('site_hero');
+      if (heroSetting && heroSetting.value === id) {
+        // Clear the site hero setting before deleting the media
+        await storage.deleteCmsSetting('site_hero');
       }
       
       // Delete from Object Storage

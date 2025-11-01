@@ -42,6 +42,7 @@ export default function MediaLibrary() {
   const [uploadFolder, setUploadFolder] = useState<'logos' | 'hero-images' | 'vehicles' | 'testimonials' | 'general'>('general');
   const [isDragging, setIsDragging] = useState(false);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
+  const heroFileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch all media
   const { data: allMedia, isLoading } = useQuery<CmsMedia[]>({
@@ -54,6 +55,13 @@ export default function MediaLibrary() {
   });
 
   const activeSiteLogoId = siteLogoData?.logo?.id;
+
+  // Fetch current site hero image
+  const { data: siteHeroData } = useQuery<{ hero: { id: string; url: string; altText: string; fileName: string; } | null }>({
+    queryKey: ['/api/site-hero'],
+  });
+
+  const activeSiteHeroId = siteHeroData?.hero?.id;
 
   // Filter media by folder
   const displayedMedia = selectedFolder === 'all' 
@@ -118,6 +126,7 @@ export default function MediaLibrary() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
       queryClient.invalidateQueries({ queryKey: ['/api/site-logo'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/site-hero'] });
       setDeleteDialogOpen(false);
       setMediaToDelete(null);
       toast({
@@ -224,6 +233,82 @@ export default function MediaLibrary() {
     uploadLogoMutation.mutate(formData);
   };
 
+  // Hero upload mutation with automatic activation
+  const uploadHeroMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const uploadResponse = await fetch('/api/admin/cms/media/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      if (!uploadResponse.ok) throw new Error('Upload failed');
+      const uploadData = await uploadResponse.json();
+      
+      if (uploadData.id) {
+        const setHeroResponse = await apiRequest('POST', '/api/admin/site-hero', { mediaId: uploadData.id });
+        await setHeroResponse.json();
+      }
+      
+      return uploadData;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/site-hero'] });
+      if (heroFileInputRef.current) {
+        heroFileInputRef.current.value = '';
+      }
+      toast({
+        title: 'Success',
+        description: 'Hero image uploaded and activated successfully',
+      });
+    },
+    onError: (error: Error) => {
+      if (heroFileInputRef.current) {
+        heroFileInputRef.current.value = '';
+      }
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to upload and activate hero image',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Set as site hero mutation
+  const setSiteHeroMutation = useMutation({
+    mutationFn: async (mediaId: string) => {
+      return apiRequest('POST', '/api/admin/site-hero', { mediaId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/site-hero'] });
+      toast({
+        title: 'Success',
+        description: 'Site hero image updated successfully',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Error',
+        description: 'Failed to set site hero image',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Handle hero upload
+  const handleHeroUpload = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', 'hero-images');
+    formData.append('altText', 'Site Hero Image');
+    formData.append('description', 'Main site hero background image');
+
+    uploadHeroMutation.mutate(formData);
+  };
+
   // Handle drag and drop
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -260,6 +345,9 @@ export default function MediaLibrary() {
 
   // Get current logo media object
   const currentLogoMedia = allMedia?.find(m => m.id === activeSiteLogoId);
+
+  // Get current hero media object
+  const currentHeroMedia = allMedia?.find(m => m.id === activeSiteHeroId);
 
   if (isLoading) {
     return (
@@ -400,6 +488,137 @@ export default function MediaLibrary() {
           />
         </CardContent>
       </Card>
+
+      {/* Hero Image Management Section */}
+      <Card className="border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50" data-testid="card-hero-management">
+        <CardHeader className="border-b border-emerald-200/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-emerald-600 p-2.5 rounded-lg">
+                <ImageIcon className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-emerald-900">Hero Background Image</CardTitle>
+                <CardDescription className="text-emerald-700">Manage your website's hero section background</CardDescription>
+              </div>
+            </div>
+            {currentHeroMedia && (
+              <Badge className="bg-emerald-600 text-white" data-testid="badge-hero-status">
+                <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+                Active Hero
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="pt-6">
+          {currentHeroMedia ? (
+            <div className="grid md:grid-cols-[300px_1fr] gap-6">
+              {/* Hero Preview */}
+              <div className="space-y-3">
+                <div className="aspect-video bg-white rounded-xl border-2 border-emerald-200 shadow-sm flex items-center justify-center p-4 overflow-hidden">
+                  <img
+                    src={currentHeroMedia.fileUrl}
+                    alt={currentHeroMedia.altText || 'Site Hero Image'}
+                    className="max-w-full max-h-full object-contain"
+                    data-testid="img-current-hero"
+                  />
+                </div>
+                <div className="text-sm text-center space-y-1">
+                  <p className="font-medium text-slate-900" data-testid="text-hero-filename">{currentHeroMedia.fileName}</p>
+                  <p className="text-slate-600" data-testid="text-hero-filesize">{formatFileSize(currentHeroMedia.fileSize)}</p>
+                </div>
+              </div>
+
+              {/* Hero Info and Actions */}
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-sm font-semibold text-slate-700">Alt Text</Label>
+                    <p className="text-sm text-slate-900 mt-1" data-testid="text-hero-alt">{currentHeroMedia.altText || 'No alt text set'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-semibold text-slate-700">Description</Label>
+                    <p className="text-sm text-slate-900 mt-1" data-testid="text-hero-description">{currentHeroMedia.description || 'No description set'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-semibold text-slate-700">Uploaded</Label>
+                    <p className="text-sm text-slate-900 mt-1" data-testid="text-hero-uploaded">{new Date(currentHeroMedia.uploadedAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedMedia(currentHeroMedia);
+                      setEditDialogOpen(true);
+                    }}
+                    className="flex-1 border-emerald-300 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800"
+                    data-testid="button-edit-hero"
+                  >
+                    <Edit2 className="w-4 h-4 mr-2" />
+                    Edit Details
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => heroFileInputRef.current?.click()}
+                    className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
+                    data-testid="button-change-hero"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Change Hero Image
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => {
+                      setMediaToDelete(currentHeroMedia);
+                      setDeleteDialogOpen(true);
+                    }}
+                    disabled={deleteMedia.isPending}
+                    data-testid="button-delete-hero"
+                  >
+                    {deleteMedia.isPending ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4 mr-2" />
+                    )}
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="inline-block p-4 bg-white rounded-full border-2 border-dashed border-emerald-300 mb-4">
+                <ImageIcon className="w-12 h-12 text-emerald-600" />
+              </div>
+              <p className="text-lg font-semibold text-slate-900 mb-2">No Active Hero Image Set</p>
+              <p className="text-sm text-slate-600 mb-4">Upload a hero background image to get started</p>
+              <Button
+                onClick={() => heroFileInputRef.current?.click()}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                data-testid="button-upload-hero"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Upload Hero Image
+              </Button>
+            </div>
+          )}
+          <Input
+            ref={heroFileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleHeroUpload(e.target.files)}
+            className="hidden"
+            data-testid="input-hero-upload"
+          />
+        </CardContent>
+      </Card>
+
       {/* Header with Upload Button */}
       <div className="flex items-center justify-between">
         <div>
@@ -427,7 +646,7 @@ export default function MediaLibrary() {
           {displayedMedia && displayedMedia.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="grid-media">
               {displayedMedia.map((media) => (
-                <Card key={media.id} className={`overflow-hidden group relative ${media.id === activeSiteLogoId ? 'ring-2 ring-green-500' : ''}`} data-testid={`card-media-${media.id}`}>
+                <Card key={media.id} className={`overflow-hidden group relative ${media.id === activeSiteLogoId || media.id === activeSiteHeroId ? 'ring-2 ring-green-500' : ''}`} data-testid={`card-media-${media.id}`}>
                   {/* Image Preview */}
                   <div className="aspect-square bg-muted flex items-center justify-center overflow-hidden relative">
                     {media.fileType.startsWith('image/') ? (
@@ -443,7 +662,13 @@ export default function MediaLibrary() {
                     {media.id === activeSiteLogoId && (
                       <Badge className="absolute top-2 right-2 bg-green-600" data-testid={`badge-active-logo-${media.id}`}>
                         <CheckCircle2 className="w-3 h-3 mr-1" />
-                        Active
+                        Active Logo
+                      </Badge>
+                    )}
+                    {media.id === activeSiteHeroId && (
+                      <Badge className="absolute top-2 right-2 bg-green-600" data-testid={`badge-active-hero-${media.id}`}>
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        Active Hero
                       </Badge>
                     )}
                   </div>
@@ -494,6 +719,23 @@ export default function MediaLibrary() {
                         data-testid={`button-set-logo-${media.id}`}
                       >
                         <Star className="w-4 h-4" />
+                      </Button>
+                    )}
+                    {media.folder === 'hero-images' && (
+                      <Button
+                        size="sm"
+                        variant={media.id === activeSiteHeroId ? "default" : "secondary"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (media.id !== activeSiteHeroId) {
+                            setSiteHeroMutation.mutate(media.id);
+                          }
+                        }}
+                        disabled={setSiteHeroMutation.isPending || media.id === activeSiteHeroId}
+                        className={media.id === activeSiteHeroId ? "bg-green-600 hover:bg-green-700" : ""}
+                        data-testid={`button-set-hero-${media.id}`}
+                      >
+                        <ImageIcon className="w-4 h-4" />
                       </Button>
                     )}
                   </div>
