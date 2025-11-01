@@ -62,7 +62,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               data-testid="admin-logo"
             />
             <div>
-              <p className="text-xs text-slate-400 font-medium">Admin Portal</p>
+              <p className="text-[24px] font-bold text-[#ffffff] pl-[30px] pr-[30px] text-center">Admin Portal</p>
             </div>
           </div>
           
