@@ -27,6 +27,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   TrendingUp,
   Users,
   Car,
@@ -2433,6 +2443,8 @@ export default function AdminDashboard() {
   // User dialog state
   const [userDialogOpen, setUserDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userFormData, setUserFormData] = useState({
     firstName: "",
     lastName: "",
@@ -7122,13 +7134,8 @@ export default function AdminDashboard() {
                                     size="sm"
                                     className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
                                     onClick={() => {
-                                      if (
-                                        confirm(
-                                          `Are you sure you want to delete ${u.firstName} ${u.lastName}?`,
-                                        )
-                                      ) {
-                                        deleteUserMutation.mutate(u.id);
-                                      }
+                                      setUserToDelete(u);
+                                      setDeleteUserDialogOpen(true);
                                     }}
                                     disabled={deleteUserMutation.isPending}
                                     data-testid={`button-delete-user-${u.id}`}
@@ -8129,6 +8136,63 @@ export default function AdminDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete User Confirmation Dialog */}
+      <AlertDialog open={deleteUserDialogOpen} onOpenChange={setDeleteUserDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="w-5 h-5" />
+              Delete User Account
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>
+                Are you sure you want to delete{" "}
+                <span className="font-semibold text-slate-900">
+                  {userToDelete?.firstName} {userToDelete?.lastName}
+                </span>
+                {" "}({userToDelete?.email})?
+              </p>
+              <p className="text-red-600 font-medium">
+                This action cannot be undone and will permanently delete:
+              </p>
+              <ul className="list-disc pl-5 space-y-1 text-sm">
+                <li>User account and profile information</li>
+                <li>All associated bookings and ride history</li>
+                <li>Driver documents and verification records</li>
+                <li>Payment information and transaction history</li>
+                <li>Emergency incident reports</li>
+                <li>CMS content and media uploads</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setDeleteUserDialogOpen(false);
+                setUserToDelete(null);
+              }}
+              data-testid="button-cancel-delete-user"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (userToDelete) {
+                  deleteUserMutation.mutate(userToDelete.id);
+                  setDeleteUserDialogOpen(false);
+                  setUserToDelete(null);
+                }
+              }}
+              disabled={deleteUserMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+              data-testid="button-confirm-delete-user"
+            >
+              {deleteUserMutation.isPending ? "Deleting..." : "Delete User"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
