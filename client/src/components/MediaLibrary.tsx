@@ -447,7 +447,7 @@ export default function MediaLibrary() {
                   </div>
 
                   {/* Action Buttons - Bottom positioned */}
-                  <div className="absolute bottom-0 left-0 right-0 p-2 from-black/80 to-transparent flex items-center justify-center gap-2 bg-[#ffffff]">
+                  <div className="absolute bottom-0 left-0 right-0 p-2 from-black/80 to-transparent flex items-center justify-center gap-2 bg-[#ffffff] z-10">
                     <Button
                       size="sm"
                       variant="secondary"
