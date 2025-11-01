@@ -568,6 +568,31 @@ function InvoicesList() {
             color: #334155;
             margin-bottom: 4px;
           }
+          .print-button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+          }
+          .print-button {
+            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+            transition: all 0.2s ease;
+          }
+          .print-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+          }
+          .print-button:active {
+            transform: translateY(0);
+          }
           @media print {
             body { 
               padding: 0;
@@ -581,10 +606,17 @@ function InvoicesList() {
             .pricing-section {
               page-break-inside: avoid;
             }
+            .print-button-container {
+              display: none;
+            }
           }
         </style>
       </head>
       <body>
+        <div class="print-button-container">
+          <button class="print-button" onclick="window.print()">🖨️ Print Invoice</button>
+        </div>
+        
         <div class="header">
           <h1>USA Luxury Limo</h1>
           <div class="invoice-number">Invoice #${invoice.invoiceNumber}</div>
