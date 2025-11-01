@@ -86,7 +86,8 @@ export default function MobileDispatcher() {
   }) || [];
   const activeBookings = bookings?.filter((b) => {
     const isPast = new Date(b.scheduledDateTime) < now;
-    return (b.status === 'confirmed' || b.status === 'in_progress') && !isPast;
+    const activeStatuses = ['confirmed', 'in_progress', 'on_the_way', 'arrived', 'on_board', 'pending_driver_acceptance'];
+    return activeStatuses.includes(b.status) && !isPast;
   }) || [];
   
   // Filter drivers
