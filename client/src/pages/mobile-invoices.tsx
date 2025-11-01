@@ -452,7 +452,7 @@ export default function MobileInvoices() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate('/passenger')}
+            onClick={() => navigate('/mobile-passenger')}
             className="text-white hover:bg-white/20"
             data-testid="button-back"
           >
