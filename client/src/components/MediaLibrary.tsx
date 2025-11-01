@@ -39,6 +39,7 @@ export default function MediaLibrary() {
   const [selectedMedia, setSelectedMedia] = useState<CmsMedia | null>(null);
   const [uploadFolder, setUploadFolder] = useState<'logos' | 'hero-images' | 'vehicles' | 'testimonials' | 'general'>('general');
   const [isDragging, setIsDragging] = useState(false);
+  const logoFileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch all media
   const { data: allMedia, isLoading } = useQuery<CmsMedia[]>({
@@ -164,6 +165,61 @@ export default function MediaLibrary() {
     uploadMedia.mutate(formData);
   };
 
+  // Logo upload mutation with automatic activation
+  const uploadLogoMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const uploadResponse = await fetch('/api/admin/cms/media/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      if (!uploadResponse.ok) throw new Error('Upload failed');
+      const uploadData = await uploadResponse.json();
+      
+      if (uploadData.id) {
+        const setLogoResponse = await apiRequest('POST', '/api/admin/site-logo', { mediaId: uploadData.id });
+        await setLogoResponse.json();
+      }
+      
+      return uploadData;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/site-logo'] });
+      if (logoFileInputRef.current) {
+        logoFileInputRef.current.value = '';
+      }
+      toast({
+        title: 'Success',
+        description: 'Logo uploaded and activated successfully',
+      });
+    },
+    onError: (error: Error) => {
+      if (logoFileInputRef.current) {
+        logoFileInputRef.current.value = '';
+      }
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to upload and activate logo',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Handle logo upload
+  const handleLogoUpload = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', 'logos');
+    formData.append('altText', 'Site Logo');
+    formData.append('description', 'Main site logo');
+
+    uploadLogoMutation.mutate(formData);
+  };
+
   // Handle drag and drop
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -198,6 +254,9 @@ export default function MediaLibrary() {
     general: 'General',
   };
 
+  // Get current logo media object
+  const currentLogoMedia = allMedia?.find(m => m.id === activeSiteLogoId);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -208,6 +267,135 @@ export default function MediaLibrary() {
 
   return (
     <div className="space-y-6">
+      {/* Logo Management Section */}
+      <Card className="border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50" data-testid="card-logo-management">
+        <CardHeader className="border-b border-emerald-200/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-emerald-600 p-2.5 rounded-lg">
+                <Star className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-emerald-900">Site Logo</CardTitle>
+                <CardDescription className="text-emerald-700">Manage your website's primary logo</CardDescription>
+              </div>
+            </div>
+            {currentLogoMedia && (
+              <Badge className="bg-emerald-600 text-white" data-testid="badge-logo-status">
+                <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+                Active Logo
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="pt-6">
+          {currentLogoMedia ? (
+            <div className="grid md:grid-cols-[300px_1fr] gap-6">
+              {/* Logo Preview */}
+              <div className="space-y-3">
+                <div className="aspect-square bg-white rounded-xl border-2 border-emerald-200 shadow-sm flex items-center justify-center p-6 overflow-hidden">
+                  <img
+                    src={currentLogoMedia.fileUrl}
+                    alt={currentLogoMedia.altText || 'Site Logo'}
+                    className="max-w-full max-h-full object-contain"
+                    data-testid="img-current-logo"
+                  />
+                </div>
+                <div className="text-sm text-center space-y-1">
+                  <p className="font-medium text-slate-900" data-testid="text-logo-filename">{currentLogoMedia.fileName}</p>
+                  <p className="text-slate-600" data-testid="text-logo-filesize">{formatFileSize(currentLogoMedia.fileSize)}</p>
+                </div>
+              </div>
+
+              {/* Logo Info and Actions */}
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-sm font-semibold text-slate-700">Alt Text</Label>
+                    <p className="text-sm text-slate-900 mt-1" data-testid="text-logo-alt">{currentLogoMedia.altText || 'No alt text set'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-semibold text-slate-700">Description</Label>
+                    <p className="text-sm text-slate-900 mt-1" data-testid="text-logo-description">{currentLogoMedia.description || 'No description set'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-semibold text-slate-700">Uploaded</Label>
+                    <p className="text-sm text-slate-900 mt-1" data-testid="text-logo-uploaded">{new Date(currentLogoMedia.uploadedAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedMedia(currentLogoMedia);
+                      setEditDialogOpen(true);
+                    }}
+                    className="flex-1 border-emerald-300 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800"
+                    data-testid="button-edit-logo"
+                  >
+                    <Edit2 className="w-4 h-4 mr-2" />
+                    Edit Details
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => logoFileInputRef.current?.click()}
+                    className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
+                    data-testid="button-change-logo"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Change Logo
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const confirmed = window.confirm('Are you sure you want to delete the current site logo?');
+                      if (confirmed) {
+                        deleteMedia.mutate(currentLogoMedia.id);
+                      }
+                    }}
+                    disabled={deleteMedia.isPending}
+                    className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800"
+                    data-testid="button-delete-logo"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="inline-block p-4 bg-white rounded-full border-2 border-dashed border-emerald-300 mb-4">
+                <ImageIcon className="w-12 h-12 text-emerald-600" />
+              </div>
+              <p className="text-lg font-semibold text-slate-900 mb-2">No Active Logo Set</p>
+              <p className="text-sm text-slate-600 mb-4">Upload a logo to get started</p>
+              <Button
+                onClick={() => logoFileInputRef.current?.click()}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                data-testid="button-upload-logo"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Upload Logo
+              </Button>
+            </div>
+          )}
+          <Input
+            ref={logoFileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleLogoUpload(e.target.files)}
+            className="hidden"
+            data-testid="input-logo-upload"
+          />
+        </CardContent>
+      </Card>
+
       {/* Header with Upload Button */}
       <div className="flex items-center justify-between">
         <div>
