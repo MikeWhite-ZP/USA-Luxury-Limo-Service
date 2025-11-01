@@ -350,7 +350,7 @@ export default function MediaLibrary() {
                     Change Logo
                   </Button>
                   <Button
-                    variant="outline"
+                    variant="destructive"
                     size="sm"
                     onClick={() => {
                       const confirmed = window.confirm('Are you sure you want to delete the current site logo?');
@@ -359,10 +359,13 @@ export default function MediaLibrary() {
                       }
                     }}
                     disabled={deleteMedia.isPending}
-                    className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800"
                     data-testid="button-delete-logo"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
+                    {deleteMedia.isPending ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4 mr-2" />
+                    )}
                     Delete
                   </Button>
                 </div>
