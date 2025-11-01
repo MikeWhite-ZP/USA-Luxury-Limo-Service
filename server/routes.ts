@@ -2789,147 +2789,202 @@ export async function registerRoutes(app: Express): Promise<Server> {
             body { 
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
               line-height: 1.6;
-              color: #0f172a;
-              background-color: #f8fafc;
+              color: #1f2937;
+              background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+              padding: 0;
+              margin: 0;
             }
-            .email-wrapper { background-color: #f8fafc; padding: 24px; }
+            .email-wrapper { 
+              background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); 
+              padding: 40px 20px; 
+            }
             .container { 
-              max-width: 650px; 
+              max-width: 680px; 
               margin: 0 auto; 
               background-color: #ffffff; 
-              border-radius: 12px;
+              border-radius: 16px;
               overflow: hidden;
-              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+              box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             }
             
-            /* Header */
+            /* Header with Logo */
             .header { 
-              background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-              padding: 32px 24px;
-              border-bottom: 3px solid #4f46e5;
+              background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+              padding: 48px 32px;
               text-align: center;
+              position: relative;
+              overflow: hidden;
             }
-            .logo { 
-              font-size: 28px; 
-              font-weight: 800; 
-              color: #1e293b; 
-              margin-bottom: 8px;
-              letter-spacing: -0.5px;
+            .header::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.03)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,165.3C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+              background-size: cover;
+              background-position: bottom;
+              opacity: 0.1;
+            }
+            .logo-container {
+              background: white;
+              padding: 16px 24px;
+              border-radius: 12px;
+              display: inline-block;
+              margin-bottom: 16px;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
             .logo-img { 
-              max-height: 70px; 
-              max-width: 280px; 
-              margin: 0 auto 12px; 
+              max-height: 80px; 
+              max-width: 320px; 
+              height: auto;
+              width: auto;
               display: block;
             }
+            .company-name { 
+              font-size: 32px; 
+              font-weight: 800; 
+              color: #ffffff;
+              text-transform: uppercase;
+              letter-spacing: 2px;
+              text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
             .tagline { 
-              font-size: 14px; 
-              color: #64748b; 
+              font-size: 15px; 
+              color: #cbd5e1; 
               font-weight: 500;
+              margin-top: 8px;
+              letter-spacing: 0.5px;
             }
             
             /* Success Banner */
             .success-banner { 
-              background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-              padding: 20px;
+              background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+              padding: 24px;
               text-align: center;
-              border-bottom: 3px solid #10b981;
+              border-bottom: 4px solid #f59e0b;
             }
             .success-banner h2 { 
-              color: #065f46; 
-              font-size: 20px;
+              color: #92400e; 
+              font-size: 22px;
               margin: 0;
               font-weight: 800;
-              letter-spacing: 1px;
+              letter-spacing: 2px;
+              text-transform: uppercase;
             }
             
             /* Content */
-            .content { padding: 32px 24px; }
-            .greeting { 
-              margin-bottom: 24px;
-              color: #334155;
+            .content { 
+              padding: 40px 32px; 
+              background: #ffffff;
             }
-            .greeting p { margin-bottom: 8px; }
+            .greeting { 
+              margin-bottom: 32px;
+              padding: 24px;
+              background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+              border-left: 4px solid #3b82f6;
+              border-radius: 8px;
+            }
+            .greeting p { 
+              margin-bottom: 10px;
+              color: #1e40af;
+              font-size: 15px;
+            }
+            .greeting strong {
+              color: #1e3a8a;
+              font-size: 16px;
+            }
             
             /* Sections */
             .section { 
-              margin-bottom: 28px;
-              background: #f8fafc;
-              border: 2px solid #e2e8f0;
-              border-radius: 10px;
-              padding: 20px;
+              margin-bottom: 32px;
+              background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+              border: 2px solid #e5e7eb;
+              border-radius: 12px;
+              padding: 24px;
+              box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             }
             .section-title { 
-              font-weight: 700;
-              font-size: 16px;
-              margin-bottom: 16px;
-              color: #334155;
+              font-weight: 800;
+              font-size: 17px;
+              margin-bottom: 20px;
+              color: #1f2937;
               text-transform: uppercase;
-              letter-spacing: 0.5px;
-              padding-bottom: 8px;
-              border-bottom: 2px solid #cbd5e1;
+              letter-spacing: 1px;
+              padding-bottom: 12px;
+              border-bottom: 3px solid #e5e7eb;
+              display: flex;
+              align-items: center;
+              gap: 8px;
             }
             .info-row { 
               display: flex;
               justify-content: space-between;
-              padding: 10px 0;
-              border-bottom: 1px solid #f1f5f9;
+              padding: 14px 0;
+              border-bottom: 1px solid #f3f4f6;
+              align-items: flex-start;
             }
             .info-row:last-child { border-bottom: none; }
             .info-label { 
-              font-weight: 600;
-              color: #64748b;
-              flex: 0 0 40%;
+              font-weight: 700;
+              color: #6b7280;
+              flex: 0 0 45%;
               font-size: 14px;
             }
             .info-value { 
-              color: #0f172a;
+              color: #111827;
               flex: 1;
               text-align: right;
-              font-weight: 500;
+              font-weight: 600;
               font-size: 14px;
+              word-break: break-word;
             }
             
             /* Pricing Section */
             .pricing-section {
-              background: white;
-              border: 2px solid #e2e8f0;
-              border-radius: 10px;
-              padding: 20px;
-              margin-bottom: 28px;
+              background: #ffffff;
+              border: 2px solid #e5e7eb;
+              border-radius: 12px;
+              padding: 24px;
+              margin-bottom: 32px;
+              box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             }
             .pricing-row {
               display: flex;
               justify-content: space-between;
               align-items: center;
-              padding: 12px 0;
-              border-bottom: 1px solid #f1f5f9;
+              padding: 16px 0;
+              border-bottom: 1px solid #f3f4f6;
             }
             .pricing-row:last-child { border-bottom: none; }
             .pricing-label {
               font-size: 15px;
-              color: #0f172a;
-              font-weight: 500;
-            }
-            .pricing-value {
-              font-size: 15px;
-              color: #0f172a;
+              color: #374151;
               font-weight: 600;
             }
+            .pricing-value {
+              font-size: 16px;
+              color: #111827;
+              font-weight: 700;
+            }
             .pricing-surge {
-              color: #ea580c;
+              color: #dc2626;
+              font-weight: 800;
             }
             .pricing-discount {
-              color: #16a34a;
+              color: #059669;
+              font-weight: 800;
             }
             
             /* Total Section */
             .total-section {
-              background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-              border: 3px solid #3b82f6;
-              border-radius: 10px;
-              padding: 20px;
-              margin-top: 20px;
+              background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+              border: 4px solid #f59e0b;
+              border-radius: 12px;
+              padding: 24px;
+              margin-top: 24px;
+              box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
             }
             .total-row {
               display: flex;
@@ -2937,75 +2992,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
               align-items: center;
             }
             .total-label {
-              font-size: 18px;
-              color: #0f172a;
-              font-weight: 700;
+              font-size: 20px;
+              color: #78350f;
+              font-weight: 800;
+              text-transform: uppercase;
+              letter-spacing: 1px;
             }
             .total-value {
-              font-size: 24px;
-              color: #1d4ed8;
-              font-weight: 800;
+              font-size: 32px;
+              color: #b45309;
+              font-weight: 900;
             }
             
             /* Payment */
             .payment-link { 
               text-align: center;
-              margin: 24px 0;
-              padding: 24px;
-              background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-              border-radius: 10px;
-              border: 2px solid #3b82f6;
+              margin: 32px 0;
+              padding: 32px;
+              background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+              border-radius: 12px;
+              border: 3px solid #3b82f6;
+              box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
             }
             .payment-link p {
               color: #1e40af;
-              font-weight: 600;
-              margin-bottom: 16px;
-              font-size: 16px;
+              font-weight: 700;
+              margin-bottom: 20px;
+              font-size: 17px;
             }
             .payment-button { 
               display: inline-block;
               background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
               color: #ffffff;
-              padding: 14px 36px;
+              padding: 16px 48px;
               text-decoration: none;
-              border-radius: 8px;
-              font-weight: 700;
-              font-size: 16px;
-              box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+              border-radius: 10px;
+              font-weight: 800;
+              font-size: 17px;
+              box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5);
               transition: all 0.2s;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
             }
             .payment-button:hover {
               background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+              transform: translateY(-2px);
+              box-shadow: 0 15px 20px -3px rgba(59, 130, 246, 0.6);
             }
             
             /* Paid Badge */
             .paid-badge { 
               background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
               color: #065f46;
-              padding: 20px;
+              padding: 28px;
               text-align: center;
-              font-weight: 800;
-              font-size: 20px;
-              border-radius: 10px;
-              margin: 24px 0;
-              border: 3px solid #10b981;
-              letter-spacing: 2px;
+              font-weight: 900;
+              font-size: 24px;
+              border-radius: 12px;
+              margin: 32px 0;
+              border: 4px solid #10b981;
+              letter-spacing: 3px;
+              text-transform: uppercase;
+              box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
             }
             
             /* Footer */
             .footer-note { 
-              font-size: 13px;
-              color: #64748b;
+              font-size: 14px;
+              color: #6b7280;
               text-align: center;
-              padding: 24px;
-              border-top: 2px solid #e2e8f0;
-              margin-top: 28px;
-              background: #f8fafc;
-              border-radius: 8px;
+              padding: 32px;
+              border-top: 3px solid #e5e7eb;
+              margin-top: 40px;
+              background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+              border-radius: 0 0 12px 12px;
             }
             .footer-note strong {
-              color: #334155;
-              font-weight: 600;
+              color: #374151;
+              font-weight: 700;
+            }
+            .footer-note p {
+              margin: 8px 0;
             }
             
             @media only screen and (max-width: 600px) {
@@ -3018,19 +3085,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         <body>
           <div class="email-wrapper">
             <div class="container">
-              <!-- Header -->
+              <!-- Header with Logo -->
               <div class="header">
                 ${logoDataUri ? `
-                  <img src="${logoDataUri}" alt="USA Luxury Limo" class="logo-img" />
+                  <div class="logo-container">
+                    <img src="${logoDataUri}" alt="USA Luxury Limo" class="logo-img" />
+                  </div>
                 ` : `
-                  <div class="logo">USA Luxury Limo</div>
+                  <div class="company-name">USA LUXURY LIMO</div>
                 `}
-                <div class="tagline">Ride in Style, Always on Time</div>
+                <div class="tagline">Premium Luxury Transportation Service</div>
               </div>
 
-              <!-- Success Banner -->
+              <!-- Invoice Ready Banner -->
               <div class="success-banner">
-                <h2>✓ INVOICE READY</h2>
+                <h2>📄 YOUR INVOICE IS READY</h2>
               </div>
 
               <!-- Content -->
