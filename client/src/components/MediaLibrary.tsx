@@ -36,7 +36,9 @@ export default function MediaLibrary() {
   const [selectedFolder, setSelectedFolder] = useState<FolderType>('all');
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<CmsMedia | null>(null);
+  const [mediaToDelete, setMediaToDelete] = useState<CmsMedia | null>(null);
   const [uploadFolder, setUploadFolder] = useState<'logos' | 'hero-images' | 'vehicles' | 'testimonials' | 'general'>('general');
   const [isDragging, setIsDragging] = useState(false);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
@@ -116,6 +118,8 @@ export default function MediaLibrary() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
       queryClient.invalidateQueries({ queryKey: ['/api/site-logo'] });
+      setDeleteDialogOpen(false);
+      setMediaToDelete(null);
       toast({
         title: 'Success',
         description: 'Media deleted successfully',
@@ -353,10 +357,8 @@ export default function MediaLibrary() {
                     variant="destructive"
                     size="sm"
                     onClick={() => {
-                      const confirmed = window.confirm('Are you sure you want to delete the current site logo?');
-                      if (confirmed) {
-                        deleteMedia.mutate(currentLogoMedia.id);
-                      }
+                      setMediaToDelete(currentLogoMedia);
+                      setDeleteDialogOpen(true);
                     }}
                     disabled={deleteMedia.isPending}
                     data-testid="button-delete-logo"
@@ -465,10 +467,8 @@ export default function MediaLibrary() {
                       variant="destructive"
                       onClick={(e) => {
                         e.stopPropagation();
-                        const confirmed = window.confirm('Are you sure you want to delete this media?');
-                        if (confirmed) {
-                          deleteMedia.mutate(media.id);
-                        }
+                        setMediaToDelete(media);
+                        setDeleteDialogOpen(true);
                       }}
                       disabled={deleteMedia.isPending}
                       data-testid={`button-delete-${media.id}`}
@@ -665,6 +665,69 @@ export default function MediaLibrary() {
             >
               {updateMedia.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="bg-white" data-testid="dialog-delete-confirm">
+          <DialogHeader>
+            <DialogTitle>Delete Media</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this media? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          {mediaToDelete && (
+            <div className="space-y-4">
+              {/* Preview */}
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center">
+                {mediaToDelete.fileType.startsWith('image/') ? (
+                  <img
+                    src={mediaToDelete.fileUrl}
+                    alt={mediaToDelete.altText}
+                    className="max-w-full max-h-full object-contain"
+                    data-testid="img-delete-preview"
+                  />
+                ) : (
+                  <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                )}
+              </div>
+
+              {/* File Info */}
+              <div className="text-sm space-y-1" data-testid="text-delete-info">
+                <p className="font-medium">{mediaToDelete.fileName}</p>
+                <p className="text-muted-foreground">
+                  {mediaToDelete.folder.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                setMediaToDelete(null);
+              }} 
+              data-testid="button-cancel-delete"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (mediaToDelete) {
+                  deleteMedia.mutate(mediaToDelete.id);
+                }
+              }}
+              disabled={deleteMedia.isPending}
+              data-testid="button-confirm-delete"
+            >
+              {deleteMedia.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>
