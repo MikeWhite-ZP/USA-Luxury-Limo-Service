@@ -4,6 +4,7 @@
 USA Luxury Limo is a full-stack Progressive Web Application (PWA) designed as a comprehensive luxury transportation booking platform. It aims to streamline the booking process by offering real-time pricing, fleet management, and multi-role user authentication for passengers, drivers, and dispatchers. Key capabilities include flight search integration, advanced payment options, and driver document management, providing an efficient solution for luxury transportation services.
 
 ## Recent Changes
+- **November 1, 2025**: Added Cash Payment capability - new payment option allowing admin-approved passengers to complete bookings and pay with cash after trip completion, without requiring saved payment methods. Includes cashPaymentEnabled field in users table, admin toggle in user edit dialog, and green-themed "Pay with Cash" button in booking flow step 4.
 - **November 1, 2025**: Redesigned emailed invoice with professional modern design featuring dark gradient header with logo in white container, amber/gold accent colors for totals, improved visual hierarchy, enhanced spacing and shadows, and better mobile responsiveness
 - **November 1, 2025**: Added visible print button to invoice print page - fixed top-right position with automatic print dialog on page load plus manual print button for better user experience
 - **November 1, 2025**: Fixed past bookings filter to only show cancelled/completed bookings or past-dated bookings without active status - excludes pending, confirmed, pending_driver_acceptance, in_progress, on_the_way, arrived, and on_board statuses
@@ -44,7 +45,7 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
         - **Driver Status Updates**: Email + SMS to passenger when driver is "on the way" or "arrived"
         - **Email Templates** (6): Booking confirmation, booking cancelled, booking status update, driver assignment, driver on the way, driver arrived
         - **SMS Templates** (4): Booking confirmation, booking cancelled, driver assignment, booking status update, driver on the way, driver arrived, admin new booking alert
-    - **Payment**: Integration with multiple providers (Stripe, PayPal, Square), supporting "Pay Now" / "Pay Later" and surcharge management.
+    - **Payment**: Integration with multiple providers (Stripe, PayPal, Square), supporting "Pay Now", "Pay Later", and "Pay with Cash" options. Pay Later requires saved payment methods on file. Cash Payment allows admin-approved passengers (with cashPaymentEnabled flag) to complete bookings without saved payment methods and pay cash after trip completion. Includes surcharge management.
     - **Geolocation & Flight Data**: TomTom API for geocoding and AeroDataBox API for real-time flight information.
     - **Booking & Dispatch**: A 4-step booking flow, intelligent driver assignment (proximity, capacity, rating, workload, conflicts), and a two-stage job acceptance workflow. Includes itemized pricing breakdown with base fare, surge pricing, gratuity, airport fees, and discounts, supporting both transfer and hourly services.
     - **Driver Management**: Document upload/tracking (Replit Object Storage), real-time GPS tracking, navigation integration, and driver payment/credential management.
