@@ -48,6 +48,7 @@ export const users = pgTable("users", {
   role: varchar("role", { enum: userRoles }).default("passenger"),
   isActive: boolean("is_active").default(true),
   payLaterEnabled: boolean("pay_later_enabled").default(false),
+  cashPaymentEnabled: boolean("cash_payment_enabled").default(false),
   discountType: varchar("discount_type", { enum: ["percentage", "fixed"] }),
   discountValue: decimal("discount_value", { precision: 10, scale: 2 }).default("0"),
   stripeCustomerId: varchar("stripe_customer_id"),
