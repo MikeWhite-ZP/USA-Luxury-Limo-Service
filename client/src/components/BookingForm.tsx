@@ -95,13 +95,14 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   // Payment options dialog state
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
   const [createdBooking, setCreatedBooking] = useState<any>(null);
+  const [showPaymentMethodRequired, setShowPaymentMethodRequired] = useState(false);
   
   const suggestionTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // Fetch user's payment methods to check if they have saved cards
   const { data: paymentData, refetch: refetchPaymentMethods } = useQuery<PaymentMethodsResponse>({
     queryKey: ['/api/payment-methods'],
-    enabled: isAuthenticated && showPaymentOptions, // Only fetch when dialog is open
+    enabled: isAuthenticated && (showPaymentOptions || step === 4), // Fetch when dialog is open or on payment step
   });
 
   const paymentMethods = paymentData?.paymentMethods || [];
@@ -1678,8 +1679,16 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           {user?.payLaterEnabled && user.role === 'passenger' && (
             <button
               onClick={() => {
-                // Create booking with status "confirmed" (unpaid)
-                bookingMutation.mutate();
+                // Check if user has saved payment methods
+                const hasSavedCards = paymentMethods && paymentMethods.length > 0;
+                
+                if (!hasSavedCards) {
+                  // Show dialog to prompt adding payment method
+                  setShowPaymentMethodRequired(true);
+                } else {
+                  // Create booking with status "confirmed" (unpaid)
+                  bookingMutation.mutate();
+                }
               }}
               className="w-full p-6 border-2 border-gray-300 rounded-lg hover:border-primary hover:bg-primary/5 transition-all group"
               data-testid="button-pay-later-step4"
@@ -2159,12 +2168,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   const hasSavedCards = paymentMethods && paymentMethods.length > 0;
                   
                   if (!hasSavedCards) {
-                    // Warn user they need to add a card for future payments
-                    toast({
-                      title: "Payment Method Required",
-                      description: "Booking confirmed! Please add a payment method in your account settings for future payments.",
-                      variant: "default",
-                    });
+                    // Close payment options dialog and show payment method required dialog
+                    setShowPaymentOptions(false);
+                    setShowPaymentMethodRequired(true);
                   } else {
                     toast({
                       title: "Booking Confirmed",
@@ -2198,6 +2204,58 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 </div>
               </button>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+      {/* Payment Method Required Dialog */}
+      <Dialog open={showPaymentMethodRequired} onOpenChange={setShowPaymentMethodRequired}>
+        <DialogContent className="sm:max-w-md" data-testid="payment-method-required-dialog">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-amber-600">Payment Method Required</DialogTitle>
+            <DialogDescription>
+              To complete your booking with "Pay Later" option, you need to add a payment method to your account.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-gray-700">
+                <strong>Why is this required?</strong>
+              </p>
+              <p className="text-sm text-gray-600 mt-2">
+                Adding a payment method ensures seamless payment processing after your trip is completed. 
+                Your card will be securely stored and charged only after you've enjoyed your luxury transportation service.
+              </p>
+            </div>
+            
+            <div className="space-y-3">
+              <Button
+                onClick={() => {
+                  setShowPaymentMethodRequired(false);
+                  setLocation('/account-settings');
+                }}
+                className="w-full bg-primary hover:bg-primary/90 text-white py-6"
+                data-testid="button-add-payment-method"
+              >
+                <CreditCard className="w-5 h-5 mr-2" />
+                Add Payment Method in Account Settings
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowPaymentMethodRequired(false);
+                }}
+                className="w-full py-6"
+                data-testid="button-cancel-payment-method"
+              >
+                Cancel
+              </Button>
+            </div>
+            
+            <p className="text-xs text-gray-500 text-center mt-2">
+              Alternatively, you can choose "Pay Now" to complete payment immediately.
+            </p>
           </div>
         </DialogContent>
       </Dialog>
