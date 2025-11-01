@@ -92,9 +92,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   const [showFlightDialog, setShowFlightDialog] = useState(false);
   const [isSearchingFlight, setIsSearchingFlight] = useState(false);
   
-  // Payment options dialog state
-  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
-  const [createdBooking, setCreatedBooking] = useState<any>(null);
+  // Payment method required dialog state
   const [showPaymentMethodRequired, setShowPaymentMethodRequired] = useState(false);
   
   const suggestionTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
@@ -102,7 +100,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   // Fetch user's payment methods to check if they have saved cards
   const { data: paymentData, refetch: refetchPaymentMethods } = useQuery<PaymentMethodsResponse>({
     queryKey: ['/api/payment-methods'],
-    enabled: isAuthenticated && (showPaymentOptions || step === 4), // Fetch when dialog is open or on payment step
+    enabled: isAuthenticated && step === 4, // Fetch on payment step to check if user has saved cards
   });
 
   const paymentMethods = paymentData?.paymentMethods || [];
@@ -2124,86 +2122,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 </div>
               </button>
             ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-      {/* Payment Options Dialog */}
-      <Dialog open={showPaymentOptions} onOpenChange={setShowPaymentOptions}>
-        <DialogContent className="sm:max-w-md" data-testid="payment-options-dialog">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Choose Payment Option</DialogTitle>
-            <DialogDescription>
-              Select how you would like to complete your booking
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 mt-4">
-            {/* Pay Now Option - Always shown */}
-            <button
-              onClick={() => {
-                setShowPaymentOptions(false);
-                if (createdBooking) {
-                  setLocation(`/checkout?bookingId=${createdBooking.id}&amount=${createdBooking.totalAmount}`);
-                }
-              }}
-              className="w-full p-6 border-2 border-primary rounded-lg hover:bg-primary/5 transition-all group"
-              data-testid="button-pay-now"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <CreditCard className="w-6 h-6 text-white" />
-                </div>
-                <div className="text-left flex-1">
-                  <h3 className="text-lg font-bold text-primary">Pay Now</h3>
-                  <p className="text-sm text-gray-600">Complete payment to confirm your booking</p>
-                </div>
-              </div>
-            </button>
-
-            {/* Pay Later Option - Only show if user has pay later enabled */}
-            {user?.payLaterEnabled && user.role === 'passenger' && (
-              <button
-                onClick={() => {
-                  // Check if user has saved payment methods
-                  const hasSavedCards = paymentMethods && paymentMethods.length > 0;
-                  
-                  if (!hasSavedCards) {
-                    // Close payment options dialog and show payment method required dialog
-                    setShowPaymentOptions(false);
-                    setShowPaymentMethodRequired(true);
-                  } else {
-                    toast({
-                      title: "Booking Confirmed",
-                      description: "Your booking has been confirmed. You can pay after the trip is completed.",
-                    });
-                  }
-                  
-                  setShowPaymentOptions(false);
-                  setTimeout(() => {
-                    setLocation('/passenger');
-                  }, 1000);
-                }}
-                className="w-full p-6 border-2 border-gray-300 rounded-lg hover:border-primary hover:bg-primary/5 transition-all group"
-                data-testid="button-pay-later"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-100 group-hover:bg-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-all">
-                    <Clock className="w-6 h-6 text-gray-600 group-hover:text-primary" />
-                  </div>
-                  <div className="text-left flex-1">
-                    <h3 className="text-lg font-bold text-gray-800 group-hover:text-primary">Pay Later</h3>
-                    <p className="text-sm text-gray-600">
-                      {paymentMethods && paymentMethods.length > 0 
-                        ? "Pay after your trip is completed" 
-                        : "Requires payment method on file"}
-                    </p>
-                    {paymentMethods && paymentMethods.length === 0 && (
-                      <p className="text-xs text-amber-600 mt-1">⚠️ Add a payment method in Account Settings</p>
-                    )}
-                  </div>
-                </div>
-              </button>
-            )}
           </div>
         </DialogContent>
       </Dialog>
