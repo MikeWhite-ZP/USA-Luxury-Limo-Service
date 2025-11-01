@@ -1623,9 +1623,19 @@ export default function PassengerDashboard() {
     b.status !== 'completed' &&
     new Date(b.scheduledDateTime) >= now
   ) || [];
+  
+  // Past bookings: cancelled, completed, or past-dated bookings that aren't actively happening
   const pastBookings = bookings?.filter(b => 
-    b.status === 'completed' || b.status === 'cancelled' ||
-    (new Date(b.scheduledDateTime) < now && b.status !== 'in_progress')
+    b.status === 'completed' || 
+    b.status === 'cancelled' ||
+    (new Date(b.scheduledDateTime) < now && 
+     b.status !== 'in_progress' && 
+     b.status !== 'on_the_way' && 
+     b.status !== 'arrived' && 
+     b.status !== 'on_board' &&
+     b.status !== 'pending' &&
+     b.status !== 'confirmed' &&
+     b.status !== 'pending_driver_acceptance')
   ) || [];
 
   return (
