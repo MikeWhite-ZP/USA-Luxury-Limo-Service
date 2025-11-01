@@ -448,8 +448,8 @@ export default function MediaLibrary() {
                     )}
                   </div>
 
-                  {/* Overlay with Actions */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
+                  {/* Overlay with Actions - Always visible on mobile, hover on desktop */}
+                  <div className="absolute inset-0 bg-black/60 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <Button
                       size="sm"
                       variant="secondary"
@@ -458,7 +458,6 @@ export default function MediaLibrary() {
                         setSelectedMedia(media);
                         setEditDialogOpen(true);
                       }}
-                      className="pointer-events-auto"
                       data-testid={`button-edit-${media.id}`}
                     >
                       <Edit2 className="w-4 h-4" />
@@ -474,7 +473,6 @@ export default function MediaLibrary() {
                         }
                       }}
                       disabled={deleteMedia.isPending}
-                      className="pointer-events-auto"
                       data-testid={`button-delete-${media.id}`}
                     >
                       {deleteMedia.isPending ? (
@@ -494,7 +492,7 @@ export default function MediaLibrary() {
                           }
                         }}
                         disabled={setSiteLogoMutation.isPending || media.id === activeSiteLogoId}
-                        className={`pointer-events-auto ${media.id === activeSiteLogoId ? "bg-green-600 hover:bg-green-700" : ""}`}
+                        className={media.id === activeSiteLogoId ? "bg-green-600 hover:bg-green-700" : ""}
                         data-testid={`button-set-logo-${media.id}`}
                       >
                         <Star className="w-4 h-4" />
