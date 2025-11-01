@@ -613,7 +613,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       
       // Redirect to passenger dashboard
       setTimeout(() => {
-        setLocation('/passenger');
+        setLocation('/passenger-dashboard');
       }, 1000);
     },
     onError: (error: Error) => {
