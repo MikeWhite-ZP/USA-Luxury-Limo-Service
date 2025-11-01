@@ -1617,8 +1617,10 @@ export default function PassengerDashboard() {
     new Date(b.scheduledDateTime) >= now
   ).slice(0, 5) || [];
   
+  // Future bookings: all non-cancelled and non-completed bookings scheduled for the future
   const futureBookings = bookings?.filter(b => 
-    (b.status === 'pending' || b.status === 'confirmed' || b.status === 'in_progress') &&
+    b.status !== 'cancelled' && 
+    b.status !== 'completed' &&
     new Date(b.scheduledDateTime) >= now
   ) || [];
   const pastBookings = bookings?.filter(b => 
