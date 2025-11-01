@@ -6689,16 +6689,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get media to get file path for deletion
       const media = await storage.getCmsMediaById(id);
       
-      if (media) {
-        // Delete from Object Storage
-        try {
-          const objStorage = getObjectStorage();
-          const urlPath = new URL(media.fileUrl).pathname;
-          await objStorage.delete(urlPath);
-        } catch (storageError) {
-          console.error('Object storage deletion error:', storageError);
-          // Continue with database deletion even if storage deletion fails
-        }
+      if (!media) {
+        return res.status(404).json({ message: 'Media not found' });
+      }
+      
+      // Check if this media is the active site logo
+      const logoSetting = await storage.getCmsSetting('site_logo');
+      if (logoSetting && logoSetting.value === id) {
+        // Clear the site logo setting before deleting the media
+        await storage.deleteCmsSetting('site_logo');
+      }
+      
+      // Delete from Object Storage
+      try {
+        const objStorage = getObjectStorage();
+        const urlPath = new URL(media.fileUrl).pathname;
+        await objStorage.delete(urlPath);
+      } catch (storageError) {
+        console.error('Object storage deletion error:', storageError);
+        // Continue with database deletion even if storage deletion fails
       }
       
       // Delete from database
