@@ -9,7 +9,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
-import { CreditCard, Clock, Search, Plane } from "lucide-react";
+import { CreditCard, Clock, Search, Plane, Banknote } from "lucide-react";
 
 interface AddressSuggestion {
   id: string;
@@ -1705,6 +1705,28 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   {paymentMethods && paymentMethods.length === 0 && (
                     <p className="text-xs text-amber-600 mt-1">⚠️ Add a payment method in Account Settings</p>
                   )}
+                </div>
+              </div>
+            </button>
+          )}
+
+          {/* Pay with Cash Option - Only show if user has cash payment enabled */}
+          {user?.cashPaymentEnabled && user.role === 'passenger' && (
+            <button
+              onClick={() => {
+                // Create booking with cash payment (no payment method required)
+                bookingMutation.mutate();
+              }}
+              className="w-full p-6 border-2 border-green-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all group"
+              data-testid="button-pay-cash-step4"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-green-100 group-hover:bg-green-200 rounded-full flex items-center justify-center group-hover:scale-110 transition-all">
+                  <Banknote className="w-6 h-6 text-green-600" />
+                </div>
+                <div className="text-left flex-1">
+                  <h3 className="text-lg font-bold text-green-800 group-hover:text-green-900">Pay with Cash</h3>
+                  <p className="text-sm text-gray-600">Pay with cash when your trip is completed</p>
                 </div>
               </div>
             </button>

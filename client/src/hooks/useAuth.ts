@@ -12,6 +12,7 @@ interface User {
   phone?: string;
   isActive: boolean;
   payLaterEnabled?: boolean;
+  cashPaymentEnabled?: boolean;
   oauthProvider?: 'local' | 'google' | 'apple';
   stripeCustomerId?: string;
   createdAt: string;
