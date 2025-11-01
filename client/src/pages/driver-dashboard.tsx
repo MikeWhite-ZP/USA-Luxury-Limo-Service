@@ -399,6 +399,38 @@ export default function DriverDashboard() {
     },
   });
 
+  // Auto-cancel expired bookings mutation
+  const autoCancelExpiredMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest(
+        "POST",
+        "/api/bookings/auto-cancel-expired",
+        {},
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to auto-cancel expired bookings");
+      }
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      if (data.cancelledCount > 0) {
+        console.log(`[AUTO-CANCEL] ${data.cancelledCount} expired booking(s) cancelled`);
+        queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      }
+    },
+    onError: (error: Error) => {
+      console.error('[AUTO-CANCEL] Error:', error);
+    },
+  });
+
+  // Auto-cancel expired bookings when dashboard loads
+  useEffect(() => {
+    if (isAuthenticated && user?.role === "driver") {
+      autoCancelExpiredMutation.mutate();
+    }
+  }, [isAuthenticated, user?.role]);
+
   const handleAcceptRide = (bookingId: string) => {
     acceptBookingMutation.mutate(bookingId);
   };
@@ -511,13 +543,19 @@ export default function DriverDashboard() {
     bookings?.filter((b) => b.status === "completed").length || 0;
   const pendingBookings = bookings?.filter((b) => b.status === "pending") || [];
   const activeBooking = bookings?.find((b) => b.status === "in_progress");
-  // Show ALL bookings assigned to this driver (except completed/cancelled)
+  // Show ALL bookings assigned to this driver (except completed/cancelled/past-due)
+  const now = new Date();
   const assignedBookings =
     bookings?.filter(
-      (b) =>
-        b.status !== "completed" &&
-        b.status !== "cancelled" &&
-        b.status !== "pending",
+      (b) => {
+        const isPast = new Date(b.scheduledDateTime) < now;
+        return (
+          b.status !== "completed" &&
+          b.status !== "cancelled" &&
+          b.status !== "pending" &&
+          !isPast
+        );
+      }
     ) || [];
 
   return (

@@ -1620,6 +1620,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Auto-cancel past-due bookings (removes from driver's job list)
+  app.post('/api/bookings/auto-cancel-expired', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      // Only drivers can call this endpoint (runs when driver dashboard loads)
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const now = new Date();
+      const allBookings = await storage.getAllBookingsWithDetails();
+      
+      // Find bookings that are past their scheduled time and still in active statuses
+      const expiredBookings = allBookings.filter((booking: any) => {
+        const scheduledTime = new Date(booking.scheduledDateTime);
+        const isPast = scheduledTime < now;
+        const isActive = ['pending', 'pending_driver_acceptance', 'confirmed', 'on_the_way', 'arrived', 'on_board', 'in_progress'].includes(booking.status);
+        
+        return isPast && isActive;
+      });
+
+      // Auto-cancel each expired booking
+      const cancelledBookingIds = [];
+      for (const booking of expiredBookings) {
+        try {
+          await storage.updateBooking(booking.id, {
+            status: 'cancelled',
+            driverId: null,
+            driverPayment: null,
+            cancelledAt: now,
+            cancelReason: 'Automatically cancelled - scheduled time passed'
+          });
+          cancelledBookingIds.push(booking.id);
+          
+          console.log(`[AUTO-CANCEL] Booking ${booking.id} auto-cancelled (scheduled: ${booking.scheduledDateTime}, now: ${now.toISOString()})`);
+        } catch (error) {
+          console.error(`[AUTO-CANCEL] Failed to cancel booking ${booking.id}:`, error);
+        }
+      }
+
+      res.json({ 
+        success: true, 
+        cancelledCount: cancelledBookingIds.length,
+        cancelledBookings: cancelledBookingIds
+      });
+    } catch (error) {
+      console.error('Auto-cancel expired bookings error:', error);
+      res.status(500).json({ message: 'Failed to auto-cancel expired bookings' });
+    }
+  });
+
   // Admin: Create booking for a passenger
   app.post('/api/admin/bookings', isAuthenticated, async (req: any, res) => {
     try {
