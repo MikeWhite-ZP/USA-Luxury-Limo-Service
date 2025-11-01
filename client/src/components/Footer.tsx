@@ -1,6 +1,7 @@
-import { Twitter, Linkedin, Facebook } from "lucide-react";
+import { Twitter, Linkedin, Facebook, Smartphone } from "lucide-react";
 import { useLocation } from "wouter";
 import logoImage from "@assets/logo_1759125364025.png";
+import { setDevicePreference } from "@/lib/deviceDetection";
 
 export default function Footer() {
   const [location, setLocation] = useLocation();
@@ -152,14 +153,30 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-300 text-sm" data-testid="footer-copyright">
-            © 2024 USA Luxury Limo. All rights reserved.
-          </p>
-          <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            <span className="text-gray-300 text-sm" data-testid="footer-powered-stripe">Powered by Stripe</span>
-            <span className="text-gray-300 text-sm">•</span>
-            <span className="text-gray-300 text-sm" data-testid="footer-powered-tomtom">TomTom Navigation</span>
+        <div className="border-t border-gray-700 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+            <p className="text-gray-300 text-sm" data-testid="footer-copyright">
+              © 2024 USA Luxury Limo. All rights reserved.
+            </p>
+            <div className="flex items-center space-x-4 mt-4 md:mt-0">
+              <span className="text-gray-300 text-sm" data-testid="footer-powered-stripe">Powered by Stripe</span>
+              <span className="text-gray-300 text-sm">•</span>
+              <span className="text-gray-300 text-sm" data-testid="footer-powered-tomtom">TomTom Navigation</span>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <button
+              onClick={() => {
+                setDevicePreference('mobile');
+                setLocation('/mobile');
+              }}
+              className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-primary transition-colors"
+              data-testid="footer-mobile-version"
+            >
+              <Smartphone className="w-4 h-4" />
+              <span>Mobile Version</span>
+            </button>
           </div>
         </div>
       </div>
