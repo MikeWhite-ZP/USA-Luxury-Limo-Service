@@ -1720,9 +1720,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   }
 
   return (
-    <div className="backdrop-blur-sm rounded-2xl p-8 shadow-2xl pl-[10px] pr-[10px] pt-[10px] pb-[10px] text-[12px] bg-[white] w-[110%] mx-auto">
+    <div className="backdrop-blur-sm rounded-2xl shadow-2xl bg-white w-full max-w-full p-4 sm:p-6 lg:p-8">
       {/* Enhanced Service Type Tabs */}
-      <div className="flex mb-8 border-b-2 border-gray-200">
+      <div className="flex mb-6 border-b-2 border-gray-200">
         <button
           onClick={() => setActiveTab('transfer')}
           className={`flex-1 py-4 px-6 text-lg font-semibold transition-all border-b-4 ${
@@ -1748,8 +1748,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       </div>
       {/* Transfer Form */}
       {activeTab === 'transfer' && (
-        <div className="space-y-6">
-          <h3 className="text-xl font-bold text-primary mb-6">Book Your Transfer</h3>
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-primary mb-4">Book Your Transfer</h3>
           
           {/* From Address */}
           <div className="relative">
@@ -1939,7 +1939,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           <Button
             onClick={handleGetQuote}
             disabled={quoteMutation.isPending}
-            className="w-full py-6 px-8 text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 text-white rounded-xl transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl active:transform active:scale-95 border-2 border-red-600 hover:border-red-700 shadow-lg mt-8 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
+            className="w-full py-3 px-6 text-lg font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 text-white rounded-xl transition-all duration-300 hover:shadow-lg active:transform active:scale-95 border-2 border-red-600 hover:border-red-700 shadow-md mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
             data-testid="button-get-quote"
           >
             {quoteMutation.isPending ? 'Calculating Quote...' : 'Get a Quote'}
@@ -1948,8 +1948,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       )}
       {/* Hourly Form */}
       {activeTab === 'hourly' && (
-        <div className="space-y-6">
-          <h3 className="text-xl font-bold text-primary mb-6">Book Hourly Service</h3>
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-primary mb-4">Book Hourly Service</h3>
           
           {/* Pickup Address */}
           <div className="relative">
@@ -2062,7 +2062,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           <Button
             onClick={handleGetQuote}
             disabled={quoteMutation.isPending}
-            className="w-full py-6 px-8 text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 text-white rounded-xl transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl active:transform active:scale-95 border-2 border-red-600 hover:border-red-700 shadow-lg mt-8 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
+            className="w-full py-3 px-6 text-lg font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 text-white rounded-xl transition-all duration-300 hover:shadow-lg active:transform active:scale-95 border-2 border-red-600 hover:border-red-700 shadow-md mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
             data-testid="button-get-quote"
           >
             {quoteMutation.isPending ? 'Calculating Quote...' : 'Get a Quote'}
