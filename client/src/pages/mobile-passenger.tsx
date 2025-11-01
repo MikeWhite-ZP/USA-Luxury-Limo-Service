@@ -427,7 +427,14 @@ export default function MobilePassenger() {
               return (
                 <button
                   key={item.id}
-                  onClick={() => { setActiveSection(item.id); setMenuOpen(false); }}
+                  onClick={() => {
+                    if (item.id === 'invoices') {
+                      navigate('/mobile-invoices');
+                    } else {
+                      setActiveSection(item.id);
+                    }
+                    setMenuOpen(false);
+                  }}
                   className={`flex flex-col items-center gap-0.5 px-2.5 py-2 rounded-t-lg transition-all ${
                     isActive
                       ? 'bg-gradient-to-br from-slate-50 via-white to-blue-50/20 text-blue-600 shadow-lg'
@@ -860,34 +867,6 @@ export default function MobilePassenger() {
                 </div>
               </DialogContent>
             </Dialog>
-          </div>
-        )}
-
-        {/* Invoices Section */}
-        {activeSection === 'invoices' && (
-          <div className="space-y-4">
-            <Card className="shadow-md border-slate-200">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-blue-600" />
-                  My Invoices
-                </CardTitle>
-                <CardDescription>View and manage your invoices</CardDescription>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="text-center py-8">
-                  <Button
-                    onClick={() => navigate('/mobile-invoices')}
-                    size="lg"
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                    data-testid="button-view-invoices"
-                  >
-                    <FileText className="w-5 h-5 mr-2" />
-                    View All Invoices
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         )}
 
