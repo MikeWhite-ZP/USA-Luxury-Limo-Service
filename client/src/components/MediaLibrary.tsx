@@ -448,8 +448,8 @@ export default function MediaLibrary() {
                     )}
                   </div>
 
-                  {/* Overlay with Actions - Always visible on mobile, hover on desktop */}
-                  <div className="absolute inset-0 bg-black/60 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  {/* Action Buttons - Bottom positioned */}
+                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-center gap-2">
                     <Button
                       size="sm"
                       variant="secondary"
