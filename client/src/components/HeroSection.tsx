@@ -1,15 +1,32 @@
 import BookingForm from "@/components/BookingForm";
 import PWAInstall from "@/components/PWAInstall";
 import heroBackground from "@assets/khalid_1759128435991.webp";
+import { useQuery } from "@tanstack/react-query";
+
+interface HeroResponse {
+  hero: {
+    id: string;
+    url: string;
+    altText: string;
+    fileName: string;
+  } | null;
+}
 
 export default function HeroSection() {
+  const { data: heroData } = useQuery<HeroResponse>({
+    queryKey: ['/api/site-hero'],
+    retry: false,
+  });
+
+  const heroImageUrl = heroData?.hero?.url || heroBackground;
+
   return (
     <section id="home" className="relative min-h-screen flex items-center">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
         style={{
-          backgroundImage: `url(${heroBackground})`
+          backgroundImage: `url(${heroImageUrl})`
         }}
       >
         <div className="absolute inset-0 bg-black/50"></div>
