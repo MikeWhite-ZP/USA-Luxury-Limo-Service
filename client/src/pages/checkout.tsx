@@ -105,14 +105,14 @@ const CheckoutForm = ({ bookingId, amount, mode }: { bookingId?: string; amount:
           // Create booking after successful payment
           await createBookingMutation.mutateAsync(result.paymentIntent.id);
           // Redirect to passenger dashboard
-          window.location.href = '/passenger?payment=success';
+          window.location.href = '/passenger-dashboard?payment=success';
         }
       } else {
         // For existing bookings, use redirect flow
         const { error } = await stripe.confirmPayment({
           elements,
           confirmParams: {
-            return_url: `${window.location.origin}/passenger?payment=success`,
+            return_url: `${window.location.origin}/passenger-dashboard?payment=success`,
           },
         });
 
