@@ -4212,12 +4212,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id } = req.params;
-      const { role, isActive, payLaterEnabled, discountType, discountValue, firstName, lastName, email, phone, vehiclePlate } = req.body;
+      const { role, isActive, payLaterEnabled, cashPaymentEnabled, discountType, discountValue, firstName, lastName, email, phone, vehiclePlate } = req.body;
       
       const updates: Partial<User> = {};
       if (role !== undefined) updates.role = role;
       if (isActive !== undefined) updates.isActive = isActive;
       if (payLaterEnabled !== undefined) updates.payLaterEnabled = payLaterEnabled;
+      if (cashPaymentEnabled !== undefined) updates.cashPaymentEnabled = cashPaymentEnabled;
       if (discountType !== undefined) updates.discountType = discountType;
       if (discountValue !== undefined) {
         // Validate discount value
@@ -4272,7 +4273,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Admin access required' });
       }
 
-      const { firstName, lastName, email, phone, role, isActive, payLaterEnabled, vehiclePlate } = req.body;
+      const { firstName, lastName, email, phone, role, isActive, payLaterEnabled, cashPaymentEnabled, vehiclePlate } = req.body;
       
       if (!firstName || !email) {
         return res.status(400).json({ message: 'First name and email are required' });
@@ -4303,6 +4304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         role: role || 'passenger',
         isActive: isActive !== undefined ? isActive : defaultIsActive,
         payLaterEnabled: payLaterEnabled || false,
+        cashPaymentEnabled: cashPaymentEnabled || false,
       });
 
       // If creating a user with 'driver' role, create driver record

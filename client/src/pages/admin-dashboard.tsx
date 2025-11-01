@@ -110,6 +110,7 @@ interface User {
   role: "passenger" | "driver" | "dispatcher" | "admin";
   isActive: boolean;
   payLaterEnabled: boolean;
+  cashPaymentEnabled?: boolean;
   discountType?: "percentage" | "fixed" | null;
   discountValue?: string | null;
   createdAt: string;
@@ -2440,6 +2441,7 @@ export default function AdminDashboard() {
     role: "passenger" as "passenger" | "driver" | "dispatcher" | "admin",
     isActive: true,
     payLaterEnabled: false,
+    cashPaymentEnabled: false,
     discountType: null as "percentage" | "fixed" | null,
     discountValue: "0",
     vehiclePlate: "", // For drivers
@@ -4048,6 +4050,7 @@ export default function AdminDashboard() {
       role: selectedUserType !== "all" ? selectedUserType : "passenger",
       isActive: true,
       payLaterEnabled: false,
+      cashPaymentEnabled: false,
       discountType: null,
       discountValue: "0",
       vehiclePlate: "",
@@ -4065,6 +4068,7 @@ export default function AdminDashboard() {
       role: user.role,
       isActive: user.isActive,
       payLaterEnabled: user.payLaterEnabled,
+      cashPaymentEnabled: user.cashPaymentEnabled || false,
       discountType: user.discountType as "percentage" | "fixed" | null,
       discountValue: user.discountValue || "0",
       vehiclePlate: (user as any).driverInfo?.vehiclePlate || "",
@@ -7601,6 +7605,35 @@ export default function AdminDashboard() {
                   </Select>
                   <p className="text-xs text-muted-foreground">
                     Allow passenger to complete trips and pay afterwards
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="user-cashpayment">Cash Payment Ability</Label>
+                  <Select
+                    value={
+                      userFormData.cashPaymentEnabled ? "enabled" : "disabled"
+                    }
+                    onValueChange={(value) =>
+                      setUserFormData({
+                        ...userFormData,
+                        cashPaymentEnabled: value === "enabled",
+                      })
+                    }
+                  >
+                    <SelectTrigger
+                      id="user-cashpayment"
+                      data-testid="select-user-cashpayment"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="enabled">Enabled</SelectItem>
+                      <SelectItem value="disabled">Disabled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Allow passenger to pay with cash at the end of the trip
                   </p>
                 </div>
 
