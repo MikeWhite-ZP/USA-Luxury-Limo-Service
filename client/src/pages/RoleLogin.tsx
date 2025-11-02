@@ -10,7 +10,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { UserCircle, Car, Users, User, Shield, ArrowLeft, Lock, Mail, UserIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import adminLogo from "@assets/favicon_1759253989963.png";
+import { useQuery } from "@tanstack/react-query";
 
 const roles = [
   {
@@ -51,6 +51,11 @@ export function RoleLogin() {
   const { toast } = useToast();
   const [selectedRole, setSelectedRole] = useState<'passenger' | 'driver' | 'dispatcher' | null>(null);
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
+  
+  // Fetch site logo
+  const { data: siteLogoData } = useQuery<{ logo: { url: string; alt: string } | null }>({
+    queryKey: ['/api/site-logo'],
+  });
   
   // Login form state
   const [loginForm, setLoginForm] = useState<LoginData>({
@@ -487,9 +492,17 @@ export function RoleLogin() {
                   className="relative flex items-center gap-4 px-8 py-5 bg-white border border-gray-300 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer group"
                   data-testid="link-admin-dashboard"
                 >
-                  <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-gray-700 to-gray-800 shadow-md group-hover:scale-110 transition-transform duration-300">
-                    <img src={adminLogo} alt="USA Luxury Limo" className="w-9 h-9 object-contain" />
-                  </div>
+                  {siteLogoData?.logo?.url ? (
+                    <img 
+                      src={siteLogoData.logo.url} 
+                      alt={siteLogoData.logo.alt || "USA Luxury Limo"} 
+                      className="h-14 w-auto object-contain group-hover:scale-110 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-white border border-gray-200 group-hover:scale-110 transition-transform duration-300">
+                      <Shield className="w-7 h-7 text-gray-600" />
+                    </div>
+                  )}
                   <div className="text-left">
                     <div className="text-base font-bold text-gray-900 mb-0.5 flex items-center gap-2">
                       Admin Access
