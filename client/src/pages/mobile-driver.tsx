@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Car, DollarSign, MapPin, Star, Calendar, User, FileText, Settings, CheckCircle2, Navigation2 } from 'lucide-react';
+import { ArrowLeft, Car, DollarSign, MapPin, Star, Calendar, User, FileText, Settings, CheckCircle2, Navigation2, Phone, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -219,6 +219,11 @@ export default function MobileDriver() {
     const minutesUntilCanStart = minutesUntilPickup - 150;
     
     return Math.max(0, Math.ceil(minutesUntilCanStart));
+  };
+
+  // Check if trip has started (determines if contact buttons are active)
+  const isTripActive = (status: string) => {
+    return ['on_the_way', 'arrived', 'on_board', 'in_progress'].includes(status);
   };
 
   // Filter bookings - include all active driver workflow statuses
@@ -465,9 +470,53 @@ export default function MobileDriver() {
                             </span>
                           </div>
                           {booking.passengerName && (
-                            <div className="flex items-center text-xs text-gray-600">
-                              <User className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
-                              <span className="font-medium">{booking.passengerName}</span>
+                            <div className="flex items-center justify-between text-xs text-gray-600">
+                              <div className="flex items-center">
+                                <User className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
+                                <span className="font-medium">{booking.passengerName}</span>
+                              </div>
+                              {booking.passengerPhone && (
+                                <div className="flex items-center gap-2">
+                                  <a
+                                    href={isTripActive(booking.status) ? `tel:${booking.passengerPhone}` : undefined}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (!isTripActive(booking.status)) {
+                                        e.preventDefault();
+                                      }
+                                    }}
+                                    className={`flex items-center justify-center w-7 h-7 rounded-full transition-all ${
+                                      isTripActive(booking.status)
+                                        ? 'bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer'
+                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    }`}
+                                    aria-label={isTripActive(booking.status) ? `Call ${booking.passengerName}` : 'Call passenger (available after trip starts)'}
+                                    title={isTripActive(booking.status) ? 'Call passenger' : 'Available after trip starts'}
+                                    data-testid={`button-call-${booking.id}`}
+                                  >
+                                    <Phone className="w-3.5 h-3.5" />
+                                  </a>
+                                  <a
+                                    href={isTripActive(booking.status) ? `sms:${booking.passengerPhone}` : undefined}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (!isTripActive(booking.status)) {
+                                        e.preventDefault();
+                                      }
+                                    }}
+                                    className={`flex items-center justify-center w-7 h-7 rounded-full transition-all ${
+                                      isTripActive(booking.status)
+                                        ? 'bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer'
+                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    }`}
+                                    aria-label={isTripActive(booking.status) ? `Text ${booking.passengerName}` : 'Text passenger (available after trip starts)'}
+                                    title={isTripActive(booking.status) ? 'Text passenger' : 'Available after trip starts'}
+                                    data-testid={`button-text-${booking.id}`}
+                                  >
+                                    <MessageSquare className="w-3.5 h-3.5" />
+                                  </a>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
