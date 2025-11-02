@@ -164,7 +164,7 @@ export default function MobileSplash() {
               <p className="text-slate-600 text-lg font-light">Choose your role to continue</p>
             </motion.div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <motion.div
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -172,17 +172,16 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('passenger')}
-                  className="group w-full bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white py-7 rounded-2xl text-lg font-semibold shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all transform hover:scale-[1.02] border border-blue-400/30 relative overflow-hidden"
+                  className="group w-full bg-white hover:bg-blue-50 text-blue-700 py-4 px-5 rounded-xl text-sm font-medium shadow-sm hover:shadow-md border-2 border-blue-200 hover:border-blue-300 transition-all"
                   data-testid="button-role-passenger"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                  <div className="flex items-center relative z-10">
-                    <div className="bg-white/20 p-3 rounded-xl mr-4 group-hover:bg-white/30 transition-colors">
-                      <UserCircle className="w-7 h-7" />
+                  <div className="flex items-center justify-start gap-3">
+                    <div className="bg-blue-100 p-2 rounded-lg group-hover:bg-blue-200 transition-colors">
+                      <UserCircle className="w-5 h-5 text-blue-600" />
                     </div>
                     <div className="text-left">
-                      <div className="text-xl font-bold">Passenger</div>
-                      <div className="text-sm text-blue-50 font-light">Book and manage rides</div>
+                      <div className="text-sm font-semibold text-blue-900">Passenger</div>
+                      <div className="text-xs text-blue-600 font-normal">Book and manage rides</div>
                     </div>
                   </div>
                 </Button>
@@ -195,17 +194,16 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('driver')}
-                  className="group w-full bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 text-white py-7 rounded-2xl text-lg font-semibold shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30 transition-all transform hover:scale-[1.02] border border-emerald-400/30 relative overflow-hidden"
+                  className="group w-full bg-white hover:bg-emerald-50 text-emerald-700 py-4 px-5 rounded-xl text-sm font-medium shadow-sm hover:shadow-md border-2 border-emerald-200 hover:border-emerald-300 transition-all"
                   data-testid="button-role-driver"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                  <div className="flex items-center relative z-10">
-                    <div className="bg-white/20 p-3 rounded-xl mr-4 group-hover:bg-white/30 transition-colors">
-                      <Car className="w-7 h-7" />
+                  <div className="flex items-center justify-start gap-3">
+                    <div className="bg-emerald-100 p-2 rounded-lg group-hover:bg-emerald-200 transition-colors">
+                      <Car className="w-5 h-5 text-emerald-600" />
                     </div>
                     <div className="text-left">
-                      <div className="text-xl font-bold">Driver</div>
-                      <div className="text-sm text-emerald-50 font-light">Accept and complete rides</div>
+                      <div className="text-sm font-semibold text-emerald-900">Driver</div>
+                      <div className="text-xs text-emerald-600 font-normal">Accept and complete rides</div>
                     </div>
                   </div>
                 </Button>
@@ -218,17 +216,16 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('dispatcher')}
-                  className="group w-full bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 hover:from-purple-600 hover:via-purple-700 hover:to-purple-800 text-white py-7 rounded-2xl text-lg font-semibold shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all transform hover:scale-[1.02] border border-purple-400/30 relative overflow-hidden"
+                  className="group w-full bg-white hover:bg-purple-50 text-purple-700 py-4 px-5 rounded-xl text-sm font-medium shadow-sm hover:shadow-md border-2 border-purple-200 hover:border-purple-300 transition-all"
                   data-testid="button-role-dispatcher"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                  <div className="flex items-center relative z-10">
-                    <div className="bg-white/20 p-3 rounded-xl mr-4 group-hover:bg-white/30 transition-colors">
-                      <Radio className="w-7 h-7" />
+                  <div className="flex items-center justify-start gap-3">
+                    <div className="bg-purple-100 p-2 rounded-lg group-hover:bg-purple-200 transition-colors">
+                      <Radio className="w-5 h-5 text-purple-600" />
                     </div>
                     <div className="text-left">
-                      <div className="text-xl font-bold">Dispatcher</div>
-                      <div className="text-sm text-purple-50 font-light">Manage fleet operations</div>
+                      <div className="text-sm font-semibold text-purple-900">Dispatcher</div>
+                      <div className="text-xs text-purple-600 font-normal">Manage fleet operations</div>
                     </div>
                   </div>
                 </Button>
