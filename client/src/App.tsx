@@ -42,6 +42,7 @@ import MobilePaymentMethods from "@/pages/mobile-payment-methods";
 import MobileDriver from "@/pages/mobile-driver";
 import MobileDriverRideDetails from "@/pages/mobile-driver-ride-details";
 import MobileDriverDocuments from "@/pages/mobile-driver-documents";
+import MobileProfile from "@/pages/mobile-profile";
 import MobileDispatcher from "@/pages/mobile-dispatcher";
 import PayInvoice from "@/pages/PayInvoice";
 import PaymentSuccess from "@/pages/PaymentSuccess";
@@ -72,6 +73,7 @@ function Router() {
       <Route path="/mobile-driver" component={MobileDriver} />
       <Route path="/mobile-driver/rides/:id" component={MobileDriverRideDetails} />
       <Route path="/mobile-driver/documents" component={MobileDriverDocuments} />
+      <Route path="/mobile-driver/profile" component={MobileProfile} />
       <Route path="/mobile-driver/account" component={AccountPage} />
       <Route path="/mobile-dispatcher" component={MobileDispatcher} />
       

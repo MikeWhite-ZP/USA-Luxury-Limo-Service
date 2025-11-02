@@ -316,11 +316,19 @@ export default function MobileDriver() {
                 <span className="text-gray-900">Documents</span>
               </DropdownMenuItem>
               <DropdownMenuItem
+                onClick={() => setLocation('/mobile-driver/profile')}
+                className="flex items-center gap-2 cursor-pointer hover:bg-green-50"
+                data-testid="menu-profile"
+              >
+                <User className="w-4 h-4 text-green-600" />
+                <span className="text-gray-900">Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
                 onClick={() => setLocation('/mobile-driver/account')}
                 className="flex items-center gap-2 cursor-pointer hover:bg-green-50"
                 data-testid="menu-account"
               >
-                <User className="w-4 h-4 text-green-600" />
+                <Settings className="w-4 h-4 text-green-600" />
                 <span className="text-gray-900">Account</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
