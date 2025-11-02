@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 interface DriverDocument {
   id: string;
   driverId: string;
-  documentType: 'driver_license' | 'limo_license' | 'profile_photo';
+  documentType: 'driver_license' | 'limo_license' | 'insurance_certificate' | 'profile_photo';
   documentUrl: string;
   expirationDate: string | null;
   status: 'pending' | 'approved' | 'rejected';
@@ -32,6 +32,7 @@ export default function MobileDriverDocuments() {
   const [formData, setFormData] = useState({
     driverLicense: { file: null as File | null, expirationDate: '' },
     limoLicense: { file: null as File | null, expirationDate: '' },
+    insuranceCertificate: { file: null as File | null, expirationDate: '' },
     profilePhoto: { file: null as File | null },
     whatsappNumber: ''
   });
@@ -82,6 +83,8 @@ export default function MobileDriverDocuments() {
         setFormData(prev => ({ ...prev, driverLicense: { file: null, expirationDate: '' } }));
       } else if (variables.documentType === 'limo_license') {
         setFormData(prev => ({ ...prev, limoLicense: { file: null, expirationDate: '' } }));
+      } else if (variables.documentType === 'insurance_certificate') {
+        setFormData(prev => ({ ...prev, insuranceCertificate: { file: null, expirationDate: '' } }));
       } else if (variables.documentType === 'profile_photo') {
         setFormData(prev => ({ ...prev, profilePhoto: { file: null } }));
       }
@@ -96,7 +99,7 @@ export default function MobileDriverDocuments() {
     },
   });
 
-  const handleUpload = async (documentType: 'driver_license' | 'limo_license' | 'profile_photo') => {
+  const handleUpload = async (documentType: 'driver_license' | 'limo_license' | 'insurance_certificate' | 'profile_photo') => {
     let file: File | null = null;
     let expirationDate: string | undefined;
     let whatsappNumber: string | undefined;
@@ -107,6 +110,9 @@ export default function MobileDriverDocuments() {
     } else if (documentType === 'limo_license') {
       file = formData.limoLicense.file;
       expirationDate = formData.limoLicense.expirationDate || undefined;
+    } else if (documentType === 'insurance_certificate') {
+      file = formData.insuranceCertificate.file;
+      expirationDate = formData.insuranceCertificate.expirationDate || undefined;
     } else if (documentType === 'profile_photo') {
       file = formData.profilePhoto.file;
       whatsappNumber = formData.whatsappNumber || undefined;
@@ -345,6 +351,90 @@ export default function MobileDriverDocuments() {
               >
                 <Upload className="w-5 h-5 mr-2" />
                 {uploading === 'limo_license' ? 'Uploading...' : 'Upload License'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Insurance Certificate */}
+        <Card className="bg-white border-green-200 shadow-md" data-testid="card-insurance-certificate">
+          <CardContent className="p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900">Insurance Certificate</h3>
+                  <p className="text-xs text-gray-500">Required document</p>
+                </div>
+              </div>
+              {getDocumentByType('insurance_certificate') && getStatusBadge(getDocumentByType('insurance_certificate')!.status)}
+            </div>
+
+            {getDocumentByType('insurance_certificate') && (
+              <div className="bg-green-50 rounded-lg p-3 space-y-2 text-sm border border-green-100">
+                {getDocumentByType('insurance_certificate')!.expirationDate && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Expires:</span>
+                    <span className="font-medium text-gray-900">
+                      {new Date(getDocumentByType('insurance_certificate')!.expirationDate!).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+                {getDocumentByType('insurance_certificate')!.rejectionReason && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-700">
+                      <strong>Reason:</strong> {getDocumentByType('insurance_certificate')!.rejectionReason}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="insurance-certificate-file" className="text-gray-700 font-medium mb-2 block">
+                  {getDocumentByType('insurance_certificate') ? 'Replace Document' : 'Upload Document'}
+                </Label>
+                <Input
+                  id="insurance-certificate-file"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  capture="environment"
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    insuranceCertificate: { ...prev.insuranceCertificate, file: e.target.files?.[0] || null }
+                  }))}
+                  className="bg-white border-gray-300"
+                  data-testid="input-insurance-certificate-file"
+                />
+                <p className="text-xs text-gray-500 mt-1">Image or PDF, max 2MB</p>
+              </div>
+              <div>
+                <Label htmlFor="insurance-certificate-expiry" className="text-gray-700 font-medium mb-2 block">
+                  Expiration Date
+                </Label>
+                <Input
+                  id="insurance-certificate-expiry"
+                  type="date"
+                  value={formData.insuranceCertificate.expirationDate}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    insuranceCertificate: { ...prev.insuranceCertificate, expirationDate: e.target.value }
+                  }))}
+                  className="bg-white border-gray-300"
+                  data-testid="input-insurance-certificate-expiry"
+                />
+              </div>
+              <Button
+                onClick={() => handleUpload('insurance_certificate')}
+                disabled={!formData.insuranceCertificate.file || uploading === 'insurance_certificate'}
+                className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                data-testid="button-upload-insurance-certificate"
+              >
+                <Upload className="w-5 h-5 mr-2" />
+                {uploading === 'insurance_certificate' ? 'Uploading...' : 'Upload Certificate'}
               </Button>
             </div>
           </CardContent>
