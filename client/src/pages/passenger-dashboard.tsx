@@ -1110,6 +1110,12 @@ export default function PassengerDashboard() {
 
   const paymentMethods = paymentData?.paymentMethods || [];
 
+  // Fetch site logo from CMS
+  const { data: siteLogoData } = useQuery<{ logo?: { url: string; alt?: string } }>({
+    queryKey: ['/api/site-logo'],
+    retry: false,
+  });
+
   // Add saved address mutation
   const addAddressMutation = useMutation({
     mutationFn: async (addressData: typeof newAddress) => {
@@ -1639,8 +1645,17 @@ export default function PassengerDashboard() {
               {/* Avatar with gradient border */}
               <div className="relative">
                 <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-green-600 rounded-2xl opacity-75 blur" />
-                <div className="relative w-16 h-16 bg-gradient-to-br from-blue-600 to-green-600 rounded-2xl flex items-center justify-center shadow-2xl">
-                  <User className="w-8 h-8 text-white" />
+                <div className="relative w-16 h-16 bg-gradient-to-br from-blue-600 to-green-600 rounded-2xl flex items-center justify-center shadow-2xl overflow-hidden">
+                  {siteLogoData?.logo?.url ? (
+                    <img 
+                      src={siteLogoData.logo.url} 
+                      alt={siteLogoData.logo.alt || "USA Luxury Limo"} 
+                      className="w-full h-full object-contain p-2"
+                      data-testid="dashboard-logo"
+                    />
+                  ) : (
+                    <User className="w-8 h-8 text-white" data-testid="dashboard-icon-fallback" />
+                  )}
                 </div>
               </div>
               <div>
