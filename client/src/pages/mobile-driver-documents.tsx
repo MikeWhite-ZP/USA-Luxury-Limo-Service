@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, FileText, Upload, CheckCircle, XCircle, Clock, Camera, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileText, Upload, CheckCircle, XCircle, Clock, Camera, Trash2, Car } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,9 +12,10 @@ import { useToast } from '@/hooks/use-toast';
 interface DriverDocument {
   id: string;
   driverId: string;
-  documentType: 'driver_license' | 'limo_license' | 'insurance_certificate' | 'profile_photo';
+  documentType: 'driver_license' | 'limo_license' | 'insurance_certificate' | 'vehicle_image' | 'profile_photo';
   documentUrl: string;
   expirationDate: string | null;
+  vehiclePlate?: string | null;
   status: 'pending' | 'approved' | 'rejected';
   rejectionReason: string | null;
   whatsappNumber: string | null;
@@ -33,6 +34,7 @@ export default function MobileDriverDocuments() {
     driverLicense: { file: null as File | null, expirationDate: '' },
     limoLicense: { file: null as File | null, expirationDate: '' },
     insuranceCertificate: { file: null as File | null, expirationDate: '' },
+    vehicleImage: { file: null as File | null, vehiclePlate: '' },
     profilePhoto: { file: null as File | null },
     whatsappNumber: ''
   });
@@ -45,16 +47,24 @@ export default function MobileDriverDocuments() {
 
   // Upload mutation
   const uploadMutation = useMutation({
-    mutationFn: async ({ documentType, file, expirationDate, whatsappNumber }: {
+    mutationFn: async ({ documentType, file, expirationDate, whatsappNumber, vehiclePlate }: {
       documentType: string;
       file: File;
       expirationDate?: string;
       whatsappNumber?: string;
+      vehiclePlate?: string;
     }) => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('documentType', documentType);
-      if (expirationDate) formData.append('expirationDate', expirationDate);
+      
+      // For vehicle_image, send as vehiclePlate; for others, send as expirationDate
+      if (documentType === 'vehicle_image' && vehiclePlate) {
+        formData.append('vehiclePlate', vehiclePlate);
+      } else if (expirationDate) {
+        formData.append('expirationDate', expirationDate);
+      }
+      
       if (whatsappNumber) formData.append('whatsappNumber', whatsappNumber);
 
       const response = await fetch('/api/driver/documents/upload', {
@@ -85,6 +95,8 @@ export default function MobileDriverDocuments() {
         setFormData(prev => ({ ...prev, limoLicense: { file: null, expirationDate: '' } }));
       } else if (variables.documentType === 'insurance_certificate') {
         setFormData(prev => ({ ...prev, insuranceCertificate: { file: null, expirationDate: '' } }));
+      } else if (variables.documentType === 'vehicle_image') {
+        setFormData(prev => ({ ...prev, vehicleImage: { file: null, vehiclePlate: '' } }));
       } else if (variables.documentType === 'profile_photo') {
         setFormData(prev => ({ ...prev, profilePhoto: { file: null } }));
       }
@@ -99,10 +111,11 @@ export default function MobileDriverDocuments() {
     },
   });
 
-  const handleUpload = async (documentType: 'driver_license' | 'limo_license' | 'insurance_certificate' | 'profile_photo') => {
+  const handleUpload = async (documentType: 'driver_license' | 'limo_license' | 'insurance_certificate' | 'vehicle_image' | 'profile_photo') => {
     let file: File | null = null;
     let expirationDate: string | undefined;
     let whatsappNumber: string | undefined;
+    let vehiclePlate: string | undefined;
 
     if (documentType === 'driver_license') {
       file = formData.driverLicense.file;
@@ -113,6 +126,9 @@ export default function MobileDriverDocuments() {
     } else if (documentType === 'insurance_certificate') {
       file = formData.insuranceCertificate.file;
       expirationDate = formData.insuranceCertificate.expirationDate || undefined;
+    } else if (documentType === 'vehicle_image') {
+      file = formData.vehicleImage.file;
+      vehiclePlate = formData.vehicleImage.vehiclePlate || undefined;
     } else if (documentType === 'profile_photo') {
       file = formData.profilePhoto.file;
       whatsappNumber = formData.whatsappNumber || undefined;
@@ -138,7 +154,7 @@ export default function MobileDriverDocuments() {
     }
 
     setUploading(documentType);
-    uploadMutation.mutate({ documentType, file, expirationDate, whatsappNumber });
+    uploadMutation.mutate({ documentType, file, expirationDate, whatsappNumber, vehiclePlate });
   };
 
   const getDocumentByType = (type: string) => {
@@ -435,6 +451,91 @@ export default function MobileDriverDocuments() {
               >
                 <Upload className="w-5 h-5 mr-2" />
                 {uploading === 'insurance_certificate' ? 'Uploading...' : 'Upload Certificate'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Vehicle Image */}
+        <Card className="bg-white border-green-200 shadow-md" data-testid="card-vehicle-image">
+          <CardContent className="p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                  <Car className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900">Vehicle Image</h3>
+                  <p className="text-xs text-gray-500">Optional document</p>
+                </div>
+              </div>
+              {getDocumentByType('vehicle_image') && getStatusBadge(getDocumentByType('vehicle_image')!.status)}
+            </div>
+
+            {getDocumentByType('vehicle_image') && (
+              <div className="bg-green-50 rounded-lg p-3 space-y-2 text-sm border border-green-100">
+                {getDocumentByType('vehicle_image')!.vehiclePlate && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Vehicle Plate:</span>
+                    <span className="font-medium text-gray-900">
+                      {getDocumentByType('vehicle_image')!.vehiclePlate}
+                    </span>
+                  </div>
+                )}
+                {getDocumentByType('vehicle_image')!.rejectionReason && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-700">
+                      <strong>Reason:</strong> {getDocumentByType('vehicle_image')!.rejectionReason}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="vehicle-image-file" className="text-gray-700 font-medium mb-2 block">
+                  {getDocumentByType('vehicle_image') ? 'Replace Image' : 'Upload Image'}
+                </Label>
+                <Input
+                  id="vehicle-image-file"
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    vehicleImage: { ...prev.vehicleImage, file: e.target.files?.[0] || null }
+                  }))}
+                  className="bg-white border-gray-300"
+                  data-testid="input-vehicle-image-file"
+                />
+                <p className="text-xs text-gray-500 mt-1">Image only, max 2MB</p>
+              </div>
+              <div>
+                <Label htmlFor="vehicle-plate" className="text-gray-700 font-medium mb-2 block">
+                  Vehicle Plate Number
+                </Label>
+                <Input
+                  id="vehicle-plate"
+                  type="text"
+                  placeholder="Enter plate number"
+                  value={formData.vehicleImage.vehiclePlate}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    vehicleImage: { ...prev.vehicleImage, vehiclePlate: e.target.value }
+                  }))}
+                  className="bg-white border-gray-300"
+                  data-testid="input-vehicle-plate"
+                />
+              </div>
+              <Button
+                onClick={() => handleUpload('vehicle_image')}
+                disabled={!formData.vehicleImage.file || uploading === 'vehicle_image'}
+                className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                data-testid="button-upload-vehicle-image"
+              >
+                <Upload className="w-5 h-5 mr-2" />
+                {uploading === 'vehicle_image' ? 'Uploading...' : 'Upload Image'}
               </Button>
             </div>
           </CardContent>
