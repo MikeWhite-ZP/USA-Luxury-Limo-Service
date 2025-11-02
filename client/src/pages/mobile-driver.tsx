@@ -372,7 +372,7 @@ export default function MobileDriver() {
                 {locationError ? (
                   <span className="text-rose-100">{locationError}</span>
                 ) : currentLocation ? (
-                  <span className="text-white font-medium">GPS Active</span>
+                  <span className="font-medium text-[#000000]">GPS Active</span>
                 ) : (
                   <span className="text-rose-100">Activating GPS...</span>
                 )}
