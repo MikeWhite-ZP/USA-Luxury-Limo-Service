@@ -323,7 +323,7 @@ export default function MobileDriver() {
       </div>
 
       {/* Stats Cards */}
-      <div className="px-6 py-4 grid grid-cols-3 gap-3 pl-[0px] pr-[0px] pt-[0px] pb-[0px] ml-[0px] mr-[0px] text-center text-[12px]">
+      <div className="px-6 py-4 grid grid-cols-3 gap-3 origin-center">
         {/* Earnings Card */}
         <div 
           className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-50 to-green-100/50 border border-emerald-200/60 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 scale-[0.6] origin-center" 
