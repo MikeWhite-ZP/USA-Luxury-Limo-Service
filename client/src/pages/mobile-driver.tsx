@@ -337,9 +337,7 @@ export default function MobileDriver() {
               }
             }}
             disabled={toggleAvailabilityMutation.isPending}
-            className={`w-full px-4 py-3 text-left transition-all active:scale-[0.98] ${
-              toggleAvailabilityMutation.isPending ? 'opacity-70 cursor-wait' : 'cursor-pointer hover:opacity-90'
-            }`}
+            className="w-full px-4 py-3 text-left transition-all active:scale-[0.98] cursor-pointer hover:opacity-90 bg-[#b6ccb9]"
             data-testid="button-toggle-availability"
           >
             <div className="flex items-center justify-between">
