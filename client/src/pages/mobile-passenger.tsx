@@ -903,12 +903,14 @@ export default function MobilePassenger() {
         {activeSection === 'account' && (
           <div className="space-y-3">
             {/* Profile Information Card */}
-            <Card className="shadow-sm border-slate-200">
-              <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b p-3">
+            <Card className="shadow-sm border-2 border-blue-100 bg-white">
+              <CardHeader className="bg-blue-50/50 border-b border-blue-100 p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-sm flex items-center gap-1.5">
-                      <User className="w-4 h-4 text-blue-600" />
+                    <CardTitle className="text-sm flex items-center gap-2 text-blue-900">
+                      <div className="bg-blue-100 p-1.5 rounded-lg">
+                        <User className="w-3.5 h-3.5 text-blue-600" />
+                      </div>
                       Profile Information
                     </CardTitle>
                   </div>
@@ -1030,13 +1032,15 @@ export default function MobilePassenger() {
             </Card>
 
             {/* Password Change Card */}
-            <Card className="shadow-sm border-slate-200">
-              <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b p-3">
-                <CardTitle className="text-sm flex items-center gap-1.5">
-                  <Lock className="w-4 h-4 text-orange-600" />
+            <Card className="shadow-sm border-2 border-blue-100 bg-white">
+              <CardHeader className="bg-blue-50/50 border-b border-blue-100 p-3">
+                <CardTitle className="text-sm flex items-center gap-2 text-blue-900">
+                  <div className="bg-blue-100 p-1.5 rounded-lg">
+                    <Lock className="w-3.5 h-3.5 text-blue-600" />
+                  </div>
                   Change Password
                 </CardTitle>
-                <CardDescription className="text-xs mt-0.5">Update your account password</CardDescription>
+                <CardDescription className="text-xs mt-0.5 text-slate-600">Update your account password</CardDescription>
               </CardHeader>
               <CardContent className="p-3 space-y-2">
                 <div>
@@ -1119,7 +1123,7 @@ export default function MobilePassenger() {
                     });
                   }}
                   disabled={updatePasswordMutation.isPending || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
-                  className="w-full h-8 text-xs bg-orange-600 hover:bg-orange-700"
+                  className="w-full h-8 text-xs bg-white hover:bg-blue-50 text-blue-700 border-2 border-blue-200 hover:border-blue-300 shadow-sm hover:shadow-md transition-all"
                   data-testid="button-change-password"
                 >
                   <Lock className="w-3 h-3 mr-1" />
