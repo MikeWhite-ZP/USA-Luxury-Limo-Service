@@ -4,26 +4,59 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Car, UserCircle, Radio, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { setDevicePreference } from '@/lib/deviceDetection';
+import { useQuery } from '@tanstack/react-query';
 import chauffeurImage from "@assets/khalid_1759128435991.webp";
 import usaLuxuryLogo from "@assets/logo_1761944723746.png";
 
 type SplashStage = 'logo' | 'chauffeur' | 'role-selection';
 type UserRole = 'passenger' | 'driver' | 'dispatcher';
 
+interface User {
+  id: string;
+  username: string;
+  role: UserRole;
+}
+
 export default function MobileSplash() {
   const [, navigate] = useLocation();
   const [stage, setStage] = useState<SplashStage>('logo');
 
-  useEffect(() => {
-    // Auto-progress through stages
-    const logoTimer = setTimeout(() => {
-      setStage('chauffeur');
-    }, 2000);
-
-    return () => clearTimeout(logoTimer);
-  }, []);
+  // Check if user is already logged in
+  const { data: user, isLoading } = useQuery<User>({
+    queryKey: ['/api/user'],
+    retry: false,
+  });
 
   useEffect(() => {
+    // If user is already authenticated, redirect them to their role-specific mobile page
+    if (user && !isLoading) {
+      const mobileRoutes: Record<UserRole, string> = {
+        passenger: '/mobile-passenger',
+        driver: '/mobile-driver',
+        dispatcher: '/mobile-dispatcher',
+      };
+      
+      const route = mobileRoutes[user.role];
+      if (route) {
+        navigate(route);
+      }
+      return;
+    }
+
+    // Auto-progress through stages only for non-authenticated users
+    if (!user && !isLoading) {
+      const logoTimer = setTimeout(() => {
+        setStage('chauffeur');
+      }, 2000);
+
+      return () => clearTimeout(logoTimer);
+    }
+  }, [user, isLoading, navigate]);
+
+  useEffect(() => {
+    // Skip animations if user is authenticated
+    if (user) return;
+
     if (stage === 'chauffeur') {
       const chauffeurTimer = setTimeout(() => {
         setStage('role-selection');
@@ -31,7 +64,7 @@ export default function MobileSplash() {
 
       return () => clearTimeout(chauffeurTimer);
     }
-  }, [stage]);
+  }, [stage, user]);
 
   const handleRoleSelect = (role: UserRole) => {
     // Navigate to mobile login with selected role
@@ -163,7 +196,7 @@ export default function MobileSplash() {
               <p className="text-slate-600 text-lg font-light">Choose your role to continue</p>
             </motion.div>
 
-            <div className="space-y-3 text-center text-[12px] pl-[10px] pr-[10px]">
+            <div className="space-y-3">
               <motion.div
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -171,7 +204,7 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('passenger')}
-                  className="group w-half bg-white hover:bg-blue-50 text-blue-700 py-4 px-5 rounded-xl font-medium shadow-sm hover:shadow-md border-2 border-blue-200 hover:border-blue-300 transition-all text-[12px] pt-[20px] pb-[20px]"
+                  className="group w-full bg-white hover:bg-blue-50 text-blue-700 rounded-xl font-medium shadow-sm hover:shadow-md border-2 border-blue-200 hover:border-blue-300 transition-all text-[12px] pl-[10px] pr-[10px] pt-[20px] pb-[20px]"
                   data-testid="button-role-passenger"
                 >
                   <div className="flex items-center justify-start gap-3">
@@ -193,7 +226,7 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('driver')}
-                  className="group w-half bg-white hover:bg-emerald-50 text-emerald-700 py-4 px-5 rounded-xl font-medium shadow-sm hover:shadow-md border-2 border-emerald-200 hover:border-emerald-300 transition-all text-[12px] pl-[10px] pr-[10px] pt-[20px] pb-[20px]"
+                  className="group w-full bg-white hover:bg-emerald-50 text-emerald-700 rounded-xl font-medium shadow-sm hover:shadow-md border-2 border-emerald-200 hover:border-emerald-300 transition-all text-[12px] pl-[10px] pr-[10px] pt-[20px] pb-[20px]"
                   data-testid="button-role-driver"
                 >
                   <div className="flex items-center justify-start gap-3">
@@ -215,7 +248,7 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('dispatcher')}
-                  className="group w-half bg-white hover:bg-purple-50 text-purple-700 py-4 px-5 rounded-xl font-medium shadow-sm hover:shadow-md border-2 border-purple-200 hover:border-purple-300 transition-all text-[12px] pl-[18px] pr-[18px] pt-[20px] pb-[20px]"
+                  className="group w-full bg-white hover:bg-purple-50 text-purple-700 rounded-xl font-medium shadow-sm hover:shadow-md border-2 border-purple-200 hover:border-purple-300 transition-all text-[12px] pl-[10px] pr-[10px] pt-[20px] pb-[20px]"
                   data-testid="button-role-dispatcher"
                 >
                   <div className="flex items-center justify-start gap-3">
