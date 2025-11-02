@@ -329,7 +329,7 @@ export default function MobileDriver() {
 
         {/* Availability Toggle */}
       <Card className="bg-white/10 border-white/20 backdrop-blur overflow-hidden">
-        <CardContent className="p-0 bg-[#cae0bf]">
+        <CardContent className="p-0">
           <button
             onClick={() => {
               if (!toggleAvailabilityMutation.isPending) {
@@ -386,6 +386,7 @@ export default function MobileDriver() {
         </CardContent>
       </Card>
       </div>
+
       {/* Stats Cards */}
       <div className="px-6 py-2 grid grid-cols-3 gap-2">
         {/* Earnings Card */}
@@ -436,6 +437,7 @@ export default function MobileDriver() {
           </div>
         </div>
       </div>
+
       {/* Rides Tabs */}
       <div className="px-6 pb-4">
         <Tabs defaultValue="upcoming" className="w-full">
