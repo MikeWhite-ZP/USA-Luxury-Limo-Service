@@ -210,11 +210,11 @@ export default function MobileDriver() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayEarnings = completedBookings
-    .filter(b => new Date(b.scheduledTime) >= today)
+    .filter(b => b.scheduledTime && new Date(b.scheduledTime) >= today)
     .reduce((sum, b) => sum + (b.finalPrice || 0), 0);
 
   const completedToday = completedBookings
-    .filter(b => new Date(b.scheduledTime) >= today).length;
+    .filter(b => b.scheduledTime && new Date(b.scheduledTime) >= today).length;
 
   if (driverLoading || bookingsLoading) {
     return (
@@ -436,7 +436,9 @@ export default function MobileDriver() {
                           </div>
                           <div className="flex items-center text-xs text-gray-600 mb-1.5">
                             <Calendar className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
-                            <span className="font-medium">{format(new Date(booking.scheduledTime), 'MMM d, h:mm a')}</span>
+                            <span className="font-medium">
+                              {booking.scheduledTime ? format(new Date(booking.scheduledTime), 'MMM d, h:mm a') : 'Not scheduled'}
+                            </span>
                           </div>
                           {booking.passengerName && (
                             <div className="flex items-center text-xs text-gray-600">
@@ -528,7 +530,9 @@ export default function MobileDriver() {
                         </div>
                         <div className="flex items-center text-xs text-gray-600">
                           <Calendar className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
-                          <span className="font-medium">{format(new Date(booking.scheduledTime), 'MMM d, h:mm a')}</span>
+                          <span className="font-medium">
+                            {booking.scheduledTime ? format(new Date(booking.scheduledTime), 'MMM d, h:mm a') : 'Not scheduled'}
+                          </span>
                         </div>
                       </div>
                     </div>
