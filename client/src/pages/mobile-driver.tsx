@@ -265,31 +265,59 @@ export default function MobileDriver() {
         </div>
 
         {/* Availability Toggle */}
-        <Card className="bg-white/10 border-white/20 backdrop-blur">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-3">
-                <div className={`w-3 h-3 rounded-full ${driver.isAvailable ? 'bg-green-400' : 'bg-gray-400'}`}></div>
-                <div>
-                  <p className="font-semibold text-white">
-                    {driver.isAvailable ? 'Available for Rides' : 'Offline'}
-                  </p>
-                  <p className="text-xs text-white/80">
-                    {driver.isAvailable ? 'You can receive ride requests' : 'You won\'t receive requests'}
-                  </p>
+        <Card className="bg-white/10 border-white/20 backdrop-blur overflow-hidden">
+          <CardContent className="p-0">
+            {/* Tappable Toggle Area */}
+            <button
+              onClick={() => {
+                if (!toggleAvailabilityMutation.isPending) {
+                  toggleAvailabilityMutation.mutate(!driver.isAvailable);
+                }
+              }}
+              disabled={toggleAvailabilityMutation.isPending}
+              className={`w-full p-5 text-left transition-all active:scale-[0.98] ${
+                toggleAvailabilityMutation.isPending ? 'opacity-70 cursor-wait' : 'cursor-pointer active:bg-white/5'
+              }`}
+              data-testid="button-toggle-availability"
+            >
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center space-x-3 flex-1">
+                  <div className={`w-4 h-4 rounded-full transition-all ${
+                    toggleAvailabilityMutation.isPending 
+                      ? 'bg-yellow-400 animate-pulse' 
+                      : driver.isAvailable 
+                        ? 'bg-green-400 shadow-lg shadow-green-400/50' 
+                        : 'bg-gray-400'
+                  }`}></div>
+                  <div className="flex-1">
+                    <p className="font-bold text-white text-lg">
+                      {toggleAvailabilityMutation.isPending 
+                        ? (driver.isAvailable ? 'Going Offline...' : 'Going Online...') 
+                        : (driver.isAvailable ? 'Available for Rides' : 'Offline')
+                      }
+                    </p>
+                    <p className="text-sm text-white/90 mt-0.5">
+                      {toggleAvailabilityMutation.isPending
+                        ? 'Updating status...'
+                        : driver.isAvailable 
+                          ? 'Tap to go offline' 
+                          : 'Tap to go online'
+                      }
+                    </p>
+                  </div>
                 </div>
+                <Switch
+                  checked={driver.isAvailable}
+                  disabled={toggleAvailabilityMutation.isPending}
+                  className="pointer-events-none scale-125"
+                  data-testid="switch-availability"
+                />
               </div>
-              <Switch
-                checked={driver.isAvailable}
-                onCheckedChange={(checked) => toggleAvailabilityMutation.mutate(checked)}
-                disabled={toggleAvailabilityMutation.isPending}
-                data-testid="switch-availability"
-              />
-            </div>
+            </button>
             
             {/* GPS Status Indicator */}
             {driver.isAvailable && (
-              <div className="flex items-center space-x-2 text-xs text-white/90 border-t border-white/10 pt-3">
+              <div className="flex items-center space-x-2 text-xs text-white/90 border-t border-white/10 px-5 py-3 bg-white/5">
                 <Navigation2 className={`w-4 h-4 ${currentLocation ? 'text-green-400 animate-pulse' : 'text-gray-400'}`} />
                 <span data-testid="text-gps-status">
                   {locationError ? (
