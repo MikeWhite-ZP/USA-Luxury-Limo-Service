@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Car, DollarSign, MapPin, Star, Calendar, User, FileText, Settings, CheckCircle2, Navigation2, Phone, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Car, DollarSign, MapPin, Star, Calendar, User, FileText, Settings, CheckCircle2, Navigation2, Phone, MessageSquare, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { format } from 'date-fns';
@@ -294,11 +295,36 @@ export default function MobileDriver() {
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-2xl font-bold" data-testid="header-title">Driver Dashboard</h1>
-          <Settings 
-            className="w-6 h-6 cursor-pointer" 
-            onClick={() => setLocation('/driver-dashboard')}
-            data-testid="icon-settings"
-          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white hover:bg-white/20"
+                data-testid="button-menu"
+              >
+                <Settings className="w-6 h-6" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 bg-white">
+              <DropdownMenuItem
+                onClick={() => setLocation('/mobile-driver/documents')}
+                className="flex items-center gap-2 cursor-pointer hover:bg-green-50"
+                data-testid="menu-documents"
+              >
+                <FileText className="w-4 h-4 text-green-600" />
+                <span className="text-gray-900">Documents</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setLocation('/mobile-driver/account')}
+                className="flex items-center gap-2 cursor-pointer hover:bg-green-50"
+                data-testid="menu-account"
+              >
+                <User className="w-4 h-4 text-green-600" />
+                <span className="text-gray-900">Account</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Availability Toggle */}
