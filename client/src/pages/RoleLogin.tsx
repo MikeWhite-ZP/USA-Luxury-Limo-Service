@@ -18,30 +18,30 @@ const roles = [
     title: 'Passenger',
     description: 'Book luxury transportation services with ease',
     icon: <User className="w-10 h-10" />,
-    color: 'from-blue-600 via-blue-500 to-cyan-500',
-    bgGradient: 'from-blue-500/20 to-cyan-500/20',
-    borderColor: 'border-blue-500/30',
-    iconBg: 'bg-blue-500/10',
+    color: 'from-red-600 via-red-500 to-red-700',
+    bgGradient: 'from-red-500/20 to-red-700/20',
+    borderColor: 'border-red-500/30',
+    iconBg: 'bg-red-500/10',
   },
   {
     id: 'driver' as const,
     title: 'Driver',
     description: 'Access your dashboard and manage rides efficiently',
     icon: <Car className="w-10 h-10" />,
-    color: 'from-green-600 via-green-500 to-emerald-500',
-    bgGradient: 'from-green-500/20 to-emerald-500/20',
-    borderColor: 'border-green-500/30',
-    iconBg: 'bg-green-500/10',
+    color: 'from-red-600 via-red-500 to-red-700',
+    bgGradient: 'from-red-500/20 to-red-700/20',
+    borderColor: 'border-red-500/30',
+    iconBg: 'bg-red-500/10',
   },
   {
     id: 'dispatcher' as const,
     title: 'Dispatcher',
     description: 'Coordinate operations and manage the fleet',
     icon: <Users className="w-10 h-10" />,
-    color: 'from-purple-600 via-purple-500 to-fuchsia-500',
-    bgGradient: 'from-purple-500/20 to-fuchsia-500/20',
-    borderColor: 'border-purple-500/30',
-    iconBg: 'bg-purple-500/10',
+    color: 'from-red-600 via-red-500 to-red-700',
+    bgGradient: 'from-red-500/20 to-red-700/20',
+    borderColor: 'border-red-500/30',
+    iconBg: 'bg-red-500/10',
   },
 ];
 
@@ -202,12 +202,12 @@ export function RoleLogin() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Light Background with Subtle Pattern */}
-      <div className="fixed inset-0 bg-gradient-to-br from-gray-50 via-white to-blue-50 -z-10" />
-      <div className="fixed inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(59 130 246 / 0.05) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
+      <div className="fixed inset-0 bg-gradient-to-br from-red-50 via-white to-gray-50 -z-10" />
+      <div className="fixed inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(220 38 38 / 0.03) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
       
       {/* Floating orbs for visual interest */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl -z-10 animate-pulse" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-red-200/20 rounded-full blur-3xl -z-10 animate-pulse" />
+      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-red-100/15 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '1s' }} />
       
       <Header />
       
@@ -216,10 +216,10 @@ export function RoleLogin() {
           <div className="max-w-7xl mx-auto">
             {/* Header Section */}
             <div className="text-center mb-16">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 shadow-xl mb-6">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 shadow-xl mb-6">
                 <Shield className="w-10 h-10 text-white" />
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent" data-testid="page-title">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 text-black" data-testid="page-title">
                 {selectedRole ? `${currentRole?.title} Portal` : 'Welcome Back'}
               </h1>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed" data-testid="page-subtitle">
@@ -352,7 +352,7 @@ export function RoleLogin() {
                                   value={loginForm.username}
                                   onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
                                   required
-                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-login-username"
                                 />
                               </div>
@@ -360,7 +360,7 @@ export function RoleLogin() {
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
                                 <Label htmlFor="login-password" className="text-gray-700 font-medium">Password</Label>
-                                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500 transition-colors duration-200">
+                                <Link to="/forgot-password" className="text-sm text-red-600 hover:text-red-500 transition-colors duration-200">
                                   Forgot Password?
                                 </Link>
                               </div>
@@ -373,7 +373,7 @@ export function RoleLogin() {
                                   value={loginForm.password}
                                   onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
                                   required
-                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-login-password"
                                 />
                               </div>
@@ -401,7 +401,7 @@ export function RoleLogin() {
                                   placeholder="John"
                                   value={signupForm.firstName}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, firstName: e.target.value }))}
-                                  className="h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                                  className="h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-signup-firstname"
                                 />
                               </div>
@@ -413,7 +413,7 @@ export function RoleLogin() {
                                   placeholder="Doe"
                                   value={signupForm.lastName}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, lastName: e.target.value }))}
-                                  className="h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                                  className="h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-signup-lastname"
                                 />
                               </div>
@@ -429,7 +429,7 @@ export function RoleLogin() {
                                   value={signupForm.email}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
                                   required
-                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-signup-email"
                                 />
                               </div>
@@ -445,7 +445,7 @@ export function RoleLogin() {
                                   value={signupForm.username}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, username: e.target.value }))}
                                   required
-                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-signup-username"
                                 />
                               </div>
@@ -462,7 +462,7 @@ export function RoleLogin() {
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
                                   required
                                   minLength={6}
-                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-signup-password"
                                 />
                               </div>
