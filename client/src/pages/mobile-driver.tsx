@@ -333,7 +333,7 @@ export default function MobileDriver() {
             <div className="w-9 h-9 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-2">
               <DollarSign className="w-5 h-5 text-emerald-600" />
             </div>
-            <p className="text-xs font-medium text-emerald-800 uppercase tracking-wide mb-0.5">Today</p>
+            <p className="text-emerald-800 uppercase tracking-wide mb-0.5 font-bold text-[14px]">Today</p>
             <p className="text-xs font-bold text-emerald-900" data-testid="text-today-earnings">
               ${todayEarnings.toFixed(2)}
             </p>
