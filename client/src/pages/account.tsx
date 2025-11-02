@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
-import { User, Mail, Phone, ArrowLeft, Save, Lock, Eye, EyeOff, Shield, Calendar, CheckCircle2 } from "lucide-react";
+import { User, Mail, Phone, ArrowLeft, Save, Lock, Eye, EyeOff, Shield, Calendar, CheckCircle2, Camera, Upload } from "lucide-react";
 import Header from "@/components/Header";
 
 export default function AccountPage() {
@@ -22,6 +22,10 @@ export default function AccountPage() {
   const [lastName, setLastName] = useState(user?.lastName || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [email, setEmail] = useState(user?.email || '');
+  
+  // Profile picture states
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(user?.profileImageUrl || null);
 
   // Password update states
   const [currentPassword, setCurrentPassword] = useState('');
@@ -79,6 +83,43 @@ export default function AccountPage() {
       toast({
         title: "Error",
         description: error.message || "Failed to update password",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const uploadProfilePictureMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/user/profile-picture', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Upload failed');
+      }
+
+      return await response.json();
+    },
+    onSuccess: (updatedUser) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      queryClient.setQueryData(['/api/auth/user'], updatedUser);
+      setProfilePicture(null);
+      setPreviewUrl(updatedUser.profileImageUrl);
+      toast({
+        title: "Profile Picture Updated",
+        description: "Your profile picture has been updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -174,6 +215,53 @@ export default function AccountPage() {
       currentPassword,
       newPassword,
     });
+  };
+
+  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Image size must be less than 2MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setProfilePicture(file);
+    
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleUploadProfilePicture = () => {
+    if (!profilePicture) {
+      toast({
+        title: "No File Selected",
+        description: "Please select a profile picture to upload",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    uploadProfilePictureMutation.mutate(profilePicture);
   };
 
   useEffect(() => {
@@ -282,6 +370,87 @@ export default function AccountPage() {
                     </p>
                   </div>
                 )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Profile Picture Card */}
+          <Card data-testid="profile-picture-card" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50/30 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-600 p-2.5 rounded-xl shadow-lg">
+                  <Camera className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-slate-900 text-xl">Profile Picture</CardTitle>
+                  <CardDescription className="text-slate-600 mt-1">
+                    Upload a profile picture to personalize your account
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                {/* Avatar Preview */}
+                <div className="flex-shrink-0">
+                  <div className="relative group">
+                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-100 shadow-lg bg-gradient-to-br from-purple-100 to-pink-100">
+                      {previewUrl ? (
+                        <img
+                          src={previewUrl}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                          data-testid="img-profile-preview"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <User className="w-16 h-16 text-purple-300" />
+                        </div>
+                      )}
+                    </div>
+                    {previewUrl && (
+                      <div className="absolute inset-0 rounded-full bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
+                        <Camera className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Upload Controls */}
+                <div className="flex-1 space-y-4 w-full">
+                  <div>
+                    <Label htmlFor="profile-picture-file" className="text-sm font-semibold text-slate-700 mb-2 block">
+                      Choose Profile Picture
+                    </Label>
+                    <Input
+                      id="profile-picture-file"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfilePictureChange}
+                      className="border-slate-300 focus:border-purple-500 focus:ring-purple-500"
+                      data-testid="input-profile-picture"
+                    />
+                    <p className="text-xs text-slate-500 mt-2 bg-purple-50 p-2 rounded border border-purple-200">
+                      Accepted formats: JPG, PNG, WEBP. Max size: 2MB
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={handleUploadProfilePicture}
+                    disabled={!profilePicture || uploadProfilePictureMutation.isPending}
+                    className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white shadow-md"
+                    data-testid="button-upload-profile-picture"
+                  >
+                    {uploadProfilePictureMutation.isPending ? (
+                      <>Uploading...</>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-2" />
+                        Upload Picture
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

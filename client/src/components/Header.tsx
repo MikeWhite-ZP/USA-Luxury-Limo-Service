@@ -115,7 +115,18 @@ export default function Header() {
                     className="flex items-center gap-2"
                     data-testid="button-account-menu"
                   >
-                    <User className="w-4 h-4" />
+                    {user.profileImageUrl ? (
+                      <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
+                        <img
+                          src={user.profileImageUrl}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                          data-testid="img-header-profile"
+                        />
+                      </div>
+                    ) : (
+                      <User className="w-4 h-4" />
+                    )}
                     <span className="hidden md:inline">{user.firstName || user.email}</span>
                     <ChevronDown className="w-4 h-4" />
                   </Button>

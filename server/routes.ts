@@ -432,6 +432,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Upload profile picture
+  app.post('/api/user/profile-picture', isAuthenticated, upload.single('file'), async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      const file = req.file;
+      const fileExtension = file.originalname.split('.').pop();
+      const fileName = `profile-pictures/${userId}/profile-${Date.now()}.${fileExtension}`;
+
+      // Upload to Object Storage
+      const { ok, error } = await getObjectStorage().uploadFromBytes(
+        fileName,
+        file.buffer
+      );
+
+      if (!ok) {
+        console.error('Upload to Object Storage failed:', error);
+        return res.status(500).json({ message: 'Failed to upload image' });
+      }
+
+      // Get the URL for the uploaded image
+      const domain = process.env.REPLIT_DOMAINS?.split(',')[0];
+      const imageUrl = domain ? `https://${domain}/${fileName}` : `http://localhost:5000/${fileName}`;
+
+      // Update user's profileImageUrl in database
+      const updatedUser = await storage.updateUser(userId, { 
+        profileImageUrl: imageUrl 
+      });
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Profile picture upload error:', error);
+      res.status(500).json({ message: 'Failed to upload profile picture' });
+    }
+  });
+
   // Vehicle types (public)
   app.get('/api/vehicle-types', async (req, res) => {
     try {
