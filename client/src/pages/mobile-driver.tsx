@@ -328,7 +328,11 @@ export default function MobileDriver() {
         </div>
 
         {/* Availability Toggle */}
-      <Card className="bg-white/10 border-white/20 backdrop-blur overflow-hidden">
+      <Card className={`overflow-hidden shadow-lg border-2 transition-all ${
+        driver.isAvailable 
+          ? 'bg-rose-500 border-rose-600' 
+          : 'bg-white border-gray-200'
+      }`}>
         <CardContent className="p-0">
           <button
             onClick={() => {
@@ -338,21 +342,21 @@ export default function MobileDriver() {
             }}
             disabled={toggleAvailabilityMutation.isPending}
             className={`w-full px-4 py-3 text-left transition-all active:scale-[0.98] ${
-              toggleAvailabilityMutation.isPending ? 'opacity-70 cursor-wait' : 'cursor-pointer active:bg-white/5'
+              toggleAvailabilityMutation.isPending ? 'opacity-70 cursor-wait' : 'cursor-pointer hover:opacity-90'
             }`}
             data-testid="button-toggle-availability"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2.5">
-                <div className={`w-2.5 h-2.5 rounded-full transition-all ${
+                <div className={`w-3 h-3 rounded-full transition-all ${
                   toggleAvailabilityMutation.isPending 
                     ? 'bg-yellow-400 animate-pulse' 
                     : driver.isAvailable 
-                      ? 'bg-green-400 shadow-md shadow-green-400/50' 
-                      : 'bg-gray-400'
+                      ? 'bg-white shadow-md' 
+                      : 'bg-green-500 shadow-md shadow-green-500/50'
                 }`}></div>
-                <span className={`font-semibold text-sm ${
-                  driver.isAvailable ? 'text-red-200' : 'text-green-300'
+                <span className={`font-bold text-base ${
+                  driver.isAvailable ? 'text-white' : 'text-green-700'
                 }`}>
                   {toggleAvailabilityMutation.isPending 
                     ? (driver.isAvailable ? 'Going Offline...' : 'Going Online...') 
@@ -370,15 +374,15 @@ export default function MobileDriver() {
           </button>
 
           {driver.isAvailable && (
-            <div className="flex items-center space-x-1.5 text-xs text-white/80 border-t border-white/10 px-4 py-2 bg-white/5">
-              <Navigation2 className={`w-3 h-3 ${currentLocation ? 'text-green-400 animate-pulse' : 'text-gray-400'}`} />
+            <div className="flex items-center space-x-1.5 text-xs border-t border-rose-400 px-4 py-2 bg-rose-600">
+              <Navigation2 className={`w-3 h-3 ${currentLocation ? 'text-white animate-pulse' : 'text-rose-200'}`} />
               <span data-testid="text-gps-status">
                 {locationError ? (
-                  <span className="text-red-300">{locationError}</span>
+                  <span className="text-rose-100">{locationError}</span>
                 ) : currentLocation ? (
-                  <span className="text-green-300">GPS Active</span>
+                  <span className="text-white font-medium">GPS Active</span>
                 ) : (
-                  <span className="text-yellow-300">Activating GPS...</span>
+                  <span className="text-rose-100">Activating GPS...</span>
                 )}
               </span>
             </div>
