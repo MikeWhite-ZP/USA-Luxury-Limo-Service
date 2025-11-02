@@ -5011,6 +5011,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public route to serve driver document files from object storage
+  app.get('/driver-docs/:driverId/:filename', async (req, res) => {
+    try {
+      const { driverId, filename } = req.params;
+      const filePath = `driver-docs/${driverId}/${filename}`;
+
+      // Download from object storage
+      const { ok, value, error } = await getObjectStorage().downloadAsBytes(filePath);
+
+      if (!ok) {
+        return res.status(404).json({ message: `File not found: ${error}` });
+      }
+
+      // Determine content type from file extension
+      const extension = filename.split('.').pop()?.toLowerCase();
+      const contentTypeMap: Record<string, string> = {
+        'pdf': 'application/pdf',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'webp': 'image/webp',
+        'heic': 'image/heic',
+        'heif': 'image/heif'
+      };
+
+      const contentType = contentTypeMap[extension || ''] || 'application/octet-stream';
+      
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+      res.send(value);
+
+    } catch (error) {
+      console.error('Driver document file serving error:', error);
+      res.status(500).json({ message: 'Failed to load file' });
+    }
+  });
+
   // Delete document
   app.delete('/api/driver/documents/:id', isAuthenticated, async (req: any, res) => {
     try {
