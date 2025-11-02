@@ -323,34 +323,34 @@ export default function MobileDriver() {
       </div>
 
       {/* Stats Cards */}
-      <div className="px-6 py-4 grid grid-cols-3 gap-3 origin-center">
+      <div className="px-6 py-2 grid grid-cols-3 gap-2">
         {/* Earnings Card */}
         <div 
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-50 to-green-100/50 border border-emerald-200/60 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 scale-[0.6] origin-center" 
+          className="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-50 to-green-100/50 border border-emerald-200/60 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.15]" 
           data-testid="stat-earnings"
         >
-          <div className="p-3 text-center">
-            <div className="w-9 h-9 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-2">
-              <DollarSign className="w-5 h-5 text-emerald-600" />
+          <div className="p-2 text-center">
+            <div className="w-7 h-7 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-1">
+              <DollarSign className="w-4 h-4 text-emerald-600" />
             </div>
-            <p className="text-emerald-800 uppercase tracking-wide mb-0.5 font-bold text-[14px]">Today</p>
-            <p className="text-xs font-bold text-emerald-900" data-testid="text-today-earnings">
+            <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide mb-0.5">Today</p>
+            <p className="text-sm font-bold text-emerald-900" data-testid="text-today-earnings">
               ${todayEarnings.toFixed(2)}
             </p>
           </div>
         </div>
 
-        {/* Rides Card - Entire card 60% size */}
+        {/* Rides Card */}
         <div 
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-50 to-blue-100/50 border border-sky-200/60 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 scale-[0.6] origin-center" 
+          className="relative overflow-hidden rounded-xl bg-gradient-to-br from-sky-50 to-blue-100/50 border border-sky-200/60 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.15]" 
           data-testid="stat-rides"
         >
-          <div className="p-3 text-center">
-            <div className="w-9 h-9 rounded-full bg-sky-500/10 flex items-center justify-center mx-auto mb-2">
-              <MapPin className="w-5 h-5 text-sky-600" />
+          <div className="p-2 text-center">
+            <div className="w-7 h-7 rounded-full bg-sky-500/10 flex items-center justify-center mx-auto mb-1">
+              <MapPin className="w-4 h-4 text-sky-600" />
             </div>
-            <p className="text-xs font-medium text-sky-800 uppercase tracking-wide mb-0.5">Rides</p>
-            <p className="text-xl font-bold text-sky-900" data-testid="text-completed-today">
+            <p className="text-[10px] font-bold text-sky-800 uppercase tracking-wide mb-0.5">Rides</p>
+            <p className="text-sm font-bold text-sky-900" data-testid="text-completed-today">
               {completedToday}
             </p>
           </div>
@@ -358,15 +358,15 @@ export default function MobileDriver() {
 
         {/* Rating Card */}
         <div 
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 to-yellow-100/50 border border-amber-200/60 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 scale-[0.6] origin-center" 
+          className="relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 to-yellow-100/50 border border-amber-200/60 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.15]" 
           data-testid="stat-rating"
         >
-          <div className="p-3 text-center">
-            <div className="w-9 h-9 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-2">
-              <Star className="w-5 h-5 text-amber-600 fill-amber-600" />
+          <div className="p-2 text-center">
+            <div className="w-7 h-7 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-1">
+              <Star className="w-4 h-4 text-amber-600 fill-amber-600" />
             </div>
-            <p className="text-xs font-medium text-amber-800 uppercase tracking-wide mb-0.5">Rating</p>
-            <p className="text-xl font-bold text-amber-900" data-testid="text-rating">
+            <p className="text-[10px] font-bold text-amber-800 uppercase tracking-wide mb-0.5">Rating</p>
+            <p className="text-sm font-bold text-amber-900" data-testid="text-rating">
               {driver.rating || '0'}/5
             </p>
           </div>
