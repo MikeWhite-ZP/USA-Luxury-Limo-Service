@@ -388,7 +388,7 @@ function InvoicesList() {
             }
             .print-header {
               text-align: center;
-              border-bottom: 2px solid #dc2626;
+              border-bottom: 2px solid #f59e0b;
               padding: 18px;
               margin-bottom: 20px;
               background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
@@ -403,7 +403,7 @@ function InvoicesList() {
             }
             .print-invoice-number {
               font-size: 12pt;
-              color: #dc2626;
+              color: #f59e0b;
               font-weight: 600;
               margin-top: 6px;
             }
@@ -477,14 +477,14 @@ function InvoicesList() {
               font-weight: 600;
             }
             .print-pricing-surge {
-              color: #dc2626;
+              color: #ea580c;
             }
             .print-pricing-discount {
               color: #16a34a;
             }
             .print-total-section {
-              background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-              border: 2px solid #dc2626;
+              background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+              border: 2px solid #f59e0b;
               border-radius: 6px;
               padding: 14px;
               margin-top: 12px;
@@ -501,7 +501,7 @@ function InvoicesList() {
             }
             .print-total-value {
               font-size: 20pt;
-              color: #dc2626;
+              color: #f59e0b;
               font-weight: 800;
             }
             .print-payment-status {
@@ -670,7 +670,7 @@ function InvoicesList() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin w-6 h-6 border-4 border-red-600 border-t-transparent rounded-full" />
+        <div className="animate-spin w-6 h-6 border-4 border-amber-500 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -692,7 +692,7 @@ function InvoicesList() {
         {invoices.map((invoice) => (
           <div
             key={invoice.id}
-            className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-red-300 hover:shadow-md transition-all"
+            className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-amber-300 hover:shadow-md transition-all"
             data-testid={`invoice-${invoice.id}`}
           >
             <div className="flex justify-between items-start mb-4">
@@ -709,14 +709,14 @@ function InvoicesList() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-red-600" data-testid={`invoice-amount-${invoice.id}`}>
+                <p className="text-2xl font-bold text-amber-600" data-testid={`invoice-amount-${invoice.id}`}>
                   ${parseFloat(invoice.totalAmount).toFixed(2)}
                 </p>
                 <Badge
                   className={`mt-1 ${
                     invoice.paidAt
                       ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
+                      : 'bg-amber-100 text-amber-800'
                   }`}
                   data-testid={`invoice-status-${invoice.id}`}
                 >
@@ -754,7 +754,7 @@ function InvoicesList() {
                 variant="outline"
                 onClick={() => handleEmail(invoice)}
                 disabled={isLoadingEmail}
-                className="flex-1 bg-white text-red-700 border-red-200 hover:bg-red-50"
+                className="flex-1 text-amber-700 border-amber-300 hover:bg-amber-50"
                 data-testid={`button-email-${invoice.id}`}
               >
                 <Mail className="w-4 h-4 mr-1.5" />
@@ -786,13 +786,13 @@ function InvoicesList() {
                   </div>
                   <div className="col-span-2">
                     <p className="text-gray-600 mb-1.5 font-medium">Total Amount</p>
-                    <p className="text-3xl font-bold text-red-600" data-testid="view-total-amount">
+                    <p className="text-3xl font-bold text-amber-600" data-testid="view-total-amount">
                       ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}
                     </p>
                   </div>
                   <div className="col-span-2">
                     <p className="text-gray-600 mb-1.5 font-medium">Status</p>
-                    <Badge className={selectedInvoice.paidAt ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                    <Badge className={selectedInvoice.paidAt ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}>
                       {selectedInvoice.paidAt ? 'Paid' : 'Unpaid'}
                     </Badge>
                   </div>
@@ -1468,9 +1468,9 @@ export default function PassengerDashboard() {
     if (hasExpiredCards && hasValidCards) {
       return {
         status: 'Active (with expired cards)',
-        color: 'text-red-600',
-        bgColor: 'bg-red-50 dark:bg-red-900/20',
-        borderColor: 'border-red-200 dark:border-red-800',
+        color: 'text-yellow-600',
+        bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
+        borderColor: 'border-yellow-200 dark:border-yellow-800',
         message: 'You have expired cards. Please remove them and keep your payment methods up to date.',
         action: 'Manage Payment Methods',
       };
@@ -1858,10 +1858,10 @@ export default function PassengerDashboard() {
                     </div>
                     
                     <div className="relative group/btn">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-black to-gray-800 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
                       <Button
                         onClick={() => setActiveSection('past-bookings')}
-                        className="relative h-20 w-full flex flex-col space-y-2 bg-white hover:bg-red-50 text-red-700 border-2 border-red-200 hover:border-red-600 shadow-lg group-hover/btn:scale-[1.02] transition-all duration-300"
+                        className="relative h-20 w-full flex flex-col space-y-2 bg-white hover:bg-gray-50 text-black border-2 border-gray-300 hover:border-red-600 shadow-lg group-hover/btn:scale-[1.02] transition-all duration-300"
                         data-testid="button-view-history"
                       >
                         <History className="w-6 h-6" />
@@ -2197,11 +2197,11 @@ export default function PassengerDashboard() {
         {/* Future Bookings Section */}
         {activeSection === 'future-bookings' && (
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
             <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="future-bookings-section">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center shadow-md">
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
                 Future Bookings
@@ -2210,14 +2210,14 @@ export default function PassengerDashboard() {
             <CardContent>
               {bookingsLoading ? (
                 <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin w-6 h-6 border-4 border-red-600 border-t-transparent rounded-full" />
+                  <div className="animate-spin w-6 h-6 border-4 border-orange-500 border-t-transparent rounded-full" />
                 </div>
               ) : futureBookings.length > 0 ? (
                 <div className="space-y-4">
                   {futureBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-red-300 hover:shadow-md transition-all"
+                      className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all"
                       data-testid={`future-booking-${booking.id}`}
                     >
                       <div className="flex justify-between items-start">
@@ -2400,11 +2400,11 @@ export default function PassengerDashboard() {
         {/* Invoices Section */}
         {activeSection === 'invoices' && (
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
             <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="invoices-section">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center shadow-md">
                     <FileText className="w-5 h-5 text-white" />
                   </div>
                   My Invoices
@@ -2684,15 +2684,15 @@ export default function PassengerDashboard() {
                   
                   {paymentCardStatus.message && (
                     <div className="relative group/alert">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-400 to-red-600 rounded-xl opacity-20 group-hover/alert:opacity-30 blur transition-opacity" />
-                      <div className="relative p-4 bg-gradient-to-r from-red-50 to-red-100 border border-red-300 rounded-xl">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-20 group-hover/alert:opacity-30 blur transition-opacity" />
+                      <div className="relative p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 rounded-xl">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
-                            <p className="text-sm font-bold text-red-900 flex items-center gap-2 mb-2">
+                            <p className="text-sm font-bold text-amber-900 flex items-center gap-2 mb-2">
                               <span className="text-lg">⚠️</span>
                               Action Required
                             </p>
-                            <p className="text-sm text-red-800">
+                            <p className="text-sm text-amber-800">
                               {paymentCardStatus.message}
                             </p>
                           </div>
@@ -2700,7 +2700,7 @@ export default function PassengerDashboard() {
                             variant="outline"
                             size="sm"
                             onClick={() => setActiveSection('payment-methods')}
-                            className="whitespace-nowrap bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white border-0"
+                            className="whitespace-nowrap bg-amber-600 hover:bg-amber-500 text-white border-0"
                             data-testid="button-manage-payment"
                           >
                             {paymentCardStatus.action}
@@ -2904,7 +2904,7 @@ export default function PassengerDashboard() {
                     <Star
                       className={`w-10 h-10 ${
                         star <= rating
-                          ? 'text-red-600 fill-current'
+                          ? 'text-yellow-400 fill-current'
                           : 'text-gray-300'
                       }`}
                     />
