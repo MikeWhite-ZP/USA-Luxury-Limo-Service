@@ -46,7 +46,6 @@ export default function MobileSplash() {
         <div className="absolute w-96 h-96 bg-purple-500/5 rounded-full blur-3xl -bottom-48 -right-24 animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
-      
       <AnimatePresence mode="wait">
         {/* Stage 1: Animated Logo */}
         {stage === 'logo' && (
@@ -164,7 +163,7 @@ export default function MobileSplash() {
               <p className="text-slate-600 text-lg font-light">Choose your role to continue</p>
             </motion.div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 text-center text-[12px] pl-[10px] pr-[10px]">
               <motion.div
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
