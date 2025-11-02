@@ -873,23 +873,24 @@ export default function MobilePassenger() {
         {/* Payment Section */}
         {activeSection === 'payment' && (
           <div className="space-y-4">
-            <Card className="shadow-md border-slate-200">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-green-600" />
+            <Card className="shadow-sm border-2 border-blue-100 bg-white">
+              <CardHeader className="bg-blue-50/50 border-b border-blue-100 p-4">
+                <CardTitle className="text-base flex items-center gap-2 text-blue-900">
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <CreditCard className="w-4 h-4 text-blue-600" />
+                  </div>
                   Payment Methods
                 </CardTitle>
-                <CardDescription>Manage your payment options</CardDescription>
+                <CardDescription className="text-sm text-slate-600 mt-1">Manage your payment options</CardDescription>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="text-center py-8">
+                <div className="text-center py-6">
                   <Button
                     onClick={() => navigate('/mobile-payment-methods')}
-                    size="lg"
-                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                    className="bg-white hover:bg-blue-50 text-blue-700 border-2 border-blue-200 hover:border-blue-300 shadow-sm hover:shadow-md transition-all px-6 py-3 h-auto"
                     data-testid="button-manage-payment"
                   >
-                    <CreditCard className="w-5 h-5 mr-2" />
+                    <CreditCard className="w-4 h-4 mr-2" />
                     Manage Payment Methods
                   </Button>
                 </div>
