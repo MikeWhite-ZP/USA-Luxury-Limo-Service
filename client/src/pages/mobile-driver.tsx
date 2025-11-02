@@ -328,11 +328,7 @@ export default function MobileDriver() {
         </div>
 
         {/* Availability Toggle */}
-      <Card className={`overflow-hidden shadow-lg border-2 transition-all ${
-        driver.isAvailable 
-          ? 'bg-rose-500 border-rose-600' 
-          : 'bg-white border-gray-200'
-      }`}>
+      <Card className="rounded-lg text-card-foreground overflow-hidden shadow-lg border-2 transition-all border-rose-600 bg-[#7db898]">
         <CardContent className="p-0">
           <button
             onClick={() => {
@@ -390,7 +386,6 @@ export default function MobileDriver() {
         </CardContent>
       </Card>
       </div>
-
       {/* Stats Cards */}
       <div className="px-6 py-2 grid grid-cols-3 gap-2">
         {/* Earnings Card */}
@@ -441,7 +436,6 @@ export default function MobileDriver() {
           </div>
         </div>
       </div>
-
       {/* Rides Tabs */}
       <div className="px-6 pb-4">
         <Tabs defaultValue="upcoming" className="w-full">
