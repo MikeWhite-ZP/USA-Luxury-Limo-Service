@@ -1075,7 +1075,8 @@ export default function DriverDashboard() {
                         { type: "driver_license", name: "Texas driver license", hasExpiry: true },
                         { type: "limo_license", name: "City of Houston Limo License", hasExpiry: true },
                         { type: "insurance_certificate", name: "Insurance Certificate", hasExpiry: true },
-                        { type: "vehicle_image", name: "Vehicle Picture with Plate", hasExpiry: false },
+                        { type: "vehicle_image", name: "Vehicle Picture with Plate", hasExpiry: true },
+                        { type: "profile_image", name: "Driver Profile Picture", hasExpiry: false },
                       ].map((docConfig) => {
                         const doc = getDocumentByType(docConfig.type as any);
                         return (
