@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ObjectUploader } from "../components/ObjectUploader";
+import defaultUserImage from "@assets/default-user.png";
 import {
   DollarSign,
   MapPin,
@@ -144,9 +145,6 @@ export default function DriverDashboard() {
     whatsappNumber: "",
   });
   const [uploading, setUploading] = useState<string | null>(null);
-
-  // Default user image
-  const defaultUserImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23e5e7eb'/%3E%3Cpath d='M50 45 a15 15 0 1 0 0-30 a15 15 0 1 0 0 30 M30 85 Q30 65 50 65 Q70 65 70 85' fill='%239ca3af'/%3E%3C/svg%3E";
 
   // Redirect to home if not authenticated or not driver
   useEffect(() => {
@@ -1495,7 +1493,7 @@ export default function DriverDashboard() {
                   <div className="relative">
                     <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-red-100 shadow-lg bg-white">
                       <img
-                        src={getDocumentByType('profile_photo')?.status === 'approved' && user?.profileImageUrl ? user.profileImageUrl : defaultUserImage}
+                        src={getDocumentByType('profile_photo')?.status === 'approved' && getDocumentByType('profile_photo')?.documentUrl ? getDocumentByType('profile_photo')!.documentUrl : defaultUserImage}
                         alt="Profile"
                         className="w-full h-full object-cover"
                         data-testid="img-profile-preview"
