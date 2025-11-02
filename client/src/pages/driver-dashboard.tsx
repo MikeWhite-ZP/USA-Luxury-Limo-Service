@@ -76,6 +76,10 @@ interface Booking {
   onTheWayAt?: string;
   arrivedAt?: string;
   onBoardAt?: string;
+  passengerName?: string;
+  passengerPhone?: string;
+  passengerEmail?: string;
+  bookingFor?: "self" | "someone_else";
 }
 
 interface DriverDocument {
@@ -874,6 +878,14 @@ export default function DriverDashboard() {
                                   <p className="text-sm text-gray-500">
                                     {booking.bookingType === 'hourly' ? 'Hourly Service' : 'Transfer Service'}
                                   </p>
+                                  {booking.passengerName && (
+                                    <div className="flex items-center gap-2 mt-1">
+                                      <User className="w-3.5 h-3.5 text-blue-600" />
+                                      <span className="text-sm font-medium text-blue-700" data-testid={`passenger-name-${booking.id}`}>
+                                        {booking.passengerName}
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                               <Badge
