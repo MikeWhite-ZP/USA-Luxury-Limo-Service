@@ -359,6 +359,8 @@ export default function MobileDriver() {
           )}
         </CardContent>
       </Card>
+      </div>
+
       {/* Stats Cards */}
       <div className="px-6 py-2 grid grid-cols-3 gap-2">
         {/* Earnings Card */}
