@@ -173,25 +173,33 @@ export default function MobileDriver() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmed': return 'bg-blue-100 text-blue-800';
-      case 'in_progress': return 'bg-yellow-100 text-yellow-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'pending_driver_acceptance': return 'bg-purple-50 text-purple-700 border border-purple-200';
+      case 'confirmed': return 'bg-blue-50 text-blue-700 border border-blue-200';
+      case 'on_the_way': return 'bg-indigo-50 text-indigo-700 border border-indigo-200';
+      case 'arrived': return 'bg-cyan-50 text-cyan-700 border border-cyan-200';
+      case 'on_board': return 'bg-teal-50 text-teal-700 border border-teal-200';
+      case 'in_progress': return 'bg-amber-50 text-amber-700 border border-amber-200';
+      case 'completed': return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+      case 'cancelled': return 'bg-red-50 text-red-700 border border-red-200';
+      default: return 'bg-gray-50 text-gray-700 border border-gray-200';
     }
   };
 
   const getStatusNextAction = (status: string) => {
     switch (status) {
-      case 'confirmed': return { label: 'Start Ride', nextStatus: 'in_progress' };
+      case 'pending_driver_acceptance': return { label: 'Accept Job', nextStatus: 'confirmed' };
+      case 'confirmed': return { label: 'Start Trip', nextStatus: 'on_the_way' };
+      case 'on_the_way': return { label: 'Arrived', nextStatus: 'arrived' };
+      case 'arrived': return { label: 'Passenger On Board', nextStatus: 'on_board' };
+      case 'on_board': return { label: 'Start Service', nextStatus: 'in_progress' };
       case 'in_progress': return { label: 'Complete Ride', nextStatus: 'completed' };
       default: return null;
     }
   };
 
-  // Filter bookings
+  // Filter bookings - include all active driver workflow statuses
   const upcomingBookings = bookings?.filter(b => 
-    ['confirmed', 'in_progress'].includes(b.status)
+    ['pending_driver_acceptance', 'confirmed', 'on_the_way', 'arrived', 'on_board', 'in_progress'].includes(b.status)
   ) || [];
   
   const completedBookings = bookings?.filter(b => 
@@ -374,89 +382,95 @@ export default function MobileDriver() {
       </div>
 
       {/* Rides Tabs */}
-      <div className="px-6">
+      <div className="px-6 pb-4">
         <Tabs defaultValue="upcoming" className="w-full">
-          <TabsList className="w-full grid grid-cols-2">
-            <TabsTrigger value="upcoming" data-testid="tab-upcoming">
+          <TabsList className="w-full grid grid-cols-2 bg-white border border-gray-200 p-1 rounded-lg shadow-sm">
+            <TabsTrigger 
+              value="upcoming" 
+              data-testid="tab-upcoming"
+              className="data-[state=active]:bg-green-600 data-[state=active]:text-white rounded-md font-medium transition-all"
+            >
               Upcoming ({upcomingBookings.length})
             </TabsTrigger>
-            <TabsTrigger value="completed" data-testid="tab-completed">
+            <TabsTrigger 
+              value="completed" 
+              data-testid="tab-completed"
+              className="data-[state=active]:bg-green-600 data-[state=active]:text-white rounded-md font-medium transition-all"
+            >
               Completed ({completedBookings.length})
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="upcoming" className="space-y-4 mt-4">
+          <TabsContent value="upcoming" className="space-y-3 mt-4">
             {upcomingBookings.length === 0 ? (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <Car className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600" data-testid="text-no-upcoming">
-                    No upcoming rides
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {driver.isAvailable ? 'Waiting for new assignments...' : 'Go online to receive rides'}
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+                <Car className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-700 font-medium mb-1" data-testid="text-no-upcoming">
+                  No upcoming rides
+                </p>
+                <p className="text-sm text-gray-500">
+                  {driver.isAvailable ? 'Waiting for new assignments...' : 'Go online to receive rides'}
+                </p>
+              </div>
             ) : (
               upcomingBookings.map((booking) => {
                 const nextAction = getStatusNextAction(booking.status);
                 
                 return (
-                  <Card 
+                  <div 
                     key={booking.id} 
-                    className="shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+                    className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 hover:border-green-300"
                     onClick={() => setLocation(`/mobile-driver/rides/${booking.id}`)}
                     data-testid={`card-booking-${booking.id}`}
                   >
-                    <CardContent className="p-4">
+                    <div className="p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge className={getStatusColor(booking.status)} data-testid={`badge-status-${booking.id}`}>
-                              {booking.status.replace('_', ' ')}
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <Badge className={`${getStatusColor(booking.status)} font-medium text-xs px-2.5 py-1`} data-testid={`badge-status-${booking.id}`}>
+                              {booking.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                             </Badge>
-                            <p className="text-sm font-semibold text-gray-900">
+                            <span className="text-base font-bold text-green-700">
                               ${booking.finalPrice.toFixed(2)}
-                            </p>
+                            </span>
                           </div>
-                          <div className="flex items-center text-xs text-gray-600 mb-1">
-                            <Calendar className="w-3 h-3 mr-1" />
-                            {format(new Date(booking.scheduledTime), 'MMM d, h:mm a')}
+                          <div className="flex items-center text-xs text-gray-600 mb-1.5">
+                            <Calendar className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
+                            <span className="font-medium">{format(new Date(booking.scheduledTime), 'MMM d, h:mm a')}</span>
                           </div>
                           {booking.passengerName && (
                             <div className="flex items-center text-xs text-gray-600">
-                              <User className="w-3 h-3 mr-1" />
-                              {booking.passengerName}
+                              <User className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
+                              <span className="font-medium">{booking.passengerName}</span>
                             </div>
                           )}
                         </div>
                       </div>
 
-                      <div className="space-y-2 mb-3">
-                        <div className="flex items-start">
-                          <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 mr-2"></div>
-                          <div className="flex-1">
-                            <p className="text-xs text-gray-500">Pickup</p>
-                            <p className="text-sm font-medium text-gray-900">{booking.pickupAddress}</p>
+                      <div className="space-y-2.5 mb-4 bg-gray-50 rounded-lg p-3 border border-gray-100">
+                        <div className="flex items-start gap-2.5">
+                          <div className="w-2.5 h-2.5 rounded-full bg-green-500 mt-1 flex-shrink-0"></div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Pickup</p>
+                            <p className="text-sm font-medium text-gray-900 line-clamp-2">{booking.pickupAddress}</p>
                           </div>
                         </div>
 
                         {booking.viaAddress && (
-                          <div className="flex items-start">
-                            <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 mr-2"></div>
-                            <div className="flex-1">
-                              <p className="text-xs text-gray-500">Via</p>
-                              <p className="text-sm font-medium text-gray-900">{booking.viaAddress}</p>
+                          <div className="flex items-start gap-2.5">
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1 flex-shrink-0"></div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Via</p>
+                              <p className="text-sm font-medium text-gray-900 line-clamp-2">{booking.viaAddress}</p>
                             </div>
                           </div>
                         )}
 
-                        <div className="flex items-start">
-                          <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 mr-2"></div>
-                          <div className="flex-1">
-                            <p className="text-xs text-gray-500">Dropoff</p>
-                            <p className="text-sm font-medium text-gray-900">{booking.dropoffAddress}</p>
+                        <div className="flex items-start gap-2.5">
+                          <div className="w-2.5 h-2.5 rounded-full bg-red-500 mt-1 flex-shrink-0"></div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Dropoff</p>
+                            <p className="text-sm font-medium text-gray-900 line-clamp-2">{booking.dropoffAddress}</p>
                           </div>
                         </div>
                       </div>
@@ -471,66 +485,66 @@ export default function MobileDriver() {
                             });
                           }}
                           disabled={updateStatusMutation.isPending}
-                          className="w-full bg-green-600 hover:bg-green-700"
+                          className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold shadow-md hover:shadow-lg transition-all"
                           data-testid={`button-${nextAction.nextStatus}-${booking.id}`}
                         >
                           <CheckCircle2 className="w-4 h-4 mr-2" />
                           {nextAction.label}
                         </Button>
                       )}
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 );
               })
             )}
           </TabsContent>
 
-          <TabsContent value="completed" className="space-y-4 mt-4">
+          <TabsContent value="completed" className="space-y-3 mt-4">
             {completedBookings.length === 0 ? (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <CheckCircle2 className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600" data-testid="text-no-completed">
-                    No completed rides yet
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+                <CheckCircle2 className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-700 font-medium" data-testid="text-no-completed">
+                  No completed rides yet
+                </p>
+              </div>
             ) : (
               completedBookings.slice(0, 10).map((booking) => (
-                <Card 
+                <div 
                   key={booking.id}
-                  className="shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 hover:border-emerald-300 cursor-pointer"
                   onClick={() => setLocation(`/mobile-driver/rides/${booking.id}`)}
                   data-testid={`card-completed-${booking.id}`}
                 >
-                  <CardContent className="p-4">
+                  <div className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge className="bg-green-100 text-green-800">Completed</Badge>
-                          <p className="text-sm font-semibold text-gray-900">
+                          <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium text-xs px-2.5 py-1">
+                            Completed
+                          </Badge>
+                          <span className="text-base font-bold text-emerald-700">
                             ${booking.finalPrice.toFixed(2)}
-                          </p>
+                          </span>
                         </div>
                         <div className="flex items-center text-xs text-gray-600">
-                          <Calendar className="w-3 h-3 mr-1" />
-                          {format(new Date(booking.scheduledTime), 'MMM d, h:mm a')}
+                          <Calendar className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
+                          <span className="font-medium">{format(new Date(booking.scheduledTime), 'MMM d, h:mm a')}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <div className="flex items-start text-sm">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 mr-2"></div>
-                        <p className="text-gray-900 line-clamp-1">{booking.pickupAddress}</p>
+                    <div className="space-y-2 bg-gray-50 rounded-lg p-3 border border-gray-100">
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-500 mt-1 flex-shrink-0"></div>
+                        <p className="text-sm font-medium text-gray-900 line-clamp-1 flex-1">{booking.pickupAddress}</p>
                       </div>
-                      <div className="flex items-start text-sm">
-                        <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 mr-2"></div>
-                        <p className="text-gray-900 line-clamp-1">{booking.dropoffAddress}</p>
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500 mt-1 flex-shrink-0"></div>
+                        <p className="text-sm font-medium text-gray-900 line-clamp-1 flex-1">{booking.dropoffAddress}</p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))
             )}
           </TabsContent>
