@@ -1642,22 +1642,19 @@ export default function PassengerDashboard() {
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-5">
-              {/* Avatar with gradient border */}
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl opacity-75 blur" />
-                <div className="relative w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
-                  {siteLogoData?.logo?.url ? (
-                    <img 
-                      src={siteLogoData.logo.url} 
-                      alt={siteLogoData.logo.alt || "USA Luxury Limo"} 
-                      className="w-full h-full object-contain p-2"
-                      data-testid="dashboard-logo"
-                    />
-                  ) : (
-                    <User className="w-8 h-8 text-white" data-testid="" />
-                  )}
+              {/* Clean Logo Display */}
+              {siteLogoData?.logo?.url ? (
+                <img 
+                  src={siteLogoData.logo.url} 
+                  alt={siteLogoData.logo.alt || "USA Luxury Limo"} 
+                  className="h-16 w-auto object-contain"
+                  data-testid="dashboard-logo"
+                />
+              ) : (
+                <div className="w-16 h-16 bg-white border border-gray-200 rounded-lg flex items-center justify-center">
+                  <User className="w-8 h-8 text-gray-600" data-testid="" />
                 </div>
-              </div>
+              )}
               <div>
                 <h1 className="text-3xl font-bold text-black" data-testid="passenger-title">
                   Passenger Dashboard
