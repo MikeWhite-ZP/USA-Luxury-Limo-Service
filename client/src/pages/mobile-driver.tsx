@@ -197,6 +197,29 @@ export default function MobileDriver() {
     }
   };
 
+  // Check if driver can start trip (within 150 minutes of scheduled time)
+  const canStartTrip = (booking: Booking) => {
+    if (booking.status !== 'confirmed' || !booking.scheduledDateTime) return true;
+    
+    const now = new Date();
+    const scheduledTime = new Date(booking.scheduledDateTime);
+    const minutesUntilPickup = (scheduledTime.getTime() - now.getTime()) / (1000 * 60);
+    
+    return minutesUntilPickup <= 150;
+  };
+
+  // Get minutes until trip can be started
+  const getMinutesUntilCanStart = (booking: Booking) => {
+    if (!booking.scheduledDateTime) return 0;
+    
+    const now = new Date();
+    const scheduledTime = new Date(booking.scheduledDateTime);
+    const minutesUntilPickup = (scheduledTime.getTime() - now.getTime()) / (1000 * 60);
+    const minutesUntilCanStart = minutesUntilPickup - 150;
+    
+    return Math.max(0, Math.ceil(minutesUntilCanStart));
+  };
+
   // Filter bookings - include all active driver workflow statuses
   const upcomingBookings = bookings?.filter(b => 
     ['pending_driver_acceptance', 'confirmed', 'on_the_way', 'arrived', 'on_board', 'in_progress'].includes(b.status)
@@ -478,21 +501,38 @@ export default function MobileDriver() {
                       </div>
 
                       {nextAction && (
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateStatusMutation.mutate({
-                              bookingId: booking.id,
-                              status: nextAction.nextStatus,
-                            });
-                          }}
-                          disabled={updateStatusMutation.isPending}
-                          className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold shadow-md hover:shadow-lg transition-all"
-                          data-testid={`button-${nextAction.nextStatus}-${booking.id}`}
-                        >
-                          <CheckCircle2 className="w-4 h-4 mr-2" />
-                          {nextAction.label}
-                        </Button>
+                        <>
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateStatusMutation.mutate({
+                                bookingId: booking.id,
+                                status: nextAction.nextStatus,
+                              });
+                            }}
+                            disabled={updateStatusMutation.isPending || !canStartTrip(booking)}
+                            className={`w-full font-semibold shadow-md hover:shadow-lg transition-all ${
+                              canStartTrip(booking) 
+                                ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white' 
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            }`}
+                            data-testid={`button-${nextAction.nextStatus}-${booking.id}`}
+                          >
+                            <CheckCircle2 className="w-4 h-4 mr-2" />
+                            {nextAction.label}
+                          </Button>
+                          {booking.status === 'confirmed' && !canStartTrip(booking) && (
+                            <div className="mt-2 text-center">
+                              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                                Available in {getMinutesUntilCanStart(booking)} minutes
+                                <br />
+                                <span className="text-[10px] text-amber-600">
+                                  (Can start 150 min before pickup)
+                                </span>
+                              </p>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
