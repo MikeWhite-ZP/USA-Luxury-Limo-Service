@@ -610,9 +610,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           description: "Your booking has been confirmed. You can pay after the trip is completed.",
         });
       }
-      // Redirect to passenger dashboard
+      // Redirect to home page
       setTimeout(() => {
-        setLocation('/passenger-dashboard');
+        setLocation('/passenger/');  // Change to '/' for home or '/dashboard' if that's your route
       }, 1000);
     },
     onError: (error: Error) => {
