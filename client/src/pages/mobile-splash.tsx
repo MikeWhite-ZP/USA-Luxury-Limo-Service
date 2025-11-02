@@ -172,7 +172,7 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('passenger')}
-                  className="group w-full bg-white hover:bg-blue-50 text-blue-700 py-4 px-5 rounded-xl text-sm font-medium shadow-sm hover:shadow-md border-2 border-blue-200 hover:border-blue-300 transition-all"
+                  className="group w-half bg-white hover:bg-blue-50 text-blue-700 py-4 px-5 rounded-xl text-sm font-medium shadow-sm hover:shadow-md border-2 border-blue-200 hover:border-blue-300 transition-all"
                   data-testid="button-role-passenger"
                 >
                   <div className="flex items-center justify-start gap-3">
@@ -194,7 +194,7 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('driver')}
-                  className="group w-full bg-white hover:bg-emerald-50 text-emerald-700 py-4 px-5 rounded-xl text-sm font-medium shadow-sm hover:shadow-md border-2 border-emerald-200 hover:border-emerald-300 transition-all"
+                  className="group w-half bg-white hover:bg-emerald-50 text-emerald-700 py-4 px-5 rounded-xl font-medium shadow-sm hover:shadow-md border-2 border-emerald-200 hover:border-emerald-300 transition-all text-[12px] pl-[10px] pr-[10px] pt-[20px] pb-[20px]"
                   data-testid="button-role-driver"
                 >
                   <div className="flex items-center justify-start gap-3">
@@ -216,7 +216,7 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('dispatcher')}
-                  className="group w-full bg-white hover:bg-purple-50 text-purple-700 py-4 px-5 rounded-xl text-sm font-medium shadow-sm hover:shadow-md border-2 border-purple-200 hover:border-purple-300 transition-all"
+                  className="group w-half bg-white hover:bg-purple-50 text-purple-700 py-4 px-5 rounded-xl text-sm font-medium shadow-sm hover:shadow-md border-2 border-purple-200 hover:border-purple-300 transition-all"
                   data-testid="button-role-dispatcher"
                 >
                   <div className="flex items-center justify-start gap-3">
