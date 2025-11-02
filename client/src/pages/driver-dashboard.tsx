@@ -27,6 +27,7 @@ import {
   Info,
   Calendar,
   User,
+  Download,
 } from "lucide-react";
 import {
   Dialog,
@@ -128,6 +129,7 @@ export default function DriverDashboard() {
     vehicle_image: { file: null as File | null, expirationDate: "" },
   });
   const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState<string | null>(null);
 
   // Redirect to home if not authenticated or not driver
   useEffect(() => {
@@ -234,6 +236,7 @@ export default function DriverDashboard() {
         description: `Your ${variables.documentType.replace("_", " ")} has been uploaded successfully.`,
       });
       setUploadingDoc(null);
+      setUploadDialogOpen(null);
       // Clear form
       setDocumentForms((prev) => ({
         ...prev,
@@ -1041,507 +1044,241 @@ export default function DriverDashboard() {
                   Document Verification
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-              <div className="grid md:grid-cols-2 gap-8">
-                {/* Driver's License */}
-                <div className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-2xl border border-blue-100 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-blue-200">
-                    <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center">
-                        <FileText className="w-4 h-4 text-white" />
-                      </div>
-                      Driver's License
-                    </h4>
-                    {getDocumentByType("driver_license") && (
-                      <Badge
-                        variant={getStatusBadgeVariant(
-                          getDocumentByType("driver_license")!.status,
-                        )}
-                        className="font-medium"
-                        data-testid="status-driver-license"
-                      >
-                        {getDocumentByType("driver_license")!.status}
-                      </Badge>
-                    )}
+              <CardContent className="p-0">
+                <div className="border-b border-gray-200 px-6 py-4 bg-gray-50">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-medium text-gray-700">Documents</h3>
+                    <h3 className="text-sm font-medium text-gray-700">Personal information</h3>
                   </div>
+                </div>
 
-                  {getDocumentByType("driver_license") && (
-                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-gray-700">
-                          Expiration Date:
-                        </span>
-                        <span
-                          className="text-sm font-medium text-gray-900"
-                          data-testid="expiry-driver-license"
-                        >
-                          {getDocumentByType("driver_license")!.expirationDate
-                            ? new Date(
-                                getDocumentByType(
-                                  "driver_license",
-                                )!.expirationDate!,
-                              ).toLocaleDateString()
-                            : "N/A"}
-                        </span>
-                      </div>
-                      {getDocumentByType("driver_license")!.status ===
-                        "rejected" &&
-                        getDocumentByType("driver_license")!
-                          .rejectionReason && (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-white border-b border-gray-200">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Expiry date
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {[
+                        { type: "driver_license", name: "Texas driver license", hasExpiry: true },
+                        { type: "limo_license", name: "City of Houston Limo License", hasExpiry: true },
+                        { type: "insurance_certificate", name: "Insurance Certificate", hasExpiry: true },
+                        { type: "vehicle_image", name: "Chauffeur Profile Picture", hasExpiry: false },
+                      ].map((docConfig) => {
+                        const doc = getDocumentByType(docConfig.type as any);
+                        return (
+                          <tr key={docConfig.type} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900">
+                                {docConfig.name}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-700">
+                                {doc && docConfig.hasExpiry && doc.expirationDate
+                                  ? new Date(doc.expirationDate).toLocaleDateString("en-US", {
+                                      weekday: "short",
+                                      month: "short",
+                                      day: "2-digit",
+                                      year: "numeric",
+                                    })
+                                  : "-"}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {doc ? (
+                                <div className="flex items-center gap-2">
+                                  <div
+                                    className={`w-2 h-2 rounded-full ${
+                                      doc.status === "approved"
+                                        ? "bg-teal-500"
+                                        : doc.status === "rejected"
+                                          ? "bg-red-500"
+                                          : "bg-yellow-500"
+                                    }`}
+                                  />
+                                  <span
+                                    className="text-sm text-gray-700 capitalize"
+                                    data-testid={`status-${docConfig.type}`}
+                                  >
+                                    {doc.status}
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-gray-300" />
+                                  <span className="text-sm text-gray-500">Not uploaded</span>
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              <div className="flex items-center justify-end gap-2">
+                                {doc && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      window.open(`/api/driver/documents/${doc.id}/download`, '_blank');
+                                    }}
+                                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                                    data-testid={`button-download-${docConfig.type}`}
+                                  >
+                                    <Download className="w-4 h-4 mr-1" />
+                                    Download
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setUploadDialogOpen(docConfig.type)}
+                                  className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                                  data-testid={`button-upload-${docConfig.type}`}
+                                >
+                                  <Upload className="w-4 h-4 mr-1" />
+                                  Upload
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {documentsLoading && (
+                  <div className="px-6 py-8 text-center text-gray-500">
+                    Loading documents...
+                  </div>
+                )}
+
+                {/* Upload Dialog */}
+                {uploadDialogOpen && (
+                  <Dialog open={!!uploadDialogOpen} onOpenChange={(open) => !open && setUploadDialogOpen(null)}>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>
+                          Upload {uploadDialogOpen === "driver_license" ? "Texas driver license" :
+                                   uploadDialogOpen === "limo_license" ? "City of Houston Limo License" :
+                                   uploadDialogOpen === "insurance_certificate" ? "Insurance Certificate" :
+                                   "Chauffeur Profile Picture"}
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 pt-4">
+                        {getDocumentByType(uploadDialogOpen as any)?.status === "rejected" && (
                           <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                             <p className="text-sm text-red-700">
                               <strong className="font-semibold">Rejection Reason:</strong>{" "}
-                              {
-                                getDocumentByType("driver_license")!
-                                  .rejectionReason
+                              {getDocumentByType(uploadDialogOpen as any)?.rejectionReason}
+                            </p>
+                          </div>
+                        )}
+                        <div>
+                          <Label htmlFor="upload-file" className="text-sm font-medium text-gray-700 mb-2">
+                            {getDocumentByType(uploadDialogOpen as any) ? "Re-upload Document" : "Upload Document"}
+                          </Label>
+                          <Input
+                            id="upload-file"
+                            type="file"
+                            accept={uploadDialogOpen === "vehicle_image" ? ".jpg,.jpeg,.png" : ".pdf,.jpg,.jpeg,.png"}
+                            onChange={(e) =>
+                              setDocumentForms((prev) => ({
+                                ...prev,
+                                [uploadDialogOpen]: {
+                                  ...prev[uploadDialogOpen as keyof typeof documentForms],
+                                  file: e.target.files?.[0] || null,
+                                },
+                              }))
+                            }
+                            className="mt-2"
+                            data-testid={`input-${uploadDialogOpen}-file`}
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            {uploadDialogOpen === "vehicle_image" ? "JPG/PNG, max 2MB" : "PDF/Image, max 2MB"}
+                          </p>
+                        </div>
+                        
+                        {uploadDialogOpen !== "vehicle_image" ? (
+                          <div>
+                            <Label htmlFor="upload-expiry" className="text-sm font-medium text-gray-700 mb-2">
+                              Expiration Date
+                            </Label>
+                            <Input
+                              id="upload-expiry"
+                              type="date"
+                              value={documentForms[uploadDialogOpen as keyof typeof documentForms].expirationDate}
+                              onChange={(e) =>
+                                setDocumentForms((prev) => ({
+                                  ...prev,
+                                  [uploadDialogOpen]: {
+                                    ...prev[uploadDialogOpen as keyof typeof documentForms],
+                                    expirationDate: e.target.value,
+                                  },
+                                }))
                               }
-                            </p>
+                              className="mt-2"
+                              data-testid={`input-${uploadDialogOpen}-expiry`}
+                            />
                           </div>
-                        )}
-                      <div className="text-xs text-gray-500 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        Uploaded:{" "}
-                        {new Date(
-                          getDocumentByType("driver_license")!.uploadedAt,
-                        ).toLocaleDateString()}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-4 pt-2">
-                    <div>
-                      <Label htmlFor="driver-license-file" className="text-gray-700 font-medium mb-2">
-                        {getDocumentByType("driver_license")
-                          ? "Re-upload Document"
-                          : "Upload Document"}{" "}
-                        <span className="text-gray-500 font-normal">(PDF/Image, max 2MB)</span>
-                      </Label>
-                      <Input
-                        id="driver-license-file"
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={(e) =>
-                          setDocumentForms((prev) => ({
-                            ...prev,
-                            driver_license: {
-                              ...prev.driver_license,
-                              file: e.target.files?.[0] || null,
-                            },
-                          }))
-                        }
-                        className="mt-2 bg-white border-gray-300 hover:border-blue-400 transition-colors"
-                        data-testid="input-driver-license-file"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="driver-license-expiry" className="text-gray-700 font-medium mb-2">
-                        Expiration Date
-                      </Label>
-                      <Input
-                        id="driver-license-expiry"
-                        type="date"
-                        value={documentForms.driver_license.expirationDate}
-                        onChange={(e) =>
-                          setDocumentForms((prev) => ({
-                            ...prev,
-                            driver_license: {
-                              ...prev.driver_license,
-                              expirationDate: e.target.value,
-                            },
-                          }))
-                        }
-                        className="mt-2 bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                        data-testid="input-driver-license-expiry"
-                      />
-                    </div>
-                    <Button
-                      onClick={() => handleDocumentUpload("driver_license")}
-                      disabled={uploadingDoc === "driver_license"}
-                      className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
-                      data-testid="button-upload-driver-license"
-                    >
-                      {uploadingDoc === "driver_license"
-                        ? "Uploading..."
-                        : getDocumentByType("driver_license")
-                          ? "Update & Upload"
-                          : "Save & Upload"}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Limo License */}
-                <div className="bg-gradient-to-br from-red-50 to-white p-6 rounded-2xl border border-red-100 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-red-200">
-                    <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center">
-                        <FileText className="w-4 h-4 text-white" />
-                      </div>
-                      Limo License
-                    </h4>
-                    {getDocumentByType("limo_license") && (
-                      <Badge
-                        variant={getStatusBadgeVariant(
-                          getDocumentByType("limo_license")!.status,
-                        )}
-                        className="font-medium"
-                        data-testid="status-limo-license"
-                      >
-                        {getDocumentByType("limo_license")!.status}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {getDocumentByType("limo_license") && (
-                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-gray-700">
-                          Expiration Date:
-                        </span>
-                        <span
-                          className="text-sm font-medium text-gray-900"
-                          data-testid="expiry-limo-license"
-                        >
-                          {getDocumentByType("limo_license")!.expirationDate
-                            ? new Date(
-                                getDocumentByType(
-                                  "limo_license",
-                                )!.expirationDate!,
-                              ).toLocaleDateString()
-                            : "N/A"}
-                        </span>
-                      </div>
-                      {getDocumentByType("limo_license")!.status ===
-                        "rejected" &&
-                        getDocumentByType("limo_license")!.rejectionReason && (
-                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <p className="text-sm text-red-700">
-                              <strong className="font-semibold">Rejection Reason:</strong>{" "}
-                              {getDocumentByType("limo_license")!.rejectionReason}
-                            </p>
-                          </div>
-                        )}
-                      <div className="text-xs text-gray-500 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        Uploaded:{" "}
-                        {new Date(
-                          getDocumentByType("limo_license")!.uploadedAt,
-                        ).toLocaleDateString()}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-4 pt-2">
-                    <div>
-                      <Label htmlFor="limo-license-file" className="text-gray-700 font-medium mb-2">
-                        {getDocumentByType("limo_license")
-                          ? "Re-upload Document"
-                          : "Upload Document"}{" "}
-                        <span className="text-gray-500 font-normal">(PDF/Image, max 2MB)</span>
-                      </Label>
-                      <Input
-                        id="limo-license-file"
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={(e) =>
-                          setDocumentForms((prev) => ({
-                            ...prev,
-                            limo_license: {
-                              ...prev.limo_license,
-                              file: e.target.files?.[0] || null,
-                            },
-                          }))
-                        }
-                        className="mt-2 bg-white border-gray-300 hover:border-red-400 transition-colors"
-                        data-testid="input-limo-license-file"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="limo-license-expiry" className="text-gray-700 font-medium mb-2">
-                        Expiration Date
-                      </Label>
-                      <Input
-                        id="limo-license-expiry"
-                        type="date"
-                        value={documentForms.limo_license.expirationDate}
-                        onChange={(e) =>
-                          setDocumentForms((prev) => ({
-                            ...prev,
-                            limo_license: {
-                              ...prev.limo_license,
-                              expirationDate: e.target.value,
-                            },
-                          }))
-                        }
-                        className="mt-2 bg-white border-gray-300 focus:border-red-500 focus:ring-red-500"
-                        data-testid="input-limo-license-expiry"
-                      />
-                    </div>
-                    <Button
-                      onClick={() => handleDocumentUpload("limo_license")}
-                      disabled={uploadingDoc === "limo_license"}
-                      className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
-                      data-testid="button-upload-limo-license"
-                    >
-                      {uploadingDoc === "limo_license"
-                        ? "Uploading..."
-                        : getDocumentByType("limo_license")
-                          ? "Update & Upload"
-                          : "Save & Upload"}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Insurance Certificate */}
-                <div className="bg-gradient-to-br from-purple-50 to-white p-6 rounded-2xl border border-purple-100 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-purple-200">
-                    <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
-                        <FileText className="w-4 h-4 text-white" />
-                      </div>
-                      Insurance Certificate
-                    </h4>
-                    {getDocumentByType("insurance_certificate") && (
-                      <Badge
-                        variant={getStatusBadgeVariant(
-                          getDocumentByType("insurance_certificate")!.status,
-                        )}
-                        className="font-medium"
-                        data-testid="status-insurance"
-                      >
-                        {getDocumentByType("insurance_certificate")!.status}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {getDocumentByType("insurance_certificate") && (
-                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-gray-700">
-                          Expiration Date:
-                        </span>
-                        <span
-                          className="text-sm font-medium text-gray-900"
-                          data-testid="expiry-insurance"
-                        >
-                          {getDocumentByType("insurance_certificate")!
-                            .expirationDate
-                            ? new Date(
-                                getDocumentByType(
-                                  "insurance_certificate",
-                                )!.expirationDate!,
-                              ).toLocaleDateString()
-                            : "N/A"}
-                        </span>
-                      </div>
-                      {getDocumentByType("insurance_certificate")!.status ===
-                        "rejected" &&
-                        getDocumentByType("insurance_certificate")!
-                          .rejectionReason && (
-                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <p className="text-sm text-red-700">
-                              <strong className="font-semibold">Rejection Reason:</strong>{" "}
-                              {
-                                getDocumentByType("insurance_certificate")!
-                                  .rejectionReason
+                        ) : (
+                          <div>
+                            <Label htmlFor="upload-plate" className="text-sm font-medium text-gray-700 mb-2">
+                              Vehicle Plate (optional)
+                            </Label>
+                            <Input
+                              id="upload-plate"
+                              type="text"
+                              value={documentForms.vehicle_image.expirationDate}
+                              onChange={(e) =>
+                                setDocumentForms((prev) => ({
+                                  ...prev,
+                                  vehicle_image: {
+                                    ...prev.vehicle_image,
+                                    expirationDate: e.target.value,
+                                  },
+                                }))
                               }
-                            </p>
+                              placeholder="Enter vehicle plate number"
+                              className="mt-2"
+                              data-testid="input-vehicle-image-expiry"
+                            />
                           </div>
                         )}
-                      <div className="text-xs text-gray-500 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        Uploaded:{" "}
-                        {new Date(
-                          getDocumentByType(
-                            "insurance_certificate",
-                          )!.uploadedAt,
-                        ).toLocaleDateString()}
-                      </div>
-                    </div>
-                  )}
 
-                  <div className="space-y-4 pt-2">
-                    <div>
-                      <Label htmlFor="insurance-file" className="text-gray-700 font-medium mb-2">
-                        {getDocumentByType("insurance_certificate")
-                          ? "Re-upload Document"
-                          : "Upload Document"}{" "}
-                        <span className="text-gray-500 font-normal">(PDF/Image, max 2MB)</span>
-                      </Label>
-                      <Input
-                        id="insurance-file"
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={(e) =>
-                          setDocumentForms((prev) => ({
-                            ...prev,
-                            insurance_certificate: {
-                              ...prev.insurance_certificate,
-                              file: e.target.files?.[0] || null,
-                            },
-                          }))
-                        }
-                        className="mt-2 bg-white border-gray-300 hover:border-purple-400 transition-colors"
-                        data-testid="input-insurance-file"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="insurance-expiry" className="text-gray-700 font-medium mb-2">Expiration Date</Label>
-                      <Input
-                        id="insurance-expiry"
-                        type="date"
-                        value={
-                          documentForms.insurance_certificate.expirationDate
-                        }
-                        onChange={(e) =>
-                          setDocumentForms((prev) => ({
-                            ...prev,
-                            insurance_certificate: {
-                              ...prev.insurance_certificate,
-                              expirationDate: e.target.value,
-                            },
-                          }))
-                        }
-                        className="mt-2 bg-white border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-                        data-testid="input-insurance-expiry"
-                      />
-                    </div>
-                    <Button
-                      onClick={() =>
-                        handleDocumentUpload("insurance_certificate")
-                      }
-                      disabled={uploadingDoc === "insurance_certificate"}
-                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
-                      data-testid="button-upload-insurance"
-                    >
-                      {uploadingDoc === "insurance_certificate"
-                        ? "Uploading..."
-                        : getDocumentByType("insurance_certificate")
-                          ? "Update & Upload"
-                          : "Save & Upload"}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Vehicle Image */}
-                <div className="bg-gradient-to-br from-orange-50 to-white p-6 rounded-2xl border border-orange-100 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-orange-200">
-                    <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center">
-                        <Car className="w-4 h-4 text-white" />
+                        <div className="flex gap-3 pt-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => setUploadDialogOpen(null)}
+                            className="flex-1"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={() => handleDocumentUpload(uploadDialogOpen as any)}
+                            disabled={uploadingDoc === uploadDialogOpen}
+                            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white"
+                            data-testid={`button-submit-${uploadDialogOpen}`}
+                          >
+                            {uploadingDoc === uploadDialogOpen ? "Uploading..." : "Upload"}
+                          </Button>
+                        </div>
                       </div>
-                      Vehicle Image
-                    </h4>
-                    {getDocumentByType("vehicle_image") && (
-                      <Badge
-                        variant={getStatusBadgeVariant(
-                          getDocumentByType("vehicle_image")!.status,
-                        )}
-                        className="font-medium"
-                        data-testid="status-vehicle-image"
-                      >
-                        {getDocumentByType("vehicle_image")!.status}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {getDocumentByType("vehicle_image") && (
-                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-gray-700">
-                          Vehicle Plate:
-                        </span>
-                        <span
-                          className="text-sm font-medium text-gray-900"
-                          data-testid="plate-vehicle-image"
-                        >
-                          {getDocumentByType("vehicle_image")!.vehiclePlate ||
-                            "N/A"}
-                        </span>
-                      </div>
-                      {getDocumentByType("vehicle_image")!.status ===
-                        "rejected" &&
-                        getDocumentByType("vehicle_image")!.rejectionReason && (
-                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <p className="text-sm text-red-700">
-                              <strong className="font-semibold">Rejection Reason:</strong>{" "}
-                              {
-                                getDocumentByType("vehicle_image")!
-                                  .rejectionReason
-                              }
-                            </p>
-                          </div>
-                        )}
-                      <div className="text-xs text-gray-500 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        Uploaded:{" "}
-                        {new Date(
-                          getDocumentByType("vehicle_image")!.uploadedAt,
-                        ).toLocaleDateString()}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-4 pt-2">
-                    <div>
-                      <Label htmlFor="vehicle-image-file" className="text-gray-700 font-medium mb-2">
-                        {getDocumentByType("vehicle_image")
-                          ? "Re-upload Image"
-                          : "Upload Image"}{" "}
-                        <span className="text-gray-500 font-normal">(JPG/PNG, max 2MB)</span>
-                      </Label>
-                      <Input
-                        id="vehicle-image-file"
-                        type="file"
-                        accept=".jpg,.jpeg,.png"
-                        onChange={(e) =>
-                          setDocumentForms((prev) => ({
-                            ...prev,
-                            vehicle_image: {
-                              ...prev.vehicle_image,
-                              file: e.target.files?.[0] || null,
-                            },
-                          }))
-                        }
-                        className="mt-2 bg-white border-gray-300 hover:border-orange-400 transition-colors"
-                        data-testid="input-vehicle-image-file"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="vehicle-image-plate" className="text-gray-700 font-medium mb-2">Vehicle Plate</Label>
-                      <Input
-                        id="vehicle-image-plate"
-                        type="text"
-                        value={documentForms.vehicle_image.expirationDate}
-                        onChange={(e) =>
-                          setDocumentForms((prev) => ({
-                            ...prev,
-                            vehicle_image: {
-                              ...prev.vehicle_image,
-                              expirationDate: e.target.value,
-                            },
-                          }))
-                        }
-                        className="mt-2 bg-white border-gray-300 focus:border-orange-500 focus:ring-orange-500"
-                        data-testid="input-vehicle-image-expiry"
-                        placeholder="Enter vehicle plate number"
-                      />
-                    </div>
-                    <Button
-                      onClick={() => handleDocumentUpload("vehicle_image")}
-                      disabled={uploadingDoc === "vehicle_image"}
-                      className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
-                      data-testid="button-upload-vehicle-image"
-                    >
-                      {uploadingDoc === "vehicle_image"
-                        ? "Uploading..."
-                        : getDocumentByType("vehicle_image")
-                          ? "Update & Upload"
-                          : "Save & Upload"}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
+                    </DialogContent>
+                  </Dialog>
+                )}
+              </CardContent>
           </Card>
           </div>
         )}
