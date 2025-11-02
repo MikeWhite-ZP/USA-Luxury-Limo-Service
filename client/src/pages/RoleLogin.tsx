@@ -264,7 +264,7 @@ export function RoleLogin() {
                       
                       <CardContent className="relative px-10 pb-10">
                         <Button 
-                          className="w-full bg-transparent border-2 border-red-600 text-red-600 hover:bg-red-50 hover:border-red-700 font-semibold py-6 rounded-xl transition-all duration-300 text-base group-hover:scale-[1.02]"
+                          className="w-full bg-transparent border-2 border-transparent text-red-600 hover:bg-red-50 hover:border-red-600 font-semibold py-6 rounded-xl transition-all duration-300 text-base group-hover:scale-[1.02]"
                           data-testid={`role-button-${role.id}`}
                         >
                           Continue as {role.title}
@@ -373,7 +373,7 @@ export function RoleLogin() {
                             </div>
                             <Button 
                               type="submit" 
-                              className="w-full h-12 bg-transparent border-2 border-red-600 text-red-600 hover:bg-red-50 hover:border-red-700 font-semibold rounded-xl transition-all duration-300 text-base mt-8"
+                              className="w-full h-12 bg-transparent border-2 border-transparent text-red-600 hover:bg-red-50 hover:border-red-600 font-semibold rounded-xl transition-all duration-300 text-base mt-8"
                               disabled={loginMutation.isPending}
                               data-testid="button-login-submit"
                             >
@@ -462,7 +462,7 @@ export function RoleLogin() {
                             </div>
                             <Button 
                               type="submit" 
-                              className="w-full h-12 bg-transparent border-2 border-red-600 text-red-600 hover:bg-red-50 hover:border-red-700 font-semibold rounded-xl transition-all duration-300 text-base mt-8"
+                              className="w-full h-12 bg-transparent border-2 border-transparent text-red-600 hover:bg-red-50 hover:border-red-600 font-semibold rounded-xl transition-all duration-300 text-base mt-8"
                               disabled={registerMutation.isPending}
                               data-testid="button-signup-submit"
                             >
