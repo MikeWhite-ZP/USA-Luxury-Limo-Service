@@ -98,7 +98,7 @@ export default function MobileDriverDocuments() {
       } else if (variables.documentType === 'vehicle_image') {
         setFormData(prev => ({ ...prev, vehicleImage: { file: null, vehiclePlate: '' } }));
       } else if (variables.documentType === 'profile_photo') {
-        setFormData(prev => ({ ...prev, profilePhoto: { file: null } }));
+        setFormData(prev => ({ ...prev, profilePhoto: { file: null }, whatsappNumber: '' }));
       }
     },
     onError: (error: Error) => {
