@@ -562,8 +562,8 @@ export default function DriverDashboard() {
     <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Subtle Light Background Pattern */}
       <div className="fixed inset-0 pointer-events-none opacity-40">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-emerald-50" />
-        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(16 185 129 / 0.05) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
+        <div className="absolute inset-0 bg-gradient-to-br from-red-50 via-white to-gray-50" />
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(220 38 38 / 0.05) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
       </div>
 
       {/* Modern Header */}
@@ -573,13 +573,13 @@ export default function DriverDashboard() {
             <div className="flex items-center space-x-5">
               {/* Avatar with gradient border */}
               <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl opacity-75 blur" />
-                <div className="relative w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl opacity-75 blur" />
+                <div className="relative w-16 h-16 bg-gradient-to-br from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-2xl">
                   <Car className="w-8 h-8 text-white" />
                 </div>
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-green-400 bg-clip-text text-transparent" data-testid="driver-title">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 via-red-600 to-red-500 bg-clip-text text-transparent" data-testid="driver-title">
                   Driver Portal
                 </h1>
                 <p className="text-slate-400 text-lg mt-1" data-testid="driver-subtitle">
@@ -590,7 +590,7 @@ export default function DriverDashboard() {
             <div className="flex items-center space-x-4">
               <Badge
                 variant={driver?.isAvailable ? "secondary" : "outline"}
-                className={driver?.isAvailable ? "bg-green-500 text-white px-4 py-2 text-sm font-medium" : "border-slate-600 text-slate-400 px-4 py-2 text-sm"}
+                className={driver?.isAvailable ? "bg-red-600 text-white px-4 py-2 text-sm font-medium" : "border-slate-600 text-slate-400 px-4 py-2 text-sm"}
                 data-testid="driver-status"
               >
                 {driver?.isAvailable ? "Available" : "Offline"}
@@ -617,13 +617,13 @@ export default function DriverDashboard() {
                 onClick={() => setActiveTab("home")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                   activeTab === "home"
-                    ? 'text-green-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                    ? 'text-red-400 bg-gradient-to-b from-slate-800/80 to-transparent'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
                 }`}
                 data-testid="nav-home"
               >
                 {activeTab === "home" && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-600 to-emerald-600" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-700" />
                 )}
                 <Home className="w-5 h-5" />
                 Home
@@ -632,13 +632,13 @@ export default function DriverDashboard() {
                 onClick={() => setActiveTab("documents")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                   activeTab === "documents"
-                    ? 'text-green-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                    ? 'text-red-400 bg-gradient-to-b from-slate-800/80 to-transparent'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
                 }`}
                 data-testid="nav-documents"
               >
                 {activeTab === "documents" && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-600 to-emerald-600" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-700" />
                 )}
                 <FileText className="w-5 h-5" />
                 Documents
@@ -647,13 +647,13 @@ export default function DriverDashboard() {
                 onClick={() => setActiveTab("assigned-jobs")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                   activeTab === "assigned-jobs"
-                    ? 'text-green-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                    ? 'text-red-400 bg-gradient-to-b from-slate-800/80 to-transparent'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
                 }`}
                 data-testid="nav-assigned-jobs"
               >
                 {activeTab === "assigned-jobs" && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-600 to-emerald-600" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-700" />
                 )}
                 <Briefcase className="w-5 h-5" />
                 Assigned Jobs
@@ -662,13 +662,13 @@ export default function DriverDashboard() {
                 onClick={() => setActiveTab("settings")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                   activeTab === "settings"
-                    ? 'text-green-400 bg-gradient-to-b from-slate-800/80 to-transparent'
+                    ? 'text-red-400 bg-gradient-to-b from-slate-800/80 to-transparent'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
                 }`}
                 data-testid="nav-settings"
               >
                 {activeTab === "settings" && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-600 to-emerald-600" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-700" />
                 )}
                 <Settings className="w-5 h-5" />
                 Account Settings
@@ -685,12 +685,12 @@ export default function DriverDashboard() {
             {/* Performance Stats */}
             <div className="grid md:grid-cols-3 gap-6">
               <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
                 <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="stat-earnings">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center shadow-md">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-md">
                           <DollarSign className="w-6 h-6 text-white" />
                         </div>
                         <div>
@@ -705,7 +705,7 @@ export default function DriverDashboard() {
                               : "Today"}
                           </p>
                           <p
-                            className="text-2xl font-bold text-[#29b24a]"
+                            className="text-2xl font-bold text-red-600"
                             data-testid="today-earnings"
                           >
                             {earningsLoading ? (
@@ -735,7 +735,7 @@ export default function DriverDashboard() {
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
                               <p className="text-sm text-muted-foreground">Today</p>
-                              <p className="text-2xl font-bold text-green-600" data-testid="earnings-today">
+                              <p className="text-2xl font-bold text-red-600" data-testid="earnings-today">
                                 ${earnings?.today?.toFixed(2) || '0.00'}
                               </p>
                             </div>
@@ -846,14 +846,14 @@ export default function DriverDashboard() {
                           data-testid={`accepted-job-${booking.id}`}
                         >
                           {/* Glow effect */}
-                          <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-300" />
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 via-red-600 to-red-700 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-300" />
                           
                           {/* Main card */}
                           <div className="relative bg-white rounded-2xl p-6 border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
                             {/* Header with status badge */}
                             <div className="flex items-start justify-between mb-5 pb-4 border-b border-gray-100">
                               <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center shadow-md">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-md">
                                   <Car className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
@@ -921,11 +921,11 @@ export default function DriverDashboard() {
                                 </div>
 
                                 {/* Payment */}
-                                <div className="flex items-start gap-2 p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
-                                  <DollarSign className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                                <div className="flex items-start gap-2 p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-xl border border-red-200">
+                                  <DollarSign className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-semibold text-green-700 mb-1">YOUR PAYMENT</p>
-                                    <p className="text-lg text-green-700 font-bold" data-testid={`accepted-amount-${booking.id}`}>
+                                    <p className="text-xs font-semibold text-red-700 mb-1">YOUR PAYMENT</p>
+                                    <p className="text-lg text-red-700 font-bold" data-testid={`accepted-amount-${booking.id}`}>
                                       ${booking.driverPayment || "Not set"}
                                     </p>
                                   </div>
@@ -942,7 +942,7 @@ export default function DriverDashboard() {
                                     acceptBookingMutation.isPending ||
                                     declineBookingMutation.isPending
                                   }
-                                  className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
+                                  className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
                                   data-testid={`button-accept-${booking.id}`}
                                 >
                                   <CheckCircle className="w-4 h-4 mr-2" />
@@ -972,7 +972,7 @@ export default function DriverDashboard() {
                                 <Button
                                   onClick={() => handleCompleteRide(booking.id)}
                                   disabled={updateBookingMutation.isPending}
-                                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
+                                  className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
                                   data-testid={`button-complete-${booking.id}`}
                                 >
                                   <CheckCircle className="w-5 h-5 mr-2" />
@@ -1145,10 +1145,10 @@ export default function DriverDashboard() {
                 </div>
 
                 {/* Limo License */}
-                <div className="bg-gradient-to-br from-green-50 to-white p-6 rounded-2xl border border-green-100 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-green-200">
+                <div className="bg-gradient-to-br from-red-50 to-white p-6 rounded-2xl border border-red-100 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-red-200">
                     <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center">
                         <FileText className="w-4 h-4 text-white" />
                       </div>
                       Limo License
@@ -1226,7 +1226,7 @@ export default function DriverDashboard() {
                             },
                           }))
                         }
-                        className="mt-2 bg-white border-gray-300 hover:border-green-400 transition-colors"
+                        className="mt-2 bg-white border-gray-300 hover:border-red-400 transition-colors"
                         data-testid="input-limo-license-file"
                       />
                     </div>
@@ -1247,14 +1247,14 @@ export default function DriverDashboard() {
                             },
                           }))
                         }
-                        className="mt-2 bg-white border-gray-300 focus:border-green-500 focus:ring-green-500"
+                        className="mt-2 bg-white border-gray-300 focus:border-red-500 focus:ring-red-500"
                         data-testid="input-limo-license-expiry"
                       />
                     </div>
                     <Button
                       onClick={() => handleDocumentUpload("limo_license")}
                       disabled={uploadingDoc === "limo_license"}
-                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
+                      className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
                       data-testid="button-upload-limo-license"
                     >
                       {uploadingDoc === "limo_license"
@@ -1565,7 +1565,7 @@ export default function DriverDashboard() {
                           </div>
                           <div className="text-gray-900" data-testid={`assigned-amount-${booking.id}`}>
                             <strong className="text-gray-700">Your Payment:</strong>{" "}
-                            <span className="text-[#29b24a] font-bold">
+                            <span className="text-red-600 font-bold">
                               ${booking.driverPayment || "Not set"}
                             </span>
                           </div>
@@ -1594,7 +1594,7 @@ export default function DriverDashboard() {
                               acceptBookingMutation.isPending ||
                               declineBookingMutation.isPending
                             }
-                            className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold"
+                            className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold"
                             data-testid={`button-accept-${booking.id}`}
                           >
                             {acceptBookingMutation.isPending
@@ -1623,7 +1623,7 @@ export default function DriverDashboard() {
                           <Button
                             onClick={() => handleCompleteRide(booking.id)}
                             disabled={updateBookingMutation.isPending}
-                            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold"
+                            className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold"
                             data-testid={`button-complete-${booking.id}`}
                           >
                             Complete Ride
