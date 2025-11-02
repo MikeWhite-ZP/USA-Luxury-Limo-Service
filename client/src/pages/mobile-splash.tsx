@@ -216,7 +216,7 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('dispatcher')}
-                  className="group w-half bg-white hover:bg-purple-50 text-purple-700 py-4 px-5 rounded-xl text-sm font-medium shadow-sm hover:shadow-md border-2 border-purple-200 hover:border-purple-300 transition-all"
+                  className="group w-half bg-white hover:bg-purple-50 text-purple-700 py-4 px-5 rounded-xl font-medium shadow-sm hover:shadow-md border-2 border-purple-200 hover:border-purple-300 transition-all text-[12px] pl-[18px] pr-[18px] pt-[20px] pb-[20px]"
                   data-testid="button-role-dispatcher"
                 >
                   <div className="flex items-center justify-start gap-3">
