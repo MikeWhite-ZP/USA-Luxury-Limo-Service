@@ -17,7 +17,7 @@ const roles = [
     id: 'passenger' as const,
     title: 'Passenger',
     description: 'Book luxury transportation services with ease',
-    icon: <User className="w-10 h-10" />,
+    icon: <User className="w-10 h-10 text-red-600" />,
     color: 'from-red-600 via-red-500 to-red-700',
     bgGradient: 'from-red-500/20 to-red-700/20',
     borderColor: 'border-red-500/30',
@@ -27,7 +27,7 @@ const roles = [
     id: 'driver' as const,
     title: 'Driver',
     description: 'Access your dashboard and manage rides efficiently',
-    icon: <Car className="w-10 h-10" />,
+    icon: <Car className="w-10 h-10 text-red-600" />,
     color: 'from-red-600 via-red-500 to-red-700',
     bgGradient: 'from-red-500/20 to-red-700/20',
     borderColor: 'border-red-500/30',
@@ -37,7 +37,7 @@ const roles = [
     id: 'dispatcher' as const,
     title: 'Dispatcher',
     description: 'Coordinate operations and manage the fleet',
-    icon: <Users className="w-10 h-10" />,
+    icon: <Users className="w-10 h-10 text-red-600" />,
     color: 'from-red-600 via-red-500 to-red-700',
     bgGradient: 'from-red-500/20 to-red-700/20',
     borderColor: 'border-red-500/30',
@@ -213,8 +213,8 @@ export function RoleLogin() {
           <div className="max-w-7xl mx-auto">
             {/* Header Section */}
             <div className="text-center mb-16">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 shadow-xl mb-6">
-                <Shield className="w-10 h-10 text-white" />
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white border-2 border-red-600 shadow-xl mb-6">
+                <Shield className="w-10 h-10 text-red-600" />
               </div>
               <h1 className="text-5xl md:text-6xl font-bold mb-6 text-black" data-testid="page-title">
                 {selectedRole ? `${currentRole?.title} Portal` : 'Welcome Back'}
@@ -247,10 +247,8 @@ export function RoleLogin() {
                       <CardHeader className="relative text-center p-10 pb-6">
                         {/* Icon Container */}
                         <div className="relative mb-8">
-                          <div className={`inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-gradient-to-br ${role.color} shadow-xl group-hover:scale-110 transition-transform duration-500`}>
-                            <div className="text-white">
-                              {role.icon}
-                            </div>
+                          <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-white border-2 border-red-600 shadow-xl group-hover:scale-110 transition-transform duration-500">
+                            {role.icon}
                           </div>
                           {/* Glow ring */}
                           <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${role.color} blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500`} style={{ transform: 'scale(0.9)' }} />
@@ -300,10 +298,8 @@ export function RoleLogin() {
                     <CardHeader className="text-center pb-6 pt-12 px-10">
                       {/* Role Icon */}
                       <div className="relative inline-flex items-center justify-center mx-auto mb-6">
-                        <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${currentRole?.color} shadow-xl flex items-center justify-center`}>
-                          <div className="text-white">
-                            {currentRole?.icon}
-                          </div>
+                        <div className="w-20 h-20 rounded-2xl bg-white border-2 border-red-600 shadow-xl flex items-center justify-center">
+                          {currentRole?.icon}
                         </div>
                         <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${currentRole?.color} blur-2xl opacity-30`} />
                       </div>
