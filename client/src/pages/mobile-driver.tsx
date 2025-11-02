@@ -211,7 +211,7 @@ export default function MobileDriver() {
   today.setHours(0, 0, 0, 0);
   const todayEarnings = completedBookings
     .filter(b => new Date(b.scheduledTime) >= today)
-    .reduce((sum, b) => sum + b.finalPrice, 0);
+    .reduce((sum, b) => sum + (b.finalPrice || 0), 0);
 
   const completedToday = completedBookings
     .filter(b => new Date(b.scheduledTime) >= today).length;
@@ -431,7 +431,7 @@ export default function MobileDriver() {
                               {booking.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                             </Badge>
                             <span className="text-base font-bold text-green-700">
-                              ${booking.finalPrice.toFixed(2)}
+                              ${booking.finalPrice ? booking.finalPrice.toFixed(2) : '0.00'}
                             </span>
                           </div>
                           <div className="flex items-center text-xs text-gray-600 mb-1.5">
@@ -523,7 +523,7 @@ export default function MobileDriver() {
                             Completed
                           </Badge>
                           <span className="text-base font-bold text-emerald-700">
-                            ${booking.finalPrice.toFixed(2)}
+                            ${booking.finalPrice ? booking.finalPrice.toFixed(2) : '0.00'}
                           </span>
                         </div>
                         <div className="flex items-center text-xs text-gray-600">
