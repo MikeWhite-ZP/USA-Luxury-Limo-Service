@@ -28,6 +28,7 @@ import {
   Calendar,
   User,
   Download,
+  Camera,
 } from "lucide-react";
 import {
   Dialog,
@@ -89,10 +90,12 @@ interface DriverDocument {
     | "driver_license"
     | "limo_license"
     | "insurance_certificate"
-    | "vehicle_image";
+    | "vehicle_image"
+    | "profile_photo";
   documentUrl: string;
   expirationDate?: string;
   vehiclePlate?: string;
+  whatsappNumber?: string;
   status: "pending" | "approved" | "rejected";
   rejectionReason?: string;
   uploadedAt: string;
@@ -130,6 +133,20 @@ export default function DriverDashboard() {
   });
   const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState<string | null>(null);
+
+  // Form data for mobile-style documents upload
+  const [formData, setFormData] = useState({
+    driverLicense: { file: null as File | null, expirationDate: "" },
+    limoLicense: { file: null as File | null, expirationDate: "" },
+    insuranceCertificate: { file: null as File | null, expirationDate: "" },
+    vehicleImage: { file: null as File | null, vehiclePlate: "" },
+    profilePhoto: { file: null as File | null },
+    whatsappNumber: "",
+  });
+  const [uploading, setUploading] = useState<string | null>(null);
+
+  // Default user image
+  const defaultUserImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23e5e7eb'/%3E%3Cpath d='M50 45 a15 15 0 1 0 0-30 a15 15 0 1 0 0 30 M30 85 Q30 65 50 65 Q70 65 70 85' fill='%239ca3af'/%3E%3C/svg%3E";
 
   // Redirect to home if not authenticated or not driver
   useEffect(() => {
@@ -207,10 +224,12 @@ export default function DriverDashboard() {
       formData.append("file", file);
       formData.append("documentType", documentType);
 
-      // For vehicle_image, send as vehiclePlate; for others, send as expirationDate
+      // For vehicle_image, send as vehiclePlate; for profile_photo, send as whatsappNumber
       if (expirationDate) {
         if (documentType === "vehicle_image") {
           formData.append("vehiclePlate", expirationDate);
+        } else if (documentType === "profile_photo") {
+          formData.append("whatsappNumber", expirationDate);
         } else {
           formData.append("expirationDate", expirationDate);
         }
@@ -231,17 +250,39 @@ export default function DriverDashboard() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/api/driver/documents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/driver/profile"] });
       toast({
         title: "Document Uploaded",
-        description: `Your ${variables.documentType.replace("_", " ")} has been uploaded successfully.`,
+        description: `Your ${variables.documentType.replace(/_/g, " ")} has been uploaded successfully.`,
       });
       setUploadingDoc(null);
+      setUploading(null);
       setUploadDialogOpen(null);
-      // Clear form
+      
+      // Clear both form states
       setDocumentForms((prev) => ({
         ...prev,
         [variables.documentType]: { file: null, expirationDate: "" },
       }));
+
+      // Clear the formData state based on document type
+      switch (variables.documentType) {
+        case "driver_license":
+          setFormData(prev => ({ ...prev, driverLicense: { file: null, expirationDate: "" } }));
+          break;
+        case "limo_license":
+          setFormData(prev => ({ ...prev, limoLicense: { file: null, expirationDate: "" } }));
+          break;
+        case "insurance_certificate":
+          setFormData(prev => ({ ...prev, insuranceCertificate: { file: null, expirationDate: "" } }));
+          break;
+        case "vehicle_image":
+          setFormData(prev => ({ ...prev, vehicleImage: { file: null, vehiclePlate: "" } }));
+          break;
+        case "profile_photo":
+          setFormData(prev => ({ ...prev, profilePhoto: { file: null }, whatsappNumber: "" }));
+          break;
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -250,6 +291,7 @@ export default function DriverDashboard() {
         variant: "destructive",
       });
       setUploadingDoc(null);
+      setUploading(null);
     },
   });
 
@@ -505,6 +547,15 @@ export default function DriverDashboard() {
     }
   };
 
+  const getStatusBadge = (status: string) => {
+    const variant = getStatusBadgeVariant(status);
+    return (
+      <Badge variant={variant as any} className="capitalize">
+        {status}
+      </Badge>
+    );
+  };
+
   const formatDocumentLabel = (type: string) => {
     return type
       .split("_")
@@ -538,6 +589,61 @@ export default function DriverDashboard() {
       documentType,
       file: form.file,
       expirationDate: form.expirationDate || undefined,
+    });
+  };
+
+  const handleUpload = (documentType: string) => {
+    let file: File | null = null;
+    let expirationDate: string | undefined = undefined;
+    let vehiclePlate: string | undefined = undefined;
+    let whatsappNumber: string | undefined = undefined;
+
+    switch (documentType) {
+      case "driver_license":
+        file = formData.driverLicense.file;
+        expirationDate = formData.driverLicense.expirationDate;
+        break;
+      case "limo_license":
+        file = formData.limoLicense.file;
+        expirationDate = formData.limoLicense.expirationDate;
+        break;
+      case "insurance_certificate":
+        file = formData.insuranceCertificate.file;
+        expirationDate = formData.insuranceCertificate.expirationDate;
+        break;
+      case "vehicle_image":
+        file = formData.vehicleImage.file;
+        vehiclePlate = formData.vehicleImage.vehiclePlate;
+        break;
+      case "profile_photo":
+        file = formData.profilePhoto.file;
+        whatsappNumber = formData.whatsappNumber;
+        break;
+    }
+
+    if (!file) {
+      toast({
+        title: "Missing File",
+        description: "Please select a file to upload",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!expirationDate && documentType !== "vehicle_image" && documentType !== "profile_photo") {
+      toast({
+        title: "Missing Expiration Date",
+        description: "Please provide an expiration date",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(documentType);
+    uploadDocumentMutation.mutate({
+      documentType,
+      file,
+      expirationDate: vehiclePlate || expirationDate || whatsappNumber,
     });
   };
 
@@ -1030,9 +1136,442 @@ export default function DriverDashboard() {
 
         {/* DOCUMENTS TAB */}
         {activeTab === "documents" && (
-          <div className="text-center p-12">
-            <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-gray-600 text-lg font-medium">Documents section removed</p>
+          <div className="p-4 space-y-4">
+            {/* Driver License */}
+            <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="card-driver-license">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">Driver License</h3>
+                      <p className="text-xs text-gray-500">Required document</p>
+                    </div>
+                  </div>
+                  {getDocumentByType('driver_license') && getStatusBadge(getDocumentByType('driver_license')!.status)}
+                </div>
+
+                {getDocumentByType('driver_license') && (
+                  <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
+                    {getDocumentByType('driver_license')!.expirationDate && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Expires:</span>
+                        <span className="font-medium text-gray-900">
+                          {new Date(getDocumentByType('driver_license')!.expirationDate!).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                    {getDocumentByType('driver_license')!.rejectionReason && (
+                      <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
+                        <p className="text-sm text-red-700">
+                          <strong>Reason:</strong> {getDocumentByType('driver_license')!.rejectionReason}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="driver-license-file" className="text-gray-700 font-medium mb-2 block">
+                      {getDocumentByType('driver_license') ? 'Replace Document' : 'Upload Document'}
+                    </Label>
+                    <Input
+                      id="driver-license-file"
+                      type="file"
+                      accept="image/*,application/pdf"
+                      capture="environment"
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        driverLicense: { ...prev.driverLicense, file: e.target.files?.[0] || null }
+                      }))}
+                      className="bg-white border-gray-300"
+                      data-testid="input-driver-license-file"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Image or PDF, max 2MB</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="driver-license-expiry" className="text-gray-700 font-medium mb-2 block">
+                      Expiration Date
+                    </Label>
+                    <Input
+                      id="driver-license-expiry"
+                      type="date"
+                      value={formData.driverLicense.expirationDate}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        driverLicense: { ...prev.driverLicense, expirationDate: e.target.value }
+                      }))}
+                      className="bg-white border-gray-300"
+                      data-testid="input-driver-license-expiry"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleUpload('driver_license')}
+                    disabled={!formData.driverLicense.file || uploading === 'driver_license'}
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                    data-testid="button-upload-driver-license"
+                  >
+                    <Upload className="w-5 h-5 mr-2" />
+                    {uploading === 'driver_license' ? 'Uploading...' : 'Upload License'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Limo License */}
+            <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="card-limo-license">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">Limo License</h3>
+                      <p className="text-xs text-gray-500">Required document</p>
+                    </div>
+                  </div>
+                  {getDocumentByType('limo_license') && getStatusBadge(getDocumentByType('limo_license')!.status)}
+                </div>
+
+                {getDocumentByType('limo_license') && (
+                  <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
+                    {getDocumentByType('limo_license')!.expirationDate && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Expires:</span>
+                        <span className="font-medium text-gray-900">
+                          {new Date(getDocumentByType('limo_license')!.expirationDate!).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                    {getDocumentByType('limo_license')!.rejectionReason && (
+                      <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
+                        <p className="text-sm text-red-700">
+                          <strong>Reason:</strong> {getDocumentByType('limo_license')!.rejectionReason}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="limo-license-file" className="text-gray-700 font-medium mb-2 block">
+                      {getDocumentByType('limo_license') ? 'Replace Document' : 'Upload Document'}
+                    </Label>
+                    <Input
+                      id="limo-license-file"
+                      type="file"
+                      accept="image/*,application/pdf"
+                      capture="environment"
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        limoLicense: { ...prev.limoLicense, file: e.target.files?.[0] || null }
+                      }))}
+                      className="bg-white border-gray-300"
+                      data-testid="input-limo-license-file"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Image or PDF, max 2MB</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="limo-license-expiry" className="text-gray-700 font-medium mb-2 block">
+                      Expiration Date
+                    </Label>
+                    <Input
+                      id="limo-license-expiry"
+                      type="date"
+                      value={formData.limoLicense.expirationDate}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        limoLicense: { ...prev.limoLicense, expirationDate: e.target.value }
+                      }))}
+                      className="bg-white border-gray-300"
+                      data-testid="input-limo-license-expiry"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleUpload('limo_license')}
+                    disabled={!formData.limoLicense.file || uploading === 'limo_license'}
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                    data-testid="button-upload-limo-license"
+                  >
+                    <Upload className="w-5 h-5 mr-2" />
+                    {uploading === 'limo_license' ? 'Uploading...' : 'Upload License'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Insurance Certificate */}
+            <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="card-insurance-certificate">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">Insurance Certificate</h3>
+                      <p className="text-xs text-gray-500">Required document</p>
+                    </div>
+                  </div>
+                  {getDocumentByType('insurance_certificate') && getStatusBadge(getDocumentByType('insurance_certificate')!.status)}
+                </div>
+
+                {getDocumentByType('insurance_certificate') && (
+                  <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
+                    {getDocumentByType('insurance_certificate')!.expirationDate && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Expires:</span>
+                        <span className="font-medium text-gray-900">
+                          {new Date(getDocumentByType('insurance_certificate')!.expirationDate!).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                    {getDocumentByType('insurance_certificate')!.rejectionReason && (
+                      <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
+                        <p className="text-sm text-red-700">
+                          <strong>Reason:</strong> {getDocumentByType('insurance_certificate')!.rejectionReason}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="insurance-certificate-file" className="text-gray-700 font-medium mb-2 block">
+                      {getDocumentByType('insurance_certificate') ? 'Replace Document' : 'Upload Document'}
+                    </Label>
+                    <Input
+                      id="insurance-certificate-file"
+                      type="file"
+                      accept="image/*,application/pdf"
+                      capture="environment"
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        insuranceCertificate: { ...prev.insuranceCertificate, file: e.target.files?.[0] || null }
+                      }))}
+                      className="bg-white border-gray-300"
+                      data-testid="input-insurance-certificate-file"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Image or PDF, max 2MB</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="insurance-certificate-expiry" className="text-gray-700 font-medium mb-2 block">
+                      Expiration Date
+                    </Label>
+                    <Input
+                      id="insurance-certificate-expiry"
+                      type="date"
+                      value={formData.insuranceCertificate.expirationDate}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        insuranceCertificate: { ...prev.insuranceCertificate, expirationDate: e.target.value }
+                      }))}
+                      className="bg-white border-gray-300"
+                      data-testid="input-insurance-certificate-expiry"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleUpload('insurance_certificate')}
+                    disabled={!formData.insuranceCertificate.file || uploading === 'insurance_certificate'}
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                    data-testid="button-upload-insurance-certificate"
+                  >
+                    <Upload className="w-5 h-5 mr-2" />
+                    {uploading === 'insurance_certificate' ? 'Uploading...' : 'Upload Certificate'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Vehicle Image */}
+            <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="card-vehicle-image">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                      <Car className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">Vehicle Image</h3>
+                      <p className="text-xs text-gray-500">Optional document</p>
+                    </div>
+                  </div>
+                  {getDocumentByType('vehicle_image') && getStatusBadge(getDocumentByType('vehicle_image')!.status)}
+                </div>
+
+                {getDocumentByType('vehicle_image') && (
+                  <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
+                    {getDocumentByType('vehicle_image')!.vehiclePlate && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Vehicle Plate:</span>
+                        <span className="font-medium text-gray-900">
+                          {getDocumentByType('vehicle_image')!.vehiclePlate}
+                        </span>
+                      </div>
+                    )}
+                    {getDocumentByType('vehicle_image')!.rejectionReason && (
+                      <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
+                        <p className="text-sm text-red-700">
+                          <strong>Reason:</strong> {getDocumentByType('vehicle_image')!.rejectionReason}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="vehicle-image-file" className="text-gray-700 font-medium mb-2 block">
+                      {getDocumentByType('vehicle_image') ? 'Replace Image' : 'Upload Image'}
+                    </Label>
+                    <Input
+                      id="vehicle-image-file"
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        vehicleImage: { ...prev.vehicleImage, file: e.target.files?.[0] || null }
+                      }))}
+                      className="bg-white border-gray-300"
+                      data-testid="input-vehicle-image-file"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Image only, max 2MB</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="vehicle-plate" className="text-gray-700 font-medium mb-2 block">
+                      Vehicle Plate Number
+                    </Label>
+                    <Input
+                      id="vehicle-plate"
+                      type="text"
+                      placeholder="Enter plate number"
+                      value={formData.vehicleImage.vehiclePlate}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        vehicleImage: { ...prev.vehicleImage, vehiclePlate: e.target.value }
+                      }))}
+                      className="bg-white border-gray-300"
+                      data-testid="input-vehicle-plate"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleUpload('vehicle_image')}
+                    disabled={!formData.vehicleImage.file || uploading === 'vehicle_image'}
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                    data-testid="button-upload-vehicle-image"
+                  >
+                    <Upload className="w-5 h-5 mr-2" />
+                    {uploading === 'vehicle_image' ? 'Uploading...' : 'Upload Image'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Profile Photo */}
+            <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="card-profile-photo">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                      <Camera className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">Profile Photo</h3>
+                      <p className="text-xs text-gray-500">Optional</p>
+                    </div>
+                  </div>
+                  {getDocumentByType('profile_photo') && getStatusBadge(getDocumentByType('profile_photo')!.status)}
+                </div>
+
+                {/* Avatar Preview */}
+                <div className="flex justify-center py-4">
+                  <div className="relative">
+                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-red-100 shadow-lg bg-white">
+                      <img
+                        src={getDocumentByType('profile_photo')?.status === 'approved' && user?.profileImageUrl ? user.profileImageUrl : defaultUserImage}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                        data-testid="img-profile-preview"
+                      />
+                    </div>
+                    <div className="absolute bottom-0 right-0 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+                      <Camera className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
+                </div>
+
+                {getDocumentByType('profile_photo') && (
+                  <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
+                    {getDocumentByType('profile_photo')!.whatsappNumber && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">WhatsApp:</span>
+                        <span className="font-medium text-gray-900">
+                          {getDocumentByType('profile_photo')!.whatsappNumber}
+                        </span>
+                      </div>
+                    )}
+                    {getDocumentByType('profile_photo')!.rejectionReason && (
+                      <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
+                        <p className="text-sm text-red-700">
+                          <strong>Reason:</strong> {getDocumentByType('profile_photo')!.rejectionReason}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="profile-photo-file" className="text-gray-700 font-medium mb-2 block">
+                      {getDocumentByType('profile_photo') ? 'Replace Photo' : 'Upload Photo'}
+                    </Label>
+                    <Input
+                      id="profile-photo-file"
+                      type="file"
+                      accept="image/*"
+                      capture="user"
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        profilePhoto: { file: e.target.files?.[0] || null }
+                      }))}
+                      className="bg-white border-gray-300"
+                      data-testid="input-profile-photo-file"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Image only, max 2MB</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="whatsapp-number" className="text-gray-700 font-medium mb-2 block">
+                      WhatsApp Number (Optional)
+                    </Label>
+                    <Input
+                      id="whatsapp-number"
+                      type="tel"
+                      placeholder="+1 234 567 8900"
+                      value={formData.whatsappNumber}
+                      onChange={(e) => setFormData(prev => ({ ...prev, whatsappNumber: e.target.value }))}
+                      className="bg-white border-gray-300"
+                      data-testid="input-whatsapp-number"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleUpload('profile_photo')}
+                    disabled={!formData.profilePhoto.file || uploading === 'profile_photo'}
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                    data-testid="button-upload-profile-photo"
+                  >
+                    <Upload className="w-5 h-5 mr-2" />
+                    {uploading === 'profile_photo' ? 'Uploading...' : 'Upload Photo'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 
