@@ -1654,7 +1654,7 @@ export default function PassengerDashboard() {
                       data-testid="dashboard-logo"
                     />
                   ) : (
-                    <User className="w-8 h-8 text-white" data-testid="dashboard-icon-fallback" />
+                    <User className="w-8 h-8 text-white" data-testid="" />
                   )}
                 </div>
               </div>
