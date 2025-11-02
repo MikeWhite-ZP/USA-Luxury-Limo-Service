@@ -31,7 +31,7 @@ interface InvoiceData {
     id: string;
     bookingType: 'transfer' | 'hourly';
     pickupAddress: string;
-    dropoffAddress?: string;
+    destinationAddress?: string;
     scheduledDateTime: string;
     passengerCount: number;
     requestedHours?: number;

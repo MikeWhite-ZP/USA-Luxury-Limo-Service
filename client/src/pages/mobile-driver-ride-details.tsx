@@ -13,13 +13,13 @@ interface Booking {
   passengerId: number;
   pickupAddress: string;
   pickupLat: number | null;
-  pickupLng: number | null;
+  pickupLon: number | null;
   viaAddress: string | null;
   viaLat: number | null;
-  viaLng: number | null;
-  dropoffAddress: string;
-  dropoffLat: number | null;
-  dropoffLng: number | null;
+  viaLon: number | null;
+  destinationAddress: string;
+  destinationLat: number | null;
+  destinationLon: number | null;
   scheduledTime: string;
   serviceType: 'transfer' | 'hourly';
   duration: number | null;
@@ -418,7 +418,7 @@ export default function MobileDriverRideDetails() {
             {/* Pickup Address */}
             <div 
               className="border-l-4 border-green-500 pl-4 py-2 bg-green-50/50 rounded-r cursor-pointer hover:bg-green-50 transition-colors"
-              onClick={() => openNavigation(booking.pickupAddress, booking.pickupLat, booking.pickupLng)}
+              onClick={() => openNavigation(booking.pickupAddress, booking.pickupLat, booking.pickupLon)}
               data-testid="button-navigate-pickup"
             >
               <div className="flex items-start justify-between">
@@ -434,7 +434,7 @@ export default function MobileDriverRideDetails() {
             {booking.viaAddress && (
               <div 
                 className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50/50 rounded-r cursor-pointer hover:bg-blue-50 transition-colors"
-                onClick={() => openNavigation(booking.viaAddress!, booking.viaLat, booking.viaLng)}
+                onClick={() => openNavigation(booking.viaAddress!, booking.viaLat, booking.viaLon)}
                 data-testid="button-navigate-via"
               >
                 <div className="flex items-start justify-between">
@@ -450,13 +450,13 @@ export default function MobileDriverRideDetails() {
             {/* Dropoff Address */}
             <div 
               className="border-l-4 border-red-500 pl-4 py-2 bg-red-50/50 rounded-r cursor-pointer hover:bg-red-50 transition-colors"
-              onClick={() => openNavigation(booking.dropoffAddress, booking.dropoffLat, booking.dropoffLng)}
+              onClick={() => openNavigation(booking.destinationAddress, booking.destinationLat, booking.destinationLon)}
               data-testid="button-navigate-dropoff"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <p className="text-xs text-gray-500 mb-1">Dropoff Location</p>
-                  <p className="text-sm font-medium text-gray-900">{booking.dropoffAddress}</p>
+                  <p className="text-sm font-medium text-gray-900">{booking.destinationAddress}</p>
                 </div>
                 <Navigation className="w-5 h-5 text-red-600 ml-2 flex-shrink-0" />
               </div>

@@ -27,7 +27,7 @@ interface Booking {
   passengerId: number;
   pickupAddress: string;
   viaAddress: string | null;
-  dropoffAddress: string;
+  destinationAddress: string;
   scheduledDateTime: string;
   serviceType: 'transfer' | 'hourly';
   duration: number | null;
@@ -495,7 +495,7 @@ export default function MobileDriver() {
                           <div className="w-2.5 h-2.5 rounded-full bg-red-500 mt-1 flex-shrink-0"></div>
                           <div className="flex-1 min-w-0">
                             <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Dropoff</p>
-                            <p className="text-sm font-medium text-gray-900 line-clamp-2">{booking.dropoffAddress}</p>
+                            <p className="text-sm font-medium text-gray-900 line-clamp-2">{booking.destinationAddress}</p>
                           </div>
                         </div>
                       </div>
@@ -580,7 +580,7 @@ export default function MobileDriver() {
                       </div>
                       <div className="flex items-start gap-2.5">
                         <div className="w-2.5 h-2.5 rounded-full bg-red-500 mt-1 flex-shrink-0"></div>
-                        <p className="text-sm font-medium text-gray-900 line-clamp-1 flex-1">{booking.dropoffAddress}</p>
+                        <p className="text-sm font-medium text-gray-900 line-clamp-1 flex-1">{booking.destinationAddress}</p>
                       </div>
                     </div>
                   </div>
