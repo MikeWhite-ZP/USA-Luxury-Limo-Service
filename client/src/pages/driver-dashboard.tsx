@@ -26,6 +26,7 @@ import {
   Pencil,
   Info,
   Calendar,
+  User,
 } from "lucide-react";
 import {
   Dialog,
@@ -177,6 +178,12 @@ export default function DriverDashboard() {
     queryKey: ["/api/driver/documents"],
     retry: false,
     enabled: isAuthenticated && user?.role === "driver",
+  });
+
+  // Fetch site logo from CMS
+  const { data: siteLogoData } = useQuery<{ logo?: { url: string; alt?: string } }>({
+    queryKey: ['/api/site-logo'],
+    retry: false,
   });
 
   // Document upload mutation
@@ -567,39 +574,45 @@ export default function DriverDashboard() {
       </div>
 
       {/* Modern Header */}
-      <header className="relative z-10 border-b border-slate-800/50 backdrop-blur-xl bg-gradient-to-r from-slate-900/95 via-slate-800/95 to-slate-900/95 shadow-2xl">
+      <header className="relative z-10 border-b border-gray-200 backdrop-blur-xl bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-5">
-              {/* Avatar with gradient border */}
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl opacity-75 blur" />
-                <div className="relative w-16 h-16 bg-gradient-to-br from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-2xl">
-                  <Car className="w-8 h-8 text-white" />
+              {/* Clean Logo Display */}
+              {siteLogoData?.logo?.url ? (
+                <img 
+                  src={siteLogoData.logo.url} 
+                  alt={siteLogoData.logo.alt || "USA Luxury Limo"} 
+                  className="h-16 w-auto object-contain"
+                  data-testid="dashboard-logo"
+                />
+              ) : (
+                <div className="w-16 h-16 bg-white border border-gray-200 rounded-lg flex items-center justify-center">
+                  <User className="w-8 h-8 text-gray-600" />
                 </div>
-              </div>
+              )}
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 via-red-600 to-red-500 bg-clip-text text-transparent" data-testid="driver-title">
+                <h1 className="text-3xl font-bold text-black" data-testid="driver-title">
                   Driver Portal
                 </h1>
-                <p className="text-slate-400 text-lg mt-1" data-testid="driver-subtitle">
-                  Welcome, <span className="text-white font-medium">{user?.firstName || user?.email}</span>
+                <p className="text-gray-600 text-lg mt-1" data-testid="driver-subtitle">
+                  Welcome, <span className="text-red-600 font-medium">{user?.firstName || user?.email}</span>
                 </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <Badge
                 variant={driver?.isAvailable ? "secondary" : "outline"}
-                className={driver?.isAvailable ? "bg-red-600 text-white px-4 py-2 text-sm font-medium" : "border-slate-600 text-slate-400 px-4 py-2 text-sm"}
+                className={driver?.isAvailable ? "bg-red-600 text-white px-4 py-2 text-sm font-medium" : "border-gray-300 text-gray-600 px-4 py-2 text-sm"}
                 data-testid="driver-status"
               >
                 {driver?.isAvailable ? "Available" : "Offline"}
               </Badge>
               <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-orange-600 rounded-xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-300" />
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-800 rounded-xl opacity-0 group-hover:opacity-75 blur transition-opacity duration-300" />
                 <Button
                   onClick={() => (window.location.href = "/api/logout")}
-                  className="relative bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 hover:border-slate-600 px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                  className="relative bg-black hover:bg-gray-900 text-white border border-gray-800 hover:border-red-600 px-6 py-3 rounded-xl font-medium transition-all duration-300"
                   data-testid="button-logout"
                 >
                   Sign Out
@@ -610,20 +623,20 @@ export default function DriverDashboard() {
         </div>
 
         {/* Modern Navigation Menu */}
-        <div className="relative z-10 border-b border-slate-800/50 backdrop-blur-xl bg-slate-900/80">
+        <div className="relative z-10 border-b border-gray-200 backdrop-blur-xl bg-white">
           <div className="max-w-7xl mx-auto px-6">
-            <nav className="flex space-x-2 overflow-x-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#475569 transparent' }}>
+            <nav className="flex space-x-2 overflow-x-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}>
               <button
                 onClick={() => setActiveTab("home")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                   activeTab === "home"
-                    ? 'text-red-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                    : 'text-gray-600 hover:text-black hover:bg-gray-50'
                 }`}
                 data-testid="nav-home"
               >
                 {activeTab === "home" && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-700" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
                 )}
                 <Home className="w-5 h-5" />
                 Home
@@ -632,13 +645,13 @@ export default function DriverDashboard() {
                 onClick={() => setActiveTab("documents")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                   activeTab === "documents"
-                    ? 'text-red-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                    : 'text-gray-600 hover:text-black hover:bg-gray-50'
                 }`}
                 data-testid="nav-documents"
               >
                 {activeTab === "documents" && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-700" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
                 )}
                 <FileText className="w-5 h-5" />
                 Documents
@@ -647,13 +660,13 @@ export default function DriverDashboard() {
                 onClick={() => setActiveTab("assigned-jobs")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                   activeTab === "assigned-jobs"
-                    ? 'text-red-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                    : 'text-gray-600 hover:text-black hover:bg-gray-50'
                 }`}
                 data-testid="nav-assigned-jobs"
               >
                 {activeTab === "assigned-jobs" && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-700" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
                 )}
                 <Briefcase className="w-5 h-5" />
                 Assigned Jobs
@@ -662,13 +675,13 @@ export default function DriverDashboard() {
                 onClick={() => setActiveTab("settings")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                   activeTab === "settings"
-                    ? 'text-red-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                    : 'text-gray-600 hover:text-black hover:bg-gray-50'
                 }`}
                 data-testid="nav-settings"
               >
                 {activeTab === "settings" && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-700" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
                 )}
                 <Settings className="w-5 h-5" />
                 Account Settings
