@@ -4884,6 +4884,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const document = await storage.createDriverDocument(validatedData);
 
+      // If this is a profile photo, also update the user's profileImageUrl
+      if (documentType === 'profile_photo') {
+        const domain = process.env.REPLIT_DOMAINS?.split(',')[0];
+        const imageUrl = domain ? `https://${domain}/${fileName}` : `http://localhost:5000/${fileName}`;
+        
+        await storage.updateUser(userId, { 
+          profileImageUrl: imageUrl 
+        });
+      }
+
       res.json({
         success: true,
         document,

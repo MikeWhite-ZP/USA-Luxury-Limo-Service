@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, FileText, Upload, CheckCircle, XCircle, Clock, Camera, Trash2, Car } from 'lucide-react';
+import { ArrowLeft, FileText, Upload, CheckCircle, XCircle, Clock, Camera, Trash2, Car, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface DriverDocument {
   id: string;
@@ -28,6 +29,7 @@ export default function MobileDriverDocuments() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const [uploading, setUploading] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -82,6 +84,12 @@ export default function MobileDriverDocuments() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['/api/driver/documents'] });
+      
+      // If profile photo was uploaded, also invalidate user query to update avatar
+      if (variables.documentType === 'profile_photo') {
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      }
+      
       toast({
         title: "Document Uploaded",
         description: `Your ${variables.documentType.replace('_', ' ')} has been uploaded successfully.`,
@@ -555,6 +563,29 @@ export default function MobileDriverDocuments() {
                 </div>
               </div>
               {getDocumentByType('profile_photo') && getStatusBadge(getDocumentByType('profile_photo')!.status)}
+            </div>
+
+            {/* Avatar Preview */}
+            <div className="flex justify-center py-4">
+              <div className="relative">
+                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-green-100 shadow-lg bg-gradient-to-br from-green-100 to-green-50">
+                  {user?.profileImageUrl ? (
+                    <img
+                      src={user.profileImageUrl}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                      data-testid="img-profile-preview"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <User className="w-16 h-16 text-green-300" />
+                    </div>
+                  )}
+                </div>
+                <div className="absolute bottom-0 right-0 w-10 h-10 bg-green-600 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+                  <Camera className="w-5 h-5 text-white" />
+                </div>
+              </div>
             </div>
 
             {getDocumentByType('profile_photo') && (
