@@ -281,7 +281,7 @@ export default function MobileDriver() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 shadow-lg">
         <div className="flex items-center justify-between mb-4">
@@ -667,30 +667,6 @@ export default function MobileDriver() {
             )}
           </TabsContent>
         </Tabs>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4">
-        <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
-          <Button
-            variant="outline"
-            onClick={() => setLocation('/driver-dashboard')}
-            className="flex items-center justify-center space-x-2"
-            data-testid="button-documents"
-          >
-            <FileText className="w-4 h-4" />
-            <span>Documents</span>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setLocation('/driver-dashboard')}
-            className="flex items-center justify-center space-x-2"
-            data-testid="button-account"
-          >
-            <User className="w-4 h-4" />
-            <span>Account</span>
-          </Button>
-        </div>
       </div>
     </div>
   );
