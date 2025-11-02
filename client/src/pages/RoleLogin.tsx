@@ -264,7 +264,7 @@ export function RoleLogin() {
                       
                       <CardContent className="relative px-10 pb-10">
                         <Button 
-                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/90 h-10 px-4 w-full from-red-600 via-red-500 to-red-700 hover:shadow-xl font-semibold py-6 rounded-xl transition-all duration-300 border-0 text-base group-hover:scale-[1.02] bg-[#ab636300] text-[#d82526e6]"
+                          className="w-full bg-transparent border-2 border-red-600 text-red-600 hover:bg-red-50 hover:border-red-700 font-semibold py-6 rounded-xl transition-all duration-300 text-base group-hover:scale-[1.02]"
                           data-testid={`role-button-${role.id}`}
                         >
                           Continue as {role.title}
@@ -373,7 +373,7 @@ export function RoleLogin() {
                             </div>
                             <Button 
                               type="submit" 
-                              className={`w-full h-12 bg-gradient-to-r ${currentRole?.color} hover:shadow-xl font-semibold text-white rounded-xl transition-all duration-300 text-base mt-8`}
+                              className="w-full h-12 bg-transparent border-2 border-red-600 text-red-600 hover:bg-red-50 hover:border-red-700 font-semibold rounded-xl transition-all duration-300 text-base mt-8"
                               disabled={loginMutation.isPending}
                               data-testid="button-login-submit"
                             >
@@ -462,7 +462,7 @@ export function RoleLogin() {
                             </div>
                             <Button 
                               type="submit" 
-                              className={`w-full h-12 bg-gradient-to-r ${currentRole?.color} hover:shadow-xl font-semibold text-white rounded-xl transition-all duration-300 text-base mt-8`}
+                              className="w-full h-12 bg-transparent border-2 border-red-600 text-red-600 hover:bg-red-50 hover:border-red-700 font-semibold rounded-xl transition-all duration-300 text-base mt-8"
                               disabled={registerMutation.isPending}
                               data-testid="button-signup-submit"
                             >
