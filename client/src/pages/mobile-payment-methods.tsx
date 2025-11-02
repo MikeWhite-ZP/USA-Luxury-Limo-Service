@@ -209,7 +209,7 @@ export default function MobilePaymentMethods() {
   // Check if Stripe is configured
   if (!stripePromise) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white p-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-6">
         <Button
           variant="ghost"
           onClick={() => navigate('/mobile-passenger')}
@@ -219,11 +219,11 @@ export default function MobilePaymentMethods() {
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back
         </Button>
-        <Card className="text-center p-8">
+        <Card className="text-center p-8 border-2 border-blue-100 shadow-sm">
           <CardContent className="pt-6">
-            <CreditCard className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Payment Setup Required</h3>
-            <p className="text-gray-500">
+            <CreditCard className="w-16 h-16 mx-auto mb-4 text-blue-200" />
+            <h3 className="text-lg font-semibold text-slate-700 mb-2">Payment Setup Required</h3>
+            <p className="text-slate-500">
               Payment method management is not available. Please contact support.
             </p>
           </CardContent>
@@ -233,14 +233,14 @@ export default function MobilePaymentMethods() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 pb-8 rounded-b-3xl shadow-lg">
+      <div className="bg-white border-b-2 border-blue-100 p-6 pb-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"
             onClick={() => navigate('/mobile-passenger')}
-            className="text-white hover:bg-green-500/20"
+            className="text-blue-700 hover:bg-blue-50"
             data-testid="button-back"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -249,32 +249,38 @@ export default function MobilePaymentMethods() {
           <Button
             variant="ghost"
             onClick={() => setAddPaymentOpen(true)}
-            className="text-white hover:bg-green-500/20"
+            className="text-blue-700 hover:bg-blue-50"
             data-testid="button-add-payment-method"
           >
             <Plus className="w-5 h-5 mr-2" />
             Add Card
           </Button>
         </div>
-        <h1 className="text-2xl font-bold flex items-center">
-          <CreditCard className="w-6 h-6 mr-2" />
-          Payment Methods
-        </h1>
-        <p className="text-green-100 mt-1">Manage your credit cards</p>
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-100 p-2.5 rounded-xl">
+            <CreditCard className="w-6 h-6 text-blue-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-blue-900">Payment Methods</h1>
+            <p className="text-slate-600 text-sm mt-0.5">Manage your credit cards</p>
+          </div>
+        </div>
       </div>
 
       <div className="p-6 space-y-4">
         {!paymentMethods || paymentMethods.length === 0 ? (
-          <Card className="text-center p-8">
+          <Card className="text-center p-8 border-2 border-blue-100 shadow-sm bg-white">
             <CardContent className="pt-6">
-              <CreditCard className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">No Payment Methods</h3>
-              <p className="text-gray-500 mb-4">
+              <div className="bg-blue-50 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                <CreditCard className="w-10 h-10 text-blue-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-700 mb-2">No Payment Methods</h3>
+              <p className="text-slate-500 mb-4">
                 Add a credit card to make bookings easier and faster.
               </p>
               <Button
                 onClick={() => setAddPaymentOpen(true)}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-white hover:bg-blue-50 text-blue-700 border-2 border-blue-200 hover:border-blue-300 shadow-sm hover:shadow-md transition-all"
                 data-testid="button-add-first-card"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -287,25 +293,25 @@ export default function MobilePaymentMethods() {
             const isDefault = pm.id === defaultPaymentMethodId;
             
             return (
-              <Card key={pm.id} className={`overflow-hidden ${isDefault ? 'ring-2 ring-green-500' : ''}`} data-testid={`card-${pm.id}`}>
+              <Card key={pm.id} className={`overflow-hidden border-2 shadow-sm bg-white ${isDefault ? 'border-blue-300' : 'border-slate-200'}`} data-testid={`card-${pm.id}`}>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-4 flex-1">
-                      <div className={`w-12 h-12 ${getBrandColor(pm.card.brand)} rounded-lg text-white text-xs flex items-center justify-center font-bold shadow-md`}>
+                      <div className={`w-12 h-12 ${getBrandColor(pm.card.brand)} rounded-lg text-white text-xs flex items-center justify-center font-bold shadow-sm`}>
                         {pm.card.brand.toUpperCase().slice(0, 4)}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold text-gray-900" data-testid={`card-brand-${pm.id}`}>
+                          <p className="font-semibold text-slate-900" data-testid={`card-brand-${pm.id}`}>
                             {getBrandName(pm.card.brand)} •••• {pm.card.last4}
                           </p>
                           {isDefault && (
-                            <Badge className="bg-green-100 text-green-800 text-xs" data-testid={`badge-default-${pm.id}`}>
+                            <Badge className="bg-blue-100 text-blue-800 text-xs border border-blue-200" data-testid={`badge-default-${pm.id}`}>
                               Default
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-slate-500">
                           Expires {pm.card.exp_month.toString().padStart(2, '0')}/{pm.card.exp_year.toString().slice(-2)}
                         </p>
                       </div>
@@ -328,7 +334,7 @@ export default function MobilePaymentMethods() {
                       size="sm"
                       onClick={() => setDefaultMutation.mutate(pm.id)}
                       disabled={setDefaultMutation.isPending}
-                      className="w-full border-green-600 text-green-600 hover:bg-green-50"
+                      className="w-full border-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
                       data-testid={`button-set-default-${pm.id}`}
                     >
                       Set as Default
