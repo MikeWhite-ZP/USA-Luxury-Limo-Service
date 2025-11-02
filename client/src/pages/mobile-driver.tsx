@@ -36,7 +36,7 @@ interface Booking {
   luggage: number;
   babySeat: boolean;
   finalPrice: number;
-  driverPayment: number | null;
+  driverPayment: string | null;
   status: string;
   passengerName?: string;
   passengerPhone?: string;
@@ -235,7 +235,7 @@ export default function MobileDriver() {
   today.setHours(0, 0, 0, 0);
   const todayEarnings = completedBookings
     .filter(b => b.scheduledDateTime && new Date(b.scheduledDateTime) >= today)
-    .reduce((sum, b) => sum + (b.driverPayment || 0), 0);
+    .reduce((sum, b) => sum + (parseFloat(b.driverPayment || '0') || 0), 0);
 
   const completedToday = completedBookings
     .filter(b => b.scheduledDateTime && new Date(b.scheduledDateTime) >= today).length;
@@ -455,7 +455,7 @@ export default function MobileDriver() {
                               {booking.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                             </Badge>
                             <span className="text-base font-bold text-green-700">
-                              ${booking.driverPayment ? booking.driverPayment.toFixed(2) : '0.00'}
+                              ${booking.driverPayment && Number.isFinite(parseFloat(booking.driverPayment)) ? parseFloat(booking.driverPayment).toFixed(2) : '0.00'}
                             </span>
                           </div>
                           <div className="flex items-center text-xs text-gray-600 mb-1.5">
@@ -562,7 +562,7 @@ export default function MobileDriver() {
                             Completed
                           </Badge>
                           <span className="text-base font-bold text-emerald-700">
-                            ${booking.driverPayment ? booking.driverPayment.toFixed(2) : '0.00'}
+                            ${booking.driverPayment && Number.isFinite(parseFloat(booking.driverPayment)) ? parseFloat(booking.driverPayment).toFixed(2) : '0.00'}
                           </span>
                         </div>
                         <div className="flex items-center text-xs text-gray-600">
