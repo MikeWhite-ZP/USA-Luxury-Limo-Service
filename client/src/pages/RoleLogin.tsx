@@ -204,13 +204,10 @@ export function RoleLogin() {
       {/* Light Background with Subtle Pattern */}
       <div className="fixed inset-0 bg-gradient-to-br from-red-50 via-white to-gray-50 -z-10" />
       <div className="fixed inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(220 38 38 / 0.03) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
-      
       {/* Floating orbs for visual interest */}
       <div className="fixed top-0 left-1/4 w-96 h-96 bg-red-200/20 rounded-full blur-3xl -z-10 animate-pulse" />
       <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-red-100/15 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '1s' }} />
-      
       <Header />
-      
       <main className="flex-1 pt-32 pb-20 relative z-0">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
@@ -269,7 +266,7 @@ export function RoleLogin() {
                       
                       <CardContent className="relative px-10 pb-10">
                         <Button 
-                          className={`w-full bg-gradient-to-r ${role.color} hover:shadow-xl text-white font-semibold py-6 rounded-xl transition-all duration-300 border-0 text-base group-hover:scale-[1.02]`}
+                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/90 h-10 px-4 w-full from-red-600 via-red-500 to-red-700 hover:shadow-xl font-semibold py-6 rounded-xl transition-all duration-300 border-0 text-base group-hover:scale-[1.02] bg-[#ab636300] text-[#d82526e6]"
                           data-testid={`role-button-${role.id}`}
                         >
                           Continue as {role.title}
@@ -510,7 +507,6 @@ export function RoleLogin() {
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   );
