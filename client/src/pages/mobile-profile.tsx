@@ -143,7 +143,6 @@ export default function MobileProfile() {
         </div>
         <p className="text-green-50 text-sm mt-2 ml-14">Update your profile picture</p>
       </div>
-
       {/* Profile Picture Card */}
       <div className="p-4">
         <Card className="bg-white border-green-200 shadow-md" data-testid="card-profile-picture">
@@ -192,7 +191,7 @@ export default function MobileProfile() {
                   className="bg-white border-gray-300"
                   data-testid="input-profile-picture-file"
                 />
-                <p className="text-xs text-gray-500 mt-1">Image only, max 2MB</p>
+                <p className="text-xs mt-1 text-[#005ff7]">Image only, max 2MB          *uploaded new images needs to be approval before then affected here!</p>
               </div>
               
               <Button
