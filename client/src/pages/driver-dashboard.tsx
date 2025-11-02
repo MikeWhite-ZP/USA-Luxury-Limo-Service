@@ -1493,7 +1493,11 @@ export default function DriverDashboard() {
                   <div className="relative">
                     <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-red-100 shadow-lg bg-white">
                       <img
-                        src={getDocumentByType('profile_photo')?.status === 'approved' && getDocumentByType('profile_photo')?.documentUrl ? getDocumentByType('profile_photo')!.documentUrl : defaultUserImage}
+                        src={
+                          getDocumentByType('profile_photo')?.status === 'approved' && getDocumentByType('profile_photo')?.documentUrl 
+                            ? `/${getDocumentByType('profile_photo')!.documentUrl}` 
+                            : defaultUserImage
+                        }
                         alt="Profile"
                         className="w-full h-full object-cover"
                         data-testid="img-profile-preview"
