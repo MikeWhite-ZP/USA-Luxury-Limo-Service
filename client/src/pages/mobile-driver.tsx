@@ -370,7 +370,7 @@ export default function MobileDriver() {
           </button>
 
           {driver.isAvailable && (
-            <div className="flex items-center space-x-1.5 text-xs border-t border-rose-400 px-4 py-2 bg-rose-600">
+            <div className="flex items-center space-x-1.5 text-xs border-t border-rose-400 px-4 py-2 bg-[#b8ccb8]">
               <Navigation2 className={`w-3 h-3 ${currentLocation ? 'text-white animate-pulse' : 'text-rose-200'}`} />
               <span data-testid="text-gps-status">
                 {locationError ? (
