@@ -501,38 +501,34 @@ export default function MobileDriver() {
                       </div>
 
                       {nextAction && (
-                        <>
-                          <Button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              updateStatusMutation.mutate({
-                                bookingId: booking.id,
-                                status: nextAction.nextStatus,
-                              });
-                            }}
-                            disabled={updateStatusMutation.isPending || !canStartTrip(booking)}
-                            className={`w-full font-semibold shadow-md hover:shadow-lg transition-all ${
-                              canStartTrip(booking) 
-                                ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white' 
-                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            }`}
-                            data-testid={`button-${nextAction.nextStatus}-${booking.id}`}
-                          >
-                            <CheckCircle2 className="w-4 h-4 mr-2" />
-                            {nextAction.label}
-                          </Button>
-                          {booking.status === 'confirmed' && !canStartTrip(booking) && (
-                            <div className="mt-2 text-center">
-                              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                                Available in {getMinutesUntilCanStart(booking)} minutes
-                                <br />
-                                <span className="text-[10px] text-amber-600">
-                                  (Can start 150 min before pickup)
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateStatusMutation.mutate({
+                              bookingId: booking.id,
+                              status: nextAction.nextStatus,
+                            });
+                          }}
+                          disabled={updateStatusMutation.isPending || !canStartTrip(booking)}
+                          className={`w-full font-semibold shadow-md hover:shadow-lg transition-all ${
+                            canStartTrip(booking) 
+                              ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white' 
+                              : 'bg-gray-200 text-gray-700 cursor-not-allowed'
+                          }`}
+                          data-testid={`button-${nextAction.nextStatus}-${booking.id}`}
+                        >
+                          <div className="flex items-center justify-center w-full">
+                            <CheckCircle2 className="w-4 h-4 mr-2 flex-shrink-0" />
+                            <div className="flex flex-col items-start">
+                              <span>{nextAction.label}</span>
+                              {booking.status === 'confirmed' && !canStartTrip(booking) && (
+                                <span className="text-xs font-normal -mt-0.5">
+                                  Available in {getMinutesUntilCanStart(booking)} min (2.5h before)
                                 </span>
-                              </p>
+                              )}
                             </div>
-                          )}
-                        </>
+                          </div>
+                        </Button>
                       )}
                     </div>
                   </div>
