@@ -1,13 +1,22 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Camera, Upload, User } from 'lucide-react';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { ArrowLeft, Camera, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import defaultUserImage from '@assets/default-user_1762118764894.png';
+
+interface DriverDocument {
+  id: string;
+  driverId: string;
+  documentType: 'driver_license' | 'limo_license' | 'insurance_certificate' | 'vehicle_image' | 'profile_photo';
+  documentUrl: string;
+  status: 'pending' | 'approved' | 'rejected';
+}
 
 export default function MobileProfile() {
   const [, setLocation] = useLocation();
@@ -16,7 +25,20 @@ export default function MobileProfile() {
   const { user } = useAuth();
 
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(user?.profileImageUrl || null);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
+
+  // Fetch driver documents to check profile photo approval status
+  const { data: documents } = useQuery<DriverDocument[]>({
+    queryKey: ['/api/driver/documents'],
+    retry: false,
+  });
+
+  // Find profile photo document
+  const profilePhotoDoc = documents?.find(doc => doc.documentType === 'profile_photo');
+  
+  // Show profile picture only if approved
+  const isProfileApproved = profilePhotoDoc?.status === 'approved';
+  const displayUrl = localPreviewUrl || (isProfileApproved ? user?.profileImageUrl : null);
 
   // Upload profile picture mutation
   const uploadMutation = useMutation({
@@ -41,10 +63,10 @@ export default function MobileProfile() {
       queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
       queryClient.setQueryData(['/api/auth/user'], updatedUser);
       setProfilePicture(null);
-      setPreviewUrl(updatedUser.profileImageUrl);
+      setLocalPreviewUrl(null);
       toast({
-        title: "Profile Picture Updated",
-        description: "Your profile picture has been updated successfully",
+        title: "Profile Picture Uploaded",
+        description: "Your profile picture has been uploaded and is pending approval",
       });
     },
     onError: (error: Error) => {
@@ -85,7 +107,7 @@ export default function MobileProfile() {
     // Create preview URL
     const reader = new FileReader();
     reader.onloadend = () => {
-      setPreviewUrl(reader.result as string);
+      setLocalPreviewUrl(reader.result as string);
     };
     reader.readAsDataURL(file);
   };
@@ -141,19 +163,13 @@ export default function MobileProfile() {
             {/* Avatar Preview */}
             <div className="flex justify-center py-4">
               <div className="relative">
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-green-100 shadow-lg bg-gradient-to-br from-green-100 to-green-50">
-                  {previewUrl ? (
-                    <img
-                      src={previewUrl}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                      data-testid="img-profile-preview"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <User className="w-16 h-16 text-green-300" />
-                    </div>
-                  )}
+                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-green-100 shadow-lg bg-white">
+                  <img
+                    src={displayUrl || defaultUserImage}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                    data-testid="img-profile-preview"
+                  />
                 </div>
                 <div className="absolute bottom-0 right-0 w-10 h-10 bg-green-600 rounded-full flex items-center justify-center shadow-md border-2 border-white">
                   <Camera className="w-5 h-5 text-white" />
@@ -165,7 +181,7 @@ export default function MobileProfile() {
             <div className="space-y-3">
               <div>
                 <Label htmlFor="profile-picture-file" className="text-gray-700 font-medium mb-2 block">
-                  {previewUrl ? 'Replace Photo' : 'Upload Photo'}
+                  {displayUrl ? 'Replace Photo' : 'Upload Photo'}
                 </Label>
                 <Input
                   id="profile-picture-file"
