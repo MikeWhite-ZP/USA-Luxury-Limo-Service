@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ObjectUploader } from "../components/ObjectUploader";
-import defaultUserImage from "@assets/default-user.png";
+import defaultUserImage from "@/assets/default-user.png";
 import {
   DollarSign,
   MapPin,
