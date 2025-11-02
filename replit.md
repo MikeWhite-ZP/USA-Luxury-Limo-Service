@@ -1,22 +1,7 @@
 # USA Luxury Limo
 
 ## Overview
-USA Luxury Limo is a full-stack Progressive Web Application (PWA) designed as a comprehensive luxury transportation booking platform. It aims to streamline the booking process by offering real-time pricing, fleet management, and multi-role user authentication for passengers, drivers, and dispatchers. Key capabilities include flight search integration, advanced payment options, and driver document management, providing an efficient solution for luxury transportation services.
-
-## Recent Changes
-- **November 1, 2025**: Implemented system-wide automatic booking expiration system with scheduled background job - runs every 5 minutes via node-cron to find and cancel ALL bookings where scheduledDateTime has passed and status is still active (pending, confirmed, on_the_way, arrived, on_board, pending_driver_acceptance, in_progress). Automatically releases driver assignments, sends notifications to passengers and admins, and handles errors gracefully. Frontend filtering across all dashboards (driver, dispatcher, passenger) excludes past-due bookings from future/active views for immediate visual feedback. Dispatcher dashboard filters pending, assigned, and active bookings to only show future-scheduled rides.
-- **November 1, 2025**: Redesigned driver dashboard accepted jobs cards with modern UI - added green gradient glow effects, color-coded information sections (blue for pickup, purple for destination, orange for time, green for payment), enhanced icons, improved spacing, and better visual hierarchy with rounded corners and professional shadows.
-- **November 1, 2025**: Added complete Hero Image Management system mirroring logo management - includes dedicated emerald/green themed section in Admin Dashboard > CMS > Media & Images with current hero preview (aspect-video), metadata display, and action buttons. Features automatic activation on upload, edit details dialog, and delete with proper cleanup. Backend API endpoints: GET /api/site-hero (public) and POST /api/admin/site-hero (admin). Hero images stored in 'hero-images' folder with setting in 'site_hero' CMS key. Media grid shows "Active Hero" badges and "Set as Hero" buttons for hero-images folder items.
-- **November 1, 2025**: Enhanced media deletion to properly handle all database records - when deleting a media file, the system now automatically clears both the active site logo and site hero settings if the deleted file was set as either, then deletes both the physical file from object storage and the database record. Includes proper 404 handling and error recovery.
-- **November 1, 2025**: Added dedicated Logo Management section to Admin Dashboard > CMS > Media & Images. Features emerald/green themed card showing current active logo with preview, metadata display, and quick action buttons for Edit Details, Change Logo, and Delete. Logo upload automatically activates the uploaded logo using async workflow that waits for both upload and activation to complete before showing success toast. Includes file input reset for same-file re-uploads.
-- **November 1, 2025**: Fixed delete user functionality - updated deleteUser method to properly handle all foreign key constraints including emergency incidents, driver documents, system settings, CMS content, and media uploads. User deletion now works correctly without constraint violations.
-- **November 1, 2025**: Added Cash Payment capability - new payment option allowing admin-approved passengers to complete bookings and pay with cash after trip completion, without requiring saved payment methods. Includes cashPaymentEnabled field in users table, admin toggle in user edit dialog, and green-themed "Pay with Cash" button in booking flow step 4.
-- **November 1, 2025**: Redesigned emailed invoice with professional modern design featuring dark gradient header with logo in white container, amber/gold accent colors for totals, improved visual hierarchy, enhanced spacing and shadows, and better mobile responsiveness
-- **November 1, 2025**: Added visible print button to invoice print page - fixed top-right position with automatic print dialog on page load plus manual print button for better user experience
-- **November 1, 2025**: Fixed past bookings filter to only show cancelled/completed bookings or past-dated bookings without active status - excludes pending, confirmed, pending_driver_acceptance, in_progress, on_the_way, arrived, and on_board statuses
-- **November 1, 2025**: Fixed desktop booking form overflow issue by changing width from 110% to w-full max-w-full and optimizing spacing/padding for better responsive design
-- **November 1, 2025**: Fixed future bookings filter in passenger dashboard - now shows all active bookings (not just pending/confirmed/in_progress), including on_the_way, arrived, and on_board statuses
-- **November 1, 2025**: Created comprehensive MobileBookingForm component with multi-step flow, TomTom geocoding integration, real-time quote calculation, flight search, and payment options
+USA Luxury Limo is a full-stack Progressive Web Application (PWA) designed as a comprehensive luxury transportation booking platform. It aims to streamline the booking process by offering real-time pricing, fleet management, and multi-role user authentication for passengers, drivers, and dispatchers. Key capabilities include flight search integration, advanced payment options, and driver document management, providing an efficient solution for luxury transportation services. The project's ambition is to be a leading solution in the luxury transportation market, offering an intuitive and efficient booking experience.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -24,40 +9,22 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### UI/UX
-The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui components (Radix UI) styled with Tailwind CSS. It functions as a PWA with installable capabilities and offline support. Role-based login provides distinct blue (passenger), green (driver), and purple (dispatcher) themed dashboards. The design emphasizes a modern, professional light theme with consistent gradient headers, rounded corners, and a professional color palette (blue/indigo/purple/pink/emerald/amber/orange/cyan). All styling uses Tailwind utility classes, avoiding hardcoded hex values.
-
-**Device Detection & Auto-Redirect:**
-- Automatic device detection routes mobile browsers to the `/mobile` PWA interface and desktop browsers to the standard web interface
-- Detection based on user agent, screen width (<768px), and touch capability
-- Manual preference override system stored in localStorage allows users to switch between mobile and desktop views
-- Mobile users can access desktop site via "View Desktop Site" link on mobile splash page
-- Desktop users can access mobile PWA via "Open Mobile Version" button on landing page
-- Preferences persist across sessions and override automatic detection
-
-**Admin Dashboard Design:**
-- **Dashboard Stats**: Six color-coded stat cards with light gradient backgrounds (amber for Revenue, purple/pink for Commission, blue/cyan for Active Bookings, green/emerald for Drivers, orange/amber for Customer Satisfaction, red/rose for Awaiting Driver Approval). Each card features an icon badge, semi-transparent white data containers with backdrop blur, and smooth hover animations.
-- **Admin Settings Sections**: Consistent gradient headers with icon badges across all sections (System Commission with indigo/blue, Email Settings with blue/indigo/green tabs, SMS Settings with purple/pink). Modern card-based layouts with color-coded information sections and professional typography.
+The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui components (Radix UI) styled with Tailwind CSS. It functions as a PWA with installable capabilities and offline support. Role-based login provides distinct dashboards: passenger dashboard uses a professional light red/white/black theme matching main website branding, driver dashboard uses a green theme, and dispatcher dashboard uses a purple theme. The design emphasizes a modern, professional aesthetic with consistent gradient headers, rounded corners, and cohesive color schemes. All styling uses Tailwind utility classes, avoiding hardcoded hex values. Device detection and auto-redirection manage mobile and desktop views, with user overrides.
 
 ### Technical Implementation
-- **Frontend**: React 18, TypeScript, Vite, Wouter for routing, React Hook Form with Zod for validation, TanStack Query for server state. Features include optimistic updates, touch-optimized interfaces, and role-specific dashboards.
+- **Frontend**: React 18, TypeScript, Vite, Wouter for routing, React Hook Form with Zod for validation, TanStack Query for server state. Features include optimistic updates and touch-optimized interfaces.
 - **Backend**: Node.js with Express.js, TypeScript, RESTful JSON APIs.
 - **Database**: PostgreSQL (Neon for hosting) with Drizzle ORM.
-- **Authentication**: Replit Auth with OpenID Connect, PostgreSQL-backed session management, and scrypt hashing for multi-role access (passenger, driver, admin). Admin accounts require manual activation.
+- **Authentication**: Replit Auth with OpenID Connect, PostgreSQL-backed session management, and scrypt hashing for multi-role access (passenger, driver, admin).
 - **Core Features**:
-    - **Notifications**: Comprehensive email and SMS notification system across all booking lifecycle events. Twilio for SMS and Nodemailer for email, with admin-configurable settings and professional HTML templates. Notifications use fire-and-forget async pattern to avoid blocking API responses.
-        - **Booking Creation**: Email + SMS to passenger, email + SMS to admin, email to all dispatchers
-        - **Booking Cancellation**: Email + SMS to passenger, admin email report
-        - **Driver Assignment**: Email + SMS to driver (assignment details), email + SMS to passenger (driver assigned)
-        - **Driver Status Updates**: Email + SMS to passenger when driver is "on the way" or "arrived"
-        - **Email Templates** (6): Booking confirmation, booking cancelled, booking status update, driver assignment, driver on the way, driver arrived
-        - **SMS Templates** (4): Booking confirmation, booking cancelled, driver assignment, booking status update, driver on the way, driver arrived, admin new booking alert
-    - **Payment**: Integration with multiple providers (Stripe, PayPal, Square), supporting "Pay Now", "Pay Later", and "Pay with Cash" options. Pay Later requires saved payment methods on file. Cash Payment allows admin-approved passengers (with cashPaymentEnabled flag) to complete bookings without saved payment methods and pay cash after trip completion. Includes surcharge management.
+    - **Notifications**: Comprehensive email and SMS notification system (Twilio, Nodemailer) for all booking lifecycle events, using a fire-and-forget async pattern.
+    - **Payment**: Integration with multiple providers (Stripe, PayPal, Square), supporting "Pay Now", "Pay Later", and "Pay with Cash" options. Includes surcharge management.
     - **Geolocation & Flight Data**: TomTom API for geocoding and AeroDataBox API for real-time flight information.
-    - **Booking & Dispatch**: A 4-step booking flow, intelligent driver assignment (proximity, capacity, rating, workload, conflicts), and a two-stage job acceptance workflow. Includes itemized pricing breakdown with base fare, surge pricing, gratuity, airport fees, and discounts, supporting both transfer and hourly services.
-    - **Driver Management**: Document upload/tracking (Replit Object Storage), real-time GPS tracking, navigation integration, and driver payment/credential management.
-    - **User/Admin Features**: User account management with cascading delete, contact support, system settings, a Dispatcher Dashboard with real-time statistics, and API credential management. Booking deletion properly handles cascading deletes for related records (invoices, driver ratings, emergency incidents).
-    - **Invoice Management**: Complete invoice system with modern light-themed interface for both admin and passengers. Admin can view, edit, print, and email invoices with detailed pricing breakdowns. Passengers can view, print, and email their own invoices via the /mobile-invoices page. All invoice displays (dialog, print, email) show itemized pricing including base fare, surge pricing, gratuity, airport fees, and discounts with consistent color coding (orange for surge, green for discounts, blue for totals).
-    - **CMS**: Component-based Content Management System for brand identity and media asset management. Features dedicated management sections for both Logo and Hero Image with emerald/green themed cards, preview displays, and full CRUD operations (upload with auto-activation, edit metadata, delete with cleanup). Media library organized into folders (logos, hero-images, vehicles, testimonials, general) with folder-based filtering. Active logo and hero badges displayed in media grid with "Set as Logo/Hero" buttons. All media stored in Replit Object Storage with settings tracked in cmsSettings table.
+    - **Booking & Dispatch**: A 4-step booking flow, intelligent driver assignment, and a two-stage job acceptance workflow. Supports itemized pricing for transfer and hourly services.
+    - **Driver Management**: Document upload/tracking, real-time GPS tracking, navigation integration, and driver payment/credential management.
+    - **User/Admin Features**: User account management with cascading delete, support, system settings, a Dispatcher Dashboard, and API credential management.
+    - **Invoice Management**: Complete invoice system with modern light-themed interface for both admin and passengers, allowing viewing, editing, printing, and emailing of detailed invoices.
+    - **CMS**: Component-based Content Management System for brand identity and media asset management (Logo and Hero Image), with CRUD operations. Media stored in Replit Object Storage.
 
 ## External Dependencies
 - **Twilio**: SMS messaging.

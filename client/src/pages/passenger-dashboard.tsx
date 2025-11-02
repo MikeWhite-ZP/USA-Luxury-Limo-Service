@@ -141,7 +141,7 @@ function AddPaymentMethodForm({ onSuccess }: { onSuccess: () => void }) {
           }}
         />
       </div>
-      <Button type="submit" disabled={!stripe || isProcessing} className="w-full">
+      <Button type="submit" disabled={!stripe || isProcessing} className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white">
         {isProcessing ? 'Adding...' : 'Add Payment Method'}
       </Button>
     </form>
@@ -388,7 +388,7 @@ function InvoicesList() {
             }
             .print-header {
               text-align: center;
-              border-bottom: 2px solid #f59e0b;
+              border-bottom: 2px solid #dc2626;
               padding: 18px;
               margin-bottom: 20px;
               background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
@@ -403,7 +403,7 @@ function InvoicesList() {
             }
             .print-invoice-number {
               font-size: 12pt;
-              color: #f59e0b;
+              color: #dc2626;
               font-weight: 600;
               margin-top: 6px;
             }
@@ -477,14 +477,14 @@ function InvoicesList() {
               font-weight: 600;
             }
             .print-pricing-surge {
-              color: #ea580c;
+              color: #dc2626;
             }
             .print-pricing-discount {
               color: #16a34a;
             }
             .print-total-section {
-              background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-              border: 2px solid #f59e0b;
+              background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+              border: 2px solid #dc2626;
               border-radius: 6px;
               padding: 14px;
               margin-top: 12px;
@@ -501,7 +501,7 @@ function InvoicesList() {
             }
             .print-total-value {
               font-size: 20pt;
-              color: #f59e0b;
+              color: #dc2626;
               font-weight: 800;
             }
             .print-payment-status {
@@ -670,7 +670,7 @@ function InvoicesList() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin w-6 h-6 border-4 border-amber-500 border-t-transparent rounded-full" />
+        <div className="animate-spin w-6 h-6 border-4 border-red-600 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -692,7 +692,7 @@ function InvoicesList() {
         {invoices.map((invoice) => (
           <div
             key={invoice.id}
-            className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-amber-300 hover:shadow-md transition-all"
+            className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-red-300 hover:shadow-md transition-all"
             data-testid={`invoice-${invoice.id}`}
           >
             <div className="flex justify-between items-start mb-4">
@@ -709,14 +709,14 @@ function InvoicesList() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-amber-600" data-testid={`invoice-amount-${invoice.id}`}>
+                <p className="text-2xl font-bold text-red-600" data-testid={`invoice-amount-${invoice.id}`}>
                   ${parseFloat(invoice.totalAmount).toFixed(2)}
                 </p>
                 <Badge
                   className={`mt-1 ${
                     invoice.paidAt
                       ? 'bg-green-100 text-green-800'
-                      : 'bg-amber-100 text-amber-800'
+                      : 'bg-red-100 text-red-800'
                   }`}
                   data-testid={`invoice-status-${invoice.id}`}
                 >
@@ -743,7 +743,7 @@ function InvoicesList() {
                 size="sm"
                 variant="outline"
                 onClick={() => handlePrint(invoice)}
-                className="flex-1 text-gray-700 border-gray-300 hover:bg-gray-50"
+                className="flex-1 bg-white text-red-700 border-red-200 hover:bg-red-50"
                 data-testid={`button-print-${invoice.id}`}
               >
                 <Printer className="w-4 h-4 mr-1.5" />
@@ -754,7 +754,7 @@ function InvoicesList() {
                 variant="outline"
                 onClick={() => handleEmail(invoice)}
                 disabled={isLoadingEmail}
-                className="flex-1 text-amber-700 border-amber-300 hover:bg-amber-50"
+                className="flex-1 bg-white text-red-700 border-red-200 hover:bg-red-50"
                 data-testid={`button-email-${invoice.id}`}
               >
                 <Mail className="w-4 h-4 mr-1.5" />
@@ -786,13 +786,13 @@ function InvoicesList() {
                   </div>
                   <div className="col-span-2">
                     <p className="text-gray-600 mb-1.5 font-medium">Total Amount</p>
-                    <p className="text-3xl font-bold text-amber-600" data-testid="view-total-amount">
+                    <p className="text-3xl font-bold text-red-600" data-testid="view-total-amount">
                       ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}
                     </p>
                   </div>
                   <div className="col-span-2">
                     <p className="text-gray-600 mb-1.5 font-medium">Status</p>
-                    <Badge className={selectedInvoice.paidAt ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}>
+                    <Badge className={selectedInvoice.paidAt ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
                       {selectedInvoice.paidAt ? 'Paid' : 'Unpaid'}
                     </Badge>
                   </div>
@@ -861,7 +861,7 @@ function ContactSupportForm({ user }: { user: any }) {
   return (
     <Card data-testid="support-section">
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2 text-[#0f2ebf]">
+        <CardTitle className="flex items-center space-x-2 text-red-600">
           <HelpCircle className="w-5 h-5" />
           <span>Contact Support</span>
         </CardTitle>
@@ -972,12 +972,12 @@ function ContactSupportForm({ user }: { user: any }) {
               <Button 
                 type="submit" 
                 disabled={submitContactMutation.isPending}
-                className="min-w-[150px] bg-[#c7edd3e6] text-[#000000]"
+                className="min-w-[150px] bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white"
                 data-testid="button-submit-contact"
               >
                 {submitContactMutation.isPending ? (
                   <>
-                    <div className="animate-spin w-4 h-4 border-2 border-black border-t-transparent rounded-full mr-2" />
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
                     Sending...
                   </>
                 ) : (
@@ -1468,9 +1468,9 @@ export default function PassengerDashboard() {
     if (hasExpiredCards && hasValidCards) {
       return {
         status: 'Active (with expired cards)',
-        color: 'text-yellow-600',
-        bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
-        borderColor: 'border-yellow-200 dark:border-yellow-800',
+        color: 'text-red-600',
+        bgColor: 'bg-red-50 dark:bg-red-900/20',
+        borderColor: 'border-red-200 dark:border-red-800',
         message: 'You have expired cards. Please remove them and keep your payment methods up to date.',
         action: 'Manage Payment Methods',
       };
@@ -1632,20 +1632,20 @@ export default function PassengerDashboard() {
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Subtle Light Background Pattern */}
-      <div className="fixed inset-0 pointer-events-none opacity-40">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-green-50" />
-        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(59 130 246 / 0.05) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
+      <div className="fixed inset-0 pointer-events-none opacity-30">
+        <div className="absolute inset-0 bg-gradient-to-br from-red-50 via-white to-gray-50" />
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(220 38 38 / 0.03) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
       </div>
 
       {/* Modern Header */}
-      <header className="relative z-10 border-b border-slate-800/50 backdrop-blur-xl bg-gradient-to-r from-slate-900/95 via-slate-800/95 to-slate-900/95 shadow-2xl">
+      <header className="relative z-10 border-b border-gray-200 backdrop-blur-xl bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-5">
               {/* Avatar with gradient border */}
               <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-green-600 rounded-2xl opacity-75 blur" />
-                <div className="relative w-16 h-16 bg-gradient-to-br from-blue-600 to-green-600 rounded-2xl flex items-center justify-center shadow-2xl overflow-hidden">
+                <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl opacity-75 blur" />
+                <div className="relative w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
                   {siteLogoData?.logo?.url ? (
                     <img 
                       src={siteLogoData.logo.url} 
@@ -1659,19 +1659,19 @@ export default function PassengerDashboard() {
                 </div>
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-400 to-blue-400 bg-clip-text text-transparent" data-testid="passenger-title">
+                <h1 className="text-3xl font-bold text-black" data-testid="passenger-title">
                   Passenger Dashboard
                 </h1>
-                <p className="text-slate-400 text-lg mt-1" data-testid="passenger-subtitle">
-                  Welcome back, <span className="text-white font-medium">{user?.firstName || user?.email}</span>
+                <p className="text-gray-600 text-lg mt-1" data-testid="passenger-subtitle">
+                  Welcome back, <span className="text-red-600 font-medium">{user?.firstName || user?.email}</span>
                 </p>
               </div>
             </div>
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-orange-600 rounded-xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-300" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-800 rounded-xl opacity-0 group-hover:opacity-75 blur transition-opacity duration-300" />
               <Button 
                 onClick={() => window.location.href = '/api/logout'}
-                className="relative bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 hover:border-slate-600 px-6 py-3 rounded-xl font-medium transition-all duration-300 mt-[0px] mb-[0px] text-center pl-[12px] pr-[12px] text-[12px]"
+                className="relative bg-black hover:bg-gray-900 text-white border border-gray-800 hover:border-red-600 px-6 py-3 rounded-xl font-medium transition-all duration-300"
                 data-testid="button-logout"
               >
                 Sign Out
@@ -1682,20 +1682,20 @@ export default function PassengerDashboard() {
       </header>
 
       {/* Modern Navigation Menu - Mobile Optimized */}
-      <div className="relative z-10 border-b border-slate-800/50 backdrop-blur-xl bg-slate-900/80">
+      <div className="relative z-10 border-b border-gray-200 backdrop-blur-xl bg-white">
         <div className="max-w-7xl mx-auto px-2 sm:px-6">
-          <nav className="flex space-x-1 sm:space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent pb-px" style={{ scrollbarWidth: 'thin', scrollbarColor: '#475569 transparent' }}>
+          <nav className="flex space-x-1 sm:space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent pb-px" style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}>
             <button
               onClick={() => setActiveSection('home')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'home'
-                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                  ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                  : 'text-gray-600 hover:text-black hover:bg-gray-50'
               }`}
               data-testid="nav-home"
             >
               {activeSection === 'home' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
               )}
               <Home className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Home</span>
@@ -1705,13 +1705,13 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('saved-locations')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'saved-locations'
-                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                  ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                  : 'text-gray-600 hover:text-black hover:bg-gray-50'
               }`}
               data-testid="nav-saved-locations"
             >
               {activeSection === 'saved-locations' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
               )}
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Saved Locations</span>
@@ -1722,13 +1722,13 @@ export default function PassengerDashboard() {
                 <button
                   className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                     activeSection === 'future-bookings' || activeSection === 'past-bookings'
-                      ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                      ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                      : 'text-gray-600 hover:text-black hover:bg-gray-50'
                   }`}
                   data-testid="nav-bookings"
                 >
                   {(activeSection === 'future-bookings' || activeSection === 'past-bookings') && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
                   )}
                   <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span className="hidden sm:inline">Bookings</span>
@@ -1738,12 +1738,12 @@ export default function PassengerDashboard() {
               </DropdownMenuTrigger>
               <DropdownMenuContent 
                 align="start" 
-                className="bg-slate-900 border-slate-700 text-white min-w-[180px]"
+                className="bg-white border-gray-200 text-black min-w-[180px]"
                 data-testid="bookings-dropdown"
               >
                 <DropdownMenuItem
                   onClick={() => setActiveSection('future-bookings')}
-                  className="cursor-pointer hover:bg-slate-800 focus:bg-slate-800 text-white"
+                  className="cursor-pointer hover:bg-red-50 focus:bg-red-50 text-black"
                   data-testid="nav-future-bookings"
                 >
                   <Calendar className="w-4 h-4 mr-2" />
@@ -1751,7 +1751,7 @@ export default function PassengerDashboard() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setActiveSection('past-bookings')}
-                  className="cursor-pointer hover:bg-slate-800 focus:bg-slate-800 text-white"
+                  className="cursor-pointer hover:bg-red-50 focus:bg-red-50 text-black"
                   data-testid="nav-past-bookings"
                 >
                   <History className="w-4 h-4 mr-2" />
@@ -1763,13 +1763,13 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('invoices')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'invoices'
-                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                  ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                  : 'text-gray-600 hover:text-black hover:bg-gray-50'
               }`}
               data-testid="nav-invoices"
             >
               {activeSection === 'invoices' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
               )}
               <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Invoices</span>
@@ -1779,13 +1779,13 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('payment-methods')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'payment-methods'
-                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                  ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                  : 'text-gray-600 hover:text-black hover:bg-gray-50'
               }`}
               data-testid="nav-payment-methods"
             >
               {activeSection === 'payment-methods' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
               )}
               <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Payment Methods</span>
@@ -1795,13 +1795,13 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('account-details')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'account-details'
-                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                  ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                  : 'text-gray-600 hover:text-black hover:bg-gray-50'
               }`}
               data-testid="nav-account-details"
             >
               {activeSection === 'account-details' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
               )}
               <User className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Account Details</span>
@@ -1811,13 +1811,13 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('support')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'support'
-                  ? 'text-blue-400 bg-gradient-to-b from-slate-800/80 to-transparent'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                  ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                  : 'text-gray-600 hover:text-black hover:bg-gray-50'
               }`}
               data-testid="nav-support"
             >
               {activeSection === 'support' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-green-600" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
               )}
               <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Support</span>
@@ -1833,11 +1833,11 @@ export default function PassengerDashboard() {
           <>
             {/* Quick Actions */}
             <div className="relative group" data-testid="quick-actions">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-green-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
               <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-green-600 flex items-center justify-center shadow-md">
+                  <CardTitle className="text-2xl font-bold text-black flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                       <MapPin className="w-5 h-5 text-white" />
                     </div>
                     Quick Actions
@@ -1846,10 +1846,10 @@ export default function PassengerDashboard() {
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="relative group/btn">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-800 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
                       <Button
                         onClick={() => setActiveSection('booking')}
-                        className="relative h-20 w-full flex flex-col space-y-2 bg-gradient-to-br from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white border-0 shadow-xl group-hover/btn:scale-[1.02] transition-transform duration-300"
+                        className="relative h-20 w-full flex flex-col space-y-2 bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white border-0 shadow-xl group-hover/btn:scale-[1.02] transition-transform duration-300"
                         data-testid="button-book-ride"
                       >
                         <MapPin className="w-6 h-6" />
@@ -1858,10 +1858,10 @@ export default function PassengerDashboard() {
                     </div>
                     
                     <div className="relative group/btn">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
                       <Button
                         onClick={() => setActiveSection('past-bookings')}
-                        className="relative h-20 w-full flex flex-col space-y-2 bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-300 hover:border-blue-500 shadow-lg group-hover/btn:scale-[1.02] transition-all duration-300"
+                        className="relative h-20 w-full flex flex-col space-y-2 bg-white hover:bg-red-50 text-red-700 border-2 border-red-200 hover:border-red-600 shadow-lg group-hover/btn:scale-[1.02] transition-all duration-300"
                         data-testid="button-view-history"
                       >
                         <History className="w-6 h-6" />
@@ -1875,11 +1875,11 @@ export default function PassengerDashboard() {
 
             {/* Recent Bookings */}
             <div className="relative group" data-testid="recent-bookings">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
               <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-md">
+            <CardTitle className="text-2xl font-bold text-black flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                 <Calendar className="w-5 h-5 text-white" />
               </div>
               Recent Bookings
@@ -1895,7 +1895,7 @@ export default function PassengerDashboard() {
                 {recentBookings.map((booking) => (
                   <div
                     key={booking.id}
-                    className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all"
+                    className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-red-300 hover:shadow-md transition-all"
                     data-testid={`booking-${booking.id}`}
                   >
                     <div className="flex justify-between items-start">
@@ -1999,19 +1999,19 @@ export default function PassengerDashboard() {
         {/* Booking Section */}
         {activeSection === 'booking' && (
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
             <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-b-0">
+              <CardHeader className="bg-gradient-to-r from-red-600 to-red-800 text-white border-b-0">
                 <CardTitle className="text-2xl font-bold flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-md">
                     <MapPin className="w-6 h-6 text-white" />
                   </div>
                   Book Your Luxury Transportation
                 </CardTitle>
-                <p className="text-blue-100 mt-2 text-sm">Premium rides at your fingertips</p>
+                <p className="text-red-100 mt-2 text-sm">Premium rides at your fingertips</p>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+                <div className="bg-gradient-to-br from-white via-white to-gray-50">
                   <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
                     <BookingForm />
                   </div>
@@ -2024,19 +2024,19 @@ export default function PassengerDashboard() {
         {/* Saved Locations Section */}
         {activeSection === 'saved-locations' && (
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
             <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="saved-addresses">
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                   <MapPin className="w-5 h-5 text-white" />
                 </div>
                 Saved Locations
               </CardTitle>
               <Dialog open={addAddressOpen} onOpenChange={setAddAddressOpen}>
                 <DialogTrigger asChild>
-                  <Button size="sm" className="bg-[#c9e8b0] text-[#000000]" data-testid="button-add-address">
+                  <Button size="sm" className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white" data-testid="button-add-address">
                     <Plus className="w-4 h-4 mr-2" />
                     Add Location
                   </Button>
@@ -2120,7 +2120,7 @@ export default function PassengerDashboard() {
           <CardContent>
             {addressesLoading ? (
               <div className="flex items-center justify-center p-8">
-                <div className="animate-spin w-6 h-6 border-4 border-indigo-500 border-t-transparent rounded-full" />
+                <div className="animate-spin w-6 h-6 border-4 border-red-500 border-t-transparent rounded-full" />
               </div>
             ) : addresses && addresses.length > 0 ? (
               <div className="space-y-3">
@@ -2129,11 +2129,11 @@ export default function PassengerDashboard() {
                   return (
                     <div
                       key={address.id}
-                      className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-4 border border-gray-200 group flex items-center justify-between gap-4 hover:border-indigo-400 hover:shadow-md transition-all"
+                      className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-4 border border-gray-200 group flex items-center justify-between gap-4 hover:border-red-400 hover:shadow-md transition-all"
                       data-testid={`address-${address.id}`}
                     >
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
-                        <IconComponent className="w-5 h-5 text-indigo-600 flex-shrink-0" />
+                        <IconComponent className="w-5 h-5 text-red-600 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <span className="font-semibold text-gray-900 block" data-testid={`address-label-${address.id}`}>
                             {address.label}
@@ -2145,13 +2145,13 @@ export default function PassengerDashboard() {
                       </div>
                       <div className="flex items-center gap-3 flex-shrink-0">
                         <div className="text-center">
-                          <p className="text-xs mb-1 whitespace-nowrap font-medium text-indigo-600">Quick Book</p>
+                          <p className="text-xs mb-1 whitespace-nowrap font-medium text-red-600">Quick Book</p>
                           <div className="flex gap-2">
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => window.location.href = `/?from=${encodeURIComponent(address.address)}`}
-                              className="bg-white border-indigo-300 text-indigo-700 hover:bg-indigo-600 hover:text-white hover:border-indigo-600"
+                              className="bg-white border-red-300 text-red-700 hover:bg-red-600 hover:text-white hover:border-red-600"
                               data-testid={`button-from-${address.id}`}
                             >
                               From
@@ -2160,7 +2160,7 @@ export default function PassengerDashboard() {
                               size="sm"
                               variant="outline"
                               onClick={() => window.location.href = `/?to=${encodeURIComponent(address.address)}`}
-                              className="bg-white border-indigo-300 text-indigo-700 hover:bg-indigo-600 hover:text-white hover:border-indigo-600"
+                              className="bg-white border-red-300 text-red-700 hover:bg-red-600 hover:text-white hover:border-red-600"
                               data-testid={`button-to-${address.id}`}
                             >
                               To
@@ -2197,11 +2197,11 @@ export default function PassengerDashboard() {
         {/* Future Bookings Section */}
         {activeSection === 'future-bookings' && (
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
             <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="future-bookings-section">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
                 Future Bookings
@@ -2210,14 +2210,14 @@ export default function PassengerDashboard() {
             <CardContent>
               {bookingsLoading ? (
                 <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin w-6 h-6 border-4 border-orange-500 border-t-transparent rounded-full" />
+                  <div className="animate-spin w-6 h-6 border-4 border-red-600 border-t-transparent rounded-full" />
                 </div>
               ) : futureBookings.length > 0 ? (
                 <div className="space-y-4">
                   {futureBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all"
+                      className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-red-300 hover:shadow-md transition-all"
                       data-testid={`future-booking-${booking.id}`}
                     >
                       <div className="flex justify-between items-start">
@@ -2298,11 +2298,11 @@ export default function PassengerDashboard() {
         {/* Past Bookings Section */}
         {activeSection === 'past-bookings' && (
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-slate-500 to-gray-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-400 to-gray-600 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
             <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="past-bookings-section">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-600 to-gray-600 flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center shadow-md">
                   <History className="w-5 h-5 text-white" />
                 </div>
                 Past Bookings
@@ -2311,7 +2311,7 @@ export default function PassengerDashboard() {
             <CardContent>
               {bookingsLoading ? (
                 <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin w-6 h-6 border-4 border-slate-500 border-t-transparent rounded-full" />
+                  <div className="animate-spin w-6 h-6 border-4 border-gray-500 border-t-transparent rounded-full" />
                 </div>
               ) : pastBookings.length > 0 ? (
                 <div className="space-y-4">
@@ -2400,11 +2400,11 @@ export default function PassengerDashboard() {
         {/* Invoices Section */}
         {activeSection === 'invoices' && (
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
             <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="invoices-section">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center shadow-md">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                     <FileText className="w-5 h-5 text-white" />
                   </div>
                   My Invoices
@@ -2421,11 +2421,11 @@ export default function PassengerDashboard() {
         {/* Payment Methods Section */}
         {activeSection === 'payment-methods' && (
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
             <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="payment-methods-section">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                   <CreditCard className="w-5 h-5 text-white" />
                 </div>
                 Payment Methods
@@ -2443,11 +2443,11 @@ export default function PassengerDashboard() {
           <div className="grid gap-6">
             {/* Editable Profile Information Card */}
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
               <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="profile-card">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-md">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                       <User className="w-5 h-5 text-white" />
                     </div>
                     Account Information
@@ -2489,7 +2489,7 @@ export default function PassengerDashboard() {
 
                     <div>
                       <Label htmlFor="email" className="text-base font-medium flex items-center gap-2 text-gray-700">
-                        <Mail className="w-4 h-4 text-blue-600" />
+                        <Mail className="w-4 h-4 text-red-600" />
                         Email Address *
                       </Label>
                       <Input
@@ -2505,7 +2505,7 @@ export default function PassengerDashboard() {
 
                     <div>
                       <Label htmlFor="phone" className="text-base font-medium flex items-center gap-2 text-gray-700">
-                        <Phone className="w-4 h-4 text-blue-600" />
+                        <Phone className="w-4 h-4 text-red-600" />
                         Phone Number
                       </Label>
                       <Input
@@ -2523,7 +2523,7 @@ export default function PassengerDashboard() {
                       <Button
                         type="submit"
                         disabled={updateProfileMutation.isPending}
-                        className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white border-0 shadow-lg"
+                        className="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white border-0 shadow-lg"
                         data-testid="button-save"
                       >
                         {updateProfileMutation.isPending ? (
@@ -2546,11 +2546,11 @@ export default function PassengerDashboard() {
 
             {/* Password Update Card */}
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
               <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="password-card">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-md">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                       <Save className="w-5 h-5 text-white" />
                     </div>
                     Change Password
@@ -2590,7 +2590,7 @@ export default function PassengerDashboard() {
                         data-testid="input-new-password"
                       />
                       <p className="text-xs text-gray-600 mt-2 flex items-start gap-2">
-                        <span className="text-purple-600 mt-0.5">ℹ️</span>
+                        <span className="text-red-600 mt-0.5">ℹ️</span>
                         Password must be at least 8 characters with uppercase, lowercase, and numbers
                       </p>
                     </div>
@@ -2614,7 +2614,7 @@ export default function PassengerDashboard() {
                       <Button
                         type="submit"
                         disabled={updatePasswordMutation.isPending}
-                        className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0 shadow-lg"
+                        className="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white border-0 shadow-lg"
                         data-testid="button-update-password"
                       >
                         {updatePasswordMutation.isPending ? (
@@ -2637,11 +2637,11 @@ export default function PassengerDashboard() {
 
             {/* Account Details Card */}
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
               <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="account-details-card">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center shadow-md">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                       <User className="w-5 h-5 text-white" />
                     </div>
                     Account Details
@@ -2652,7 +2652,7 @@ export default function PassengerDashboard() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-4 border border-blue-200">
+                    <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-200">
                       <p className="text-sm text-gray-600 mb-2">Account Type</p>
                       <p className="font-bold text-lg text-gray-900 capitalize" data-testid="text-role">
                         {user?.role || 'N/A'}
@@ -2674,7 +2674,7 @@ export default function PassengerDashboard() {
                         )}
                       </p>
                     </div>
-                    <div className="bg-gradient-to-br from-purple-50 to-white rounded-xl p-4 border border-purple-200">
+                    <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-200">
                       <p className="text-sm text-gray-600 mb-2">Payment Card</p>
                       <p className={`font-bold text-lg ${paymentCardStatus.color}`} data-testid="text-payment-status">
                         {paymentCardStatus.status}
@@ -2684,15 +2684,15 @@ export default function PassengerDashboard() {
                   
                   {paymentCardStatus.message && (
                     <div className="relative group/alert">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-20 group-hover/alert:opacity-30 blur transition-opacity" />
-                      <div className="relative p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 rounded-xl">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-400 to-red-600 rounded-xl opacity-20 group-hover/alert:opacity-30 blur transition-opacity" />
+                      <div className="relative p-4 bg-gradient-to-r from-red-50 to-red-100 border border-red-300 rounded-xl">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
-                            <p className="text-sm font-bold text-amber-900 flex items-center gap-2 mb-2">
+                            <p className="text-sm font-bold text-red-900 flex items-center gap-2 mb-2">
                               <span className="text-lg">⚠️</span>
                               Action Required
                             </p>
-                            <p className="text-sm text-amber-800">
+                            <p className="text-sm text-red-800">
                               {paymentCardStatus.message}
                             </p>
                           </div>
@@ -2700,7 +2700,7 @@ export default function PassengerDashboard() {
                             variant="outline"
                             size="sm"
                             onClick={() => setActiveSection('payment-methods')}
-                            className="whitespace-nowrap bg-amber-600 hover:bg-amber-500 text-white border-0"
+                            className="whitespace-nowrap bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white border-0"
                             data-testid="button-manage-payment"
                           >
                             {paymentCardStatus.action}
@@ -2712,13 +2712,13 @@ export default function PassengerDashboard() {
                   
                   {user?.payLaterEnabled && (
                     <div className="relative group/privilege">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl opacity-20 group-hover/privilege:opacity-30 blur transition-opacity" />
-                      <div className="relative p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-300 rounded-xl">
-                        <p className="text-sm font-bold text-green-900 flex items-center gap-2 mb-2">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-400 to-red-600 rounded-xl opacity-20 group-hover/privilege:opacity-30 blur transition-opacity" />
+                      <div className="relative p-4 bg-gradient-to-r from-red-50 to-red-100 border border-red-300 rounded-xl">
+                        <p className="text-sm font-bold text-red-900 flex items-center gap-2 mb-2">
                           <span className="text-lg">✓</span>
                           Pay Later Enabled
                         </p>
-                        <p className="text-sm text-green-800">
+                        <p className="text-sm text-red-800">
                           You have been granted pay later privileges by the administrator.
                         </p>
                       </div>
@@ -2727,13 +2727,13 @@ export default function PassengerDashboard() {
                   
                   {(user as any)?.discountType && ((user as any)?.discountValue ?? 0) > 0 && (
                     <div className="relative group/discount">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-xl opacity-20 group-hover/discount:opacity-30 blur transition-opacity" />
-                      <div className="relative p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-300 rounded-xl">
-                        <p className="text-sm font-bold text-blue-900 flex items-center gap-2 mb-2">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-400 to-red-600 rounded-xl opacity-20 group-hover/discount:opacity-30 blur transition-opacity" />
+                      <div className="relative p-4 bg-gradient-to-r from-red-50 to-red-100 border border-red-300 rounded-xl">
+                        <p className="text-sm font-bold text-red-900 flex items-center gap-2 mb-2">
                           <span className="text-lg">🎉</span>
                           Active Discount
                         </p>
-                        <p className="text-sm text-blue-800">
+                        <p className="text-sm text-red-800">
                           {(user as any).discountType === 'percentage' 
                             ? `${(user as any).discountValue}% off all bookings` 
                             : `$${(user as any).discountValue} off all bookings`}
@@ -2904,7 +2904,7 @@ export default function PassengerDashboard() {
                     <Star
                       className={`w-10 h-10 ${
                         star <= rating
-                          ? 'text-yellow-400 fill-current'
+                          ? 'text-red-600 fill-current'
                           : 'text-gray-300'
                       }`}
                     />
