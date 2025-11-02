@@ -352,11 +352,11 @@ export default function MobileDriver() {
                       : 'bg-gray-400'
                 }`}></div>
                 <span className={`font-semibold text-sm ${
-                  driver.isAvailable ? 'text-white' : 'text-red-400'
+                  driver.isAvailable ? 'text-red-200' : 'text-green-300'
                 }`}>
                   {toggleAvailabilityMutation.isPending 
                     ? (driver.isAvailable ? 'Going Offline...' : 'Going Online...') 
-                    : (driver.isAvailable ? 'Available' : 'Go Online')
+                    : (driver.isAvailable ? 'Go Offline' : 'Go Online')
                   }
                 </span>
               </div>
