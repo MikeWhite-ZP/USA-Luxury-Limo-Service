@@ -172,7 +172,7 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('passenger')}
-                  className="group w-half bg-white hover:bg-blue-50 text-blue-700 py-4 px-5 rounded-xl text-sm font-medium shadow-sm hover:shadow-md border-2 border-blue-200 hover:border-blue-300 transition-all"
+                  className="group w-half bg-white hover:bg-blue-50 text-blue-700 py-4 px-5 rounded-xl font-medium shadow-sm hover:shadow-md border-2 border-blue-200 hover:border-blue-300 transition-all text-[12px] pt-[20px] pb-[20px]"
                   data-testid="button-role-passenger"
                 >
                   <div className="flex items-center justify-start gap-3">
