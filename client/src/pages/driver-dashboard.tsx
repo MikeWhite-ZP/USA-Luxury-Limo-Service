@@ -1168,7 +1168,7 @@ export default function DriverDashboard() {
                 {/* Upload Dialog */}
                 {uploadDialogOpen && (
                   <Dialog open={!!uploadDialogOpen} onOpenChange={(open) => !open && setUploadDialogOpen(null)}>
-                    <DialogContent className="sm:max-w-md">
+                    <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg sm:max-w-md bg-[#ffffff]">
                       <DialogHeader>
                         <DialogTitle>
                           Upload {uploadDialogOpen === "driver_license" ? "Texas driver license" :
@@ -1219,7 +1219,7 @@ export default function DriverDashboard() {
                             <Input
                               id="upload-expiry"
                               type="date"
-                              value={documentForms[uploadDialogOpen as keyof typeof documentForms].expirationDate}
+                              value={documentForms[uploadDialogOpen as keyof typeof documentForms]?.expirationDate || ""}
                               onChange={(e) =>
                                 setDocumentForms((prev) => ({
                                   ...prev,
@@ -1241,7 +1241,7 @@ export default function DriverDashboard() {
                             <Input
                               id="upload-plate"
                               type="text"
-                              value={documentForms.vehicle_image.expirationDate}
+                              value={documentForms.vehicle_image?.expirationDate || ""}
                               onChange={(e) =>
                                 setDocumentForms((prev) => ({
                                   ...prev,
