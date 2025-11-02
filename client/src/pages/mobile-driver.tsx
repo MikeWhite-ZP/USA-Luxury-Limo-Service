@@ -356,7 +356,7 @@ export default function MobileDriver() {
                 }`}>
                   {toggleAvailabilityMutation.isPending 
                     ? (driver.isAvailable ? 'Going Offline...' : 'Going Online...') 
-                    : (driver.isAvailable ? 'Available' : 'Go Offline')
+                    : (driver.isAvailable ? 'Available' : 'Go Online')
                   }
                 </span>
               </div>
