@@ -612,7 +612,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       }
       // Redirect to home page
       setTimeout(() => {
-        setLocation('/passenger/');  // Change to '/' for home or '/dashboard' if that's your route
+        setLocation('/');  // Change to '/' for home or '/dashboard' if that's your route
       }, 1000);
     },
     onError: (error: Error) => {
