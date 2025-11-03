@@ -7922,24 +7922,6 @@ export default function AdminDashboard() {
                       </div>
                     )}
 
-                    {uploadFormData.documentType === "profile_photo" && (
-                      <div className="space-y-2">
-                        <Label>WhatsApp Number</Label>
-                        <Input
-                          type="tel"
-                          placeholder="+1234567890"
-                          value={uploadFormData.whatsappNumber}
-                          onChange={(e) =>
-                            setUploadFormData({
-                              ...uploadFormData,
-                              whatsappNumber: e.target.value,
-                            })
-                          }
-                          data-testid="input-whatsapp"
-                        />
-                      </div>
-                    )}
-
                     <Button
                       onClick={() => {
                         if (!uploadFormData.file || !selectedDriverForDocs) {
