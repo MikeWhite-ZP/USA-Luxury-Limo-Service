@@ -4,9 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Plane, Briefcase, Heart, Clock, Star, Check, Phone } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import airportTransferBg from "@assets/67dc52e7ef277_1759125789879.webp";
-import corporateTravelBg from "@assets/corporate_1759126654203.webp";
-import specialEventsBg from "@assets/event_1759126933449.webp";
+const airportTransferBg = '/attached_assets/67dc52e7ef277_1759125789879.webp';
+const corporateTravelBg = '/attached_assets/corporate_1759126654203.webp';
+const specialEventsBg = '/attached_assets/event_1759126933449.webp"';
 
 const serviceData = {
   "airport-transfer": {
