@@ -16,6 +16,7 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
 - **Backend**: Node.js with Express.js, TypeScript, RESTful JSON APIs.
 - **Database**: PostgreSQL (Neon for hosting) with Drizzle ORM.
 - **Authentication**: Replit Auth with OpenID Connect, PostgreSQL-backed session management, and scrypt hashing for multi-role access (passenger, driver, admin).
+- **Object Storage**: Replit Object Storage with custom Buffer normalization for all downloads. Object storage returns data in serialized format (array-wrapped or plain objects with numeric keys) which is converted to proper Buffers for binary file serving. All download endpoints (driver documents, CMS media, email logos) use consistent conversion logic with strict error handling.
 - **Core Features**:
     - **Notifications**: Comprehensive email and SMS notification system (Twilio, Nodemailer) for all booking lifecycle events, using a fire-and-forget async pattern.
     - **Payment**: Integration with multiple providers (Stripe, PayPal, Square), supporting "Pay Now", "Pay Later", and "Pay with Cash" options. Includes surcharge management.

@@ -2262,8 +2262,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const logoBuffer = await storage_client.downloadAsBytes(fileKey);
           
           if (logoBuffer) {
-            const buffer = Array.isArray(logoBuffer) ? logoBuffer[0] : logoBuffer;
-            const base64Logo = Buffer.from(buffer).toString('base64');
+            let buffer: Buffer;
+            if (Buffer.isBuffer(logoBuffer)) {
+              buffer = logoBuffer;
+            } else if (Array.isArray(logoBuffer) && logoBuffer.length > 0) {
+              buffer = Buffer.from(Object.values(logoBuffer[0]));
+            } else if (typeof logoBuffer === 'object' && logoBuffer !== null) {
+              // Handle non-array-wrapped object with numeric keys
+              buffer = Buffer.from(Object.values(logoBuffer));
+            } else {
+              throw new Error('Unexpected logo buffer format from object storage');
+            }
+            const base64Logo = buffer.toString('base64');
             const ext = fileKey.split('.').pop()?.toLowerCase();
             const mimeType = ext === 'png' ? 'image/png' : 
                             ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
@@ -2810,8 +2820,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           if (logoBuffer) {
             // Convert to base64 and create data URI
-            const buffer = Array.isArray(logoBuffer) ? logoBuffer[0] : logoBuffer;
-            const base64Logo = Buffer.from(buffer).toString('base64');
+            let buffer: Buffer;
+            if (Buffer.isBuffer(logoBuffer)) {
+              buffer = logoBuffer;
+            } else if (Array.isArray(logoBuffer) && logoBuffer.length > 0) {
+              buffer = Buffer.from(Object.values(logoBuffer[0]));
+            } else if (typeof logoBuffer === 'object' && logoBuffer !== null) {
+              // Handle non-array-wrapped object with numeric keys
+              buffer = Buffer.from(Object.values(logoBuffer));
+            } else {
+              throw new Error('Unexpected logo buffer format from object storage');
+            }
+            const base64Logo = buffer.toString('base64');
             // Determine MIME type from file extension
             const ext = fileKey.split('.').pop()?.toLowerCase();
             const mimeType = ext === 'png' ? 'image/png' : 
@@ -3578,8 +3598,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   const logoBuffer = await storage_client.downloadAsBytes(fileKey);
                   
                   if (logoBuffer) {
-                    const buffer = Array.isArray(logoBuffer) ? logoBuffer[0] : logoBuffer;
-                    const base64Logo = Buffer.from(buffer).toString('base64');
+                    let buffer: Buffer;
+                    if (Buffer.isBuffer(logoBuffer)) {
+                      buffer = logoBuffer;
+                    } else if (Array.isArray(logoBuffer) && logoBuffer.length > 0) {
+                      buffer = Buffer.from(Object.values(logoBuffer[0]));
+                    } else if (typeof logoBuffer === 'object' && logoBuffer !== null) {
+                      // Handle non-array-wrapped object with numeric keys
+                      buffer = Buffer.from(Object.values(logoBuffer));
+                    } else {
+                      throw new Error('Unexpected logo buffer format from object storage');
+                    }
+                    const base64Logo = buffer.toString('base64');
                     const ext = fileKey.split('.').pop()?.toLowerCase();
                     const mimeType = ext === 'png' ? 'image/png' : 
                                     ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
@@ -4987,6 +5017,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: `File not found: ${error}` });
       }
 
+      // Convert from object storage format to Buffer
+      let buffer: Buffer;
+      if (Buffer.isBuffer(value)) {
+        buffer = value;
+      } else if (Array.isArray(value) && value.length > 0) {
+        const byteArray = Object.values(value[0]);
+        buffer = Buffer.from(byteArray);
+      } else {
+        throw new Error('Unexpected value format from object storage');
+      }
+
       // Determine content type from file extension
       const extension = document.documentUrl.split('.').pop()?.toLowerCase();
       const contentTypeMap: Record<string, string> = {
@@ -5003,7 +5044,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.setHeader('Content-Type', contentType);
       res.setHeader('Content-Disposition', `inline; filename="${document.documentType}.${extension}"`);
-      res.send(value);
+      res.send(buffer);
 
     } catch (error) {
       console.error('Document download error:', error);
@@ -5024,6 +5065,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: `File not found: ${error}` });
       }
 
+      // Convert from object storage format to Buffer
+      // Object storage returns an array with one element that is an array-like object with numeric keys
+      let buffer: Buffer;
+      
+      if (Buffer.isBuffer(value)) {
+        buffer = value;
+      } else if (Array.isArray(value) && value.length > 0) {
+        // value[0] is an object with numeric keys representing bytes
+        // Convert it to an array then to a Buffer
+        const byteArray = Object.values(value[0]);
+        buffer = Buffer.from(byteArray);
+      } else {
+        throw new Error('Unexpected value format from object storage');
+      }
+
       // Determine content type from file extension
       const extension = filename.split('.').pop()?.toLowerCase();
       const contentTypeMap: Record<string, string> = {
@@ -5040,7 +5096,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
-      res.send(value);
+      res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+      res.send(buffer);
 
     } catch (error) {
       console.error('Driver document file serving error:', error);
@@ -6962,14 +7019,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
       
-      // Handle different possible return types from Object Storage
+      // Convert from object storage format to Buffer
       let buffer: Buffer;
       if (Buffer.isBuffer(value)) {
         buffer = value;
-      } else if (Array.isArray(value) && value.length > 0 && Buffer.isBuffer(value[0])) {
-        buffer = value[0];
+      } else if (Array.isArray(value) && value.length > 0) {
+        buffer = Buffer.from(Object.values(value[0]));
+      } else if (typeof value === 'object' && value !== null) {
+        // Handle non-array-wrapped object with numeric keys
+        buffer = Buffer.from(Object.values(value));
       } else {
-        buffer = Buffer.from(value as any);
+        throw new Error('Unexpected value format from object storage');
       }
       
       res.send(buffer);
