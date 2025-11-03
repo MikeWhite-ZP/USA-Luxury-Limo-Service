@@ -7,7 +7,7 @@ import { z } from "zod";
 import Stripe from "stripe";
 import multer from "multer";
 import crypto from "crypto";
-import { Client as ObjectStorageClient } from "@replit/object-storage";
+import { getStorageAdapter, type StorageAdapter } from "./objectStorageAdapter";
 import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML, getPaymentConfirmationEmailHTML, getDriverOnTheWayEmailHTML, getDriverArrivedEmailHTML, getBookingCancelledEmailHTML } from "./email";
 import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS, sendDriverOnTheWaySMS, sendDriverArrivedSMS, sendBookingCancelledSMS, sendAdminNewBookingAlertSMS } from "./sms";
 import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityReport } from "./emailReports";
@@ -20,16 +20,17 @@ if (!process.env.STRIPE_SECRET_KEY) {
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Initialize Object Storage client lazily (on first use) to avoid startup errors
-let objectStorage: ObjectStorageClient | null = null;
+// Initialize Object Storage adapter lazily (on first use) to avoid startup errors
+let objectStorage: StorageAdapter | null = null;
 
-function getObjectStorage(): ObjectStorageClient {
+function getObjectStorage(): StorageAdapter {
   if (!objectStorage) {
-    const bucketId = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID;
-    if (!bucketId) {
-      throw new Error('Object Storage bucket ID not found. Please set up Object Storage.');
+    try {
+      objectStorage = getStorageAdapter();
+    } catch (error: any) {
+      console.error('[STORAGE] Failed to initialize storage adapter:', error.message);
+      throw new Error('Object Storage not configured. Please set up storage environment variables.');
     }
-    objectStorage = new ObjectStorageClient({ bucketId });
   }
   return objectStorage;
 }

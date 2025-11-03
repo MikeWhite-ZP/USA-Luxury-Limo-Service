@@ -12,3 +12,8 @@ dist
 *.log
 .DS_Store
 attached_assets
+README.md
+DEPLOYMENT.md
+.replit
+replit.nix
+.config
