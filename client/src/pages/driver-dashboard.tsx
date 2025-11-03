@@ -10,7 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ObjectUploader } from "../components/ObjectUploader";
-import defaultUserImage from "@/assets/default-user.png";
+
+const defaultUserImage = '/images/default-user_1762118764894.png';
+
 import {
   DollarSign,
   MapPin,

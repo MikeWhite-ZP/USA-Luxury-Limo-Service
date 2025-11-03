@@ -1,7 +1,8 @@
 import BookingForm from "@/components/BookingForm";
 import PWAInstall from "@/components/PWAInstall";
-import heroBackground from "@assets/khalid_1759128435991.webp";
 import { useQuery } from "@tanstack/react-query";
+
+const heroBackground = '/images/khalid_1759128435991.webp';
 
 interface HeroResponse {
   hero: {

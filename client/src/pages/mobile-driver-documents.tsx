@@ -9,7 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import defaultUserImage from '@assets/default-user_1762118764894.png';
+
+const defaultUserImage = '/images/default-user_1762118764894.png';
 
 interface DriverDocument {
   id: string;

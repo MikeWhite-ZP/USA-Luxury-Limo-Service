@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import logoImage from "@assets/logo_1759125364025.png";
+
+const logoImage = '/images/logo_1759125364025.png';
 
 type SiteLogo = {
   id: string;

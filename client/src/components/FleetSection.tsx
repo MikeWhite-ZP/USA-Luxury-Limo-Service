@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import sedanImage from "@assets/sedan_1759156477839.webp";
-import firstClassSedanImage from "@assets/first_class_sedan_1759157052869.webp";
-import suburbanImage from "@assets/suburban_1759127172845.webp";
-import cadillacImage from "@assets/cadillac_1759128022490.png";
-import businessVanImage from "@assets/BusinessVAN_1759127962518.webp";
+
+const sedanImage = '/images/sedan_1759156477839.webp';
+const firstClassSedanImage = '/images/first_class_sedan_1759157052869.webp';
+const suburbanImage = '/images/suburban_1759127172845.webp';
+const cadillacImage = '/images/cadillac_1759128022490.png';
+const businessVanImage = '/images/BusinessVAN_1759127962518.webp';
 
 interface VehicleType {
   id: string;

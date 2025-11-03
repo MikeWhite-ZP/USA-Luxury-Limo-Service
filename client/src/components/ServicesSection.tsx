@@ -1,9 +1,10 @@
 import { Plane, Briefcase, Heart, Clock } from "lucide-react";
 import { useLocation } from "wouter";
-import airportTransferBg from "@assets/67dc52e7ef277_1759125789879.webp";
-import corporateTravelBg from "@assets/corporate_1759126654203.webp";
-import specialEventsBg from "@assets/event_1759126933449.webp";
-import hourlyServiceBg from "@assets/hourly_1759159676580.png";
+
+const airportTransferBg = '/images/67dc52e7ef277_1759125789879.webp';
+const corporateTravelBg = '/images/corporate_1759126654203.webp';
+const specialEventsBg = '/images/event_1759126933449.webp';
+const hourlyServiceBg = '/images/hourly_1759159676580.png';
 
 export default function ServicesSection() {
   const [, setLocation] = useLocation();

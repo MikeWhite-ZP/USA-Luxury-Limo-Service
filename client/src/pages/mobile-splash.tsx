@@ -5,8 +5,9 @@ import { Car, UserCircle, Radio, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { setDevicePreference } from '@/lib/deviceDetection';
 import { useQuery } from '@tanstack/react-query';
-import chauffeurImage from "@assets/khalid_1759128435991.webp";
-import usaLuxuryLogo from "@assets/logo_1761944723746.png";
+
+const chauffeurImage = '/images/khalid_1759128435991.webp';
+const usaLuxuryLogo = '/images/logo_1761944723746.png';
 
 type SplashStage = 'logo' | 'chauffeur' | 'role-selection';
 type UserRole = 'passenger' | 'driver' | 'dispatcher';

@@ -5,11 +5,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Users, Luggage, Car, Shield, Star } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-const sedanImage = '/attached_assets/sedan_1759156477839.webp';
-const firstClassSedanImage = '/attached_assets/first_class_sedan_1759157052869.webp';
-const sedanImage = '/attached_assets/sedan_1759156477839.webp';
-const cadillacImage = '/attached_assets/cadillac_1759128022490.png';
-const businessVanImage = '/attached_assets/BusinessVAN_1759127962518.webp';
+const sedanImage = '/images/sedan_1759156477839.webp';
+const firstClassSedanImage = '/images/first_class_sedan_1759157052869.webp';
+const suburbanImage = '/images/suburban_1759127172845.webp';
+const cadillacImage = '/images/cadillac_1759128022490.png';
+const businessVanImage = '/images/BusinessVAN_1759127962518.webp';
 
 interface VehicleType {
   id: string;
