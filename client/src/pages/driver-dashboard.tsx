@@ -712,6 +712,19 @@ export default function DriverDashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              {/* Driver Profile Picture */}
+              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-red-100 shadow-md bg-white">
+                <img
+                  src={
+                    getDocumentByType('profile_photo')?.status === 'approved' && getDocumentByType('profile_photo')?.documentUrl 
+                      ? `/${getDocumentByType('profile_photo')!.documentUrl}` 
+                      : defaultUserImage
+                  }
+                  alt="Driver Profile"
+                  className="w-full h-full object-cover"
+                  data-testid="img-header-profile"
+                />
+              </div>
               <Badge
                 variant={driver?.isAvailable ? "secondary" : "outline"}
                 className={driver?.isAvailable ? "bg-red-600 text-white px-4 py-2 text-sm font-medium" : "border-gray-300 text-gray-600 px-4 py-2 text-sm"}
