@@ -34,7 +34,7 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
 - **Square**: Payment processing.
 - **TomTom**: Geocoding and location services.
 - **Neon Database**: PostgreSQL hosting.
-- **Replit Auth**: User authentication.
+- **Replit Auth**: User authentication (optional, falls back to regular auth).
 - **Shadcn/ui**: UI component library.
 - **TanStack Query**: Server state management.
 - **Drizzle ORM**: Database ORM.
@@ -42,5 +42,45 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
 - **Wouter**: React router.
 - **React Hook Form**: Form management.
 - **AeroDataBox API (via RapidAPI)**: Flight search.
-- **Replit Object Storage**: Driver document and CMS media storage.
+- **Object Storage**: Flexible storage backend - supports Replit Object Storage, MinIO, or AWS S3.
 - **react-datepicker**: Date and time selection.
+- **AWS SDK**: For S3-compatible storage (MinIO/S3) integration.
+
+## Deployment Options
+
+The application is prepared for multiple deployment scenarios:
+
+### Replit Deployment (Default)
+- Uses Replit Auth for authentication
+- Uses Replit Object Storage for file storage
+- Environment variables automatically managed by Replit
+
+### External Deployment (Coolify/VPS)
+Complete preparation for deployment on Coolify or other Docker-based platforms:
+
+#### Key Files:
+- **Dockerfile**: Multi-stage production build (Node 20, Vite + esbuild)
+- **docker-compose.yml**: Local testing with MinIO service
+- **.env.example**: Comprehensive environment variable documentation
+- **DEPLOYMENT.md**: Step-by-step Coolify deployment guide for Hostinger VPS
+
+#### Storage Abstraction:
+- **server/objectStorageAdapter.ts**: Unified storage interface
+- Automatic backend detection based on environment variables
+- Supports three storage options:
+  1. **MinIO** (recommended for VPS) - Self-hosted S3-compatible storage
+  2. **AWS S3** - Cloud-based object storage
+  3. **Replit Object Storage** - For Replit deployments
+
+#### Authentication Flexibility:
+- **Replit Auth**: Automatically disabled when REPLIT_DOMAINS/REPL_ID not set
+- **Fallback**: Uses regular authentication (auth.ts) for non-Replit deployments
+- Graceful degradation ensures app works in any environment
+
+#### Production Features:
+- Health check endpoint for container monitoring
+- Automatic SSL via Let's Encrypt (when using Coolify)
+- MinIO console for file management
+- Complete environment variable documentation
+- PostgreSQL session storage
+- Docker networking and volume management
