@@ -14,7 +14,7 @@ startPeriod = "40s"
 
 ### Option 2: Modify Your Caddyfile
 
-Your Caddyfile already has a health endpoint configuration:
+### Your Caddyfile already has a health endpoint configuration:
 ### 
 # health check for railway
 rewrite /health /*
