@@ -119,16 +119,10 @@ If you prefer AWS S3 or another S3-compatible service, skip MinIO and use those 
    - **Port**: `5000`
    - **Protocol**: HTTP
 
-3. **Health Check** (IMPORTANT - Configure this to avoid deployment failures):
-   - **Enable Health Check**: Yes
-   - **Health Check URL**: `/api/health`
-   - **Health Check Port**: `5000`
-   - **Health Check Method**: GET
-   - **Expected Status Code**: `200`
-   - **Health Check Interval**: `30s`
-   - **Start Period**: `40s` (allow app time to start)
-   
-   > **Note**: The Dockerfile no longer includes a built-in HEALTHCHECK instruction. You MUST configure the health check through Coolify's interface as shown above. This prevents the "map has no entry for key Health" error.
+3. **Health Check** (Optional but recommended):
+   - **Path**: `/api/health`
+   - **Port**: `5000`
+   - **Interval**: `30s`
    - **Timeout**: `5s`
    - **Retries**: `3`
 
