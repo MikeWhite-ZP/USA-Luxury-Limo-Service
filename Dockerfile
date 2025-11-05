@@ -43,8 +43,7 @@ COPY --from=builder /app/shared ./shared
 EXPOSE 5000
 
 # Health check to ensure app is running
-# HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
-#  CMD node -e "require('http').get('http://localhost:5000/api/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
+#HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD wget -qO- http://127.0.0.1:${PORT:-5000}/health || exit 1
 
 # Start the application
 CMD ["npm", "start"]
