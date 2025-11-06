@@ -699,20 +699,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (bookingType === 'transfer') {
         // Transfer pricing: base rate + distance
         const baseFare = parseFloat(vehicleType.minimumFare || '0');
-        const distanceFare = parseFloat(vehicleType.perMileRate || '0') * parseFloat(distance || '0');
+        const parsedDistance = parseFloat(distance || '0');
+        const perMileRate = parseFloat(vehicleType.perMileRate || '0');
+        
+        // Validate parsed numbers
+        if (isNaN(baseFare) || isNaN(parsedDistance) || isNaN(perMileRate)) {
+          return res.status(400).json({ error: 'Invalid pricing data' });
+        }
+        
+        const distanceFare = perMileRate * parsedDistance;
         
         breakdown = {
           baseFare,
           distanceFare,
-          distance: parseFloat(distance || '0'),
-          perMileRate: parseFloat(vehicleType.perMileRate || '0')
+          distance: parsedDistance,
+          perMileRate
         };
         
         totalAmount = baseFare + distanceFare;
       } else if (bookingType === 'hourly') {
         // Hourly pricing: hourly rate * hours
         const hourlyRate = parseFloat(vehicleType.hourlyRate);
-        const requestedHours = parseInt(hours || '2');
+        const requestedHours = parseInt(hours || '2', 10);
+        
+        // Validate parsed numbers
+        if (isNaN(hourlyRate) || isNaN(requestedHours) || requestedHours < 1) {
+          return res.status(400).json({ error: 'Invalid pricing data' });
+        }
         
         breakdown = {
           hourlyRate,
@@ -1849,9 +1862,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Valid description and amount are required' });
       }
 
+      const parsedAmount = parseFloat(amount);
+      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        return res.status(400).json({ message: 'Invalid amount value' });
+      }
+
       const booking = await storage.addAdditionalCharge(id, {
         description,
-        amount: parseFloat(amount),
+        amount: parsedAmount,
         addedBy: userId
       });
 
@@ -3562,6 +3580,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const { invoiceId, paymentToken } = paymentIntent.metadata;
 
         if (invoiceId && paymentToken) {
+          // Check if already processed (idempotency)
+          const invoice = await storage.getInvoice(invoiceId);
+          if (invoice && invoice.paidAt) {
+            console.log(`Webhook already processed for invoice ${invoiceId}`);
+            return res.json({ received: true, alreadyProcessed: true });
+          }
+
           // Update invoice as paid
           await storage.updateInvoice(invoiceId, {
             paidAt: new Date().toISOString(),
@@ -3571,7 +3596,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.markPaymentTokenAsUsed(paymentToken);
 
           // Update booking payment status
-          const invoice = await storage.getInvoice(invoiceId);
           if (invoice) {
             await storage.updateBookingPayment(
               invoice.bookingId,
@@ -3622,6 +3646,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 console.error('Error fetching logo for payment confirmation email:', logoError);
               }
 
+              const scheduledDateTimeStr = booking.scheduledDateTime 
+                ? new Date(booking.scheduledDateTime).toLocaleString()
+                : 'Not specified';
+
               const emailHtml = getPaymentConfirmationEmailHTML({
                 passengerName: `${passenger.firstName} ${passenger.lastName}`,
                 invoiceNumber: invoice.invoiceNumber,
@@ -3629,19 +3657,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 amount: invoice.totalAmount,
                 paymentDate: new Date().toLocaleString(),
                 pickupAddress: booking.pickupAddress,
-                destinationAddress: booking.destinationAddress,
-                scheduledDateTime: booking.scheduledDateTime,
+                destinationAddress: booking.destinationAddress || '',
+                scheduledDateTime: scheduledDateTimeStr,
                 paymentIntentId: paymentIntent.id,
                 logoDataUri,
               });
 
-              await sendEmail({
-                to: passenger.email,
-                subject: `Payment Confirmed - Invoice #${invoice.invoiceNumber}`,
-                html: emailHtml,
-              });
-
-              console.log(`Payment confirmation email sent to ${passenger.email}`);
+              if (passenger.email) {
+                await sendEmail({
+                  to: passenger.email,
+                  subject: `Payment Confirmed - Invoice #${invoice.invoiceNumber}`,
+                  html: emailHtml,
+                });
+                console.log(`Payment confirmation email sent to ${passenger.email}`);
+              }
             }
           }
 

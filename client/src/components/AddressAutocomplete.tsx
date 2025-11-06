@@ -56,6 +56,15 @@ export function AddressAutocomplete({
     enabled: !!userId,
   });
 
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   // Handle address input with debouncing for TomTom suggestions
   const handleAddressInput = (inputValue: string) => {
     onChange(inputValue);
