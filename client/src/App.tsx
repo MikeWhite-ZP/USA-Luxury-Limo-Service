@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -6,61 +7,65 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import DeviceRedirect from "@/components/DeviceRedirect";
-import Landing from "@/pages/landing";
-import Home from "@/pages/home";
-import Booking from "@/pages/booking";
-import VehicleDetail from "@/pages/VehicleDetail";
-import ServiceDetail from "@/pages/ServiceDetail";
-import TermsOfService from "@/pages/TermsOfService";
-import PrivacyPolicy from "@/pages/PrivacyPolicy";
-import HelpCenter from "@/pages/HelpCenter";
-import Safety from "@/pages/Safety";
-import AboutUs from "@/pages/AboutUs";
-import Locations from "@/pages/Locations";
-import FeaturedAreaDetail from "@/pages/FeaturedAreaDetail";
-import Hotels from "@/pages/Hotels";
-import Contact from "@/pages/contact";
-import { RoleLogin } from "@/pages/RoleLogin";
-import { AdminLogin } from "@/pages/AdminLogin";
-import ForgotPassword from "@/pages/ForgotPassword";
-import ResetPassword from "@/pages/ResetPassword";
-import AdminDashboard from "@/pages/admin-dashboard";
-import AdminPricing from "@/pages/admin-pricing";
-import DriverDashboard from "@/pages/driver-dashboard";
-import DriverDocuments from "@/pages/driver-documents";
-import DispatcherDashboard from "@/pages/DispatcherDashboard";
-import PassengerDashboard from "@/pages/passenger-dashboard";
-import Checkout from "@/pages/checkout";
-import AccountPage from "@/pages/account";
-import MobileSplash from "@/pages/mobile-splash";
-import MobileLogin from "@/pages/mobile-login";
-import MobilePassenger from "@/pages/mobile-passenger";
-import MobileBooking from "@/pages/mobile-booking";
-import MobileBookingDetails from "@/pages/mobile-booking-details";
-import MobileInvoices from "@/pages/mobile-invoices";
-import MobilePaymentMethods from "@/pages/mobile-payment-methods";
-import MobileDriver from "@/pages/mobile-driver";
-import MobileDriverRideDetails from "@/pages/mobile-driver-ride-details";
-import MobileDriverDocuments from "@/pages/mobile-driver-documents";
-import MobileProfile from "@/pages/mobile-profile";
-import MobileDispatcher from "@/pages/mobile-dispatcher";
-import PayInvoice from "@/pages/PayInvoice";
-import PaymentSuccess from "@/pages/PaymentSuccess";
-import NotFound from "@/pages/not-found";
+
+const Landing = lazy(() => import("@/pages/landing"));
+const Home = lazy(() => import("@/pages/home"));
+const Booking = lazy(() => import("@/pages/booking"));
+const VehicleDetail = lazy(() => import("@/pages/VehicleDetail"));
+const ServiceDetail = lazy(() => import("@/pages/ServiceDetail"));
+const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
+const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
+const Safety = lazy(() => import("@/pages/Safety"));
+const AboutUs = lazy(() => import("@/pages/AboutUs"));
+const Locations = lazy(() => import("@/pages/Locations"));
+const FeaturedAreaDetail = lazy(() => import("@/pages/FeaturedAreaDetail"));
+const Hotels = lazy(() => import("@/pages/Hotels"));
+const Contact = lazy(() => import("@/pages/contact"));
+const RoleLogin = lazy(() => import("@/pages/RoleLogin").then(m => ({ default: m.RoleLogin })));
+const AdminLogin = lazy(() => import("@/pages/AdminLogin").then(m => ({ default: m.AdminLogin })));
+const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
+const AdminDashboard = lazy(() => import("@/pages/admin-dashboard"));
+const AdminPricing = lazy(() => import("@/pages/admin-pricing"));
+const DriverDashboard = lazy(() => import("@/pages/driver-dashboard"));
+const DriverDocuments = lazy(() => import("@/pages/driver-documents"));
+const DispatcherDashboard = lazy(() => import("@/pages/DispatcherDashboard"));
+const PassengerDashboard = lazy(() => import("@/pages/passenger-dashboard"));
+const Checkout = lazy(() => import("@/pages/checkout"));
+const AccountPage = lazy(() => import("@/pages/account"));
+const MobileSplash = lazy(() => import("@/pages/mobile-splash"));
+const MobileLogin = lazy(() => import("@/pages/mobile-login"));
+const MobilePassenger = lazy(() => import("@/pages/mobile-passenger"));
+const MobileBooking = lazy(() => import("@/pages/mobile-booking"));
+const MobileBookingDetails = lazy(() => import("@/pages/mobile-booking-details"));
+const MobileInvoices = lazy(() => import("@/pages/mobile-invoices"));
+const MobilePaymentMethods = lazy(() => import("@/pages/mobile-payment-methods"));
+const MobileDriver = lazy(() => import("@/pages/mobile-driver"));
+const MobileDriverRideDetails = lazy(() => import("@/pages/mobile-driver-ride-details"));
+const MobileDriverDocuments = lazy(() => import("@/pages/mobile-driver-documents"));
+const MobileProfile = lazy(() => import("@/pages/mobile-profile"));
+const MobileDispatcher = lazy(() => import("@/pages/mobile-dispatcher"));
+const PayInvoice = lazy(() => import("@/pages/PayInvoice"));
+const PaymentSuccess = lazy(() => import("@/pages/PaymentSuccess"));
+const NotFound = lazy(() => import("@/pages/not-found"));
+
+const LoadingFallback = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+  </div>
+);
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
+    return <LoadingFallback />;
   }
 
   return (
-    <Switch>
+    <Suspense fallback={<LoadingFallback />}>
+      <Switch>
       {/* Mobile PWA Routes */}
       <Route path="/mobile" component={MobileSplash} />
       <Route path="/mobile-splash" component={MobileSplash} />
@@ -133,6 +138,7 @@ function Router() {
       )}
       <Route component={NotFound} />
     </Switch>
+    </Suspense>
   );
 }
 

@@ -6,15 +6,6 @@ import { startScheduledJobs } from "./scheduledJobs";
 const log = console.log;
 const app = express();
 
-// Setup Vite dev server or serve static files
-if (process.env.NODE_ENV !== "production") {
-  const { setupVite } = await import("./vite");
-  await setupVite(app);
-} else {
-  const { serveStatic } = await import("./static");
-  serveStatic(app);
-}
-
 // Enable CORS with credentials support (needed for Replit webview environment)
 app.use(cors({
   origin: true, // Allow same-origin requests
@@ -55,7 +46,17 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Register API routes first, before Vite middleware
   const server = await registerRoutes(app);
+  
+  // Setup Vite dev server or serve static files AFTER routes are registered
+  if (process.env.NODE_ENV !== "production") {
+    const { setupVite } = await import("./vite");
+    await setupVite(app, server);
+  } else {
+    const { serveStatic } = await import("./static");
+    serveStatic(app);
+  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

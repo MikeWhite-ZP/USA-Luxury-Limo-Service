@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { useLocation } from 'wouter';
 import { isMobileDevice } from '@/lib/deviceDetection';
-import Landing from '@/pages/landing';
+
+const Landing = lazy(() => import('@/pages/landing'));
 
 /**
  * Component that automatically redirects mobile users to /mobile
@@ -18,5 +19,13 @@ export default function DeviceRedirect() {
   }, [navigate]);
 
   // Desktop users see the normal landing page
-  return <Landing />;
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    }>
+      <Landing />
+    </Suspense>
+  );
 }
