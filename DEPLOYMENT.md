@@ -340,6 +340,158 @@ psql "postgresql://user:password@host:5432/database"
 - ❌ Wrong port: Try 587 (TLS) or 465 (SSL)
 - ❌ Authentication failed: Double-check SMTP_USER and SMTP_PASS
 
+### 502 Bad Gateway Error
+
+This is the most common Coolify deployment error.
+
+**CRITICAL: Your app MUST listen on 0.0.0.0, NOT localhost**
+```typescript
+// ✅ CORRECT (our Dockerfile already does this)
+server.listen({ port: 5000, host: "0.0.0.0" })
+
+// ❌ WRONG - Will cause 502 error
+server.listen({ port: 5000, host: "localhost" })
+```
+
+**Other common causes**:
+- ❌ Port mismatch: Verify Coolify "Port Exposes" setting matches your app's PORT (5000)
+- ❌ App crash on startup: Check logs for missing env vars or database connection errors
+- ❌ Health check failing: Remove or fix the health check configuration
+- ❌ Build succeeded but container exited: Check for errors in startup logs
+
+**Verify container is running**:
+```bash
+# SSH into your VPS
+docker ps | grep usa-luxury-limo
+
+# Check container logs
+docker logs <container-id>
+```
+
+### Deployment Stuck in Queue
+
+If deployment is added to queue but never starts:
+
+**Common causes**:
+1. **High CPU usage**: Server resources maxed out
+   ```bash
+   # Check server load
+   htop
+   ```
+   - **Solution**: Upgrade server resources or reduce concurrent builds
+
+2. **Server validation failed**:
+   - In Coolify, go to **Servers** → Validate your localhost server
+   - Restart Coolify if validation keeps failing:
+     ```bash
+     cd /data/coolify/source
+     docker compose restart
+     ```
+
+3. **Queue corruption**:
+   ```bash
+   # Restart Coolify completely
+   cd /data/coolify/source
+   docker compose down
+   docker compose up -d
+   ```
+
+### GitHub Integration Issues
+
+**"Failed to get access token" error**:
+
+This is usually a time synchronization issue.
+
+**Fix**:
+```bash
+# SSH into your Ubuntu server
+sudo timedatectl set-ntp true
+sudo systemctl restart systemd-timesyncd
+
+# Verify time is synced
+timedatectl status
+```
+
+### Server Crashes During Build
+
+If your server becomes unresponsive during Docker builds:
+
+**Solutions**:
+1. **Upgrade server resources** (minimum 2GB RAM, 2 CPUs recommended)
+2. **Use GitHub Actions** to build images externally
+3. **Deploy pre-built images** instead of building from source
+4. **Free up disk space**:
+   ```bash
+   # Remove unused Docker resources
+   docker system prune -a
+   
+   # Check disk usage
+   df -h
+   docker system df
+   ```
+
+### MinIO Network Issues
+
+**Cannot connect to MinIO from app**:
+
+**CRITICAL: Use internal Docker service name, NOT external domain**
+
+```bash
+# ✅ CORRECT - Internal Docker network
+MINIO_ENDPOINT=http://usa-limo-minio:9000
+
+# ❌ WRONG - External domain won't work from inside container
+MINIO_ENDPOINT=https://minio.yourdomain.com
+```
+
+**Verify MinIO is running**:
+```bash
+# Check MinIO container
+docker ps | grep minio
+
+# Check MinIO health
+docker logs <minio-container-id>
+```
+
+### SSH Connection to Coolify Server
+
+If Coolify can't connect to your server:
+
+**Fix**:
+```bash
+# Add Coolify's public key to authorized_keys
+cat /data/coolify/ssh/keys/id.root@host.docker.internal.pub >> ~/.ssh/authorized_keys
+
+# For Ubuntu Server, allow root SSH
+sudo nano /etc/ssh/sshd_config
+# Add or modify: AllowGroups admin root
+sudo systemctl restart sshd
+```
+
+### Quick Diagnostic Commands
+
+```bash
+# Check Coolify status
+cd /data/coolify/source
+docker compose ps
+docker compose logs -f
+
+# Check proxy (Traefik) logs
+docker logs coolify-proxy
+
+# Free up disk space
+docker system prune -a
+
+# Check all running containers
+docker ps -a
+
+# View real-time resource usage
+htop
+
+# Check disk space
+df -h
+```
+
 ---
 
 ## 7. Production Checklist
