@@ -1,6 +1,13 @@
 # USA Luxury Limo - Coolify Deployment Guide
 
-Complete step-by-step guide to deploy your USA Luxury Limo application on Coolify using your Hostinger VPS server.
+Complete step-by-step guide to deploy your USA Luxury Limo application on Coolify using your Hostinger VPS or Ubuntu server.
+
+## Quick Links
+
+- 📘 **New to Deployment?** Start with [QUICK_START.md](QUICK_START.md) - Deploy in 5 minutes
+- 📗 **Need GitHub Help?** See [GITHUB_SETUP.md](GITHUB_SETUP.md) - Create repository step-by-step
+- ✅ **Ready to Deploy?** Use [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) - Validation checklist
+- 🏗️ **Want to Understand?** Read [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture
 
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
@@ -46,7 +53,7 @@ git add .
 git commit -m "Prepare for Coolify deployment"
 
 # Add your GitHub repository as remote
-git remote add origin https://github.com/yourusername/usa-luxury-limo.git
+git remote add origin https://github.com/yourusername/new-usa-luxury-limo-service.git
 
 # Push to GitHub
 git push -u origin main
@@ -105,7 +112,7 @@ If you prefer AWS S3 or another S3-compatible service, skip MinIO and use those 
 
 2. **Choose Source**:
    - Select **GitHub** (connect your account if not already connected)
-   - Choose your repository: `yourusername/usa-luxury-limo`
+   - Choose your repository: `yourusername/new-usa-luxury-limo-service`
    - Select branch: `main` (or your production branch)
    - Click **Continue**
 
