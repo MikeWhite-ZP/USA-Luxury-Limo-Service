@@ -73,9 +73,8 @@ app.use((req, res, next) => {
       throw err;
     });
 
-    // Use port 3000 in production (behind Caddy proxy)
-    // Use PORT env var or 5000 in development
-    const port = process.env.NODE_ENV === "production" ? 3000 : parseInt(process.env.PORT || '5000', 10);
+    // Use PORT env var or default to 5000
+    const port = parseInt(process.env.PORT || '5000', 10);
 
     server.listen({
       port,

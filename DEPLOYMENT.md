@@ -118,13 +118,15 @@ If you prefer AWS S3 or another S3-compatible service, skip MinIO and use those 
 2. **Port Configuration**:
    - **Port**: `5000`
    - **Protocol**: HTTP
+   - The app runs Node.js directly on port 5000 (Coolify handles SSL/routing)
 
-3. **Health Check** (Optional but recommended):
-   - **Path**: `/api/health`
+3. **Health Check** (Recommended):
+   - **Path**: `/health` or `/api/health`
    - **Port**: `5000`
    - **Interval**: `30s`
-   - **Timeout**: `5s`
+   - **Timeout**: `3s`
    - **Retries**: `3`
+   - The Dockerfile includes a built-in health check
 
 ### Step 3: Configure Deployment
 
@@ -156,7 +158,7 @@ Critical step! Your app won't work without these.
 #### Core Configuration
 ```bash
 NODE_ENV=production
-PORT=5000
+PORT=5000  # Default port, Coolify will inject this automatically
 ```
 
 #### Database (REQUIRED)
@@ -346,12 +348,14 @@ This is the most common Coolify deployment error.
 
 **CRITICAL: Your app MUST listen on 0.0.0.0, NOT localhost**
 ```typescript
-// ✅ CORRECT (our Dockerfile already does this)
+// ✅ CORRECT (our app already does this in server/index.ts)
 server.listen({ port: 5000, host: "0.0.0.0" })
 
 // ❌ WRONG - Will cause 502 error
 server.listen({ port: 5000, host: "localhost" })
 ```
+
+**Note**: The simplified Dockerfile runs Node.js directly on port 5000. Coolify handles all SSL certificates and reverse proxy routing automatically.
 
 **Other common causes**:
 - ❌ Port mismatch: Verify Coolify "Port Exposes" setting matches your app's PORT (5000)

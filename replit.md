@@ -12,8 +12,8 @@ Preferred communication style: Simple, everyday language.
 The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui components (Radix UI) styled with Tailwind CSS. It functions as a PWA with installable capabilities and offline support. Role-based login provides distinct dashboards: passenger dashboard uses a professional light red/white/black theme matching main website branding with clean logo presentation (no gradient backgrounds or effects), driver dashboard uses a green theme, and dispatcher dashboard uses a purple theme. The design emphasizes a modern, professional aesthetic with consistent rounded corners and cohesive color schemes. All styling uses Tailwind utility classes, avoiding hardcoded hex values. Device detection and auto-redirection manage mobile and desktop views, with user overrides.
 
 ### Technical Implementation
-- **Frontend**: React 18, TypeScript, Vite, Wouter for routing, React Hook Form with Zod for validation, TanStack Query for server state. Features include optimistic updates and touch-optimized interfaces.
-- **Backend**: Node.js with Express.js, TypeScript, RESTful JSON APIs.
+- **Frontend**: React 18, TypeScript, Vite, Wouter for routing, React Hook Form with Zod for validation, TanStack Query for server state. Features include optimistic updates, touch-optimized interfaces, and lazy loading for all page components using React.lazy() and Suspense for improved performance.
+- **Backend**: Node.js with Express.js, TypeScript, RESTful JSON APIs. API routes are registered before Vite middleware to ensure proper request handling.
 - **Database**: PostgreSQL (Neon for hosting) with Drizzle ORM.
 - **Authentication**: Replit Auth with OpenID Connect, PostgreSQL-backed session management, and scrypt hashing for multi-role access (passenger, driver, admin).
 - **Object Storage**: Replit Object Storage with custom Buffer normalization for all downloads. Object storage returns data in serialized format (array-wrapped or plain objects with numeric keys) which is converted to proper Buffers for binary file serving. All download endpoints (driver documents, CMS media, email logos) use consistent conversion logic with strict error handling.
@@ -59,10 +59,16 @@ The application is prepared for multiple deployment scenarios:
 Complete preparation for deployment on Coolify or other Docker-based platforms:
 
 #### Key Files:
-- **Dockerfile**: Multi-stage production build (Node 20, Vite + esbuild)
+- **Dockerfile**: Simplified multi-stage production build (Node 20, runs directly on port 5000)
 - **docker-compose.yml**: Local testing with MinIO service
 - **.env.example**: Comprehensive environment variable documentation
 - **DEPLOYMENT.md**: Step-by-step Coolify deployment guide for Hostinger VPS
+
+#### Recent Optimizations (November 2025):
+- **Simplified Dockerfile**: Removed Caddy reverse proxy; Node.js runs directly on port 5000 for easier Coolify deployment
+- **Health Check Endpoints**: Added `/health` and `/api/health` for container monitoring
+- **Code Splitting**: Implemented lazy loading for all 49+ page components, reducing initial bundle size
+- **Server Optimization**: Fixed middleware order to prevent API route interception
 
 #### Storage Abstraction:
 - **server/objectStorageAdapter.ts**: Unified storage interface
