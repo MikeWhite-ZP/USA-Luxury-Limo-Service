@@ -19,7 +19,7 @@ RUN apk add --no-cache caddy
 
 # Copy package files
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
@@ -36,4 +36,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
   CMD wget --quiet --tries=1 --spider http://localhost:5000/ || exit 1
 
 # Start both Node server (port 3000) and Caddy (port 5000)
-CMD sh -c "node /app/dist/index.js & caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"
+CMD ["sh", "-c", "node /app/dist/index.js & caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"]
