@@ -33,9 +33,11 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
+
       if (logLine.length > 80) {
         logLine = logLine.slice(0, 79) + "…";
       }
+
       log(logLine);
     }
   });
@@ -67,7 +69,6 @@ app.use((req, res, next) => {
   // Caddy will proxy external requests from 5000 to 3000
   // In development, still use PORT env var or default to 5000
   let port = 5000;
-
   if (process.env.NODE_ENV === "production") {
     port = 3000; // Internal port when behind Caddy proxy
   } else {
@@ -80,7 +81,6 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
-
     // Start scheduled jobs for auto-cancellation and reminders
     startScheduledJobs();
   });

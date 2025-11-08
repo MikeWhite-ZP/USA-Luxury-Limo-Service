@@ -1,18 +1,23 @@
 import express, { type Express } from "express";
-import path from "path";
 import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(__dirname, "../public");
+  // Serve static files from the public directory
+  const publicDir = join(__dirname, "../public");
 
-  app.use(express.static(distPath));
+  app.use(express.static(publicDir));
 
-  // Handle SPA routing - serve index.html for all non-API routes
-  app.get("*", (req, res) => {
-    if (!req.path.startsWith("/api")) {
-      res.sendFile(path.join(distPath, "index.html"));
+  // Serve index.html for all non-API routes (SPA routing)
+  app.get("*", (req, res, next) => {
+    // Skip API routes
+    if (req.path.startsWith("/api")) {
+      return next();
     }
+
+    res.sendFile(join(publicDir, "index.html"));
   });
 }
