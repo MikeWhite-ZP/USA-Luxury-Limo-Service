@@ -6,14 +6,19 @@ import { startScheduledJobs } from "./scheduledJobs";
 const log = console.log;
 const app = express();
 
-// Enable CORS with credentials support (needed for Replit webview environment)
+// Enable CORS with credentials support
 app.use(cors({
-  origin: true, // Allow same-origin requests
-  credentials: true, // Enable credentials (cookies, authorization headers, etc.)
+  origin: true,
+  credentials: true,
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Health check endpoint (add this BEFORE other middleware)
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -46,42 +51,42 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Register API routes first, before Vite middleware
-  const server = await registerRoutes(app);
+  try {
+    // Register API routes first
+    const server = await registerRoutes(app);
 
-  // Setup Vite dev server or serve static files AFTER routes are registered
-  if (process.env.NODE_ENV !== "production") {
-    const { setupVite } = await import("./vite");
-    await setupVite(app, server);
-  } else {
-    const { serveStatic } = await import("./static");
-    serveStatic(app);
+    // Setup Vite dev server or serve static files
+    if (process.env.NODE_ENV !== "production") {
+      log("Starting in development mode with Vite...");
+      const { setupVite } = await import("./vite.js");
+      await setupVite(app, server);
+    } else {
+      log("Starting in production mode...");
+      const { serveStatic } = await import("./static.js");
+      serveStatic(app);
+    }
+
+    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+      const status = err.status || err.statusCode || 500;
+      const message = err.message || "Internal Server Error";
+      res.status(status).json({ message });
+      throw err;
+    });
+
+    // Use port 3000 in production (behind Caddy proxy)
+    // Use PORT env var or 5000 in development
+    const port = process.env.NODE_ENV === "production" ? 3000 : parseInt(process.env.PORT || '5000', 10);
+
+    server.listen({
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    }, () => {
+      log(`Server running on port ${port} (${process.env.NODE_ENV || 'development'} mode)`);
+      startScheduledJobs();
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
   }
-
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-    res.status(status).json({ message });
-    throw err;
-  });
-
-  // FIXED: Use port 3000 for the Node server in production
-  // Caddy will proxy external requests from 5000 to 3000
-  // In development, still use PORT env var or default to 5000
-  let port = 5000;
-  if (process.env.NODE_ENV === "production") {
-    port = 3000; // Internal port when behind Caddy proxy
-  } else {
-    port = parseInt(process.env.PORT || '5000', 10); // Dev uses 5000
-  }
-
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-    // Start scheduled jobs for auto-cancellation and reminders
-    startScheduledJobs();
-  });
 })();

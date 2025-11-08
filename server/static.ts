@@ -6,12 +6,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export function serveStatic(app: Express) {
-  // Serve static files from the public directory
   const publicDir = join(__dirname, "../public");
 
+  // Serve static files
   app.use(express.static(publicDir));
 
-  // Serve index.html for all non-API routes (SPA routing)
+  // SPA fallback - serve index.html for all non-API routes
   app.get("*", (req, res, next) => {
     // Skip API routes
     if (req.path.startsWith("/api")) {
