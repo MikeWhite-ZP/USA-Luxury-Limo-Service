@@ -44,22 +44,36 @@ MinIO stores your uploaded files (driver documents, logos, etc.).
 
 4. **Environment Variables:** Click **Environment Variables** tab and add:
 
+   **Required variables** (replace with real values - see [COOLIFY_ENV_SETUP.md](COOLIFY_ENV_SETUP.md) for detailed instructions):
+
    ```bash
-   # Required
-   NODE_ENV=production
-   DATABASE_URL=postgresql://user:password@host:5432/database
-   SESSION_SECRET=generate-with-openssl-rand-base64-32
+   # Database
+   DATABASE_URL=postgresql://user:password@host:5432/database?sslmode=require
    
-   # Stripe
-   STRIPE_SECRET_KEY=sk_live_your_key
-   VITE_STRIPE_PUBLIC_KEY=pk_live_your_key
+   # Security (generate with: openssl rand -base64 32)
+   SESSION_SECRET=<generate-secure-random-string>
    
-   # MinIO (use values from Step 1)
+   # Payment
+   STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxx
+   VITE_STRIPE_PUBLIC_KEY=pk_test_xxxxxxxxxxxx
+   
+   # Storage (use values from Step 1)
    MINIO_ENDPOINT=http://usa-limo-minio:9000
    MINIO_ACCESS_KEY=minioadmin
-   MINIO_SECRET_KEY=your-minio-password
+   MINIO_SECRET_KEY=<your-minio-password>
    MINIO_BUCKET=usa-luxury-limo
+   
+   # System
+   NODE_ENV=production
+   PORT=5000
+   HOST=0.0.0.0
    ```
+
+   **⚠️ Important**: 
+   - Generate a secure `SESSION_SECRET` with `openssl rand -base64 32`
+   - Use your Neon database URL for `DATABASE_URL`
+   - Start with Stripe test keys (`sk_test_` / `pk_test_`)
+   - For detailed setup instructions, see [COOLIFY_ENV_SETUP.md](COOLIFY_ENV_SETUP.md)
 
 5. **Mark Build Variables:**
    - Check "Build Variable" for: `VITE_STRIPE_PUBLIC_KEY`

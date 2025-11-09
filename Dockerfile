@@ -18,8 +18,8 @@ COPY . .
 # Build application with explicit commands to exclude dev-only dependencies
 # Build frontend
 RUN npx vite build
-# Build backend with vite excluded from bundle
-RUN npx esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --packages=external --external:vite --external:./vite.ts
+# Build backend with vite excluded from bundle (keeps vite imports external for dev mode)
+RUN npx esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --packages=external --external:vite --external:@vitejs/* --external:./server/vite.ts --external:./server/vite.js
 
 # Production stage
 FROM node:20-alpine AS production

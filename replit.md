@@ -90,3 +90,122 @@ Complete preparation for deployment on Coolify or other Docker-based platforms:
 - Complete environment variable documentation
 - PostgreSQL session storage
 - Docker networking and volume management
+
+## Deployment Troubleshooting
+
+### Common Deployment Issues
+
+#### 1. Vite Import Error in Production
+
+**Symptom:**
+```
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+```
+
+**Cause**: esbuild was bundling server code and marking `vite` as an external dependency, but Vite is a dev dependency not installed in production.
+
+**Solution (Fixed in Dockerfile)**:
+The Dockerfile now uses explicit build commands that exclude Vite and related dependencies from the production bundle:
+```dockerfile
+RUN npx vite build
+RUN npx esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist \
+  --packages=external \
+  --external:vite \
+  --external:@vitejs/* \
+  --external:./server/vite.ts \
+  --external:./server/vite.js
+```
+
+**Why these externals are required**:
+- `--external:vite` - Excludes the vite package
+- `--external:@vitejs/*` - Excludes vite plugins (@vitejs/plugin-react, etc.)
+- `--external:./server/vite.ts` and `--external:./server/vite.js` - Keeps the vite setup module external (only used in development mode)
+
+**If you encounter this error**: Update your Dockerfile from GitHub repository and redeploy.
+
+#### 2. Placeholder Environment Variables
+
+**Symptom**: Application starts but fails when trying to connect to database or storage.
+
+**Cause**: Using placeholder values from `.env.example` instead of real credentials.
+
+**Solution**: 
+1. Review [COOLIFY_ENV_SETUP.md](COOLIFY_ENV_SETUP.md) for detailed setup instructions
+2. Generate real credentials for each environment variable
+3. Critical variables to update:
+   - `DATABASE_URL` - Use real Neon database connection string
+   - `SESSION_SECRET` - Generate with `openssl rand -base64 32`
+   - `MINIO_SECRET_KEY` - Use your MinIO password
+   - `STRIPE_SECRET_KEY` and `VITE_STRIPE_PUBLIC_KEY` - Use real Stripe keys
+
+#### 3. Database Connection Failures
+
+**Symptom**: 
+```
+Error: Connection timed out
+Error: SSL required
+```
+
+**Solution**:
+- Ensure `?sslmode=require` is appended to `DATABASE_URL` for Neon
+- Check database firewall allows connections from Coolify server IP
+- Verify database credentials are correct
+
+#### 4. MinIO Connection Issues
+
+**Symptom**: File uploads fail, 502 errors on logo/document uploads.
+
+**Solution**:
+- Ensure MinIO service is running: Check Coolify → MinIO service status
+- Verify `MINIO_ENDPOINT` uses internal Docker network name: `http://usa-limo-minio:9000`
+- Check bucket `usa-luxury-limo` exists in MinIO console
+- Confirm `MINIO_ACCESS_KEY` and `MINIO_SECRET_KEY` match MinIO configuration
+
+#### 5. Build Failures
+
+**Symptom**: Deployment fails during build stage.
+
+**Common causes and solutions**:
+- **npm install fails**: Check package.json is valid and not corrupted
+- **TypeScript errors**: Run `npm run check` locally to verify types
+- **Out of memory**: Increase container memory in Coolify settings (recommended: 2GB+)
+
+#### 6. Container Health Check Failures
+
+**Symptom**: Container marked as unhealthy, application restarts repeatedly.
+
+**Diagnosis**:
+1. Check container logs in Coolify: App → Logs
+2. Look for startup errors
+3. Verify health endpoint responds: `curl http://localhost:5000/health`
+
+**Common fixes**:
+- Ensure port 5000 is not blocked
+- Verify `HOST=0.0.0.0` environment variable is set
+- Check application starts without errors
+
+### Deployment Verification Checklist
+
+After deployment, verify:
+
+1. **Health Endpoint**: Visit `https://your-app-url.com/health` → Should return `{"status":"ok"}`
+2. **Database Connection**: Try logging in → Should work without errors
+3. **File Storage**: Upload a logo in CMS → Should succeed
+4. **Payment Integration**: Create test booking with Stripe → Should process
+5. **Email/SMS**: Trigger notification → Check delivery
+
+### Getting Help
+
+**Deployment Resources**:
+- [QUICK_START.md](QUICK_START.md) - 5-minute deployment guide
+- [COOLIFY_ENV_SETUP.md](COOLIFY_ENV_SETUP.md) - Comprehensive environment variable setup
+- [DEPLOYMENT.md](DEPLOYMENT.md) - Detailed deployment documentation with troubleshooting
+- [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) - Pre and post-deployment validation
+- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture and technical details
+
+**Debug Steps**:
+1. Check Coolify application logs for error messages
+2. Verify all environment variables are set correctly
+3. Test health endpoint: `/health`
+4. Check MinIO and database services are running
+5. Review recent changes in GitHub repository
