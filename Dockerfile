@@ -15,8 +15,11 @@ RUN npm ci --ignore-scripts
 # Copy application source
 COPY . .
 
-# Build application
-RUN npm run build
+# Build application with explicit commands to exclude dev-only dependencies
+# Build frontend
+RUN npx vite build
+# Build backend with vite excluded from bundle
+RUN npx esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --packages=external --external:vite --external:./vite.ts
 
 # Production stage
 FROM node:20-alpine AS production
