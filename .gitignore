@@ -22,6 +22,12 @@ dist-ssr
 # Deployment configuration (contains secrets)
 deploy.config
 
+# Capacitor native projects (generated from capacitor.config.ts)
+# Note: ios-info-plist-template.xml contains the required Info.plist permissions
+# After generating iOS project, copy permissions from template to ios/App/App/Info.plist
+android/
+ios/
+
 # Logs
 logs
 *.log

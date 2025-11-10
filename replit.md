@@ -1,7 +1,7 @@
 # USA Luxury Limo
 
 ## Overview
-USA Luxury Limo is a full-stack Progressive Web Application (PWA) designed as a comprehensive luxury transportation booking platform. It aims to streamline the booking process by offering real-time pricing, fleet management, and multi-role user authentication for passengers, drivers, and dispatchers. Key capabilities include flight search integration, advanced payment options, and driver document management, providing an efficient solution for luxury transportation services. The project's ambition is to be a leading solution in the luxury transportation market, offering an intuitive and efficient booking experience.
+USA Luxury Limo is a full-stack Progressive Web Application (PWA) with native mobile app capabilities, designed as a comprehensive luxury transportation booking platform. It aims to streamline the booking process by offering real-time pricing, fleet management, and multi-role user authentication for passengers, drivers, and dispatchers. Key capabilities include flight search integration, advanced payment options, and driver document management, providing an efficient solution for luxury transportation services. The application can be deployed as a web app, PWA, or native iOS/Android apps using Ionic Capacitor. The project's ambition is to be a leading solution in the luxury transportation market, offering an intuitive and efficient booking experience across all platforms.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -9,10 +9,11 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### UI/UX
-The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui components (Radix UI) styled with Tailwind CSS. It functions as a PWA with installable capabilities and offline support. Role-based login provides distinct dashboards: passenger dashboard uses a professional light red/white/black theme matching main website branding with clean logo presentation (no gradient backgrounds or effects), driver dashboard uses a green theme, and dispatcher dashboard uses a purple theme. The design emphasizes a modern, professional aesthetic with consistent rounded corners and cohesive color schemes. All styling uses Tailwind utility classes, avoiding hardcoded hex values. Device detection and auto-redirection manage mobile and desktop views, with user overrides.
+The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui components (Radix UI) styled with Tailwind CSS. It functions as a PWA with installable capabilities and offline support, and can be converted to native iOS/Android apps using Ionic Capacitor. Role-based login provides distinct dashboards: passenger dashboard uses a professional light red/white/black theme matching main website branding with clean logo presentation (no gradient backgrounds or effects), driver dashboard uses a green theme, and dispatcher dashboard uses a purple theme. The design emphasizes a modern, professional aesthetic with consistent rounded corners and cohesive color schemes. All styling uses Tailwind utility classes, avoiding hardcoded hex values. Device detection and auto-redirection manage mobile and desktop views, with user overrides.
 
 ### Technical Implementation
 - **Frontend**: React 18, TypeScript, Vite, Wouter for routing, React Hook Form with Zod for validation, TanStack Query for server state. Features include optimistic updates, touch-optimized interfaces, and lazy loading for all page components using React.lazy() and Suspense for improved performance.
+- **Mobile Native Apps**: Ionic Capacitor integration enables building native iOS and Android apps from the same codebase. Includes native plugins for Camera, Geolocation, Push Notifications, Status Bar, Keyboard, and Splash Screen. App ID: com.usaluxurylimo.app. See MOBILE_APP_GUIDE.md for building and publishing instructions.
 - **Backend**: Node.js with Express.js, TypeScript, RESTful JSON APIs. API routes are registered before Vite middleware to ensure proper request handling.
 - **Database**: PostgreSQL (Neon for hosting) with Drizzle ORM.
 - **Authentication**: Replit Auth with OpenID Connect, PostgreSQL-backed session management, and scrypt hashing for multi-role access (passenger, driver, admin).
@@ -45,10 +46,11 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
 - **Object Storage**: Flexible storage backend - supports Replit Object Storage, MinIO, or AWS S3.
 - **react-datepicker**: Date and time selection.
 - **AWS SDK**: For S3-compatible storage (MinIO/S3) integration.
+- **Ionic Capacitor**: Framework for building native iOS and Android apps from the PWA codebase.
 
 ## Deployment Options
 
-The application is prepared for multiple deployment scenarios:
+The application is prepared for multiple deployment scenarios across web and mobile platforms:
 
 ### Replit Deployment (Default)
 - Uses Replit Auth for authentication
@@ -90,6 +92,36 @@ Complete preparation for deployment on Coolify or other Docker-based platforms:
 - Complete environment variable documentation
 - PostgreSQL session storage
 - Docker networking and volume management
+
+### Native Mobile Apps (iOS & Android)
+
+The application includes full support for building native mobile apps using Ionic Capacitor:
+
+#### Setup:
+- **Capacitor Config**: `capacitor.config.ts` with app ID `com.usaluxurylimo.app`
+- **Native Platforms**: Android and iOS projects in `android/` and `ios/` directories (git-ignored, regenerated from config)
+- **Web Directory**: Points to `dist/public` (Vite build output)
+
+#### Native Plugins Included:
+- **@capacitor/app** - App lifecycle events
+- **@capacitor/camera** - Photo capture and upload
+- **@capacitor/geolocation** - GPS and location services
+- **@capacitor/keyboard** - Keyboard management
+- **@capacitor/push-notifications** - Push notifications
+- **@capacitor/splash-screen** - Native splash screen
+- **@capacitor/status-bar** - Status bar styling
+
+#### Building & Publishing:
+- **Development**: `npm run build && npx cap sync` to sync web changes
+- **Android**: Build APK/AAB in Android Studio for Google Play Store
+- **iOS**: Build Archive in Xcode for Apple App Store
+- **Documentation**: Complete guide in `MOBILE_APP_GUIDE.md`
+
+#### App Store Information:
+- **App Name**: USA Luxury Limo
+- **Bundle ID**: com.usaluxurylimo.app
+- **Category**: Travel & Local (Android), Travel (iOS)
+- **Platforms**: iOS 13+, Android 5.0+ (API 22+)
 
 ## Deployment Troubleshooting
 
