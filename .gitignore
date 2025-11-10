@@ -19,6 +19,9 @@ dist-ssr
 .env.production
 .env.test
 
+# Deployment configuration (contains secrets)
+deploy.config
+
 # Logs
 logs
 *.log
