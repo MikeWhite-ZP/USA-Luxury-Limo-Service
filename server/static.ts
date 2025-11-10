@@ -6,7 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export function serveStatic(app: Express) {
-  const publicDir = join(__dirname, "../public");
+  // FIX: Change "../public" to "../dist/public"
+  // This directs the server to the build output folder inside the container.
+  const publicDir = join(__dirname, "../dist/public"); 
 
   // Serve static files
   app.use(express.static(publicDir));
