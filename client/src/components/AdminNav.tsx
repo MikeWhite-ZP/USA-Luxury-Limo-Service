@@ -246,6 +246,14 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   <span className="font-medium">MinIO Storage</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
+                  onClick={() => setLocation('/admin/minio-browser')}
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-minio-browser"
+                >
+                  <Image className="w-4 h-4 mr-3 text-cyan-500" />
+                  <span className="font-medium">Browse Images</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
                       onVehicleTypesClick?.();

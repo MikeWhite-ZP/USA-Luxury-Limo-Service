@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, Search, FolderOpen, Image as ImageIcon, Download, Copy, X, Loader2, FileImage } from "lucide-react";
+import { ArrowLeft, Search, FolderOpen, Image as ImageIcon, Download, Copy, X, Loader2, FileImage, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -32,15 +32,19 @@ export default function MinIOBrowser() {
   const [selectedFolder, setSelectedFolder] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState<MinIOFile | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
 
   // Fetch MinIO files
   const { data, isLoading } = useQuery<MinIOBrowseResponse>({
-    queryKey: ["/api/admin/minio/browse", selectedFolder],
+    queryKey: ["/api/admin/minio/browse", selectedFolder, currentPage, pageSize],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (selectedFolder) {
         params.append("folder", selectedFolder);
       }
+      params.append("page", currentPage.toString());
+      params.append("pageSize", pageSize.toString());
       const response = await fetch(`/api/admin/minio/browse?${params.toString()}`, {
         credentials: "include",
       });
@@ -48,6 +52,17 @@ export default function MinIOBrowser() {
       return response.json();
     },
   });
+
+  // Calculate pagination
+  const totalPages = Math.ceil((data?.totalFiles || 0) / pageSize);
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
+
+  // Reset to page 1 when folder changes
+  const handleFolderChange = (folder: string) => {
+    setSelectedFolder(folder);
+    setCurrentPage(1);
+  };
 
   // Filter files based on search query
   const filteredFiles = data?.files.filter((file) => {
@@ -153,7 +168,7 @@ export default function MinIOBrowser() {
                 {data && data.folders.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     <Button
-                      onClick={() => setSelectedFolder("")}
+                      onClick={() => handleFolderChange("")}
                       variant={selectedFolder === "" ? "default" : "outline"}
                       className={selectedFolder === "" 
                         ? "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-xl"
@@ -166,7 +181,7 @@ export default function MinIOBrowser() {
                     {data.folders.map((folder) => (
                       <Button
                         key={folder}
-                        onClick={() => setSelectedFolder(folder)}
+                        onClick={() => handleFolderChange(folder)}
                         variant={selectedFolder === folder ? "default" : "outline"}
                         className={selectedFolder === folder 
                           ? "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-xl"
@@ -281,6 +296,39 @@ export default function MinIOBrowser() {
                         ? "Try adjusting your search or filter criteria."
                         : "Upload some files to get started with MinIO object storage."}
                     </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Pagination Controls */}
+              {filteredFiles && filteredFiles.length > 0 && totalPages > 1 && (
+                <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-200">
+                  <div className="text-sm text-slate-600">
+                    Page {currentPage} of {totalPages} • {data?.totalFiles} total {data?.totalFiles === 1 ? "file" : "files"}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={!hasPrevPage}
+                      variant="outline"
+                      size="sm"
+                      className="border-slate-300 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      data-testid="button-prev-page"
+                    >
+                      <ChevronLeft className="w-4 h-4 mr-1" />
+                      Previous
+                    </Button>
+                    <Button
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={!hasNextPage}
+                      variant="outline"
+                      size="sm"
+                      className="border-slate-300 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      data-testid="button-next-page"
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
                   </div>
                 </div>
               )}
