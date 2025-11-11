@@ -1022,6 +1022,8 @@ function VehicleTypeManagement() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const imageFileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -1135,6 +1137,91 @@ function VehicleTypeManagement() {
       });
     },
   });
+
+  // Upload vehicle image mutation
+  const uploadVehicleImageMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await fetch('/api/admin/cms/media/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Upload failed');
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Update the imageUrl in formData with the uploaded image URL (use functional update to avoid overwriting concurrent edits)
+      setFormData(prev => ({ ...prev, imageUrl: data.fileUrl }));
+      setIsUploadingImage(false);
+      if (imageFileInputRef.current) {
+        imageFileInputRef.current.value = '';
+      }
+      toast({
+        title: 'Success',
+        description: 'Vehicle image uploaded successfully',
+      });
+    },
+    onError: (error: Error) => {
+      setIsUploadingImage(false);
+      if (imageFileInputRef.current) {
+        imageFileInputRef.current.value = '';
+      }
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to upload image',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Handle vehicle image upload
+  const handleVehicleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+
+    // Validate file type (images only)
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please upload an image file (JPEG, PNG, WebP, GIF, or HEIC)',
+        variant: 'destructive',
+      });
+      if (imageFileInputRef.current) {
+        imageFileInputRef.current.value = '';
+      }
+      return;
+    }
+
+    // Validate file size (2MB limit)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+      toast({
+        title: 'File too large',
+        description: 'Image must be smaller than 2MB',
+        variant: 'destructive',
+      });
+      if (imageFileInputRef.current) {
+        imageFileInputRef.current.value = '';
+      }
+      return;
+    }
+
+    // Create FormData and upload
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', 'vehicles');
+    formData.append('altText', `${formData.name || 'Vehicle'} image`);
+    formData.append('description', `Image for ${formData.name || 'vehicle type'}`);
+
+    setIsUploadingImage(true);
+    uploadVehicleImageMutation.mutate(formData);
+  };
 
   const filteredVehicleTypes = vehicleTypes?.filter((vt) => {
     const searchLower = searchQuery.toLowerCase();
@@ -1371,14 +1458,66 @@ function VehicleTypeManagement() {
             </div>
 
             <div>
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input
-                id="imageUrl"
-                value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                placeholder="https://example.com/vehicle.jpg"
-                data-testid="input-image-url"
-              />
+              <Label htmlFor="imageUrl">Vehicle Image</Label>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    id="imageUrl"
+                    value={formData.imageUrl}
+                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    placeholder="https://example.com/vehicle.jpg or upload below"
+                    data-testid="input-image-url"
+                    className="flex-1"
+                  />
+                  <input
+                    ref={imageFileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/gif"
+                    onChange={handleVehicleImageUpload}
+                    className="hidden"
+                    data-testid="input-image-file"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => imageFileInputRef.current?.click()}
+                    disabled={isUploadingImage}
+                    className="border-blue-200 text-blue-700 hover:bg-blue-50 whitespace-nowrap"
+                    data-testid="button-upload-image"
+                  >
+                    {isUploadingImage ? (
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full mr-2" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-2" />
+                        Upload Image
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-slate-500">
+                  Upload an image file (JPEG, PNG, WebP, GIF, or HEIC, max 2MB) or enter a URL manually
+                </p>
+                
+                {/* Image Preview */}
+                {formData.imageUrl && (
+                  <div className="border border-slate-200 rounded-lg p-3 bg-slate-50">
+                    <p className="text-xs font-medium text-slate-700 mb-2">Preview:</p>
+                    <img
+                      src={formData.imageUrl}
+                      alt="Vehicle preview"
+                      className="w-full h-32 object-cover rounded-lg"
+                      onError={(e) => {
+                        e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="100"%3E%3Crect fill="%23f1f5f9" width="200" height="100"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-family="sans-serif"%3EImage not found%3C/text%3E%3C/svg%3E';
+                      }}
+                      data-testid="image-preview"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center space-x-2">
