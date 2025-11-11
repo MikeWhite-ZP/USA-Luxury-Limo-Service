@@ -246,18 +246,26 @@ class S3StorageAdapter implements StorageAdapter {
   }
 }
 
+export interface StorageCredentials {
+  minioEndpoint?: string;
+  minioAccessKey?: string;
+  minioSecretKey?: string;
+  minioBucket?: string;
+}
+
 /**
- * Get the appropriate storage adapter based on environment configuration
+ * Get the appropriate storage adapter based on configuration
  * Priority:
- * 1. MinIO/S3 (if MINIO_ENDPOINT or S3_BUCKET is set)
- * 2. Replit Object Storage (if DEFAULT_OBJECT_STORAGE_BUCKET_ID is set)
+ * 1. Provided credentials (from database or direct params)
+ * 2. Environment variables
+ * 3. Replit Object Storage (fallback)
  */
-export function getStorageAdapter(): StorageAdapter {
-  // Check for MinIO configuration
-  const minioEndpoint = process.env.MINIO_ENDPOINT;
-  const minioAccessKey = process.env.MINIO_ACCESS_KEY;
-  const minioSecretKey = process.env.MINIO_SECRET_KEY;
-  const minioBucket = process.env.MINIO_BUCKET || 'usa-luxury-limo';
+export function getStorageAdapter(credentials?: StorageCredentials): StorageAdapter {
+  // Check for MinIO configuration from provided credentials or environment
+  const minioEndpoint = credentials?.minioEndpoint || process.env.MINIO_ENDPOINT;
+  const minioAccessKey = credentials?.minioAccessKey || process.env.MINIO_ACCESS_KEY;
+  const minioSecretKey = credentials?.minioSecretKey || process.env.MINIO_SECRET_KEY;
+  const minioBucket = credentials?.minioBucket || process.env.MINIO_BUCKET || 'usa-luxury-limo';
 
   if (minioEndpoint && minioAccessKey && minioSecretKey) {
     console.log('[STORAGE] Using MinIO/S3 storage adapter');
