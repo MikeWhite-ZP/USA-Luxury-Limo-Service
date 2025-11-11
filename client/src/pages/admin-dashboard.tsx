@@ -2974,8 +2974,9 @@ export default function AdminDashboard() {
   const [newKeyValue, setNewKeyValue] = useState("");
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [loadingValue, setLoadingValue] = useState(false);
+  const [testingMinIO, setTestingMinIO] = useState(false);
   const [visibleCredentialsSection, setVisibleCredentialsSection] = useState<
-    "api" | "payment" | null
+    "api" | "payment" | "minio" | null
   >(null);
   const [visibleSettingsSection, setVisibleSettingsSection] = useState<
     "commission" | "email" | "sms" | null
@@ -3146,14 +3147,17 @@ export default function AdminDashboard() {
     // Trigger the appropriate section based on hash
     setTimeout(() => {
       if (section === 'credentials') {
-        setVisibleCredentialsSection(subsection as 'api' | 'payment');
+        setVisibleCredentialsSection(subsection as 'api' | 'payment' | 'minio');
         setVisibleSettingsSection(null);
         setVisibleCMSSection(null);
         setShowUserManager(false);
         setShowBookings(false);
         setShowInvoices(false);
         setTimeout(() => {
-          const targetId = subsection === 'api' ? 'credentials-section' : 'payment-section';
+          const targetId = 
+            subsection === 'api' ? 'credentials-section' : 
+            subsection === 'minio' ? 'minio-section' : 
+            'payment-section';
           document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       } else if (section === 'users') {
@@ -4871,6 +4875,81 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleTestMinIOConnection = async () => {
+    setTestingMinIO(true);
+    
+    try {
+      // Fetch current MinIO credentials from database
+      const minioKeys = ['MINIO_ENDPOINT', 'MINIO_ACCESS_KEY', 'MINIO_SECRET_KEY', 'MINIO_BUCKET'];
+      const credentialValues: Record<string, string> = {};
+      
+      // Fetch all MinIO credential values
+      for (const key of minioKeys) {
+        try {
+          const response = await fetch(`/api/admin/settings/${key}/value`, {
+            credentials: "include",
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            credentialValues[key] = data.value || "";
+          }
+        } catch (error) {
+          console.error(`Failed to fetch ${key}:`, error);
+        }
+      }
+      
+      // Validate required credentials are present
+      if (!credentialValues.MINIO_ENDPOINT || !credentialValues.MINIO_ACCESS_KEY || !credentialValues.MINIO_SECRET_KEY) {
+        toast({
+          title: "Missing Credentials",
+          description: "Please configure MinIO S3 API URL, Access Key, and Secret Key before testing the connection.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Test the connection
+      const testResponse = await fetch('/api/admin/minio/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          endpoint: credentialValues.MINIO_ENDPOINT,
+          accessKey: credentialValues.MINIO_ACCESS_KEY,
+          secretKey: credentialValues.MINIO_SECRET_KEY,
+          bucket: credentialValues.MINIO_BUCKET || 'usa-luxury-limo',
+        }),
+      });
+      
+      const result = await testResponse.json();
+      
+      if (result.success) {
+        toast({
+          title: "Connection Successful",
+          description: result.message,
+        });
+      } else {
+        toast({
+          title: "Connection Failed",
+          description: result.message || "Failed to connect to MinIO. Please check your credentials.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('MinIO test error:', error);
+      toast({
+        title: "Test Failed",
+        description: "An error occurred while testing the connection. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setTestingMinIO(false);
+    }
+  };
+
   const handleEditCredential = async (key: string) => {
     setEditingKey(key);
     setLoadingValue(true);
@@ -4941,6 +5020,36 @@ export default function AdminDashboard() {
       description: "AeroDataBox flight search API",
       category: "External APIs",
     },
+    MINIO_SERVICE_NAME: {
+      label: "MinIO Service Name",
+      description: "Friendly name to identify your MinIO instance",
+      category: "Object Storage",
+    },
+    MINIO_CONSOLE_URL: {
+      label: "MinIO Console URL",
+      description: "Web interface URL for MinIO management (e.g., https://minio.example.com:9001)",
+      category: "Object Storage",
+    },
+    MINIO_ENDPOINT: {
+      label: "MinIO S3 API URL",
+      description: "S3-compatible API endpoint (e.g., https://minio.example.com:9000)",
+      category: "Object Storage",
+    },
+    MINIO_ACCESS_KEY: {
+      label: "MinIO Access Key",
+      description: "Access key for MinIO authentication (username)",
+      category: "Object Storage",
+    },
+    MINIO_SECRET_KEY: {
+      label: "MinIO Secret Key",
+      description: "Secret key for MinIO authentication (password)",
+      category: "Object Storage",
+    },
+    MINIO_BUCKET: {
+      label: "MinIO Bucket Name",
+      description: "Default bucket name for object storage (e.g., usa-luxury-limo)",
+      category: "Object Storage",
+    },
   };
 
   // Build enhanced credentials list from API data
@@ -4984,7 +5093,9 @@ export default function AdminDashboard() {
           setShowVehicleTypes(false);
           setTimeout(() => {
             const targetId =
-              section === "api" ? "credentials-section" : "payment-section";
+              section === "api" ? "credentials-section" : 
+              section === "minio" ? "minio-section" :
+              "payment-section";
             document
               .getElementById(targetId)
               ?.scrollIntoView({ behavior: "smooth" });
@@ -5325,13 +5436,14 @@ export default function AdminDashboard() {
                 Manage API keys and external service credentials for your application.
               </p>
 
-              {/* Existing Credentials (excluding Stripe and SMTP - moved to their respective sections) */}
+              {/* Existing Credentials (excluding Stripe, SMTP, and MinIO - moved to their respective sections) */}
               <div className="space-y-3">
                 {credentials
                   .filter(
                     (c) =>
                       !c.key.includes("STRIPE") &&
                       !c.key.includes("SMTP") &&
+                      !c.key.includes("MINIO") &&
                       c.key !== "ADMIN_EMAIL",
                   )
                   .map((credential) => (
@@ -5538,6 +5650,175 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* MinIO Object Storage Configuration */}
+        {visibleCredentialsSection === "minio" && (
+          <Card id="minio-section" data-testid="minio-credentials" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+            <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50/30 border-b border-slate-200">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-3 text-slate-900">
+                  <div className="bg-cyan-600 p-2 rounded-lg">
+                    <Key className="w-5 h-5 text-white" />
+                  </div>
+                  <span>MinIO Object Storage</span>
+                </CardTitle>
+                <Button
+                  onClick={handleTestMinIOConnection}
+                  disabled={testingMinIO}
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white"
+                  size="sm"
+                  data-testid="button-test-minio"
+                >
+                  {testingMinIO ? (
+                    <>
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                      Testing...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Test Connection
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              <p className="text-sm text-slate-600 mb-4">
+                Configure MinIO or S3-compatible object storage for storing driver documents, invoices, and CMS media files.
+              </p>
+
+              {/* MinIO Credentials Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {['MINIO_SERVICE_NAME', 'MINIO_CONSOLE_URL', 'MINIO_ENDPOINT', 'MINIO_ACCESS_KEY', 'MINIO_SECRET_KEY', 'MINIO_BUCKET'].map((key) => {
+                  const credential = credentials.find((c) => c.key === key);
+                  if (!credential) return null;
+
+                  return (
+                    <div
+                      key={key}
+                      className={`border border-slate-200 rounded-xl p-5 bg-white hover:border-slate-300 transition-all shadow-sm hover:shadow ${key === 'MINIO_SERVICE_NAME' || key === 'MINIO_CONSOLE_URL' ? 'md:col-span-1' : ''}`}
+                      data-testid={`credential-${key.toLowerCase()}`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4
+                              className="font-semibold text-base text-slate-900"
+                              data-testid={`credential-label-${key.toLowerCase()}`}
+                            >
+                              {credential.label}
+                            </h4>
+                            {credential.hasValue && (
+                              <Badge
+                                className={
+                                  credential.usesEnv 
+                                    ? "bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200 text-xs"
+                                    : "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 text-xs"
+                                }
+                                data-testid={`credential-status-${key.toLowerCase()}`}
+                              >
+                                {credential.usesEnv ? "ENV" : "DB"}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-600 mb-3">
+                            {credential.description}
+                          </p>
+
+                          {editingKey === key ? (
+                            <div className="mt-3 space-y-3 bg-cyan-50 p-4 rounded-lg border border-cyan-200">
+                              {loadingValue ? (
+                                <div className="flex items-center gap-2 text-sm text-slate-600">
+                                  <div className="animate-spin w-4 h-4 border-2 border-cyan-600 border-t-transparent rounded-full" />
+                                  Loading current value...
+                                </div>
+                              ) : (
+                                <div>
+                                  <Label className="text-xs text-slate-700 mb-1">New Value</Label>
+                                  <Input
+                                    type="text"
+                                    placeholder="Enter new value"
+                                    value={newKeyValue}
+                                    onChange={(e) => setNewKeyValue(e.target.value)}
+                                    className="border-slate-300 text-sm"
+                                    data-testid={`input-edit-${key.toLowerCase()}`}
+                                  />
+                                </div>
+                              )}
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  className="bg-cyan-600 hover:bg-cyan-700 text-white"
+                                  onClick={() => handleUpdateCredential(key)}
+                                  disabled={updateCredentialMutation.isPending || loadingValue}
+                                  data-testid={`button-save-${key.toLowerCase()}`}
+                                >
+                                  <Check className="w-4 h-4 mr-1" />
+                                  Save
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-slate-300 hover:bg-slate-100"
+                                  onClick={() => {
+                                    setEditingKey(null);
+                                    setNewKeyValue("");
+                                  }}
+                                  data-testid={`button-cancel-${key.toLowerCase()}`}
+                                >
+                                  <X className="w-4 h-4 mr-1" />
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                {credential.hasValue ? (
+                                  <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 bg-green-50 text-green-700 rounded-md border border-green-200">
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    <span>Configured</span>
+                                  </div>
+                                ) : (
+                                  <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 bg-slate-100 text-slate-600 rounded-md border border-slate-200">
+                                    <AlertCircle className="w-3.5 h-3.5" />
+                                    <span>Not set</span>
+                                  </div>
+                                )}
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-cyan-200 text-cyan-600 hover:bg-cyan-50 hover:border-cyan-300"
+                                onClick={() => handleEditCredential(key)}
+                                data-testid={`button-edit-${key.toLowerCase()}`}
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 p-4 bg-cyan-50 border border-cyan-200 rounded-lg">
+                <h4 className="text-sm font-semibold text-slate-900 mb-2">Connection Test</h4>
+                <p className="text-xs text-slate-600 mb-3">
+                  After configuring your MinIO credentials, click the "Test Connection" button above to verify:
+                </p>
+                <ul className="text-xs text-slate-600 space-y-1 ml-4 list-disc">
+                  <li>MinIO endpoint is reachable</li>
+                  <li>Access credentials are valid</li>
+                  <li>Bucket exists and is accessible (or can be created)</li>
+                </ul>
+              </div>
             </CardContent>
           </Card>
         )}

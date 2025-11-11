@@ -6,8 +6,10 @@ USA Luxury Limo is a full-stack Progressive Web Application (PWA) with native mo
 ## Recent Changes
 
 ### November 11, 2025
+- **MinIO Credential Management**: Added comprehensive MinIO/S3-compatible object storage credential management to admin panel. Features include: dedicated MinIO Storage section in Settings dropdown with 6 configurable fields (Service Name, Console URL, S3 API URL, Access Key, Secret Key, Bucket Name), built-in connection testing with real-time validation, and seamless integration with existing credential management system. Admin can now configure and test MinIO connections directly from the web interface without manual environment variable configuration.
 - **Admin Navigation Reorganization**: Consolidated Pricing, API Credentials, Payment Systems, and Vehicle Types menu items into the Settings dropdown menu for better organization and cleaner navigation. All functionality preserved.
 - **Vehicle Type Pricing Fields**: Removed pricing input fields (hourlyRate, perMileRate, minimumFare) from Vehicle Type Management UI. Backend schema updated to make pricing fields optional. Pricing is now managed separately through the pricing rules system.
+- **Dashboard Stats Redesign**: Modernized dashboard statistics section with professional design featuring clean white cards, subtle gradient accents, refined typography with uppercase tracking, and smooth hover effects with lift animations.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.

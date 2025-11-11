@@ -13,6 +13,7 @@ import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sen
 import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityReport } from "./emailReports";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
+import { S3Client, HeadBucketCommand, ListBucketsCommand } from "@aws-sdk/client-s3";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -6529,6 +6530,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         message: 'SMTP test failed. Please check your settings.' 
+      });
+    }
+  });
+
+  // Test MinIO connection
+  app.post('/api/admin/minio/test', isAuthenticated, async (req: any, res) => {
+    try {
+      if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const { endpoint, accessKey, secretKey, bucket } = req.body;
+
+      // Validate required fields
+      if (!endpoint || !accessKey || !secretKey) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'MinIO endpoint, access key, and secret key are required' 
+        });
+      }
+
+      const bucketName = bucket || 'usa-luxury-limo';
+
+      try {
+        // Create S3 client with provided credentials
+        const testClient = new S3Client({
+          endpoint: endpoint,
+          region: 'us-east-1',
+          credentials: {
+            accessKeyId: accessKey,
+            secretAccessKey: secretKey,
+          },
+          forcePathStyle: true, // Required for MinIO
+        });
+
+        // Test 1: Try to list buckets (validates endpoint and credentials)
+        try {
+          await testClient.send(new ListBucketsCommand({}));
+        } catch (listError: any) {
+          console.error('MinIO list buckets error:', listError);
+          return res.status(400).json({
+            success: false,
+            message: `Failed to connect to MinIO endpoint. Error: ${listError.message || 'Invalid credentials or endpoint'}`,
+            details: listError.message
+          });
+        }
+
+        // Test 2: Try to head the bucket (validates bucket exists and is accessible)
+        try {
+          await testClient.send(new HeadBucketCommand({ Bucket: bucketName }));
+          
+          return res.json({
+            success: true,
+            message: `Successfully connected to MinIO! Endpoint is reachable, credentials are valid, and bucket "${bucketName}" is accessible.`,
+            bucketExists: true
+          });
+        } catch (bucketError: any) {
+          // Bucket doesn't exist or we don't have access
+          if (bucketError.name === 'NotFound' || bucketError.$metadata?.httpStatusCode === 404) {
+            return res.json({
+              success: true,
+              message: `Connection successful! Credentials are valid, but bucket "${bucketName}" does not exist. It will be created automatically when needed.`,
+              bucketExists: false,
+              warning: `Bucket "${bucketName}" not found`
+            });
+          } else {
+            return res.status(400).json({
+              success: false,
+              message: `Credentials are valid, but cannot access bucket "${bucketName}". Error: ${bucketError.message}`,
+              details: bucketError.message
+            });
+          }
+        }
+      } catch (error: any) {
+        console.error('MinIO connection test error:', error);
+        return res.status(500).json({
+          success: false,
+          message: `MinIO connection test failed: ${error.message || 'Unknown error'}`,
+          details: error.message
+        });
+      }
+    } catch (error: any) {
+      console.error('MinIO test endpoint error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to test MinIO connection. Please try again.',
+        details: error.message
       });
     }
   });

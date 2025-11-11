@@ -28,7 +28,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
 
 interface AdminNavProps {
-  onCredentialsClick?: (section: 'api' | 'payment') => void;
+  onCredentialsClick?: (section: 'api' | 'payment' | 'minio') => void;
   onUserManagerClick?: (type: 'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin') => void;
   onBookingsClick?: () => void;
   onInvoicesClick?: () => void;
@@ -230,6 +230,20 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 >
                   <DollarSign className="w-4 h-4 mr-3 text-slate-500" />
                   <span className="font-medium">Payment Systems</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onCredentialsClick?.('minio');
+                    } else {
+                      setLocation('/admin#credentials-minio');
+                    }
+                  }}
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-minio-storage"
+                >
+                  <Key className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">MinIO Storage</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
