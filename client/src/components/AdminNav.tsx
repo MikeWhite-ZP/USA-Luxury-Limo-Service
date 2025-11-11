@@ -32,11 +32,12 @@ interface AdminNavProps {
   onUserManagerClick?: (type: 'all' | 'passenger' | 'driver' | 'dispatcher' | 'admin') => void;
   onBookingsClick?: () => void;
   onInvoicesClick?: () => void;
+  onVehicleTypesClick?: () => void;
   onSettingsClick?: (section: 'commission' | 'email' | 'sms') => void;
   onCMSClick?: (section: 'pages' | 'media') => void;
 }
 
-export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onSettingsClick, onCMSClick }: AdminNavProps) {
+export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onVehicleTypesClick, onSettingsClick, onCMSClick }: AdminNavProps) {
   const [location, setLocation] = useLocation();
   const { logoutMutation } = useAuth();
   const { logoUrl, logoAltText } = useSiteLogo();
@@ -352,6 +353,23 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
             >
               <MessageSquare className="w-4 h-4 mr-2" />
               Bookings
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
+              onClick={() => {
+                if (location === '/admin' || location === '/admin-dashboard') {
+                  onVehicleTypesClick?.();
+                } else {
+                  setLocation('/admin#vehicle-types');
+                }
+              }}
+              data-testid="nav-vehicle-types"
+            >
+              <Car className="w-4 h-4 mr-2" />
+              Vehicle Types
             </Button>
             
             <Button 

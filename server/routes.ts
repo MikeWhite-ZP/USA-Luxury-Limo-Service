@@ -505,6 +505,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Get all vehicle types (including inactive)
+  app.get('/api/admin/vehicle-types', isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const vehicleTypes = await storage.getAllVehicleTypes();
+      res.json(vehicleTypes);
+    } catch (error) {
+      console.error("Error fetching all vehicle types:", error);
+      res.status(500).json({ message: "Failed to fetch vehicle types" });
+    }
+  });
+
   // Admin: Create vehicle type
   app.post('/api/admin/vehicle-types', requireAdmin, async (req, res) => {
     try {

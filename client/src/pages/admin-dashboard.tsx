@@ -1013,6 +1013,523 @@ function AdminEmailSettings({ user }: { user: any }) {
   );
 }
 
+// Vehicle Type Management Component
+function VehicleTypeManagement() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedVehicleType, setSelectedVehicleType] = useState<any | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    passengerCapacity: 4,
+    luggageCapacity: "3 Large, 2 Carry-on",
+    hourlyRate: "",
+    perMileRate: "",
+    minimumFare: "",
+    imageUrl: "",
+    features: [] as string[],
+    isActive: true,
+  });
+
+  // Fetch all vehicle types (including inactive)
+  const { data: vehicleTypes, isLoading } = useQuery<any[]>({
+    queryKey: ["/api/admin/vehicle-types"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/vehicle-types", {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to fetch vehicle types");
+      return response.json();
+    },
+  });
+
+  // Create vehicle type mutation
+  const createVehicleTypeMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await fetch("/api/admin/vehicle-types", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to create vehicle type");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/vehicle-types"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/vehicle-types"] });
+      toast({ title: "Vehicle type created successfully" });
+      setDialogOpen(false);
+      resetForm();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to create vehicle type",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update vehicle type mutation
+  const updateVehicleTypeMutation = useMutation({
+    mutationFn: async (data: { id: string; updates: any }) => {
+      const response = await fetch(`/api/admin/vehicle-types/${data.id}`, {
+        method: "PUT",
+        body: JSON.stringify(data.updates),
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update vehicle type");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/vehicle-types"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/vehicle-types"] });
+      toast({ title: "Vehicle type updated successfully" });
+      setDialogOpen(false);
+      resetForm();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to update vehicle type",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete vehicle type mutation
+  const deleteVehicleTypeMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/admin/vehicle-types/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to delete vehicle type");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/vehicle-types"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/vehicle-types"] });
+      toast({ title: "Vehicle type deleted successfully" });
+      setDeleteDialogOpen(false);
+      setSelectedVehicleType(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to delete vehicle type",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const filteredVehicleTypes = vehicleTypes?.filter((vt) => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      vt.name.toLowerCase().includes(searchLower) ||
+      vt.description?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      description: "",
+      passengerCapacity: 4,
+      luggageCapacity: "3 Large, 2 Carry-on",
+      hourlyRate: "",
+      perMileRate: "",
+      minimumFare: "",
+      imageUrl: "",
+      features: [],
+      isActive: true,
+    });
+    setIsEditing(false);
+    setSelectedVehicleType(null);
+  };
+
+  const handleAdd = () => {
+    resetForm();
+    setDialogOpen(true);
+  };
+
+  const handleEdit = (vehicleType: any) => {
+    setSelectedVehicleType(vehicleType);
+    setFormData({
+      name: vehicleType.name,
+      description: vehicleType.description || "",
+      passengerCapacity: vehicleType.passengerCapacity,
+      luggageCapacity: vehicleType.luggageCapacity || "",
+      hourlyRate: vehicleType.hourlyRate,
+      perMileRate: vehicleType.perMileRate || "",
+      minimumFare: vehicleType.minimumFare || "",
+      imageUrl: vehicleType.imageUrl || "",
+      features: vehicleType.features || [],
+      isActive: vehicleType.isActive,
+    });
+    setIsEditing(true);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = (vehicleType: any) => {
+    setSelectedVehicleType(vehicleType);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleSubmit = () => {
+    if (isEditing && selectedVehicleType) {
+      updateVehicleTypeMutation.mutate({
+        id: selectedVehicleType.id,
+        updates: formData,
+      });
+    } else {
+      createVehicleTypeMutation.mutate(formData);
+    }
+  };
+
+  return (
+    <Card data-testid="vehicle-type-management" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
+      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50/30 border-b border-slate-200">
+        <CardTitle className="flex items-center justify-between text-slate-900">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-600 p-2 rounded-lg">
+              <Car className="w-5 h-5 text-white" />
+            </div>
+            <span>Vehicle Type Management</span>
+          </div>
+          <Button
+            onClick={handleAdd}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+            data-testid="button-add-vehicle-type"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Vehicle Type
+          </Button>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pt-6">
+        {/* Search */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Search vehicle types..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+              data-testid="input-search-vehicle-types"
+            />
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center p-12">
+            <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+          </div>
+        ) : filteredVehicleTypes && filteredVehicleTypes.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-200">
+                  <th className="text-left p-4 font-semibold text-slate-700">Name</th>
+                  <th className="text-left p-4 font-semibold text-slate-700">Capacity</th>
+                  <th className="text-left p-4 font-semibold text-slate-700">Hourly Rate</th>
+                  <th className="text-left p-4 font-semibold text-slate-700">Per Mile</th>
+                  <th className="text-left p-4 font-semibold text-slate-700">Status</th>
+                  <th className="text-center p-4 font-semibold text-slate-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredVehicleTypes.map((vt) => (
+                  <tr
+                    key={vt.id}
+                    className="hover:bg-slate-50 transition-colors border-b border-slate-100"
+                    data-testid={`vehicle-type-row-${vt.id}`}
+                  >
+                    <td className="p-4">
+                      <div>
+                        <div className="font-semibold text-slate-900" data-testid={`vehicle-name-${vt.id}`}>
+                          {vt.name}
+                        </div>
+                        {vt.description && (
+                          <div className="text-sm text-slate-500 mt-1">{vt.description}</div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-4 text-slate-700" data-testid={`vehicle-capacity-${vt.id}`}>
+                      <div className="text-sm">
+                        <div>{vt.passengerCapacity} passengers</div>
+                        <div className="text-slate-500">{vt.luggageCapacity}</div>
+                      </div>
+                    </td>
+                    <td className="p-4 font-semibold text-blue-700" data-testid={`vehicle-hourly-rate-${vt.id}`}>
+                      ${vt.hourlyRate}/hr
+                    </td>
+                    <td className="p-4 text-slate-700" data-testid={`vehicle-per-mile-${vt.id}`}>
+                      {vt.perMileRate ? `$${vt.perMileRate}` : "-"}
+                    </td>
+                    <td className="p-4" data-testid={`vehicle-status-${vt.id}`}>
+                      <Badge className={vt.isActive ? "bg-green-100 text-green-800 border-green-200" : "bg-slate-100 text-slate-700 border-slate-200"}>
+                        {vt.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex justify-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                          onClick={() => handleEdit(vt)}
+                          data-testid={`button-edit-${vt.id}`}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-200 text-slate-600 hover:bg-slate-100"
+                          onClick={() => handleDelete(vt)}
+                          data-testid={`button-delete-${vt.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center p-12 text-slate-600 bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg border-2 border-dashed border-slate-300">
+            <Car className="w-12 h-12 mx-auto mb-3 text-slate-400" />
+            <p className="font-medium text-slate-700">No vehicle types found</p>
+            <p className="text-sm text-slate-500 mt-1">Add your first vehicle type to get started.</p>
+          </div>
+        )}
+      </CardContent>
+
+      {/* Add/Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-blue-700">
+              <Car className="w-5 h-5" />
+              {isEditing ? "Edit Vehicle Type" : "Add Vehicle Type"}
+            </DialogTitle>
+            <DialogDescription>
+              {isEditing ? "Update the vehicle type information below." : "Enter the details for the new vehicle type."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name">Vehicle Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g., Business Sedan"
+                  data-testid="input-vehicle-name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="passengerCapacity">Passenger Capacity *</Label>
+                <Input
+                  id="passengerCapacity"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={formData.passengerCapacity}
+                  onChange={(e) => setFormData({ ...formData, passengerCapacity: parseInt(e.target.value) || 1 })}
+                  data-testid="input-passenger-capacity"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Brief description of the vehicle type"
+                rows={2}
+                data-testid="input-description"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="luggageCapacity">Luggage Capacity</Label>
+              <Input
+                id="luggageCapacity"
+                value={formData.luggageCapacity}
+                onChange={(e) => setFormData({ ...formData, luggageCapacity: e.target.value })}
+                placeholder="e.g., 3 Large, 2 Carry-on"
+                data-testid="input-luggage-capacity"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="hourlyRate">Hourly Rate * ($)</Label>
+                <Input
+                  id="hourlyRate"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.hourlyRate}
+                  onChange={(e) => setFormData({ ...formData, hourlyRate: e.target.value })}
+                  placeholder="75.00"
+                  data-testid="input-hourly-rate"
+                />
+              </div>
+              <div>
+                <Label htmlFor="perMileRate">Per Mile Rate ($)</Label>
+                <Input
+                  id="perMileRate"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.perMileRate}
+                  onChange={(e) => setFormData({ ...formData, perMileRate: e.target.value })}
+                  placeholder="3.50"
+                  data-testid="input-per-mile-rate"
+                />
+              </div>
+              <div>
+                <Label htmlFor="minimumFare">Minimum Fare ($)</Label>
+                <Input
+                  id="minimumFare"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.minimumFare}
+                  onChange={(e) => setFormData({ ...formData, minimumFare: e.target.value })}
+                  placeholder="50.00"
+                  data-testid="input-minimum-fare"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="imageUrl">Image URL</Label>
+              <Input
+                id="imageUrl"
+                value={formData.imageUrl}
+                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                placeholder="https://example.com/vehicle.jpg"
+                data-testid="input-image-url"
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="isActive"
+                checked={formData.isActive}
+                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                data-testid="checkbox-is-active"
+              />
+              <Label htmlFor="isActive" className="cursor-pointer">Active (visible to customers)</Label>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDialogOpen(false);
+                resetForm();
+              }}
+              data-testid="button-cancel"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={
+                !formData.name ||
+                !formData.hourlyRate ||
+                createVehicleTypeMutation.isPending ||
+                updateVehicleTypeMutation.isPending
+              }
+              className="bg-blue-600 hover:bg-blue-700"
+              data-testid="button-save"
+            >
+              {(createVehicleTypeMutation.isPending || updateVehicleTypeMutation.isPending) ? (
+                <>
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                  {isEditing ? "Updating..." : "Creating..."}
+                </>
+              ) : (
+                <>{isEditing ? "Update Vehicle Type" : "Create Vehicle Type"}</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="w-5 h-5" />
+              Delete Vehicle Type
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong>{selectedVehicleType?.name}</strong>?
+              This action cannot be undone and may affect existing pricing rules.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                setSelectedVehicleType(null);
+              }}
+              data-testid="button-cancel-delete"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (selectedVehicleType) {
+                  deleteVehicleTypeMutation.mutate(selectedVehicleType.id);
+                }
+              }}
+              disabled={deleteVehicleTypeMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+              data-testid="button-confirm-delete"
+            >
+              {deleteVehicleTypeMutation.isPending ? "Deleting..." : "Delete Vehicle Type"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Card>
+  );
+}
+
 // Invoice Management Component
 function InvoiceManagement() {
   const { toast } = useToast();
@@ -2528,6 +3045,7 @@ export default function AdminDashboard() {
   >(null);
   const [showBookings, setShowBookings] = useState(false);
   const [showInvoices, setShowInvoices] = useState(false);
+  const [showVehicleTypes, setShowVehicleTypes] = useState(false);
   const [selectedUserType, setSelectedUserType] = useState<
     "all" | "passenger" | "driver" | "dispatcher" | "admin"
   >("all");
@@ -4523,6 +5041,7 @@ export default function AdminDashboard() {
           setShowUserManager(false);
           setShowBookings(false);
           setShowInvoices(false);
+          setShowVehicleTypes(false);
           setTimeout(() => {
             const targetId =
               section === "api" ? "credentials-section" : "payment-section";
@@ -4539,6 +5058,7 @@ export default function AdminDashboard() {
           setVisibleCMSSection(null);
           setShowBookings(false);
           setShowInvoices(false);
+          setShowVehicleTypes(false);
           setTimeout(
             () =>
               document
@@ -4554,6 +5074,7 @@ export default function AdminDashboard() {
           setShowUserManager(false);
           setShowBookings(true);
           setShowInvoices(false);
+          setShowVehicleTypes(false);
           setTimeout(
             () =>
               document
@@ -4569,10 +5090,27 @@ export default function AdminDashboard() {
           setShowUserManager(false);
           setShowBookings(false);
           setShowInvoices(true);
+          setShowVehicleTypes(false);
           setTimeout(
             () =>
               document
                 .getElementById("invoices-section")
+                ?.scrollIntoView({ behavior: "smooth" }),
+            100,
+          );
+        }}
+        onVehicleTypesClick={() => {
+          setVisibleCredentialsSection(null);
+          setVisibleSettingsSection(null);
+          setVisibleCMSSection(null);
+          setShowUserManager(false);
+          setShowBookings(false);
+          setShowInvoices(false);
+          setShowVehicleTypes(true);
+          setTimeout(
+            () =>
+              document
+                .getElementById("vehicle-types-section")
                 ?.scrollIntoView({ behavior: "smooth" }),
             100,
           );
@@ -4584,6 +5122,7 @@ export default function AdminDashboard() {
           setShowUserManager(false);
           setShowBookings(false);
           setShowInvoices(false);
+          setShowVehicleTypes(false);
           setTimeout(() => {
             document
               .getElementById("settings-section")
@@ -4597,6 +5136,7 @@ export default function AdminDashboard() {
           setShowUserManager(false);
           setShowBookings(false);
           setShowInvoices(false);
+          setShowVehicleTypes(false);
           setTimeout(() => {
             document
               .getElementById("cms-section")
@@ -7265,6 +7805,13 @@ export default function AdminDashboard() {
               )}
             </CardContent>
           </Card>
+        )}
+
+        {/* Vehicle Type Management Section */}
+        {showVehicleTypes && (
+          <div id="vehicle-types-section" className="space-y-6">
+            <VehicleTypeManagement />
+          </div>
         )}
 
         {/* Invoice Management Section */}
