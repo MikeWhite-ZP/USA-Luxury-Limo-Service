@@ -7,7 +7,7 @@ import { z } from "zod";
 import Stripe from "stripe";
 import multer from "multer";
 import crypto from "crypto";
-import { getStorageAdapter, type StorageAdapter } from "./objectStorageAdapter";
+import { getStorageAdapter, type StorageAdapter, type StorageCredentials } from "./objectStorageAdapter";
 import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML, getPaymentConfirmationEmailHTML, getDriverOnTheWayEmailHTML, getDriverArrivedEmailHTML, getBookingCancelledEmailHTML } from "./email";
 import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS, sendDriverOnTheWaySMS, sendDriverArrivedSMS, sendBookingCancelledSMS, sendAdminNewBookingAlertSMS } from "./sms";
 import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityReport } from "./emailReports";
@@ -23,17 +23,65 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Initialize Object Storage adapter lazily (on first use) to avoid startup errors
 let objectStorage: StorageAdapter | null = null;
+let lastCredentialCheck = 0;
+const CREDENTIAL_CACHE_MS = 60000; // Cache credentials for 1 minute
 
-function getObjectStorage(): StorageAdapter {
-  if (!objectStorage) {
-    try {
-      objectStorage = getStorageAdapter();
-    } catch (error: any) {
-      console.error('[STORAGE] Failed to initialize storage adapter:', error.message);
-      throw new Error('Object Storage not configured. Please set up storage environment variables.');
-    }
+/**
+ * Get object storage adapter with credentials from database (if configured)
+ * Falls back to environment variables if database doesn't have MinIO credentials
+ * Caches the adapter instance for performance
+ */
+async function getObjectStorage(): Promise<StorageAdapter> {
+  const now = Date.now();
+  
+  // Return cached adapter if it exists and credentials were recently checked
+  if (objectStorage && (now - lastCredentialCheck) < CREDENTIAL_CACHE_MS) {
+    return objectStorage;
   }
-  return objectStorage;
+
+  try {
+    // Try to fetch MinIO credentials from database
+    let credentials: StorageCredentials = {};
+    
+    try {
+      const endpoint = await storage.getSetting('MINIO_ENDPOINT');
+      const accessKey = await storage.getSetting('MINIO_ACCESS_KEY');
+      const secretKey = await storage.getSetting('MINIO_SECRET_KEY');
+      const bucket = await storage.getSetting('MINIO_BUCKET');
+
+      // Only use database credentials if all required fields are present
+      if (endpoint && accessKey && secretKey) {
+        credentials = {
+          minioEndpoint: endpoint,
+          minioAccessKey: accessKey,
+          minioSecretKey: secretKey,
+          minioBucket: bucket || undefined,
+        };
+        console.log('[STORAGE] Using MinIO credentials from database');
+      }
+    } catch (dbError: any) {
+      // Database might not be available or settings not configured
+      // This is okay - we'll fall back to environment variables
+      console.log('[STORAGE] Could not fetch credentials from database, using environment variables');
+    }
+
+    // Initialize storage adapter (will fall back to env vars if credentials are empty)
+    objectStorage = getStorageAdapter(credentials);
+    lastCredentialCheck = now;
+    
+    return objectStorage;
+  } catch (error: any) {
+    console.error('[STORAGE] Failed to initialize storage adapter:', error.message);
+    throw new Error('Object Storage not configured. Please set up storage in admin settings or environment variables.');
+  }
+}
+
+/**
+ * Force refresh of object storage adapter (e.g., when credentials are updated)
+ */
+function refreshObjectStorage(): void {
+  objectStorage = null;
+  lastCredentialCheck = 0;
 }
 
 // Configure Multer for file uploads (memory storage)
@@ -465,7 +513,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fileName = `profile-pictures/${userId}/profile-${Date.now()}.${fileExtension}`;
 
       // Upload to Object Storage
-      const { ok, error } = await getObjectStorage().uploadFromBytes(
+      const objStorage = await getObjectStorage();
+      const { ok, error } = await objStorage.uploadFromBytes(
         fileName,
         file.buffer
       );
@@ -4313,11 +4362,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { settings } = req.body;
       
+      let minioCredentialsUpdated = false;
       for (const [key, value] of Object.entries(settings)) {
         // Only update if value is provided and not the masked placeholder
         if (value && typeof value === 'string' && value !== '••••••••') {
           await storage.updateSystemSetting(key, value as string, userId);
+          
+          // Track if MinIO credentials were updated
+          if (key.startsWith('MINIO_')) {
+            minioCredentialsUpdated = true;
+          }
         }
+      }
+
+      // Refresh object storage adapter if MinIO credentials were updated
+      if (minioCredentialsUpdated) {
+        refreshObjectStorage();
       }
 
       res.json({ success: true });
@@ -5034,7 +5094,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fileName = `driver-docs/${driver.id}/${documentType}-${Date.now()}.${fileExtension}`;
 
       // Upload to Object Storage
-      const { ok, error } = await getObjectStorage().uploadFromBytes(
+      const objStorage = await getObjectStorage();
+      const { ok, error } = await objStorage.uploadFromBytes(
         fileName,
         file.buffer
       );
@@ -5147,7 +5208,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Download from object storage
-      const { ok, value, error } = await getObjectStorage().downloadAsBytes(document.documentUrl);
+      const objStorage = await getObjectStorage();
+      const { ok, value, error } = await objStorage.downloadAsBytes(document.documentUrl);
 
       if (!ok) {
         return res.status(404).json({ message: `File not found: ${error}` });
@@ -5195,7 +5257,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const filePath = `driver-docs/${driverId}/${filename}`;
 
       // Download from object storage
-      const { ok, value, error } = await getObjectStorage().downloadAsBytes(filePath);
+      const objStorage = await getObjectStorage();
+      const { ok, value, error } = await objStorage.downloadAsBytes(filePath);
 
       if (!ok) {
         return res.status(404).json({ message: `File not found: ${error}` });
@@ -5269,7 +5332,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Delete from object storage
-      const { ok, error} = await getObjectStorage().delete(document.documentUrl);
+      const objStorage = await getObjectStorage();
+      const { ok, error} = await objStorage.delete(document.documentUrl);
       if (!ok) {
         console.error('Failed to delete from object storage:', error);
       }
@@ -5439,7 +5503,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fileName = `driver-docs/${driver.id}/${documentType}-${Date.now()}.${fileExtension}`;
 
       // Upload to Object Storage
-      const { ok, error } = await getObjectStorage().uploadFromBytes(
+      const objStorage = await getObjectStorage();
+      const { ok, error } = await objStorage.uploadFromBytes(
         fileName,
         file.buffer
       );
@@ -6660,7 +6725,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       try {
-        const adapter = getStorageAdapter();
+        const adapter = await getObjectStorage();
         const result = await adapter.listWithMetadata(searchPrefix);
 
         if (!result.ok) {
@@ -6674,6 +6739,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Organize objects by folder
         const folders = new Set<string>();
         const files = result.objects?.map(obj => {
+          // Skip objects with invalid/missing keys
+          if (!obj.key) {
+            return null;
+          }
+
           // Extract folder from key
           const parts = obj.key.split('/');
           if (parts.length > 1) {
@@ -6689,7 +6759,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             url: obj.url,
             isImage: /\.(jpg|jpeg|png|gif|webp|heic)$/i.test(obj.key)
           };
-        }) || [];
+        }).filter(Boolean) || [];
 
         res.json({
           success: true,
@@ -6752,7 +6822,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const contentType = contentTypeMap[extension || ''] || 'application/octet-stream';
 
       // Upload to Object Storage using configured adapter (MinIO or Replit)
-      const objStorage = getObjectStorage();
+      const objStorage = await getObjectStorage();
       const { ok, error } = await objStorage.uploadFromBytes(filePath, req.file.buffer, { contentType });
       
       if (!ok) {
@@ -7248,7 +7318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const filePath = `/cms/${folder}/${fileName}`;
 
       // Upload to Object Storage
-      const objStorage = getObjectStorage();
+      const objStorage = await getObjectStorage();
       const { ok, error } = await objStorage.uploadFromBytes(filePath, req.file.buffer);
       
       if (!ok) {
@@ -7341,7 +7411,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Delete from Object Storage
       try {
-        const objStorage = getObjectStorage();
+        const objStorage = await getObjectStorage();
         const urlPath = new URL(media.fileUrl).pathname;
         await objStorage.delete(urlPath);
       } catch (storageError) {
@@ -7365,7 +7435,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const filePath = `/cms/${folder}/${filename}`;
 
       // Download from object storage
-      const { ok, value, error } = await getObjectStorage().downloadAsBytes(filePath);
+      const objStorage = await getObjectStorage();
+      const { ok, value, error } = await objStorage.downloadAsBytes(filePath);
 
       if (!ok) {
         return res.status(404).json({ message: `File not found: ${error}` });
