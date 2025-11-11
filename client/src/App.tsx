@@ -1,7 +1,7 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
@@ -56,6 +56,34 @@ const LoadingFallback = () => (
     <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
   </div>
 );
+
+// Component to dynamically load and update favicon from CMS
+function FaviconLoader() {
+  const { data: faviconData } = useQuery<{ favicon: { id: string; url: string; } | null }>({
+    queryKey: ['/api/site-favicon'],
+    refetchOnWindowFocus: false,
+  });
+
+  useEffect(() => {
+    if (faviconData?.favicon?.url) {
+      // Add cache-busting timestamp to ensure fresh favicon loads
+      const faviconUrl = `${faviconData.favicon.url}?t=${Date.now()}`;
+      
+      // Update or create favicon link element
+      let faviconLink = document.querySelector("link[rel='icon']") as HTMLLinkElement;
+      
+      if (!faviconLink) {
+        faviconLink = document.createElement('link');
+        faviconLink.rel = 'icon';
+        document.head.appendChild(faviconLink);
+      }
+      
+      faviconLink.href = faviconUrl;
+    }
+  }, [faviconData]);
+
+  return null;
+}
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -148,6 +176,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <FaviconLoader />
         <Toaster />
         <Router />
         <PWAInstallPrompt />

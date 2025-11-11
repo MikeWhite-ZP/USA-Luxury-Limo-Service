@@ -614,7 +614,7 @@ export const cmsContent = pgTable("cms_content", {
 });
 
 // CMS Media Library - Uploaded images and files
-export const mediaFolderEnum = ["logos", "hero-images", "vehicles", "testimonials", "general"] as const;
+export const mediaFolderEnum = ["logos", "hero-images", "favicon", "vehicles", "testimonials", "general"] as const;
 export type MediaFolder = typeof mediaFolderEnum[number];
 
 export const cmsMedia = pgTable("cms_media", {

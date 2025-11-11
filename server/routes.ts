@@ -7390,6 +7390,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint to get site favicon
+  app.get('/api/site-favicon', async (req, res) => {
+    try {
+      const faviconSetting = await storage.getCmsSetting('site_favicon');
+      
+      if (!faviconSetting || !faviconSetting.value) {
+        return res.json({ favicon: null });
+      }
+      
+      // Get the media item
+      const media = await storage.getCmsMediaById(faviconSetting.value);
+      
+      if (!media) {
+        return res.json({ favicon: null });
+      }
+      
+      res.json({ 
+        favicon: {
+          id: media.id,
+          url: media.fileUrl,
+          altText: media.altText,
+          fileName: media.fileName
+        }
+      });
+    } catch (error) {
+      console.error('Get site favicon error:', error);
+      res.status(500).json({ message: 'Failed to fetch site favicon' });
+    }
+  });
+
+  // Set site favicon (admin only)
+  app.post('/api/admin/site-favicon', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { mediaId } = req.body;
+      const userId = req.adminUser.id;
+      
+      if (!mediaId) {
+        return res.status(400).json({ message: 'Media ID is required' });
+      }
+      
+      // Verify the media exists
+      const media = await storage.getCmsMediaById(mediaId);
+      if (!media) {
+        return res.status(404).json({ message: 'Media not found' });
+      }
+      
+      // Save to CMS settings
+      await storage.upsertCmsSetting({
+        key: 'site_favicon',
+        value: mediaId,
+        category: 'branding',
+        description: 'Site-wide favicon',
+        updatedBy: userId
+      });
+      
+      res.json({ success: true, media });
+    } catch (error) {
+      console.error('Set site favicon error:', error);
+      res.status(500).json({ message: 'Failed to set site favicon' });
+    }
+  });
+
   // CMS Media Routes
   app.get('/api/admin/cms/media', isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
@@ -7518,6 +7580,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (heroSetting && heroSetting.value === id) {
         // Clear the site hero setting before deleting the media
         await storage.deleteCmsSetting('site_hero');
+      }
+      
+      // Check if this media is the active site favicon
+      const faviconSetting = await storage.getCmsSetting('site_favicon');
+      if (faviconSetting && faviconSetting.value === id) {
+        // Clear the site favicon setting before deleting the media
+        await storage.deleteCmsSetting('site_favicon');
       }
       
       // Delete from Object Storage

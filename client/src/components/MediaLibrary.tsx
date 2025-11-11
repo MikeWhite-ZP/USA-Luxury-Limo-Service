@@ -19,7 +19,7 @@ type CmsMedia = {
   fileUrl: string;
   fileType: string;
   fileSize: number;
-  folder: 'logos' | 'hero-images' | 'vehicles' | 'testimonials' | 'general';
+  folder: 'logos' | 'hero-images' | 'favicon' | 'vehicles' | 'testimonials' | 'general';
   altText: string;
   description: string;
   width: number | null;
@@ -28,7 +28,7 @@ type CmsMedia = {
   uploadedAt: string;
 };
 
-type FolderType = 'all' | 'logos' | 'hero-images' | 'vehicles' | 'testimonials' | 'general';
+type FolderType = 'all' | 'logos' | 'hero-images' | 'favicon' | 'vehicles' | 'testimonials' | 'general';
 
 export default function MediaLibrary() {
   const { toast } = useToast();
@@ -39,7 +39,7 @@ export default function MediaLibrary() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<CmsMedia | null>(null);
   const [mediaToDelete, setMediaToDelete] = useState<CmsMedia | null>(null);
-  const [uploadFolder, setUploadFolder] = useState<'logos' | 'hero-images' | 'vehicles' | 'testimonials' | 'general'>('general');
+  const [uploadFolder, setUploadFolder] = useState<'logos' | 'hero-images' | 'favicon' | 'vehicles' | 'testimonials' | 'general'>('general');
   const [isDragging, setIsDragging] = useState(false);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
   const heroFileInputRef = useRef<HTMLInputElement>(null);
@@ -62,6 +62,13 @@ export default function MediaLibrary() {
   });
 
   const activeSiteHeroId = siteHeroData?.hero?.id;
+
+  // Fetch current site favicon
+  const { data: siteFaviconData } = useQuery<{ favicon: { id: string; url: string; altText: string; fileName: string; } | null }>({
+    queryKey: ['/api/site-favicon'],
+  });
+
+  const activeSiteFaviconId = siteFaviconData?.favicon?.id;
 
   // Filter media by folder
   const displayedMedia = selectedFolder === 'all' 
@@ -127,6 +134,7 @@ export default function MediaLibrary() {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
       queryClient.invalidateQueries({ queryKey: ['/api/site-logo'] });
       queryClient.invalidateQueries({ queryKey: ['/api/site-hero'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/site-favicon'] });
       setDeleteDialogOpen(false);
       setMediaToDelete(null);
       toast({
@@ -295,6 +303,27 @@ export default function MediaLibrary() {
     },
   });
 
+  // Set as site favicon mutation
+  const setSiteFaviconMutation = useMutation({
+    mutationFn: async (mediaId: string) => {
+      return apiRequest('POST', '/api/admin/site-favicon', { mediaId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/site-favicon'] });
+      toast({
+        title: 'Success',
+        description: 'Site favicon updated successfully',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Error',
+        description: 'Failed to set site favicon',
+        variant: 'destructive',
+      });
+    },
+  });
+
   // Handle hero upload
   const handleHeroUpload = (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -338,6 +367,7 @@ export default function MediaLibrary() {
     all: 'All Media',
     logos: 'Logos',
     'hero-images': 'Hero Images',
+    favicon: 'Favicon',
     vehicles: 'Vehicles',
     testimonials: 'Testimonials',
     general: 'General',
@@ -632,10 +662,11 @@ export default function MediaLibrary() {
       </div>
       {/* Folder Tabs */}
       <Tabs value={selectedFolder} onValueChange={(v) => setSelectedFolder(v as FolderType)}>
-        <TabsList className="grid w-full grid-cols-6" data-testid="tabs-folders">
+        <TabsList className="grid w-full grid-cols-7" data-testid="tabs-folders">
           <TabsTrigger value="all" data-testid="tab-all">All ({allMedia?.length || 0})</TabsTrigger>
           <TabsTrigger value="logos" data-testid="tab-logos">Logos</TabsTrigger>
           <TabsTrigger value="hero-images" data-testid="tab-hero-images">Hero</TabsTrigger>
+          <TabsTrigger value="favicon" data-testid="tab-favicon">Favicon</TabsTrigger>
           <TabsTrigger value="vehicles" data-testid="tab-vehicles">Vehicles</TabsTrigger>
           <TabsTrigger value="testimonials" data-testid="tab-testimonials">Testimonials</TabsTrigger>
           <TabsTrigger value="general" data-testid="tab-general">General</TabsTrigger>
@@ -646,7 +677,7 @@ export default function MediaLibrary() {
           {displayedMedia && displayedMedia.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="grid-media">
               {displayedMedia.map((media) => (
-                <Card key={media.id} className={`overflow-hidden group relative ${media.id === activeSiteLogoId || media.id === activeSiteHeroId ? 'ring-2 ring-green-500' : ''}`} data-testid={`card-media-${media.id}`}>
+                <Card key={media.id} className={`overflow-hidden group relative ${media.id === activeSiteLogoId || media.id === activeSiteHeroId || media.id === activeSiteFaviconId ? 'ring-2 ring-green-500' : ''}`} data-testid={`card-media-${media.id}`}>
                   {/* Image Preview */}
                   <div className="aspect-square bg-muted flex items-center justify-center overflow-hidden relative">
                     {media.fileType.startsWith('image/') ? (
@@ -669,6 +700,12 @@ export default function MediaLibrary() {
                       <Badge className="absolute top-2 right-2 bg-green-600" data-testid={`badge-active-hero-${media.id}`}>
                         <CheckCircle2 className="w-3 h-3 mr-1" />
                         Active Hero
+                      </Badge>
+                    )}
+                    {media.id === activeSiteFaviconId && (
+                      <Badge className="absolute top-2 right-2 bg-green-600" data-testid={`badge-active-favicon-${media.id}`}>
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        Active Favicon
                       </Badge>
                     )}
                   </div>
@@ -738,6 +775,23 @@ export default function MediaLibrary() {
                         <ImageIcon className="w-4 h-4" />
                       </Button>
                     )}
+                    {media.folder === 'favicon' && (
+                      <Button
+                        size="sm"
+                        variant={media.id === activeSiteFaviconId ? "default" : "secondary"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (media.id !== activeSiteFaviconId) {
+                            setSiteFaviconMutation.mutate(media.id);
+                          }
+                        }}
+                        disabled={setSiteFaviconMutation.isPending || media.id === activeSiteFaviconId}
+                        className={media.id === activeSiteFaviconId ? "bg-green-600 hover:bg-green-700" : ""}
+                        data-testid={`button-set-favicon-${media.id}`}
+                      >
+                        <Star className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
 
                   {/* Media Info */}
@@ -780,6 +834,7 @@ export default function MediaLibrary() {
                 <SelectContent>
                   <SelectItem value="logos">Logos</SelectItem>
                   <SelectItem value="hero-images">Hero Images</SelectItem>
+                  <SelectItem value="favicon">Favicon</SelectItem>
                   <SelectItem value="vehicles">Vehicles</SelectItem>
                   <SelectItem value="testimonials">Testimonials</SelectItem>
                   <SelectItem value="general">General</SelectItem>
