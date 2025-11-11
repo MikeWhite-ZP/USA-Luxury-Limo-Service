@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, hashPassword, comparePasswords } from "./auth";
-import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertDriverDocumentSchema, insertCmsSettingSchema, insertCmsContentSchema, insertCmsMediaSchema, type User, type Booking, vehicles } from "@shared/schema";
+import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertVehicleTypeSchema, insertDriverDocumentSchema, insertCmsSettingSchema, insertCmsContentSchema, insertCmsMediaSchema, type User, type Booking, vehicles } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
 import multer from "multer";
@@ -502,6 +502,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching vehicle types:", error);
       res.status(500).json({ message: "Failed to fetch vehicle types" });
+    }
+  });
+
+  // Admin: Create vehicle type
+  app.post('/api/admin/vehicle-types', requireAdmin, async (req, res) => {
+    try {
+      const vehicleTypeData = insertVehicleTypeSchema.parse(req.body);
+      const vehicleType = await storage.createVehicleType(vehicleTypeData);
+      res.status(201).json(vehicleType);
+    } catch (error: any) {
+      console.error("Error creating vehicle type:", error);
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ message: "Invalid vehicle type data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create vehicle type" });
+    }
+  });
+
+  // Admin: Update vehicle type
+  app.put('/api/admin/vehicle-types/:id', requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = insertVehicleTypeSchema.partial().parse(req.body);
+      const vehicleType = await storage.updateVehicleType(id, updates);
+      
+      if (!vehicleType) {
+        return res.status(404).json({ message: "Vehicle type not found" });
+      }
+      
+      res.json(vehicleType);
+    } catch (error: any) {
+      console.error("Error updating vehicle type:", error);
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ message: "Invalid vehicle type data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update vehicle type" });
+    }
+  });
+
+  // Admin: Delete vehicle type
+  app.delete('/api/admin/vehicle-types/:id', requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Check if vehicle type exists
+      const vehicleType = await storage.getVehicleType(id);
+      if (!vehicleType) {
+        return res.status(404).json({ message: "Vehicle type not found" });
+      }
+      
+      await storage.deleteVehicleType(id);
+      res.json({ message: "Vehicle type deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting vehicle type:", error);
+      res.status(500).json({ message: "Failed to delete vehicle type" });
     }
   });
 

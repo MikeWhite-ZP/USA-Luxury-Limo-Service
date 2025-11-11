@@ -24,6 +24,7 @@ import {
   type PricingRule,
   type PaymentSystem,
   type InsertDriver,
+  type InsertVehicleType,
   type InsertBooking,
   type InsertContact,
   type InsertSavedAddress,
@@ -89,6 +90,9 @@ export interface IStorage {
   // Vehicle operations
   getVehicleTypes(): Promise<VehicleType[]>;
   getVehicleType(id: string): Promise<VehicleType | undefined>;
+  createVehicleType(vehicleType: InsertVehicleType): Promise<VehicleType>;
+  updateVehicleType(id: string, updates: Partial<InsertVehicleType>): Promise<VehicleType | undefined>;
+  deleteVehicleType(id: string): Promise<void>;
   createVehicle(vehicle: Omit<Vehicle, 'id' | 'createdAt'>): Promise<Vehicle>;
   getVehiclesByDriver(driverId: string): Promise<Vehicle[]>;
   
@@ -520,6 +524,27 @@ export class DatabaseStorage implements IStorage {
   async getVehicleType(id: string): Promise<VehicleType | undefined> {
     const [vehicleType] = await db.select().from(vehicleTypes).where(eq(vehicleTypes.id, id));
     return vehicleType;
+  }
+
+  async createVehicleType(vehicleTypeData: InsertVehicleType): Promise<VehicleType> {
+    const [vehicleType] = await db
+      .insert(vehicleTypes)
+      .values(vehicleTypeData)
+      .returning();
+    return vehicleType;
+  }
+
+  async updateVehicleType(id: string, updates: Partial<InsertVehicleType>): Promise<VehicleType | undefined> {
+    const [updated] = await db
+      .update(vehicleTypes)
+      .set(updates)
+      .where(eq(vehicleTypes.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteVehicleType(id: string): Promise<void> {
+    await db.delete(vehicleTypes).where(eq(vehicleTypes.id, id));
   }
 
   async createVehicle(vehicleData: Omit<Vehicle, 'id' | 'createdAt'>): Promise<Vehicle> {

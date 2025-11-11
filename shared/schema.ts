@@ -547,6 +547,22 @@ export const insertPaymentTokenSchema = createInsertSchema(paymentTokens).omit({
   usedAt: true,
 });
 
+export const insertVehicleTypeSchema = createInsertSchema(vehicleTypes).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  passengerCapacity: z.number().int().min(1).max(20),
+  hourlyRate: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
+    message: "Hourly rate must be a valid positive number",
+  }),
+  perMileRate: z.string().optional().refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), {
+    message: "Per mile rate must be a valid positive number",
+  }),
+  minimumFare: z.string().optional().refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), {
+    message: "Minimum fare must be a valid positive number",
+  }),
+});
+
 export const insertDriverDocumentSchema = createInsertSchema(driverDocuments).omit({
   id: true,
   uploadedAt: true,
@@ -721,6 +737,7 @@ export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSc
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertDriver = z.infer<typeof insertDriverSchema>;
+export type InsertVehicleType = z.infer<typeof insertVehicleTypeSchema>;
 export type InsertBooking = z.infer<typeof insertBookingSchema>;
 export type InsertContact = z.infer<typeof insertContactSchema>;
 export type InsertSavedAddress = z.infer<typeof insertSavedAddressSchema>;
