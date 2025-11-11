@@ -326,10 +326,22 @@ export function ServiceCMS() {
   };
 
   const handleImageUpload = async (file: File) => {
+    // Validate file type
     if (!file.type.startsWith("image/")) {
       toast({
         title: "Error",
         description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (2MB limit)
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+    if (file.size > maxSize) {
+      toast({
+        title: "File Too Large",
+        description: `Image must be under 2MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB.`,
         variant: "destructive",
       });
       return;
@@ -344,12 +356,64 @@ export function ServiceCMS() {
       return;
     }
 
-    setUploadingImage(true);
-    try {
-      await uploadImageMutation.mutateAsync({ id: serviceId, file });
-    } finally {
-      setUploadingImage(false);
-    }
+    // Check image dimensions and aspect ratio
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    
+    img.onload = async () => {
+      URL.revokeObjectURL(objectUrl);
+      
+      const width = img.naturalWidth;
+      const height = img.naturalHeight;
+      const aspectRatio = width / height;
+      const idealRatio = 4 / 5; // 0.8
+      
+      // Warn if dimensions are too small
+      if (width < 800 || height < 1000) {
+        toast({
+          title: "Low Resolution Warning",
+          description: `Image is ${width}×${height}px. Recommended minimum is 800×1000px for best quality.`,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Warn if aspect ratio is far from ideal (portrait orientation)
+      if (aspectRatio > 1.2) {
+        toast({
+          title: "Aspect Ratio Warning",
+          description: `Image is landscape (${width}×${height}px). Portrait images (4:5 ratio) work best for service cards.`,
+        });
+        // Don't return, allow upload but with warning
+      }
+      
+      // Show helpful info for good images
+      if (width >= 1200 && height >= 1500 && Math.abs(aspectRatio - idealRatio) < 0.1) {
+        toast({
+          title: "Perfect Image!",
+          description: "This image has ideal dimensions for service cards.",
+        });
+      }
+      
+      // Proceed with upload
+      setUploadingImage(true);
+      try {
+        await uploadImageMutation.mutateAsync({ id: serviceId, file });
+      } finally {
+        setUploadingImage(false);
+      }
+    };
+    
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      toast({
+        title: "Error",
+        description: "Failed to load image. Please try a different file.",
+        variant: "destructive",
+      });
+    };
+    
+    img.src = objectUrl;
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -705,20 +769,48 @@ export function ServiceCMS() {
 
               {/* Image Upload */}
               <div className="space-y-3">
-                <Label>Service Image</Label>
+                <div className="flex items-center justify-between">
+                  <Label>Service Image</Label>
+                  <div className="text-xs text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
+                    Recommended: 1200×1500px (4:5 ratio)
+                  </div>
+                </div>
+                
+                {/* Image Specifications Info */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-blue-900 mb-2 flex items-center">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Image Specifications for Best Results
+                  </h4>
+                  <ul className="text-xs text-blue-800 space-y-1 ml-6 list-disc">
+                    <li><strong>Recommended size:</strong> 1200×1500px (high quality)</li>
+                    <li><strong>Minimum size:</strong> 800×1000px</li>
+                    <li><strong>Aspect ratio:</strong> 4:5 (portrait orientation)</li>
+                    <li><strong>Format:</strong> JPG, PNG, or WebP</li>
+                    <li><strong>Max file size:</strong> 2MB</li>
+                    <li><strong>Tip:</strong> Use high-contrast images as text will overlay</li>
+                  </ul>
+                </div>
+
                 {imagePreview && (
-                  <div className="relative w-full h-48 rounded-lg overflow-hidden">
+                  <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-slate-200">
                     <img
                       src={imagePreview}
                       alt="Preview"
                       className="w-full h-full object-cover"
                       data-testid="image-preview"
                     />
+                    <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                      ✓ Preview
+                    </div>
                   </div>
                 )}
+                
                 <div
-                  className={`border-2 border-dashed rounded-lg p-8 text-center ${
-                    dragActive ? "border-blue-500 bg-blue-50" : "border-slate-300"
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
+                    dragActive ? "border-blue-500 bg-blue-50 scale-105" : "border-slate-300 hover:border-slate-400 hover:bg-slate-50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -735,8 +827,11 @@ export function ServiceCMS() {
                     data-testid="input-file"
                   />
                   <Upload className="w-12 h-12 mx-auto text-slate-400 mb-4" />
-                  <p className="text-sm text-slate-600 mb-2">
+                  <p className="text-sm text-slate-600 mb-1 font-medium">
                     Drag and drop an image here, or click to select
+                  </p>
+                  <p className="text-xs text-slate-500 mb-4">
+                    Supports JPG, PNG, WebP (max 2MB)
                   </p>
                   <Button
                     type="button"
@@ -744,6 +839,7 @@ export function ServiceCMS() {
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploadingImage || !form.getValues("id")}
                     data-testid="button-upload-image"
+                    className="hover:bg-blue-50 hover:border-blue-400"
                   >
                     {uploadingImage ? (
                       <>
@@ -758,8 +854,8 @@ export function ServiceCMS() {
                     )}
                   </Button>
                   {!form.getValues("id") && (
-                    <p className="text-xs text-slate-500 mt-2">
-                      Save the service first to enable image upload
+                    <p className="text-xs text-slate-500 mt-3 bg-amber-50 border border-amber-200 rounded px-3 py-2 inline-block">
+                      💡 Save the service first to enable image upload
                     </p>
                   )}
                 </div>
