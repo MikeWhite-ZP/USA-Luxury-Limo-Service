@@ -1283,115 +1283,166 @@ function VehicleTypeManagement() {
   };
 
   return (
-    <Card data-testid="vehicle-type-management" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50/30 border-b border-slate-200">
-        <CardTitle className="flex items-center justify-between text-slate-900">
-          <div className="flex items-center gap-3">
-            <div className="bg-blue-600 p-2 rounded-lg">
-              <Car className="w-5 h-5 text-white" />
+    <Card data-testid="vehicle-type-management" className="border-0 shadow-xl bg-gradient-to-br from-white via-slate-50/50 to-white backdrop-blur-sm overflow-hidden">
+      {/* Premium Header with layered design */}
+      <CardHeader className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-b-0 pb-8">
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.05)_0%,transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1)_0%,transparent_50%)]" />
+        
+        <CardTitle className="relative flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {/* Luxury icon badge with gradient */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-2xl blur-md opacity-60 group-hover:opacity-100 transition-opacity" />
+              <div className="relative bg-gradient-to-br from-blue-500 to-indigo-600 p-3.5 rounded-2xl shadow-lg">
+                <Car className="w-6 h-6 text-white" />
+              </div>
             </div>
-            <span>Vehicle Type Management</span>
+            <div>
+              <h2 className="text-2xl font-bold text-white tracking-tight">Fleet Management</h2>
+              <p className="text-sm text-slate-300 mt-0.5 font-light">Manage your luxury vehicle collection</p>
+            </div>
           </div>
           <Button
             onClick={handleAdd}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-6 py-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
             data-testid="button-add-vehicle-type"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Vehicle Type
+            <Plus className="w-5 h-5 mr-2" />
+            Add Vehicle
           </Button>
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6">
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+
+      <CardContent className="p-8 bg-gradient-to-b from-white to-slate-50/30">
+        {/* Premium Search Bar */}
+        <div className="mb-8">
+          <div className="relative max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <Input
-              placeholder="Search vehicle types..."
+              placeholder="Search by name or description..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+              className="pl-12 pr-4 py-6 border-slate-200 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm focus:border-blue-400 focus:ring-blue-400/20 focus:shadow-md transition-all text-base"
               data-testid="input-search-vehicle-types"
             />
           </div>
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center p-12">
-            <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+          <div className="flex items-center justify-center p-16">
+            <div className="relative">
+              <div className="animate-spin w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full" />
+              <div className="absolute inset-0 animate-ping w-12 h-12 border-4 border-blue-400 rounded-full opacity-20" />
+            </div>
           </div>
         ) : filteredVehicleTypes && filteredVehicleTypes.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-200">
-                  <th className="text-left p-4 font-semibold text-slate-700">Name</th>
-                  <th className="text-left p-4 font-semibold text-slate-700">Capacity</th>
-                  <th className="text-left p-4 font-semibold text-slate-700">Status</th>
-                  <th className="text-center p-4 font-semibold text-slate-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredVehicleTypes.map((vt) => (
-                  <tr
-                    key={vt.id}
-                    className="hover:bg-slate-50 transition-colors border-b border-slate-100"
-                    data-testid={`vehicle-type-row-${vt.id}`}
-                  >
-                    <td className="p-4">
-                      <div>
-                        <div className="font-semibold text-slate-900" data-testid={`vehicle-name-${vt.id}`}>
-                          {vt.name}
-                        </div>
-                        {vt.description && (
-                          <div className="text-sm text-slate-500 mt-1">{vt.description}</div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-4 text-slate-700" data-testid={`vehicle-capacity-${vt.id}`}>
-                      <div className="text-sm">
-                        <div>{vt.passengerCapacity} passengers</div>
-                        <div className="text-slate-500">{vt.luggageCapacity}</div>
-                      </div>
-                    </td>
-                    <td className="p-4" data-testid={`vehicle-status-${vt.id}`}>
-                      <Badge className={vt.isActive ? "bg-green-100 text-green-800 border-green-200" : "bg-slate-100 text-slate-700 border-slate-200"}>
-                        {vt.isActive ? "Active" : "Inactive"}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex justify-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-blue-200 text-blue-700 hover:bg-blue-50"
-                          onClick={() => handleEdit(vt)}
-                          data-testid={`button-edit-${vt.id}`}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-slate-200 text-slate-600 hover:bg-slate-100"
-                          onClick={() => handleDelete(vt)}
-                          data-testid={`button-delete-${vt.id}`}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredVehicleTypes.map((vt) => (
+              <div
+                key={vt.id}
+                className="group relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-slate-100 hover:border-slate-200 hover:-translate-y-1"
+                data-testid={`vehicle-type-row-${vt.id}`}
+              >
+                {/* Vehicle Image */}
+                <div className="relative h-48 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
+                  {vt.imageUrl ? (
+                    <img
+                      src={vt.imageUrl}
+                      alt={vt.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      onError={(e) => {
+                        e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f1f5f9" width="400" height="300"/%3E%3Cg transform="translate(200,150)"%3E%3Cpath d="M-30,-10 L-20,-10 L-20,0 L30,0 L30,-10 L40,-10 L40,15 L-40,15 L-40,-10 L-30,-10 M-25,5 L-20,5 L-20,10 L-25,10 L-25,5 M20,5 L25,5 L25,10 L20,10 L20,5" fill="%2394a3b8"/%3E%3C/g%3E%3Ctext x="50%25" y="75%25" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-family="sans-serif" font-size="14"%3E{vt.name}%3C/text%3E%3C/svg%3E';
+                      }}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <Car className="w-20 h-20 text-slate-300" />
+                    </div>
+                  )}
+                  
+                  {/* Status Badge - Floating */}
+                  <div className="absolute top-4 right-4">
+                    <Badge 
+                      className={vt.isActive 
+                        ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white border-0 shadow-lg px-3 py-1.5 font-semibold" 
+                        : "bg-slate-500/90 text-white border-0 shadow-lg px-3 py-1.5 backdrop-blur-sm"}
+                      data-testid={`vehicle-status-${vt.id}`}
+                    >
+                      <CheckCircle2 className={`w-3 h-3 mr-1 ${vt.isActive ? '' : 'opacity-50'}`} />
+                      {vt.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Card Content */}
+                <div className="p-6">
+                  {/* Vehicle Name & Description */}
+                  <div className="mb-4">
+                    <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors" data-testid={`vehicle-name-${vt.id}`}>
+                      {vt.name}
+                    </h3>
+                    {vt.description && (
+                      <p className="text-sm text-slate-500 line-clamp-2">{vt.description}</p>
+                    )}
+                  </div>
+
+                  {/* Capacity Info */}
+                  <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100" data-testid={`vehicle-capacity-${vt.id}`}>
+                    <div className="flex items-center gap-2 text-slate-600">
+                      <Users className="w-4 h-4 text-blue-500" />
+                      <span className="text-sm font-medium">{vt.passengerCapacity}</span>
+                    </div>
+                    <div className="h-4 w-px bg-slate-200" />
+                    <div className="flex-1">
+                      <p className="text-xs text-slate-500 font-medium">{vt.luggageCapacity}</p>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleEdit(vt)}
+                      className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 rounded-xl"
+                      data-testid={`button-edit-${vt.id}`}
+                    >
+                      <Edit2 className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(vt)}
+                      variant="outline"
+                      className="px-4 border-slate-200 text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-300 rounded-xl"
+                      data-testid={`button-delete-${vt.id}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="text-center p-12 text-slate-600 bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg border-2 border-dashed border-slate-300">
-            <Car className="w-12 h-12 mx-auto mb-3 text-slate-400" />
-            <p className="font-medium text-slate-700">No vehicle types found</p>
-            <p className="text-sm text-slate-500 mt-1">Add your first vehicle type to get started.</p>
+          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 border-2 border-dashed border-slate-200">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05)_0%,transparent_70%)]" />
+            <div className="relative text-center py-20 px-6">
+              <div className="relative inline-block mb-6">
+                <div className="absolute inset-0 bg-blue-100 rounded-full blur-2xl opacity-50" />
+                <div className="relative bg-gradient-to-br from-slate-100 to-blue-100 p-6 rounded-full">
+                  <Car className="w-16 h-16 text-slate-400" />
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-slate-700 mb-2">No Vehicles Yet</h3>
+              <p className="text-slate-500 mb-6 max-w-sm mx-auto">Start building your luxury fleet by adding your first vehicle type.</p>
+              <Button
+                onClick={handleAdd}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-8 py-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Add Your First Vehicle
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>
