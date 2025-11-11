@@ -4273,6 +4273,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
+      // Add MinIO credential placeholders if they don't exist
+      const minioKeys = [
+        'MINIO_SERVICE_NAME',
+        'MINIO_CONSOLE_URL',
+        'MINIO_ENDPOINT',
+        'MINIO_ACCESS_KEY',
+        'MINIO_SECRET_KEY',
+        'MINIO_BUCKET'
+      ];
+      
+      minioKeys.forEach(key => {
+        // Only add if not already in credentials (from DB or env)
+        if (!credentials.find(c => c.key === key)) {
+          credentials.push({
+            key,
+            hasValue: false,
+            usesEnv: false,
+            canDelete: true,
+          });
+        }
+      });
+
       res.json({ credentials });
     } catch (error) {
       console.error('Get settings error:', error);
