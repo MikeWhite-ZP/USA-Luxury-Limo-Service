@@ -721,10 +721,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const objectStorage = await getObjectStorage();
       const fileName = `cms/services/${id}-${Date.now()}.${req.file.mimetype.split('/')[1]}`;
       
-      await objectStorage.upload(fileName, req.file.buffer, req.file.mimetype);
-      const imageUrl = await objectStorage.getDownloadUrl(fileName);
+      const uploadResult = await objectStorage.uploadFromBytes(fileName, req.file.buffer, { contentType: req.file.mimetype });
+      if (!uploadResult.ok) {
+        return res.status(500).json({ message: `Failed to upload image: ${uploadResult.error}` });
+      }
       
-      const updatedService = await storage.updateService(id, { imageUrl });
+      const urlResult = await objectStorage.getDownloadUrl(fileName);
+      if (!urlResult.ok || !urlResult.url) {
+        return res.status(500).json({ message: `Failed to get download URL: ${urlResult.error}` });
+      }
+      
+      const updatedService = await storage.updateService(id, { imageUrl: urlResult.url });
       res.json(updatedService);
     } catch (error) {
       console.error("Error uploading service image:", error);
@@ -7449,6 +7456,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Set site favicon error:', error);
       res.status(500).json({ message: 'Failed to set site favicon' });
+    }
+  });
+
+  // Dynamic PWA manifest.json endpoint
+  app.get('/manifest.json', async (req, res) => {
+    try {
+      // Fetch active favicon from CMS
+      const faviconSetting = await storage.getCmsSetting('site_favicon');
+      let faviconUrl: string | null = null;
+      let faviconMimeType: string | null = null;
+      let etag = '"static"'; // Quoted ETag
+      
+      if (faviconSetting?.value) {
+        const media = await storage.getCmsMediaById(faviconSetting.value);
+        if (media) {
+          faviconUrl = media.fileUrl;
+          faviconMimeType = media.fileType; // Get actual MIME type (image/png, image/jpeg, image/webp, etc.)
+          etag = `"${media.id}"`; // Use media ID as ETag for cache invalidation (quoted)
+        }
+      }
+      
+      // Generate manifest with dynamic or fallback icons
+      const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
+      const icons = iconSizes.map(size => ({
+        src: faviconUrl || `/icon-${size}x${size}.png`,
+        sizes: `${size}x${size}`,
+        type: faviconUrl && faviconMimeType ? faviconMimeType : "image/png", // Use actual MIME type from CMS or PNG for static fallback
+        purpose: "any maskable"
+      }));
+      
+      const manifest = {
+        name: "USA Luxury Limo",
+        short_name: "USA Limo",
+        description: "Professional luxury transportation booking platform for passengers, drivers, and dispatchers",
+        start_url: "/",
+        display: "standalone",
+        background_color: "#ffffff",
+        theme_color: "#000000",
+        orientation: "portrait-primary",
+        icons,
+        categories: ["travel", "transportation", "business"]
+      };
+      
+      // Set cache headers with ETag for invalidation
+      res.setHeader('Content-Type', 'application/manifest+json');
+      res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
+      res.setHeader('ETag', etag);
+      
+      // Check if client has cached version (compare with quotes)
+      const clientETag = req.headers['if-none-match'];
+      if (clientETag === etag) {
+        return res.status(304).end();
+      }
+      
+      res.json(manifest);
+    } catch (error) {
+      console.error('Generate manifest error:', error);
+      // Fall back to static manifest on error
+      res.status(500).json({ error: 'Failed to generate manifest' });
     }
   });
 
