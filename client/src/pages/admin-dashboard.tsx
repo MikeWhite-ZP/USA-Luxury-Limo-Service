@@ -73,7 +73,7 @@ import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { AdminSMSSettings } from "@/components/admin-sms-settings";
 import BrandSettings from "@/components/BrandSettings";
 import MediaLibrary from "@/components/MediaLibrary";
-import ServiceCMS from "@/components/ServiceCMS";
+import { ServiceCMS } from "@/components/ServiceCMS";
 import { BookingDetailsDialog } from "@/components/BookingDetailsDialog";
 
 interface DashboardStats {
