@@ -28,6 +28,7 @@ const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const AdminDashboard = lazy(() => import("@/pages/admin-dashboard"));
 const AdminPricing = lazy(() => import("@/pages/admin-pricing"));
+const MinIOBrowser = lazy(() => import("@/pages/MinIOBrowser"));
 const DriverDashboard = lazy(() => import("@/pages/driver-dashboard"));
 const DriverDocuments = lazy(() => import("@/pages/driver-documents"));
 const DispatcherDashboard = lazy(() => import("@/pages/DispatcherDashboard"));
@@ -118,6 +119,7 @@ function Router() {
             <>
               <Route path="/admin-dashboard" component={AdminDashboard} />
               <Route path="/admin-pricing" component={AdminPricing} />
+              <Route path="/admin/minio-browser" component={MinIOBrowser} />
               <Route path="/admin" component={AdminDashboard} />
             </>
           )}
