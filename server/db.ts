@@ -14,4 +14,8 @@ export const pool = new Pool({
   ssl: false
 });
 
+pool.on('error', (err) => {
+  console.error('Unexpected database pool error:', err);
+});
+
 export const db = drizzle({ client: pool, schema });
