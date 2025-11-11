@@ -5083,6 +5083,9 @@ export default function AdminDashboard() {
               ?.scrollIntoView({ behavior: "smooth" });
           }, 100);
         }}
+        onPricingClick={() => {
+          window.location.href = '/admin-pricing';
+        }}
       />
       <div className="max-w-7xl mx-auto p-6 space-y-8">
         {/* Dashboard Stats */}

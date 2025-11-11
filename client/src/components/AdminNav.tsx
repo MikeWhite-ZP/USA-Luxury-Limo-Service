@@ -35,9 +35,10 @@ interface AdminNavProps {
   onVehicleTypesClick?: () => void;
   onSettingsClick?: (section: 'commission' | 'email' | 'sms') => void;
   onCMSClick?: (section: 'pages' | 'media') => void;
+  onPricingClick?: () => void;
 }
 
-export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onVehicleTypesClick, onSettingsClick, onCMSClick }: AdminNavProps) {
+export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onVehicleTypesClick, onSettingsClick, onCMSClick, onPricingClick }: AdminNavProps) {
   const [location, setLocation] = useLocation();
   const { logoutMutation } = useAuth();
   const { logoUrl, logoAltText } = useSiteLogo();
@@ -85,67 +86,6 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
         {/* Navigation Bar */}
         <div className="px-6">
           <nav className="flex items-center gap-1 -mb-px" data-testid="admin-nav">
-            <Link href="/admin-pricing">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className={`relative text-sm font-medium transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5 ${
-                  location === '/admin-pricing' 
-                    ? 'bg-slate-700/50 text-white border-b-2 border-blue-500' 
-                    : 'text-slate-300 hover:text-white hover:bg-slate-700/30'
-                }`}
-                data-testid="nav-pricing"
-              >
-                <DollarSign className="w-4 h-4 mr-2" />
-                Pricing
-              </Button>
-            </Link>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
-                  data-testid="nav-credentials"
-                >
-                  <Key className="w-4 h-4 mr-2" />
-                  Credentials
-                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl">
-                <DropdownMenuItem 
-                  onClick={() => {
-                    if (location === '/admin' || location === '/admin-dashboard') {
-                      onCredentialsClick?.('api');
-                    } else {
-                      setLocation('/admin#credentials-api');
-                    }
-                  }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
-                  data-testid="nav-api-credentials"
-                >
-                  <Key className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">API Credentials</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => {
-                    if (location === '/admin' || location === '/admin-dashboard') {
-                      onCredentialsClick?.('payment');
-                    } else {
-                      setLocation('/admin#credentials-payment');
-                    }
-                  }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
-                  data-testid="nav-payment-systems"
-                >
-                  <DollarSign className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Payment Systems</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
@@ -251,6 +191,64 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
+                      onPricingClick?.();
+                    } else {
+                      setLocation('/admin-pricing');
+                    }
+                  }}
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-pricing"
+                >
+                  <DollarSign className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Pricing</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onCredentialsClick?.('api');
+                    } else {
+                      setLocation('/admin#credentials-api');
+                    }
+                  }}
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-api-credentials"
+                >
+                  <Key className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">API Credentials</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onCredentialsClick?.('payment');
+                    } else {
+                      setLocation('/admin#credentials-payment');
+                    }
+                  }}
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-payment-systems"
+                >
+                  <DollarSign className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Payment Systems</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onVehicleTypesClick?.();
+                    } else {
+                      setLocation('/admin#vehicle-types');
+                    }
+                  }}
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-vehicle-types"
+                >
+                  <Car className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Vehicle Types</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
                       onSettingsClick?.('commission');
                     } else {
                       setLocation('/admin#settings-commission');
@@ -353,23 +351,6 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
             >
               <MessageSquare className="w-4 h-4 mr-2" />
               Bookings
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
-              onClick={() => {
-                if (location === '/admin' || location === '/admin-dashboard') {
-                  onVehicleTypesClick?.();
-                } else {
-                  setLocation('/admin#vehicle-types');
-                }
-              }}
-              data-testid="nav-vehicle-types"
-            >
-              <Car className="w-4 h-4 mr-2" />
-              Vehicle Types
             </Button>
             
             <Button 

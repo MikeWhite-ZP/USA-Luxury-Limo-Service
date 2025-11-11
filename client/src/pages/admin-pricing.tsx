@@ -535,9 +535,25 @@ export default function AdminPricing() {
           // Navigate to admin dashboard bookings
           window.location.href = '/admin';
         }}
+        onInvoicesClick={() => {
+          // Navigate to admin dashboard invoices
+          window.location.href = '/admin';
+        }}
+        onVehicleTypesClick={() => {
+          // Navigate to admin dashboard vehicle types
+          window.location.href = '/admin';
+        }}
         onSettingsClick={(section) => {
           // Navigate to admin dashboard settings
           window.location.href = '/admin';
+        }}
+        onCMSClick={(section) => {
+          // Navigate to admin dashboard CMS
+          window.location.href = '/admin';
+        }}
+        onPricingClick={() => {
+          // Already on pricing page, scroll to top
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
       />
 
