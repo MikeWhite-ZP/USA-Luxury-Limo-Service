@@ -1,5 +1,5 @@
 import { Client as ObjectStorageClient } from "@replit/object-storage";
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command, HeadBucketCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 /**
@@ -7,6 +7,9 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
  * Provides a unified interface for both Replit Object Storage and MinIO/S3
  * Automatically detects which storage backend to use based on environment variables
  */
+
+// Global cache for bucket existence checks to avoid repeated API calls
+const bucketExistsCache = new Map<string, boolean>();
 
 export interface StorageObject {
   key: string;
@@ -117,6 +120,8 @@ class ReplitStorageAdapter implements StorageAdapter {
 class S3StorageAdapter implements StorageAdapter {
   private client: S3Client;
   private bucket: string;
+  private endpoint: string;
+  private initPromise: Promise<void>;
 
   constructor(config: {
     endpoint: string;
@@ -127,6 +132,7 @@ class S3StorageAdapter implements StorageAdapter {
     forcePathStyle?: boolean;
   }) {
     this.bucket = config.bucket;
+    this.endpoint = config.endpoint;
     this.client = new S3Client({
       endpoint: config.endpoint,
       region: config.region || 'us-east-1',
@@ -136,10 +142,73 @@ class S3StorageAdapter implements StorageAdapter {
       },
       forcePathStyle: config.forcePathStyle !== false, // Default to true for MinIO
     });
+    
+    // Start bucket initialization immediately
+    this.initPromise = this.ensureBucket();
+  }
+
+  /**
+   * Ensures the bucket exists, creating it if necessary
+   * Uses a global cache to avoid repeated API calls
+   */
+  private async ensureBucket(): Promise<void> {
+    const cacheKey = `${this.endpoint}:${this.bucket}`;
+    
+    // Check cache first
+    if (bucketExistsCache.get(cacheKey)) {
+      return;
+    }
+
+    try {
+      // Try to check if bucket exists
+      const headCommand = new HeadBucketCommand({ Bucket: this.bucket });
+      await this.client.send(headCommand);
+      
+      // Bucket exists, cache it
+      bucketExistsCache.set(cacheKey, true);
+      console.log(`[STORAGE] Bucket '${this.bucket}' exists`);
+    } catch (error: any) {
+      // Bucket doesn't exist or we don't have permission to check
+      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
+        console.log(`[STORAGE] Bucket '${this.bucket}' not found, creating...`);
+        
+        try {
+          // Create the bucket (MinIO doesn't require LocationConstraint)
+          const createCommand = new CreateBucketCommand({ Bucket: this.bucket });
+          await this.client.send(createCommand);
+          
+          bucketExistsCache.set(cacheKey, true);
+          console.log(`[STORAGE] Successfully created bucket '${this.bucket}'`);
+        } catch (createError: any) {
+          // Handle creation errors
+          if (createError.name === 'BucketAlreadyOwnedByYou' || createError.$metadata?.httpStatusCode === 409) {
+            // Bucket was created by another process, this is fine
+            bucketExistsCache.set(cacheKey, true);
+            console.log(`[STORAGE] Bucket '${this.bucket}' already exists (created by another process)`);
+          } else if (createError.$metadata?.httpStatusCode === 403) {
+            console.error(`[STORAGE] Permission denied creating bucket '${this.bucket}'. Please create it manually or grant CreateBucket permission.`);
+            throw createError;
+          } else {
+            console.error(`[STORAGE] Failed to create bucket '${this.bucket}':`, createError.message);
+            throw createError;
+          }
+        }
+      } else if (error.$metadata?.httpStatusCode === 403) {
+        // We have permission issues - bucket might exist but we can't check
+        console.warn(`[STORAGE] Permission denied checking bucket '${this.bucket}'. Assuming it exists.`);
+        bucketExistsCache.set(cacheKey, true);
+      } else {
+        console.error(`[STORAGE] Error checking bucket '${this.bucket}':`, error.message);
+        throw error;
+      }
+    }
   }
 
   async uploadFromBytes(path: string, data: Buffer, metadata?: { contentType?: string }): Promise<{ ok: boolean; error?: string }> {
     try {
+      // Wait for bucket initialization to complete
+      await this.initPromise;
+      
       const command = new PutObjectCommand({
         Bucket: this.bucket,
         Key: path,
@@ -155,6 +224,9 @@ class S3StorageAdapter implements StorageAdapter {
 
   async downloadAsBytes(path: string): Promise<{ ok: boolean; value?: any; error?: string }> {
     try {
+      // Wait for bucket initialization to complete
+      await this.initPromise;
+      
       const command = new GetObjectCommand({
         Bucket: this.bucket,
         Key: path,
@@ -176,6 +248,9 @@ class S3StorageAdapter implements StorageAdapter {
 
   async getDownloadUrl(path: string): Promise<{ ok: boolean; url?: string; error?: string }> {
     try {
+      // Wait for bucket initialization to complete
+      await this.initPromise;
+      
       const command = new GetObjectCommand({
         Bucket: this.bucket,
         Key: path,
@@ -189,6 +264,9 @@ class S3StorageAdapter implements StorageAdapter {
 
   async delete(path: string): Promise<{ ok: boolean; error?: string }> {
     try {
+      // Wait for bucket initialization to complete
+      await this.initPromise;
+      
       const command = new DeleteObjectCommand({
         Bucket: this.bucket,
         Key: path,
@@ -202,6 +280,9 @@ class S3StorageAdapter implements StorageAdapter {
 
   async list(prefix?: string): Promise<{ ok: boolean; keys?: string[]; error?: string }> {
     try {
+      // Wait for bucket initialization to complete
+      await this.initPromise;
+      
       const command = new ListObjectsV2Command({
         Bucket: this.bucket,
         Prefix: prefix || '',
@@ -216,6 +297,9 @@ class S3StorageAdapter implements StorageAdapter {
 
   async listWithMetadata(prefix?: string): Promise<{ ok: boolean; objects?: StorageObject[]; error?: string }> {
     try {
+      // Wait for bucket initialization to complete
+      await this.initPromise;
+      
       const command = new ListObjectsV2Command({
         Bucket: this.bucket,
         Prefix: prefix || '',
@@ -268,12 +352,17 @@ export function getStorageAdapter(credentials?: StorageCredentials): StorageAdap
   const minioBucket = credentials?.minioBucket || process.env.MINIO_BUCKET || 'usa-luxury-limo';
 
   if (minioEndpoint && minioAccessKey && minioSecretKey) {
+    // Validate bucket name
+    if (!minioBucket || typeof minioBucket !== 'string' || minioBucket.trim() === '') {
+      throw new Error('Invalid MinIO bucket name. Bucket name must be a non-empty string.');
+    }
+    
     console.log('[STORAGE] Using MinIO/S3 storage adapter');
     return new S3StorageAdapter({
       endpoint: minioEndpoint,
       accessKeyId: minioAccessKey,
       secretAccessKey: minioSecretKey,
-      bucket: minioBucket,
+      bucket: minioBucket.trim(),
       forcePathStyle: true, // Required for MinIO
     });
   }

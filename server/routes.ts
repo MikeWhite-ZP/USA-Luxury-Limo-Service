@@ -44,20 +44,27 @@ async function getObjectStorage(): Promise<StorageAdapter> {
     let credentials: StorageCredentials = {};
     
     try {
-      const endpoint = await storage.getSetting('MINIO_ENDPOINT');
-      const accessKey = await storage.getSetting('MINIO_ACCESS_KEY');
-      const secretKey = await storage.getSetting('MINIO_SECRET_KEY');
-      const bucket = await storage.getSetting('MINIO_BUCKET');
+      // Extract .value from SystemSetting objects
+      const endpointSetting = await storage.getSetting('MINIO_ENDPOINT');
+      const accessKeySetting = await storage.getSetting('MINIO_ACCESS_KEY');
+      const secretKeySetting = await storage.getSetting('MINIO_SECRET_KEY');
+      const bucketSetting = await storage.getSetting('MINIO_BUCKET');
+
+      const endpoint = endpointSetting?.value?.trim();
+      const accessKey = accessKeySetting?.value?.trim();
+      const secretKey = secretKeySetting?.value?.trim();
+      const bucket = bucketSetting?.value?.trim();
 
       // Only use database credentials if all required fields are present
       if (endpoint && accessKey && secretKey) {
+        const effectiveBucket = bucket && bucket !== '' ? bucket : 'usa-luxury-limo';
         credentials = {
           minioEndpoint: endpoint,
           minioAccessKey: accessKey,
           minioSecretKey: secretKey,
-          minioBucket: bucket || undefined,
+          minioBucket: effectiveBucket,
         };
-        console.log('[STORAGE] Using MinIO credentials from database');
+        console.log(`[STORAGE] Using MinIO credentials from database, bucket: ${effectiveBucket}`);
       }
     } catch (dbError: any) {
       // Database might not be available or settings not configured
