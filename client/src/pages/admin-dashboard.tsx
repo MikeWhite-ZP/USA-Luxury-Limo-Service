@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,6 +66,7 @@ import {
   CheckCircle2,
   Clock,
   Upload,
+  FileImage,
 } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
@@ -5856,25 +5858,37 @@ export default function AdminDashboard() {
                   </div>
                   <span>MinIO Object Storage</span>
                 </CardTitle>
-                <Button
-                  onClick={handleTestMinIOConnection}
-                  disabled={testingMinIO}
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white"
-                  size="sm"
-                  data-testid="button-test-minio"
-                >
-                  {testingMinIO ? (
-                    <>
-                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                      Testing...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 mr-2" />
-                      Test Connection
-                    </>
-                  )}
-                </Button>
+                <div className="flex gap-2">
+                  <Link href="/admin/minio-browser">
+                    <Button
+                      className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white"
+                      size="sm"
+                      data-testid="button-browse-images"
+                    >
+                      <FileImage className="w-4 h-4 mr-2" />
+                      Browse Images
+                    </Button>
+                  </Link>
+                  <Button
+                    onClick={handleTestMinIOConnection}
+                    disabled={testingMinIO}
+                    className="bg-cyan-600 hover:bg-cyan-700 text-white"
+                    size="sm"
+                    data-testid="button-test-minio"
+                  >
+                    {testingMinIO ? (
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                        Testing...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Test Connection
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
