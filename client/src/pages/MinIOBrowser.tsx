@@ -1,8 +1,7 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-import { Link } from "wouter";
-import { ArrowLeft, Search, FolderOpen, Image as ImageIcon, Download, Copy, X, Loader2, FileImage, ChevronLeft, ChevronRight, Upload, CloudUpload } from "lucide-react";
+import { Search, FolderOpen, Image as ImageIcon, Download, Copy, X, Loader2, FileImage, ChevronLeft, ChevronRight, Upload, CloudUpload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { AdminNav } from "@/components/AdminNav";
 
 interface MinIOFile {
   key: string;
@@ -222,18 +222,13 @@ export default function MinIOBrowser() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <Link href="/admin">
-            <Button variant="outline" className="mb-4 border-slate-300 hover:bg-slate-100" data-testid="button-back-to-admin">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Admin
-            </Button>
-          </Link>
-
-          <Card className="border-0 shadow-xl bg-gradient-to-br from-white via-slate-50/50 to-white backdrop-blur-sm overflow-hidden">
+    <>
+      <AdminNav />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <Card className="border-0 shadow-xl bg-gradient-to-br from-white via-slate-50/50 to-white backdrop-blur-sm overflow-hidden">
             <CardHeader className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-b-0 pb-8">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.05)_0%,transparent_50%)]" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1)_0%,transparent_50%)]" />
@@ -644,6 +639,7 @@ export default function MinIOBrowser() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </>
   );
 }
