@@ -6643,6 +6643,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Browse MinIO objects
+  app.get('/api/admin/minio/browse', isAuthenticated, async (req: any, res) => {
+    try {
+      if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const prefix = req.query.prefix as string | undefined;
+      const folder = req.query.folder as string | undefined;
+
+      // Determine the actual prefix to use
+      let searchPrefix = prefix || '';
+      if (folder) {
+        searchPrefix = folder;
+      }
+
+      try {
+        const adapter = getStorageAdapter();
+        const result = await adapter.listWithMetadata(searchPrefix);
+
+        if (!result.ok) {
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to list objects from storage',
+            error: result.error
+          });
+        }
+
+        // Organize objects by folder
+        const folders = new Set<string>();
+        const files = result.objects?.map(obj => {
+          // Extract folder from key
+          const parts = obj.key.split('/');
+          if (parts.length > 1) {
+            folders.add(parts[0]);
+          }
+
+          return {
+            key: obj.key,
+            name: parts[parts.length - 1],
+            folder: parts.length > 1 ? parts.slice(0, -1).join('/') : '',
+            size: obj.size,
+            lastModified: obj.lastModified,
+            url: obj.url,
+            isImage: /\.(jpg|jpeg|png|gif|webp|heic)$/i.test(obj.key)
+          };
+        }) || [];
+
+        res.json({
+          success: true,
+          files,
+          folders: Array.from(folders),
+          totalFiles: files.length
+        });
+      } catch (error: any) {
+        console.error('MinIO browse error:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to browse MinIO storage',
+          error: error.message
+        });
+      }
+    } catch (error: any) {
+      console.error('MinIO browse endpoint error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to browse MinIO storage',
+        error: error.message
+      });
+    }
+  });
+
   // Get Twilio SMS connection status
   app.get('/api/admin/sms/status', isAuthenticated, async (req: any, res) => {
     try {

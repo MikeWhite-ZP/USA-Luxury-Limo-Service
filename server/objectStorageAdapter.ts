@@ -1,5 +1,5 @@
 import { Client as ObjectStorageClient } from "@replit/object-storage";
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 /**
@@ -8,12 +8,20 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
  * Automatically detects which storage backend to use based on environment variables
  */
 
+export interface StorageObject {
+  key: string;
+  size: number;
+  lastModified: Date;
+  url?: string;
+}
+
 export interface StorageAdapter {
   uploadFromBytes(path: string, data: Buffer, metadata?: { contentType?: string }): Promise<{ ok: boolean; error?: string }>;
   downloadAsBytes(path: string): Promise<{ ok: boolean; value?: any; error?: string }>;
   getDownloadUrl(path: string): Promise<{ ok: boolean; url?: string; error?: string }>;
   delete(path: string): Promise<{ ok: boolean; error?: string }>;
   list(prefix?: string): Promise<{ ok: boolean; keys?: string[]; error?: string }>;
+  listWithMetadata(prefix?: string): Promise<{ ok: boolean; objects?: StorageObject[]; error?: string }>;
 }
 
 class ReplitStorageAdapter implements StorageAdapter {
@@ -78,6 +86,25 @@ class ReplitStorageAdapter implements StorageAdapter {
       if (result.ok && result.value) {
         const keys = result.value.map((obj: any) => obj.key);
         return { ok: true, keys };
+      } else {
+        return { ok: false, error: result.error?.message || 'List failed' };
+      }
+    } catch (error: any) {
+      return { ok: false, error: error.message };
+    }
+  }
+
+  async listWithMetadata(prefix?: string): Promise<{ ok: boolean; objects?: StorageObject[]; error?: string }> {
+    try {
+      const result = await this.client.list({ prefix: prefix || '' });
+      if (result.ok && result.value) {
+        const objects: StorageObject[] = result.value.map((obj: any) => ({
+          key: obj.key,
+          size: obj.size || 0,
+          lastModified: obj.lastModified ? new Date(obj.lastModified) : new Date(),
+          url: obj.key, // For Replit storage, we'll construct URL server-side
+        }));
+        return { ok: true, objects };
       } else {
         return { ok: false, error: result.error?.message || 'List failed' };
       }
@@ -175,9 +202,44 @@ class S3StorageAdapter implements StorageAdapter {
 
   async list(prefix?: string): Promise<{ ok: boolean; keys?: string[]; error?: string }> {
     try {
-      // Note: S3 list implementation would use ListObjectsV2Command
-      // For now, returning a basic structure
-      return { ok: true, keys: [] };
+      const command = new ListObjectsV2Command({
+        Bucket: this.bucket,
+        Prefix: prefix || '',
+      });
+      const response = await this.client.send(command);
+      const keys = response.Contents?.map(obj => obj.Key || '') || [];
+      return { ok: true, keys };
+    } catch (error: any) {
+      return { ok: false, error: error.message };
+    }
+  }
+
+  async listWithMetadata(prefix?: string): Promise<{ ok: boolean; objects?: StorageObject[]; error?: string }> {
+    try {
+      const command = new ListObjectsV2Command({
+        Bucket: this.bucket,
+        Prefix: prefix || '',
+      });
+      const response = await this.client.send(command);
+      
+      if (!response.Contents) {
+        return { ok: true, objects: [] };
+      }
+
+      const objects: StorageObject[] = await Promise.all(
+        response.Contents.map(async (obj) => {
+          const key = obj.Key || '';
+          const urlResult = await this.getDownloadUrl(key);
+          return {
+            key,
+            size: obj.Size || 0,
+            lastModified: obj.LastModified || new Date(),
+            url: urlResult.ok ? urlResult.url : undefined,
+          };
+        })
+      );
+
+      return { ok: true, objects };
     } catch (error: any) {
       return { ok: false, error: error.message };
     }
