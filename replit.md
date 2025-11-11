@@ -25,6 +25,7 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
     - **Booking & Dispatch**: A 4-step booking flow, intelligent driver assignment, and a two-stage job acceptance workflow. Supports itemized pricing for transfer and hourly services.
     - **Driver Management**: Document upload/tracking, real-time GPS tracking, navigation integration, and driver payment/credential management.
     - **User/Admin Features**: User account management with cascading delete, support, system settings, a Dispatcher Dashboard, and API credential management.
+    - **Vehicle Type Management**: Complete admin interface for managing system-wide vehicle types (add/edit/delete) with table view, search functionality, and active/inactive status control. Includes full CRUD operations with Zod validation and TanStack Query integration.
     - **Invoice Management**: Complete invoice system for viewing, editing, printing, and emailing detailed invoices.
     - **CMS**: Component-based Content Management System for brand identity and media asset management (Logo and Hero Image), with CRUD operations.
 
