@@ -5088,187 +5088,211 @@ export default function AdminDashboard() {
         }}
       />
       <div className="max-w-7xl mx-auto p-6 space-y-8">
-        {/* Dashboard Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Dashboard Stats - Modern Professional Design */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* Revenue Card */}
           <Card
-            className="group relative overflow-hidden rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50/30 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+            className="group relative overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
             data-testid="stat-revenue"
           >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="bg-amber-500 p-1.5 rounded-lg">
-                      <DollarSign className="h-4 w-4 text-white" />
-                    </div>
-                    <p className="text-sm font-semibold text-slate-900">Revenue</p>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500/5 to-transparent rounded-full -mr-16 -mt-16" />
+            <CardContent className="p-7 relative">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-2.5 rounded-xl shadow-sm shadow-amber-500/20">
+                    <DollarSign className="h-5 w-5 text-white" />
                   </div>
-                  <div className="space-y-3">
-                    <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-amber-200/50">
-                      <p className="text-xs text-slate-600 mb-1">This Month</p>
-                      <p className="text-3xl font-bold text-slate-900 tracking-tight" data-testid="monthly-revenue">
-                        ${statsLoading ? "..." : parseFloat(stats?.monthlyRevenue || "0").toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="bg-white/40 backdrop-blur-sm rounded-lg p-3 border border-amber-100">
-                      <p className="text-xs text-slate-600 mb-1">All Time</p>
-                      <p className="text-2xl font-semibold text-slate-700 tracking-tight" data-testid="total-revenue">
-                        ${statsLoading ? "..." : parseFloat(stats?.totalRevenue || "0").toFixed(2)}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Revenue</p>
                   </div>
-                  {!statsLoading && stats && parseFloat(stats.revenueGrowth) !== 0 && (
-                    <p
-                      className={`text-sm font-medium mt-3 ${parseFloat(stats.revenueGrowth) > 0 ? "text-green-700" : "text-red-700"}`}
-                      data-testid="revenue-growth"
-                    >
-                      {parseFloat(stats.revenueGrowth) > 0 ? "+" : ""}
-                      {parseFloat(stats.revenueGrowth).toFixed(2)}% from last month
-                    </p>
-                  )}
                 </div>
               </div>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wide">This Month</p>
+                  <p className="text-3xl font-bold text-slate-900 tracking-tight" data-testid="monthly-revenue">
+                    ${statsLoading ? "..." : parseFloat(stats?.monthlyRevenue || "0").toFixed(2)}
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-slate-100">
+                  <p className="text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wide">All Time</p>
+                  <p className="text-xl font-semibold text-slate-700 tracking-tight" data-testid="total-revenue">
+                    ${statsLoading ? "..." : parseFloat(stats?.totalRevenue || "0").toFixed(2)}
+                  </p>
+                </div>
+              </div>
+              {!statsLoading && stats && parseFloat(stats.revenueGrowth) !== 0 && (
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <p className={`text-sm font-semibold ${parseFloat(stats.revenueGrowth) > 0 ? "text-emerald-600" : "text-rose-600"}`} data-testid="revenue-growth">
+                    {parseFloat(stats.revenueGrowth) > 0 ? "↑" : "↓"} {Math.abs(parseFloat(stats.revenueGrowth)).toFixed(2)}% <span className="text-slate-500 font-normal">from last month</span>
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
+          {/* Commission Card */}
           <Card
-            className="group relative overflow-hidden rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50/30 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+            className="group relative overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
             data-testid="stat-commission"
           >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="bg-purple-600 p-1.5 rounded-lg">
-                      <DollarSign className="h-4 w-4 text-white" />
-                    </div>
-                    <p className="text-sm font-semibold text-slate-900">Commission</p>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/5 to-transparent rounded-full -mr-16 -mt-16" />
+            <CardContent className="p-7 relative">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-2.5 rounded-xl shadow-sm shadow-purple-500/20">
+                    <DollarSign className="h-5 w-5 text-white" />
                   </div>
-                  <div className="space-y-3">
-                    <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-purple-200/50">
-                      <p className="text-xs text-slate-600 mb-1">This Month</p>
-                      <p className="text-3xl font-bold text-slate-900 tracking-tight" data-testid="monthly-commission">
-                        ${statsLoading ? "..." : parseFloat(stats?.monthlyCommission || "0").toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="bg-white/40 backdrop-blur-sm rounded-lg p-3 border border-purple-100">
-                      <p className="text-xs text-slate-600 mb-1">All Time</p>
-                      <p className="text-2xl font-semibold text-slate-700 tracking-tight" data-testid="total-commission">
-                        ${statsLoading ? "..." : parseFloat(stats?.totalCommission || "0").toFixed(2)}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Commission</p>
                   </div>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wide">This Month</p>
+                  <p className="text-3xl font-bold text-slate-900 tracking-tight" data-testid="monthly-commission">
+                    ${statsLoading ? "..." : parseFloat(stats?.monthlyCommission || "0").toFixed(2)}
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-slate-100">
+                  <p className="text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wide">All Time</p>
+                  <p className="text-xl font-semibold text-slate-700 tracking-tight" data-testid="total-commission">
+                    ${statsLoading ? "..." : parseFloat(stats?.totalCommission || "0").toFixed(2)}
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
+          {/* Active Bookings Card */}
           <Card
-            className="group relative overflow-hidden rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50/30 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+            className="group relative overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
             data-testid="stat-bookings"
           >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="bg-blue-600 p-1.5 rounded-lg">
-                      <TrendingUp className="h-4 w-4 text-white" />
-                    </div>
-                    <p className="text-sm font-semibold text-slate-900">Active Bookings</p>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-transparent rounded-full -mr-16 -mt-16" />
+            <CardContent className="p-7 relative">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2.5 rounded-xl shadow-sm shadow-blue-500/20">
+                    <TrendingUp className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-4xl font-bold text-slate-900 tracking-tight mb-1" data-testid="active-bookings">
-                    {statsLoading ? "..." : stats?.activeBookings || 0}
-                  </p>
-                  {!statsLoading && stats && stats.pendingBookings > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Active Bookings</p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p className="text-5xl font-bold text-slate-900 tracking-tight mb-2" data-testid="active-bookings">
+                  {statsLoading ? "..." : stats?.activeBookings || 0}
+                </p>
+                {!statsLoading && stats && stats.pendingBookings > 0 && (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
                     <p className="text-sm font-medium text-blue-700" data-testid="pending-bookings">
                       {stats.pendingBookings} pending approval{stats.pendingBookings !== 1 ? "s" : ""}
                     </p>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
 
+          {/* Drivers Card */}
           <Card
-            className="group relative overflow-hidden rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50/30 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+            className="group relative overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
             data-testid="stat-drivers"
           >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="bg-green-600 p-1.5 rounded-lg">
-                      <Car className="h-4 w-4 text-white" />
-                    </div>
-                    <p className="text-sm font-semibold text-slate-900">Drivers</p>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-full -mr-16 -mt-16" />
+            <CardContent className="p-7 relative">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2.5 rounded-xl shadow-sm shadow-emerald-500/20">
+                    <Car className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-4xl font-bold text-slate-900 tracking-tight mb-1" data-testid="active-drivers">
-                    {statsLoading ? "..." : `${stats?.activeDrivers || 0}/${stats?.totalDrivers || 0}`}
-                  </p>
-                  <p className="text-xs text-slate-600">Active/Total</p>
-                  {!statsLoading && stats && stats.pendingDrivers > 0 && (
-                    <p className="text-sm font-medium text-green-700 mt-1" data-testid="pending-drivers">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Drivers</p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p className="text-5xl font-bold text-slate-900 tracking-tight mb-2" data-testid="active-drivers">
+                  {statsLoading ? "..." : `${stats?.activeDrivers || 0}/${stats?.totalDrivers || 0}`}
+                </p>
+                <p className="text-sm text-slate-500 font-medium mb-3">Active / Total</p>
+                {!statsLoading && stats && stats.pendingDrivers > 0 && (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                    <p className="text-sm font-medium text-emerald-700" data-testid="pending-drivers">
                       {stats.pendingDrivers} pending verification
                     </p>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
 
+          {/* Customer Satisfaction Card */}
           <Card
-            className="group relative overflow-hidden rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50/30 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+            className="group relative overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
             data-testid="stat-satisfaction"
           >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="bg-orange-500 p-1.5 rounded-lg">
-                      <Star className="h-4 w-4 text-white" />
-                    </div>
-                    <p className="text-sm font-semibold text-slate-900">Customer Satisfaction</p>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/5 to-transparent rounded-full -mr-16 -mt-16" />
+            <CardContent className="p-7 relative">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-2.5 rounded-xl shadow-sm shadow-orange-500/20">
+                    <Star className="h-5 w-5 text-white fill-white" />
                   </div>
-                  <p className="text-4xl font-bold text-slate-900 tracking-tight mb-1" data-testid="customer-satisfaction">
-                    {statsLoading ? "..." : parseFloat(stats?.averageRating || "0").toFixed(2)}/5
-                  </p>
-                  {!statsLoading && stats && parseFloat(stats.ratingImprovement) !== 0 && (
-                    <p
-                      className={`text-sm font-medium ${parseFloat(stats.ratingImprovement) > 0 ? "text-green-700" : "text-red-700"}`}
-                      data-testid="rating-improvement"
-                    >
-                      {parseFloat(stats.ratingImprovement) > 0 ? "+" : ""}
-                      {parseFloat(stats.ratingImprovement).toFixed(2)} this month
-                    </p>
-                  )}
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Satisfaction</p>
+                  </div>
                 </div>
+              </div>
+              <div>
+                <p className="text-5xl font-bold text-slate-900 tracking-tight mb-2" data-testid="customer-satisfaction">
+                  {statsLoading ? "..." : parseFloat(stats?.averageRating || "0").toFixed(2)}
+                  <span className="text-2xl text-slate-400 ml-1">/5</span>
+                </p>
+                {!statsLoading && stats && parseFloat(stats.ratingImprovement) !== 0 && (
+                  <p className={`text-sm font-semibold ${parseFloat(stats.ratingImprovement) > 0 ? "text-emerald-600" : "text-rose-600"}`} data-testid="rating-improvement">
+                    {parseFloat(stats.ratingImprovement) > 0 ? "↑" : "↓"} {Math.abs(parseFloat(stats.ratingImprovement)).toFixed(2)} <span className="text-slate-500 font-normal">this month</span>
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
 
+          {/* Awaiting Driver Approval Card */}
           <Card
-            className="group relative overflow-hidden rounded-xl border border-red-200 bg-gradient-to-br from-red-50 to-rose-50/30 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+            className="group relative overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
             data-testid="stat-awaiting-approval"
           >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="bg-red-600 p-1.5 rounded-lg">
-                      <Clock className="h-4 w-4 text-white" />
-                    </div>
-                    <p className="text-sm font-semibold text-slate-900">Awaiting Driver Approval</p>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-rose-500/5 to-transparent rounded-full -mr-16 -mt-16" />
+            <CardContent className="p-7 relative">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-to-br from-rose-500 to-rose-600 p-2.5 rounded-xl shadow-sm shadow-rose-500/20">
+                    <Clock className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-4xl font-bold text-slate-900 tracking-tight mb-1" data-testid="awaiting-driver-approval">
-                    {statsLoading ? "..." : stats?.awaitingDriverApproval || 0}
-                  </p>
-                  <p className="text-xs text-slate-600">Jobs waiting for drivers</p>
-                  {!statsLoading && stats && stats.awaitingDriverApproval > 0 && (
-                    <p className="text-sm font-medium text-red-700 mt-1" data-testid="awaiting-approval-notice">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Awaiting Approval</p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p className="text-5xl font-bold text-slate-900 tracking-tight mb-2" data-testid="awaiting-driver-approval">
+                  {statsLoading ? "..." : stats?.awaitingDriverApproval || 0}
+                </p>
+                <p className="text-sm text-slate-500 font-medium mb-3">Jobs waiting for drivers</p>
+                {!statsLoading && stats && stats.awaitingDriverApproval > 0 && (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 border border-rose-200 rounded-lg">
+                    <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
+                    <p className="text-sm font-medium text-rose-700" data-testid="awaiting-approval-notice">
                       Requires driver acceptance
                     </p>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
