@@ -374,18 +374,57 @@ CREATE TABLE IF NOT EXISTS contact_submissions (
 );
 
 -- ==============================================================================
--- CMS CONTENT
+-- CMS SETTINGS
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS cms_settings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  key VARCHAR UNIQUE NOT NULL,
+  value TEXT,
+  category VARCHAR NOT NULL CHECK (category IN ('branding', 'colors', 'social', 'contact', 'seo')),
+  description TEXT,
+  updated_by VARCHAR REFERENCES users(id),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- ==============================================================================
+-- CMS CONTENT BLOCKS
 -- ==============================================================================
 
 CREATE TABLE IF NOT EXISTS cms_content (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  component_type VARCHAR NOT NULL CHECK (component_type IN ('logo', 'hero_image', 'about', 'services', 'contact')),
-  content_key VARCHAR UNIQUE NOT NULL,
-  content_value TEXT,
-  media_url VARCHAR,
-  metadata JSONB,
+  block_type VARCHAR NOT NULL CHECK (block_type IN ('hero', 'about', 'services', 'contact', 'footer', 'testimonial')),
+  identifier VARCHAR NOT NULL,
+  title VARCHAR,
+  content TEXT,
+  metadata JSONB DEFAULT '{}'::jsonb,
   is_active BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0,
+  updated_by VARCHAR REFERENCES users(id),
   updated_at TIMESTAMP DEFAULT NOW(),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS cms_content_block_identifier_idx ON cms_content (block_type, identifier);
+
+-- ==============================================================================
+-- CMS MEDIA LIBRARY
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS cms_media (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  file_name VARCHAR NOT NULL,
+  file_url TEXT NOT NULL,
+  file_type VARCHAR NOT NULL,
+  file_size INTEGER,
+  folder VARCHAR DEFAULT 'general' CHECK (folder IN ('logos', 'hero-images', 'favicon', 'vehicles', 'testimonials', 'general')),
+  alt_text TEXT,
+  description TEXT,
+  width INTEGER,
+  height INTEGER,
+  uploaded_by VARCHAR NOT NULL REFERENCES users(id),
+  uploaded_at TIMESTAMP DEFAULT NOW(),
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -401,5 +440,7 @@ CREATE TABLE IF NOT EXISTS schema_version (
 );
 
 INSERT INTO schema_version (version, description) 
-VALUES ('1.0.0', 'Initial schema - USA Luxury Limo complete database')
+VALUES 
+  ('1.0.0', 'Initial schema - USA Luxury Limo complete database'),
+  ('1.1.0', 'Added CMS tables: cms_settings, cms_content (updated), cms_media with favicon support')
 ON CONFLICT DO NOTHING;

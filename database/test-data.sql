@@ -195,16 +195,46 @@ VALUES
 ON CONFLICT (provider) DO NOTHING;
 
 -- ==============================================================================
--- CMS CONTENT
+-- CMS SETTINGS
 -- ==============================================================================
 
-INSERT INTO cms_content (id, component_type, content_key, content_value, is_active, created_at)
+INSERT INTO cms_settings (id, key, value, category, description, created_at)
 VALUES 
-  (gen_random_uuid(), 'about', 'about_heading', 'About USA Luxury Limo', true, NOW()),
-  (gen_random_uuid(), 'about', 'about_description', 'We provide premium luxury transportation services with professional drivers and top-of-the-line vehicles.', true, NOW()),
-  (gen_random_uuid(), 'services', 'services_heading', 'Our Services', true, NOW()),
-  (gen_random_uuid(), 'contact', 'contact_heading', 'Contact Us', true, NOW())
-ON CONFLICT (content_key) DO NOTHING;
+  (gen_random_uuid(), 'company_name', 'USA Luxury Limo', 'branding', 'Company name displayed in the application', NOW()),
+  (gen_random_uuid(), 'tagline', 'Premium Transportation Services', 'branding', 'Company tagline or slogan', NOW()),
+  (gen_random_uuid(), 'primary_color', '#000000', 'colors', 'Primary brand color', NOW()),
+  (gen_random_uuid(), 'secondary_color', '#FFFFFF', 'colors', 'Secondary brand color', NOW()),
+  (gen_random_uuid(), 'contact_email', 'info@usaluxurylimo.com', 'contact', 'Main contact email', NOW()),
+  (gen_random_uuid(), 'contact_phone', '+1-555-LIMO-USA', 'contact', 'Main contact phone', NOW()),
+  (gen_random_uuid(), 'facebook_url', '', 'social', 'Facebook page URL', NOW()),
+  (gen_random_uuid(), 'twitter_url', '', 'social', 'Twitter/X profile URL', NOW()),
+  (gen_random_uuid(), 'instagram_url', '', 'social', 'Instagram profile URL', NOW())
+ON CONFLICT (key) DO NOTHING;
+
+-- ==============================================================================
+-- CMS CONTENT BLOCKS
+-- ==============================================================================
+
+INSERT INTO cms_content (id, block_type, identifier, title, content, metadata, is_active, sort_order, created_at)
+VALUES 
+  (gen_random_uuid(), 'hero', 'hero_main', 'Premium Luxury Transportation', 'Experience first-class service with our professional drivers and luxury vehicles', '{"cta_text": "Book Now", "cta_link": "/book"}'::jsonb, true, 0, NOW()),
+  (gen_random_uuid(), 'about', 'about_company', 'About USA Luxury Limo', 'We provide premium luxury transportation services with professional drivers and top-of-the-line vehicles. Our commitment to excellence ensures every journey is comfortable, safe, and memorable.', '{}'::jsonb, true, 0, NOW()),
+  (gen_random_uuid(), 'services', 'services_intro', 'Our Services', 'Discover our comprehensive range of luxury transportation solutions tailored to your needs.', '{}'::jsonb, true, 0, NOW()),
+  (gen_random_uuid(), 'contact', 'contact_intro', 'Get In Touch', 'Contact us for bookings, inquiries, or any questions about our services.', '{}'::jsonb, true, 0, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ==============================================================================
+-- CMS MEDIA LIBRARY
+-- ==============================================================================
+
+-- Note: Sample media entries would typically reference actual uploaded files
+-- These are placeholder entries demonstrating the structure
+INSERT INTO cms_media (id, file_name, file_url, file_type, file_size, folder, alt_text, description, uploaded_by, created_at)
+VALUES 
+  (gen_random_uuid(), 'company-logo.png', '/placeholder/logo.png', 'image/png', 15360, 'logos', 'USA Luxury Limo Company Logo', 'Main company logo', 'admin-001', NOW()),
+  (gen_random_uuid(), 'hero-banner.jpg', '/placeholder/hero.jpg', 'image/jpeg', 204800, 'hero-images', 'Luxury limousine hero image', 'Main hero banner image', 'admin-001', NOW()),
+  (gen_random_uuid(), 'favicon.png', '/placeholder/favicon.png', 'image/png', 4096, 'favicon', 'USA Luxury Limo Favicon', 'Site favicon and PWA icon', 'admin-001', NOW())
+ON CONFLICT DO NOTHING;
 
 -- ==============================================================================
 -- DRIVER RATINGS
@@ -227,4 +257,7 @@ SELECT
   (SELECT COUNT(*) FROM vehicle_types) as total_vehicle_types,
   (SELECT COUNT(*) FROM vehicles) as total_vehicles,
   (SELECT COUNT(*) FROM bookings) as total_bookings,
-  (SELECT COUNT(*) FROM pricing_rules) as total_pricing_rules;
+  (SELECT COUNT(*) FROM pricing_rules) as total_pricing_rules,
+  (SELECT COUNT(*) FROM cms_settings) as total_cms_settings,
+  (SELECT COUNT(*) FROM cms_content) as total_cms_content,
+  (SELECT COUNT(*) FROM cms_media) as total_cms_media;
