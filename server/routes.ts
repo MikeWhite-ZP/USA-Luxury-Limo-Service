@@ -6715,6 +6715,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Upload file to MinIO
+  app.post('/api/admin/minio/upload', isAuthenticated, requireAdmin, upload.single('file'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      const { folder = 'cms/general' } = req.body;
+      
+      // Sanitize folder input to prevent path traversal
+      const sanitizedFolder = folder
+        .replace(/\.\./g, '') // Remove ..
+        .replace(/^\/+/, '') // Remove leading slashes
+        .replace(/\/+$/, ''); // Remove trailing slashes
+      
+      // Ensure folder ends with slash for proper path construction
+      const folderPath = sanitizedFolder ? `${sanitizedFolder}/` : '';
+      
+      // Generate unique filename
+      const timestamp = Date.now();
+      const fileExtension = req.file.originalname.split('.').pop();
+      const fileName = `upload-${timestamp}.${fileExtension}`;
+      const filePath = `${folderPath}${fileName}`;
+
+      // Determine content type from file extension
+      const extension = fileExtension?.toLowerCase();
+      const contentTypeMap: Record<string, string> = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'webp': 'image/webp',
+        'heic': 'image/heic',
+      };
+      const contentType = contentTypeMap[extension || ''] || 'application/octet-stream';
+
+      // Upload to Object Storage using configured adapter (MinIO or Replit)
+      const objStorage = getObjectStorage();
+      const { ok, error } = await objStorage.uploadFromBytes(filePath, req.file.buffer, { contentType });
+      
+      if (!ok) {
+        console.error('Upload to Object Storage failed:', error);
+        return res.status(500).json({ message: `Upload failed: ${error}` });
+      }
+
+      // Get download URL
+      const { ok: urlOk, url, error: urlError } = await objStorage.getDownloadUrl(filePath);
+      
+      if (!urlOk) {
+        console.error('Failed to get download URL:', urlError);
+      }
+
+      // Return file metadata in same format as browse endpoint
+      const parts = filePath.split('/');
+      const folderName = parts.length > 1 ? parts.slice(0, -1).join('/') : '';
+      
+      res.json({
+        success: true,
+        file: {
+          key: filePath,
+          name: fileName,
+          folder: folderName,
+          size: req.file.size,
+          lastModified: new Date(),
+          url: url || filePath,
+          isImage: /\.(jpg|jpeg|png|gif|webp|heic)$/i.test(filePath)
+        }
+      });
+    } catch (error: any) {
+      console.error('MinIO upload error:', error);
+      res.status(500).json({ message: 'Failed to upload file', error: error.message });
+    }
+  });
+
   // Get Twilio SMS connection status
   app.get('/api/admin/sms/status', isAuthenticated, async (req: any, res) => {
     try {

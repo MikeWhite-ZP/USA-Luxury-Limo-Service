@@ -1,12 +1,15 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useRef } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { Link } from "wouter";
-import { ArrowLeft, Search, FolderOpen, Image as ImageIcon, Download, Copy, X, Loader2, FileImage, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Search, FolderOpen, Image as ImageIcon, Download, Copy, X, Loader2, FileImage, ChevronLeft, ChevronRight, Upload, CloudUpload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
 interface MinIOFile {
@@ -32,8 +35,12 @@ export default function MinIOBrowser() {
   const [selectedFolder, setSelectedFolder] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState<MinIOFile | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploadFolder, setUploadFolder] = useState<string>("");
+  const [isDragging, setIsDragging] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 20;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch MinIO files
   const { data, isLoading } = useQuery<MinIOBrowseResponse>({
@@ -99,6 +106,108 @@ export default function MinIOBrowser() {
     });
   };
 
+  // Upload mutation
+  const uploadMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await fetch('/api/admin/minio/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Upload failed');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/minio/browse'] });
+      setUploadDialogOpen(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      toast({
+        title: 'Success',
+        description: 'File uploaded successfully',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to upload file',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Handle file upload
+  const handleFileUpload = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    
+    // Validate file size (2MB limit)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+      toast({
+        title: 'File Too Large',
+        description: 'File size must be less than 2MB',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: 'Invalid File Type',
+        description: 'Only JPEG, PNG, GIF, WebP, and HEIC images are allowed',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', uploadFolder || selectedFolder || 'cms/general');
+
+    uploadMutation.mutate(formData);
+  };
+
+  // Handle drag and drop
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    const files = e.dataTransfer.files;
+    handleFileUpload(files);
+  };
+
+  // Open upload dialog with current folder as default
+  const handleOpenUploadDialog = () => {
+    setUploadFolder(selectedFolder || 'cms/general');
+    setUploadDialogOpen(true);
+  };
+
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -142,11 +251,21 @@ export default function MinIOBrowser() {
                     <p className="text-sm text-slate-300 mt-0.5 font-light">Browse and manage your object storage files</p>
                   </div>
                 </div>
-                {data && (
-                  <Badge className="bg-white/10 backdrop-blur-sm text-white border-white/20 px-4 py-2 text-sm">
-                    {data.totalFiles} {data.totalFiles === 1 ? "file" : "files"}
-                  </Badge>
-                )}
+                <div className="flex items-center gap-3">
+                  {data && (
+                    <Badge className="bg-white/10 backdrop-blur-sm text-white border-white/20 px-4 py-2 text-sm">
+                      {data.totalFiles} {data.totalFiles === 1 ? "file" : "files"}
+                    </Badge>
+                  )}
+                  <Button
+                    onClick={handleOpenUploadDialog}
+                    className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+                    data-testid="button-upload-file"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload Assets
+                  </Button>
+                </div>
               </CardTitle>
             </CardHeader>
 
@@ -413,6 +532,116 @@ export default function MinIOBrowser() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Dialog */}
+      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent className="max-w-xl bg-white">
+          <DialogHeader className="border-b border-slate-200 pb-4">
+            <DialogTitle className="flex items-center gap-2 text-cyan-700">
+              <CloudUpload className="w-5 h-5" />
+              Upload File to MinIO Storage
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6 pt-4">
+            {/* Folder Selector */}
+            <div className="space-y-2">
+              <Label htmlFor="upload-folder" className="text-sm font-medium text-slate-700">
+                Destination Folder
+              </Label>
+              <Select value={uploadFolder} onValueChange={setUploadFolder}>
+                <SelectTrigger id="upload-folder" className="bg-white border-slate-200" data-testid="select-upload-folder">
+                  <SelectValue placeholder="Select a folder" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cms/general">cms/general</SelectItem>
+                  <SelectItem value="cms/vehicles">cms/vehicles</SelectItem>
+                  <SelectItem value="cms/logos">cms/logos</SelectItem>
+                  <SelectItem value="cms/drivers">cms/drivers</SelectItem>
+                  <SelectItem value="cms/hero-images">cms/hero-images</SelectItem>
+                  <SelectItem value="cms/testimonials">cms/testimonials</SelectItem>
+                  {data?.folders.map((folder) => (
+                    <SelectItem key={folder} value={folder}>
+                      {folder}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-slate-500">Choose where to store your file in MinIO storage</p>
+            </div>
+
+            {/* Drag & Drop Upload Area */}
+            <div
+              className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+                isDragging
+                  ? 'border-cyan-500 bg-cyan-50/50'
+                  : 'border-slate-300 bg-slate-50/50 hover:border-cyan-400 hover:bg-cyan-50/30'
+              }`}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              data-testid="upload-drop-zone"
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp,image/heic"
+                onChange={(e) => handleFileUpload(e.target.files)}
+                className="hidden"
+                data-testid="input-file-upload"
+              />
+              
+              <div className="space-y-3">
+                <div className="flex justify-center">
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full blur-md opacity-60 group-hover:opacity-100 transition-opacity" />
+                    <div className="relative bg-gradient-to-br from-cyan-500 to-blue-600 p-4 rounded-full">
+                      <CloudUpload className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <p className="text-base font-medium text-slate-700 mb-1">
+                    {isDragging ? 'Drop your file here' : 'Drag & drop your file here'}
+                  </p>
+                  <p className="text-sm text-slate-500">or</p>
+                </div>
+
+                <Button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadMutation.isPending}
+                  className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-300 rounded-lg"
+                  data-testid="button-browse-files"
+                >
+                  {uploadMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Browse Files
+                    </>
+                  )}
+                </Button>
+
+                <div className="pt-2 space-y-1">
+                  <p className="text-xs text-slate-500">
+                    <span className="font-medium">Supported formats:</span> JPEG, PNG, GIF, WebP, HEIC
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    <span className="font-medium">Maximum size:</span> 2MB
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
