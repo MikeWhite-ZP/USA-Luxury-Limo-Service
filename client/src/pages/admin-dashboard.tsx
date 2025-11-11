@@ -58,6 +58,7 @@ import {
   Image,
   Mail,
   Eye,
+  EyeOff,
   Printer,
   Receipt,
   AlertCircle,
@@ -164,6 +165,7 @@ function AdminEmailSettings({ user }: { user: any }) {
     fromEmail: "",
     fromName: "USA Luxury Limo",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [testEmail, setTestEmail] = useState("");
 
   // Fetch current admin email setting
@@ -763,22 +765,37 @@ function AdminEmailSettings({ user }: { user: any }) {
                       </div>
                       <div>
                         <Label htmlFor="smtp-password" className="text-slate-700 font-medium">SMTP Password</Label>
-                        <Input
-                          id="smtp-password"
-                          type="password"
-                          value={smtpSettings.password}
-                          onChange={(e) =>
-                            setSmtpSettings({
-                              ...smtpSettings,
-                              password: e.target.value,
-                            })
-                          }
-                          placeholder={
-                            smtpData?.hasPassword ? "••••••••" : "Enter password"
-                          }
-                          className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500"
-                          data-testid="input-smtp-password"
-                        />
+                        <div className="relative">
+                          <Input
+                            id="smtp-password"
+                            type={showPassword ? "text" : "password"}
+                            value={smtpSettings.password}
+                            onChange={(e) =>
+                              setSmtpSettings({
+                                ...smtpSettings,
+                                password: e.target.value,
+                              })
+                            }
+                            placeholder={
+                              smtpData?.hasPassword ? "••••••••" : "Enter password"
+                            }
+                            className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500 pr-10"
+                            data-testid="input-smtp-password"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 mt-1 text-slate-400 hover:text-slate-600 transition-colors"
+                            data-testid="button-toggle-smtp-password"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="w-4 h-4" />
+                            ) : (
+                              <Eye className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
                         {smtpData?.hasPassword && !smtpSettings.password && (
                           <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
