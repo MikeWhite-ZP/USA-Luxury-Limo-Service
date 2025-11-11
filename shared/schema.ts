@@ -652,6 +652,39 @@ export const insertCmsMediaSchema = createInsertSchema(cmsMedia).omit({
   uploadedAt: true,
 });
 
+// Services - CMS-managed service cards displayed on homepage
+export const serviceIconEnum = ["Plane", "Briefcase", "Heart", "Clock", "Car", "Users", "Star", "Shield", "Calendar", "MapPin"] as const;
+export type ServiceIcon = typeof serviceIconEnum[number];
+
+export const services = pgTable("services", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  slug: varchar("slug").notNull().unique(), // SEO-friendly URL like 'airport-transfer'
+  title: varchar("title").notNull(),
+  subtitle: varchar("subtitle"), // Optional short blurb for cards
+  description: text("description").notNull(),
+  icon: varchar("icon", { enum: serviceIconEnum }).notNull(), // lucide-react icon name
+  features: text("features").array().default(sql`'{}'::text[]`).notNull(), // array of feature strings
+  imageUrl: varchar("image_url"), // background image URL
+  imageAlt: varchar("image_alt"), // accessibility alt text for image
+  ctaLabel: varchar("cta_label"), // optional call-to-action button text
+  ctaUrl: varchar("cta_url"), // optional call-to-action button URL
+  displayOrder: integer("display_order").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("services_slug_idx").on(table.slug),
+]);
+
+export const insertServiceSchema = createInsertSchema(services, {
+  features: z.array(z.string()).default([]),
+  icon: z.enum(serviceIconEnum),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Password reset tokens
 export const passwordResetTokens = pgTable("password_reset_tokens", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -756,6 +789,8 @@ export type CmsContent = typeof cmsContent.$inferSelect;
 export type InsertCmsContent = z.infer<typeof insertCmsContentSchema>;
 export type CmsMedia = typeof cmsMedia.$inferSelect;
 export type InsertCmsMedia = z.infer<typeof insertCmsMediaSchema>;
+export type Service = typeof services.$inferSelect;
+export type InsertService = z.infer<typeof insertServiceSchema>;
 export type DriverMessage = typeof driverMessages.$inferSelect;
 export type InsertDriverMessage = z.infer<typeof insertDriverMessageSchema>;
 export type EmergencyIncident = typeof emergencyIncidents.$inferSelect;

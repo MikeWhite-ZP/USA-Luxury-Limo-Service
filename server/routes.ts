@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, hashPassword, comparePasswords } from "./auth";
-import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertVehicleTypeSchema, insertDriverDocumentSchema, insertCmsSettingSchema, insertCmsContentSchema, insertCmsMediaSchema, type User, type Booking, vehicles } from "@shared/schema";
+import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertVehicleTypeSchema, insertDriverDocumentSchema, insertCmsSettingSchema, insertCmsContentSchema, insertCmsMediaSchema, insertServiceSchema, type User, type Booking, vehicles } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
 import multer from "multer";
@@ -625,6 +625,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting vehicle type:", error);
       res.status(500).json({ message: "Failed to delete vehicle type" });
+    }
+  });
+
+  // Services CMS (public endpoint for frontend)
+  app.get('/api/services', async (req, res) => {
+    try {
+      const services = await storage.getActiveServices();
+      res.json(services);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      res.status(500).json({ message: "Failed to fetch services" });
+    }
+  });
+
+  // Admin: Get all services (including inactive)
+  app.get('/api/admin/services', isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const services = await storage.getAllServices();
+      res.json(services);
+    } catch (error) {
+      console.error("Error fetching all services:", error);
+      res.status(500).json({ message: "Failed to fetch services" });
+    }
+  });
+
+  // Admin: Create service
+  app.post('/api/admin/services', isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const serviceData = insertServiceSchema.parse(req.body);
+      const service = await storage.createService(serviceData);
+      res.status(201).json(service);
+    } catch (error: any) {
+      console.error("Error creating service:", error);
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ message: "Invalid service data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create service" });
+    }
+  });
+
+  // Admin: Update service
+  app.patch('/api/admin/services/:id', isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = insertServiceSchema.partial().parse(req.body);
+      const service = await storage.updateService(id, updates);
+      
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      res.json(service);
+    } catch (error: any) {
+      console.error("Error updating service:", error);
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ message: "Invalid service data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update service" });
+    }
+  });
+
+  // Admin: Delete service
+  app.delete('/api/admin/services/:id', isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const service = await storage.getService(id);
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      await storage.deleteService(id);
+      res.json({ message: "Service deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting service:", error);
+      res.status(500).json({ message: "Failed to delete service" });
+    }
+  });
+
+  // Admin: Upload service image
+  app.post('/api/admin/services/:id/upload-image', isAuthenticated, requireAdmin, upload.single('image'), async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      
+      if (!req.file) {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+
+      const service = await storage.getService(id);
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+
+      const objectStorage = await getObjectStorage();
+      const fileName = `cms/services/${id}-${Date.now()}.${req.file.mimetype.split('/')[1]}`;
+      
+      await objectStorage.upload(fileName, req.file.buffer, req.file.mimetype);
+      const imageUrl = await objectStorage.getDownloadUrl(fileName);
+      
+      const updatedService = await storage.updateService(id, { imageUrl });
+      res.json(updatedService);
+    } catch (error) {
+      console.error("Error uploading service image:", error);
+      res.status(500).json({ message: "Failed to upload service image" });
     }
   });
 

@@ -73,6 +73,7 @@ import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { AdminSMSSettings } from "@/components/admin-sms-settings";
 import BrandSettings from "@/components/BrandSettings";
 import MediaLibrary from "@/components/MediaLibrary";
+import ServiceCMS from "@/components/ServiceCMS";
 import { BookingDetailsDialog } from "@/components/BookingDetailsDialog";
 
 interface DashboardStats {
@@ -6404,6 +6405,27 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent className="pt-6">
               <MediaLibrary />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* CMS - Services Management */}
+        {visibleCMSSection === "services" && (
+          <Card
+            id="cms-section"
+            data-testid="cms-services-management"
+            className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white"
+          >
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50/30 border-b border-slate-200">
+              <CardTitle className="flex items-center gap-3 text-slate-900">
+                <div className="bg-purple-600 p-2 rounded-lg">
+                  <Plane className="w-5 h-5 text-white" />
+                </div>
+                <span>Services Management</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <ServiceCMS />
             </CardContent>
           </Card>
         )}

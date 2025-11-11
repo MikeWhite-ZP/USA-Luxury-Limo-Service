@@ -34,7 +34,7 @@ interface AdminNavProps {
   onInvoicesClick?: () => void;
   onVehicleTypesClick?: () => void;
   onSettingsClick?: (section: 'commission' | 'email' | 'sms') => void;
-  onCMSClick?: (section: 'pages' | 'media') => void;
+  onCMSClick?: (section: 'pages' | 'media' | 'services') => void;
   onPricingClick?: () => void;
 }
 
@@ -354,6 +354,20 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 >
                   <Image className="w-4 h-4 mr-3 text-slate-500" />
                   <span className="font-medium">Media & Images</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onCMSClick?.('services');
+                    } else {
+                      setLocation('/admin#cms-services');
+                    }
+                  }}
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-cms-services"
+                >
+                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Services</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

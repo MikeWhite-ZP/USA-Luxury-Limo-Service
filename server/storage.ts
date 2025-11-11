@@ -11,6 +11,7 @@ import {
   pricingRules,
   paymentSystems,
   passwordResetTokens,
+  services,
   type User,
   type UpsertUser,
   type Driver,
@@ -45,6 +46,8 @@ import {
   type CmsMedia,
   type InsertCmsMedia,
   cmsMedia,
+  type Service,
+  type InsertService,
   type CmsSettingCategory,
   type ContentBlockType,
   type MediaFolder,
@@ -95,6 +98,14 @@ export interface IStorage {
   deleteVehicleType(id: string): Promise<void>;
   createVehicle(vehicle: Omit<Vehicle, 'id' | 'createdAt'>): Promise<Vehicle>;
   getVehiclesByDriver(driverId: string): Promise<Vehicle[]>;
+  
+  // Service operations (CMS)
+  getActiveServices(): Promise<Service[]>;
+  getAllServices(): Promise<Service[]>;
+  getService(id: string): Promise<Service | undefined>;
+  createService(service: InsertService): Promise<Service>;
+  updateService(id: string, updates: Partial<InsertService>): Promise<Service | undefined>;
+  deleteService(id: string): Promise<void>;
   
   // Booking operations
   createBooking(booking: InsertBooking): Promise<Booking>;
@@ -567,6 +578,48 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(vehicles)
       .where(and(eq(vehicles.driverId, driverId), eq(vehicles.isActive, true)));
+  }
+
+  // Service operations (CMS)
+  async getActiveServices(): Promise<Service[]> {
+    return await db
+      .select()
+      .from(services)
+      .where(eq(services.isActive, true))
+      .orderBy(services.displayOrder);
+  }
+
+  async getAllServices(): Promise<Service[]> {
+    return await db
+      .select()
+      .from(services)
+      .orderBy(services.displayOrder);
+  }
+
+  async getService(id: string): Promise<Service | undefined> {
+    const [service] = await db.select().from(services).where(eq(services.id, id));
+    return service;
+  }
+
+  async createService(serviceData: InsertService): Promise<Service> {
+    const [service] = await db
+      .insert(services)
+      .values(serviceData)
+      .returning();
+    return service;
+  }
+
+  async updateService(id: string, updates: Partial<InsertService>): Promise<Service | undefined> {
+    const [updated] = await db
+      .update(services)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(services.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteService(id: string): Promise<void> {
+    await db.delete(services).where(eq(services.id, id));
   }
 
   async createBooking(bookingData: InsertBooking): Promise<Booking> {
