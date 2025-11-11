@@ -552,7 +552,7 @@ export const insertVehicleTypeSchema = createInsertSchema(vehicleTypes).omit({
   createdAt: true,
 }).extend({
   passengerCapacity: z.number().int().min(1).max(20),
-  hourlyRate: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
+  hourlyRate: z.string().optional().refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), {
     message: "Hourly rate must be a valid positive number",
   }),
   perMileRate: z.string().optional().refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), {
