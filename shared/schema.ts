@@ -110,7 +110,7 @@ export const vehicleTypes = pgTable("vehicle_types", {
   description: text("description"),
   passengerCapacity: integer("passenger_capacity").notNull(),
   luggageCapacity: varchar("luggage_capacity"),
-  hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }).notNull(),
+  hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }), // Made nullable - pricing moved to pricingRules
   perMileRate: decimal("per_mile_rate", { precision: 10, scale: 2 }),
   minimumFare: decimal("minimum_fare", { precision: 10, scale: 2 }),
   imageUrl: varchar("image_url"),

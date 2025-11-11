@@ -1028,9 +1028,6 @@ function VehicleTypeManagement() {
     description: "",
     passengerCapacity: 4,
     luggageCapacity: "3 Large, 2 Carry-on",
-    hourlyRate: "",
-    perMileRate: "",
-    minimumFare: "",
     imageUrl: "",
     features: [] as string[],
     isActive: true,
@@ -1153,9 +1150,6 @@ function VehicleTypeManagement() {
       description: "",
       passengerCapacity: 4,
       luggageCapacity: "3 Large, 2 Carry-on",
-      hourlyRate: "",
-      perMileRate: "",
-      minimumFare: "",
       imageUrl: "",
       features: [],
       isActive: true,
@@ -1176,9 +1170,6 @@ function VehicleTypeManagement() {
       description: vehicleType.description || "",
       passengerCapacity: vehicleType.passengerCapacity,
       luggageCapacity: vehicleType.luggageCapacity || "",
-      hourlyRate: vehicleType.hourlyRate,
-      perMileRate: vehicleType.perMileRate || "",
-      minimumFare: vehicleType.minimumFare || "",
       imageUrl: vehicleType.imageUrl || "",
       features: vehicleType.features || [],
       isActive: vehicleType.isActive,
@@ -1249,8 +1240,6 @@ function VehicleTypeManagement() {
                 <tr className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-200">
                   <th className="text-left p-4 font-semibold text-slate-700">Name</th>
                   <th className="text-left p-4 font-semibold text-slate-700">Capacity</th>
-                  <th className="text-left p-4 font-semibold text-slate-700">Hourly Rate</th>
-                  <th className="text-left p-4 font-semibold text-slate-700">Per Mile</th>
                   <th className="text-left p-4 font-semibold text-slate-700">Status</th>
                   <th className="text-center p-4 font-semibold text-slate-700">Actions</th>
                 </tr>
@@ -1277,12 +1266,6 @@ function VehicleTypeManagement() {
                         <div>{vt.passengerCapacity} passengers</div>
                         <div className="text-slate-500">{vt.luggageCapacity}</div>
                       </div>
-                    </td>
-                    <td className="p-4 font-semibold text-blue-700" data-testid={`vehicle-hourly-rate-${vt.id}`}>
-                      ${vt.hourlyRate}/hr
-                    </td>
-                    <td className="p-4 text-slate-700" data-testid={`vehicle-per-mile-${vt.id}`}>
-                      {vt.perMileRate ? `$${vt.perMileRate}` : "-"}
                     </td>
                     <td className="p-4" data-testid={`vehicle-status-${vt.id}`}>
                       <Badge className={vt.isActive ? "bg-green-100 text-green-800 border-green-200" : "bg-slate-100 text-slate-700 border-slate-200"}>
@@ -1387,48 +1370,6 @@ function VehicleTypeManagement() {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="hourlyRate">Hourly Rate * ($)</Label>
-                <Input
-                  id="hourlyRate"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.hourlyRate}
-                  onChange={(e) => setFormData({ ...formData, hourlyRate: e.target.value })}
-                  placeholder="75.00"
-                  data-testid="input-hourly-rate"
-                />
-              </div>
-              <div>
-                <Label htmlFor="perMileRate">Per Mile Rate ($)</Label>
-                <Input
-                  id="perMileRate"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.perMileRate}
-                  onChange={(e) => setFormData({ ...formData, perMileRate: e.target.value })}
-                  placeholder="3.50"
-                  data-testid="input-per-mile-rate"
-                />
-              </div>
-              <div>
-                <Label htmlFor="minimumFare">Minimum Fare ($)</Label>
-                <Input
-                  id="minimumFare"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.minimumFare}
-                  onChange={(e) => setFormData({ ...formData, minimumFare: e.target.value })}
-                  placeholder="50.00"
-                  data-testid="input-minimum-fare"
-                />
-              </div>
-            </div>
-
             <div>
               <Label htmlFor="imageUrl">Image URL</Label>
               <Input
@@ -1468,7 +1409,6 @@ function VehicleTypeManagement() {
               onClick={handleSubmit}
               disabled={
                 !formData.name ||
-                !formData.hourlyRate ||
                 createVehicleTypeMutation.isPending ||
                 updateVehicleTypeMutation.isPending
               }
