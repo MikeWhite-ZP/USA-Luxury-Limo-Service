@@ -3,6 +3,12 @@
 ## Overview
 USA Luxury Limo is a full-stack Progressive Web Application (PWA) with native mobile app capabilities, designed as a comprehensive luxury transportation booking platform. It aims to streamline the booking process by offering real-time pricing, fleet management, and multi-role user authentication for passengers, drivers, and dispatchers. Key capabilities include flight search integration, advanced payment options, and driver document management, providing an efficient solution for luxury transportation services. The application can be deployed as a web app, PWA, or native iOS/Android apps using Ionic Capacitor. The project's ambition is to be a leading solution in the luxury transportation market, offering an intuitive and efficient booking experience across all platforms.
 
+## Recent Changes
+
+### November 11, 2025
+- **Admin Navigation Reorganization**: Consolidated Pricing, API Credentials, Payment Systems, and Vehicle Types menu items into the Settings dropdown menu for better organization and cleaner navigation. All functionality preserved.
+- **Vehicle Type Pricing Fields**: Removed pricing input fields (hourlyRate, perMileRate, minimumFare) from Vehicle Type Management UI. Backend schema updated to make pricing fields optional. Pricing is now managed separately through the pricing rules system.
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
