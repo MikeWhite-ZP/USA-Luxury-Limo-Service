@@ -86,38 +86,78 @@ export default function BrandSettings() {
     saveSetting.mutate({ key, value, category, description });
   };
 
-  // Handle logo upload
+  // Handle logo/favicon upload to MinIO
+  // Uses /api/admin/cms/media/upload which uploads directly to MinIO at /cms/logos/
+  // and stores metadata in cms_media table for tracking and reusability
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>, logoType: 'logo' | 'favicon') => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    // Validate file size (2MB limit)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: 'Error',
+        description: 'File size must be less than 2MB',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Error',
+        description: 'Please upload an image file',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     // Capture the input element reference before async operations
     const inputElement = event.currentTarget;
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('folder', 'logos');
+    formData.append('folder', 'logos'); // Uploads to /cms/logos/ in MinIO
     formData.append('altText', `${logoType === 'logo' ? 'Company Logo' : 'Favicon'}`);
 
+    // Show uploading toast
+    const uploadingToast = toast({
+      title: 'Uploading...',
+      description: `Uploading ${logoType} to MinIO storage`,
+    });
+
     try {
+      // Upload to MinIO via CMS media endpoint
       const response = await fetch('/api/admin/cms/media/upload', {
         method: 'POST',
         body: formData,
         credentials: 'include',
       });
 
-      if (!response.ok) throw new Error('Upload failed');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Upload failed');
+      }
 
       const media = await response.json();
       const key = logoType === 'logo' ? 'BRAND_LOGO_URL' : 'BRAND_FAVICON_URL';
+      
+      // Save MinIO URL to settings
       handleSettingChange(key, media.fileUrl, 'branding', `${logoType === 'logo' ? 'Main company logo' : 'Browser favicon'}`);
       
       // Reset input to allow re-uploading the same file
       if (inputElement) inputElement.value = '';
+      
+      toast({
+        title: 'Success',
+        description: `${logoType === 'logo' ? 'Logo' : 'Favicon'} uploaded successfully to MinIO`,
+      });
     } catch (error) {
+      console.error('Logo upload error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to upload logo',
+        description: error instanceof Error ? error.message : 'Failed to upload logo',
         variant: 'destructive',
       });
     }
@@ -300,7 +340,7 @@ export default function BrandSettings() {
                   className="hidden"
                   data-testid="input-logo-upload"
                 />
-                <p className="text-xs text-muted-foreground">Recommended: PNG or SVG, transparent background, max 2MB</p>
+                <p className="text-xs text-muted-foreground">Recommended: PNG or SVG, transparent background, max 2MB. Stored in MinIO object storage.</p>
               </div>
 
               {/* Favicon Upload */}
@@ -362,7 +402,7 @@ export default function BrandSettings() {
                   className="hidden"
                   data-testid="input-favicon-upload"
                 />
-                <p className="text-xs text-muted-foreground">Recommended: 32x32 or 64x64 PNG/ICO, square format</p>
+                <p className="text-xs text-muted-foreground">Recommended: 32x32 or 64x64 PNG/ICO, square format, max 2MB. Stored in MinIO object storage.</p>
               </div>
             </CardContent>
           </Card>
