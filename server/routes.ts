@@ -4397,7 +4397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Known environment variables to check
-      const envKeys = ['STRIPE_SECRET_KEY', 'STRIPE_PUBLIC_KEY', 'TOMTOM_API_KEY', 'RAPIDAPI_KEY'];
+      const envKeys = ['STRIPE_SECRET_KEY', 'STRIPE_PUBLIC_KEY', 'TOMTOM_API_KEY', 'RAPIDAPI_KEY', 'DATABASE_URL'];
       
       // Build credentials list with metadata
       const credentials: Array<{
@@ -4544,6 +4544,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Delete setting error:', error);
       res.status(500).json({ message: 'Failed to delete setting' });
+    }
+  });
+
+  // DATABASE_URL Management (Encrypted)
+  app.get('/api/admin/database-url', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const setting = await storage.getSystemSetting('DATABASE_URL');
+      const currentUrl = process.env.DATABASE_URL || '';
+      
+      res.json({
+        hasValue: !!(setting?.value || currentUrl),
+        fromDatabase: !!setting?.value,
+        fromEnv: !setting?.value && !!currentUrl,
+        updatedAt: setting?.updatedAt,
+        updatedBy: setting?.updatedBy,
+      });
+    } catch (error) {
+      console.error('Get DATABASE_URL error:', error);
+      res.status(500).json({ message: 'Failed to fetch DATABASE_URL setting' });
+    }
+  });
+
+  app.post('/api/admin/database-url', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { databaseUrl } = req.body;
+      
+      if (!databaseUrl || typeof databaseUrl !== 'string') {
+        return res.status(400).json({ message: 'Database URL is required' });
+      }
+
+      // Basic validation for PostgreSQL URL format
+      if (!databaseUrl.startsWith('postgres://') && !databaseUrl.startsWith('postgresql://')) {
+        return res.status(400).json({ message: 'Invalid PostgreSQL connection string format' });
+      }
+
+      // Store encrypted
+      await storage.updateEncryptedSetting(
+        'DATABASE_URL', 
+        databaseUrl, 
+        userId,
+        'PostgreSQL database connection URL (requires app restart to take effect)'
+      );
+
+      res.json({ 
+        success: true,
+        message: 'DATABASE_URL updated successfully. Restart the application for changes to take effect.' 
+      });
+    } catch (error) {
+      console.error('Update DATABASE_URL error:', error);
+      res.status(500).json({ message: 'Failed to update DATABASE_URL' });
+    }
+  });
+
+  app.delete('/api/admin/database-url', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      await storage.deleteSystemSetting('DATABASE_URL');
+      res.json({ 
+        success: true,
+        message: 'DATABASE_URL setting removed. Application will use environment variable on next restart.' 
+      });
+    } catch (error) {
+      console.error('Delete DATABASE_URL error:', error);
+      res.status(500).json({ message: 'Failed to delete DATABASE_URL setting' });
     }
   });
 

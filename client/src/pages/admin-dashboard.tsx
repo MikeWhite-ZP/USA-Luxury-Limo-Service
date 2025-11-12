@@ -71,6 +71,7 @@ import {
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { AdminSMSSettings } from "@/components/admin-sms-settings";
+import { DatabaseURLSettings } from "@/components/DatabaseURLSettings";
 import BrandSettings from "@/components/BrandSettings";
 import MediaLibrary from "@/components/MediaLibrary";
 import { ServiceCMS } from "@/components/ServiceCMS";
@@ -6366,6 +6367,9 @@ export default function AdminDashboard() {
 
         {/* SMS Settings */}
         {visibleSettingsSection === "sms" && <AdminSMSSettings />}
+
+        {/* Database URL Settings */}
+        {visibleSettingsSection === "database" && <DatabaseURLSettings />}
 
         {/* CMS - Pages Management */}
         {visibleCMSSection === "pages" && (

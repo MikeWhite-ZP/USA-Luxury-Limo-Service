@@ -23,6 +23,7 @@ import {
   Image,
   Receipt,
   LayoutDashboard,
+  Database,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
@@ -33,7 +34,7 @@ interface AdminNavProps {
   onBookingsClick?: () => void;
   onInvoicesClick?: () => void;
   onVehicleTypesClick?: () => void;
-  onSettingsClick?: (section: 'commission' | 'email' | 'sms') => void;
+  onSettingsClick?: (section: 'commission' | 'email' | 'sms' | 'database') => void;
   onCMSClick?: (section: 'pages' | 'media' | 'services') => void;
   onPricingClick?: () => void;
 }
@@ -309,6 +310,21 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 >
                   <MessageSquare className="w-4 h-4 mr-3 text-slate-500" />
                   <span className="font-medium">SMS Notifications</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onSettingsClick?.('database');
+                    } else {
+                      setLocation('/admin#settings-database');
+                    }
+                  }}
+                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-database-settings"
+                >
+                  <Database className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Database URL</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

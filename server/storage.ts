@@ -66,6 +66,7 @@ import {
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
 import bcrypt from "bcrypt";
+import { encrypt, decrypt } from './crypto';
 
 export interface IStorage {
   // User operations
@@ -127,8 +128,10 @@ export interface IStorage {
   
   // System settings
   getSystemSetting(key: string): Promise<SystemSetting | undefined>;
+  getSystemSettingValue(key: string): Promise<string | null>;
   getAllSystemSettings(): Promise<SystemSetting[]>;
   updateSystemSetting(key: string, value: string, userId: string): Promise<void>;
+  updateEncryptedSetting(key: string, value: string, userId: string, description?: string): Promise<void>;
   deleteSystemSetting(key: string): Promise<void>;
   getSetting(key: string): Promise<SystemSetting | undefined>;
   setSetting(key: string, value: string, userId: string): Promise<void>;
@@ -810,21 +813,80 @@ export class DatabaseStorage implements IStorage {
 
   async getSystemSetting(key: string): Promise<SystemSetting | undefined> {
     const [setting] = await db.select().from(systemSettings).where(eq(systemSettings.key, key));
+    
+    // Decrypt if encrypted
+    if (setting && setting.isEncrypted && setting.value) {
+      try {
+        const decryptedValue = decrypt(setting.value);
+        return { ...setting, value: decryptedValue };
+      } catch (error) {
+        console.error(`Failed to decrypt setting ${key}:`, error);
+        throw error;
+      }
+    }
+    
     return setting;
   }
 
+  async getSystemSettingValue(key: string): Promise<string | null> {
+    const setting = await this.getSystemSetting(key);
+    return setting?.value || null;
+  }
+
   async getAllSystemSettings(): Promise<SystemSetting[]> {
-    return await db.select().from(systemSettings);
+    const settings = await db.select().from(systemSettings);
+    
+    // Decrypt encrypted settings
+    return settings.map(setting => {
+      if (setting.isEncrypted && setting.value) {
+        try {
+          const decryptedValue = decrypt(setting.value);
+          return { ...setting, value: decryptedValue };
+        } catch (error) {
+          console.error(`Failed to decrypt setting ${setting.key}:`, error);
+          return setting; // Return as-is if decryption fails
+        }
+      }
+      return setting;
+    });
   }
 
   async updateSystemSetting(key: string, value: string, userId: string): Promise<void> {
     await db
       .insert(systemSettings)
-      .values({ key, value, updatedBy: userId })
+      .values({ key, value, updatedBy: userId, isEncrypted: false })
       .onConflictDoUpdate({
         target: systemSettings.key,
-        set: { value, updatedBy: userId, updatedAt: new Date() },
+        set: { value, updatedBy: userId, updatedAt: new Date(), isEncrypted: false },
       });
+  }
+
+  async updateEncryptedSetting(key: string, value: string, userId: string, description?: string): Promise<void> {
+    try {
+      const encryptedValue = encrypt(value);
+      await db
+        .insert(systemSettings)
+        .values({ 
+          key, 
+          value: encryptedValue, 
+          updatedBy: userId, 
+          isEncrypted: true,
+          description: description || null
+        })
+        .onConflictDoUpdate({
+          target: systemSettings.key,
+          set: { 
+            value: encryptedValue, 
+            updatedBy: userId, 
+            updatedAt: new Date(), 
+            isEncrypted: true,
+            ...(description && { description })
+          },
+        });
+    } catch (error) {
+      console.error(`Failed to encrypt and save setting ${key}:`, error);
+      throw error;
+    }
   }
 
   async deleteSystemSetting(key: string): Promise<void> {
