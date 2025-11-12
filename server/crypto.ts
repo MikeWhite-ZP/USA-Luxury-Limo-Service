@@ -86,6 +86,22 @@ export function decrypt(encryptedData: string): string {
 }
 
 /**
+ * Check if encryption key is configured
+ * Returns true if SETTINGS_ENCRYPTION_KEY is set and valid
+ */
+export function hasEncryptionKey(): boolean {
+  try {
+    const keyEnv = process.env.SETTINGS_ENCRYPTION_KEY;
+    if (!keyEnv) return false;
+    
+    const keyBuffer = Buffer.from(keyEnv, 'hex');
+    return keyBuffer.length === KEY_LENGTH;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Mask a sensitive value for display purposes
  * Shows only first and last few characters
  */

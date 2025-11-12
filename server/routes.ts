@@ -7,6 +7,7 @@ import { z } from "zod";
 import Stripe from "stripe";
 import multer from "multer";
 import crypto from "crypto";
+import { hasEncryptionKey } from "./crypto";
 import { getStorageAdapter, type StorageAdapter, type StorageCredentials } from "./objectStorageAdapter";
 import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML, getPaymentConfirmationEmailHTML, getDriverOnTheWayEmailHTML, getDriverArrivedEmailHTML, getBookingCancelledEmailHTML } from "./email";
 import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS, sendDriverOnTheWaySMS, sendDriverArrivedSMS, sendBookingCancelledSMS, sendAdminNewBookingAlertSMS } from "./sms";
@@ -4552,11 +4553,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const setting = await storage.getSystemSetting('DATABASE_URL');
       const currentUrl = process.env.DATABASE_URL || '';
+      const encryptionKeyConfigured = hasEncryptionKey();
       
       res.json({
         hasValue: !!(setting?.value || currentUrl),
         fromDatabase: !!setting?.value,
         fromEnv: !setting?.value && !!currentUrl,
+        hasEncryptionKey: encryptionKeyConfigured,
         updatedAt: setting?.updatedAt,
         updatedBy: setting?.updatedBy,
       });
@@ -4568,6 +4571,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/database-url', isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
+      // Check if encryption key is configured
+      if (!hasEncryptionKey()) {
+        return res.status(400).json({ 
+          message: 'SETTINGS_ENCRYPTION_KEY environment variable is not configured. Please add it to your Replit Secrets or environment variables before using this feature.' 
+        });
+      }
+
       const userId = req.user.id;
       const { databaseUrl } = req.body;
       
@@ -4600,6 +4610,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/admin/database-url', isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
+      // Check if encryption key is configured
+      if (!hasEncryptionKey()) {
+        return res.status(400).json({ 
+          message: 'SETTINGS_ENCRYPTION_KEY environment variable is not configured. Please add it to your Replit Secrets or environment variables before using this feature.' 
+        });
+      }
+
       await storage.deleteSystemSetting('DATABASE_URL');
       res.json({ 
         success: true,

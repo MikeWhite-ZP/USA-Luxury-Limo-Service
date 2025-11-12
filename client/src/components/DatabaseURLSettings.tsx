@@ -13,6 +13,7 @@ interface DatabaseURLInfo {
   hasValue: boolean;
   fromDatabase: boolean;
   fromEnv: boolean;
+  hasEncryptionKey: boolean;
   updatedAt?: string;
   updatedBy?: string;
 }
@@ -114,14 +115,40 @@ export function DatabaseURLSettings() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Encryption Key Setup Alert */}
+        {!dbInfo?.hasEncryptionKey && (
+          <Alert className="border-red-500 bg-red-50 dark:bg-red-950">
+            <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+            <AlertDescription className="text-red-800 dark:text-red-200 space-y-2">
+              <div>
+                <strong>Setup Required:</strong> The encryption key is not configured. Follow these steps to enable DATABASE_URL management:
+              </div>
+              <ol className="list-decimal list-inside space-y-1 ml-2 text-sm">
+                <li>Click on <strong>"Tools"</strong> in the left sidebar</li>
+                <li>Select <strong>"Secrets"</strong></li>
+                <li>Click <strong>"+ New Secret"</strong></li>
+                <li>Add a secret with:
+                  <ul className="list-disc list-inside ml-4 mt-1">
+                    <li><strong>Key:</strong> <code className="bg-red-100 dark:bg-red-900 px-1 rounded">SETTINGS_ENCRYPTION_KEY</code></li>
+                    <li><strong>Value:</strong> Generate a 32-byte key using: <code className="bg-red-100 dark:bg-red-900 px-1 rounded">node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"</code></li>
+                  </ul>
+                </li>
+                <li>Click <strong>"Add secret"</strong> and restart the application</li>
+              </ol>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Warning Alert */}
-        <Alert className="border-orange-500 bg-orange-50 dark:bg-orange-950">
-          <AlertTriangle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-          <AlertDescription className="text-orange-800 dark:text-orange-200">
-            <strong>Important:</strong> Changes to DATABASE_URL require an application restart to take effect. 
-            The connection string is encrypted and stored securely.
-          </AlertDescription>
-        </Alert>
+        {dbInfo?.hasEncryptionKey && (
+          <Alert className="border-orange-500 bg-orange-50 dark:bg-orange-950">
+            <AlertTriangle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+            <AlertDescription className="text-orange-800 dark:text-orange-200">
+              <strong>Important:</strong> Changes to DATABASE_URL require an application restart to take effect. 
+              The connection string is encrypted and stored securely.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Current Status */}
         <div className="space-y-2">
@@ -187,7 +214,7 @@ export function DatabaseURLSettings() {
           <div className="flex gap-2">
             <Button
               type="submit"
-              disabled={updateMutation.isPending || !databaseUrl.trim()}
+              disabled={!dbInfo?.hasEncryptionKey || updateMutation.isPending || !databaseUrl.trim()}
               data-testid="button-save-database-url"
             >
               <Save className="w-4 h-4 mr-2" />
@@ -199,7 +226,7 @@ export function DatabaseURLSettings() {
                 type="button"
                 variant="destructive"
                 onClick={handleDelete}
-                disabled={deleteMutation.isPending}
+                disabled={!dbInfo?.hasEncryptionKey || deleteMutation.isPending}
                 data-testid="button-delete-database-url"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
