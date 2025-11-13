@@ -120,7 +120,52 @@ psql $DATABASE_URL -f database/verify.sql
 | `invoices` | Booking invoices |
 | `payment_tokens` | Secure payment links |
 | `contact_submissions` | Contact form submissions |
-| `cms_content` | Content management data |
+| `cms_settings` | CMS brand settings |
+| `cms_content` | CMS content blocks |
+| `cms_media` | CMS media library |
+| `services` | CMS-managed service cards (homepage) |
+| `password_reset_tokens` | Password reset functionality |
+| `driver_messages` | Driver communication/messaging system |
+| `emergency_incidents` | Emergency incident tracking |
+
+## Schema Versions
+
+| Version | Date | Description |
+|---------|------|-------------|
+| 1.0.0 | Initial | Complete USA Luxury Limo database |
+| 1.1.0 | Updated | Added CMS tables (settings, content, media) with favicon support |
+| 1.2.0 | Latest | Added services, password_reset_tokens, driver_messages, emergency_incidents |
+
+## Maintaining SQL Files
+
+### Source of Truth
+
+`shared/schema.ts` (Drizzle ORM schema) is the single source of truth. These SQL files are derived snapshots for manual deployment.
+
+### Keeping Files in Sync
+
+When schema.ts changes, update SQL files using one of these methods:
+
+**Method 1: Automated (Recommended when Docker available)**
+```bash
+./scripts/refresh-sql-files.sh
+```
+
+This script:
+- Spins up temporary Postgres container
+- Applies current Drizzle schema using `drizzle-kit push`
+- Dumps fresh `schema.sql` and `test-data.sql`
+- Cleans up automatically
+
+**Method 2: Manual Update**
+1. Review changes in `shared/schema.ts`
+2. Translate Drizzle definitions to PostgreSQL DDL
+3. Add to `database/schema.sql`
+4. Add corresponding test data to `database/test-data.sql`
+5. Update schema version
+
+**For Development**
+Use `npm run db:push` which syncs directly from schema.ts - no SQL files needed.
 
 ## Environment-Specific Instructions
 

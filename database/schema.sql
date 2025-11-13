@@ -429,6 +429,86 @@ CREATE TABLE IF NOT EXISTS cms_media (
 );
 
 -- ==============================================================================
+-- SERVICES (CMS-managed service cards for homepage)
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS services (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug VARCHAR NOT NULL UNIQUE,
+  title VARCHAR NOT NULL,
+  subtitle VARCHAR,
+  description TEXT NOT NULL,
+  icon VARCHAR NOT NULL CHECK (icon IN ('Plane', 'Briefcase', 'Heart', 'Clock', 'Car', 'Users', 'Star', 'Shield', 'Calendar', 'MapPin')),
+  features TEXT[] DEFAULT '{}' NOT NULL,
+  image_url VARCHAR,
+  image_alt VARCHAR,
+  cta_label VARCHAR,
+  cta_url VARCHAR,
+  display_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS services_slug_idx ON services (slug);
+
+-- ==============================================================================
+-- PASSWORD RESET TOKENS
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id VARCHAR NOT NULL REFERENCES users(id),
+  token VARCHAR NOT NULL UNIQUE,
+  expires_at TIMESTAMP NOT NULL,
+  used BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- ==============================================================================
+-- DRIVER MESSAGES (Driver communications/messaging system)
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS driver_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  sender_id VARCHAR NOT NULL REFERENCES users(id),
+  driver_id VARCHAR REFERENCES users(id),
+  message_type VARCHAR DEFAULT 'individual' NOT NULL CHECK (message_type IN ('individual', 'broadcast', 'alert')),
+  subject VARCHAR,
+  message TEXT NOT NULL,
+  priority VARCHAR DEFAULT 'normal' CHECK (priority IN ('normal', 'high', 'urgent')),
+  delivery_method VARCHAR DEFAULT 'both' NOT NULL CHECK (delivery_method IN ('sms', 'email', 'both')),
+  status VARCHAR DEFAULT 'pending' CHECK (status IN ('pending', 'sent', 'delivered', 'failed')),
+  sent_at TIMESTAMP,
+  delivered_at TIMESTAMP,
+  error_message TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- ==============================================================================
+-- EMERGENCY INCIDENTS
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS emergency_incidents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  reporter_id VARCHAR NOT NULL REFERENCES users(id),
+  incident_type VARCHAR NOT NULL CHECK (incident_type IN ('accident', 'breakdown', 'medical', 'safety', 'other')),
+  severity VARCHAR DEFAULT 'medium' NOT NULL CHECK (severity IN ('low', 'medium', 'high', 'critical')),
+  booking_id UUID REFERENCES bookings(id),
+  driver_id VARCHAR REFERENCES users(id),
+  location VARCHAR,
+  location_coordinates VARCHAR,
+  description TEXT NOT NULL,
+  status VARCHAR DEFAULT 'open' NOT NULL CHECK (status IN ('open', 'in_progress', 'resolved', 'closed')),
+  assigned_to VARCHAR REFERENCES users(id),
+  resolution_notes TEXT,
+  emergency_services_contacted BOOLEAN DEFAULT false,
+  resolved_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- ==============================================================================
 -- SCHEMA VERSION TRACKING
 -- ==============================================================================
 
@@ -442,5 +522,6 @@ CREATE TABLE IF NOT EXISTS schema_version (
 INSERT INTO schema_version (version, description) 
 VALUES 
   ('1.0.0', 'Initial schema - USA Luxury Limo complete database'),
-  ('1.1.0', 'Added CMS tables: cms_settings, cms_content (updated), cms_media with favicon support')
+  ('1.1.0', 'Added CMS tables: cms_settings, cms_content (updated), cms_media with favicon support'),
+  ('1.2.0', 'Added services, password_reset_tokens, driver_messages, emergency_incidents tables')
 ON CONFLICT DO NOTHING;

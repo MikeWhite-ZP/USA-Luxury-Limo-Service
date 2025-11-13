@@ -247,6 +247,48 @@ VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- ==============================================================================
+-- SERVICES (CMS-managed service cards)
+-- ==============================================================================
+
+INSERT INTO services (id, slug, title, subtitle, description, icon, features, image_url, image_alt, display_order, is_active, created_at)
+VALUES 
+  (gen_random_uuid(), 'airport-transfers', 'Airport Transfers', 'Professional pickup and drop-off service', 'Reliable and luxurious airport transportation with professional meet and greet service. Track your flight for timely pickups.', 'Plane', ARRAY['Flight tracking', 'Meet & greet', 'Luggage assistance', '24/7 availability'], NULL, 'Airport Transfer Service', 1, true, NOW()),
+  (gen_random_uuid(), 'corporate-travel', 'Corporate Travel', 'Business transportation solutions', 'Professional transportation for business executives and corporate events. Impress your clients with our first-class service.', 'Briefcase', ARRAY['Professional drivers', 'WiFi enabled', 'Punctual service', 'Invoice billing'], NULL, 'Corporate Travel Service', 2, true, NOW()),
+  (gen_random_uuid(), 'special-events', 'Special Events', 'Weddings, proms, and celebrations', 'Make your special day memorable with our luxury transportation services for weddings, proms, and special occasions.', 'Heart', ARRAY['Red carpet service', 'Champagne included', 'Decorated vehicles', 'Photo opportunities'], NULL, 'Special Events Service', 3, true, NOW()),
+  (gen_random_uuid(), 'hourly-charter', 'Hourly Charter', 'Flexible hourly rentals', 'Book our vehicles by the hour for meetings, city tours, or multiple stops. Flexible and convenient for your schedule.', 'Clock', ARRAY['Flexible scheduling', 'Multiple stops', 'No mileage limits', 'Wait time included'], NULL, 'Hourly Charter Service', 4, true, NOW())
+ON CONFLICT (slug) DO NOTHING;
+
+-- ==============================================================================
+-- PASSWORD RESET TOKENS
+-- ==============================================================================
+
+-- Note: Password reset tokens are temporary and should not have test data
+-- They are created dynamically when users request password resets
+
+-- ==============================================================================
+-- DRIVER MESSAGES (Sample communications)
+-- ==============================================================================
+
+INSERT INTO driver_messages (id, sender_id, driver_id, message_type, subject, message, priority, delivery_method, status, created_at)
+VALUES 
+  (gen_random_uuid(), 'admin-001', 'driver-user-001', 'individual', 'Schedule Update', 'Please check your schedule for tomorrow. You have 3 bookings assigned.', 'normal', 'both', 'delivered', NOW() - INTERVAL '2 days'),
+  (gen_random_uuid(), 'dispatcher-001', NULL, 'broadcast', 'System Maintenance', 'The booking system will be under maintenance tonight from 2 AM to 4 AM. Please complete all active rides before this time.', 'high', 'sms', 'sent', NOW() - INTERVAL '1 day'),
+  (gen_random_uuid(), 'admin-001', 'driver-user-002', 'individual', 'Document Reminder', 'Your insurance certificate expires in 30 days. Please upload a renewed certificate.', 'normal', 'email', 'delivered', NOW() - INTERVAL '5 hours')
+ON CONFLICT (id) DO NOTHING;
+
+-- ==============================================================================
+-- EMERGENCY INCIDENTS
+-- ==============================================================================
+
+-- Note: Emergency incidents are serious events and should be minimal in test data
+-- Adding one resolved incident for demonstration purposes only
+
+INSERT INTO emergency_incidents (id, reporter_id, incident_type, severity, booking_id, driver_id, location, description, status, resolution_notes, emergency_services_contacted, resolved_at, created_at)
+VALUES 
+  (gen_random_uuid(), 'driver-user-001', 'breakdown', 'medium', 'booking-003', 'driver-user-001', 'Highway 101, Exit 25', 'Vehicle experienced a flat tire. Passenger was transferred to another vehicle. No injuries.', 'resolved', 'Tire replaced. Vehicle inspected and returned to service. Passenger reached destination safely with minimal delay.', false, NOW() - INTERVAL '7 days', NOW() - INTERVAL '8 days')
+ON CONFLICT (id) DO NOTHING;
+
+-- ==============================================================================
 -- Summary
 -- ==============================================================================
 
@@ -260,4 +302,7 @@ SELECT
   (SELECT COUNT(*) FROM pricing_rules) as total_pricing_rules,
   (SELECT COUNT(*) FROM cms_settings) as total_cms_settings,
   (SELECT COUNT(*) FROM cms_content) as total_cms_content,
-  (SELECT COUNT(*) FROM cms_media) as total_cms_media;
+  (SELECT COUNT(*) FROM cms_media) as total_cms_media,
+  (SELECT COUNT(*) FROM services) as total_services,
+  (SELECT COUNT(*) FROM driver_messages) as total_driver_messages,
+  (SELECT COUNT(*) FROM emergency_incidents) as total_emergency_incidents;
