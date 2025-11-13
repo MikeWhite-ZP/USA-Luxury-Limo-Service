@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -7,6 +7,41 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import DeviceRedirect from "@/components/DeviceRedirect";
+
+// Utility to check if accessing via admin subdomain
+function isAdminSubdomain(): boolean {
+  const hostname = window.location.hostname.toLowerCase();
+  
+  // Check if hostname starts with "adminaccess."
+  if (hostname.startsWith('adminaccess.')) {
+    return true;
+  }
+  
+  // Check against configured admin hosts (if provided via env var)
+  const adminHosts = import.meta.env.VITE_ADMIN_PANEL_HOSTS?.split(',').map((h: string) => h.trim().toLowerCase()) || [];
+  return adminHosts.some((host: string) => hostname === host);
+}
+
+// Component to handle admin subdomain routing
+function AdminSubdomainRedirect() {
+  const [location, setLocation] = useLocation();
+  const isAdminHost = isAdminSubdomain();
+  
+  useEffect(() => {
+    // If on admin subdomain and at root, redirect to admin login
+    if (isAdminHost && location === '/') {
+      setLocation('/admin-login');
+    }
+    
+    // If NOT on admin subdomain but trying to access admin login, block it (production only)
+    if (!isAdminHost && !import.meta.env.DEV && (location === '/admin-login' || location === '/admin/login')) {
+      console.warn('Admin login is only accessible via admin subdomain');
+      setLocation('/login');
+    }
+  }, [location, setLocation, isAdminHost]);
+  
+  return null;
+}
 
 const Landing = lazy(() => import("@/pages/landing"));
 const Home = lazy(() => import("@/pages/home"));
@@ -94,6 +129,7 @@ function Router() {
 
   return (
     <Suspense fallback={<LoadingFallback />}>
+      <AdminSubdomainRedirect />
       <Switch>
       {/* Mobile PWA Routes */}
       <Route path="/mobile" component={MobileSplash} />
