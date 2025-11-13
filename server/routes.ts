@@ -118,6 +118,33 @@ const upload = multer({
   }
 });
 
+// Admin hostname validation middleware
+// Restricts admin panel access to specific subdomains for security
+const requireAdminHostname = (req: any, res: any, next: any) => {
+  // Get allowed admin hosts from environment variable
+  // Format: comma-separated list, e.g., "adminaccess.usaluxurylimo.net,admin.mydomain.com"
+  const allowedHosts = process.env.ADMIN_PANEL_HOSTS?.split(',').map(h => h.trim().toLowerCase()) || [];
+  
+  // In development or if not configured, allow all hosts
+  if (allowedHosts.length === 0 || process.env.NODE_ENV === 'development') {
+    return next();
+  }
+
+  // Get the current hostname from the request
+  const currentHost = req.hostname?.toLowerCase() || req.get('host')?.split(':')[0]?.toLowerCase();
+  
+  // Check if accessing via admin subdomain
+  const isAdminSubdomain = currentHost?.startsWith('adminaccess.') || allowedHosts.some(host => currentHost === host);
+  
+  if (!isAdminSubdomain) {
+    return res.status(403).json({ 
+      message: 'Access denied. Admin panel is only accessible via the designated subdomain.' 
+    });
+  }
+  
+  next();
+};
+
 // Admin-only middleware to avoid repeated user lookups
 const requireAdmin = async (req: any, res: any, next: any) => {
   try {
@@ -240,6 +267,10 @@ async function calculateRoute(fromCoords: {lat: number, lon: number}, toCoords: 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+
+  // Admin hostname validation - restrict admin panel to specific subdomains
+  // This applies to ALL /api/admin/* routes for security
+  app.use('/api/admin', requireAdminHostname);
 
   // Health check endpoint for Coolify/Docker
   app.get('/api/health', (req, res) => {
