@@ -482,37 +482,6 @@ export function RoleLogin() {
               </div>
               </>
             )}
-
-            {/* Admin Access Section */}
-            <div className="mt-20 text-center">
-              <div className="relative inline-block">
-                <div className="absolute -inset-1 bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300 rounded-2xl opacity-50 blur-lg" />
-                <Link 
-                  to="/admin-login"
-                  className="relative flex items-center gap-4 px-8 py-5 bg-white border border-gray-300 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer group"
-                  data-testid="link-admin-dashboard"
-                >
-                  {siteLogoData?.logo?.url ? (
-                    <img 
-                      src={siteLogoData.logo.url} 
-                      alt={siteLogoData.logo.alt || "USA Luxury Limo"} 
-                      className="h-14 w-auto object-contain group-hover:scale-110 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-white border border-gray-200 group-hover:scale-110 transition-transform duration-300">
-                      <Shield className="w-7 h-7 text-gray-600" />
-                    </div>
-                  )}
-                  <div className="text-left">
-                    <div className="text-base font-bold text-gray-900 mb-0.5 flex items-center gap-2">
-                      Admin Access
-                      <Shield className="w-4 h-4 text-gray-600" />
-                    </div>
-                    <div className="text-sm text-gray-600">Dashboard Login</div>
-                  </div>
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
       </main>
