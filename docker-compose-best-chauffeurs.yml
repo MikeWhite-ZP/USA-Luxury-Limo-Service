@@ -6,12 +6,12 @@ services:
       context: .
       dockerfile: Dockerfile
     labels:
-  caddy: best-chauffeurs.com
-  caddy.reverse_proxy: "{{upstreams 5000}}"
-  caddy_0: https://www.best-chauffeurs.com
-  caddy_0.reverse_proxy: "{{upstreams 5000}}"
-  caddy_1: https://adminaccess.best-chauffeurs.com
-  caddy_1.reverse_proxy: "{{upstreams 5000}}"
+      - caddy: best-chauffeurs.com
+      - caddy.reverse_proxy: "{{upstreams 5000}}"
+      - caddy_0: https://www.best-chauffeurs.com
+      - caddy_0.reverse_proxy: "{{upstreams 5000}}"
+      - caddy_1: https://adminaccess.best-chauffeurs.com
+      - caddy_1.reverse_proxy: "{{upstreams 5000}}"
     environment:
       - CADDY_ADMINACCESS_PORT=5000
       - NODE_ENV=production
