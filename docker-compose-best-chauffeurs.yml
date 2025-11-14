@@ -11,10 +11,8 @@ services:
       - "caddy_0=www.best-chauffeurs.com"
       - "caddy_0.reverse_proxy={{upstreams 5000}}"
       - "caddy_1=adminaccess.best-chauffeurs.com"
-      - "caddy_1.reverse_proxy={{upstreams 5000}}"{upstreams 5000}}"
+      - "caddy_1.reverse_proxy={{upstreams 5000}}"
       - "caddy.header=-Server"
-    ports:
-      - "5010:5000"  # Farklı bir dış port kullanın (5010), içeride 5000 kalacak
     environment:
       - NODE_ENV=production
       - PORT=5000
@@ -26,10 +24,10 @@ services:
       # Session
       - SESSION_SECRET=${SESSION_SECRET}
       # MinIO Object Storage - Mevcut MinIO'yu kullan
-      - MINIO_ENDPOINT=http://usa-limo-minio:9000
+      - MINIO_ENDPOINT=http://minio-hssg4oosoo0ww4kc8oowg0s8:9000
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-      - MINIO_BUCKET=${MINIO_BUCKET:-usa-luxury-limo-net}
+      - MINIO_BUCKET=${MINIO_BUCKET:-best-chauffeurs}
       # Email
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_PORT=${SMTP_PORT}
@@ -49,7 +47,8 @@ services:
       - SETTINGS_ENCRYPTION_KEY=${SETTINGS_ENCRYPTION_KEY}
     restart: unless-stopped
     networks:
-      - coolify  # Coolify'ın default network'ünü kullan
+      - coolify
+
 networks:
   coolify:
-    external: true  # Coolify'ın mevcut network'ünü kullan
+    external: true
