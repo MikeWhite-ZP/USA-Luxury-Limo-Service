@@ -1,33 +1,33 @@
 version: '3.9'
+
 services:
-  # Main Application
   app:
     build:
       context: .
       dockerfile: Dockerfile
     labels:
-      - caddy: best-chauffeurs.com
-      - caddy.reverse_proxy: "{{upstreams 5000}}"
-      - caddy_0: https://www.best-chauffeurs.com
-      - caddy_0.reverse_proxy: "{{upstreams 5000}}"
-      - caddy_1: https://adminaccess.best-chauffeurs.com
-      - caddy_1.reverse_proxy: "{{upstreams 5000}}"
+      - caddy=best-chauffeurs.com, www.best-chauffeurs.com, adminaccess.best-chauffeurs.com
+      - caddy.reverse_proxy={{upstreams 5000}}
     environment:
-      
       - NODE_ENV=production
       - PORT=5000
+
       # Database
       - DATABASE_URL=${DATABASE_URL}
+
       # Stripe
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
       - VITE_STRIPE_PUBLIC_KEY=${VITE_STRIPE_PUBLIC_KEY}
+
       # Session
       - SESSION_SECRET=${SESSION_SECRET}
-      # MinIO Object Storage - Mevcut MinIO'yu kullan
-      - MINIO_ENDPOINT=http://minio-hssg4oosoo0ww4kc8oowg0s8:9000
+
+      # MinIO
+      - MINIO_ENDPOINT=http://minio:9000
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
       - MINIO_BUCKET=${MINIO_BUCKET:-best-chauffeurs}
+
       # Email
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_PORT=${SMTP_PORT}
@@ -36,15 +36,19 @@ services:
       - SMTP_PASS=${SMTP_PASS}
       - EMAIL_FROM_NAME=${EMAIL_FROM_NAME}
       - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
+
       # SMS
       - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
       - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
       - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+
       # APIs
       - TOMTOM_API_KEY=${TOMTOM_API_KEY}
       - RAPIDAPI_KEY=${RAPIDAPI_KEY}
+
       # Settings
       - SETTINGS_ENCRYPTION_KEY=${SETTINGS_ENCRYPTION_KEY}
+
     restart: unless-stopped
     networks:
       - coolify
