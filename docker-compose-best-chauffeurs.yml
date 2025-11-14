@@ -13,7 +13,7 @@ services:
       - caddy_1: https://adminaccess.best-chauffeurs.com
       - caddy_1.reverse_proxy: "{{upstreams 5000}}"
     environment:
-      - CADDY_ADMINACCESS_PORT=5000
+      
       - NODE_ENV=production
       - PORT=5000
       # Database
