@@ -7,8 +7,26 @@ const log = console.log;
 const app = express();
 
 // Enable CORS with credentials support
+// Parse allowed origins from environment variable or allow all in development
+const getAllowedOrigins = (): string[] | boolean => {
+  // Development mode - allow all origins
+  if (process.env.NODE_ENV !== 'production') {
+    return true;
+  }
+
+  // Production mode - only allow specified origins
+  const allowedOriginsEnv = process.env.ALLOWED_ORIGINS;
+  if (!allowedOriginsEnv) {
+    log('WARNING: ALLOWED_ORIGINS not set in production! Allowing all origins.');
+    return true;
+  }
+
+  // Parse comma-separated list of allowed origins
+  return allowedOriginsEnv.split(',').map(origin => origin.trim()).filter(Boolean);
+};
+
 app.use(cors({
-  origin: true,
+  origin: getAllowedOrigins(),
   credentials: true,
 }));
 
