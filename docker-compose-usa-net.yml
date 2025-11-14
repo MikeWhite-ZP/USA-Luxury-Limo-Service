@@ -5,7 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: usa-luxury-limo-clone
+    labels:
+      - "caddy=best-chauffeurs.com"
+      - "caddy.reverse_proxy={{upstreams 5000}}"
+      - "caddy.header=-Server"
     ports:
       - "5010:5000"  # Farklı bir dış port kullanın (5010), içeride 5000 kalacak
     environment:
