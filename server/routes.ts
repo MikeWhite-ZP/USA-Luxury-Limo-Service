@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated, hashPassword, comparePasswords } from "./auth";
+import { setupAuth, isAuthenticated, hashPassword, comparePasswords, generateResetToken, hashToken, isTokenExpired, PASSWORD_RESET_EXPIRY_MS } from "./auth";
 import { insertBookingSchema, insertContactSchema, insertSavedAddressSchema, insertPricingRuleSchema, insertVehicleTypeSchema, insertDriverDocumentSchema, insertCmsSettingSchema, insertCmsContentSchema, insertCmsMediaSchema, insertServiceSchema, type User, type Booking, vehicles } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
@@ -9,8 +9,8 @@ import multer from "multer";
 import crypto from "crypto";
 import { hasEncryptionKey } from "./crypto";
 import { getStorageAdapter, type StorageAdapter, type StorageCredentials } from "./objectStorageAdapter";
-import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML, getPaymentConfirmationEmailHTML, getDriverOnTheWayEmailHTML, getDriverArrivedEmailHTML, getBookingCancelledEmailHTML } from "./email";
-import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS, sendDriverOnTheWaySMS, sendDriverArrivedSMS, sendBookingCancelledSMS, sendAdminNewBookingAlertSMS } from "./sms";
+import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML, getPaymentConfirmationEmailHTML, getDriverOnTheWayEmailHTML, getDriverArrivedEmailHTML, getBookingCancelledEmailHTML, sendPasswordResetEmail, sendTemporaryPasswordEmail, sendUsernameReminderEmail } from "./email";
+import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS, sendDriverOnTheWaySMS, sendDriverArrivedSMS, sendBookingCancelledSMS, sendAdminNewBookingAlertSMS, sendPasswordResetSMS, sendTemporaryPasswordSMS, sendUsernameReminderSMS } from "./sms";
 import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityReport } from "./emailReports";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -403,123 +403,145 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Forgot password - send reset email
+  // Public: Request password reset
   app.post('/api/auth/forgot-password', async (req, res) => {
     try {
-      const { email } = req.body;
+      const { emailOrPhone } = req.body;
       
-      if (!email) {
-        return res.status(400).json({ message: 'Email is required' });
+      if (!emailOrPhone) {
+        return res.status(400).json({ message: 'Email or phone number required' });
       }
-
-      // Find user by email
-      const user = await storage.getUserByEmail(email);
       
-      // Always return success to prevent email enumeration
-      if (!user) {
-        return res.json({ success: true, message: 'If an account with that email exists, a password reset link has been sent.' });
+      // Always return same response to prevent enumeration
+      const uniformResponse = { message: 'If an account exists, a password reset link has been sent' };
+      
+      const user = await storage.getUserByEmailOrPhone(emailOrPhone);
+      
+      if (user) {
+        // Generate reset token
+        const resetToken = generateResetToken();
+        const hashedToken = hashToken(resetToken);
+        const expiresAt = new Date(Date.now() + PASSWORD_RESET_EXPIRY_MS);
+        
+        // Store hashed token
+        await storage.setPasswordResetToken(user.id, hashedToken, expiresAt);
+        
+        // Send notification (fire and forget)
+        if (user.email) {
+          sendPasswordResetEmail(user.email, resetToken, user.username).catch(err => 
+            console.error('Failed to send password reset email:', err)
+          );
+        } else if (user.phone) {
+          sendPasswordResetSMS(user.phone, resetToken).catch(err => 
+            console.error('Failed to send password reset SMS:', err)
+          );
+        }
       }
-
-      // Generate reset token
-      const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      const expiresAt = new Date(Date.now() + 3600000); // 1 hour from now
-
-      // Save token to database
-      await storage.createPasswordResetToken({
-        userId: user.id,
-        token,
-        expiresAt,
-        used: false,
-      });
-
-      // Send reset email
-      const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000';
-      const protocol = domain.includes('localhost') ? 'http' : 'https';
-      const resetLink = `${protocol}://${domain}/reset-password?token=${token}`;
-
-      await sendEmail({
-        to: email,
-        subject: 'Password Reset Request - USA Luxury Limo',
-        html: getPasswordResetEmailHTML({
-          name: user.firstName || user.username || 'User',
-          resetLink,
-          expiresIn: '1 hour',
-        }),
-      });
-
-      res.json({ success: true, message: 'If an account with that email exists, a password reset link has been sent.' });
+      
+      // Always return 202 regardless of whether user exists
+      res.status(202).json(uniformResponse);
     } catch (error) {
-      console.error('Forgot password error:', error);
-      res.status(500).json({ message: 'Failed to process password reset request' });
+      console.error('Error in forgot password:', error);
+      res.status(202).json({ message: 'If an account exists, a password reset link has been sent' });
     }
   });
 
-  // Verify reset token
+  // Public: Request username reminder
+  app.post('/api/auth/forgot-username', async (req, res) => {
+    try {
+      const { emailOrPhone } = req.body;
+      
+      if (!emailOrPhone) {
+        return res.status(400).json({ message: 'Email or phone number required' });
+      }
+      
+      // Always return same response to prevent enumeration
+      const uniformResponse = { message: 'If an account exists, your username has been sent' };
+      
+      const user = await storage.getUserByEmailOrPhone(emailOrPhone);
+      
+      if (user) {
+        // Send notification (fire and forget)
+        if (user.email) {
+          sendUsernameReminderEmail(user.email, user.username).catch(err => 
+            console.error('Failed to send username reminder email:', err)
+          );
+        } else if (user.phone) {
+          sendUsernameReminderSMS(user.phone, user.username).catch(err => 
+            console.error('Failed to send username reminder SMS:', err)
+          );
+        }
+      }
+      
+      // Always return 202 regardless of whether user exists
+      res.status(202).json(uniformResponse);
+    } catch (error) {
+      console.error('Error in forgot username:', error);
+      res.status(202).json({ message: 'If an account exists, your username has been sent' });
+    }
+  });
+
+  // Public: Verify reset token validity
   app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
     try {
       const { token } = req.params;
       
-      const resetToken = await storage.getPasswordResetToken(token);
+      if (!token) {
+        return res.status(400).json({ valid: false, message: 'Token required' });
+      }
       
-      if (!resetToken) {
-        return res.status(400).json({ valid: false, message: 'Invalid or expired reset token' });
+      const hashedToken = hashToken(token);
+      const user = await storage.getUserByPasswordResetToken(hashedToken);
+      
+      if (!user || !user.passwordResetExpires) {
+        return res.json({ valid: false, message: 'Invalid or expired reset token' });
       }
-
-      if (resetToken.used) {
-        return res.status(400).json({ valid: false, message: 'This reset link has already been used' });
+      
+      if (isTokenExpired(user.passwordResetExpires)) {
+        return res.json({ valid: false, message: 'Reset token has expired' });
       }
-
-      if (new Date() > new Date(resetToken.expiresAt)) {
-        return res.status(400).json({ valid: false, message: 'This reset link has expired' });
-      }
-
-      res.json({ valid: true });
+      
+      res.json({ valid: true, message: 'Token is valid' });
     } catch (error) {
-      console.error('Verify reset token error:', error);
-      res.status(500).json({ valid: false, message: 'Failed to verify reset token' });
+      console.error('Error verifying reset token:', error);
+      res.status(500).json({ valid: false, message: 'Failed to verify token' });
     }
   });
 
-  // Reset password with token
+  // Public: Reset password using token
   app.post('/api/auth/reset-password', async (req, res) => {
     try {
-      const { token, password } = req.body;
+      const { token, newPassword } = req.body;
       
-      if (!token || !password) {
-        return res.status(400).json({ message: 'Token and password are required' });
+      if (!token || !newPassword) {
+        return res.status(400).json({ message: 'Token and new password required' });
       }
-
-      if (password.length < 8) {
-        return res.status(400).json({ message: 'Password must be at least 8 characters' });
-      }
-
-      // Verify token
-      const resetToken = await storage.getPasswordResetToken(token);
       
-      if (!resetToken) {
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters' });
+      }
+      
+      const hashedToken = hashToken(token);
+      const user = await storage.getUserByPasswordResetToken(hashedToken);
+      
+      if (!user || !user.passwordResetExpires) {
         return res.status(400).json({ message: 'Invalid or expired reset token' });
       }
-
-      if (resetToken.used) {
-        return res.status(400).json({ message: 'This reset link has already been used' });
-      }
-
-      if (new Date() > new Date(resetToken.expiresAt)) {
-        return res.status(400).json({ message: 'This reset link has expired' });
-      }
-
-      // Hash new password
-      const hashedPassword = await hashPassword(password);
       
-      // Update user password
-      await storage.updateUser(resetToken.userId, { password: hashedPassword });
+      if (isTokenExpired(user.passwordResetExpires)) {
+        return res.status(400).json({ message: 'Reset token has expired' });
+      }
       
-      // Mark token as used
-      await storage.markPasswordResetTokenAsUsed(token);
-
-      res.json({ success: true, message: 'Password has been reset successfully' });
+      // Hash new password and update
+      const hashedPassword = await hashPassword(newPassword);
+      await storage.updateUser(user.id, { password: hashedPassword });
+      
+      // Clear reset token
+      await storage.clearPasswordResetToken(user.id);
+      
+      res.json({ message: 'Password reset successfully' });
     } catch (error) {
-      console.error('Reset password error:', error);
+      console.error('Error resetting password:', error);
       res.status(500).json({ message: 'Failed to reset password' });
     }
   });
@@ -4985,6 +5007,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Delete user error:', error);
       res.status(500).json({ message: 'Failed to delete user' });
+    }
+  });
+
+  // Admin: Set temporary password for user
+  app.post('/api/admin/users/:id/set-temp-password', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const currentUser = await storage.getUser(userId);
+      
+      if (!currentUser || currentUser.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const { temporaryPassword } = req.body;
+      
+      if (!temporaryPassword || temporaryPassword.length < 6) {
+        return res.status(400).json({ message: 'Temporary password must be at least 6 characters' });
+      }
+      
+      // Prevent admin from setting temp password for themselves
+      if (id === userId) {
+        return res.status(400).json({ message: 'Cannot set temporary password for yourself' });
+      }
+      
+      const user = await storage.getUser(id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Hash the temporary password
+      const hashedPassword = await hashPassword(temporaryPassword);
+      
+      // Update user password and clear any reset tokens
+      await storage.updateUser(id, { password: hashedPassword });
+      await storage.clearPasswordResetToken(id);
+      
+      // Send notification (fire and forget - don't wait for result)
+      if (user.email) {
+        sendTemporaryPasswordEmail(user.email, temporaryPassword, user.username).catch(err => 
+          console.error('Failed to send temp password email:', err)
+        );
+      }
+      if (user.phone) {
+        sendTemporaryPasswordSMS(user.phone, temporaryPassword).catch(err => 
+          console.error('Failed to send temp password SMS:', err)
+        );
+      }
+      
+      res.json({ message: 'Temporary password set successfully' });
+    } catch (error) {
+      console.error('Error setting temporary password:', error);
+      res.status(500).json({ message: 'Failed to set temporary password' });
     }
   });
 
