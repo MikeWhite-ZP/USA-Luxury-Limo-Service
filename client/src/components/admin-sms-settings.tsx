@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquare, Send, CheckCircle, XCircle, Loader2, Eye, EyeOff, Save, Settings, AlertCircle, Check } from 'lucide-react';
+import { MessageSquare, Send, CheckCircle, XCircle, Loader2, Eye, EyeOff, Save, Settings, AlertCircle, Check, CheckCircle2, Server, Phone } from 'lucide-react';
 
 interface TwilioStatus {
   connected: boolean;
@@ -214,101 +214,111 @@ export function AdminSMSSettings() {
   };
 
   return (
-    <Card id="settings-section" data-testid="sms-settings" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-      <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50/30 border-b border-slate-200">
-        <CardTitle className="flex items-center gap-3 text-slate-900">
-          <div className="bg-purple-600 p-2 rounded-lg">
-            <MessageSquare className="w-5 h-5 text-white" />
+    <Card id="settings-section" data-testid="sms-settings" className="border-0 shadow-xl bg-gradient-to-br from-white via-slate-50/30 to-white backdrop-blur-sm overflow-hidden">
+      {/* Premium Header with layered design */}
+      <CardHeader className="relative bg-gradient-to-br from-purple-600 via-pink-600 to-purple-700 border-b-0 pb-8">
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1)_0%,transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(236,72,153,0.15)_0%,transparent_50%)]" />
+        
+        <CardTitle className="relative flex items-center gap-4">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-pink-200/30 rounded-2xl blur-md opacity-60 group-hover:opacity-100 transition-opacity" />
+            <div className="relative bg-white/20 backdrop-blur-sm p-3.5 rounded-2xl border border-white/30 shadow-lg">
+              <MessageSquare className="w-6 h-6 text-white" />
+            </div>
           </div>
-          <span>SMS Notifications (Twilio)</span>
+          <div>
+            <h2 className="text-2xl font-bold text-white tracking-tight">SMS Notifications (Twilio)</h2>
+            <p className="text-sm text-purple-100 mt-0.5 font-light">Manage SMS notification settings and Twilio integration</p>
+          </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent className="p-8 bg-gradient-to-b from-white to-slate-50/30">
         {loading ? (
-          <div className="flex items-center justify-center p-8">
-            <div className="animate-spin w-6 h-6 border-4 border-purple-600 border-t-transparent rounded-full" />
+          <div className="flex items-center justify-center p-16">
+            <div className="relative">
+              <div className="animate-spin w-12 h-12 border-4 border-slate-200 border-t-purple-600 rounded-full" />
+              <div className="absolute inset-0 animate-ping w-12 h-12 border-4 border-purple-400 rounded-full opacity-20" />
+            </div>
           </div>
         ) : (
           <div className="space-y-6">
             {/* Enable/Disable Toggle */}
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="bg-purple-100 p-1.5 rounded-lg">
-                  <Settings className="w-4 h-4 text-purple-700" />
+            <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8">
+              <div className="flex items-center gap-3 pb-4 mb-6 border-b border-slate-100">
+                <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-2.5 rounded-xl">
+                  <Settings className="w-5 h-5 text-purple-700" />
                 </div>
-                <h3 className="font-semibold text-slate-900">SMS Notifications Control</h3>
+                <h3 className="text-xl font-bold text-slate-900">SMS Notifications Control</h3>
               </div>
-              <div className="flex items-center justify-between bg-white rounded-lg p-4 border border-slate-200">
+              <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-purple-50/30 rounded-xl p-6 border-2 border-slate-200 hover:border-purple-300 transition-all duration-300">
                 <div>
-                  <h4 className="font-semibold text-slate-900">SMS Notifications</h4>
-                  <p className="text-sm text-slate-600 mt-1">
+                  <h4 className="font-bold text-slate-900 text-lg mb-1">SMS Notifications</h4>
+                  <p className="text-sm text-slate-600 font-medium">
                     {credentials.enabled ? 'SMS notifications are active' : 'SMS notifications are disabled'}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-sm font-semibold ${credentials.enabled ? 'text-green-600' : 'text-slate-400'}`}>
+                <div className="flex items-center gap-4">
+                  <Badge className={`px-4 py-2 text-sm font-bold ${credentials.enabled ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
                     {credentials.enabled ? 'ON' : 'OFF'}
-                  </span>
+                  </Badge>
                   <Switch
                     checked={credentials.enabled}
                     onCheckedChange={handleToggleEnabled}
                     data-testid="switch-sms-enabled"
-                    className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-slate-300"
+                    className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-green-500 data-[state=checked]:to-emerald-600 data-[state=unchecked]:bg-slate-300"
                   />
                 </div>
               </div>
             </div>
 
             {/* Connection Status */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="bg-blue-100 p-1.5 rounded-lg">
-                    <CheckCircle className="w-4 h-4 text-blue-700" />
+            <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-to-br from-blue-100 to-indigo-100 p-2.5 rounded-xl">
+                    <Server className="w-5 h-5 text-blue-700" />
                   </div>
-                  <h3 className="font-semibold text-slate-900">Connection Status</h3>
+                  <h3 className="text-xl font-bold text-slate-900">Connection Status</h3>
                 </div>
                 {status?.connected ? (
-                  <Badge className="bg-green-600 text-white border-green-700" data-testid="badge-sms-connected">
-                    <CheckCircle className="w-3 h-3 mr-1" />
+                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 px-4 py-2 text-sm font-bold shadow-md" data-testid="badge-sms-connected">
+                    <CheckCircle className="w-4 h-4 mr-1.5" />
                     Connected
                   </Badge>
                 ) : (
-                  <Badge className="bg-red-100 text-red-800 border-red-200" data-testid="badge-sms-disconnected">
-                    <XCircle className="w-3 h-3 mr-1" />
+                  <Badge className="bg-gradient-to-r from-red-500 to-rose-600 text-white border-0 px-4 py-2 text-sm font-bold shadow-md" data-testid="badge-sms-disconnected">
+                    <XCircle className="w-4 h-4 mr-1.5" />
                     Not Connected
                   </Badge>
                 )}
               </div>
 
               <Button
-                size="sm"
-                variant="outline"
                 onClick={checkStatus}
                 disabled={loading}
-                className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                className="h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                 data-testid="button-refresh-status"
               >
-                <Loader2 className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                <Loader2 className={`w-5 h-5 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh Status
               </Button>
             </div>
 
             {/* Twilio Credentials */}
-            <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="bg-indigo-100 p-1.5 rounded-lg">
-                    <Settings className="w-4 h-4 text-indigo-700" />
+            <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-2.5 rounded-xl">
+                    <Phone className="w-5 h-5 text-purple-700" />
                   </div>
-                  <h3 className="font-semibold text-slate-900">Twilio Credentials</h3>
+                  <h3 className="text-xl font-bold text-slate-900">Twilio Credentials</h3>
                 </div>
                 {!editing && (
                   <Button
-                    size="sm"
-                    variant="outline"
                     onClick={() => setEditing(true)}
-                    className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                    className="h-11 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all"
                     data-testid="button-edit-credentials"
                   >
                     <Settings className="w-4 h-4 mr-2" />
@@ -318,24 +328,25 @@ export function AdminSMSSettings() {
               </div>
 
               {editing ? (
-                <div className="space-y-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
-                  <div className="space-y-2">
-                    <Label htmlFor="account-sid">Account SID</Label>
+                <div className="space-y-5">
+                  <div className="space-y-3">
+                    <Label htmlFor="account-sid" className="text-slate-700 font-semibold text-sm">Account SID</Label>
                     <Input
                       id="account-sid"
                       type="text"
                       placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                       value={credentials.accountSid}
                       onChange={(e) => setCredentials(prev => ({ ...prev, accountSid: e.target.value }))}
+                      className="h-12 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20 rounded-xl text-base"
                       data-testid="input-account-sid"
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="auth-token">
+                  <div className="space-y-3">
+                    <Label htmlFor="auth-token" className="text-slate-700 font-semibold text-sm">
                       Auth Token
                       {status?.hasAuthToken && (
-                        <span className="text-xs text-muted-foreground ml-2">(optional - leave empty to keep existing)</span>
+                        <span className="text-xs text-slate-500 ml-2 font-normal">(optional - leave empty to keep existing)</span>
                       )}
                     </Label>
                     <div className="relative">
@@ -346,61 +357,62 @@ export function AdminSMSSettings() {
                         value={credentials.authToken}
                         onChange={(e) => setCredentials(prev => ({ ...prev, authToken: e.target.value }))}
                         data-testid="input-auth-token"
-                        className="pr-10"
+                        className="h-12 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20 rounded-xl text-base pr-12"
                       />
                       <button
                         type="button"
                         onClick={() => setShowAuthToken(!showAuthToken)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                         data-testid="button-toggle-auth-token"
                       >
-                        {showAuthToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showAuthToken ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone-number">Phone Number</Label>
+                  <div className="space-y-3">
+                    <Label htmlFor="phone-number" className="text-slate-700 font-semibold text-sm">Phone Number</Label>
                     <Input
                       id="phone-number"
                       type="tel"
                       placeholder="+1234567890"
                       value={credentials.phoneNumber}
                       onChange={(e) => setCredentials(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                      className="h-12 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20 rounded-xl text-base"
                       data-testid="input-twilio-phone"
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Your Twilio phone number (include country code)
+                    <p className="text-xs text-slate-500 flex items-center gap-1.5 bg-slate-50 p-2 rounded-lg">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Your Twilio phone number (include country code)</span>
                     </p>
                   </div>
 
-                  <div className="flex gap-2 pt-2">
+                  <div className="grid grid-cols-2 gap-3 pt-2">
                     <Button
                       onClick={handleSaveCredentials}
                       disabled={saving}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                      className="h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                       data-testid="button-save-credentials"
                     >
                       {saving ? (
                         <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                           Saving...
                         </>
                       ) : (
                         <>
-                          <Save className="w-4 h-4 mr-2" />
+                          <Save className="w-5 h-5 mr-2" />
                           Save Credentials
                         </>
                       )}
                     </Button>
                     <Button
-                      variant="outline"
                       onClick={() => {
                         setEditing(false);
                         setShowAuthToken(false);
                         checkStatus();
                       }}
-                      className="border-slate-300"
+                      className="h-12 bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-300 font-bold rounded-xl transition-all"
                       data-testid="button-cancel-edit"
                     >
                       Cancel
@@ -408,22 +420,22 @@ export function AdminSMSSettings() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-3 bg-slate-50 p-4 rounded-lg border border-slate-200">
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200">
-                    <span className="text-sm font-medium text-slate-700">Account SID:</span>
-                    <span className="font-mono text-xs text-slate-900" data-testid="text-account-sid">
+                <div className="grid gap-4">
+                  <div className="group flex items-center justify-between bg-gradient-to-r from-slate-50 to-purple-50/20 rounded-xl p-5 border-2 border-slate-200 hover:border-purple-300 hover:shadow-md transition-all duration-300">
+                    <span className="text-sm font-bold text-slate-700">Account SID:</span>
+                    <span className="font-mono text-sm text-slate-900 bg-white px-3 py-1.5 rounded-lg border border-slate-200" data-testid="text-account-sid">
                       {credentials.accountSid ? `${credentials.accountSid.substring(0, 12)}...` : 'Not configured'}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200">
-                    <span className="text-sm font-medium text-slate-700">Auth Token:</span>
-                    <span className="font-mono text-xs text-slate-900" data-testid="text-auth-token">
+                  <div className="group flex items-center justify-between bg-gradient-to-r from-slate-50 to-purple-50/20 rounded-xl p-5 border-2 border-slate-200 hover:border-purple-300 hover:shadow-md transition-all duration-300">
+                    <span className="text-sm font-bold text-slate-700">Auth Token:</span>
+                    <span className="font-mono text-sm text-slate-900 bg-white px-3 py-1.5 rounded-lg border border-slate-200" data-testid="text-auth-token">
                       {status?.hasAuthToken ? '••••••••••••••••' : 'Not configured'}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200">
-                    <span className="text-sm font-medium text-slate-700">Phone Number:</span>
-                    <span className="font-mono text-xs text-slate-900" data-testid="text-phone-number">
+                  <div className="group flex items-center justify-between bg-gradient-to-r from-slate-50 to-purple-50/20 rounded-xl p-5 border-2 border-slate-200 hover:border-purple-300 hover:shadow-md transition-all duration-300">
+                    <span className="text-sm font-bold text-slate-700">Phone Number:</span>
+                    <span className="font-mono text-sm text-slate-900 bg-white px-3 py-1.5 rounded-lg border border-slate-200" data-testid="text-phone-number">
                       {credentials.phoneNumber || 'Not configured'}
                     </span>
                   </div>
@@ -433,48 +445,49 @@ export function AdminSMSSettings() {
 
             {/* Test SMS */}
             {credentials.enabled && status?.connected && (
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="bg-green-100 p-1.5 rounded-lg">
-                    <Send className="w-4 h-4 text-green-700" />
+              <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+                  <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-2.5 rounded-xl">
+                    <Send className="w-5 h-5 text-green-700" />
                   </div>
-                  <h3 className="font-semibold text-slate-900">Test SMS Notification</h3>
+                  <h3 className="text-xl font-bold text-slate-900">Test SMS Notification</h3>
                 </div>
-                <p className="text-sm text-slate-600 mb-4">
+                <p className="text-sm text-slate-600 leading-relaxed font-medium">
                   Send a test SMS to verify your Twilio configuration is working correctly.
                 </p>
 
-                <div className="space-y-3 bg-white p-4 rounded-lg border border-slate-200">
-                  <div className="space-y-2">
-                    <Label htmlFor="test-phone" className="text-slate-900">Phone Number</Label>
+                <div className="space-y-4">
+                  <div className="space-y-3">
+                    <Label htmlFor="test-phone" className="text-slate-700 font-semibold text-sm">Phone Number</Label>
                     <Input
                       id="test-phone"
                       type="tel"
                       placeholder="+1234567890"
                       value={testPhoneNumber}
                       onChange={(e) => setTestPhoneNumber(e.target.value)}
-                      className="border-slate-300 focus:border-green-500 focus:ring-green-500"
+                      className="h-12 border-2 border-slate-200 focus:border-green-500 focus:ring-green-500/20 rounded-xl text-base"
                       data-testid="input-test-phone"
                     />
-                    <p className="text-xs text-slate-600">
-                      Include country code (e.g., +1 for US)
+                    <p className="text-xs text-slate-500 flex items-center gap-1.5 bg-slate-50 p-2 rounded-lg">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Include country code (e.g., +1 for US)</span>
                     </p>
                   </div>
 
                   <Button
                     onClick={handleTestSMS}
                     disabled={sendingTest || !testPhoneNumber}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    className="w-full h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                     data-testid="button-send-test-sms"
                   >
                     {sendingTest ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                         Sending...
                       </>
                     ) : (
                       <>
-                        <Send className="w-4 h-4 mr-2" />
+                        <Send className="w-5 h-5 mr-2" />
                         Send Test SMS
                       </>
                     )}
@@ -484,69 +497,75 @@ export function AdminSMSSettings() {
             )}
 
             {/* SMS Notification Settings Info */}
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="bg-amber-100 p-1.5 rounded-lg">
-                  <AlertCircle className="w-4 h-4 text-amber-700" />
+            <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 rounded-2xl border-2 border-slate-200 shadow-md p-8">
+              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                <div className="bg-gradient-to-br from-amber-100 to-orange-100 p-2.5 rounded-xl">
+                  <AlertCircle className="w-5 h-5 text-amber-700" />
                 </div>
-                <h3 className="font-semibold text-slate-900">Automated SMS Notifications</h3>
+                <h3 className="text-xl font-bold text-slate-900">Automated SMS Notifications</h3>
               </div>
-              <p className="text-sm text-slate-700 mb-3">
+              <p className="text-sm text-slate-700 mb-6 leading-relaxed font-medium">
                 When enabled, SMS notifications will be automatically sent for:
               </p>
-              <div className="space-y-2 mb-4">
-                <div className="flex items-start gap-2 bg-white p-3 rounded-lg border border-amber-200">
-                  <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-slate-700">Booking confirmations to passengers</span>
+              <div className="grid gap-4 mb-6">
+                <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-green-300 hover:shadow-md transition-all duration-300">
+                  <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg p-2 shadow-sm flex-shrink-0">
+                    <CheckCircle2 className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm text-slate-700 leading-relaxed font-medium">Booking confirmations to passengers</span>
                 </div>
-                <div className="flex items-start gap-2 bg-white p-3 rounded-lg border border-amber-200">
-                  <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-slate-700">Booking status updates (confirmed, in progress, completed)</span>
+                <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300">
+                  <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg p-2 shadow-sm flex-shrink-0">
+                    <CheckCircle2 className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm text-slate-700 leading-relaxed font-medium">Booking status updates (confirmed, in progress, completed)</span>
                 </div>
-                <div className="flex items-start gap-2 bg-white p-3 rounded-lg border border-amber-200">
-                  <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-slate-700">Driver assignments to drivers</span>
+                <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-purple-300 hover:shadow-md transition-all duration-300">
+                  <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg p-2 shadow-sm flex-shrink-0">
+                    <CheckCircle2 className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm text-slate-700 leading-relaxed font-medium">Driver assignments to drivers</span>
                 </div>
               </div>
-              <div className="bg-white border border-amber-200 rounded-lg p-3">
-                <p className="text-xs text-slate-600">
-                  <strong className="text-amber-700">Note:</strong> SMS notifications will only be sent if SMS is enabled and the user has a valid phone number on file.
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-4">
+                <p className="text-sm text-slate-700 leading-relaxed">
+                  <strong className="text-amber-700 font-bold">Note:</strong> SMS notifications will only be sent if SMS is enabled and the user has a valid phone number on file.
                 </p>
               </div>
             </div>
 
             {/* Configuration Guide */}
-            <div className="bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-300 rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="bg-blue-100 p-1.5 rounded-lg">
-                  <Settings className="w-4 h-4 text-blue-700" />
+            <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 rounded-2xl border-2 border-slate-200 shadow-md p-8">
+              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                <div className="bg-gradient-to-br from-blue-100 to-indigo-100 p-2.5 rounded-xl">
+                  <Settings className="w-5 h-5 text-blue-700" />
                 </div>
-                <h3 className="font-semibold text-slate-900">Setup Instructions</h3>
+                <h3 className="text-xl font-bold text-slate-900">Setup Instructions</h3>
               </div>
-              <ol className="space-y-2">
-                <li className="flex gap-3 items-start">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0 mt-0.5">1</span>
-                  <span className="text-sm text-slate-700">Sign up for a Twilio account at twilio.com</span>
+              <ol className="space-y-3">
+                <li className="flex gap-4 items-start group">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold flex-shrink-0 shadow-md">1</span>
+                  <span className="text-sm text-slate-700 leading-relaxed font-medium pt-1">Sign up for a Twilio account at twilio.com</span>
                 </li>
-                <li className="flex gap-3 items-start">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0 mt-0.5">2</span>
-                  <span className="text-sm text-slate-700">Get your Account SID and Auth Token from the Twilio Console</span>
+                <li className="flex gap-4 items-start group">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold flex-shrink-0 shadow-md">2</span>
+                  <span className="text-sm text-slate-700 leading-relaxed font-medium pt-1">Get your Account SID and Auth Token from the Twilio Console</span>
                 </li>
-                <li className="flex gap-3 items-start">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0 mt-0.5">3</span>
-                  <span className="text-sm text-slate-700">Purchase a phone number in the Twilio Console</span>
+                <li className="flex gap-4 items-start group">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold flex-shrink-0 shadow-md">3</span>
+                  <span className="text-sm text-slate-700 leading-relaxed font-medium pt-1">Purchase a phone number in the Twilio Console</span>
                 </li>
-                <li className="flex gap-3 items-start">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0 mt-0.5">4</span>
-                  <span className="text-sm text-slate-700">Enter your credentials above and click "Save Credentials"</span>
+                <li className="flex gap-4 items-start group">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold flex-shrink-0 shadow-md">4</span>
+                  <span className="text-sm text-slate-700 leading-relaxed font-medium pt-1">Enter your credentials above and click "Save Credentials"</span>
                 </li>
-                <li className="flex gap-3 items-start">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0 mt-0.5">5</span>
-                  <span className="text-sm text-slate-700">Enable SMS notifications using the toggle switch</span>
+                <li className="flex gap-4 items-start group">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold flex-shrink-0 shadow-md">5</span>
+                  <span className="text-sm text-slate-700 leading-relaxed font-medium pt-1">Enable SMS notifications using the toggle switch</span>
                 </li>
-                <li className="flex gap-3 items-start">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0 mt-0.5">6</span>
-                  <span className="text-sm text-slate-700">Send a test SMS to verify everything is working</span>
+                <li className="flex gap-4 items-start group">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold flex-shrink-0 shadow-md">6</span>
+                  <span className="text-sm text-slate-700 leading-relaxed font-medium pt-1">Send a test SMS to verify everything is working</span>
                 </li>
               </ol>
             </div>
