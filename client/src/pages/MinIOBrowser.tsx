@@ -1,11 +1,12 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
-import { Search, FolderOpen, Image as ImageIcon, Download, Copy, X, Loader2, FileImage, ChevronLeft, ChevronRight, Upload, CloudUpload } from "lucide-react";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { Search, FolderOpen, Image as ImageIcon, Download, Copy, X, Loader2, FileImage, ChevronLeft, ChevronRight, Upload, CloudUpload, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -39,6 +40,8 @@ export default function MinIOBrowser() {
   const [uploadFolder, setUploadFolder] = useState<string>("");
   const [isDragging, setIsDragging] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState<MinIOFile | null>(null);
   const pageSize = 20;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -173,6 +176,52 @@ export default function MinIOBrowser() {
     formData.append('folder', uploadFolder || selectedFolder || 'cms/general');
 
     uploadMutation.mutate(formData);
+  };
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (key: string) => {
+      const response = await fetch('/api/admin/minio/file', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ key }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Delete failed');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/minio/browse'] });
+      setDeleteDialogOpen(false);
+      setFileToDelete(null);
+      setPreviewDialogOpen(false); // Close preview if open
+      toast({
+        title: 'Success',
+        description: 'File deleted successfully',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to delete file',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Handle delete confirmation
+  const handleDeleteClick = (file: MinIOFile) => {
+    setFileToDelete(file);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (fileToDelete) {
+      deleteMutation.mutate(fileToDelete.key);
+    }
   };
 
   // Handle drag and drop
@@ -389,6 +438,15 @@ export default function MinIOBrowser() {
                           >
                             <Download className="w-3 h-3" />
                           </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleDeleteClick(file)}
+                            variant="outline"
+                            className="px-3 border-red-200 text-red-600 hover:bg-red-50 transition-all duration-300 rounded-lg"
+                            data-testid={`button-delete-${file.key}`}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -512,6 +570,7 @@ export default function MinIOBrowser() {
                 <Button
                   onClick={() => handleCopyUrl(selectedImage.url)}
                   className="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white"
+                  data-testid="button-copy-url-preview"
                 >
                   <Copy className="w-4 h-4 mr-2" />
                   Copy URL
@@ -520,9 +579,19 @@ export default function MinIOBrowser() {
                   onClick={() => handleDownload(selectedImage)}
                   variant="outline"
                   className="border-slate-300 hover:bg-slate-100"
+                  data-testid="button-download-preview"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download
+                </Button>
+                <Button
+                  onClick={() => handleDeleteClick(selectedImage)}
+                  variant="outline"
+                  className="border-red-300 text-red-600 hover:bg-red-50"
+                  data-testid="button-delete-preview"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
                 </Button>
               </div>
             </div>
@@ -639,6 +708,44 @@ export default function MinIOBrowser() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <Trash2 className="w-5 h-5" />
+              Delete File
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <span className="font-semibold text-slate-900">{fileToDelete?.name}</span>?
+              <br />
+              <span className="text-red-600 font-medium">This action cannot be undone.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deleteMutation.isPending}
+              className="bg-red-600 hover:bg-red-700 text-white"
+              data-testid="button-confirm-delete"
+            >
+              {deleteMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       </div>
     </>
   );

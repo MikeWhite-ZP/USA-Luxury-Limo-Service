@@ -7258,6 +7258,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete file from MinIO
+  app.delete('/api/admin/minio/file', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { key } = req.body;
+      
+      if (!key) {
+        return res.status(400).json({ message: 'File key is required' });
+      }
+
+      // Sanitize key to prevent path traversal
+      const sanitizedKey = key
+        .replace(/\.\./g, '') // Remove ..
+        .replace(/^\/+/, ''); // Remove leading slashes
+
+      if (!sanitizedKey) {
+        return res.status(400).json({ message: 'Invalid file key' });
+      }
+
+      // Delete from Object Storage
+      const objStorage = await getObjectStorage();
+      const { ok, error } = await objStorage.delete(sanitizedKey);
+      
+      if (!ok) {
+        console.error('Delete from Object Storage failed:', error);
+        return res.status(500).json({ message: `Delete failed: ${error}` });
+      }
+
+      res.json({
+        success: true,
+        message: 'File deleted successfully'
+      });
+    } catch (error: any) {
+      console.error('MinIO delete error:', error);
+      res.status(500).json({ message: 'Failed to delete file', error: error.message });
+    }
+  });
+
   // Get Twilio SMS connection status
   app.get('/api/admin/sms/status', isAuthenticated, async (req: any, res) => {
     try {
