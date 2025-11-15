@@ -7740,10 +7740,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public endpoint to get company name from system settings
+  // Public endpoint to get company name from CMS settings
   app.get('/api/site-company-name', async (req, res) => {
     try {
-      const companyNameSetting = await storage.getSystemSetting('BRAND_COMPANY_NAME');
+      const companyNameSetting = await storage.getCmsSetting('BRAND_COMPANY_NAME');
       
       res.json({ 
         companyName: companyNameSetting?.value || 'USA Luxury Limo'
