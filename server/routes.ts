@@ -356,7 +356,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      res.json(user);
+      
+      // Generate presigned URL for profile image if present
+      const profileImageUrl = await getPresignedUrl(user.profileImageUrl);
+      
+      res.json({
+        ...user,
+        profileImageUrl
+      });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -646,7 +653,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/vehicle-types', async (req, res) => {
     try {
       const vehicleTypes = await storage.getVehicleTypes();
-      res.json(vehicleTypes);
+      
+      // Generate presigned URLs for all vehicle type images
+      const vehicleTypesWithUrls = await Promise.all(
+        vehicleTypes.map(async (vt) => ({
+          ...vt,
+          imageUrl: await getPresignedUrl(vt.imageUrl)
+        }))
+      );
+      
+      res.json(vehicleTypesWithUrls);
     } catch (error) {
       console.error("Error fetching vehicle types:", error);
       res.status(500).json({ message: "Failed to fetch vehicle types" });
@@ -657,7 +673,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/vehicle-types', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const vehicleTypes = await storage.getAllVehicleTypes();
-      res.json(vehicleTypes);
+      
+      // Generate presigned URLs for all vehicle type images
+      const vehicleTypesWithUrls = await Promise.all(
+        vehicleTypes.map(async (vt) => ({
+          ...vt,
+          imageUrl: await getPresignedUrl(vt.imageUrl)
+        }))
+      );
+      
+      res.json(vehicleTypesWithUrls);
     } catch (error) {
       console.error("Error fetching all vehicle types:", error);
       res.status(500).json({ message: "Failed to fetch vehicle types" });
@@ -5461,7 +5486,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const documents = await storage.getDriverDocuments(driverId);
-      res.json(documents);
+      
+      // Generate presigned URLs for all documents
+      const documentsWithUrls = await Promise.all(
+        documents.map(async (doc) => ({
+          ...doc,
+          documentUrl: await getPresignedUrl(doc.documentUrl)
+        }))
+      );
+      
+      res.json(documentsWithUrls);
 
     } catch (error) {
       console.error('Get driver documents error:', error);
@@ -7693,7 +7727,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/cms/media', isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
       const media = await storage.getCmsMedia();
-      res.json(media);
+      
+      // Generate presigned URLs for all media items
+      const mediaWithUrls = await Promise.all(
+        media.map(async (item) => ({
+          ...item,
+          fileUrl: await getPresignedUrl(item.fileUrl)
+        }))
+      );
+      
+      res.json(mediaWithUrls);
     } catch (error) {
       console.error('Get CMS media error:', error);
       res.status(500).json({ message: 'Failed to fetch CMS media' });
@@ -7704,7 +7747,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { folder } = req.params;
       const media = await storage.getCmsMediaByFolder(folder as any);
-      res.json(media);
+      
+      // Generate presigned URLs for all media items
+      const mediaWithUrls = await Promise.all(
+        media.map(async (item) => ({
+          ...item,
+          fileUrl: await getPresignedUrl(item.fileUrl)
+        }))
+      );
+      
+      res.json(mediaWithUrls);
     } catch (error) {
       console.error('Get CMS media by folder error:', error);
       res.status(500).json({ message: 'Failed to fetch CMS media' });
