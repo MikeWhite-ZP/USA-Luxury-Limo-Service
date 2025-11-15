@@ -193,4 +193,35 @@ export async function sendAdminNewBookingAlertSMS(
   return sendSMS(phoneNumber, message);
 }
 
+// Password Reset SMS Templates
+
+export async function sendPasswordResetSMS(
+  phone: string,
+  resetToken: string
+): Promise<SMSResult> {
+  const resetUrl = `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+  
+  const message = `USA Luxury Limo: Reset your password using this link: ${resetUrl} (expires in 1 hour). If you didn't request this, ignore this message.`;
+  
+  return sendSMS(phone, message);
+}
+
+export async function sendTemporaryPasswordSMS(
+  phone: string,
+  tempPassword: string
+): Promise<SMSResult> {
+  const message = `USA Luxury Limo: Your temporary password is: ${tempPassword}. Please change it after logging in.`;
+  
+  return sendSMS(phone, message);
+}
+
+export async function sendUsernameReminderSMS(
+  phone: string,
+  username: string
+): Promise<SMSResult> {
+  const message = `USA Luxury Limo: Your username is: ${username}`;
+  
+  return sendSMS(phone, message);
+}
+
 export { getTwilioConnectionStatus, isTwilioEnabled };

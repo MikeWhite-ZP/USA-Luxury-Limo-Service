@@ -1262,6 +1262,162 @@ export function getBookingCancelledEmailHTML(data: {
   `;
 }
 
+// Password Reset Email Templates
+
+export async function sendPasswordResetEmail(
+  email: string,
+  resetToken: string,
+  username: string
+): Promise<boolean> {
+  const resetUrl = `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
+          .button { display: inline-block; padding: 12px 24px; background-color: #dc2626; color: white; text-decoration: none; border-radius: 4px; margin: 20px 0; }
+          .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Password Reset Request</h1>
+          </div>
+          <div class="content">
+            <p>Hello ${username},</p>
+            <p>We received a request to reset your password for your USA Luxury Limo account.</p>
+            <p>Click the button below to reset your password:</p>
+            <p style="text-align: center;">
+              <a href="${resetUrl}" class="button">Reset Password</a>
+            </p>
+            <p>Or copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; color: #666;">${resetUrl}</p>
+            <p><strong>This link will expire in 1 hour.</strong></p>
+            <p>If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
+          </div>
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} USA Luxury Limo. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: 'Password Reset Request - USA Luxury Limo',
+    html,
+  });
+}
+
+export async function sendTemporaryPasswordEmail(
+  email: string,
+  tempPassword: string,
+  username: string
+): Promise<boolean> {
+  const loginUrl = `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/login`;
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
+          .password-box { background: #fff; border: 2px solid #dc2626; padding: 15px; margin: 20px 0; text-align: center; font-size: 18px; font-family: monospace; }
+          .button { display: inline-block; padding: 12px 24px; background-color: #dc2626; color: white; text-decoration: none; border-radius: 4px; margin: 20px 0; }
+          .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Temporary Password</h1>
+          </div>
+          <div class="content">
+            <p>Hello ${username},</p>
+            <p>An administrator has set a temporary password for your USA Luxury Limo account.</p>
+            <p>Your temporary password is:</p>
+            <div class="password-box">${tempPassword}</div>
+            <p><strong>Please change this password immediately after logging in.</strong></p>
+            <p style="text-align: center;">
+              <a href="${loginUrl}" class="button">Log In Now</a>
+            </p>
+            <p>For security reasons, we recommend changing your password as soon as possible.</p>
+          </div>
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} USA Luxury Limo. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: 'Temporary Password Set - USA Luxury Limo',
+    html,
+  });
+}
+
+export async function sendUsernameReminderEmail(
+  email: string,
+  username: string
+): Promise<boolean> {
+  const loginUrl = `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/login`;
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
+          .username-box { background: #fff; border: 2px solid #dc2626; padding: 15px; margin: 20px 0; text-align: center; font-size: 18px; font-weight: bold; }
+          .button { display: inline-block; padding: 12px 24px; background-color: #dc2626; color: white; text-decoration: none; border-radius: 4px; margin: 20px 0; }
+          .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Username Reminder</h1>
+          </div>
+          <div class="content">
+            <p>Hello,</p>
+            <p>We received a request for your username at USA Luxury Limo.</p>
+            <p>Your username is:</p>
+            <div class="username-box">${username}</div>
+            <p style="text-align: center;">
+              <a href="${loginUrl}" class="button">Log In Now</a>
+            </p>
+            <p>If you did not request this information, please contact our support team.</p>
+          </div>
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} USA Luxury Limo. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: 'Username Reminder - USA Luxury Limo',
+    html,
+  });
+}
+
 // Clear transporter cache (useful when settings are updated)
 export function clearEmailCache() {
   cachedTransporter = null;
