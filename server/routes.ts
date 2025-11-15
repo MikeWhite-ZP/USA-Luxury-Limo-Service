@@ -7740,6 +7740,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint to get company name from system settings
+  app.get('/api/site-company-name', async (req, res) => {
+    try {
+      const companyNameSetting = await storage.getSystemSetting('BRAND_COMPANY_NAME');
+      
+      res.json({ 
+        companyName: companyNameSetting?.value || 'USA Luxury Limo'
+      });
+    } catch (error) {
+      console.error('Get company name error:', error);
+      res.status(500).json({ message: 'Failed to fetch company name' });
+    }
+  });
+
   // Dynamic PWA manifest.json endpoint
   app.get('/manifest.json', async (req, res) => {
     try {
