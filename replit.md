@@ -36,6 +36,75 @@ The application is designed for flexible deployment, supporting Replit, external
 - **Encryption**: Sensitive settings like DATABASE_URL are encrypted at rest using AES-256-GCM encryption. The `SETTINGS_ENCRYPTION_KEY` environment variable must be set to a 64-character hexadecimal string (representing a 32-byte key) for encryption features to work. Generate a secure key using: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
 - **Admin Access Control**: Admin dashboard and API endpoints are protected by subdomain-based access control for enhanced security. The admin panel is only accessible via designated subdomains (e.g., `adminaccess.usaluxurylimo.net`). Frontend enforcement hides admin links and redirects non-admin domains away from admin routes. Backend enforcement validates hostname on all `/api/admin/*` endpoints, returning 403 for unauthorized domains. Configure allowed admin hosts using the `ADMIN_PANEL_HOSTS` environment variable (comma-separated list, e.g., "adminaccess.example.com,admin.example.net"). Frontend uses `VITE_ADMIN_PANEL_HOSTS` for client-side subdomain detection. Development mode bypasses hostname validation for easier local testing.
 
+### Database Persistence & Production Deployment Best Practices
+
+**Data Persistence Across Deployments:**
+The application follows industry-standard practices to ensure all database data (users, bookings, vehicle types, settings, etc.) persists safely across deployments and application updates:
+
+1. **External Managed Database** (Recommended):
+   - Use a dedicated PostgreSQL instance hosted separately from your application container (e.g., Neon, DigitalOcean Managed Databases, AWS RDS, or Azure Database for PostgreSQL)
+   - Your application connects via `DATABASE_URL` environment variable
+   - Database lives independently of application deployments - data never lost during updates
+   - Current setup uses Neon PostgreSQL, which already follows this best practice
+
+2. **Docker Volume Persistence** (For self-hosted PostgreSQL):
+   - If running PostgreSQL in Docker, mount database data to a host filesystem volume
+   - Example in docker-compose.yml:
+     ```yaml
+     volumes:
+       - /var/lib/postgresql/data:/var/lib/postgresql/data  # Host path:Container path
+     ```
+   - This ensures data survives container rebuilds and application redeployments
+
+3. **Separation of Concerns**:
+   - **Application Layer (Stateless)**: Docker containers can be destroyed and recreated freely
+   - **Data Layer (Stateful)**: Database exists outside containers with persistent storage
+   - Deployments only update application code, never touch database data
+
+4. **Migration Management**:
+   - Database schema changes are managed via Drizzle migrations (versioned in codebase)
+   - Run migrations separately from application deployment: `npm run db:push` (development) or via CI/CD pipeline (production)
+   - Never deploy schema changes directly to production without testing in staging first
+   - Current schema includes all necessary indexes and constraints for production use
+
+5. **Backup & Recovery**:
+   - Configure automated daily backups with point-in-time recovery
+   - Neon provides automated backups with configurable retention
+   - For self-hosted: Use `pg_dump` scheduled via cron or backup solutions
+   - Test recovery procedures periodically to validate backup integrity
+   - Store backups in separate location from primary database (different region/provider)
+
+6. **Environment Separation**:
+   - **Staging Database**: Separate PostgreSQL instance for testing deployments
+   - **Production Database**: Dedicated instance with stricter access controls
+   - Never use production database credentials in development/staging
+   - Use environment variables to inject correct DATABASE_URL per environment
+
+7. **Deployment Workflow (Coolify/VPS)**:
+   ```
+   Step 1: Set DATABASE_URL environment variable pointing to external PostgreSQL
+   Step 2: Deploy application container (Dockerfile builds app)
+   Step 3: Application connects to existing database - all data intact
+   Step 4: Optional: Run migrations if schema changed (in separate step before deployment)
+   ```
+
+8. **Data Safety Guarantees**:
+   - User accounts, active/inactive status, bookings, vehicle configurations, pricing rules, and all system settings are stored in PostgreSQL
+   - As long as DATABASE_URL points to a persistent PostgreSQL instance, all data survives deployments
+   - Application containers are ephemeral and stateless - they only contain code, not data
+   - Redeploying application does not affect database content in any way
+
+9. **Monitoring & Alerts**:
+   - Monitor database connection health via health check endpoints (`/health`, `/api/health`)
+   - Set up alerts for failed database connections, slow queries, and backup failures
+   - Track database size growth and plan for scaling before hitting storage limits
+
+**Quick Troubleshooting**:
+- **"Data disappeared after deployment"**: DATABASE_URL likely changed or pointing to wrong instance - verify environment variables
+- **"Cannot connect to database"**: Check network rules/firewall allow application server to reach database instance
+- **"Schema mismatch errors"**: Run migrations with `npm run db:push` to sync schema
+- **"Performance degradation"**: Check database connection pool settings and query performance
+
 ## External Dependencies
 - **Twilio**: SMS messaging.
 - **Stripe**: Payment processing.
