@@ -5124,7 +5124,7 @@ export default function AdminDashboard() {
     } else {
       // Create new user (excluding temporaryPassword)
       const { temporaryPassword, ...userData } = userFormData;
-      createUserMutation.mutate(userData as Omit<typeof userFormData, 'temporaryPassword'>);
+      createUserMutation.mutate(userData);
     }
   };
 
