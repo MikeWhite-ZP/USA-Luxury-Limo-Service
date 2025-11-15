@@ -86,10 +86,19 @@ export function setupAuth(app: Express) {
   // Enable trust proxy for Replit environment
   app.set('trust proxy', 1);
 
-  // Use memory store for better compatibility
-  const sessionStore = new MemStore({
-    checkPeriod: 86400000 // prune expired entries every 24h
-  });
+  // Use PostgreSQL-backed sessions in production, MemoryStore in development
+  const isProduction = process.env.NODE_ENV === 'production';
+  const sessionStore = isProduction
+    ? new PgSession({
+        pool: pool,
+        tableName: 'session',
+        createTableIfMissing: true,
+      })
+    : new MemStore({
+        checkPeriod: 86400000 // prune expired entries every 24h
+      });
+
+  console.log(`[SESSION] Using ${isProduction ? 'PostgreSQL' : 'Memory'} session store`);
 
   const sessionSettings: session.SessionOptions = {
     store: sessionStore,
@@ -100,7 +109,7 @@ export function setupAuth(app: Express) {
     name: 'connect.sid',
     proxy: true, // Trust the proxy for Replit environment
     cookie: {
-      secure: false, // HTTP in development
+      secure: false, // Allow both HTTP and HTTPS
       httpOnly: true, // Prevent XSS attacks
       sameSite: 'lax',
       path: '/',

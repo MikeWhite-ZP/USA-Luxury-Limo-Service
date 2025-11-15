@@ -16,7 +16,7 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
 - **Mobile Native Apps**: Ionic Capacitor integration enables building native iOS and Android apps from the same codebase, including plugins for Camera, Geolocation, Push Notifications, Status Bar, Keyboard, and Splash Screen.
 - **Backend**: Node.js with Express.js, TypeScript, RESTful JSON APIs.
 - **Database**: PostgreSQL (Neon for hosting) with Drizzle ORM.
-- **Authentication**: Replit Auth with OpenID Connect, PostgreSQL-backed session management, and scrypt hashing for multi-role access (passenger, driver, admin).
+- **Authentication**: Replit Auth with OpenID Connect, **environment-aware session management** (PostgreSQL-backed in production via connect-pg-simple, MemoryStore in development), and scrypt hashing for multi-role access (passenger, driver, admin). **Production deployment requires `NODE_ENV=production` environment variable** to enable persistent PostgreSQL session storage, which is critical for login/register functionality across server restarts and load-balanced environments.
 - **Object Storage**: Replit Object Storage with custom Buffer normalization for all downloads, supporting MinIO and AWS S3 via an abstract adapter. Dynamic credential loading and bucket auto-creation for MinIO. **Production-ready presigned URL system**: All GET endpoints dynamically generate time-limited presigned URLs (1-hour expiration) for images stored in MinIO, ensuring secure direct access without exposing credentials. Database stores only object storage keys (e.g., `/cms/vehicles/image.webp`); presigned URLs (e.g., `https://minio.best-chauffeurs.com/replit/image.webp?X-Amz-Algorithm=...`) are generated on-the-fly. Backwards compatible with legacy full URLs. DELETE operations use key extraction for reliable file removal.
 - **Core Features**:
     - **Notifications**: Comprehensive email and SMS notification system (Twilio, Nodemailer) for all booking lifecycle events, using a fire-and-forget async pattern.
@@ -82,11 +82,20 @@ The application follows industry-standard practices to ensure all database data 
 
 7. **Deployment Workflow (Coolify/VPS)**:
    ```
-   Step 1: Set DATABASE_URL environment variable pointing to external PostgreSQL
+   Step 1: Set required environment variables:
+           - DATABASE_URL: pointing to external PostgreSQL
+           - NODE_ENV=production (CRITICAL - enables PostgreSQL session storage)
+           - SESSION_SECRET: secure random string for session encryption
    Step 2: Deploy application container (Dockerfile builds app)
    Step 3: Application connects to existing database - all data intact
-   Step 4: Optional: Run migrations if schema changed (in separate step before deployment)
+   Step 4: Verify session table is auto-created in PostgreSQL
+   Step 5: Optional: Run migrations if schema changed (in separate step before deployment)
    ```
+   
+   **CRITICAL**: Without `NODE_ENV=production`, the app uses in-memory sessions which:
+   - Don't persist across server restarts
+   - Cause login/register failures in load-balanced environments
+   - Result in 500 errors on authentication endpoints
 
 8. **Data Safety Guarantees**:
    - User accounts, active/inactive status, bookings, vehicle configurations, pricing rules, and all system settings are stored in PostgreSQL
