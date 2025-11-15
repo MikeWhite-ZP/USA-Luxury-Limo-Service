@@ -1,0 +1,61 @@
+Based on your deployment log, I can see the issue. Your application deployed successfully, but you're getting 500 errors on authentication endpoints. The commit message actually reveals the problem:
+"Enable persistent user sessions for production environments - Configure session management to use PostgreSQL in production and MemoryStore in development, addressing 500 errors on authentication endpoints by ensuring sessions persist across server restarts and load balancers when NODE_ENV=production is set."
+The deployment shows NODE_ENV=production is set, which means your app is trying to use PostgreSQL for session storage, but there's likely a configuration issue. Here are the most common causes:
+Likely Issues:
+
+Database Connection String Format
+
+Your DATABASE_URL in the log shows: postgres://postgres:Erka75810916%3F@a40ws8ccs8wwcscssos0css4:5432/postgres
+The %3F is URL-encoded ? - this might be causing connection issues
+
+
+Session Table Missing
+
+PostgreSQL session storage requires a sessions table that may not exist yet
+You need to run migrations or create the table
+
+
+Session Store Configuration
+
+The session store might not be properly initialized for production
+
+
+
+Solutions:
+1. Check your session configuration code
+Look for something like this in your server/index.ts:
+typescript// Make sure connect-pg-simple is properly configured
+import session from 'express-session';
+import connectPgSimple from 'connect-pg-simple';
+
+const PgStore = connectPgSimple(session);
+
+app.use(session({
+  store: new PgStore({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: true, // Important!
+  }),
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true, // Must be true in production with HTTPS
+    maxAge: 30 * 24 * 60 * 60 * 1000
+  }
+}));
+2. Create the session table manually
+Connect to your PostgreSQL database and run:
+sqlCREATE TABLE IF NOT EXISTS "session" (
+  "sid" varchar NOT NULL COLLATE "default",
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL,
+  CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
+);
+
+CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
+3. Check container logs for specific error
+Run this command to see what's actually failing:
+bashdocker logs app-ass4ogowwogokcscs8oowogo-150859680759
+4. Temporary workaround
+If you need the site working immediately, you could temporarily set NODE_ENV=development in your environment variables to use MemoryStore, but this is not recommended for production as sessions won't persist across restarts.
+Next Step: Check your container logs first to see the exact error message, then we can provide a more specific solution.
