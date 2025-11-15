@@ -40,12 +40,12 @@ export async function comparePasswords(supplied: string, stored: string): Promis
     if (parts.length !== 2) {
       return false;
     }
-    
+
     const [hashed, salt] = parts;
     if (!hashed || !salt) {
       return false;
     }
-    
+
     const hashedBuf = Buffer.from(hashed, "hex");
     const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
     return timingSafeEqual(hashedBuf, suppliedBuf);
@@ -67,11 +67,11 @@ export function verifyTokenTiming(supplied: string, stored: string): boolean {
   try {
     const suppliedBuf = Buffer.from(supplied, 'hex');
     const storedBuf = Buffer.from(stored, 'hex');
-    
+
     if (suppliedBuf.length !== storedBuf.length) {
       return false;
     }
-    
+
     return timingSafeEqual(suppliedBuf, storedBuf);
   } catch (error) {
     return false;
@@ -92,7 +92,7 @@ export function setupAuth(app: Express) {
     ? new PgSession({
         pool: pool,
         tableName: 'session',
-        createTableIfMissing: true,
+        createTableIfMissing: false, // FIXED: Table already exists, don't try to recreate
         errorLog: (...args) => {
           // Ignore "already exists" errors during table/index creation
           const error = args[0];
@@ -139,7 +139,7 @@ export function setupAuth(app: Express) {
           console.log('[AUTH] User not found or no password');
           return done(null, false, { message: "Invalid username or password" });
         }
-        
+
         console.log('[AUTH] Stored password hash:', user.password);
         console.log('[AUTH] Password length:', password.length);
         const isValid = await comparePasswords(password, user.password);
@@ -147,13 +147,13 @@ export function setupAuth(app: Express) {
         if (!isValid) {
           return done(null, false, { message: "Invalid username or password" });
         }
-        
+
         // Check if user account is active
         if (!user.isActive) {
           console.log('[AUTH] Account is inactive');
           return done(null, false, { message: "Account is inactive. Please contact an administrator." });
         }
-        
+
         return done(null, user);
       } catch (error) {
         console.error('[AUTH] Error during authentication:', error);
@@ -176,17 +176,17 @@ export function setupAuth(app: Express) {
           try {
             // Check if user exists with this Google ID
             let user = await storage.getUserByOAuth("google", profile.id);
-            
+
             if (!user) {
               // Create new user from Google profile
               const email = profile.emails?.[0]?.value;
               const firstName = profile.name?.givenName || "";
               const lastName = profile.name?.familyName || "";
               const profileImageUrl = profile.photos?.[0]?.value;
-              
+
               // Get role from session if available
               const role = (req.session as any)?.selectedRole || "passenger";
-              
+
               user = await storage.createUser({
                 email,
                 firstName,
@@ -198,7 +198,7 @@ export function setupAuth(app: Express) {
                 isActive: true,
               });
             }
-            
+
             return done(null, user);
           } catch (error) {
             return done(error as Error);
@@ -224,16 +224,16 @@ export function setupAuth(app: Express) {
           try {
             // Check if user exists with this Apple ID
             let user = await storage.getUserByOAuth("apple", profile.id);
-            
+
             if (!user) {
               // Create new user from Apple profile
               const email = profile.email;
               const firstName = profile.name?.firstName || "";
               const lastName = profile.name?.lastName || "";
-              
+
               // Get role from session if available
               const role = (req.session as any)?.selectedRole || "passenger";
-              
+
               user = await storage.createUser({
                 email,
                 firstName,
@@ -244,7 +244,7 @@ export function setupAuth(app: Express) {
                 isActive: true,
               });
             }
-            
+
             return done(null, user);
           } catch (error) {
             return done(error as Error);
@@ -278,37 +278,37 @@ export function setupAuth(app: Express) {
   });
 
   // Authentication routes
-  
+
   // Local registration
   app.post("/api/register", async (req, res, next) => {
     try {
       const { username, password, email, firstName, lastName, role } = req.body;
-      
+
       // Validate required fields
       if (!username || !password || !email) {
         return res.status(400).json({ message: "Username, password, and email are required" });
       }
-      
+
       // Check if username already exists
       const existingUser = await storage.getUserByUsername(username);
       if (existingUser) {
         return res.status(400).json({ message: "Username already exists" });
       }
-      
+
       // Check if email already exists
       const existingEmail = await storage.getUserByEmail(email);
       if (existingEmail) {
         return res.status(400).json({ message: "Email already exists" });
       }
-      
+
       // Create user with hashed password
       const hashedPassword = await hashPassword(password);
-      
+
       // Determine default isActive based on role
       // Admin accounts start as inactive and must be activated by existing admins
       const userRole = role || "passenger";
       const defaultIsActive = userRole === "admin" ? false : true;
-      
+
       const user = await storage.createUser({
         username,
         password: hashedPassword,
@@ -319,24 +319,24 @@ export function setupAuth(app: Express) {
         oauthProvider: "local",
         isActive: defaultIsActive,
       });
-      
+
       // Log the user in
       req.login(user, (loginErr) => {
         if (loginErr) {
           console.error("🔴 Registration login error:", loginErr);
           return next(loginErr);
         }
-        
+
         // Explicitly save the session before responding
         req.session.save((saveErr) => {
           if (saveErr) {
             console.error("🔴 Registration session save error:", saveErr);
             return next(saveErr);
           }
-          
+
           console.log("✅ Registration successful for user:", user.id);
           console.log("✅ SessionID:", req.sessionID);
-          
+
           // Send user data without password
           const { password: _, ...userWithoutPassword } = user;
           res.status(201).json(userWithoutPassword);
@@ -351,11 +351,11 @@ export function setupAuth(app: Express) {
   // Local login
   app.post("/api/login", (req, res, next) => {
     const { username, password } = req.body;
-    
+
     if (!username || !password) {
       return res.status(400).json({ message: "Username and password are required" });
     }
-    
+
     passport.authenticate("local", (err: any, user: any, info: any) => {
       if (err) {
         console.error("🔴 Login error:", err);
@@ -365,20 +365,20 @@ export function setupAuth(app: Express) {
         console.log("🔴 Authentication failed:", info?.message);
         return res.status(401).json({ message: info?.message || "Invalid credentials" });
       }
-      
+
       req.login(user, (loginErr) => {
         if (loginErr) {
           console.error("🔴 req.login error:", loginErr);
           return next(loginErr);
         }
-        
+
         // Session is automatically saved by passport, but we'll ensure it
         req.session.save((saveErr) => {
           if (saveErr) {
             console.error("🔴 Session save error:", saveErr);
             return next(saveErr);
           }
-          
+
           console.log("✅ Login successful for user:", user.id);
           console.log("✅ SessionID:", req.sessionID);
           console.log("✅ Session passport:", (req.session as any).passport);
@@ -391,12 +391,12 @@ export function setupAuth(app: Express) {
             maxAge: req.session.cookie.maxAge
           });
           console.log("✅ Response will set cookie header");
-          
+
           // Log response headers after they're set
           res.on('finish', () => {
             console.log("✅ Response sent with headers:", res.getHeaders());
           });
-          
+
           // Send user data without password
           const { password: _, ...userWithoutPassword } = user;
           res.status(200).json(userWithoutPassword);
@@ -507,12 +507,12 @@ export function isAuthenticated(req: any, res: any, next: any) {
   console.log("🔍 Session.passport:", (req.session as any)?.passport);
   console.log("🔍 req.isAuthenticated():", req.isAuthenticated());
   console.log("🔍 req.user:", req.user?.id);
-  
+
   if (req.isAuthenticated() && req.user) {
     console.log("✅ Authentication successful for user:", req.user.id);
     return next();
   }
-  
+
   console.log("❌ Authentication failed for:", req.path);
   console.log("❌ Reason: isAuthenticated =", req.isAuthenticated(), "user =", !!req.user);
   res.status(401).json({ message: "Not authenticated" });
