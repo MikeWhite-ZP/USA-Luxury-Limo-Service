@@ -910,100 +910,237 @@ function AdminEmailSettings({ user }: { user: any }) {
                     </div>
                   </div>
 
-                  {/* SMTP Providers Information */}
-                  <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 border border-slate-200 rounded-xl p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="bg-slate-600 p-1.5 rounded-lg">
-                        <AlertCircle className="w-4 h-4 text-white" />
-                      </div>
-                      <h4 className="font-semibold text-slate-900">Common SMTP Providers</h4>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="bg-white rounded-lg p-4 border border-slate-200">
-                        <p className="text-sm font-semibold text-slate-900 mb-2">Gmail</p>
-                        <div className="grid grid-cols-3 gap-2 text-xs">
-                          <div>
-                            <span className="text-slate-500">Host:</span>{" "}
-                            <span className="font-mono text-slate-700">smtp.gmail.com</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500">Port:</span>{" "}
-                            <span className="font-mono text-slate-700">587</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500">SSL/TLS:</span>{" "}
-                            <span className="font-mono text-slate-700">No</span>
-                          </div>
-                        </div>
-                        <p className="text-xs text-amber-700 mt-2 bg-amber-50 p-2 rounded border border-amber-200">
-                          Use App Password, not regular password
-                        </p>
-                      </div>
-
-                      <div className="bg-white rounded-lg p-4 border border-slate-200">
-                        <p className="text-sm font-semibold text-slate-900 mb-2">Outlook/Office 365</p>
-                        <div className="grid grid-cols-3 gap-2 text-xs">
-                          <div>
-                            <span className="text-slate-500">Host:</span>{" "}
-                            <span className="font-mono text-slate-700">smtp.office365.com</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500">Port:</span>{" "}
-                            <span className="font-mono text-slate-700">587</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500">SSL/TLS:</span>{" "}
-                            <span className="font-mono text-slate-700">No</span>
-                          </div>
+                  {/* Email Server Providers - Modern Professional Design */}
+                  <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-8 shadow-2xl overflow-hidden relative">
+                    {/* Decorative background elements */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.15)_0%,transparent_50%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(139,92,246,0.1)_0%,transparent_50%)]" />
+                    
+                    {/* Header */}
+                    <div className="relative flex items-center gap-3 mb-8">
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl blur-md opacity-60 group-hover:opacity-100 transition-opacity" />
+                        <div className="relative bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg">
+                          <Mail className="w-6 h-6 text-white" />
                         </div>
                       </div>
-
-                      <div className="bg-white rounded-lg p-4 border border-slate-200">
-                        <p className="text-sm font-semibold text-slate-900 mb-2">Yahoo</p>
-                        <div className="grid grid-cols-3 gap-2 text-xs">
-                          <div>
-                            <span className="text-slate-500">Host:</span>{" "}
-                            <span className="font-mono text-slate-700">smtp.mail.yahoo.com</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500">Port:</span>{" "}
-                            <span className="font-mono text-slate-700">587</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500">SSL/TLS:</span>{" "}
-                            <span className="font-mono text-slate-700">No</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-white rounded-lg p-4 border border-slate-200">
-                        <p className="text-sm font-semibold text-slate-900 mb-2">SendGrid</p>
-                        <div className="grid grid-cols-3 gap-2 text-xs">
-                          <div>
-                            <span className="text-slate-500">Host:</span>{" "}
-                            <span className="font-mono text-slate-700">smtp.sendgrid.net</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500">Port:</span>{" "}
-                            <span className="font-mono text-slate-700">587</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500">SSL/TLS:</span>{" "}
-                            <span className="font-mono text-slate-700">No</span>
-                          </div>
-                        </div>
+                      <div>
+                        <h4 className="text-xl font-bold text-white tracking-tight">Email Server Providers</h4>
+                        <p className="text-sm text-slate-400 mt-0.5">Pre-configured settings for popular email services</p>
                       </div>
                     </div>
 
-                    <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                      <div className="flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                        <div className="text-sm">
-                          <p className="font-semibold text-amber-900 mb-1">Important Configuration Notes</p>
-                          <p className="text-amber-800">
-                            For Port <strong>587</strong>, set SSL/TLS to <strong>No</strong> (uses STARTTLS). 
-                            For Port <strong>465</strong>, set SSL/TLS to <strong>Yes</strong> (direct SSL).
+                    {/* Providers Grid */}
+                    <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                      {/* Hostinger - Featured Provider with Full Protocol Details */}
+                      <div className="lg:col-span-2 bg-gradient-to-br from-blue-50 via-white to-indigo-50 rounded-xl p-6 border-2 border-blue-200 shadow-lg">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2.5 rounded-lg shadow-md">
+                              <Server className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <h5 className="text-lg font-bold text-slate-900">Hostinger</h5>
+                              <p className="text-xs text-slate-600">Complete email server configuration</p>
+                            </div>
+                          </div>
+                          <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-md px-3 py-1">
+                            Full Service
+                          </Badge>
+                        </div>
+
+                        {/* Protocol Tabs */}
+                        <Tabs defaultValue="smtp" className="w-full">
+                          <TabsList className="grid w-full grid-cols-3 bg-slate-100/80 p-1">
+                            <TabsTrigger value="smtp" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                              SMTP (Outgoing)
+                            </TabsTrigger>
+                            <TabsTrigger value="imap" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                              IMAP (Incoming)
+                            </TabsTrigger>
+                            <TabsTrigger value="pop" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                              POP (Incoming)
+                            </TabsTrigger>
+                          </TabsList>
+                          
+                          <TabsContent value="smtp" className="mt-4 space-y-3">
+                            <div className="grid grid-cols-3 gap-3">
+                              <div className="bg-white rounded-lg p-3 border border-blue-200 shadow-sm">
+                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Hostname</p>
+                                <p className="font-mono text-sm font-bold text-blue-700">smtp.hostinger.com</p>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border border-blue-200 shadow-sm">
+                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Port</p>
+                                <p className="font-mono text-sm font-bold text-blue-700">465</p>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border border-blue-200 shadow-sm">
+                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">SSL/TLS</p>
+                                <p className="font-mono text-sm font-bold text-emerald-600">Yes</p>
+                              </div>
+                            </div>
+                          </TabsContent>
+                          
+                          <TabsContent value="imap" className="mt-4 space-y-3">
+                            <div className="grid grid-cols-3 gap-3">
+                              <div className="bg-white rounded-lg p-3 border border-indigo-200 shadow-sm">
+                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Hostname</p>
+                                <p className="font-mono text-sm font-bold text-indigo-700">imap.hostinger.com</p>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border border-indigo-200 shadow-sm">
+                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Port</p>
+                                <p className="font-mono text-sm font-bold text-indigo-700">993</p>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border border-indigo-200 shadow-sm">
+                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">SSL/TLS</p>
+                                <p className="font-mono text-sm font-bold text-emerald-600">Yes</p>
+                              </div>
+                            </div>
+                          </TabsContent>
+                          
+                          <TabsContent value="pop" className="mt-4 space-y-3">
+                            <div className="grid grid-cols-3 gap-3">
+                              <div className="bg-white rounded-lg p-3 border border-purple-200 shadow-sm">
+                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Hostname</p>
+                                <p className="font-mono text-sm font-bold text-purple-700">pop.hostinger.com</p>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border border-purple-200 shadow-sm">
+                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Port</p>
+                                <p className="font-mono text-sm font-bold text-purple-700">995</p>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border border-purple-200 shadow-sm">
+                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">SSL/TLS</p>
+                                <p className="font-mono text-sm font-bold text-emerald-600">Yes</p>
+                              </div>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
+                      </div>
+
+                      {/* Gmail */}
+                      <div className="group bg-white/95 backdrop-blur-sm rounded-xl p-5 border border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 hover:border-blue-300">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="bg-gradient-to-br from-red-500 to-red-600 p-2 rounded-lg shadow-sm">
+                            <Mail className="w-4 h-4 text-white" />
+                          </div>
+                          <h5 className="font-bold text-slate-900 text-sm">Gmail</h5>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 mb-3">
+                          <div className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-slate-500 font-medium mb-0.5">Host</p>
+                            <p className="font-mono text-xs font-bold text-slate-800">smtp.gmail.com</p>
+                          </div>
+                          <div className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-slate-500 font-medium mb-0.5">Port</p>
+                            <p className="font-mono text-xs font-bold text-slate-800">587</p>
+                          </div>
+                          <div className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-slate-500 font-medium mb-0.5">SSL/TLS</p>
+                            <p className="font-mono text-xs font-bold text-slate-800">No</p>
+                          </div>
+                        </div>
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5">
+                          <p className="text-xs text-amber-800 flex items-center gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span className="font-medium">Use App Password, not regular password</span>
                           </p>
+                        </div>
+                      </div>
+
+                      {/* Outlook/Office 365 */}
+                      <div className="group bg-white/95 backdrop-blur-sm rounded-xl p-5 border border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 hover:border-blue-300">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-2 rounded-lg shadow-sm">
+                            <Mail className="w-4 h-4 text-white" />
+                          </div>
+                          <h5 className="font-bold text-slate-900 text-sm">Outlook/Office 365</h5>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-slate-500 font-medium mb-0.5">Host</p>
+                            <p className="font-mono text-xs font-bold text-slate-800">smtp.office365.com</p>
+                          </div>
+                          <div className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-slate-500 font-medium mb-0.5">Port</p>
+                            <p className="font-mono text-xs font-bold text-slate-800">587</p>
+                          </div>
+                          <div className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-slate-500 font-medium mb-0.5">SSL/TLS</p>
+                            <p className="font-mono text-xs font-bold text-slate-800">No</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Yahoo */}
+                      <div className="group bg-white/95 backdrop-blur-sm rounded-xl p-5 border border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 hover:border-purple-300">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-2 rounded-lg shadow-sm">
+                            <Mail className="w-4 h-4 text-white" />
+                          </div>
+                          <h5 className="font-bold text-slate-900 text-sm">Yahoo</h5>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-slate-500 font-medium mb-0.5">Host</p>
+                            <p className="font-mono text-xs font-bold text-slate-800">smtp.mail.yahoo.com</p>
+                          </div>
+                          <div className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-slate-500 font-medium mb-0.5">Port</p>
+                            <p className="font-mono text-xs font-bold text-slate-800">587</p>
+                          </div>
+                          <div className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-slate-500 font-medium mb-0.5">SSL/TLS</p>
+                            <p className="font-mono text-xs font-bold text-slate-800">No</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* SendGrid */}
+                      <div className="group bg-white/95 backdrop-blur-sm rounded-xl p-5 border border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 hover:border-teal-300">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="bg-gradient-to-br from-teal-600 to-teal-700 p-2 rounded-lg shadow-sm">
+                            <Mail className="w-4 h-4 text-white" />
+                          </div>
+                          <h5 className="font-bold text-slate-900 text-sm">SendGrid</h5>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-slate-500 font-medium mb-0.5">Host</p>
+                            <p className="font-mono text-xs font-bold text-slate-800">smtp.sendgrid.net</p>
+                          </div>
+                          <div className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-slate-500 font-medium mb-0.5">Port</p>
+                            <p className="font-mono text-xs font-bold text-slate-800">587</p>
+                          </div>
+                          <div className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-slate-500 font-medium mb-0.5">SSL/TLS</p>
+                            <p className="font-mono text-xs font-bold text-slate-800">No</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Configuration Notes */}
+                    <div className="relative bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-300 rounded-xl p-5 shadow-lg">
+                      <div className="flex items-start gap-3">
+                        <div className="bg-amber-500 p-2 rounded-lg shadow-md flex-shrink-0">
+                          <AlertCircle className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-amber-900 mb-2 text-sm">SSL/TLS Configuration Guide</h5>
+                          <div className="space-y-1.5 text-xs text-amber-900">
+                            <p className="flex items-center gap-2">
+                              <span className="bg-amber-200 px-2 py-0.5 rounded font-mono font-bold">Port 587</span>
+                              <span>→ Set SSL/TLS to <strong>No</strong> (uses STARTTLS for encryption)</span>
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <span className="bg-emerald-200 px-2 py-0.5 rounded font-mono font-bold">Port 465</span>
+                              <span>→ Set SSL/TLS to <strong>Yes</strong> (direct SSL connection)</span>
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <span className="bg-indigo-200 px-2 py-0.5 rounded font-mono font-bold">Port 993/995</span>
+                              <span>→ Set SSL/TLS to <strong>Yes</strong> (secure IMAP/POP)</span>
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
