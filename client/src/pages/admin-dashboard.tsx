@@ -3206,6 +3206,7 @@ export default function AdminDashboard() {
     discountType: null as "percentage" | "fixed" | null,
     discountValue: "0",
     vehiclePlate: "", // For drivers
+    temporaryPassword: "", // For setting temp password when editing
   });
 
   // Payment configuration dialog state
@@ -4379,6 +4380,42 @@ export default function AdminDashboard() {
     },
   });
 
+  // Set temporary password mutation
+  const setTempPasswordMutation = useMutation({
+    mutationFn: async ({
+      userId,
+      temporaryPassword,
+    }: {
+      userId: string;
+      temporaryPassword: string;
+    }) => {
+      const response = await apiRequest(
+        "POST",
+        `/api/admin/users/${userId}/set-temp-password`,
+        { temporaryPassword },
+      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to set temporary password");
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Temporary password set and user notified",
+      });
+      setUserFormData({ ...userFormData, temporaryPassword: "" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to set temporary password",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Payment system mutations
   const updatePaymentSystemMutation = useMutation({
     mutationFn: async ({
@@ -4818,6 +4855,7 @@ export default function AdminDashboard() {
       discountType: null,
       discountValue: "0",
       vehiclePlate: "",
+      temporaryPassword: "",
     });
     setUserDialogOpen(true);
   };
@@ -4836,6 +4874,7 @@ export default function AdminDashboard() {
       discountType: user.discountType as "percentage" | "fixed" | null,
       discountValue: user.discountValue || "0",
       vehiclePlate: (user as any).driverInfo?.vehiclePlate || "",
+      temporaryPassword: "",
     });
     setUserDialogOpen(true);
   };
@@ -5041,7 +5080,7 @@ export default function AdminDashboard() {
     updateCommissionMutation.mutate(commissionPercentage);
   };
 
-  const handleSaveUser = () => {
+  const handleSaveUser = async () => {
     if (!userFormData.firstName || !userFormData.email) {
       toast({
         title: "Missing Information",
@@ -5051,16 +5090,41 @@ export default function AdminDashboard() {
       return;
     }
 
+    // Validate temporary password if provided
+    if (userFormData.temporaryPassword && userFormData.temporaryPassword.length > 0 && userFormData.temporaryPassword.length < 6) {
+      toast({
+        title: "Invalid Password",
+        description: "Temporary password must be at least 6 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (editingUser) {
-      // Update existing user
+      // Update existing user (excluding temporaryPassword from updates)
+      const { temporaryPassword, ...updates } = userFormData;
       updateUserMutation.mutate({
         id: editingUser.id,
-        updates: userFormData,
+        updates,
       });
+
+      // If temporary password is set, call the temp password API separately
+      if (temporaryPassword && temporaryPassword.length >= 6) {
+        try {
+          await setTempPasswordMutation.mutateAsync({
+            userId: editingUser.id,
+            temporaryPassword,
+          });
+        } catch (error) {
+          // Error is already handled by mutation's onError
+        }
+      }
+      
       setUserDialogOpen(false);
     } else {
-      // Create new user
-      createUserMutation.mutate(userFormData);
+      // Create new user (excluding temporaryPassword)
+      const { temporaryPassword, ...userData } = userFormData;
+      createUserMutation.mutate(userData as Omit<typeof userFormData, 'temporaryPassword'>);
     }
   };
 
@@ -8842,6 +8906,30 @@ export default function AdminDashboard() {
                   </div>
                 )}
               </>
+            )}
+
+            {editingUser && editingUser.id !== user?.id && (
+              <div className="space-y-2 pt-4 border-t border-slate-200">
+                <Label htmlFor="user-temp-password">
+                  Set Temporary Password (Optional)
+                </Label>
+                <Input
+                  id="user-temp-password"
+                  type="password"
+                  placeholder="Leave blank to keep current password"
+                  value={userFormData.temporaryPassword}
+                  onChange={(e) =>
+                    setUserFormData({
+                      ...userFormData,
+                      temporaryPassword: e.target.value,
+                    })
+                  }
+                  data-testid="input-temp-password"
+                />
+                <p className="text-xs text-muted-foreground">
+                  If set, user will receive this password via email/SMS. Minimum 6 characters.
+                </p>
+              </div>
             )}
           </div>
 
