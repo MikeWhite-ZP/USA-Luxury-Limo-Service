@@ -13,11 +13,9 @@ export default function PWAInstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
 
   // Fetch company name from API
-  const { data: companyData } = useQuery<{ companyName: string }>({
+  const { data: companyData, isLoading: isLoadingCompanyName } = useQuery<{ companyName: string }>({
     queryKey: ['/api/site-company-name'],
   });
-
-  const companyName = companyData?.companyName || 'USA Luxury Limo';
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -56,7 +54,10 @@ export default function PWAInstallPrompt() {
     sessionStorage.setItem('pwa-install-dismissed', 'true');
   };
 
-  if (!showPrompt) return null;
+  // Don't show prompt until company name is loaded
+  if (!showPrompt || isLoadingCompanyName || !companyData?.companyName) return null;
+  
+  const companyName = companyData.companyName;
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-50 animate-in slide-in-from-bottom">
