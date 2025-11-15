@@ -97,10 +97,10 @@ function refreshObjectStorage(): void {
  * Handles backwards compatibility with old full URLs
  * 
  * @param pathOrUrl - Either a full URL (legacy) or an object storage key (new format)
- * @returns Presigned URL or original URL
+ * @returns Presigned URL, original URL/path, or empty string if null
  */
-async function getPresignedUrl(pathOrUrl: string | null | undefined): Promise<string | null> {
-  if (!pathOrUrl) return null;
+async function getPresignedUrl(pathOrUrl: string | null | undefined): Promise<string> {
+  if (!pathOrUrl) return '';
   
   // Check if it's already a full URL (backwards compatibility)
   if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
@@ -119,7 +119,7 @@ async function getPresignedUrl(pathOrUrl: string | null | undefined): Promise<st
       return result.url;
     }
     
-    // If presigned URL generation fails, return the path as-is
+    // If presigned URL generation fails, return the path as-is for debugging
     console.warn(`Failed to generate presigned URL for ${pathOrUrl}:`, result.error);
     return pathOrUrl;
   } catch (error) {
