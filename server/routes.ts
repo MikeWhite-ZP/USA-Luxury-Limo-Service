@@ -92,6 +92,65 @@ function refreshObjectStorage(): void {
   lastCredentialCheck = 0;
 }
 
+/**
+ * Convert a stored file path/URL to a presigned URL
+ * Handles backwards compatibility with old full URLs
+ * 
+ * @param pathOrUrl - Either a full URL (legacy) or an object storage key (new format)
+ * @returns Presigned URL or original URL
+ */
+async function getPresignedUrl(pathOrUrl: string | null | undefined): Promise<string | null> {
+  if (!pathOrUrl) return null;
+  
+  // Check if it's already a full URL (backwards compatibility)
+  if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
+    return pathOrUrl;
+  }
+  
+  // It's an object storage key, generate presigned URL
+  try {
+    const objStorage = await getObjectStorage();
+    
+    // Remove leading slash if present
+    const cleanPath = pathOrUrl.startsWith('/') ? pathOrUrl.slice(1) : pathOrUrl;
+    
+    const result = await objStorage.getDownloadUrl(cleanPath);
+    if (result.ok && result.url) {
+      return result.url;
+    }
+    
+    // If presigned URL generation fails, return the path as-is
+    console.warn(`Failed to generate presigned URL for ${pathOrUrl}:`, result.error);
+    return pathOrUrl;
+  } catch (error) {
+    console.error(`Error generating presigned URL for ${pathOrUrl}:`, error);
+    return pathOrUrl;
+  }
+}
+
+/**
+ * Extract object storage key from URL or path
+ * Used for deletion operations
+ * 
+ * @param urlOrPath - Either a full URL or an object storage key
+ * @returns Object storage key
+ */
+function extractStorageKey(urlOrPath: string): string {
+  try {
+    // If it's a full URL, extract the pathname
+    if (urlOrPath.startsWith('http://') || urlOrPath.startsWith('https://')) {
+      const url = new URL(urlOrPath);
+      return url.pathname.startsWith('/') ? url.pathname.slice(1) : url.pathname;
+    }
+    
+    // Otherwise, it's already a key - just remove leading slash if present
+    return urlOrPath.startsWith('/') ? urlOrPath.slice(1) : urlOrPath;
+  } catch (error) {
+    // If URL parsing fails, treat as a path
+    return urlOrPath.startsWith('/') ? urlOrPath.slice(1) : urlOrPath;
+  }
+}
+
 // Configure Multer for file uploads (memory storage)
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -563,9 +622,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: 'Failed to upload image' });
       }
 
-      // Get the URL for the uploaded image
-      const domain = process.env.REPLIT_DOMAINS?.split(',')[0];
-      const imageUrl = domain ? `https://${domain}/${fileName}` : `http://localhost:5000/${fileName}`;
+      // Store just the file path (object storage key), not the full URL
+      // Presigned URLs will be generated on-the-fly when fetching
+      const imageUrl = fileName;
 
       // Update user's profileImageUrl in database
       const updatedUser = await storage.updateUser(userId, { 
@@ -5343,8 +5402,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // If this is a profile photo or vehicle image, also update the user's profileImageUrl
       if (documentType === 'profile_photo' || documentType === 'vehicle_image') {
-        const domain = process.env.REPLIT_DOMAINS?.split(',')[0];
-        const imageUrl = domain ? `https://${domain}/${fileName}` : `http://localhost:5000/${fileName}`;
+        // Store just the file path (object storage key), not the full URL
+        const imageUrl = fileName;
         
         await storage.updateUser(userId, { 
           profileImageUrl: imageUrl 
@@ -7677,9 +7736,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: `Upload failed: ${error}` });
       }
 
-      // Get public URL
-      const domain = process.env.REPLIT_DOMAINS?.split(',')[0];
-      const fileUrl = domain ? `https://${domain}${filePath}` : `http://localhost:5000${filePath}`;
+      // Store just the file path (object storage key), not the full URL
+      // Presigned URLs will be generated on-the-fly when fetching
+      const fileUrl = filePath;
 
       // Validate media metadata with Zod
       const validationResult = insertCmsMediaSchema.safeParse({
