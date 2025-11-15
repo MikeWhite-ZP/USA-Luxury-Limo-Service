@@ -93,6 +93,13 @@ export function setupAuth(app: Express) {
         pool: pool,
         tableName: 'session',
         createTableIfMissing: true,
+        errorLog: (...args) => {
+          // Ignore "already exists" errors during table/index creation
+          const error = args[0];
+          if (!error?.message?.includes('already exists')) {
+            console.error('[SESSION STORE ERROR]', ...args);
+          }
+        }
       })
     : new MemStore({
         checkPeriod: 86400000 // prune expired entries every 24h
