@@ -412,19 +412,33 @@ function AdminEmailSettings({ user }: { user: any }) {
   };
 
   return (
-    <Card id="settings-section" data-testid="email-settings" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50/30 border-b border-slate-200">
-        <CardTitle className="flex items-center gap-3 text-slate-900">
-          <div className="bg-blue-600 p-2 rounded-lg">
-            <Mail className="w-5 h-5 text-white" />
+    <Card id="settings-section" data-testid="email-settings" className="border-0 shadow-xl bg-gradient-to-br from-white via-slate-50/30 to-white backdrop-blur-sm overflow-hidden">
+      {/* Premium Header with layered design */}
+      <CardHeader className="relative bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-700 border-b-0 pb-8">
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1)_0%,transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(139,92,246,0.15)_0%,transparent_50%)]" />
+        
+        <CardTitle className="relative flex items-center gap-4">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-blue-200/30 rounded-2xl blur-md opacity-60 group-hover:opacity-100 transition-opacity" />
+            <div className="relative bg-white/20 backdrop-blur-sm p-3.5 rounded-2xl border border-white/30 shadow-lg">
+              <Mail className="w-6 h-6 text-white" />
+            </div>
           </div>
-          <span>Email Settings</span>
+          <div>
+            <h2 className="text-2xl font-bold text-white tracking-tight">Email Settings</h2>
+            <p className="text-sm text-blue-100 mt-0.5 font-light">Manage system email configuration and SMTP server</p>
+          </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent className="p-8 bg-gradient-to-b from-white to-slate-50/30">
         {isLoading ? (
-          <div className="flex items-center justify-center p-8">
-            <div className="animate-spin w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full" />
+          <div className="flex items-center justify-center p-16">
+            <div className="relative">
+              <div className="animate-spin w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full" />
+              <div className="absolute inset-0 animate-ping w-12 h-12 border-4 border-blue-400 rounded-full opacity-20" />
+            </div>
           </div>
         ) : (
           <Tabs
@@ -432,60 +446,73 @@ function AdminEmailSettings({ user }: { user: any }) {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1">
-              <TabsTrigger value="admin-email" data-testid="tab-admin-email" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+            <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-slate-100 via-white to-slate-100 p-1.5 rounded-xl border border-slate-200 shadow-sm">
+              <TabsTrigger value="admin-email" data-testid="tab-admin-email" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold transition-all">
                 Contact Email
               </TabsTrigger>
-              <TabsTrigger value="system-admin-email" data-testid="tab-system-admin-email" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              <TabsTrigger value="system-admin-email" data-testid="tab-system-admin-email" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold transition-all">
                 Report Email
               </TabsTrigger>
               <TabsTrigger
                 value="smtp-settings"
                 data-testid="tab-smtp-settings"
-                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-600 data-[state=active]:to-teal-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold transition-all"
               >
                 SMTP Settings
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="admin-email" className="space-y-6 mt-6">
-              {/* Description */}
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <p className="text-sm text-slate-700 leading-relaxed">
-                  Configure the system-wide admin email address. Contact form
-                  submissions will be sent to this email address.
-                </p>
+            <TabsContent value="admin-email" className="space-y-6 mt-8">
+              {/* Description Banner */}
+              <div className="relative bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl p-6 shadow-lg overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2)_0%,transparent_60%)]" />
+                <div className="relative flex items-start gap-4">
+                  <div className="bg-white/20 backdrop-blur-sm p-2.5 rounded-xl border border-white/30">
+                    <AlertCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-lg mb-1">Contact Email Configuration</h3>
+                    <p className="text-blue-100 text-sm leading-relaxed">
+                      Configure the system-wide admin email address. Contact form submissions will be sent to this email address.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Current Value Display */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="bg-blue-600 rounded-full p-2">
-                    <Mail className="w-4 h-4 text-white" />
+              <div className="group bg-white rounded-2xl border-2 border-slate-200 shadow-md hover:shadow-xl hover:border-blue-300 transition-all duration-300 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2.5 rounded-xl shadow-md">
+                      <Mail className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Current Contact Email</p>
+                      <p className="text-xl font-bold text-slate-900 mt-0.5">
+                        {emailSetting &&
+                        typeof emailSetting === "object" &&
+                        "value" in emailSetting
+                          ? (emailSetting as any).value
+                          : "Not set"}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-sm font-medium text-slate-600">Current Contact Email</p>
+                  <Badge className="bg-blue-100 text-blue-700 border-0 px-3 py-1.5 font-semibold">Active</Badge>
                 </div>
-                <p className="text-lg font-semibold text-blue-700">
-                  {emailSetting &&
-                  typeof emailSetting === "object" &&
-                  "value" in emailSetting
-                    ? (emailSetting as any).value
-                    : "Not set"}
-                </p>
               </div>
 
               {/* Update Form */}
-              <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="bg-blue-100 p-1.5 rounded-lg">
-                    <Settings className="w-4 h-4 text-blue-700" />
+              <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+                  <div className="bg-gradient-to-br from-blue-100 to-indigo-100 p-2.5 rounded-xl">
+                    <Settings className="w-5 h-5 text-blue-700" />
                   </div>
-                  <h3 className="font-semibold text-slate-900">Update Contact Email</h3>
+                  <h3 className="text-xl font-bold text-slate-900">Update Contact Email</h3>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <Label htmlFor="admin-email" className="text-slate-700 font-medium">
+                    <Label htmlFor="admin-email" className="text-slate-700 font-semibold text-sm mb-2 block">
                       Admin Email Address
                     </Label>
                     <Input
@@ -494,7 +521,7 @@ function AdminEmailSettings({ user }: { user: any }) {
                       value={adminEmail}
                       onChange={(e) => setAdminEmail(e.target.value)}
                       placeholder="admin@example.com"
-                      className="mt-2 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                      className="h-12 border-2 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl text-base"
                       data-testid="input-admin-email"
                     />
                   </div>
@@ -502,17 +529,17 @@ function AdminEmailSettings({ user }: { user: any }) {
                   <Button
                     onClick={handleUpdate}
                     disabled={updateEmailMutation.isPending}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                     data-testid="button-update-email"
                   >
                     {updateEmailMutation.isPending ? (
                       <>
-                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                        <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2" />
                         Updating...
                       </>
                     ) : (
                       <>
-                        <Check className="w-4 h-4 mr-2" />
+                        <Check className="w-5 h-5 mr-2" />
                         Update Contact Email
                       </>
                     )}
@@ -521,35 +548,35 @@ function AdminEmailSettings({ user }: { user: any }) {
               </div>
 
               {/* Usage Information */}
-              <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 border border-slate-200 rounded-xl p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="bg-blue-600 p-1.5 rounded-lg">
-                    <AlertCircle className="w-4 h-4 text-white" />
+              <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 rounded-2xl border-2 border-slate-200 shadow-md p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2.5 rounded-xl shadow-md">
+                    <AlertCircle className="w-5 h-5 text-white" />
                   </div>
-                  <h4 className="font-semibold text-slate-900">Usage Information</h4>
+                  <h4 className="text-xl font-bold text-slate-900">Usage Information</h4>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
-                    <div className="bg-blue-100 rounded-full p-1 mt-0.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+                <div className="grid gap-4">
+                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300">
+                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-2 shadow-sm flex-shrink-0">
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed">
+                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
                       This email receives all contact form submissions from passengers
                     </p>
                   </div>
-                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
-                    <div className="bg-indigo-100 rounded-full p-1 mt-0.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-600"></div>
+                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all duration-300">
+                    <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg p-2 shadow-sm flex-shrink-0">
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed">
+                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
                       Make sure the email address is monitored regularly
                     </p>
                   </div>
-                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
-                    <div className="bg-green-100 rounded-full p-1 mt-0.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-600"></div>
+                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-300">
+                    <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg p-2 shadow-sm flex-shrink-0">
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed">
+                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
                       You can update this email at any time
                     </p>
                   </div>
@@ -557,44 +584,57 @@ function AdminEmailSettings({ user }: { user: any }) {
               </div>
             </TabsContent>
 
-            <TabsContent value="system-admin-email" className="space-y-6 mt-6">
-              {/* Description */}
-              <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
-                <p className="text-sm text-slate-700 leading-relaxed">
-                  Configure the system admin email address for automated email reports. 
-                  All booking activity, driver status changes, and cancellation reports will be sent here.
-                </p>
+            <TabsContent value="system-admin-email" className="space-y-6 mt-8">
+              {/* Description Banner */}
+              <div className="relative bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl p-6 shadow-lg overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2)_0%,transparent_60%)]" />
+                <div className="relative flex items-start gap-4">
+                  <div className="bg-white/20 backdrop-blur-sm p-2.5 rounded-xl border border-white/30">
+                    <AlertCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-lg mb-1">Report Email Configuration</h3>
+                    <p className="text-purple-100 text-sm leading-relaxed">
+                      Configure the system admin email address for automated email reports. All booking activity, driver status changes, and cancellation reports will be sent here.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Current Value Display */}
-              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="bg-indigo-600 rounded-full p-2">
-                    <Mail className="w-4 h-4 text-white" />
+              <div className="group bg-white rounded-2xl border-2 border-slate-200 shadow-md hover:shadow-xl hover:border-indigo-300 transition-all duration-300 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2.5 rounded-xl shadow-md">
+                      <Mail className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Current Report Email</p>
+                      <p className="text-xl font-bold text-slate-900 mt-0.5">
+                        {systemEmailSetting &&
+                        typeof systemEmailSetting === "object" &&
+                        "value" in systemEmailSetting
+                          ? (systemEmailSetting as any).value
+                          : "Not set"}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-sm font-medium text-slate-600">Current Report Email</p>
+                  <Badge className="bg-indigo-100 text-indigo-700 border-0 px-3 py-1.5 font-semibold">Active</Badge>
                 </div>
-                <p className="text-lg font-semibold text-indigo-700">
-                  {systemEmailSetting &&
-                  typeof systemEmailSetting === "object" &&
-                  "value" in systemEmailSetting
-                    ? (systemEmailSetting as any).value
-                    : "Not set"}
-                </p>
               </div>
 
               {/* Update Form */}
-              <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="bg-indigo-100 p-1.5 rounded-lg">
-                    <Settings className="w-4 h-4 text-indigo-700" />
+              <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+                  <div className="bg-gradient-to-br from-indigo-100 to-purple-100 p-2.5 rounded-xl">
+                    <Settings className="w-5 h-5 text-indigo-700" />
                   </div>
-                  <h3 className="font-semibold text-slate-900">Update Report Email</h3>
+                  <h3 className="text-xl font-bold text-slate-900">Update Report Email</h3>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <Label htmlFor="system-admin-email" className="text-slate-700 font-medium">
+                    <Label htmlFor="system-admin-email" className="text-slate-700 font-semibold text-sm mb-2 block">
                       System Admin Email Address
                     </Label>
                     <Input
@@ -603,7 +643,7 @@ function AdminEmailSettings({ user }: { user: any }) {
                       value={systemAdminEmail}
                       onChange={(e) => setSystemAdminEmail(e.target.value)}
                       placeholder="reports@example.com"
-                      className="mt-2 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
+                      className="h-12 border-2 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-base"
                       data-testid="input-system-admin-email"
                     />
                   </div>
@@ -611,17 +651,17 @@ function AdminEmailSettings({ user }: { user: any }) {
                   <Button
                     onClick={handleSystemAdminEmailUpdate}
                     disabled={updateSystemAdminEmailMutation.isPending}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
+                    className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                     data-testid="button-update-system-admin-email"
                   >
                     {updateSystemAdminEmailMutation.isPending ? (
                       <>
-                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                        <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2" />
                         Updating...
                       </>
                     ) : (
                       <>
-                        <Check className="w-4 h-4 mr-2" />
+                        <Check className="w-5 h-5 mr-2" />
                         Update Report Email
                       </>
                     )}
@@ -630,43 +670,43 @@ function AdminEmailSettings({ user }: { user: any }) {
               </div>
 
               {/* Report Types */}
-              <div className="bg-gradient-to-br from-slate-50 to-indigo-50/30 border border-slate-200 rounded-xl p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="bg-indigo-600 p-1.5 rounded-lg">
-                    <AlertCircle className="w-4 h-4 text-white" />
+              <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 rounded-2xl border-2 border-slate-200 shadow-md p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-2.5 rounded-xl shadow-md">
+                    <FileText className="w-5 h-5 text-white" />
                   </div>
-                  <h4 className="font-semibold text-slate-900">Report Types</h4>
+                  <h4 className="text-xl font-bold text-slate-900">Report Types</h4>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
-                    <div className="bg-blue-100 rounded-full p-1 mt-0.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+                <div className="grid gap-4">
+                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300">
+                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-2 shadow-sm flex-shrink-0">
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed">
+                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
                       New booking confirmations with full details
                     </p>
                   </div>
-                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
-                    <div className="bg-indigo-100 rounded-full p-1 mt-0.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-600"></div>
+                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all duration-300">
+                    <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg p-2 shadow-sm flex-shrink-0">
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed">
+                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
                       Cancellation reports (passenger, driver, or automatic)
                     </p>
                   </div>
-                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
-                    <div className="bg-purple-100 rounded-full p-1 mt-0.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-purple-600"></div>
+                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-purple-300 hover:shadow-md transition-all duration-300">
+                    <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-2 shadow-sm flex-shrink-0">
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed">
+                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
                       Driver activity updates (acceptance, on the way, arrived, on board)
                     </p>
                   </div>
-                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
-                    <div className="bg-green-100 rounded-full p-1 mt-0.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-600"></div>
+                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-300">
+                    <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg p-2 shadow-sm flex-shrink-0">
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed">
+                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
                       All reports include booking ID, passenger info, and timestamps
                     </p>
                   </div>
@@ -674,33 +714,44 @@ function AdminEmailSettings({ user }: { user: any }) {
               </div>
             </TabsContent>
 
-            <TabsContent value="smtp-settings" className="space-y-6 mt-6">
-              {/* Description */}
-              <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                <p className="text-sm text-slate-700 leading-relaxed">
-                  Configure SMTP server settings to enable email sending
-                  functionality throughout the system.
-                </p>
+            <TabsContent value="smtp-settings" className="space-y-6 mt-8">
+              {/* Description Banner */}
+              <div className="relative bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 rounded-2xl p-6 shadow-lg overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2)_0%,transparent_60%)]" />
+                <div className="relative flex items-start gap-4">
+                  <div className="bg-white/20 backdrop-blur-sm p-2.5 rounded-xl border border-white/30">
+                    <Server className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-lg mb-1">SMTP Server Configuration</h3>
+                    <p className="text-emerald-100 text-sm leading-relaxed">
+                      Configure SMTP server settings to enable email sending functionality throughout the system.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {smtpLoading ? (
-                <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin w-6 h-6 border-4 border-green-600 border-t-transparent rounded-full" />
+                <div className="flex items-center justify-center p-16">
+                  <div className="relative">
+                    <div className="animate-spin w-12 h-12 border-4 border-slate-200 border-t-emerald-600 rounded-full" />
+                    <div className="absolute inset-0 animate-ping w-12 h-12 border-4 border-emerald-400 rounded-full opacity-20" />
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-6">
                   {/* SMTP Configuration Form */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-5">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="bg-green-100 p-1.5 rounded-lg">
-                        <Settings className="w-4 h-4 text-green-700" />
+                  <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 space-y-6">
+                    <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+                      <div className="bg-gradient-to-br from-emerald-100 to-teal-100 p-2.5 rounded-xl">
+                        <Settings className="w-5 h-5 text-emerald-700" />
                       </div>
-                      <h3 className="font-semibold text-slate-900">SMTP Server Configuration</h3>
+                      <h3 className="text-xl font-bold text-slate-900">SMTP Server Configuration</h3>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <Label htmlFor="smtp-host" className="text-slate-700 font-medium">SMTP Host *</Label>
+                        <Label htmlFor="smtp-host" className="text-slate-700 font-semibold text-sm mb-2 block">SMTP Host *</Label>
                         <Input
                           id="smtp-host"
                           value={smtpSettings.host}
@@ -711,12 +762,12 @@ function AdminEmailSettings({ user }: { user: any }) {
                             })
                           }
                           placeholder="smtp.gmail.com"
-                          className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500"
+                          className="h-12 border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
                           data-testid="input-smtp-host"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="smtp-port" className="text-slate-700 font-medium">Port *</Label>
+                        <Label htmlFor="smtp-port" className="text-slate-700 font-semibold text-sm mb-2 block">Port *</Label>
                         <Input
                           id="smtp-port"
                           value={smtpSettings.port}
@@ -727,13 +778,13 @@ function AdminEmailSettings({ user }: { user: any }) {
                             })
                           }
                           placeholder="587"
-                          className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500"
+                          className="h-12 border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
                           data-testid="input-smtp-port"
                         />
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-emerald-50/30 rounded-xl border-2 border-slate-200">
                       <input
                         type="checkbox"
                         id="smtp-secure"
@@ -744,17 +795,17 @@ function AdminEmailSettings({ user }: { user: any }) {
                             secure: e.target.checked,
                           })
                         }
-                        className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500"
+                        className="w-5 h-5 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
                         data-testid="checkbox-smtp-secure"
                       />
-                      <Label htmlFor="smtp-secure" className="cursor-pointer text-slate-700 font-medium">
+                      <Label htmlFor="smtp-secure" className="cursor-pointer text-slate-700 font-semibold">
                         Use SSL/TLS (port 465)
                       </Label>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <Label htmlFor="smtp-user" className="text-slate-700 font-medium">SMTP Username *</Label>
+                        <Label htmlFor="smtp-user" className="text-slate-700 font-semibold text-sm mb-2 block">SMTP Username *</Label>
                         <Input
                           id="smtp-user"
                           value={smtpSettings.user}
@@ -765,12 +816,12 @@ function AdminEmailSettings({ user }: { user: any }) {
                             })
                           }
                           placeholder="your-email@gmail.com"
-                          className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500"
+                          className="h-12 border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
                           data-testid="input-smtp-user"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="smtp-password" className="text-slate-700 font-medium">SMTP Password</Label>
+                        <Label htmlFor="smtp-password" className="text-slate-700 font-semibold text-sm mb-2 block">SMTP Password</Label>
                         <div className="relative">
                           <Input
                             id="smtp-password"
@@ -785,35 +836,35 @@ function AdminEmailSettings({ user }: { user: any }) {
                             placeholder={
                               smtpData?.hasPassword ? "••••••••" : "Enter password"
                             }
-                            className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500 pr-10"
+                            className="h-12 border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base pr-12"
                             data-testid="input-smtp-password"
                           />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 mt-1 text-slate-400 hover:text-slate-600 transition-colors"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                             data-testid="button-toggle-smtp-password"
                             aria-label={showPassword ? "Hide password" : "Show password"}
                           >
                             {showPassword ? (
-                              <EyeOff className="w-4 h-4" />
+                              <EyeOff className="w-5 h-5" />
                             ) : (
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-5 h-5" />
                             )}
                           </button>
                         </div>
                         {smtpData?.hasPassword && !smtpSettings.password && (
-                          <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                            Password is already set. Leave blank to keep current password.
+                          <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5 bg-slate-50 p-2 rounded-lg">
+                            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span>Password is already set. Leave blank to keep current password.</span>
                           </p>
                         )}
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <Label htmlFor="smtp-from-email" className="text-slate-700 font-medium">
+                        <Label htmlFor="smtp-from-email" className="text-slate-700 font-semibold text-sm mb-2 block">
                           From Email Address *
                         </Label>
                         <Input
@@ -827,12 +878,12 @@ function AdminEmailSettings({ user }: { user: any }) {
                             })
                           }
                           placeholder="noreply@yourdomain.com"
-                          className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500"
+                          className="h-12 border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
                           data-testid="input-smtp-from-email"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="smtp-from-name" className="text-slate-700 font-medium">From Name</Label>
+                        <Label htmlFor="smtp-from-name" className="text-slate-700 font-semibold text-sm mb-2 block">From Name</Label>
                         <Input
                           id="smtp-from-name"
                           value={smtpSettings.fromName}
@@ -843,7 +894,7 @@ function AdminEmailSettings({ user }: { user: any }) {
                             })
                           }
                           placeholder="USA Luxury Limo"
-                          className="mt-2 border-slate-300 focus:border-green-500 focus:ring-green-500"
+                          className="h-12 border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
                           data-testid="input-smtp-from-name"
                         />
                       </div>
@@ -852,17 +903,17 @@ function AdminEmailSettings({ user }: { user: any }) {
                     <Button
                       onClick={handleSMTPUpdate}
                       disabled={updateSMTPMutation.isPending}
-                      className="bg-green-600 hover:bg-green-700 text-white font-semibold"
+                      className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                       data-testid="button-save-smtp"
                     >
                       {updateSMTPMutation.isPending ? (
                         <>
-                          <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                          <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2" />
                           Saving Configuration...
                         </>
                       ) : (
                         <>
-                          <Check className="w-4 h-4 mr-2" />
+                          <Check className="w-5 h-5 mr-2" />
                           Save SMTP Settings
                         </>
                       )}
@@ -870,40 +921,39 @@ function AdminEmailSettings({ user }: { user: any }) {
                   </div>
 
                   {/* Test Email Configuration */}
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 space-y-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="bg-blue-600 p-1.5 rounded-lg">
-                        <Mail className="w-4 h-4 text-white" />
+                  <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 space-y-6">
+                    <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+                      <div className="bg-gradient-to-br from-blue-100 to-indigo-100 p-2.5 rounded-xl">
+                        <Mail className="w-5 h-5 text-blue-700" />
                       </div>
-                      <h4 className="font-semibold text-slate-900">Test Email Configuration</h4>
+                      <h4 className="text-xl font-bold text-slate-900">Test Email Configuration</h4>
                     </div>
-                    <p className="text-sm text-slate-600 leading-relaxed">
+                    <p className="text-sm text-slate-600 leading-relaxed font-medium">
                       Send a test email to verify your SMTP settings are working correctly.
                     </p>
-                    <div className="flex gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
                       <Input
                         type="email"
                         value={testEmail}
                         onChange={(e) => setTestEmail(e.target.value)}
                         placeholder="test@example.com"
-                        className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                        className="h-12 border-2 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl text-base"
                         data-testid="input-test-email"
                       />
                       <Button
                         onClick={handleTestEmail}
                         disabled={testSMTPMutation.isPending}
-                        variant="outline"
-                        className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                        className="h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all px-8"
                         data-testid="button-send-test-email"
                       >
                         {testSMTPMutation.isPending ? (
                           <>
-                            <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full mr-2" />
+                            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2" />
                             Sending...
                           </>
                         ) : (
                           <>
-                            <Mail className="w-4 h-4 mr-2" />
+                            <Mail className="w-5 h-5 mr-2" />
                             Send Test
                           </>
                         )}
