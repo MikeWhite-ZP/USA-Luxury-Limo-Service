@@ -1,248 +1,244 @@
+import { useState } from 'react';
+import { Link, useLocation, useSearch } from 'wouter';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, CheckCircle, XCircle, Loader2, KeyRound } from 'lucide-react';
 
-import { useState, useEffect } from "react";
-import { useLocation, Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { Lock, CheckCircle, AlertCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-
-export default function ResetPassword() {
+export function ResetPassword() {
   const [, setLocation] = useLocation();
+  const searchParams = new URLSearchParams(useSearch());
+  const token = searchParams.get('token');
   const { toast } = useToast();
-  const [token, setToken] = useState('');
-  const [password, setPassword] = useState('');
+
+  const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(true);
-  const [isValidToken, setIsValidToken] = useState(false);
-  const [resetSuccess, setResetSuccess] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [isResetSuccess, setIsResetSuccess] = useState(false);
 
-  useEffect(() => {
-    // Extract token from URL
-    const params = new URLSearchParams(window.location.search);
-    const tokenParam = params.get('token');
-    
-    if (!tokenParam) {
-      setErrorMessage('Invalid reset link. Please request a new password reset.');
-      setIsVerifying(false);
-      return;
-    }
+  // Verify token on mount
+  const { data: tokenVerification, isLoading: isVerifying } = useQuery({
+    queryKey: ['/api/auth/verify-reset-token', token],
+    queryFn: async () => {
+      if (!token) throw new Error('No token provided');
+      const res = await fetch(`/api/auth/verify-reset-token/${token}`);
+      if (!res.ok) throw new Error('Failed to verify token');
+      return res.json();
+    },
+    enabled: !!token,
+    retry: false,
+  });
 
-    setToken(tokenParam);
-    verifyToken(tokenParam);
-  }, []);
-
-  const verifyToken = async (tokenValue: string) => {
-    try {
-      const response = await fetch(`/api/auth/verify-reset-token/${tokenValue}`);
-      const data = await response.json();
-
-      if (response.ok && data.valid) {
-        setIsValidToken(true);
-      } else {
-        setErrorMessage(data.message || 'Invalid or expired reset link');
-      }
-    } catch (error) {
-      setErrorMessage('Failed to verify reset link. Please try again.');
-    } finally {
-      setIsVerifying(false);
-    }
-  };
-
-  const validatePassword = (pwd: string): string | null => {
-    if (pwd.length < 8) {
-      return 'Password must be at least 8 characters';
-    }
-    if (!/[A-Z]/.test(pwd)) {
-      return 'Password must contain at least one uppercase letter';
-    }
-    if (!/[a-z]/.test(pwd)) {
-      return 'Password must contain at least one lowercase letter';
-    }
-    if (!/[0-9]/.test(pwd)) {
-      return 'Password must contain at least one number';
-    }
-    return null;
-  };
+  const resetPasswordMutation = useMutation({
+    mutationFn: async (data: { token: string; newPassword: string }) => {
+      const res = await apiRequest('POST', '/api/auth/reset-password', data);
+      return res.json();
+    },
+    onSuccess: () => {
+      setIsResetSuccess(true);
+      toast({
+        title: 'Success',
+        description: 'Password reset successfully. You can now log in with your new password.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to reset password. Please try again.',
+        variant: 'destructive',
+      });
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!password || !confirmPassword) {
+
+    if (!token) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all fields",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Invalid reset link',
+        variant: 'destructive',
       });
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (newPassword.length < 6) {
       toast({
-        title: "Passwords Don't Match",
-        description: "Please make sure both passwords are identical",
-        variant: "destructive",
+        title: 'Validation Error',
+        description: 'Password must be at least 6 characters',
+        variant: 'destructive',
       });
       return;
     }
 
-    const validationError = validatePassword(password);
-    if (validationError) {
+    if (newPassword !== confirmPassword) {
       toast({
-        title: "Invalid Password",
-        description: validationError,
-        variant: "destructive",
+        title: 'Validation Error',
+        description: 'Passwords do not match',
+        variant: 'destructive',
       });
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setResetSuccess(true);
-        toast({
-          title: "Password Reset Successful",
-          description: "You can now log in with your new password",
-        });
-        // Redirect to login after 3 seconds
-        setTimeout(() => {
-          setLocation('/login');
-        }, 3000);
-      } else {
-        toast({
-          title: "Error",
-          description: data.message || "Failed to reset password",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to reset password. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await resetPasswordMutation.mutateAsync({ token, newPassword });
   };
 
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header />
-      
-      <main className="flex-1 pt-24 pb-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-md mx-auto">
-            <Card>
-              <CardHeader className="text-center">
-                <div className={`inline-flex items-center justify-center p-4 bg-gradient-to-br ${
-                  resetSuccess ? 'from-green-500 to-green-600' : 
-                  errorMessage ? 'from-red-500 to-red-600' : 
-                  'from-blue-500 to-blue-600'
-                } text-white rounded-2xl mb-4 mx-auto`}>
-                  {resetSuccess ? <CheckCircle className="w-8 h-8" /> : 
-                   errorMessage ? <AlertCircle className="w-8 h-8" /> : 
-                   <Lock className="w-8 h-8" />}
-                </div>
-                <CardTitle className="text-2xl">
-                  {resetSuccess ? 'Password Reset!' : 
-                   errorMessage ? 'Invalid Link' : 
-                   'Reset Your Password'}
-                </CardTitle>
-                <CardDescription>
-                  {resetSuccess ? 'Your password has been successfully updated' : 
-                   errorMessage ? errorMessage : 
-                   isVerifying ? 'Verifying reset link...' :
-                   'Create a new password for your account'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isVerifying ? (
-                  <div className="flex items-center justify-center p-8">
-                    <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
-                  </div>
-                ) : errorMessage ? (
-                  <div className="text-center space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      This reset link is invalid or has expired. Please request a new one.
-                    </p>
-                    <Link href="/forgot-password">
-                      <Button className="w-full">
-                        Request New Reset Link
-                      </Button>
-                    </Link>
-                  </div>
-                ) : resetSuccess ? (
-                  <div className="text-center space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      Redirecting to login page...
-                    </p>
-                    <Link href="/login">
-                      <Button className="w-full">
-                        Go to Login
-                      </Button>
-                    </Link>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="password">New Password</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="Enter new password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        autoFocus
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Must be at least 8 characters with uppercase, lowercase, and numbers
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm Password</Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        placeholder="Re-enter new password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Resetting...' : 'Reset Password'}
-                    </Button>
-                  </form>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </main>
+  // No token provided
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">Invalid Reset Link</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <XCircle className="h-16 w-16 mx-auto text-red-500" />
+            <p className="text-gray-600">This password reset link is invalid.</p>
+            <Link href="/forgot-password">
+              <Button className="w-full" data-testid="button-request-new">Request New Reset Link</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-      <Footer />
+  // Verifying token
+  if (isVerifying) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="text-center py-12">
+            <Loader2 className="h-12 w-12 mx-auto animate-spin text-red-600" />
+            <p className="mt-4 text-gray-600">Verifying reset link...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Token expired or invalid
+  if (!tokenVerification?.valid) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">Reset Link Expired</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <XCircle className="h-16 w-16 mx-auto text-orange-500" />
+            <div className="space-y-2">
+              <p className="text-gray-600">{tokenVerification?.message || 'This password reset link has expired or is invalid.'}</p>
+              <p className="text-sm text-gray-500">Reset links expire after 1 hour for security.</p>
+            </div>
+            <Link href="/forgot-password">
+              <Button className="w-full" data-testid="button-request-new">Request New Reset Link</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Success state
+  if (isResetSuccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">Password Reset Complete</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4" data-testid="success-message">
+            <CheckCircle className="h-16 w-16 mx-auto text-green-500" />
+            <div className="space-y-2">
+              <p className="text-gray-600">Your password has been successfully reset.</p>
+              <p className="text-sm text-gray-500">You can now log in with your new password.</p>
+            </div>
+            <Link href="/login">
+              <Button className="w-full" data-testid="button-go-to-login">Go to Login</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Reset password form
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <div className="flex items-center gap-2 mb-2">
+            <Link href="/login">
+              <a className="text-gray-600 hover:text-gray-900" data-testid="link-back-to-login">
+                <ArrowLeft className="h-5 w-5" />
+              </a>
+            </Link>
+            <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
+          </div>
+          <CardDescription>Enter your new password below</CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4" data-testid="form-reset-password">
+            {/* New Password */}
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type="password"
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="pl-10"
+                  data-testid="input-new-password"
+                  required
+                  minLength={6}
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  <KeyRound className="h-4 w-4" />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">Minimum 6 characters</p>
+            </div>
+
+            {/* Confirm Password */}
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="pl-10"
+                  data-testid="input-confirm-password"
+                  required
+                  minLength={6}
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  <KeyRound className="h-4 w-4" />
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={resetPasswordMutation.isPending}
+              data-testid="button-reset-password"
+            >
+              {resetPasswordMutation.isPending ? 'Resetting...' : 'Reset Password'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

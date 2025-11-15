@@ -60,7 +60,7 @@ const Contact = lazy(() => import("@/pages/contact"));
 const RoleLogin = lazy(() => import("@/pages/RoleLogin").then(m => ({ default: m.RoleLogin })));
 const AdminLogin = lazy(() => import("@/pages/AdminLogin").then(m => ({ default: m.AdminLogin })));
 const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
-const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword").then(m => ({ default: m.ResetPassword })));
 const AdminDashboard = lazy(() => import("@/pages/admin-dashboard"));
 const AdminPricing = lazy(() => import("@/pages/admin-pricing"));
 const MinIOBrowser = lazy(() => import("@/pages/MinIOBrowser"));

@@ -384,6 +384,13 @@ export function RoleLogin() {
                             >
                               {loginMutation.isPending ? 'Signing in...' : 'Sign In'}
                             </Button>
+                            <div className="text-center mt-4">
+                              <Link href="/forgot-password">
+                                <a className="text-sm text-red-600 hover:text-red-700 hover:underline" data-testid="link-forgot-password">
+                                  Forgot Password or Username?
+                                </a>
+                              </Link>
+                            </div>
                           </form>
                         </TabsContent>
 
