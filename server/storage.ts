@@ -239,10 +239,15 @@ export interface IStorage {
   updateCmsMedia(id: string, updates: Partial<InsertCmsMedia>): Promise<CmsMedia | undefined>;
   deleteCmsMedia(id: string): Promise<void>;
   
-  // Password Reset Tokens
-  createPasswordResetToken(data: InsertPasswordResetToken): Promise<PasswordResetToken>;
-  getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
-  markPasswordResetTokenAsUsed(token: string): Promise<void>;
+  // Password Reset (User Table-based)
+  // Sets hashed reset token and expiration on user record (atomic update)
+  setPasswordResetToken(userId: string, hashedToken: string, expiresAt: Date): Promise<void>;
+  // Clears both password_reset_token and password_reset_expires (atomic update)
+  clearPasswordResetToken(userId: string): Promise<void>;
+  // Looks up user by hashed token (for token verification)
+  getUserByPasswordResetToken(hashedToken: string): Promise<User | undefined>;
+  // Looks up user by email or phone (prioritizes email, then phone fallback)
+  getUserByEmailOrPhone(emailOrPhone: string): Promise<User | undefined>;
   
   // Payment Tokens
   createPaymentToken(data: InsertPaymentToken): Promise<PaymentToken>;
@@ -462,6 +467,58 @@ export class DatabaseStorage implements IStorage {
       console.error('Error deleting user:', error);
       throw error;
     }
+  }
+
+  // Password Reset Methods (User Table-based)
+  async setPasswordResetToken(userId: string, hashedToken: string, expiresAt: Date): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        passwordResetToken: hashedToken,
+        passwordResetExpires: expiresAt,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async clearPasswordResetToken(userId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        passwordResetToken: null,
+        passwordResetExpires: null,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async getUserByPasswordResetToken(hashedToken: string): Promise<User | undefined> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.passwordResetToken, hashedToken));
+    return user;
+  }
+
+  async getUserByEmailOrPhone(emailOrPhone: string): Promise<User | undefined> {
+    // Normalize input (trim and lowercase for email)
+    const normalized = emailOrPhone.trim().toLowerCase();
+    
+    // Try email first (case-insensitive)
+    const [userByEmail] = await db
+      .select()
+      .from(users)
+      .where(sql`LOWER(${users.email}) = ${normalized}`);
+    
+    if (userByEmail) return userByEmail;
+    
+    // Fallback to phone (exact match)
+    const [userByPhone] = await db
+      .select()
+      .from(users)
+      .where(eq(users.phone, emailOrPhone.trim()));
+    
+    return userByPhone;
   }
 
   async createDriver(driverData: InsertDriver): Promise<Driver> {

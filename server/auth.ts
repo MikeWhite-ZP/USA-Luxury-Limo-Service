@@ -8,7 +8,7 @@ import session from "express-session";
 import MemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
-import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { scrypt, randomBytes, timingSafeEqual, createHash } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import type { User as SelectUser } from "@shared/schema";
@@ -23,6 +23,9 @@ declare global {
 }
 
 const scryptAsync = promisify(scrypt);
+
+// Password reset token expiration time (in milliseconds)
+export const PASSWORD_RESET_EXPIRY_MS = parseInt(process.env.PASSWORD_RESET_EXPIRY_MINUTES || '60') * 60 * 1000; // Default 60 minutes
 
 // Password hashing utilities
 export async function hashPassword(password: string): Promise<string> {
@@ -49,6 +52,34 @@ export async function comparePasswords(supplied: string, stored: string): Promis
   } catch (error) {
     return false;
   }
+}
+
+// Password reset token utilities
+export function generateResetToken(): string {
+  return randomBytes(32).toString('hex');
+}
+
+export function hashToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex');
+}
+
+export function verifyTokenTiming(supplied: string, stored: string): boolean {
+  try {
+    const suppliedBuf = Buffer.from(supplied, 'hex');
+    const storedBuf = Buffer.from(stored, 'hex');
+    
+    if (suppliedBuf.length !== storedBuf.length) {
+      return false;
+    }
+    
+    return timingSafeEqual(suppliedBuf, storedBuf);
+  } catch (error) {
+    return false;
+  }
+}
+
+export function isTokenExpired(expiresAt: Date): boolean {
+  return new Date() > expiresAt;
 }
 
 export function setupAuth(app: Express) {
