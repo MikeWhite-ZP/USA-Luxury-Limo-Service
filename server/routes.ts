@@ -5654,9 +5654,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Access denied' });
       }
 
-      // Delete from object storage
+      // Delete from object storage (extract key for backwards compatibility)
       const objStorage = await getObjectStorage();
-      const { ok, error} = await objStorage.delete(document.documentUrl);
+      const storageKey = extractStorageKey(document.documentUrl);
+      const { ok, error} = await objStorage.delete(storageKey);
       if (!ok) {
         console.error('Failed to delete from object storage:', error);
       }
@@ -7878,11 +7879,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.deleteCmsSetting('site_favicon');
       }
       
-      // Delete from Object Storage
+      // Delete from Object Storage (extract key for backwards compatibility)
       try {
         const objStorage = await getObjectStorage();
-        const urlPath = new URL(media.fileUrl).pathname;
-        await objStorage.delete(urlPath);
+        const storageKey = extractStorageKey(media.fileUrl);
+        await objStorage.delete(storageKey);
       } catch (storageError) {
         console.error('Object storage deletion error:', storageError);
         // Continue with database deletion even if storage deletion fails
