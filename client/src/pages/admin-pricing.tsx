@@ -82,14 +82,6 @@ interface PricingFormData {
   isActive: boolean;
 }
 
-const vehicleTypes = [
-  { value: "business_sedan", label: "Business Sedan" },
-  { value: "business_suv", label: "Business SUV" },
-  { value: "first_class_sedan", label: "First Class Sedan" },
-  { value: "first_class_suv", label: "First Class SUV" },
-  { value: "business_van", label: "Business Van" }
-];
-
 const serviceTypes = [
   { value: "transfer", label: "Transfer (Point-to-Point)" },
   { value: "hourly", label: "Hourly Service" }
@@ -106,16 +98,42 @@ const daysOfWeek = [
   { value: 6, label: "Saturday" }
 ];
 
+interface VehicleType {
+  id: string;
+  name: string;
+  description: string | null;
+  passengerCapacity: number;
+  luggageCapacity: number;
+  imageUrl: string | null;
+  basePrice: string | null;
+  pricePerMile: string | null;
+  isActive: boolean;
+}
+
 export default function AdminPricing() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   
+  // Fetch vehicle types from database
+  const { data: vehicleTypesData = [], isLoading: isLoadingVehicleTypes } = useQuery<VehicleType[]>({
+    queryKey: ['/api/vehicle-types'],
+    enabled: isAuthenticated,
+  });
+
+  // Transform vehicle types to dropdown format
+  const vehicleTypes = vehicleTypesData
+    .filter(vt => vt.isActive)
+    .map(vt => ({
+      value: vt.name.toLowerCase().replace(/\s+/g, '_'),
+      label: vt.name
+    }));
+  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<PricingRule | null>(null);
   const [pricingMethod, setPricingMethod] = useState<"distance-breakdown" | "per-mile">("distance-breakdown");
   const [formData, setFormData] = useState<PricingFormData>({
-    vehicleType: "business_sedan",
+    vehicleType: "",
     serviceType: "transfer",
     baseRate: "",
     perMileRate: "",
@@ -132,6 +150,13 @@ export default function AdminPricing() {
     effectiveEnd: "",
     isActive: true
   });
+
+  // Set default vehicle type when loaded
+  useEffect(() => {
+    if (vehicleTypes.length > 0 && !formData.vehicleType) {
+      setFormData(prev => ({ ...prev, vehicleType: vehicleTypes[0].value }));
+    }
+  }, [vehicleTypes, formData.vehicleType]);
 
   // Redirect to home if not authenticated or not admin
   useEffect(() => {
