@@ -596,7 +596,7 @@ export function ServiceCMS() {
 
       {/* Edit/Create Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" data-testid="dialog-edit-service">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white" data-testid="dialog-edit-service">
           <DialogHeader>
             <DialogTitle>
               {selectedService ? "Edit Service" : "Create Service"}

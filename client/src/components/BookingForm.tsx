@@ -2099,7 +2099,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       )}
       {/* Flight Selection Dialog */}
       <Dialog open={showFlightDialog} onOpenChange={setShowFlightDialog}>
-        <DialogContent className="sm:max-w-2xl" data-testid="flight-selection-dialog">
+        <DialogContent className="sm:max-w-2xl bg-white" data-testid="flight-selection-dialog">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">Select Your Flight</DialogTitle>
             <DialogDescription>
@@ -2148,7 +2148,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       </Dialog>
       {/* Payment Method Required Dialog */}
       <Dialog open={showPaymentMethodRequired} onOpenChange={setShowPaymentMethodRequired}>
-        <DialogContent className="sm:max-w-md" data-testid="payment-method-required-dialog">
+        <DialogContent className="sm:max-w-md bg-white" data-testid="payment-method-required-dialog">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-amber-600">Payment Method Required</DialogTitle>
             <DialogDescription>

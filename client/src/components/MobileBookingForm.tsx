@@ -1510,7 +1510,7 @@ export default function MobileBookingForm() {
 
       {/* Flight Selection Dialog */}
       <Dialog open={showFlightDialog} onOpenChange={setShowFlightDialog}>
-        <DialogContent className="max-w-[90vw] max-h-[80vh] overflow-auto">
+        <DialogContent className="max-w-[90vw] max-h-[80vh] overflow-auto bg-white">
           <DialogHeader>
             <DialogTitle>Select Your Flight</DialogTitle>
             <DialogDescription>

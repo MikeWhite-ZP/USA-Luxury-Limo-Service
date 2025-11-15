@@ -371,7 +371,7 @@ export function BookingDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] w-[1400px] max-h-[95vh] overflow-hidden p-0">
+      <DialogContent className="max-w-[95vw] w-[1400px] max-h-[95vh] overflow-hidden p-0 bg-white">
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] h-[95vh] overflow-hidden">
           

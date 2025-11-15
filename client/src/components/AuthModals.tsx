@@ -29,7 +29,7 @@ export default function AuthModals() {
     <>
       {/* Login Modal */}
       <Dialog open={loginOpen} onOpenChange={setLoginOpen}>
-        <DialogContent className="max-w-md" data-testid="login-modal">
+        <DialogContent className="max-w-md bg-white" data-testid="login-modal">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-card-foreground" data-testid="login-title">
               Sign In
@@ -134,7 +134,7 @@ export default function AuthModals() {
 
       {/* Register Modal */}
       <Dialog open={registerOpen} onOpenChange={setRegisterOpen}>
-        <DialogContent className="max-w-md" data-testid="register-modal">
+        <DialogContent className="max-w-md bg-white" data-testid="register-modal">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-card-foreground" data-testid="register-title">
               Create Account
