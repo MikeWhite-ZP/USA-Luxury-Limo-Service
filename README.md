@@ -6,6 +6,12 @@ A comprehensive, full-stack Progressive Web Application (PWA) for luxury transpo
 ![Node](https://img.shields.io/badge/node-20.x-green.svg)
 ![TypeScript](https://img.shields.io/badge/typescript-5.x-blue.svg)
 
+## 🚀 Deployment
+
+- **Coolify (Production):** [COOLIFY_DEPLOYMENT.md](COOLIFY_DEPLOYMENT.md) - Complete guide for VPS deployment
+- **Quick Fix:** [QUICK_FIX_COOLIFY.md](QUICK_FIX_COOLIFY.md) - Fix white screen / asset errors
+- **Troubleshooting:** [TROUBLESHOOTING_DEPLOYMENT.md](TROUBLESHOOTING_DEPLOYMENT.md) - Common issues
+
 ## Features
 
 ### For Passengers

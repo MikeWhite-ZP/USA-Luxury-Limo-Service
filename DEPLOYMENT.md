@@ -1,14 +1,50 @@
-# USA Luxury Limo - Coolify Deployment Guide
+# USA Luxury Limo - Deployment Guide
 
-Complete step-by-step guide to deploy your USA Luxury Limo application on Coolify using your Hostinger VPS or Ubuntu server.
+Complete deployment documentation for USA Luxury Limo across different platforms.
 
 **⚠️ Having deployment issues?** See [TROUBLESHOOTING_DEPLOYMENT.md](./TROUBLESHOOTING_DEPLOYMENT.md) for solutions to white screens, 404 errors, and other common problems.
 
 ## Quick Links
 
+- 🚀 **Deploying with Coolify?** See [COOLIFY_DEPLOYMENT.md](COOLIFY_DEPLOYMENT.md) - Complete Coolify guide
 - 📘 **New to Deployment?** Start with [QUICK_START.md](QUICK_START.md) - Deploy in 5 minutes
 - 📗 **Need GitHub Help?** See [GITHUB_SETUP.md](GITHUB_SETUP.md) - Create repository step-by-step
 - ✅ **Ready to Deploy?** Use [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) - Validation checklist
+
+## Deployment Platforms
+
+### Recommended: Coolify (VPS)
+
+**Best for:** Production deployments with full control
+
+- ✅ Docker-based deployment
+- ✅ Automatic SSL certificates
+- ✅ Built-in monitoring
+- ✅ Easy environment management
+- ✅ Auto-deploy from GitHub
+
+👉 **[Read Full Coolify Guide](COOLIFY_DEPLOYMENT.md)**
+
+**Quick Fix for Current Issue (White Screen):**
+1. Coolify Dashboard → Your app → "Deployments" tab
+2. Click **"Force Rebuild & Redeploy"**
+3. Wait 3-5 minutes
+4. Clear browser cache and test
+
+### Alternative: Replit Deployments
+
+**Best for:** Quick prototyping and development
+
+- ✅ Zero configuration
+- ✅ Built-in database
+- ✅ Automatic HTTPS
+- ✅ Instant deployments
+
+### Alternative: Docker Compose (Any VPS)
+
+**Best for:** Self-hosted deployments
+
+Use `docker-compose-best-chauffeurs.yml` file included in the repository.
 - 🏗️ **Want to Understand?** Read [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture
 
 ## Table of Contents
