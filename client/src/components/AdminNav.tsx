@@ -24,6 +24,7 @@ import {
   Receipt,
   LayoutDashboard,
   Database,
+  Navigation,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
@@ -420,6 +421,17 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
             >
               <Receipt className="w-4 h-4 mr-2" />
               Invoices
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
+              onClick={() => setLocation('/admin/drivers-map')}
+              data-testid="nav-drivers-map"
+            >
+              <Navigation className="w-4 h-4 mr-2" />
+              Drivers Map
             </Button>
           </nav>
         </div>
