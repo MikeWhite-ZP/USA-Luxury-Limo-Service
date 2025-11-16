@@ -16,10 +16,20 @@ RUN npm ci --ignore-scripts
 COPY . .
 
 # Build application with explicit commands to exclude dev-only dependencies
-# Build frontend
+# Build frontend (outputs to dist/public)
 RUN npx vite build
-# Build backend with vite excluded from bundle (keeps vite imports external for dev mode)
+
+# Verify frontend build succeeded
+RUN ls -la dist/public/ && \
+    ls -la dist/public/assets/ && \
+    echo "Frontend build verification: PASSED"
+
+# Build backend with vite excluded from bundle (outputs to dist/index.js)
 RUN npx esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --packages=external --external:vite --external:@vitejs/* --external:./server/vite.ts --external:./server/vite.js
+
+# Verify backend build succeeded
+RUN ls -la dist/index.js && \
+    echo "Backend build verification: PASSED"
 
 # Production stage
 FROM node:20-alpine AS production

@@ -2,6 +2,8 @@
 
 Complete step-by-step guide to deploy your USA Luxury Limo application on Coolify using your Hostinger VPS or Ubuntu server.
 
+**⚠️ Having deployment issues?** See [TROUBLESHOOTING_DEPLOYMENT.md](./TROUBLESHOOTING_DEPLOYMENT.md) for solutions to white screens, 404 errors, and other common problems.
+
 ## Quick Links
 
 - 📘 **New to Deployment?** Start with [QUICK_START.md](QUICK_START.md) - Deploy in 5 minutes
