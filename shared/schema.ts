@@ -53,6 +53,10 @@ export const users = pgTable("users", {
   discountValue: decimal("discount_value", { precision: 10, scale: 2 }).default("0"),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
+  // GPS tracking fields for drivers
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  lastLocationUpdate: timestamp("last_location_update"),
   // Password reset fields
   passwordResetToken: varchar("password_reset_token"),
   passwordResetExpires: timestamp("password_reset_expires"),
