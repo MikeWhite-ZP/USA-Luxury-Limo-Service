@@ -1,12 +1,19 @@
 import express, { type Express } from "express";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import { cwd } from "process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export function serveStatic(app: Express) {
-  const publicDir = join(__dirname, "../dist/public");
+  // In production (bundled), use cwd() to get the correct path
+  // In development, use __dirname relative path
+  const publicDir = process.env.NODE_ENV === 'production' 
+    ? join(cwd(), 'dist/public')
+    : join(__dirname, "../dist/public");
+
+  console.log(`[STATIC] Serving static files from: ${publicDir}`);
 
   // Serve static files with proper MIME types
   app.use(express.static(publicDir, {

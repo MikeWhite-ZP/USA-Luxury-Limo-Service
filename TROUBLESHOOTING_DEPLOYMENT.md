@@ -2,6 +2,51 @@
 
 This guide helps you diagnose and fix common deployment issues, especially white screens and 404 errors.
 
+## 🔥 CRITICAL: JavaScript MIME Type Errors (NEW - Nov 16, 2024)
+
+### Symptoms
+```
+Failed to load module script: Expected a JavaScript-or-Wasm module script 
+but the server responded with a MIME type of "text/html"
+```
+
+Browser console shows errors for all JavaScript files (index-XXXXX.js, etc).
+
+### Root Cause
+**Static file path resolution bug in bundled production code.** When esbuild bundles the server, `__dirname` doesn't resolve to the correct location, causing the Express server to serve the SPA fallback HTML for all asset requests.
+
+### Fix (ALREADY IN LATEST CODE)
+
+**The fix has been deployed to the codebase on November 16, 2024.**
+
+**To apply the fix to your production server:**
+
+1. **Pull latest code:**
+   ```bash
+   git pull origin main
+   ```
+
+2. **In Coolify Dashboard:**
+   - Go to your LIMO APPLICATION
+   - Click **"Force Rebuild & Redeploy"**
+   - Wait 3-5 minutes for completion
+
+3. **Verify in application logs:**
+   Look for this line confirming correct path:
+   ```
+   [STATIC] Serving static files from: /app/dist/public
+   ```
+
+4. **Test:**
+   - Clear browser cache (Ctrl+Shift+Delete)
+   - Visit your site
+   - Console should show NO MIME type errors
+
+**What was changed:**
+File `server/static.ts` now uses `process.cwd()` in production to correctly resolve the static files directory.
+
+---
+
 ## 🚨 White Screen on Production
 
 ### Symptoms
