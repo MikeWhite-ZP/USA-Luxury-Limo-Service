@@ -91,6 +91,10 @@ export interface IStorage {
   getAvailableDrivers(): Promise<Driver[]>;
   getAllDrivers(): Promise<Driver[]>;
   
+  // GPS Tracking
+  updateUserLocation(userId: string, latitude: number, longitude: number): Promise<void>;
+  getDriverLocations(): Promise<any[]>;
+  
   // Vehicle operations
   getVehicleTypes(): Promise<VehicleType[]>;
   getVehicleType(id: string): Promise<VehicleType | undefined>;
@@ -582,6 +586,102 @@ export class DatabaseStorage implements IStorage {
 
   async getAllDrivers(): Promise<Driver[]> {
     return await db.select().from(drivers);
+  }
+
+  // GPS Tracking
+  async updateUserLocation(userId: string, latitude: number, longitude: number): Promise<void> {
+    await db
+      .update(users)
+      .set({
+        latitude: latitude.toString(),
+        longitude: longitude.toString(),
+        lastLocationUpdate: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async getDriverLocations(): Promise<any[]> {
+    // Get all driver users with their latest GPS location
+    const driverUsers = await db
+      .select({
+        userId: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        phone: users.phone,
+        profileImageUrl: users.profileImageUrl,
+        isActive: users.isActive,
+        latitude: users.latitude,
+        longitude: users.longitude,
+        lastLocationUpdate: users.lastLocationUpdate,
+        driverId: drivers.id,
+        rating: drivers.rating,
+        totalRides: drivers.totalRides,
+        isAvailable: drivers.isAvailable,
+      })
+      .from(users)
+      .leftJoin(drivers, eq(users.id, drivers.userId))
+      .where(eq(users.role, 'driver'));
+
+    // For each driver, find their active booking (if any)
+    const driversWithBookings = await Promise.all(
+      driverUsers.map(async (driver) => {
+        if (!driver.driverId) {
+          return {
+            ...driver,
+            status: 'offline',
+            statusColor: 'grey',
+            currentBooking: null,
+          };
+        }
+
+        // Find active booking for this driver
+        const [activeBooking] = await db
+          .select()
+          .from(bookings)
+          .where(
+            and(
+              eq(bookings.driverId, driver.driverId),
+              sql`${bookings.status} IN ('pending_driver_acceptance', 'confirmed', 'on_the_way', 'arrived', 'on_board', 'in_progress')`
+            )
+          )
+          .orderBy(desc(bookings.scheduledDateTime))
+          .limit(1);
+
+        // Determine status and color based on booking state
+        let status = 'offline';
+        let statusColor = 'grey';
+
+        if (driver.isActive && driver.isAvailable) {
+          if (!activeBooking) {
+            status = 'online';
+            statusColor = 'green';
+          } else {
+            // Driver has an active booking
+            if (activeBooking.status === 'confirmed' || activeBooking.status === 'on_the_way' || activeBooking.status === 'arrived') {
+              status = 'on_the_way';
+              statusColor = 'black';
+            } else if (activeBooking.status === 'on_board' || activeBooking.status === 'in_progress') {
+              status = 'customer_in_car';
+              statusColor = 'red';
+            } else {
+              status = 'online';
+              statusColor = 'green';
+            }
+          }
+        }
+
+        return {
+          ...driver,
+          status,
+          statusColor,
+          currentBooking: activeBooking || null,
+        };
+      })
+    );
+
+    return driversWithBookings;
   }
 
   async getVehicleTypes(): Promise<VehicleType[]> {

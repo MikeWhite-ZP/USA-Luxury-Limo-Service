@@ -6904,6 +6904,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GPS Tracking Endpoints
+  app.post('/api/drivers/:id/location', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { latitude, longitude } = req.body;
+
+      // Validate that user is either the driver or an admin
+      if (req.user.id !== id && req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Not authorized to update this driver location' });
+      }
+
+      // Validate coordinates
+      if (typeof latitude !== 'number' || typeof longitude !== 'number') {
+        return res.status(400).json({ error: 'Invalid coordinates' });
+      }
+
+      if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+        return res.status(400).json({ error: 'Coordinates out of range' });
+      }
+
+      // Update location
+      await storage.updateUserLocation(id, latitude, longitude);
+
+      res.json({ success: true, message: 'Location updated successfully' });
+    } catch (error) {
+      console.error('Update driver location error:', error);
+      res.status(500).json({ error: 'Failed to update location' });
+    }
+  });
+
+  app.get('/api/drivers/locations', isAuthenticated, async (req: any, res) => {
+    try {
+      // Only allow admin, dispatcher, or driver roles
+      if (!['admin', 'dispatcher', 'driver'].includes(req.user.role)) {
+        return res.status(403).json({ error: 'Not authorized to view driver locations' });
+      }
+
+      const locations = await storage.getDriverLocations();
+      res.json(locations);
+    } catch (error) {
+      console.error('Get driver locations error:', error);
+      res.status(500).json({ error: 'Failed to get driver locations' });
+    }
+  });
+
   // SMTP Settings Management
   app.get('/api/admin/smtp-settings', isAuthenticated, async (req: any, res) => {
     try {
