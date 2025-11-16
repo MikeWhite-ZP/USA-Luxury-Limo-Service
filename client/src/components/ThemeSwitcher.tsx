@@ -1,15 +1,47 @@
+import { useState, useEffect } from 'react';
 import { useTheme } from './ThemeProvider';
 import { Sun, Moon, Smartphone } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Skeleton } from './ui/skeleton';
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const options = [
     { value: 'light' as const, label: 'Light', icon: Sun, description: 'Always use light theme' },
     { value: 'dark' as const, label: 'Dark', icon: Moon, description: 'Always use dark theme' },
     { value: 'system' as const, label: 'System', icon: Smartphone, description: 'Match phone settings' },
   ];
+
+  if (!mounted) {
+    return (
+      <Card className="shadow-sm border-2 border-border bg-card">
+        <CardHeader className="bg-muted/30 border-b border-border p-4">
+          <CardTitle className="text-base flex items-center gap-2 text-foreground">
+            <div className="bg-primary/10 p-2 rounded-lg">
+              <Sun className="w-4 h-4 text-primary" />
+            </div>
+            Theme
+          </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground mt-1">
+            Choose your preferred color scheme
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-20 w-full rounded-xl" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="shadow-sm border-2 border-border bg-card">

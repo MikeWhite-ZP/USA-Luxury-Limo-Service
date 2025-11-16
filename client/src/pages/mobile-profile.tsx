@@ -135,7 +135,7 @@ export default function MobileProfile() {
             variant="ghost"
             size="icon"
             onClick={() => setLocation('/mobile-driver')}
-            className="text-white hover:bg-white/20"
+            className="text-white hover:bg-primary-foreground/20 dark:bg-primary-foreground/25"
             data-testid="button-back"
           >
             <ArrowLeft className="w-6 h-6" />
