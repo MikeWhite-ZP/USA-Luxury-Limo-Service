@@ -77,7 +77,8 @@ export default function MobilePassenger() {
     firstName: '',
     lastName: '',
     email: '',
-    phone: ''
+    phone: '',
+    username: ''
   });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -228,7 +229,7 @@ export default function MobilePassenger() {
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: { firstName: string; lastName: string; email: string; phone?: string }) => {
+    mutationFn: async (data: { firstName: string; lastName: string; email: string; phone?: string; username?: string }) => {
       const response = await apiRequest('PATCH', '/api/user/profile', data);
       return await response.json();
     },
@@ -278,7 +279,8 @@ export default function MobilePassenger() {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || '',
-        phone: user.phone || ''
+        phone: user.phone || '',
+        username: user.username || ''
       });
     }
   }, [user, isEditingProfile]);
@@ -937,7 +939,8 @@ export default function MobilePassenger() {
                             firstName: user.firstName || '',
                             lastName: user.lastName || '',
                             email: user.email || '',
-                            phone: user.phone || ''
+                            phone: user.phone || '',
+                            username: user.username || ''
                           });
                         }}
                         className="h-7 text-xs px-2 border-slate-300 text-slate-700"
@@ -1025,6 +1028,18 @@ export default function MobilePassenger() {
                         className="h-8 text-sm mt-1"
                         data-testid="input-phone"
                       />
+                    </div>
+                    <div>
+                      <Label htmlFor="username" className="text-xs text-slate-600">Username</Label>
+                      <Input
+                        id="username"
+                        value={profileForm.username}
+                        onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
+                        placeholder="Optional username"
+                        className="h-8 text-sm mt-1"
+                        data-testid="input-username"
+                      />
+                      <p className="text-xs text-slate-500 mt-0.5">3-30 characters, letters, numbers, -, _</p>
                     </div>
                   </div>
                 )}
