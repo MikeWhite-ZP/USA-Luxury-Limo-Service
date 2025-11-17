@@ -246,21 +246,17 @@ class S3StorageAdapter implements StorageAdapter {
     }
   }
 
-  async getDownloadUrl(path: string): Promise<{ ok: boolean; url?: string; error?: string }> {
-    try {
-      // Wait for bucket initialization to complete
-      await this.initPromise;
-      
-      const command = new GetObjectCommand({
-        Bucket: this.bucket,
-        Key: path,
-      });
-      const url = await getSignedUrl(this.client, command, { expiresIn: 3600 }); // 1 hour
-      return { ok: true, url };
-    } catch (error: any) {
-      return { ok: false, error: error.message };
-    }
+async getDownloadUrl(path: string): Promise<{ ok: boolean; url?: string; error?: string }> {
+  try {
+    await this.initPromise;
+    
+    // Return public URL instead of signed URL
+    const url = `${this.endpoint}/${this.bucket}/${path}`;
+    return { ok: true, url };
+  } catch (error: any) {
+    return { ok: false, error: error.message };
   }
+}
 
   async delete(path: string): Promise<{ ok: boolean; error?: string }> {
     try {

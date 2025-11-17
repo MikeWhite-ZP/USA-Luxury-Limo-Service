@@ -78,8 +78,10 @@ export default function MobilePassenger() {
     firstName: '',
     lastName: '',
     email: '',
-    phone: ''
+    phone: '',
+    username: ''
   });
+  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -229,7 +231,7 @@ export default function MobilePassenger() {
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: { firstName: string; lastName: string; email: string; phone?: string }) => {
+    mutationFn: async (data: { firstName: string; lastName: string; email: string; phone?: string; username?: string }) => {
       const response = await apiRequest('PATCH', '/api/user/profile', data);
       return await response.json();
     },
@@ -279,10 +281,42 @@ export default function MobilePassenger() {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || '',
-        phone: user.phone || ''
+        phone: user.phone || '',
+        username: user.username || ''
       });
     }
   }, [user, isEditingProfile]);
+  
+  // Check username availability with debounce
+  useEffect(() => {
+    if (!profileForm.username || profileForm.username === user?.username) {
+      setUsernameStatus('idle');
+      return;
+    }
+
+    // Validate format first
+    const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!usernameRegex.test(profileForm.username) || profileForm.username.length < 3 || profileForm.username.length > 30) {
+      setUsernameStatus('idle');
+      return;
+    }
+
+    setUsernameStatus('checking');
+    const timeoutId = setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/user/check-username/${encodeURIComponent(profileForm.username)}`, {
+          credentials: 'include',
+        });
+        const data = await response.json();
+        setUsernameStatus(data.available ? 'available' : 'taken');
+      } catch (error) {
+        console.error('Error checking username:', error);
+        setUsernameStatus('idle');
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [profileForm.username, user?.username]);
 
   const handleAddressSelect = (suggestion: any) => {
     setNewAddress({
@@ -938,7 +972,8 @@ export default function MobilePassenger() {
                             firstName: user.firstName || '',
                             lastName: user.lastName || '',
                             email: user.email || '',
-                            phone: user.phone || ''
+                            phone: user.phone || '',
+                            username: user.username || ''
                           });
                         }}
                         className="h-7 text-xs px-2 border-slate-300 text-slate-700"
@@ -950,7 +985,7 @@ export default function MobilePassenger() {
                       <Button
                         size="sm"
                         onClick={() => updateProfileMutation.mutate(profileForm)}
-                        disabled={updateProfileMutation.isPending}
+                        disabled={updateProfileMutation.isPending || usernameStatus === 'taken' || usernameStatus === 'checking'}
                         className="h-7 text-xs px-2 bg-blue-600 hover:bg-blue-700"
                         data-testid="button-save-profile"
                       >
@@ -1026,6 +1061,33 @@ export default function MobilePassenger() {
                         className="h-8 text-sm mt-1"
                         data-testid="input-phone"
                       />
+                    </div>
+                    <div>
+                      <Label htmlFor="username" className="text-xs text-slate-600">Username</Label>
+                      <Input
+                        id="username"
+                        value={profileForm.username}
+                        onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
+                        placeholder="Optional username"
+                        className="h-8 text-sm mt-1"
+                        data-testid="input-username"
+                      />
+                      {profileForm.username && profileForm.username !== user?.username && (
+                        <p className={`text-xs mt-0.5 ${
+                          usernameStatus === 'checking' ? 'text-slate-500' :
+                          usernameStatus === 'available' ? 'text-green-600' :
+                          usernameStatus === 'taken' ? 'text-red-600' :
+                          'text-slate-500'
+                        }`}>
+                          {usernameStatus === 'checking' && '⏳ Checking...'}
+                          {usernameStatus === 'available' && '✓ Available'}
+                          {usernameStatus === 'taken' && '✗ Taken'}
+                          {usernameStatus === 'idle' && '3-30 chars, letters, numbers, -, _'}
+                        </p>
+                      )}
+                      {(!profileForm.username || profileForm.username === user?.username) && (
+                        <p className="text-xs text-slate-500 mt-0.5">3-30 characters, letters, numbers, -, _</p>
+                      )}
                     </div>
                   </div>
                 )}

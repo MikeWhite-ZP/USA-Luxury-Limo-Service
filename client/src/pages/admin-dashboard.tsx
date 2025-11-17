@@ -3387,6 +3387,7 @@ export default function AdminDashboard() {
     lastName: "",
     email: "",
     phone: "",
+    username: "",
     role: "passenger" as "passenger" | "driver" | "dispatcher" | "admin",
     isActive: true,
     payLaterEnabled: false,
@@ -3396,6 +3397,7 @@ export default function AdminDashboard() {
     vehiclePlate: "", // For drivers
     temporaryPassword: "", // For setting temp password when editing
   });
+  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
 
   // Payment configuration dialog state
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
@@ -5031,11 +5033,13 @@ export default function AdminDashboard() {
   // User management functions
   const openAddUserDialog = () => {
     setEditingUser(null);
+    setUsernameStatus('idle');
     setUserFormData({
       firstName: "",
       lastName: "",
       email: "",
       phone: "",
+      username: "",
       role: selectedUserType !== "all" ? selectedUserType : "passenger",
       isActive: true,
       payLaterEnabled: false,
@@ -5050,11 +5054,13 @@ export default function AdminDashboard() {
 
   const openEditUserDialog = (user: User) => {
     setEditingUser(user);
+    setUsernameStatus('idle');
     setUserFormData({
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
       phone: user.phone || "",
+      username: user.username || "",
       role: user.role,
       isActive: user.isActive,
       payLaterEnabled: user.payLaterEnabled,
@@ -5066,6 +5072,37 @@ export default function AdminDashboard() {
     });
     setUserDialogOpen(true);
   };
+  
+  // Check username availability with debounce
+  useEffect(() => {
+    if (!userFormData.username || userFormData.username === editingUser?.username) {
+      setUsernameStatus('idle');
+      return;
+    }
+
+    // Validate format first
+    const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!usernameRegex.test(userFormData.username) || userFormData.username.length < 3 || userFormData.username.length > 30) {
+      setUsernameStatus('idle');
+      return;
+    }
+
+    setUsernameStatus('checking');
+    const timeoutId = setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/user/check-username/${encodeURIComponent(userFormData.username)}`, {
+          credentials: 'include',
+        });
+        const data = await response.json();
+        setUsernameStatus(data.available ? 'available' : 'taken');
+      } catch (error) {
+        console.error('Error checking username:', error);
+        setUsernameStatus('idle');
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [userFormData.username, editingUser?.username]);
 
   const createUserMutation = useMutation({
     mutationFn: async (userData: typeof userFormData) => {
@@ -5278,6 +5315,22 @@ export default function AdminDashboard() {
       return;
     }
 
+    // Normalize username: convert empty string to undefined FIRST
+    const normalizedUsername = userFormData.username && userFormData.username.trim() 
+      ? userFormData.username.trim() 
+      : undefined;
+
+    // Block submission if username validation is in progress or failed
+    // (Only check if we have a username to validate)
+    if (normalizedUsername && (usernameStatus === 'checking' || usernameStatus === 'taken')) {
+      toast({
+        title: "Username Validation Pending",
+        description: "Please wait for username availability check to complete",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validate temporary password if provided
     if (userFormData.temporaryPassword && userFormData.temporaryPassword.length > 0 && userFormData.temporaryPassword.length < 6) {
       toast({
@@ -5290,10 +5343,13 @@ export default function AdminDashboard() {
 
     if (editingUser) {
       // Update existing user (excluding temporaryPassword from updates)
-      const { temporaryPassword, ...updates } = userFormData;
+      const { temporaryPassword, username, ...updates } = userFormData;
       updateUserMutation.mutate({
         id: editingUser.id,
-        updates,
+        updates: {
+          ...updates,
+          username: normalizedUsername,
+        },
       });
 
       // If temporary password is set, call the temp password API separately
@@ -5311,8 +5367,11 @@ export default function AdminDashboard() {
       setUserDialogOpen(false);
     } else {
       // Create new user (excluding temporaryPassword)
-      const { temporaryPassword, ...userData } = userFormData;
-      createUserMutation.mutate(userData);
+      const { temporaryPassword, username, ...userData } = userFormData;
+      createUserMutation.mutate({
+        ...userData,
+        username: normalizedUsername,
+      });
     }
   };
 
@@ -8889,6 +8948,37 @@ export default function AdminDashboard() {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="user-username">Username</Label>
+              <Input
+                id="user-username"
+                placeholder="johndoe123"
+                value={userFormData.username}
+                onChange={(e) =>
+                  setUserFormData({ ...userFormData, username: e.target.value })
+                }
+                data-testid="input-user-username"
+              />
+              {userFormData.username && userFormData.username !== editingUser?.username && (
+                <p className={`text-xs ${
+                  usernameStatus === 'checking' ? 'text-slate-500' :
+                  usernameStatus === 'available' ? 'text-green-600' :
+                  usernameStatus === 'taken' ? 'text-red-600' :
+                  'text-muted-foreground'
+                }`}>
+                  {usernameStatus === 'checking' && '⏳ Checking availability...'}
+                  {usernameStatus === 'available' && '✓ Username is available'}
+                  {usernameStatus === 'taken' && '✗ Username is already taken'}
+                  {usernameStatus === 'idle' && 'Username must be 3-30 characters (letters, numbers, -, _)'}
+                </p>
+              )}
+              {(!userFormData.username || userFormData.username === editingUser?.username) && (
+                <p className="text-xs text-muted-foreground">
+                  Optional username (3-30 characters, letters, numbers, -, _)
+                </p>
+              )}
+            </div>
+
             {userFormData.role === "driver" && (
               <div className="space-y-2">
                 <Label htmlFor="user-vehicle-plate">Vehicle Plate Number</Label>
@@ -9124,7 +9214,26 @@ export default function AdminDashboard() {
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setUserDialogOpen(false)}
+              onClick={() => {
+                setUserDialogOpen(false);
+                setEditingUser(null);
+                setUsernameStatus('idle');
+                setUserFormData({
+                  firstName: "",
+                  lastName: "",
+                  email: "",
+                  phone: "",
+                  username: "",
+                  role: "passenger",
+                  isActive: true,
+                  payLaterEnabled: false,
+                  cashPaymentEnabled: false,
+                  discountType: null,
+                  discountValue: "0",
+                  vehiclePlate: "",
+                  temporaryPassword: "",
+                });
+              }}
               data-testid="button-cancel-user"
             >
               Cancel
@@ -9132,7 +9241,7 @@ export default function AdminDashboard() {
             <Button
               onClick={handleSaveUser}
               disabled={
-                createUserMutation.isPending || updateUserMutation.isPending
+                createUserMutation.isPending || updateUserMutation.isPending || usernameStatus === 'taken' || usernameStatus === 'checking'
               }
               data-testid="button-save-user"
             >
