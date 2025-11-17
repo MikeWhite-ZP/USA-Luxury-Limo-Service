@@ -7928,8 +7928,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({
         companyName: companyName?.value || 'USA Luxury Limo',
-        tagline: tagline?.value || 'Premium Transportation Services',
-        description: description?.value || '',
+        tagline: tagline?.value || 'Premium Transportation Excellence',
+        description: description?.value || 'Premium luxury transportation services across the United States. Experience comfort, reliability, and professionalism with every ride.',
         logoUrl: logoUrl?.value || '/images/logo_1759125364025.png',
         faviconUrl: faviconUrl?.value || '/images/favicon_1759253989963.png',
         colors: {
