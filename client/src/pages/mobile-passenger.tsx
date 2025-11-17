@@ -343,17 +343,17 @@ export default function MobilePassenger() {
   ) || [];
 
   const getStatusColor = (status: string | null) => {
-    if (!status) return 'bg-muted text-muted-foreground';
+    if (!status) return 'bg-gray-100 text-gray-600';
     switch (status) {
-      case 'pending': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200';
-      case 'confirmed': return 'bg-primary/10 dark:bg-primary/20 text-primary';
-      case 'on_the_way': return 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200 animate-pulse';
-      case 'arrived': return 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-800 dark:text-cyan-200 animate-pulse';
-      case 'on_board': return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 animate-pulse';
-      case 'in_progress': return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200';
-      case 'completed': return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200';
-      case 'cancelled': return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200';
-      default: return 'bg-muted text-muted-foreground';
+      case 'pending': return 'bg-yellow-50 text-yellow-700 border border-yellow-200';
+      case 'confirmed': return 'bg-blue-50 text-blue-700 border border-blue-200';
+      case 'on_the_way': return 'bg-indigo-50 text-indigo-700 border border-indigo-200 animate-pulse';
+      case 'arrived': return 'bg-cyan-50 text-cyan-700 border border-cyan-200 animate-pulse';
+      case 'on_board': return 'bg-purple-50 text-purple-700 border border-purple-200 animate-pulse';
+      case 'in_progress': return 'bg-purple-50 text-purple-700 border border-purple-200';
+      case 'completed': return 'bg-green-50 text-green-700 border border-green-200';
+      case 'cancelled': return 'bg-red-50 text-red-700 border border-red-200';
+      default: return 'bg-gray-100 text-gray-600';
     }
   };
 
@@ -371,21 +371,21 @@ export default function MobilePassenger() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/10 dark:from-background dark:via-background dark:to-primary/5 pb-20 transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Modern Header */}
-      <div className="bg-gradient-to-r from-primary via-primary to-primary dark:from-primary dark:via-primary dark:to-primary text-primary-foreground shadow-xl">
+      <div className="bg-white border-b border-gray-200 shadow-lg">
         <div className="px-6 pt-6 pb-4">
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h1 className="text-2xl font-bold">Welcome Back</h1>
-              <p className="text-primary-foreground/90 mt-1 text-sm">{user.firstName || ''} {user.lastName || ''}</p>
+              <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
+              <p className="text-gray-600 mt-1 text-sm">{user.firstName || ''} {user.lastName || ''}</p>
             </div>
             <div className="flex gap-2">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="text-primary-foreground hover:bg-primary-foreground/20 touch-manipulation"
+                className="text-gray-700 hover:bg-gray-100 touch-manipulation"
                 data-testid="button-menu"
               >
                 {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -394,7 +394,7 @@ export default function MobilePassenger() {
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
-                className="text-primary-foreground hover:bg-primary-foreground/20 touch-manipulation"
+                className="text-gray-700 hover:bg-gray-100 touch-manipulation"
                 data-testid="button-logout"
               >
                 <LogOut className="w-5 h-5" />
@@ -404,17 +404,17 @@ export default function MobilePassenger() {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-primary-foreground/15 dark:bg-primary-foreground/20 backdrop-blur-sm rounded-xl p-3 border border-primary-foreground/10">
-              <p className="text-primary-foreground/90 text-xs">Active</p>
-              <p className="text-xl font-bold mt-1">{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
+            <div className="bg-white border border-red-200 rounded-xl p-3 shadow-sm">
+              <p className="text-gray-600 text-xs">Active</p>
+              <p className="text-xl font-bold text-red-600 mt-1">{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
             </div>
-            <div className="bg-primary-foreground/15 dark:bg-primary-foreground/20 backdrop-blur-sm rounded-xl p-3 border border-primary-foreground/10">
-              <p className="text-primary-foreground/90 text-xs">Upcoming</p>
-              <p className="text-xl font-bold mt-1">{upcomingBookings.length}</p>
+            <div className="bg-white border border-blue-200 rounded-xl p-3 shadow-sm">
+              <p className="text-gray-600 text-xs">Upcoming</p>
+              <p className="text-xl font-bold text-blue-600 mt-1">{upcomingBookings.length}</p>
             </div>
-            <div className="bg-primary-foreground/15 dark:bg-primary-foreground/20 backdrop-blur-sm rounded-xl p-3 border border-primary-foreground/10">
-              <p className="text-primary-foreground/90 text-xs">Total</p>
-              <p className="text-xl font-bold mt-1">{bookings?.length || 0}</p>
+            <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
+              <p className="text-gray-600 text-xs">Total</p>
+              <p className="text-xl font-bold text-gray-900 mt-1">{bookings?.length || 0}</p>
             </div>
           </div>
         </div>
@@ -438,13 +438,13 @@ export default function MobilePassenger() {
                   }}
                   className={`flex flex-col items-center gap-0.5 px-2.5 py-2 rounded-t-lg transition-all touch-manipulation ${
                     isActive
-                      ? 'bg-gradient-to-br from-background via-card to-accent/10 text-primary shadow-lg'
-                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10'
+                      ? 'bg-gray-50 text-red-600 shadow-lg border-t border-x border-gray-200'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                   data-testid={`nav-${item.id}`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-primary' : ''}`} />
-                  <span className={`text-[10px] font-medium whitespace-nowrap ${isActive ? 'text-primary' : ''}`}>
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />
+                  <span className={`text-[10px] font-medium whitespace-nowrap ${isActive ? 'text-red-600' : ''}`}>
                     {item.label}
                   </span>
                 </button>
@@ -462,7 +462,7 @@ export default function MobilePassenger() {
             {/* Quick Action Button */}
             <Button
               onClick={() => navigate('/mobile-booking')}
-              className="w-full bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90 text-white py-6 rounded-2xl text-lg font-semibold shadow-lg transition-all transform active:scale-95"
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-6 rounded-2xl text-lg font-semibold shadow-lg transition-all transform active:scale-95"
               data-testid="button-new-booking-home"
             >
               <Plus className="w-6 h-6 mr-2" />
@@ -470,20 +470,20 @@ export default function MobilePassenger() {
             </Button>
 
             {/* Bookings Section */}
-            <Card className="shadow-md border-border">
-              <CardHeader className="pb-3 bg-gradient-to-r from-accent/5 to-card">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Car className="w-5 h-5 text-primary" />
+            <Card className="shadow-md border-gray-200 bg-white">
+              <CardHeader className="pb-3 bg-white border-b border-gray-100">
+                <CardTitle className="text-lg flex items-center gap-2 text-gray-900">
+                  <Car className="w-5 h-5 text-red-600" />
                   My Rides
                 </CardTitle>
               </CardHeader>
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'upcoming' | 'past')} className="w-full">
-              <TabsList className="w-full grid grid-cols-2 bg-muted mx-4 mb-3" style={{width: 'calc(100% - 2rem)'}}>
-                <TabsTrigger value="upcoming" data-testid="tab-upcoming">
+              <TabsList className="w-full grid grid-cols-2 bg-gray-100 mx-4 mb-3" style={{width: 'calc(100% - 2rem)'}}>
+                <TabsTrigger value="upcoming" className="data-[state=active]:bg-white data-[state=active]:text-red-600" data-testid="tab-upcoming">
                   Upcoming ({upcomingBookings.length})
                 </TabsTrigger>
-                <TabsTrigger value="past" data-testid="tab-past">
+                <TabsTrigger value="past" className="data-[state=active]:bg-white data-[state=active]:text-red-600" data-testid="tab-past">
                   Past ({pastBookings.length})
                 </TabsTrigger>
               </TabsList>
@@ -510,39 +510,39 @@ export default function MobilePassenger() {
                       <div
                         key={booking.id}
                         onClick={() => navigate(`/mobile-booking-details/${booking.id}`)}
-                        className="bg-card border border-border rounded-xl p-4 active:bg-muted/50 transition-colors cursor-pointer"
+                        className="bg-white border border-gray-200 rounded-xl p-4 active:bg-gray-50 transition-colors cursor-pointer shadow-sm hover:shadow-md"
                         data-testid={`booking-card-${booking.id}`}
                       >
                         <div className="flex justify-between items-start mb-3">
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
                             {formatStatus(booking.status)}
                           </span>
-                          <span className="text-lg font-bold text-foreground">${booking.totalAmount}</span>
+                          <span className="text-lg font-bold text-gray-900">${booking.totalAmount}</span>
                         </div>
                         
                         <div className="space-y-2 text-sm">
                           <div className="flex items-start gap-2">
-                            <Clock className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                            <span className="text-foreground">
+                            <Clock className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-900">
                               {new Date(booking.scheduledDateTime).toLocaleString()}
                             </span>
                           </div>
                           
                           <div className="flex items-start gap-2">
-                            <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                            <MapPin className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
                             <div className="flex-1">
-                              <p className="text-foreground font-medium">{booking.pickupAddress}</p>
+                              <p className="text-gray-900 font-medium">{booking.pickupAddress}</p>
                               {booking.destinationAddress && (
                                 <>
                                   <div className="h-4 w-px bg-gray-300 ml-2 my-1" />
-                                  <p className="text-muted-foreground">{booking.destinationAddress}</p>
+                                  <p className="text-gray-600">{booking.destinationAddress}</p>
                                 </>
                               )}
                             </div>
                           </div>
 
                           {booking.bookingType === 'hourly' && (
-                            <div className="flex items-center gap-2 text-muted-foreground">
+                            <div className="flex items-center gap-2 text-gray-600">
                               <Clock className="w-4 h-4" />
                               <span>Hourly Service - {booking.requestedHours}h</span>
                             </div>
@@ -556,9 +556,9 @@ export default function MobilePassenger() {
 
               <TabsContent value="past" className="mt-0 px-4 pb-4">
                 {bookingsLoading ? (
-                  <div className="text-center py-8 text-muted-foreground">Loading...</div>
+                  <div className="text-center py-8 text-gray-500">Loading...</div>
                 ) : pastBookings.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-8 text-gray-500">
                     <CheckCircle2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
                     <p>No past rides yet</p>
                   </div>
@@ -568,25 +568,25 @@ export default function MobilePassenger() {
                       <div
                         key={booking.id}
                         onClick={() => navigate(`/mobile-booking-details/${booking.id}`)}
-                        className="bg-muted/50 border border-border rounded-xl p-4 active:bg-muted transition-colors cursor-pointer opacity-90"
+                        className="bg-gray-50 border border-gray-200 rounded-xl p-4 active:bg-gray-100 transition-colors cursor-pointer opacity-90"
                         data-testid={`booking-card-${booking.id}`}
                       >
                         <div className="flex justify-between items-start mb-3">
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
                             {formatStatus(booking.status)}
                           </span>
-                          <span className="text-lg font-bold text-foreground">${booking.totalAmount}</span>
+                          <span className="text-lg font-bold text-gray-900">${booking.totalAmount}</span>
                         </div>
                         
                         <div className="space-y-2 text-sm">
-                          <div className="flex items-start gap-2 text-muted-foreground">
+                          <div className="flex items-start gap-2 text-gray-600">
                             <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" />
                             <span>{new Date(booking.scheduledDateTime).toLocaleString()}</span>
                           </div>
                           
                           <div className="flex items-start gap-2">
-                            <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                            <p className="text-foreground font-medium">{booking.pickupAddress}</p>
+                            <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                            <p className="text-gray-900 font-medium">{booking.pickupAddress}</p>
                           </div>
                         </div>
                       </div>
@@ -605,12 +605,12 @@ export default function MobilePassenger() {
         {/* Saved Locations Section */}
         {activeSection === 'saved-locations' && (
           <div className="space-y-3">
-            <Card className="shadow-md border-border">
-              <CardHeader className="bg-gradient-to-r from-accent/5 to-primary/5 border-b p-3">
+            <Card className="shadow-md border-gray-200 bg-white">
+              <CardHeader className="bg-white border-b border-gray-100 p-3">
                 <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle className="text-sm flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-primary" />
+                    <CardTitle className="text-sm flex items-center gap-1.5 text-gray-900">
+                      <MapPin className="w-3.5 h-3.5 text-red-600" />
                       Saved Locations
                     </CardTitle>
                     <CardDescription className="text-xs mt-0.5">Your favorite places</CardDescription>
@@ -619,7 +619,7 @@ export default function MobilePassenger() {
                     <DialogTrigger asChild>
                       <Button
                         size="sm"
-                        className="bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90 text-white shadow-sm h-7 px-2 text-xs"
+                        className="bg-red-600 hover:bg-red-700 text-white shadow-sm h-7 px-2 text-xs"
                         data-testid="button-add-location"
                       >
                         <Plus className="w-3 h-3 mr-1" />
