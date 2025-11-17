@@ -1,0 +1,47 @@
+version: '3.9'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    labels:
+      - caddy=ps4gks8wskokgwksosccc4g0.62.72.3.177.sslip.io
+      - caddy.reverse_proxy={{upstreams 5000}}
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      # Database
+      - DATABASE_URL=${DATABASE_URL}
+      # Stripe (boş bırakıldı - test için)
+      - STRIPE_SECRET_KEY=
+      - VITE_STRIPE_PUBLIC_KEY=
+      # Session
+      - SESSION_SECRET=${SESSION_SECRET}
+      # MinIO
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET:-hopelimo}
+      # Email
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_SECURE=${SMTP_SECURE}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-Hope Limo}
+      - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
+      # SMS
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+      # APIs (boş bırakıldı - test için)
+      - TOMTOM_API_KEY=
+      - RAPIDAPI_KEY=
+      # Settings
+      - SETTINGS_ENCRYPTION_KEY=${SETTINGS_ENCRYPTION_KEY}
+    restart: unless-stopped
+    networks:
+      - coolify
+networks:
+  coolify:
+    external: true
