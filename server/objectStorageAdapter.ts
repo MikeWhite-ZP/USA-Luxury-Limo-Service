@@ -250,8 +250,13 @@ async getDownloadUrl(path: string): Promise<{ ok: boolean; url?: string; error?:
   try {
     await this.initPromise;
     
-    // Return public URL instead of signed URL
-    const url = `${this.endpoint}/${this.bucket}/${path}`;
+    // Generate presigned URL with 1 hour expiration
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: path,
+    });
+    
+    const url = await getSignedUrl(this.client, command, { expiresIn: 3600 });
     return { ok: true, url };
   } catch (error: any) {
     return { ok: false, error: error.message };

@@ -102,28 +102,31 @@ function refreshObjectStorage(): void {
 async function getPresignedUrl(pathOrUrl: string | null | undefined): Promise<string> {
   if (!pathOrUrl) return '';
   
-  // Check if it's already a full URL (backwards compatibility)
+  // Extract storage key from full URL or use path directly
+  let storageKey: string;
+  
   if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
-    return pathOrUrl;
+    // Extract the storage key from the full URL (backwards compatibility)
+    storageKey = extractStorageKey(pathOrUrl);
+  } else {
+    // Remove leading slash if present
+    storageKey = pathOrUrl.startsWith('/') ? pathOrUrl.slice(1) : pathOrUrl;
   }
   
-  // It's an object storage key, generate presigned URL
+  // Generate presigned URL for the storage key
   try {
     const objStorage = await getObjectStorage();
+    const result = await objStorage.getDownloadUrl(storageKey);
     
-    // Remove leading slash if present
-    const cleanPath = pathOrUrl.startsWith('/') ? pathOrUrl.slice(1) : pathOrUrl;
-    
-    const result = await objStorage.getDownloadUrl(cleanPath);
     if (result.ok && result.url) {
       return result.url;
     }
     
-    // If presigned URL generation fails, return the path as-is for debugging
-    console.warn(`Failed to generate presigned URL for ${pathOrUrl}:`, result.error);
+    // If presigned URL generation fails, return the original path for debugging
+    console.warn(`Failed to generate presigned URL for ${storageKey}:`, result.error);
     return pathOrUrl;
   } catch (error) {
-    console.error(`Error generating presigned URL for ${pathOrUrl}:`, error);
+    console.error(`Error generating presigned URL for ${storageKey}:`, error);
     return pathOrUrl;
   }
 }
@@ -140,7 +143,16 @@ function extractStorageKey(urlOrPath: string): string {
     // If it's a full URL, extract the pathname
     if (urlOrPath.startsWith('http://') || urlOrPath.startsWith('https://')) {
       const url = new URL(urlOrPath);
-      return url.pathname.startsWith('/') ? url.pathname.slice(1) : url.pathname;
+      let pathname = url.pathname.startsWith('/') ? url.pathname.slice(1) : url.pathname;
+      
+      // Remove bucket name from path if present (e.g., "replit/cms/..." -> "cms/...")
+      // MinIO URLs have format: https://minio.example.com/bucket-name/object-key
+      const bucketName = process.env.MINIO_BUCKET || 'replit';
+      if (pathname.startsWith(bucketName + '/')) {
+        pathname = pathname.slice(bucketName.length + 1);
+      }
+      
+      return pathname;
     }
     
     // Otherwise, it's already a key - just remove leading slash if present
