@@ -5315,6 +5315,22 @@ export default function AdminDashboard() {
       return;
     }
 
+    // Normalize username: convert empty string to undefined FIRST
+    const normalizedUsername = userFormData.username && userFormData.username.trim() 
+      ? userFormData.username.trim() 
+      : undefined;
+
+    // Block submission if username validation is in progress or failed
+    // (Only check if we have a username to validate)
+    if (normalizedUsername && (usernameStatus === 'checking' || usernameStatus === 'taken')) {
+      toast({
+        title: "Username Validation Pending",
+        description: "Please wait for username availability check to complete",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validate temporary password if provided
     if (userFormData.temporaryPassword && userFormData.temporaryPassword.length > 0 && userFormData.temporaryPassword.length < 6) {
       toast({
@@ -5327,14 +5343,13 @@ export default function AdminDashboard() {
 
     if (editingUser) {
       // Update existing user (excluding temporaryPassword from updates)
-      const { temporaryPassword, ...updates } = userFormData;
-      // Convert empty username to undefined
-      if (updates.username && !updates.username.trim()) {
-        updates.username = undefined;
-      }
+      const { temporaryPassword, username, ...updates } = userFormData;
       updateUserMutation.mutate({
         id: editingUser.id,
-        updates,
+        updates: {
+          ...updates,
+          username: normalizedUsername,
+        },
       });
 
       // If temporary password is set, call the temp password API separately
@@ -5352,12 +5367,11 @@ export default function AdminDashboard() {
       setUserDialogOpen(false);
     } else {
       // Create new user (excluding temporaryPassword)
-      const { temporaryPassword, ...userData } = userFormData;
-      // Convert empty username to undefined
-      if (userData.username && !userData.username.trim()) {
-        userData.username = undefined;
-      }
-      createUserMutation.mutate(userData);
+      const { temporaryPassword, username, ...userData } = userFormData;
+      createUserMutation.mutate({
+        ...userData,
+        username: normalizedUsername,
+      });
     }
   };
 
