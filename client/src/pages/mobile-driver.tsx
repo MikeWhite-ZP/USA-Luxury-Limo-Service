@@ -175,15 +175,15 @@ export default function MobileDriver() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending_driver_acceptance': return 'bg-purple-50 text-purple-700 border border-purple-200';
-      case 'confirmed': return 'bg-blue-50 text-blue-700 border border-blue-200';
-      case 'on_the_way': return 'bg-indigo-50 text-indigo-700 border border-indigo-200';
-      case 'arrived': return 'bg-cyan-50 text-cyan-700 border border-cyan-200';
-      case 'on_board': return 'bg-teal-50 text-teal-700 border border-teal-200';
-      case 'in_progress': return 'bg-amber-50 text-amber-700 border border-amber-200';
-      case 'completed': return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
-      case 'cancelled': return 'bg-red-50 text-red-700 border border-red-200';
-      default: return 'bg-gray-50 text-gray-700 border border-gray-200';
+      case 'pending_driver_acceptance': return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 border border-purple-200 dark:border-purple-800';
+      case 'confirmed': return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-800';
+      case 'on_the_way': return 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800';
+      case 'arrived': return 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-800 dark:text-cyan-200 border border-cyan-200 dark:border-cyan-800';
+      case 'on_board': return 'bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200 border border-teal-200 dark:border-teal-800';
+      case 'in_progress': return 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-800';
+      case 'completed': return 'bg-primary/10 dark:bg-primary/20 text-primary border border-primary/30 dark:border-primary/40';
+      case 'cancelled': return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800';
+      default: return 'bg-muted/50 dark:bg-muted text-foreground border border-border';
     }
   };
 
@@ -248,10 +248,10 @@ export default function MobileDriver() {
 
   if (driverLoading || bookingsLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading driver dashboard...</p>
+          <p className="text-muted-foreground">Loading driver dashboard...</p>
         </div>
       </div>
     );
@@ -259,17 +259,17 @@ export default function MobileDriver() {
 
   if (!driver) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5 flex items-center justify-center p-6">
         <Card className="max-w-md w-full">
           <CardContent className="p-6 text-center">
             <Car className="w-12 h-12 text-red-600 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Driver Profile Not Found</h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               You need to complete your driver profile to access this dashboard.
             </p>
             <Button 
               onClick={() => setLocation('/driver-dashboard')}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-primary hover:bg-primary/90"
               data-testid="button-setup-profile"
             >
               Set Up Profile
@@ -281,15 +281,15 @@ export default function MobileDriver() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 shadow-lg">
+      <div className="bg-gradient-to-r from-green-600 to-green-700 text-primary-foreground p-6 shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setLocation('/mobile-splash')}
-            className="text-white hover:bg-white/20"
+            className="text-primary-foreground hover:bg-primary-foreground/20"
             data-testid="button-back"
           >
             <ArrowLeft className="w-6 h-6" />
@@ -300,36 +300,36 @@ export default function MobileDriver() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white hover:bg-white/20"
+                className="text-primary-foreground hover:bg-primary-foreground/20"
                 data-testid="button-menu"
               >
                 <Settings className="w-6 h-6" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-white">
+            <DropdownMenuContent align="end" className="w-48 bg-card">
               <DropdownMenuItem
                 onClick={() => setLocation('/mobile-driver/documents')}
-                className="flex items-center gap-2 cursor-pointer hover:bg-green-50"
+                className="flex items-center gap-2 cursor-pointer hover:bg-primary/5"
                 data-testid="menu-documents"
               >
-                <FileText className="w-4 h-4 text-green-600" />
-                <span className="text-gray-900">Documents</span>
+                <FileText className="w-4 h-4 text-primary" />
+                <span className="text-foreground">Documents</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setLocation('/mobile-driver/profile')}
-                className="flex items-center gap-2 cursor-pointer hover:bg-green-50"
+                className="flex items-center gap-2 cursor-pointer hover:bg-primary/5"
                 data-testid="menu-profile"
               >
-                <User className="w-4 h-4 text-green-600" />
-                <span className="text-gray-900">Profile</span>
+                <User className="w-4 h-4 text-primary" />
+                <span className="text-foreground">Profile</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setLocation('/mobile-driver/account')}
-                className="flex items-center gap-2 cursor-pointer hover:bg-green-50"
+                className="flex items-center gap-2 cursor-pointer hover:bg-primary/5"
                 data-testid="menu-account"
               >
-                <Settings className="w-4 h-4 text-green-600" />
-                <span className="text-gray-900">Account</span>
+                <Settings className="w-4 h-4 text-primary" />
+                <span className="text-foreground">Account</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -354,8 +354,8 @@ export default function MobileDriver() {
                   toggleAvailabilityMutation.isPending 
                     ? 'bg-yellow-400 animate-pulse' 
                     : driver.isAvailable 
-                      ? 'bg-white shadow-md' 
-                      : 'bg-green-500 shadow-md shadow-green-500/50'
+                      ? 'bg-card shadow-md' 
+                      : 'bg-primary/50 shadow-md shadow-green-500/50'
                 }`}></div>
                 <span className="font-bold text-base text-[#ba1a1a]">
                   {toggleAvailabilityMutation.isPending 
@@ -375,7 +375,7 @@ export default function MobileDriver() {
 
           {driver.isAvailable && (
             <div className="flex items-center space-x-1.5 text-xs border-t border-rose-400 px-4 py-2 bg-[#b8ccb8]">
-              <Navigation2 className={`w-3 h-3 ${currentLocation ? 'text-white animate-pulse' : 'text-rose-200'}`} />
+              <Navigation2 className={`w-3 h-3 ${currentLocation ? 'text-primary-foreground animate-pulse' : 'text-rose-200'}`} />
               <span data-testid="text-gps-status">
                 {locationError ? (
                   <span className="text-rose-100">{locationError}</span>
@@ -398,7 +398,7 @@ export default function MobileDriver() {
           data-testid="stat-earnings"
         >
           <div className="p-2 text-center">
-            <div className="w-7 h-7 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-1">
+            <div className="w-7 h-7 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center mx-auto mb-1">
               <DollarSign className="w-4 h-4 text-emerald-600" />
             </div>
             <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide mb-0.5">Today</p>
@@ -443,18 +443,18 @@ export default function MobileDriver() {
       {/* Rides Tabs */}
       <div className="px-6 pb-4">
         <Tabs defaultValue="upcoming" className="w-full">
-          <TabsList className="w-full grid grid-cols-2 bg-white border border-gray-200 p-1 rounded-lg shadow-sm">
+          <TabsList className="w-full grid grid-cols-2 bg-card border border-border p-1 rounded-lg shadow-sm">
             <TabsTrigger 
               value="upcoming" 
               data-testid="tab-upcoming"
-              className="data-[state=active]:bg-green-600 data-[state=active]:text-white rounded-md font-medium transition-all"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md font-medium transition-all"
             >
               Upcoming ({upcomingBookings.length})
             </TabsTrigger>
             <TabsTrigger 
               value="completed" 
               data-testid="tab-completed"
-              className="data-[state=active]:bg-green-600 data-[state=active]:text-white rounded-md font-medium transition-all"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md font-medium transition-all"
             >
               Completed ({completedBookings.length})
             </TabsTrigger>
@@ -462,12 +462,12 @@ export default function MobileDriver() {
 
           <TabsContent value="upcoming" className="space-y-3 mt-4">
             {upcomingBookings.length === 0 ? (
-              <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+              <div className="bg-card rounded-xl border border-border p-8 text-center">
                 <Car className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-700 font-medium mb-1" data-testid="text-no-upcoming">
+                <p className="text-foreground font-medium mb-1" data-testid="text-no-upcoming">
                   No upcoming rides
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   {driver.isAvailable ? 'Waiting for new assignments...' : 'Go online to receive rides'}
                 </p>
               </div>
@@ -478,7 +478,7 @@ export default function MobileDriver() {
                 return (
                   <div 
                     key={booking.id} 
-                    className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 hover:border-green-300"
+                    className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-all duration-200 hover:border-primary/40"
                     onClick={() => setLocation(`/mobile-driver/rides/${booking.id}`)}
                     data-testid={`card-booking-${booking.id}`}
                   >
@@ -489,20 +489,20 @@ export default function MobileDriver() {
                             <Badge className={`${getStatusColor(booking.status)} font-medium text-xs px-2.5 py-1`} data-testid={`badge-status-${booking.id}`}>
                               {booking.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                             </Badge>
-                            <span className="text-base font-bold text-green-700">
+                            <span className="text-base font-bold text-primary">
                               ${booking.driverPayment && Number.isFinite(parseFloat(booking.driverPayment)) ? parseFloat(booking.driverPayment).toFixed(2) : '0.00'}
                             </span>
                           </div>
-                          <div className="flex items-center text-xs text-gray-600 mb-1.5">
-                            <Calendar className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
+                          <div className="flex items-center text-xs text-muted-foreground mb-1.5">
+                            <Calendar className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
                             <span className="font-medium">
                               {booking.scheduledDateTime ? format(new Date(booking.scheduledDateTime), 'MMM d, h:mm a') : 'Not scheduled'}
                             </span>
                           </div>
                           {booking.passengerName && (
-                            <div className="flex items-center justify-between text-xs text-gray-600">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
                               <div className="flex items-center">
-                                <User className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
+                                <User className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
                                 <span className="font-medium">{booking.passengerName}</span>
                               </div>
                               {booking.passengerPhone && (
@@ -517,8 +517,8 @@ export default function MobileDriver() {
                                     }}
                                     className={`flex items-center justify-center w-7 h-7 rounded-full transition-all ${
                                       isTripActive(booking.status)
-                                        ? 'bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer'
-                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        ? 'bg-primary/10 text-primary hover:bg-green-200 cursor-pointer'
+                                        : 'bg-muted text-muted-foreground cursor-not-allowed'
                                     }`}
                                     aria-label={isTripActive(booking.status) ? `Call ${booking.passengerName}` : 'Call passenger (available after trip starts)'}
                                     title={isTripActive(booking.status) ? 'Call passenger' : 'Available after trip starts'}
@@ -536,8 +536,8 @@ export default function MobileDriver() {
                                     }}
                                     className={`flex items-center justify-center w-7 h-7 rounded-full transition-all ${
                                       isTripActive(booking.status)
-                                        ? 'bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer'
-                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        ? 'bg-primary/10 text-primary hover:bg-green-200 cursor-pointer'
+                                        : 'bg-muted text-muted-foreground cursor-not-allowed'
                                     }`}
                                     aria-label={isTripActive(booking.status) ? `Text ${booking.passengerName}` : 'Text passenger (available after trip starts)'}
                                     title={isTripActive(booking.status) ? 'Text passenger' : 'Available after trip starts'}
@@ -552,12 +552,12 @@ export default function MobileDriver() {
                         </div>
                       </div>
 
-                      <div className="space-y-2.5 mb-4 bg-gray-50 rounded-lg p-3 border border-gray-100">
+                      <div className="space-y-2.5 mb-4 bg-muted/50 rounded-lg p-3 border border-border">
                         <div className="flex items-start gap-2.5">
-                          <div className="w-2.5 h-2.5 rounded-full bg-green-500 mt-1 flex-shrink-0"></div>
+                          <div className="w-2.5 h-2.5 rounded-full bg-primary/50 mt-1 flex-shrink-0"></div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Pickup</p>
-                            <p className="text-sm font-medium text-gray-900 line-clamp-2">{booking.pickupAddress}</p>
+                            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">Pickup</p>
+                            <p className="text-sm font-medium text-foreground line-clamp-2">{booking.pickupAddress}</p>
                           </div>
                         </div>
 
@@ -565,8 +565,8 @@ export default function MobileDriver() {
                           <div className="flex items-start gap-2.5">
                             <div className="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1 flex-shrink-0"></div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Via</p>
-                              <p className="text-sm font-medium text-gray-900 line-clamp-2">{booking.viaAddress}</p>
+                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">Via</p>
+                              <p className="text-sm font-medium text-foreground line-clamp-2">{booking.viaAddress}</p>
                             </div>
                           </div>
                         )}
@@ -574,8 +574,8 @@ export default function MobileDriver() {
                         <div className="flex items-start gap-2.5">
                           <div className="w-2.5 h-2.5 rounded-full bg-red-500 mt-1 flex-shrink-0"></div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Dropoff</p>
-                            <p className="text-sm font-medium text-gray-900 line-clamp-2">{booking.destinationAddress}</p>
+                            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">Dropoff</p>
+                            <p className="text-sm font-medium text-foreground line-clamp-2">{booking.destinationAddress}</p>
                           </div>
                         </div>
                       </div>
@@ -593,7 +593,7 @@ export default function MobileDriver() {
                           className={`w-full font-semibold shadow-md hover:shadow-lg transition-all ${
                             canStartTrip(booking) 
                               ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white' 
-                              : 'bg-gray-200 text-gray-700 cursor-not-allowed'
+                              : 'bg-gray-200 text-foreground cursor-not-allowed'
                           }`}
                           data-testid={`button-${nextAction.nextStatus}-${booking.id}`}
                         >
@@ -619,9 +619,9 @@ export default function MobileDriver() {
 
           <TabsContent value="completed" className="space-y-3 mt-4">
             {completedBookings.length === 0 ? (
-              <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+              <div className="bg-card rounded-xl border border-border p-8 text-center">
                 <CheckCircle2 className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-700 font-medium" data-testid="text-no-completed">
+                <p className="text-foreground font-medium" data-testid="text-no-completed">
                   No completed rides yet
                 </p>
               </div>
@@ -629,7 +629,7 @@ export default function MobileDriver() {
               completedBookings.slice(0, 10).map((booking) => (
                 <div 
                   key={booking.id}
-                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 hover:border-emerald-300 cursor-pointer"
+                  className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-all duration-200 hover:border-emerald-300 cursor-pointer"
                   onClick={() => setLocation(`/mobile-driver/rides/${booking.id}`)}
                   data-testid={`card-completed-${booking.id}`}
                 >
@@ -637,15 +637,15 @@ export default function MobileDriver() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium text-xs px-2.5 py-1">
+                          <Badge className="bg-primary/10 dark:bg-primary/20 text-primary border border-primary/30 dark:border-primary/40 font-medium text-xs px-2.5 py-1">
                             Completed
                           </Badge>
                           <span className="text-base font-bold text-emerald-700">
                             ${booking.driverPayment && Number.isFinite(parseFloat(booking.driverPayment)) ? parseFloat(booking.driverPayment).toFixed(2) : '0.00'}
                           </span>
                         </div>
-                        <div className="flex items-center text-xs text-gray-600">
-                          <Calendar className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <Calendar className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
                           <span className="font-medium">
                             {booking.scheduledDateTime ? format(new Date(booking.scheduledDateTime), 'MMM d, h:mm a') : 'Not scheduled'}
                           </span>
@@ -653,14 +653,14 @@ export default function MobileDriver() {
                       </div>
                     </div>
 
-                    <div className="space-y-2 bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <div className="space-y-2 bg-muted/50 rounded-lg p-3 border border-border">
                       <div className="flex items-start gap-2.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-green-500 mt-1 flex-shrink-0"></div>
-                        <p className="text-sm font-medium text-gray-900 line-clamp-1 flex-1">{booking.pickupAddress}</p>
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary/50 mt-1 flex-shrink-0"></div>
+                        <p className="text-sm font-medium text-foreground line-clamp-1 flex-1">{booking.pickupAddress}</p>
                       </div>
                       <div className="flex items-start gap-2.5">
                         <div className="w-2.5 h-2.5 rounded-full bg-red-500 mt-1 flex-shrink-0"></div>
-                        <p className="text-sm font-medium text-gray-900 line-clamp-1 flex-1">{booking.destinationAddress}</p>
+                        <p className="text-sm font-medium text-foreground line-clamp-1 flex-1">{booking.destinationAddress}</p>
                       </div>
                     </div>
                   </div>

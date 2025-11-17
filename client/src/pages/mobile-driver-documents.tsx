@@ -174,7 +174,7 @@ export default function MobileDriverDocuments() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
-        return <Badge className="bg-green-600 text-white"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>;
+        return <Badge className="bg-primary text-primary-foreground"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>;
       case 'rejected':
         return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
       default:
@@ -184,25 +184,25 @@ export default function MobileDriverDocuments() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading documents...</p>
+          <p className="text-muted-foreground">Loading documents...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 shadow-lg sticky top-0 z-10">
+      <div className="bg-gradient-to-r from-green-600 to-green-700 text-primary-foreground p-6 shadow-lg sticky top-0 z-10">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setLocation('/mobile-driver')}
-            className="text-white hover:bg-white/20"
+            className="text-primary-foreground hover:bg-primary-foreground/20"
             data-testid="button-back"
           >
             <ArrowLeft className="w-6 h-6" />
@@ -215,27 +215,27 @@ export default function MobileDriverDocuments() {
       {/* Documents */}
       <div className="p-4 space-y-4">
         {/* Driver License */}
-        <Card className="bg-white border-green-200 shadow-md" data-testid="card-driver-license">
+        <Card className="bg-card border-primary/30 shadow-md" data-testid="card-driver-license">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-green-600" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">Driver License</h3>
-                  <p className="text-xs text-gray-500">Required document</p>
+                  <h3 className="font-bold text-foreground">Driver License</h3>
+                  <p className="text-xs text-muted-foreground">Required document</p>
                 </div>
               </div>
               {getDocumentByType('driver_license') && getStatusBadge(getDocumentByType('driver_license')!.status)}
             </div>
 
             {getDocumentByType('driver_license') && (
-              <div className="bg-green-50 rounded-lg p-3 space-y-2 text-sm border border-green-100">
+              <div className="bg-primary/5 rounded-lg p-3 space-y-2 text-sm border border-primary/20">
                 {getDocumentByType('driver_license')!.expirationDate && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Expires:</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="text-muted-foreground">Expires:</span>
+                    <span className="font-medium text-foreground">
                       {new Date(getDocumentByType('driver_license')!.expirationDate!).toLocaleDateString()}
                     </span>
                   </div>
@@ -252,7 +252,7 @@ export default function MobileDriverDocuments() {
 
             <div className="space-y-3">
               <div>
-                <Label htmlFor="driver-license-file" className="text-gray-700 font-medium mb-2 block">
+                <Label htmlFor="driver-license-file" className="text-foreground font-medium mb-2 block">
                   {getDocumentByType('driver_license') ? 'Replace Document' : 'Upload Document'}
                 </Label>
                 <Input
@@ -264,13 +264,13 @@ export default function MobileDriverDocuments() {
                     ...prev,
                     driverLicense: { ...prev.driverLicense, file: e.target.files?.[0] || null }
                   }))}
-                  className="bg-white border-gray-300"
+                  className="bg-card border-border"
                   data-testid="input-driver-license-file"
                 />
-                <p className="text-xs text-gray-500 mt-1">Image or PDF, max 2MB</p>
+                <p className="text-xs text-muted-foreground mt-1">Image or PDF, max 2MB</p>
               </div>
               <div>
-                <Label htmlFor="driver-license-expiry" className="text-gray-700 font-medium mb-2 block">
+                <Label htmlFor="driver-license-expiry" className="text-foreground font-medium mb-2 block">
                   Expiration Date
                 </Label>
                 <Input
@@ -281,14 +281,14 @@ export default function MobileDriverDocuments() {
                     ...prev,
                     driverLicense: { ...prev.driverLicense, expirationDate: e.target.value }
                   }))}
-                  className="bg-white border-gray-300"
+                  className="bg-card border-border"
                   data-testid="input-driver-license-expiry"
                 />
               </div>
               <Button
                 onClick={() => handleUpload('driver_license')}
                 disabled={!formData.driverLicense.file || uploading === 'driver_license'}
-                className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 text-base font-semibold rounded-xl shadow-md"
                 data-testid="button-upload-driver-license"
               >
                 <Upload className="w-5 h-5 mr-2" />
@@ -299,27 +299,27 @@ export default function MobileDriverDocuments() {
         </Card>
 
         {/* Limo License */}
-        <Card className="bg-white border-green-200 shadow-md" data-testid="card-limo-license">
+        <Card className="bg-card border-primary/30 shadow-md" data-testid="card-limo-license">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-green-600" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">Limo License</h3>
-                  <p className="text-xs text-gray-500">Required document</p>
+                  <h3 className="font-bold text-foreground">Limo License</h3>
+                  <p className="text-xs text-muted-foreground">Required document</p>
                 </div>
               </div>
               {getDocumentByType('limo_license') && getStatusBadge(getDocumentByType('limo_license')!.status)}
             </div>
 
             {getDocumentByType('limo_license') && (
-              <div className="bg-green-50 rounded-lg p-3 space-y-2 text-sm border border-green-100">
+              <div className="bg-primary/5 rounded-lg p-3 space-y-2 text-sm border border-primary/20">
                 {getDocumentByType('limo_license')!.expirationDate && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Expires:</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="text-muted-foreground">Expires:</span>
+                    <span className="font-medium text-foreground">
                       {new Date(getDocumentByType('limo_license')!.expirationDate!).toLocaleDateString()}
                     </span>
                   </div>
@@ -336,7 +336,7 @@ export default function MobileDriverDocuments() {
 
             <div className="space-y-3">
               <div>
-                <Label htmlFor="limo-license-file" className="text-gray-700 font-medium mb-2 block">
+                <Label htmlFor="limo-license-file" className="text-foreground font-medium mb-2 block">
                   {getDocumentByType('limo_license') ? 'Replace Document' : 'Upload Document'}
                 </Label>
                 <Input
@@ -348,13 +348,13 @@ export default function MobileDriverDocuments() {
                     ...prev,
                     limoLicense: { ...prev.limoLicense, file: e.target.files?.[0] || null }
                   }))}
-                  className="bg-white border-gray-300"
+                  className="bg-card border-border"
                   data-testid="input-limo-license-file"
                 />
-                <p className="text-xs text-gray-500 mt-1">Image or PDF, max 2MB</p>
+                <p className="text-xs text-muted-foreground mt-1">Image or PDF, max 2MB</p>
               </div>
               <div>
-                <Label htmlFor="limo-license-expiry" className="text-gray-700 font-medium mb-2 block">
+                <Label htmlFor="limo-license-expiry" className="text-foreground font-medium mb-2 block">
                   Expiration Date
                 </Label>
                 <Input
@@ -365,14 +365,14 @@ export default function MobileDriverDocuments() {
                     ...prev,
                     limoLicense: { ...prev.limoLicense, expirationDate: e.target.value }
                   }))}
-                  className="bg-white border-gray-300"
+                  className="bg-card border-border"
                   data-testid="input-limo-license-expiry"
                 />
               </div>
               <Button
                 onClick={() => handleUpload('limo_license')}
                 disabled={!formData.limoLicense.file || uploading === 'limo_license'}
-                className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 text-base font-semibold rounded-xl shadow-md"
                 data-testid="button-upload-limo-license"
               >
                 <Upload className="w-5 h-5 mr-2" />
@@ -383,27 +383,27 @@ export default function MobileDriverDocuments() {
         </Card>
 
         {/* Insurance Certificate */}
-        <Card className="bg-white border-green-200 shadow-md" data-testid="card-insurance-certificate">
+        <Card className="bg-card border-primary/30 shadow-md" data-testid="card-insurance-certificate">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-green-600" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">Insurance Certificate</h3>
-                  <p className="text-xs text-gray-500">Required document</p>
+                  <h3 className="font-bold text-foreground">Insurance Certificate</h3>
+                  <p className="text-xs text-muted-foreground">Required document</p>
                 </div>
               </div>
               {getDocumentByType('insurance_certificate') && getStatusBadge(getDocumentByType('insurance_certificate')!.status)}
             </div>
 
             {getDocumentByType('insurance_certificate') && (
-              <div className="bg-green-50 rounded-lg p-3 space-y-2 text-sm border border-green-100">
+              <div className="bg-primary/5 rounded-lg p-3 space-y-2 text-sm border border-primary/20">
                 {getDocumentByType('insurance_certificate')!.expirationDate && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Expires:</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="text-muted-foreground">Expires:</span>
+                    <span className="font-medium text-foreground">
                       {new Date(getDocumentByType('insurance_certificate')!.expirationDate!).toLocaleDateString()}
                     </span>
                   </div>
@@ -420,7 +420,7 @@ export default function MobileDriverDocuments() {
 
             <div className="space-y-3">
               <div>
-                <Label htmlFor="insurance-certificate-file" className="text-gray-700 font-medium mb-2 block">
+                <Label htmlFor="insurance-certificate-file" className="text-foreground font-medium mb-2 block">
                   {getDocumentByType('insurance_certificate') ? 'Replace Document' : 'Upload Document'}
                 </Label>
                 <Input
@@ -432,13 +432,13 @@ export default function MobileDriverDocuments() {
                     ...prev,
                     insuranceCertificate: { ...prev.insuranceCertificate, file: e.target.files?.[0] || null }
                   }))}
-                  className="bg-white border-gray-300"
+                  className="bg-card border-border"
                   data-testid="input-insurance-certificate-file"
                 />
-                <p className="text-xs text-gray-500 mt-1">Image or PDF, max 2MB</p>
+                <p className="text-xs text-muted-foreground mt-1">Image or PDF, max 2MB</p>
               </div>
               <div>
-                <Label htmlFor="insurance-certificate-expiry" className="text-gray-700 font-medium mb-2 block">
+                <Label htmlFor="insurance-certificate-expiry" className="text-foreground font-medium mb-2 block">
                   Expiration Date
                 </Label>
                 <Input
@@ -449,14 +449,14 @@ export default function MobileDriverDocuments() {
                     ...prev,
                     insuranceCertificate: { ...prev.insuranceCertificate, expirationDate: e.target.value }
                   }))}
-                  className="bg-white border-gray-300"
+                  className="bg-card border-border"
                   data-testid="input-insurance-certificate-expiry"
                 />
               </div>
               <Button
                 onClick={() => handleUpload('insurance_certificate')}
                 disabled={!formData.insuranceCertificate.file || uploading === 'insurance_certificate'}
-                className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 text-base font-semibold rounded-xl shadow-md"
                 data-testid="button-upload-insurance-certificate"
               >
                 <Upload className="w-5 h-5 mr-2" />
@@ -467,27 +467,27 @@ export default function MobileDriverDocuments() {
         </Card>
 
         {/* Vehicle Image */}
-        <Card className="bg-white border-green-200 shadow-md" data-testid="card-vehicle-image">
+        <Card className="bg-card border-primary/30 shadow-md" data-testid="card-vehicle-image">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <Car className="w-5 h-5 text-green-600" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Car className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">Vehicle Image</h3>
-                  <p className="text-xs text-gray-500">Optional document</p>
+                  <h3 className="font-bold text-foreground">Vehicle Image</h3>
+                  <p className="text-xs text-muted-foreground">Optional document</p>
                 </div>
               </div>
               {getDocumentByType('vehicle_image') && getStatusBadge(getDocumentByType('vehicle_image')!.status)}
             </div>
 
             {getDocumentByType('vehicle_image') && (
-              <div className="bg-green-50 rounded-lg p-3 space-y-2 text-sm border border-green-100">
+              <div className="bg-primary/5 rounded-lg p-3 space-y-2 text-sm border border-primary/20">
                 {getDocumentByType('vehicle_image')!.vehiclePlate && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Vehicle Plate:</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="text-muted-foreground">Vehicle Plate:</span>
+                    <span className="font-medium text-foreground">
                       {getDocumentByType('vehicle_image')!.vehiclePlate}
                     </span>
                   </div>
@@ -504,7 +504,7 @@ export default function MobileDriverDocuments() {
 
             <div className="space-y-3">
               <div>
-                <Label htmlFor="vehicle-image-file" className="text-gray-700 font-medium mb-2 block">
+                <Label htmlFor="vehicle-image-file" className="text-foreground font-medium mb-2 block">
                   {getDocumentByType('vehicle_image') ? 'Replace Image' : 'Upload Image'}
                 </Label>
                 <Input
@@ -516,13 +516,13 @@ export default function MobileDriverDocuments() {
                     ...prev,
                     vehicleImage: { ...prev.vehicleImage, file: e.target.files?.[0] || null }
                   }))}
-                  className="bg-white border-gray-300"
+                  className="bg-card border-border"
                   data-testid="input-vehicle-image-file"
                 />
-                <p className="text-xs text-gray-500 mt-1">Image only, max 2MB</p>
+                <p className="text-xs text-muted-foreground mt-1">Image only, max 2MB</p>
               </div>
               <div>
-                <Label htmlFor="vehicle-plate" className="text-gray-700 font-medium mb-2 block">
+                <Label htmlFor="vehicle-plate" className="text-foreground font-medium mb-2 block">
                   Vehicle Plate Number
                 </Label>
                 <Input
@@ -534,14 +534,14 @@ export default function MobileDriverDocuments() {
                     ...prev,
                     vehicleImage: { ...prev.vehicleImage, vehiclePlate: e.target.value }
                   }))}
-                  className="bg-white border-gray-300"
+                  className="bg-card border-border"
                   data-testid="input-vehicle-plate"
                 />
               </div>
               <Button
                 onClick={() => handleUpload('vehicle_image')}
                 disabled={!formData.vehicleImage.file || uploading === 'vehicle_image'}
-                className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 text-base font-semibold rounded-xl shadow-md"
                 data-testid="button-upload-vehicle-image"
               >
                 <Upload className="w-5 h-5 mr-2" />
@@ -552,16 +552,16 @@ export default function MobileDriverDocuments() {
         </Card>
 
         {/* Profile Photo */}
-        <Card className="bg-white border-green-200 shadow-md" data-testid="card-profile-photo">
+        <Card className="bg-card border-primary/30 shadow-md" data-testid="card-profile-photo">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <Camera className="w-5 h-5 text-green-600" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Camera className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">Profile Photo</h3>
-                  <p className="text-xs text-gray-500">Optional</p>
+                  <h3 className="font-bold text-foreground">Profile Photo</h3>
+                  <p className="text-xs text-muted-foreground">Optional</p>
                 </div>
               </div>
               {getDocumentByType('profile_photo') && getStatusBadge(getDocumentByType('profile_photo')!.status)}
@@ -570,7 +570,7 @@ export default function MobileDriverDocuments() {
             {/* Avatar Preview */}
             <div className="flex justify-center py-4">
               <div className="relative">
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-green-100 shadow-lg bg-white">
+                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary/20 shadow-lg bg-card">
                   <img
                     src={getDocumentByType('profile_photo')?.status === 'approved' && user?.profileImageUrl ? user.profileImageUrl : defaultUserImage}
                     alt="Profile"
@@ -578,18 +578,18 @@ export default function MobileDriverDocuments() {
                     data-testid="img-profile-preview"
                   />
                 </div>
-                <div className="absolute bottom-0 right-0 w-10 h-10 bg-green-600 rounded-full flex items-center justify-center shadow-md border-2 border-white">
-                  <Camera className="w-5 h-5 text-white" />
+                <div className="absolute bottom-0 right-0 w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-md border-2 border-white">
+                  <Camera className="w-5 h-5 text-primary-foreground" />
                 </div>
               </div>
             </div>
 
             {getDocumentByType('profile_photo') && (
-              <div className="bg-green-50 rounded-lg p-3 space-y-2 text-sm border border-green-100">
+              <div className="bg-primary/5 rounded-lg p-3 space-y-2 text-sm border border-primary/20">
                 {getDocumentByType('profile_photo')!.whatsappNumber && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">WhatsApp:</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="text-muted-foreground">WhatsApp:</span>
+                    <span className="font-medium text-foreground">
                       {getDocumentByType('profile_photo')!.whatsappNumber}
                     </span>
                   </div>
@@ -606,7 +606,7 @@ export default function MobileDriverDocuments() {
 
             <div className="space-y-3">
               <div>
-                <Label htmlFor="profile-photo-file" className="text-gray-700 font-medium mb-2 block">
+                <Label htmlFor="profile-photo-file" className="text-foreground font-medium mb-2 block">
                   {getDocumentByType('profile_photo') ? 'Replace Photo' : 'Upload Photo'}
                 </Label>
                 <Input
@@ -618,13 +618,13 @@ export default function MobileDriverDocuments() {
                     ...prev,
                     profilePhoto: { file: e.target.files?.[0] || null }
                   }))}
-                  className="bg-white border-gray-300"
+                  className="bg-card border-border"
                   data-testid="input-profile-photo-file"
                 />
-                <p className="text-xs text-gray-500 mt-1">Image only, max 2MB</p>
+                <p className="text-xs text-muted-foreground mt-1">Image only, max 2MB</p>
               </div>
               <div>
-                <Label htmlFor="whatsapp-number" className="text-gray-700 font-medium mb-2 block">
+                <Label htmlFor="whatsapp-number" className="text-foreground font-medium mb-2 block">
                   WhatsApp Number (Optional)
                 </Label>
                 <Input
@@ -633,14 +633,14 @@ export default function MobileDriverDocuments() {
                   placeholder="+1 234 567 8900"
                   value={formData.whatsappNumber}
                   onChange={(e) => setFormData(prev => ({ ...prev, whatsappNumber: e.target.value }))}
-                  className="bg-white border-gray-300"
+                  className="bg-card border-border"
                   data-testid="input-whatsapp-number"
                 />
               </div>
               <Button
                 onClick={() => handleUpload('profile_photo')}
                 disabled={!formData.profilePhoto.file || uploading === 'profile_photo'}
-                className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 text-base font-semibold rounded-xl shadow-md"
                 data-testid="button-upload-profile-photo"
               >
                 <Upload className="w-5 h-5 mr-2" />

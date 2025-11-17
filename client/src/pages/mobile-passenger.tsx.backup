@@ -47,7 +47,6 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Booking } from '@shared/schema';
-import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 type Section = 'home' | 'new-booking' | 'saved-locations' | 'invoices' | 'payment' | 'account';
 
@@ -321,8 +320,8 @@ export default function MobilePassenger() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -343,17 +342,17 @@ export default function MobilePassenger() {
   ) || [];
 
   const getStatusColor = (status: string | null) => {
-    if (!status) return 'bg-muted text-muted-foreground';
+    if (!status) return 'bg-gray-100 text-gray-800';
     switch (status) {
-      case 'pending': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200';
-      case 'confirmed': return 'bg-primary/10 dark:bg-primary/20 text-primary';
-      case 'on_the_way': return 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200 animate-pulse';
-      case 'arrived': return 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-800 dark:text-cyan-200 animate-pulse';
-      case 'on_board': return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 animate-pulse';
-      case 'in_progress': return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200';
-      case 'completed': return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200';
-      case 'cancelled': return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200';
-      default: return 'bg-muted text-muted-foreground';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'confirmed': return 'bg-blue-100 text-blue-800';
+      case 'on_the_way': return 'bg-indigo-100 text-indigo-800 animate-pulse';
+      case 'arrived': return 'bg-cyan-100 text-cyan-800 animate-pulse';
+      case 'on_board': return 'bg-purple-100 text-purple-800 animate-pulse';
+      case 'in_progress': return 'bg-purple-100 text-purple-800';
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -371,21 +370,21 @@ export default function MobilePassenger() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/10 dark:from-background dark:via-background dark:to-primary/5 pb-20 transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 pb-20">
       {/* Modern Header */}
-      <div className="bg-gradient-to-r from-primary via-primary to-primary dark:from-primary dark:via-primary dark:to-primary text-primary-foreground shadow-xl">
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white shadow-xl">
         <div className="px-6 pt-6 pb-4">
           <div className="flex justify-between items-start mb-6">
             <div>
               <h1 className="text-2xl font-bold">Welcome Back</h1>
-              <p className="text-primary-foreground/90 mt-1 text-sm">{user.firstName || ''} {user.lastName || ''}</p>
+              <p className="text-blue-100 mt-1 text-sm">{user.firstName || ''} {user.lastName || ''}</p>
             </div>
             <div className="flex gap-2">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="text-primary-foreground hover:bg-primary-foreground/20 touch-manipulation"
+                className="text-white hover:bg-white/20"
                 data-testid="button-menu"
               >
                 {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -394,7 +393,7 @@ export default function MobilePassenger() {
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
-                className="text-primary-foreground hover:bg-primary-foreground/20 touch-manipulation"
+                className="text-white hover:bg-white/20"
                 data-testid="button-logout"
               >
                 <LogOut className="w-5 h-5" />
@@ -404,16 +403,16 @@ export default function MobilePassenger() {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-primary-foreground/15 dark:bg-primary-foreground/20 backdrop-blur-sm rounded-xl p-3 border border-primary-foreground/10">
-              <p className="text-primary-foreground/90 text-xs">Active</p>
+            <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+              <p className="text-blue-100 text-xs">Active</p>
               <p className="text-xl font-bold mt-1">{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
             </div>
-            <div className="bg-primary-foreground/15 dark:bg-primary-foreground/20 backdrop-blur-sm rounded-xl p-3 border border-primary-foreground/10">
-              <p className="text-primary-foreground/90 text-xs">Upcoming</p>
+            <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+              <p className="text-blue-100 text-xs">Upcoming</p>
               <p className="text-xl font-bold mt-1">{upcomingBookings.length}</p>
             </div>
-            <div className="bg-primary-foreground/15 dark:bg-primary-foreground/20 backdrop-blur-sm rounded-xl p-3 border border-primary-foreground/10">
-              <p className="text-primary-foreground/90 text-xs">Total</p>
+            <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+              <p className="text-blue-100 text-xs">Total</p>
               <p className="text-xl font-bold mt-1">{bookings?.length || 0}</p>
             </div>
           </div>
@@ -436,15 +435,15 @@ export default function MobilePassenger() {
                     }
                     setMenuOpen(false);
                   }}
-                  className={`flex flex-col items-center gap-0.5 px-2.5 py-2 rounded-t-lg transition-all touch-manipulation ${
+                  className={`flex flex-col items-center gap-0.5 px-2.5 py-2 rounded-t-lg transition-all ${
                     isActive
-                      ? 'bg-gradient-to-br from-background via-card to-accent/10 text-primary shadow-lg'
-                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10'
+                      ? 'bg-gradient-to-br from-slate-50 via-white to-blue-50/20 text-blue-600 shadow-lg'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                   data-testid={`nav-${item.id}`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-primary' : ''}`} />
-                  <span className={`text-[10px] font-medium whitespace-nowrap ${isActive ? 'text-primary' : ''}`}>
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : ''}`} />
+                  <span className={`text-[10px] font-medium whitespace-nowrap ${isActive ? 'text-blue-700' : ''}`}>
                     {item.label}
                   </span>
                 </button>
@@ -462,7 +461,7 @@ export default function MobilePassenger() {
             {/* Quick Action Button */}
             <Button
               onClick={() => navigate('/mobile-booking')}
-              className="w-full bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90 text-white py-6 rounded-2xl text-lg font-semibold shadow-lg transition-all transform active:scale-95"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 rounded-2xl text-lg font-semibold shadow-lg transition-all transform active:scale-95"
               data-testid="button-new-booking-home"
             >
               <Plus className="w-6 h-6 mr-2" />
@@ -470,16 +469,16 @@ export default function MobilePassenger() {
             </Button>
 
             {/* Bookings Section */}
-            <Card className="shadow-md border-border">
-              <CardHeader className="pb-3 bg-gradient-to-r from-accent/5 to-card">
+            <Card className="shadow-md border-slate-200">
+              <CardHeader className="pb-3 bg-gradient-to-r from-slate-50 to-white">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Car className="w-5 h-5 text-primary" />
+                  <Car className="w-5 h-5 text-blue-600" />
                   My Rides
                 </CardTitle>
               </CardHeader>
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'upcoming' | 'past')} className="w-full">
-              <TabsList className="w-full grid grid-cols-2 bg-muted mx-4 mb-3" style={{width: 'calc(100% - 2rem)'}}>
+              <TabsList className="w-full grid grid-cols-2 bg-gray-100 mx-4 mb-3" style={{width: 'calc(100% - 2rem)'}}>
                 <TabsTrigger value="upcoming" data-testid="tab-upcoming">
                   Upcoming ({upcomingBookings.length})
                 </TabsTrigger>
@@ -490,9 +489,9 @@ export default function MobilePassenger() {
 
               <TabsContent value="upcoming" className="mt-0 px-4 pb-4">
                 {bookingsLoading ? (
-                  <div className="text-center py-8 text-muted-foreground">Loading...</div>
+                  <div className="text-center py-8 text-gray-500">Loading...</div>
                 ) : upcomingBookings.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-8 text-gray-500">
                     <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
                     <p>No upcoming rides</p>
                     <Button
@@ -510,39 +509,39 @@ export default function MobilePassenger() {
                       <div
                         key={booking.id}
                         onClick={() => navigate(`/mobile-booking-details/${booking.id}`)}
-                        className="bg-card border border-border rounded-xl p-4 active:bg-muted/50 transition-colors cursor-pointer"
+                        className="bg-white border border-gray-200 rounded-xl p-4 active:bg-gray-50 transition-colors cursor-pointer"
                         data-testid={`booking-card-${booking.id}`}
                       >
                         <div className="flex justify-between items-start mb-3">
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
                             {formatStatus(booking.status)}
                           </span>
-                          <span className="text-lg font-bold text-foreground">${booking.totalAmount}</span>
+                          <span className="text-lg font-bold text-gray-900">${booking.totalAmount}</span>
                         </div>
                         
                         <div className="space-y-2 text-sm">
                           <div className="flex items-start gap-2">
-                            <Clock className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                            <span className="text-foreground">
+                            <Clock className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-700">
                               {new Date(booking.scheduledDateTime).toLocaleString()}
                             </span>
                           </div>
                           
                           <div className="flex items-start gap-2">
-                            <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                            <MapPin className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
                             <div className="flex-1">
-                              <p className="text-foreground font-medium">{booking.pickupAddress}</p>
+                              <p className="text-gray-900 font-medium">{booking.pickupAddress}</p>
                               {booking.destinationAddress && (
                                 <>
                                   <div className="h-4 w-px bg-gray-300 ml-2 my-1" />
-                                  <p className="text-muted-foreground">{booking.destinationAddress}</p>
+                                  <p className="text-gray-600">{booking.destinationAddress}</p>
                                 </>
                               )}
                             </div>
                           </div>
 
                           {booking.bookingType === 'hourly' && (
-                            <div className="flex items-center gap-2 text-muted-foreground">
+                            <div className="flex items-center gap-2 text-gray-600">
                               <Clock className="w-4 h-4" />
                               <span>Hourly Service - {booking.requestedHours}h</span>
                             </div>
@@ -556,9 +555,9 @@ export default function MobilePassenger() {
 
               <TabsContent value="past" className="mt-0 px-4 pb-4">
                 {bookingsLoading ? (
-                  <div className="text-center py-8 text-muted-foreground">Loading...</div>
+                  <div className="text-center py-8 text-gray-500">Loading...</div>
                 ) : pastBookings.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-8 text-gray-500">
                     <CheckCircle2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
                     <p>No past rides yet</p>
                   </div>
@@ -568,25 +567,25 @@ export default function MobilePassenger() {
                       <div
                         key={booking.id}
                         onClick={() => navigate(`/mobile-booking-details/${booking.id}`)}
-                        className="bg-muted/50 border border-border rounded-xl p-4 active:bg-muted transition-colors cursor-pointer opacity-90"
+                        className="bg-gray-50 border border-gray-200 rounded-xl p-4 active:bg-gray-100 transition-colors cursor-pointer opacity-90"
                         data-testid={`booking-card-${booking.id}`}
                       >
                         <div className="flex justify-between items-start mb-3">
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
                             {formatStatus(booking.status)}
                           </span>
-                          <span className="text-lg font-bold text-foreground">${booking.totalAmount}</span>
+                          <span className="text-lg font-bold text-gray-700">${booking.totalAmount}</span>
                         </div>
                         
                         <div className="space-y-2 text-sm">
-                          <div className="flex items-start gap-2 text-muted-foreground">
+                          <div className="flex items-start gap-2 text-gray-600">
                             <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" />
                             <span>{new Date(booking.scheduledDateTime).toLocaleString()}</span>
                           </div>
                           
                           <div className="flex items-start gap-2">
-                            <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                            <p className="text-foreground font-medium">{booking.pickupAddress}</p>
+                            <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                            <p className="text-gray-700 font-medium">{booking.pickupAddress}</p>
                           </div>
                         </div>
                       </div>
@@ -605,12 +604,12 @@ export default function MobilePassenger() {
         {/* Saved Locations Section */}
         {activeSection === 'saved-locations' && (
           <div className="space-y-3">
-            <Card className="shadow-md border-border">
-              <CardHeader className="bg-gradient-to-r from-accent/5 to-primary/5 border-b p-3">
+            <Card className="shadow-md border-slate-200">
+              <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b p-3">
                 <div className="flex justify-between items-center">
                   <div>
                     <CardTitle className="text-sm flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-primary" />
+                      <MapPin className="w-3.5 h-3.5 text-blue-600" />
                       Saved Locations
                     </CardTitle>
                     <CardDescription className="text-xs mt-0.5">Your favorite places</CardDescription>
@@ -619,14 +618,14 @@ export default function MobilePassenger() {
                     <DialogTrigger asChild>
                       <Button
                         size="sm"
-                        className="bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90 text-white shadow-sm h-7 px-2 text-xs"
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm h-7 px-2 text-xs"
                         data-testid="button-add-location"
                       >
                         <Plus className="w-3 h-3 mr-1" />
                         Add
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="bg-card max-w-[90vw] sm:max-w-md">
+                    <DialogContent className="bg-white max-w-[90vw] sm:max-w-md">
                       <DialogHeader>
                         <DialogTitle>Add New Location</DialogTitle>
                         <DialogDescription>Save a location for quick booking</DialogDescription>
@@ -659,27 +658,27 @@ export default function MobilePassenger() {
                           />
                           {isSearchingAddress && (
                             <div className="absolute right-3 top-9 pointer-events-none">
-                              <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+                              <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full" />
                             </div>
                           )}
                           {showSuggestions && addressSuggestions.length > 0 && (
-                            <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                               {addressSuggestions.map((suggestion, index) => (
                                 <button
                                   key={index}
                                   type="button"
-                                  className="w-full text-left px-4 py-3 hover:bg-primary/5 border-b border-border last:border-0 transition-colors"
+                                  className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0 transition-colors"
                                   onClick={() => handleAddressSelect(suggestion)}
                                   data-testid={`suggestion-${index}`}
                                 >
                                   <div className="flex items-start space-x-2">
-                                    <MapPin className="w-4 h-4 mt-1 text-primary flex-shrink-0" />
+                                    <MapPin className="w-4 h-4 mt-1 text-blue-600 flex-shrink-0" />
                                     <div className="flex-1 min-w-0">
-                                      <p className="text-sm font-medium text-foreground truncate">
+                                      <p className="text-sm font-medium text-gray-900 truncate">
                                         {suggestion.address.freeformAddress}
                                       </p>
                                       {suggestion.address.country && (
-                                        <p className="text-xs text-muted-foreground truncate">
+                                        <p className="text-xs text-gray-500 truncate">
                                           {suggestion.address.countrySubdivision}, {suggestion.address.country}
                                         </p>
                                       )}
@@ -693,7 +692,7 @@ export default function MobilePassenger() {
                         <Button
                           onClick={() => addAddressMutation.mutate(newAddress)}
                           disabled={addAddressMutation.isPending || !newAddress.label || !newAddress.address}
-                          className="w-full bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90"
+                          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                           data-testid="button-save-address"
                         >
                           {addAddressMutation.isPending ? 'Saving...' : 'Save Location'}
@@ -705,9 +704,9 @@ export default function MobilePassenger() {
               </CardHeader>
               <CardContent className="p-3">
                 {savedAddressesLoading ? (
-                  <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>
+                  <div className="text-center py-6 text-gray-500 text-sm">Loading...</div>
                 ) : !savedAddresses || savedAddresses.length === 0 ? (
-                  <div className="text-center py-6 text-muted-foreground">
+                  <div className="text-center py-6 text-gray-500">
                     <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No saved locations yet</p>
                     <p className="text-xs mt-1">Save locations during booking</p>
@@ -717,23 +716,23 @@ export default function MobilePassenger() {
                     {savedAddresses.map((location) => (
                       <div
                         key={location.id}
-                        className="bg-card border border-border rounded-lg p-2.5 hover:border-primary/50 hover:shadow-sm transition-all"
+                        className="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-blue-400 hover:shadow-sm transition-all"
                         data-testid={`saved-location-${location.id}`}
                       >
                         <div className="flex items-start gap-2 mb-2">
-                          <div className="bg-primary/10 p-1.5 rounded-md flex-shrink-0">
-                            <MapPin className="w-3.5 h-3.5 text-primary" />
+                          <div className="bg-blue-100 p-1.5 rounded-md flex-shrink-0">
+                            <MapPin className="w-3.5 h-3.5 text-blue-600" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 mb-0.5">
-                              <h3 className="font-semibold text-foreground text-xs">{location.label}</h3>
+                              <h3 className="font-semibold text-gray-900 text-xs">{location.label}</h3>
                               {location.isDefault && (
-                                <span className="px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] font-medium rounded-full">
+                                <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-medium rounded-full">
                                   Default
                                 </span>
                               )}
                             </div>
-                            <p className="text-[11px] text-muted-foreground break-words leading-tight">{location.address}</p>
+                            <p className="text-[11px] text-gray-600 break-words leading-tight">{location.address}</p>
                           </div>
                         </div>
                         
@@ -744,7 +743,7 @@ export default function MobilePassenger() {
                               size="sm"
                               variant="outline"
                               onClick={() => navigate(`/booking?from=${encodeURIComponent(location.address)}`)}
-                              className="bg-card border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary text-[9px] h-6 px-1.5"
+                              className="bg-white border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-[9px] h-6 px-1.5"
                               data-testid={`button-from-${location.id}`}
                             >
                               <Navigation className="w-2 h-2 mr-0.5" />
@@ -754,7 +753,7 @@ export default function MobilePassenger() {
                               size="sm"
                               variant="outline"
                               onClick={() => navigate(`/booking?to=${encodeURIComponent(location.address)}`)}
-                              className="bg-card border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary text-[9px] h-6 px-1.5"
+                              className="bg-white border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-[9px] h-6 px-1.5"
                               data-testid={`button-to-${location.id}`}
                             >
                               <MapPin className="w-2 h-2 mr-0.5" />
@@ -765,7 +764,7 @@ export default function MobilePassenger() {
                             size="sm"
                             variant="ghost"
                             onClick={() => handleEditClick(location)}
-                            className="text-muted-foreground hover:text-primary hover:bg-primary/5 p-1 h-6 w-6"
+                            className="text-gray-400 hover:text-blue-600 hover:bg-blue-50 p-1 h-6 w-6"
                             data-testid={`button-edit-${location.id}`}
                           >
                             <Edit2 className="w-2.5 h-2.5" />
@@ -778,7 +777,7 @@ export default function MobilePassenger() {
                                 deleteAddressMutation.mutate(location.id);
                               }
                             }}
-                            className="text-muted-foreground hover:text-red-600 hover:bg-red-50 p-1 h-6 w-6"
+                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-1 h-6 w-6"
                             data-testid={`button-delete-${location.id}`}
                           >
                             <Trash2 className="w-2.5 h-2.5" />
@@ -793,7 +792,7 @@ export default function MobilePassenger() {
 
             {/* Edit Address Dialog */}
             <Dialog open={editAddressOpen} onOpenChange={setEditAddressOpen}>
-              <DialogContent className="bg-card max-w-[90vw] sm:max-w-md">
+              <DialogContent className="bg-white max-w-[90vw] sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>Edit Location</DialogTitle>
                   <DialogDescription>Update your saved location</DialogDescription>
@@ -826,27 +825,27 @@ export default function MobilePassenger() {
                     />
                     {isSearchingEditAddress && (
                       <div className="absolute right-3 top-9 pointer-events-none">
-                        <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+                        <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full" />
                       </div>
                     )}
                     {showEditSuggestions && editSuggestions.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                         {editSuggestions.map((suggestion, index) => (
                           <button
                             key={index}
                             type="button"
-                            className="w-full text-left px-4 py-3 hover:bg-primary/5 border-b border-border last:border-0 transition-colors"
+                            className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0 transition-colors"
                             onClick={() => handleEditAddressSelect(suggestion)}
                             data-testid={`edit-suggestion-${index}`}
                           >
                             <div className="flex items-start space-x-2">
-                              <MapPin className="w-4 h-4 mt-1 text-primary flex-shrink-0" />
+                              <MapPin className="w-4 h-4 mt-1 text-blue-600 flex-shrink-0" />
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-foreground truncate">
+                                <p className="text-sm font-medium text-gray-900 truncate">
                                   {suggestion.address.freeformAddress}
                                 </p>
                                 {suggestion.address.country && (
-                                  <p className="text-xs text-muted-foreground truncate">
+                                  <p className="text-xs text-gray-500 truncate">
                                     {suggestion.address.countrySubdivision}, {suggestion.address.country}
                                   </p>
                                 )}
@@ -860,7 +859,7 @@ export default function MobilePassenger() {
                   <Button
                     onClick={() => editingAddress && editAddressMutation.mutate({ id: editingAddress.id, ...editAddress })}
                     disabled={editAddressMutation.isPending || !editAddress.label || !editAddress.address}
-                    className="w-full bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90"
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                     data-testid="button-update-address"
                   >
                     {editAddressMutation.isPending ? 'Updating...' : 'Update Location'}
@@ -874,21 +873,21 @@ export default function MobilePassenger() {
         {/* Payment Section */}
         {activeSection === 'payment' && (
           <div className="space-y-4">
-            <Card className="shadow-sm border-2 border-border bg-card">
-              <CardHeader className="bg-primary/5/50 border-b border-border p-4">
-                <CardTitle className="text-base flex items-center gap-2 text-foreground">
-                  <div className="bg-primary/10 p-2 rounded-lg">
-                    <CreditCard className="w-4 h-4 text-primary" />
+            <Card className="shadow-sm border-2 border-blue-100 bg-white">
+              <CardHeader className="bg-blue-50/50 border-b border-blue-100 p-4">
+                <CardTitle className="text-base flex items-center gap-2 text-blue-900">
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <CreditCard className="w-4 h-4 text-blue-600" />
                   </div>
                   Payment Methods
                 </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground mt-1">Manage your payment options</CardDescription>
+                <CardDescription className="text-sm text-slate-600 mt-1">Manage your payment options</CardDescription>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="text-center py-6">
                   <Button
                     onClick={() => navigate('/mobile-payment-methods')}
-                    className="bg-card hover:bg-primary/5 text-primary border-2 border-primary/30 hover:border-primary/40 shadow-sm hover:shadow-md transition-all px-6 py-3 h-auto"
+                    className="bg-white hover:bg-blue-50 text-blue-700 border-2 border-blue-200 hover:border-blue-300 shadow-sm hover:shadow-md transition-all px-6 py-3 h-auto"
                     data-testid="button-manage-payment"
                   >
                     <CreditCard className="w-4 h-4 mr-2" />
@@ -904,13 +903,13 @@ export default function MobilePassenger() {
         {activeSection === 'account' && (
           <div className="space-y-3">
             {/* Profile Information Card */}
-            <Card className="shadow-sm border-2 border-border bg-card">
-              <CardHeader className="bg-primary/5/50 border-b border-border p-3">
+            <Card className="shadow-sm border-2 border-blue-100 bg-white">
+              <CardHeader className="bg-blue-50/50 border-b border-blue-100 p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-sm flex items-center gap-2 text-foreground">
-                      <div className="bg-primary/10 p-1.5 rounded-lg">
-                        <User className="w-3.5 h-3.5 text-primary" />
+                    <CardTitle className="text-sm flex items-center gap-2 text-blue-900">
+                      <div className="bg-blue-100 p-1.5 rounded-lg">
+                        <User className="w-3.5 h-3.5 text-blue-600" />
                       </div>
                       Profile Information
                     </CardTitle>
@@ -920,7 +919,7 @@ export default function MobilePassenger() {
                       size="sm"
                       variant="outline"
                       onClick={() => setIsEditingProfile(true)}
-                      className="h-7 text-xs px-2 border-primary/40 text-primary hover:bg-primary/5"
+                      className="h-7 text-xs px-2 border-blue-300 text-blue-700 hover:bg-blue-50"
                       data-testid="button-edit-profile"
                     >
                       <Edit2 className="w-3 h-3 mr-1" />
@@ -963,21 +962,21 @@ export default function MobilePassenger() {
               </CardHeader>
               <CardContent className="p-3 space-y-2">
                 {!isEditingProfile ? (
-                  <div className="bg-accent/5 rounded-lg p-2.5 space-y-2">
+                  <div className="bg-slate-50 rounded-lg p-2.5 space-y-2">
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground">Name</label>
+                      <label className="text-xs font-medium text-gray-500">Name</label>
                       <p className="text-sm font-medium mt-0.5" data-testid="text-name">{user.firstName} {user.lastName}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground">Email</label>
+                      <label className="text-xs font-medium text-gray-500">Email</label>
                       <p className="text-sm font-medium mt-0.5" data-testid="text-email">{user.email || 'Not provided'}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground">Phone</label>
+                      <label className="text-xs font-medium text-gray-500">Phone</label>
                       <p className="text-sm font-medium mt-0.5" data-testid="text-phone">{user.phone || 'Not provided'}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground">Username</label>
+                      <label className="text-xs font-medium text-gray-500">Username</label>
                       <p className="text-sm font-medium mt-0.5" data-testid="text-username">{user.username}</p>
                     </div>
                   </div>
@@ -985,7 +984,7 @@ export default function MobilePassenger() {
                   <div className="space-y-2">
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <Label htmlFor="firstName" className="text-xs text-muted-foreground">First Name</Label>
+                        <Label htmlFor="firstName" className="text-xs text-slate-600">First Name</Label>
                         <Input
                           id="firstName"
                           value={profileForm.firstName}
@@ -995,7 +994,7 @@ export default function MobilePassenger() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="lastName" className="text-xs text-muted-foreground">Last Name</Label>
+                        <Label htmlFor="lastName" className="text-xs text-slate-600">Last Name</Label>
                         <Input
                           id="lastName"
                           value={profileForm.lastName}
@@ -1006,7 +1005,7 @@ export default function MobilePassenger() {
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="email" className="text-xs text-muted-foreground">Email</Label>
+                      <Label htmlFor="email" className="text-xs text-slate-600">Email</Label>
                       <Input
                         id="email"
                         type="email"
@@ -1017,7 +1016,7 @@ export default function MobilePassenger() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="phone" className="text-xs text-muted-foreground">Phone</Label>
+                      <Label htmlFor="phone" className="text-xs text-slate-600">Phone</Label>
                       <Input
                         id="phone"
                         type="tel"
@@ -1033,19 +1032,19 @@ export default function MobilePassenger() {
             </Card>
 
             {/* Password Change Card */}
-            <Card className="shadow-sm border-2 border-border bg-card">
-              <CardHeader className="bg-primary/5/50 border-b border-border p-3">
-                <CardTitle className="text-sm flex items-center gap-2 text-foreground">
-                  <div className="bg-primary/10 p-1.5 rounded-lg">
-                    <Lock className="w-3.5 h-3.5 text-primary" />
+            <Card className="shadow-sm border-2 border-blue-100 bg-white">
+              <CardHeader className="bg-blue-50/50 border-b border-blue-100 p-3">
+                <CardTitle className="text-sm flex items-center gap-2 text-blue-900">
+                  <div className="bg-blue-100 p-1.5 rounded-lg">
+                    <Lock className="w-3.5 h-3.5 text-blue-600" />
                   </div>
                   Change Password
                 </CardTitle>
-                <CardDescription className="text-xs mt-0.5 text-muted-foreground">Update your account password</CardDescription>
+                <CardDescription className="text-xs mt-0.5 text-slate-600">Update your account password</CardDescription>
               </CardHeader>
               <CardContent className="p-3 space-y-2">
                 <div>
-                  <Label htmlFor="currentPassword" className="text-xs text-muted-foreground">Current Password</Label>
+                  <Label htmlFor="currentPassword" className="text-xs text-slate-600">Current Password</Label>
                   <div className="relative mt-1">
                     <Input
                       id="currentPassword"
@@ -1058,7 +1057,7 @@ export default function MobilePassenger() {
                     <button
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-slate-700"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
                       data-testid="button-toggle-current-password"
                     >
                       {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -1066,7 +1065,7 @@ export default function MobilePassenger() {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="newPassword" className="text-xs text-muted-foreground">New Password</Label>
+                  <Label htmlFor="newPassword" className="text-xs text-slate-600">New Password</Label>
                   <div className="relative mt-1">
                     <Input
                       id="newPassword"
@@ -1079,16 +1078,16 @@ export default function MobilePassenger() {
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-slate-700"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
                       data-testid="button-toggle-new-password"
                     >
                       {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-1">Must be 8+ characters with uppercase, lowercase, and number</p>
+                  <p className="text-[10px] text-slate-500 mt-1">Must be 8+ characters with uppercase, lowercase, and number</p>
                 </div>
                 <div>
-                  <Label htmlFor="confirmPassword" className="text-xs text-muted-foreground">Confirm New Password</Label>
+                  <Label htmlFor="confirmPassword" className="text-xs text-slate-600">Confirm New Password</Label>
                   <div className="relative mt-1">
                     <Input
                       id="confirmPassword"
@@ -1101,7 +1100,7 @@ export default function MobilePassenger() {
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-slate-700"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
                       data-testid="button-toggle-confirm-password"
                     >
                       {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -1124,7 +1123,7 @@ export default function MobilePassenger() {
                     });
                   }}
                   disabled={updatePasswordMutation.isPending || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
-                  className="w-full h-8 text-xs bg-card hover:bg-primary/5 text-primary border-2 border-primary/30 hover:border-primary/40 shadow-sm hover:shadow-md transition-all"
+                  className="w-full h-8 text-xs bg-white hover:bg-blue-50 text-blue-700 border-2 border-blue-200 hover:border-blue-300 shadow-sm hover:shadow-md transition-all"
                   data-testid="button-change-password"
                 >
                   <Lock className="w-3 h-3 mr-1" />
@@ -1132,9 +1131,6 @@ export default function MobilePassenger() {
                 </Button>
               </CardContent>
             </Card>
-
-            {/* Theme Settings */}
-            <ThemeSwitcher />
           </div>
         )}
       </div>

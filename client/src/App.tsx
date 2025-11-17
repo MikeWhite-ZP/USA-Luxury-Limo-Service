@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import DeviceRedirect from "@/components/DeviceRedirect";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 // Utility to check if accessing via admin subdomain
 function isAdminSubdomain(): boolean {
@@ -213,12 +214,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <FaviconLoader />
-        <Toaster />
-        <Router />
-        <PWAInstallPrompt />
-      </TooltipProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <FaviconLoader />
+          <Toaster />
+          <Router />
+          <PWAInstallPrompt />
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
