@@ -57,7 +57,7 @@ WORKDIR /app
 
 # Set production environment (only in production stage)
 ENV NODE_ENV=hopelimo
-ENV PORT=5000
+ENV PORT=5001
 
 # Copy package files
 COPY package*.json ./
@@ -76,7 +76,7 @@ RUN chown -R nodejs:nodejs /app
 USER nodejs
 
 # Expose port 5000
-EXPOSE 5000
+EXPOSE 5001
 
 # Health check configuration
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
