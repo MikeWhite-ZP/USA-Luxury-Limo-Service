@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2, MapPin, Phone, Mail, Star, Clock, Navigation } from 'lucide-react';
-import AdminNav from '@/components/AdminNav';
+import { AdminNav } from '@/components/AdminNav';
 
 // Custom Car Marker Component
 const CarIcon = ({ color }: { color: string }) => {
@@ -171,19 +171,24 @@ export default function AdminDriversMap() {
 
   if (isLoading && drivers.length === 0) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-50">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-slate-600 font-medium">Loading drivers map...</p>
+      <div className="min-h-screen bg-slate-50">
+        <AdminNav />
+        <div className="flex items-center justify-center h-[calc(100vh-80px)]">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-slate-600 font-medium">Loading drivers map...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-slate-50">
-      {/* Sidebar - Driver List */}
-      <div className="w-96 bg-white border-r-2 border-slate-200 shadow-lg overflow-y-auto">
+    <div className="min-h-screen bg-slate-50">
+      <AdminNav />
+      <div className="flex h-[calc(100vh-80px)] bg-slate-50">
+        {/* Sidebar - Driver List */}
+        <div className="w-96 bg-white border-r-2 border-slate-200 shadow-lg overflow-y-auto">
         <div className="sticky top-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-6 z-10 border-b-2 border-slate-700">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Navigation className="w-6 h-6" />
@@ -404,6 +409,7 @@ export default function AdminDriversMap() {
             <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
           </div>
         )}
+      </div>
       </div>
     </div>
   );
