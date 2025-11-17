@@ -28,6 +28,7 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
     - **Vehicle Type Management**: Complete admin interface for CRUD operations on system-wide vehicle types, including image upload to MinIO and dynamic pricing page integration.
     - **Invoice Management**: Complete invoice system for viewing, editing, printing, and emailing detailed invoices.
     - **CMS**: Component-based Content Management System for brand identity, media assets, and service content management (Logo, Hero, Favicon, MediaLibrary, ServiceCMS). Dynamic PWA manifest.json endpoint for favicon-based app icons and real-time updates.
+    - **Dynamic Branding System**: Comprehensive branding system accessible from Admin Settings with public API endpoint (`/api/branding`) providing company name, tagline, description, logo URL, favicon URL, and color palette with intelligent fallback defaults. Integrated across all web and mobile pages via the `useBranding` React hook (TanStack Query). Ensures consistent brand identity across website header/footer, mobile splash screen, and PWA assets without hardcoded values.
 
 ### System Design Choices
 The application is designed for flexible deployment across Replit, external Docker-based platforms (like Coolify), and native iOS/Android apps. It features a simplified Dockerfile, health check endpoints, and robust code splitting. Object storage and authentication are abstracted to allow switching between Replit-specific services and generic alternatives.

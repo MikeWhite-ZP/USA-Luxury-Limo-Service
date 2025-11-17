@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -68,6 +68,7 @@ import {
   Upload,
   FileImage,
   Server,
+  Palette,
 } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
@@ -3362,7 +3363,7 @@ export default function AdminDashboard() {
     "api" | "payment" | "minio" | null
   >(null);
   const [visibleSettingsSection, setVisibleSettingsSection] = useState<
-    "commission" | "email" | "sms" | null
+    "commission" | "email" | "sms" | "database" | "branding" | null
   >(null);
   const [visibleCMSSection, setVisibleCMSSection] = useState<
     "pages" | "media" | null
@@ -3558,7 +3559,7 @@ export default function AdminDashboard() {
           document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       } else if (section === 'settings') {
-        setVisibleSettingsSection(subsection as 'commission' | 'email' | 'sms');
+        setVisibleSettingsSection(subsection as 'commission' | 'email' | 'sms' | 'database' | 'branding');
         setVisibleCredentialsSection(null);
         setVisibleCMSSection(null);
         setShowUserManager(false);
@@ -6681,6 +6682,24 @@ export default function AdminDashboard() {
 
         {/* Database URL Settings */}
         {visibleSettingsSection === "database" && <DatabaseURLSettings />}
+
+        {/* Branding Settings */}
+        {visibleSettingsSection === "branding" && (
+          <Card id="settings-section" className="border-slate-200 shadow-md">
+            <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+              <CardTitle className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                <Palette className="w-6 h-6 text-indigo-600" />
+                Branding Settings
+              </CardTitle>
+              <CardDescription className="text-slate-600">
+                Customize your company branding, logos, colors, and social media links
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <BrandSettings />
+            </CardContent>
+          </Card>
+        )}
 
         {/* CMS - Pages Management */}
         {visibleCMSSection === "pages" && (

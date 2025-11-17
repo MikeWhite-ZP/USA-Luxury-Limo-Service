@@ -5,9 +5,9 @@ import { Car, UserCircle, Radio, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { setDevicePreference } from '@/lib/deviceDetection';
 import { useQuery } from '@tanstack/react-query';
+import { useBranding } from '@/hooks/useBranding';
 
 const chauffeurImage = '/images/khalid_1759128435991.webp';
-const usaLuxuryLogo = '/images/logo_1761944723746.png';
 
 type SplashStage = 'logo' | 'chauffeur' | 'role-selection';
 type UserRole = 'passenger' | 'driver' | 'dispatcher';
@@ -21,6 +21,7 @@ interface User {
 export default function MobileSplash() {
   const [, navigate] = useLocation();
   const [stage, setStage] = useState<SplashStage>('logo');
+  const { companyName, tagline, logoUrl } = useBranding();
 
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ['/api/user'],
@@ -95,8 +96,8 @@ export default function MobileSplash() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-red-100/50 via-gray-100/50 to-red-100/50 rounded-full blur-2xl animate-pulse" />
               <img 
-                src={usaLuxuryLogo} 
-                alt="USA Luxury Limo" 
+                src={logoUrl} 
+                alt={companyName} 
                 className="w-72 h-auto relative z-10 drop-shadow-2xl"
               />
             </motion.div>
@@ -106,7 +107,7 @@ export default function MobileSplash() {
               transition={{ delay: 0.5, duration: 0.6 }}
               className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-red-600 to-gray-900 bg-clip-text text-transparent mb-2"
             >
-              USA Luxury Limo
+              {companyName}
             </motion.h1>
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
@@ -116,7 +117,7 @@ export default function MobileSplash() {
             >
               <Sparkles className="w-5 h-5 text-red-600" />
               <p className="text-gray-600 text-xl font-light tracking-wide">
-                Premium Transportation Excellence
+                {tagline}
               </p>
               <Sparkles className="w-5 h-5 text-red-600" />
             </motion.div>
