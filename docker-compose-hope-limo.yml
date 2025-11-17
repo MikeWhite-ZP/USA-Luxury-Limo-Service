@@ -5,8 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile
     labels:
-      - caddy=app.hopelimo.com
-      - caddy.reverse_proxy={{upstreams 5001}}
+       # - caddy=app.hopelimo.com
+       # - caddy.reverse_proxy={{upstreams 5001}}
     environment:
       - NODE_ENV=production
       - PORT=5001
