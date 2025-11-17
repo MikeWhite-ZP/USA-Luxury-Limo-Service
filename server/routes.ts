@@ -7902,6 +7902,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint to get all branding settings
+  app.get('/api/branding', async (req, res) => {
+    try {
+      // Fetch all branding settings in parallel for performance
+      const [
+        companyName,
+        tagline,
+        description,
+        logoUrl,
+        faviconUrl,
+        primaryColor,
+        secondaryColor,
+        accentColor
+      ] = await Promise.all([
+        storage.getCmsSetting('BRAND_COMPANY_NAME'),
+        storage.getCmsSetting('BRAND_TAGLINE'),
+        storage.getCmsSetting('BRAND_DESCRIPTION'),
+        storage.getCmsSetting('BRAND_LOGO_URL'),
+        storage.getCmsSetting('BRAND_FAVICON_URL'),
+        storage.getCmsSetting('BRAND_PRIMARY_COLOR'),
+        storage.getCmsSetting('BRAND_SECONDARY_COLOR'),
+        storage.getCmsSetting('BRAND_ACCENT_COLOR')
+      ]);
+
+      res.json({
+        companyName: companyName?.value || 'USA Luxury Limo',
+        tagline: tagline?.value || 'Premium Transportation Services',
+        description: description?.value || '',
+        logoUrl: logoUrl?.value || '/images/logo_1759125364025.png',
+        faviconUrl: faviconUrl?.value || '/images/favicon_1759253989963.png',
+        colors: {
+          primary: primaryColor?.value || '#1a1a1a',
+          secondary: secondaryColor?.value || '#666666',
+          accent: accentColor?.value || '#d4af37'
+        }
+      });
+    } catch (error) {
+      console.error('Get branding error:', error);
+      res.status(500).json({ message: 'Failed to fetch branding settings' });
+    }
+  });
+
   // Dynamic PWA manifest.json endpoint
   app.get('/manifest.json', async (req, res) => {
     try {

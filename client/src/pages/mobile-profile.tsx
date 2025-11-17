@@ -17,6 +17,7 @@ interface DriverDocument {
   documentType: 'driver_license' | 'limo_license' | 'insurance_certificate' | 'vehicle_image' | 'profile_photo';
   documentUrl: string;
   status: 'pending' | 'approved' | 'rejected';
+  rejectionReason?: string;
 }
 
 export default function MobileProfile() {
@@ -37,9 +38,11 @@ export default function MobileProfile() {
   // Find profile photo document
   const profilePhotoDoc = documents?.find(doc => doc.documentType === 'profile_photo');
   
-  // Show profile picture only if approved
-  const isProfileApproved = profilePhotoDoc?.status === 'approved';
-  const displayUrl = localPreviewUrl || (isProfileApproved ? user?.profileImageUrl : null);
+  // Show profile picture if it exists (pending or approved)
+  const displayUrl = localPreviewUrl || profilePhotoDoc?.documentUrl || user?.profileImageUrl || null;
+  const isPending = profilePhotoDoc?.status === 'pending';
+  const isApproved = profilePhotoDoc?.status === 'approved';
+  const isRejected = profilePhotoDoc?.status === 'rejected';
 
   // Upload profile picture mutation
   const uploadMutation = useMutation({
@@ -62,6 +65,7 @@ export default function MobileProfile() {
     },
     onSuccess: (updatedUser) => {
       queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/driver/documents'] });
       queryClient.setQueryData(['/api/auth/user'], updatedUser);
       setProfilePicture(null);
       setLocalPreviewUrl(null);
@@ -163,7 +167,9 @@ export default function MobileProfile() {
             {/* Avatar Preview */}
             <div className="flex justify-center py-4">
               <div className="relative">
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-green-100 shadow-lg bg-white">
+                <div className={`w-32 h-32 rounded-full overflow-hidden border-4 shadow-lg bg-white ${
+                  isPending ? 'border-yellow-300' : isRejected ? 'border-red-300' : 'border-green-100'
+                }`}>
                   <img
                     src={displayUrl || defaultUserImage}
                     alt="Profile"
@@ -171,11 +177,33 @@ export default function MobileProfile() {
                     data-testid="img-profile-preview"
                   />
                 </div>
-                <div className="absolute bottom-0 right-0 w-10 h-10 bg-green-600 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+                <div className={`absolute bottom-0 right-0 w-10 h-10 rounded-full flex items-center justify-center shadow-md border-2 border-white ${
+                  isPending ? 'bg-yellow-500' : isRejected ? 'bg-red-500' : 'bg-green-600'
+                }`}>
                   <Camera className="w-5 h-5 text-white" />
                 </div>
               </div>
             </div>
+
+            {/* Status Badge */}
+            {isPending && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
+                <p className="text-sm text-yellow-800 font-medium">⏳ Pending Approval</p>
+                <p className="text-xs text-yellow-600 mt-1">Your photo is awaiting admin review</p>
+              </div>
+            )}
+            {isRejected && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+                <p className="text-sm text-red-800 font-medium">❌ Rejected</p>
+                <p className="text-xs text-red-600 mt-1">{profilePhotoDoc?.rejectionReason || 'Please upload a new photo'}</p>
+              </div>
+            )}
+            {isApproved && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                <p className="text-sm text-green-800 font-medium">✓ Approved</p>
+                <p className="text-xs text-green-600 mt-1">Your profile picture is active</p>
+              </div>
+            )}
 
             {/* Upload Controls */}
             <div className="space-y-3">
@@ -192,7 +220,7 @@ export default function MobileProfile() {
                   className="bg-white border-gray-300"
                   data-testid="input-profile-picture-file"
                 />
-                <p className="text-xs mt-1 text-[#005ff7]">Image only, max 2MB          *uploaded new images needs to be approval before then affected here!</p>
+                <p className="text-xs mt-1 text-gray-500">Image only, max 2MB. Photo will be visible immediately but requires admin approval.</p>
               </div>
               
               <Button

@@ -2,10 +2,12 @@ import { Twitter, Linkedin, Facebook, Smartphone } from "lucide-react";
 import { useLocation } from "wouter";
 import { setDevicePreference } from "@/lib/deviceDetection";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
+import { useBranding } from "@/hooks/useBranding";
 
 export default function Footer() {
   const [location, setLocation] = useLocation();
   const { logoUrl, logoAltText } = useSiteLogo();
+  const { companyName, description } = useBranding();
   
   const handleNavClick = (href: string) => {
     // If we're on the home/landing page, scroll to section
@@ -42,8 +44,7 @@ export default function Footer() {
               />
             </div>
             <p className="text-gray-300 mb-4 max-w-md" data-testid="footer-description">
-              Premium luxury transportation services across the United States. 
-              Experience comfort, reliability, and professionalism with every ride.
+              {description || 'Premium luxury transportation services across the United States. Experience comfort, reliability, and professionalism with every ride.'}
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-300 hover:text-primary transition-colors" data-testid="social-twitter">
@@ -157,7 +158,7 @@ export default function Footer() {
         <div className="border-t border-gray-700 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center mb-4">
             <p className="text-gray-300 text-sm" data-testid="footer-copyright">
-              © 2024 USA Luxury Limo. All rights reserved.
+              © {new Date().getFullYear()} {companyName}. All rights reserved.
             </p>
             <div className="flex items-center space-x-4 mt-4 md:mt-0">
               <span className="text-gray-300 text-sm" data-testid="footer-powered-stripe">Powered by Stripe</span>
