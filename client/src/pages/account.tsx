@@ -614,7 +614,7 @@ export default function AccountPage() {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={updateProfileMutation.isPending}
+                    disabled={updateProfileMutation.isPending || usernameStatus === 'taken' || usernameStatus === 'checking'}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-md"
                     data-testid="button-save"
                   >
