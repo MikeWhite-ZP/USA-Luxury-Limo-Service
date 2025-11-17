@@ -3387,6 +3387,7 @@ export default function AdminDashboard() {
     lastName: "",
     email: "",
     phone: "",
+    username: "",
     role: "passenger" as "passenger" | "driver" | "dispatcher" | "admin",
     isActive: true,
     payLaterEnabled: false,
@@ -5055,6 +5056,7 @@ export default function AdminDashboard() {
       lastName: user.lastName,
       email: user.email,
       phone: user.phone || "",
+      username: user.username || "",
       role: user.role,
       isActive: user.isActive,
       payLaterEnabled: user.payLaterEnabled,
@@ -8889,6 +8891,22 @@ export default function AdminDashboard() {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="user-username">Username</Label>
+              <Input
+                id="user-username"
+                placeholder="johndoe123"
+                value={userFormData.username}
+                onChange={(e) =>
+                  setUserFormData({ ...userFormData, username: e.target.value })
+                }
+                data-testid="input-user-username"
+              />
+              <p className="text-xs text-muted-foreground">
+                Optional username (3-30 characters, letters, numbers, -, _)
+              </p>
+            </div>
+
             {userFormData.role === "driver" && (
               <div className="space-y-2">
                 <Label htmlFor="user-vehicle-plate">Vehicle Plate Number</Label>
@@ -9124,7 +9142,25 @@ export default function AdminDashboard() {
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setUserDialogOpen(false)}
+              onClick={() => {
+                setUserDialogOpen(false);
+                setEditingUser(null);
+                setUserFormData({
+                  firstName: "",
+                  lastName: "",
+                  email: "",
+                  phone: "",
+                  username: "",
+                  role: "passenger",
+                  isActive: true,
+                  payLaterEnabled: false,
+                  cashPaymentEnabled: false,
+                  discountType: null,
+                  discountValue: "0",
+                  vehiclePlate: "",
+                  temporaryPassword: "",
+                });
+              }}
               data-testid="button-cancel-user"
             >
               Cancel
