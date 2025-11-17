@@ -204,32 +204,32 @@ export default function MobileDispatcher() {
       </div>
 
       {/* Stats Grid */}
-      <div className="p-4 grid grid-cols-2 gap-3">
+      <div className="p-3 grid grid-cols-2 gap-2 sm:gap-3 sm:p-4">
         <Card className="bg-white border-green-200 shadow-sm">
-          <CardContent className="p-4 text-center">
-            <Car className="w-6 h-6 text-green-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900" data-testid="stat-active-drivers">{stats?.activeDrivers || 0}</p>
+          <CardContent className="p-3 sm:p-4 text-center">
+            <Car className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 mx-auto mb-1 sm:mb-2" />
+            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="stat-active-drivers">{stats?.activeDrivers || 0}</p>
             <p className="text-xs text-gray-600">Active Drivers</p>
           </CardContent>
         </Card>
         <Card className="bg-white border-blue-200 shadow-sm">
-          <CardContent className="p-4 text-center">
-            <Activity className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900" data-testid="stat-active-rides">{stats?.activeRides || 0}</p>
+          <CardContent className="p-3 sm:p-4 text-center">
+            <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mx-auto mb-1 sm:mb-2" />
+            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="stat-active-rides">{stats?.activeRides || 0}</p>
             <p className="text-xs text-gray-600">Active Rides</p>
           </CardContent>
         </Card>
         <Card className="bg-white border-orange-200 shadow-sm">
-          <CardContent className="p-4 text-center">
-            <Clock className="w-6 h-6 text-orange-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900" data-testid="stat-pending-requests">{stats?.pendingRequests || 0}</p>
+          <CardContent className="p-3 sm:p-4 text-center">
+            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 mx-auto mb-1 sm:mb-2" />
+            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="stat-pending-requests">{stats?.pendingRequests || 0}</p>
             <p className="text-xs text-gray-600">Pending</p>
           </CardContent>
         </Card>
         <Card className="bg-white border-gray-200 shadow-sm">
-          <CardContent className="p-4 text-center">
-            <Users className="w-6 h-6 text-gray-700 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900" data-testid="stat-utilization">{stats?.fleetUtilization || '0%'}</p>
+          <CardContent className="p-3 sm:p-4 text-center">
+            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 mx-auto mb-1 sm:mb-2" />
+            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="stat-utilization">{stats?.fleetUtilization || '0%'}</p>
             <p className="text-xs text-gray-600">Utilization</p>
           </CardContent>
         </Card>

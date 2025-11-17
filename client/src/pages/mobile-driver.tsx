@@ -133,8 +133,13 @@ export default function MobileDriver() {
 
   // GPS Tracking with dynamic intervals
   useEffect(() => {
-    if (!driver?.isAvailable) {
-      // Stop tracking when driver goes offline
+    const isOnDuty = hasActiveRide(bookings);
+    
+    // Track location if driver is available OR has active rides
+    const shouldTrack = driver?.isAvailable || isOnDuty;
+    
+    if (!shouldTrack) {
+      // Stop tracking when driver goes offline AND has no active rides
       if (watchIdRef.current !== null) {
         navigator.geolocation.clearWatch(watchIdRef.current);
         watchIdRef.current = null;
@@ -153,7 +158,6 @@ export default function MobileDriver() {
     }
 
     // Determine update interval based on driver status
-    const isOnDuty = hasActiveRide(bookings);
     const updateInterval = isOnDuty ? 30000 : 60000; // 30s on duty, 60s idle
 
     // Function to update location
