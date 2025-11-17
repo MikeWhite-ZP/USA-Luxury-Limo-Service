@@ -4,21 +4,22 @@
 FROM node:20-alpine AS builder
 
 # Add labels for image metadata
-LABEL maintainer="USA Luxury Limo"
+LABEL maintainer="Hope Limo"
 LABEL description="Luxury transportation booking platform"
 LABEL version="1.0.0"
 
 WORKDIR /app
 
-# Copy package files and install dependencies
-# 'npm ci' ensures reproducible builds
+# IMPORTANT: Do NOT set NODE_ENV=production in builder stage
+# We need devDependencies (like vite, esbuild, typescript) to build
+
+# Copy package files and install ALL dependencies (including dev)
 COPY package*.json ./
 RUN npm ci --ignore-scripts
 
 # Copy application source
 COPY . .
 
-# Build application with explicit commands to exclude dev-only dependencies
 # Build frontend (outputs to dist/public)
 RUN npx vite build
 
@@ -28,7 +29,6 @@ RUN ls -la dist/public/ && \
     echo "Frontend build verification: PASSED"
 
 # Build backend with esbuild (outputs to dist/index.js)
-# Note: Externalizing packages like 'vite' is critical for a production Node.js server.
 RUN npx esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --packages=external --external:vite --external:@vitejs/* --external:./server/vite.ts --external:./server/vite.js
 
 # Verify backend build succeeded
@@ -41,7 +41,7 @@ RUN ls -la dist/index.js && \
 FROM node:20-alpine AS production
 
 # Add labels
-LABEL maintainer="USA Luxury Limo"
+LABEL maintainer="Hope Limo"
 LABEL description="Luxury transportation booking platform - Production"
 LABEL version="1.0.0"
 
@@ -50,26 +50,23 @@ RUN apk add --no-cache wget \
     && apk upgrade --no-cache
 
 # Create non-root user for security
-# UID 1001 is a common convention
 RUN addgroup -g 1001 -S nodejs \
     && adduser -S nodejs -u 1001
 
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV=production
+# Set production environment (only in production stage)
+ENV NODE_ENV=hopelimo
 ENV PORT=5000
 
 # Copy package files
 COPY package*.json ./
 
 # Install production dependencies only
-# Using '--omit=dev' ensures a small image size
 RUN npm ci --omit=dev --ignore-scripts
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
-# Assuming 'shared' contains non-bundled assets or logic needed at runtime
 COPY --from=builder /app/shared ./shared
 
 # Change ownership to non-root user
@@ -78,12 +75,12 @@ RUN chown -R nodejs:nodejs /app
 # Switch to non-root user
 USER nodejs
 
-# Expose port 5000 (Coolify will handle SSL/routing)
+# Expose port 5000
 EXPOSE 5000
 
-# Health check configuration (matches the syntax used in docker-compose)
+# Health check configuration
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-CMD wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1
+    CMD wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1
 
 # Start the Node.js server directly
 CMD ["node", "dist/index.js"]
