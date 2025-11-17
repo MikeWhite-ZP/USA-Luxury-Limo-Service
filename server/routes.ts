@@ -555,6 +555,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastName: z.string().min(1, "Last name is required"),
         email: z.string().email("Invalid email address"),
         phone: z.string().optional(),
+        username: z.string()
+          .min(3, "Username must be at least 3 characters")
+          .max(30, "Username cannot exceed 30 characters")
+          .regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, underscores, and hyphens")
+          .optional(),
       });
 
       const validatedData = updateSchema.parse(req.body);
@@ -563,6 +568,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const existingUser = await storage.getUserByEmail(validatedData.email);
       if (existingUser && existingUser.id !== userId) {
         return res.status(400).json({ message: "Email is already in use" });
+      }
+
+      // Check if username is already in use by another user
+      if (validatedData.username) {
+        const existingUsername = await storage.getUserByUsername(validatedData.username);
+        if (existingUsername && existingUsername.id !== userId) {
+          return res.status(400).json({ message: "Username is already taken" });
+        }
       }
 
       const updatedUser = await storage.updateUser(userId, validatedData);
@@ -623,6 +636,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.error("Error updating password:", error);
       res.status(500).json({ message: "Failed to update password" });
+    }
+  });
+
+  // Check username availability
+  app.get('/api/user/check-username/:username', isAuthenticated, async (req: any, res) => {
+    try {
+      const { username } = req.params;
+      const userId = req.user.id;
+
+      // Validate username format
+      const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+      if (!usernameRegex.test(username) || username.length < 3 || username.length > 30) {
+        return res.status(400).json({ 
+          available: false, 
+          message: "Username must be 3-30 characters and contain only letters, numbers, underscores, and hyphens" 
+        });
+      }
+
+      const existingUser = await storage.getUserByUsername(username);
+      
+      // Username is available if no one has it or the current user has it
+      const available = !existingUser || existingUser.id === userId;
+      
+      res.json({ 
+        available, 
+        message: available ? "Username is available" : "Username is already taken" 
+      });
+    } catch (error) {
+      console.error("Error checking username:", error);
+      res.status(500).json({ available: false, message: "Failed to check username" });
     }
   });
 
@@ -4871,7 +4914,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id } = req.params;
-      const { role, isActive, payLaterEnabled, cashPaymentEnabled, discountType, discountValue, firstName, lastName, email, phone, vehiclePlate } = req.body;
+      const { role, isActive, payLaterEnabled, cashPaymentEnabled, discountType, discountValue, firstName, lastName, email, phone, vehiclePlate, username } = req.body;
       
       const updates: Partial<User> = {};
       if (role !== undefined) updates.role = role;
@@ -4895,6 +4938,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (lastName !== undefined) updates.lastName = lastName;
       if (email !== undefined) updates.email = email;
       if (phone !== undefined) updates.phone = phone;
+      
+      // Validate and check username if provided
+      if (username !== undefined) {
+        if (username.trim()) {
+          // Validate username format
+          const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+          if (!usernameRegex.test(username) || username.length < 3 || username.length > 30) {
+            return res.status(400).json({ 
+              message: "Username must be 3-30 characters and contain only letters, numbers, underscores, and hyphens" 
+            });
+          }
+          
+          // Check if username is already taken by another user
+          const existingUser = await storage.getUserByUsername(username);
+          if (existingUser && existingUser.id !== id) {
+            return res.status(400).json({ message: "Username is already taken" });
+          }
+          
+          updates.username = username;
+        } else {
+          updates.username = null;
+        }
+      }
       
       const updatedUser = await storage.updateUser(id, updates);
       
