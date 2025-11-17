@@ -175,7 +175,7 @@ export default function MobileDispatcher() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="p-4 flex items-center justify-between">
+        <div className="p-3 sm:p-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
@@ -236,7 +236,7 @@ export default function MobileDispatcher() {
       </div>
 
       {/* Tabs for Rides */}
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <Tabs defaultValue="pending" className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-gray-100">
             <TabsTrigger value="pending" className="data-[state=active]:bg-white data-[state=active]:text-red-600" data-testid="tab-pending">

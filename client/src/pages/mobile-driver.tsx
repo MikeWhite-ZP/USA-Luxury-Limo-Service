@@ -133,6 +133,12 @@ export default function MobileDriver() {
 
   // GPS Tracking with dynamic intervals
   useEffect(() => {
+    // Always clear existing intervals first
+    if (intervalIdRef.current !== null) {
+      clearInterval(intervalIdRef.current);
+      intervalIdRef.current = null;
+    }
+
     const isOnDuty = hasActiveRide(bookings);
     
     // Track location if driver is available OR has active rides
@@ -140,14 +146,6 @@ export default function MobileDriver() {
     
     if (!shouldTrack) {
       // Stop tracking when driver goes offline AND has no active rides
-      if (watchIdRef.current !== null) {
-        navigator.geolocation.clearWatch(watchIdRef.current);
-        watchIdRef.current = null;
-      }
-      if (intervalIdRef.current !== null) {
-        clearInterval(intervalIdRef.current);
-        intervalIdRef.current = null;
-      }
       return;
     }
 
@@ -186,13 +184,10 @@ export default function MobileDriver() {
       );
     };
 
-    // Get initial location
+    // Get initial location immediately
     updateLocation();
 
     // Set up interval for periodic updates
-    if (intervalIdRef.current !== null) {
-      clearInterval(intervalIdRef.current);
-    }
     intervalIdRef.current = setInterval(updateLocation, updateInterval);
 
     // Cleanup on unmount or dependency change
