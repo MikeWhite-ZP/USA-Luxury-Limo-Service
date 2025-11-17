@@ -7,10 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2, MapPin, Phone, Mail, Star, Clock, Navigation } from 'lucide-react';
-<<<<<<< HEAD
-=======
 import { AdminNav } from '@/components/AdminNav';
->>>>>>> 437687f8ef162b9bb9eae888cfd9ab7d05f76af5
 
 // Custom Car Marker Component
 const CarIcon = ({ color }: { color: string }) => {
@@ -39,7 +36,7 @@ const CarIcon = ({ color }: { color: string }) => {
       </g>
     </svg>
   `;
-  
+
   return divIcon({
     html: svgIcon,
     className: 'custom-car-icon',
@@ -52,13 +49,13 @@ const CarIcon = ({ color }: { color: string }) => {
 // Component to handle map centering
 function MapController({ center, zoom }: { center: [number, number] | null; zoom: number }) {
   const map = useMap();
-  
+
   useEffect(() => {
     if (center) {
       map.flyTo(center, zoom, { duration: 1 });
     }
   }, [center, zoom, map]);
-  
+
   return null;
 }
 
@@ -100,7 +97,7 @@ export default function AdminDriversMap() {
       d.status === 'on_the_way' || d.status === 'customer_in_car' ||
       (d.currentBooking && ['confirmed', 'on_the_way', 'arrived', 'on_board', 'in_progress'].includes(d.currentBooking.status))
     );
-    
+
     // Set refresh interval: 30s if any driver on duty, 60s otherwise
     setRefreshInterval(hasOnDutyDriver ? 30000 : 60000);
   }, [drivers]);
@@ -163,9 +160,9 @@ export default function AdminDriversMap() {
 
   const getTimeAgo = (date: Date | null) => {
     if (!date) return 'Never';
-    
+
     const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
-    
+
     if (seconds < 60) return 'Just now';
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
@@ -174,12 +171,6 @@ export default function AdminDriversMap() {
 
   if (isLoading && drivers.length === 0) {
     return (
-<<<<<<< HEAD
-      <div className="flex items-center justify-center h-screen bg-slate-50">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-slate-600 font-medium">Loading drivers map...</p>
-=======
       <div className="min-h-screen bg-slate-50">
         <AdminNav />
         <div className="flex items-center justify-center h-[calc(100vh-80px)]">
@@ -187,206 +178,174 @@ export default function AdminDriversMap() {
             <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
             <p className="text-slate-600 font-medium">Loading drivers map...</p>
           </div>
->>>>>>> 437687f8ef162b9bb9eae888cfd9ab7d05f76af5
         </div>
       </div>
     );
   }
 
   return (
-<<<<<<< HEAD
-    <div className="flex h-screen bg-slate-50">
-      {/* Sidebar - Driver List */}
-      <div className="w-96 bg-white border-r-2 border-slate-200 shadow-lg overflow-y-auto">
-=======
     <div className="min-h-screen bg-slate-50">
       <AdminNav />
       <div className="flex h-[calc(100vh-80px)] bg-slate-50">
         {/* Sidebar - Driver List */}
         <div className="w-96 bg-white border-r-2 border-slate-200 shadow-lg overflow-y-auto">
->>>>>>> 437687f8ef162b9bb9eae888cfd9ab7d05f76af5
-        <div className="sticky top-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-6 z-10 border-b-2 border-slate-700">
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Navigation className="w-6 h-6" />
-            Drivers Map
-          </h1>
-          <p className="text-slate-300 text-sm mt-2">
-            {drivers.length} {drivers.length === 1 ? 'driver' : 'drivers'} total
-          </p>
-          <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
-            <Clock className="w-3.5 h-3.5" />
-            <span>Auto-refresh every {refreshInterval / 1000}s</span>
-          </div>
-        </div>
-
-        <div className="p-4 space-y-3">
-          {drivers.map((driver) => {
-            const driverName = `${driver.firstName || ''} ${driver.lastName || ''}`.trim() || 'Unknown Driver';
-            const initial = (driver.firstName?.[0] || driver.lastName?.[0] || 'D').toUpperCase();
-
-            return (
-              <Card
-                key={driver.userId}
-                className={`p-4 cursor-pointer hover:shadow-xl hover:border-blue-300 transition-all duration-300 ${
-                  selectedDriver?.userId === driver.userId ? 'border-2 border-blue-500 shadow-lg' : 'border-2 border-slate-200'
-                }`}
-                onClick={() => handleDriverClick(driver)}
-                data-testid={`driver-card-${driver.userId}`}
-              >
-                <div className="flex items-start gap-3">
-                  <Avatar className="w-12 h-12 ring-2 ring-slate-200">
-                    <AvatarImage src={driver.profileImageUrl || undefined} />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold">
-                      {initial}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-bold text-slate-900 truncate">{driverName}</h3>
-                      {getStatusBadge(driver.status, driver.statusColor)}
-                    </div>
-
-                    {driver.rating && parseFloat(driver.rating) > 0 && (
-                      <div className="flex items-center gap-1 text-sm text-slate-600 mb-2">
-                        <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                        <span className="font-semibold">{parseFloat(driver.rating).toFixed(1)}</span>
-                        <span className="text-xs text-slate-400">({driver.totalRides || 0} rides)</span>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-1 text-xs text-slate-500 mt-2">
-                      <Clock className="w-3 h-3" />
-                      <span>Updated {getTimeAgo(driver.lastLocationUpdate)}</span>
-                    </div>
-
-                    {driver.currentBooking && (
-                      <div className="mt-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                        <p className="text-xs font-semibold text-blue-900">Active Booking</p>
-                        <p className="text-xs text-blue-700 truncate mt-1">
-                          <MapPin className="w-3 h-3 inline mr-1" />
-                          {driver.currentBooking.pickupAddress}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-
-          {drivers.length === 0 && (
-            <div className="text-center py-12">
-              <Navigation className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-500 font-medium">No drivers found</p>
-              <p className="text-slate-400 text-sm mt-2">Drivers will appear here when they go online</p>
+          <div className="sticky top-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-6 z-10 border-b-2 border-slate-700">
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Navigation className="w-6 h-6" />
+              Drivers Map
+            </h1>
+            <p className="text-slate-300 text-sm mt-2">
+              {drivers.length} {drivers.length === 1 ? 'driver' : 'drivers'} total
+            </p>
+            <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
+              <Clock className="w-3.5 h-3.5" />
+              <span>Auto-refresh every {refreshInterval / 1000}s</span>
             </div>
-          )}
-        </div>
-      </div>
+          </div>
 
-      {/* Map Area */}
-      <div className="flex-1 relative">
-        {mapCenter ? (
-          <MapContainer
-            center={mapCenter}
-            zoom={mapZoom}
-            style={{ height: '100%', width: '100%' }}
-            className="z-0"
-            data-testid="drivers-map"
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            
-            <MapController center={mapCenter} zoom={mapZoom} />
-
-            {/* Driver Markers */}
+          <div className="p-4 space-y-3">
             {drivers.map((driver) => {
-              if (!driver.latitude || !driver.longitude) return null;
-
-              const position: [number, number] = [
-                parseFloat(driver.latitude),
-                parseFloat(driver.longitude)
-              ];
-
-              const colorMap: Record<string, string> = {
-                'green': '#10b981',
-                'grey': '#94a3b8',
-                'black': '#1e293b',
-                'red': '#ef4444',
-              };
-
               const driverName = `${driver.firstName || ''} ${driver.lastName || ''}`.trim() || 'Unknown Driver';
+              const initial = (driver.firstName?.[0] || driver.lastName?.[0] || 'D').toUpperCase();
 
               return (
-                <Marker
+                <Card
                   key={driver.userId}
-                  position={position}
-                  icon={CarIcon({ color: colorMap[driver.statusColor] || '#94a3b8' })}
-                  eventHandlers={{
-                    click: () => handleDriverClick(driver),
-                  }}
+                  className={`p-4 cursor-pointer hover:shadow-xl hover:border-blue-300 transition-all duration-300 ${
+                    selectedDriver?.userId === driver.userId ? 'border-2 border-blue-500 shadow-lg' : 'border-2 border-slate-200'
+                  }`}
+                  onClick={() => handleDriverClick(driver)}
+                  data-testid={`driver-card-${driver.userId}`}
                 >
-                  <Popup>
-                    <div className="p-2 min-w-[200px]">
-                      <h3 className="font-bold text-slate-900 mb-2">{driverName}</h3>
-                      {getStatusBadge(driver.status, driver.statusColor)}
-                      {driver.phone && (
-                        <p className="text-sm text-slate-600 mt-2 flex items-center gap-1">
-                          <Phone className="w-3.5 h-3.5" />
-                          {driver.phone}
-                        </p>
+                  <div className="flex items-start gap-3">
+                    <Avatar className="w-12 h-12 ring-2 ring-slate-200">
+                      <AvatarImage src={driver.profileImageUrl || undefined} />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold">
+                        {initial}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="font-bold text-slate-900 truncate">{driverName}</h3>
+                        {getStatusBadge(driver.status, driver.statusColor)}
+                      </div>
+
+                      {driver.rating && parseFloat(driver.rating) > 0 && (
+                        <div className="flex items-center gap-1 text-sm text-slate-600 mb-2">
+                          <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                          <span className="font-semibold">{parseFloat(driver.rating).toFixed(1)}</span>
+                          <span className="text-xs text-slate-400">({driver.totalRides || 0} rides)</span>
+                        </div>
                       )}
+
+                      <div className="flex items-center gap-1 text-xs text-slate-500 mt-2">
+                        <Clock className="w-3 h-3" />
+                        <span>Updated {getTimeAgo(driver.lastLocationUpdate)}</span>
+                      </div>
+
                       {driver.currentBooking && (
-                        <div className="mt-2 pt-2 border-t border-slate-200">
-                          <p className="text-xs font-semibold text-slate-700">Active Booking:</p>
-                          <p className="text-xs text-slate-600 mt-1">{driver.currentBooking.pickupAddress}</p>
+                        <div className="mt-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                          <p className="text-xs font-semibold text-blue-900">Active Booking</p>
+                          <p className="text-xs text-blue-700 truncate mt-1">
+                            <MapPin className="w-3 h-3 inline mr-1" />
+                            {driver.currentBooking.pickupAddress}
+                          </p>
                         </div>
                       )}
                     </div>
-                  </Popup>
-                </Marker>
+                  </div>
+                </Card>
               );
             })}
 
-            {/* Show pickup/dropoff markers for selected driver */}
-            {selectedDriver?.currentBooking && (
-              <>
-                {selectedDriver.currentBooking.pickupLat && selectedDriver.currentBooking.pickupLon && (
+            {drivers.length === 0 && (
+              <div className="text-center py-12">
+                <Navigation className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                <p className="text-slate-500 font-medium">No drivers found</p>
+                <p className="text-slate-400 text-sm mt-2">Drivers will appear here when they go online</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Map Area */}
+        <div className="flex-1 relative">
+          {mapCenter ? (
+            <MapContainer
+              center={mapCenter}
+              zoom={mapZoom}
+              style={{ height: '100%', width: '100%' }}
+              className="z-0"
+              data-testid="drivers-map"
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+
+              <MapController center={mapCenter} zoom={mapZoom} />
+
+              {/* Driver Markers */}
+              {drivers.map((driver) => {
+                if (!driver.latitude || !driver.longitude) return null;
+
+                const position: [number, number] = [
+                  parseFloat(driver.latitude),
+                  parseFloat(driver.longitude)
+                ];
+
+                const colorMap: Record<string, string> = {
+                  'green': '#10b981',
+                  'grey': '#94a3b8',
+                  'black': '#1e293b',
+                  'red': '#ef4444',
+                };
+
+                const driverName = `${driver.firstName || ''} ${driver.lastName || ''}`.trim() || 'Unknown Driver';
+
+                return (
                   <Marker
-                    position={[
-                      parseFloat(selectedDriver.currentBooking.pickupLat),
-                      parseFloat(selectedDriver.currentBooking.pickupLon)
-                    ]}
-                    icon={new Icon({
-                      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-                      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                      iconSize: [25, 41],
-                      iconAnchor: [12, 41],
-                      popupAnchor: [1, -34],
-                      shadowSize: [41, 41]
-                    })}
+                    key={driver.userId}
+                    position={position}
+                    icon={CarIcon({ color: colorMap[driver.statusColor] || '#94a3b8' })}
+                    eventHandlers={{
+                      click: () => handleDriverClick(driver),
+                    }}
                   >
                     <Popup>
-                      <div className="p-2">
-                        <h3 className="font-bold text-green-700">Pickup Location</h3>
-                        <p className="text-sm">{selectedDriver.currentBooking.pickupAddress}</p>
+                      <div className="p-2 min-w-[200px]">
+                        <h3 className="font-bold text-slate-900 mb-2">{driverName}</h3>
+                        {getStatusBadge(driver.status, driver.statusColor)}
+                        {driver.phone && (
+                          <p className="text-sm text-slate-600 mt-2 flex items-center gap-1">
+                            <Phone className="w-3.5 h-3.5" />
+                            {driver.phone}
+                          </p>
+                        )}
+                        {driver.currentBooking && (
+                          <div className="mt-2 pt-2 border-t border-slate-200">
+                            <p className="text-xs font-semibold text-slate-700">Active Booking:</p>
+                            <p className="text-xs text-slate-600 mt-1">{driver.currentBooking.pickupAddress}</p>
+                          </div>
+                        )}
                       </div>
                     </Popup>
                   </Marker>
-                )}
+                );
+              })}
 
-                {selectedDriver.currentBooking.destinationLat && selectedDriver.currentBooking.destinationLon && (
-                  <>
+              {/* Show pickup/dropoff markers for selected driver */}
+              {selectedDriver?.currentBooking && (
+                <>
+                  {selectedDriver.currentBooking.pickupLat && selectedDriver.currentBooking.pickupLon && (
                     <Marker
                       position={[
-                        parseFloat(selectedDriver.currentBooking.destinationLat),
-                        parseFloat(selectedDriver.currentBooking.destinationLon)
+                        parseFloat(selectedDriver.currentBooking.pickupLat),
+                        parseFloat(selectedDriver.currentBooking.pickupLon)
                       ]}
                       icon={new Icon({
-                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
                         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
                         iconSize: [25, 41],
                         iconAnchor: [12, 41],
@@ -396,40 +355,62 @@ export default function AdminDriversMap() {
                     >
                       <Popup>
                         <div className="p-2">
-                          <h3 className="font-bold text-red-700">Dropoff Location</h3>
-                          <p className="text-sm">{selectedDriver.currentBooking.destinationAddress}</p>
+                          <h3 className="font-bold text-green-700">Pickup Location</h3>
+                          <p className="text-sm">{selectedDriver.currentBooking.pickupAddress}</p>
                         </div>
                       </Popup>
                     </Marker>
+                  )}
 
-                    {/* Draw line from pickup to dropoff */}
-                    {selectedDriver.currentBooking.pickupLat && selectedDriver.currentBooking.pickupLon && (
-                      <Polyline
-                        positions={[
-                          [parseFloat(selectedDriver.currentBooking.pickupLat), parseFloat(selectedDriver.currentBooking.pickupLon)],
-                          [parseFloat(selectedDriver.currentBooking.destinationLat), parseFloat(selectedDriver.currentBooking.destinationLon)]
+                  {selectedDriver.currentBooking.destinationLat && selectedDriver.currentBooking.destinationLon && (
+                    <>
+                      <Marker
+                        position={[
+                          parseFloat(selectedDriver.currentBooking.destinationLat),
+                          parseFloat(selectedDriver.currentBooking.destinationLon)
                         ]}
-                        color="#3b82f6"
-                        weight={3}
-                        opacity={0.7}
-                        dashArray="10, 10"
-                      />
-                    )}
-                  </>
-                )}
-              </>
-            )}
-          </MapContainer>
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
-          </div>
-        )}
+                        icon={new Icon({
+                          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                          iconSize: [25, 41],
+                          iconAnchor: [12, 41],
+                          popupAnchor: [1, -34],
+                          shadowSize: [41, 41]
+                        })}
+                      >
+                        <Popup>
+                          <div className="p-2">
+                            <h3 className="font-bold text-red-700">Dropoff Location</h3>
+                            <p className="text-sm">{selectedDriver.currentBooking.destinationAddress}</p>
+                          </div>
+                        </Popup>
+                      </Marker>
+
+                      {/* Draw line from pickup to dropoff */}
+                      {selectedDriver.currentBooking.pickupLat && selectedDriver.currentBooking.pickupLon && (
+                        <Polyline
+                          positions={[
+                            [parseFloat(selectedDriver.currentBooking.pickupLat), parseFloat(selectedDriver.currentBooking.pickupLon)],
+                            [parseFloat(selectedDriver.currentBooking.destinationLat), parseFloat(selectedDriver.currentBooking.destinationLon)]
+                          ]}
+                          color="#3b82f6"
+                          weight={3}
+                          opacity={0.7}
+                          dashArray="10, 10"
+                        />
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+            </MapContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
+            </div>
+          )}
+        </div>
       </div>
-<<<<<<< HEAD
-=======
-      </div>
->>>>>>> 437687f8ef162b9bb9eae888cfd9ab7d05f76af5
     </div>
   );
 }
