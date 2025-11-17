@@ -22,6 +22,8 @@ export default function AccountPage() {
   const [lastName, setLastName] = useState(user?.lastName || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [username, setUsername] = useState(user?.username || '');
+  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   
   // Profile picture states
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
@@ -36,7 +38,7 @@ export default function AccountPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: { firstName: string; lastName: string; phone: string; email: string }) => {
+    mutationFn: async (data: { firstName: string; lastName: string; phone: string; email: string; username?: string }) => {
       const response = await apiRequest('PATCH', '/api/user/profile', data);
       if (!response.ok) {
         const error = await response.json();
@@ -151,8 +153,40 @@ export default function AccountPage() {
       lastName: lastName.trim(),
       phone: phone.trim(),
       email: email.trim(),
+      username: username.trim() || undefined,
     });
   };
+  
+  // Check username availability with debounce
+  useEffect(() => {
+    if (!username || username === user?.username) {
+      setUsernameStatus('idle');
+      return;
+    }
+
+    // Validate format first
+    const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!usernameRegex.test(username) || username.length < 3 || username.length > 30) {
+      setUsernameStatus('idle');
+      return;
+    }
+
+    setUsernameStatus('checking');
+    const timeoutId = setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/user/check-username/${encodeURIComponent(username)}`, {
+          credentials: 'include',
+        });
+        const data = await response.json();
+        setUsernameStatus(data.available ? 'available' : 'taken');
+      } catch (error) {
+        console.error('Error checking username:', error);
+        setUsernameStatus('idle');
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [username, user?.username]);
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -535,6 +569,37 @@ export default function AccountPage() {
                     className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                     data-testid="input-phone"
                   />
+                </div>
+
+                <div>
+                  <Label htmlFor="username" className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                    <div className="bg-purple-100 p-1 rounded">
+                      <User className="w-3.5 h-3.5 text-purple-600" />
+                    </div>
+                    Username
+                  </Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Choose a username"
+                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                    data-testid="input-username"
+                  />
+                  {username && username !== user?.username && (
+                    <p className={`text-xs mt-2 flex items-center gap-1 ${
+                      usernameStatus === 'checking' ? 'text-slate-500' :
+                      usernameStatus === 'available' ? 'text-green-600' :
+                      usernameStatus === 'taken' ? 'text-red-600' :
+                      'text-slate-500'
+                    }`}>
+                      {usernameStatus === 'checking' && '⏳ Checking availability...'}
+                      {usernameStatus === 'available' && '✓ Username is available'}
+                      {usernameStatus === 'taken' && '✗ Username is already taken'}
+                      {usernameStatus === 'idle' && 'Username must be 3-30 characters (letters, numbers, -, _)'}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex gap-3 pt-4 border-t border-slate-100">
