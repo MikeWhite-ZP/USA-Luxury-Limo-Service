@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2, MapPin, Phone, Mail, Star, Clock, Navigation } from 'lucide-react';
+import AdminNav from '@/components/AdminNav';
 
 // Custom Car Marker Component
 const CarIcon = ({ color }: { color: string }) => {
