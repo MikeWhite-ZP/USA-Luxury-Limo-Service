@@ -47,10 +47,11 @@ interface AdminNavProps {
   onSettingsClick?: (section: 'commission' | 'email' | 'sms' | 'database' | 'branding') => void;
   onCMSClick?: (section: 'pages' | 'media' | 'services') => void;
   onFrontendPagesClick?: (slug: 'home' | 'about' | 'locations' | 'hotels' | 'services' | 'contact' | 'terms' | 'privacy' | 'help' | 'safety') => void;
+  onEmailTemplatesClick?: (slug: string) => void;
   onPricingClick?: () => void;
 }
 
-export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onVehicleTypesClick, onSettingsClick, onCMSClick, onFrontendPagesClick, onPricingClick }: AdminNavProps) {
+export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onVehicleTypesClick, onSettingsClick, onCMSClick, onFrontendPagesClick, onEmailTemplatesClick, onPricingClick }: AdminNavProps) {
   const [location, setLocation] = useLocation();
   const { logoutMutation } = useAuth();
   const { logoUrl, logoAltText } = useSiteLogo();
@@ -695,6 +696,312 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       <Shield className="w-4 h-4 text-red-600" />
                     </div>
                     <span className="font-medium text-sm">Safety</span>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Email Templates Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-sm font-medium text-gray-700 hover:text-rose-600 hover:bg-rose-50 transition-all px-3 py-2 rounded-lg"
+                  data-testid="nav-email-templates"
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Email Templates
+                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64 bg-white border-gray-200 shadow-lg rounded-xl p-2">
+                <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+                  Customer Emails
+                </DropdownMenuLabel>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('contact_form');
+                    } else {
+                      setLocation('/admin#email-contact_form');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-contact-form"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <Mail className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <span className="font-medium text-sm">Contact Form</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('booking_confirmation');
+                    } else {
+                      setLocation('/admin#email-booking_confirmation');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-booking-confirmation"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                      <Receipt className="w-4 h-4 text-green-600" />
+                    </div>
+                    <span className="font-medium text-sm">Booking Confirmation</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('booking_status_update');
+                    } else {
+                      setLocation('/admin#email-booking_status_update');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-status-update"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <span className="font-medium text-sm">Status Update</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('payment_confirmation');
+                    } else {
+                      setLocation('/admin#email-payment_confirmation');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-payment"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                      <DollarSign className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <span className="font-medium text-sm">Payment Confirmation</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('booking_cancelled');
+                    } else {
+                      setLocation('/admin#email-booking_cancelled');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-cancelled"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-red-600" />
+                    </div>
+                    <span className="font-medium text-sm">Booking Cancelled</span>
+                  </div>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator className="my-2" />
+                <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+                  Driver Emails
+                </DropdownMenuLabel>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('driver_assignment');
+                    } else {
+                      setLocation('/admin#email-driver_assignment');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-driver-assignment"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                      <Car className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <span className="font-medium text-sm">Driver Assignment</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('driver_on_way');
+                    } else {
+                      setLocation('/admin#email-driver_on_way');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-driver-on-way"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center">
+                      <Navigation className="w-4 h-4 text-cyan-600" />
+                    </div>
+                    <span className="font-medium text-sm">Driver On Way</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('driver_arrived');
+                    } else {
+                      setLocation('/admin#email-driver_arrived');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-driver-arrived"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center">
+                      <MapPin className="w-4 h-4 text-teal-600" />
+                    </div>
+                    <span className="font-medium text-sm">Driver Arrived</span>
+                  </div>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator className="my-2" />
+                <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+                  System Emails
+                </DropdownMenuLabel>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('password_reset');
+                    } else {
+                      setLocation('/admin#email-password_reset');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-password-reset"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center">
+                      <Key className="w-4 h-4 text-orange-600" />
+                    </div>
+                    <span className="font-medium text-sm">Password Reset</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('temporary_password');
+                    } else {
+                      setLocation('/admin#email-temporary_password');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-temp-password"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                      <Key className="w-4 h-4 text-indigo-600" />
+                    </div>
+                    <span className="font-medium text-sm">Temporary Password</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('username_reminder');
+                    } else {
+                      setLocation('/admin#email-username_reminder');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-username"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-violet-600" />
+                    </div>
+                    <span className="font-medium text-sm">Username Reminder</span>
+                  </div>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator className="my-2" />
+                <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+                  Admin Reports
+                </DropdownMenuLabel>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('new_booking_report');
+                    } else {
+                      setLocation('/admin#email-new_booking_report');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-new-booking"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <Receipt className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <span className="font-medium text-sm">New Booking Report</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('cancelled_booking_report');
+                    } else {
+                      setLocation('/admin#email-cancelled_booking_report');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-cancelled-report"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-red-600" />
+                    </div>
+                    <span className="font-medium text-sm">Cancelled Booking Report</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('driver_activity_report');
+                    } else {
+                      setLocation('/admin#email-driver_activity_report');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-driver-activity"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                      <Car className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <span className="font-medium text-sm">Driver Activity Report</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onEmailTemplatesClick?.('test_email');
+                    } else {
+                      setLocation('/admin#email-test_email');
+                    }
+                  }}
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-rose-50 focus:bg-rose-50 text-gray-700 hover:text-rose-700 transition-colors"
+                  data-testid="nav-email-test"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                      <Mail className="w-4 h-4 text-gray-600" />
+                    </div>
+                    <span className="font-medium text-sm">Test Email</span>
                   </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
