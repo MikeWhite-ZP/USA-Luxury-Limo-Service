@@ -363,20 +363,6 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
-                      onCMSClick?.('pages');
-                    } else {
-                      setLocation('/admin#cms-pages');
-                    }
-                  }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
-                  data-testid="nav-cms-pages"
-                >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Pages</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => {
-                    if (location === '/admin' || location === '/admin-dashboard') {
                       onCMSClick?.('media');
                     } else {
                       setLocation('/admin#cms-media');
@@ -401,6 +387,104 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 >
                   <FileText className="w-4 h-4 mr-3 text-slate-500" />
                   <span className="font-medium">Services</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-sm font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
+                  data-testid="nav-frontend-pages"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Frontend Pages
+                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-xl">
+                <DropdownMenuItem 
+                  onClick={() => setLocation('/admin#frontend-home')}
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-frontend-home"
+                >
+                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Home</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setLocation('/admin#frontend-about')}
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-frontend-about"
+                >
+                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">About</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setLocation('/admin#frontend-locations')}
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-frontend-locations"
+                >
+                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Locations</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setLocation('/admin#frontend-hotels')}
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-frontend-hotels"
+                >
+                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Hotels</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setLocation('/admin#frontend-services')}
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-frontend-services"
+                >
+                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Services</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setLocation('/admin#frontend-contact')}
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-frontend-contact"
+                >
+                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Contact</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => setLocation('/admin#frontend-terms')}
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-frontend-terms"
+                >
+                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Terms</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setLocation('/admin#frontend-privacy')}
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-frontend-privacy"
+                >
+                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Privacy</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setLocation('/admin#frontend-help')}
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-frontend-help"
+                >
+                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Help</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setLocation('/admin#frontend-safety')}
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  data-testid="nav-frontend-safety"
+                >
+                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <span className="font-medium">Safety</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

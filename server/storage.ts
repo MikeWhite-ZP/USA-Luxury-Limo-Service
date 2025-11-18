@@ -62,6 +62,9 @@ import {
   emergencyIncidents,
   type EmergencyIncident,
   type InsertEmergencyIncident,
+  frontendPages,
+  type FrontendPage,
+  type InsertFrontendPage,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -242,6 +245,11 @@ export interface IStorage {
   createCmsMedia(media: InsertCmsMedia): Promise<CmsMedia>;
   updateCmsMedia(id: string, updates: Partial<InsertCmsMedia>): Promise<CmsMedia | undefined>;
   deleteCmsMedia(id: string): Promise<void>;
+  
+  // Frontend Pages (WYSIWYG editable)
+  getAllFrontendPages(): Promise<FrontendPage[]>;
+  getFrontendPageBySlug(slug: string): Promise<FrontendPage | undefined>;
+  updateFrontendPage(slug: string, updates: Partial<InsertFrontendPage>, userId: string): Promise<FrontendPage | undefined>;
   
   // Password Reset (User Table-based)
   // Sets hashed reset token and expiration on user record (atomic update)
@@ -2115,6 +2123,25 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCmsMedia(id: string): Promise<void> {
     await db.delete(cmsMedia).where(eq(cmsMedia.id, id));
+  }
+
+  // Frontend Pages Methods
+  async getAllFrontendPages(): Promise<FrontendPage[]> {
+    return await db.select().from(frontendPages).orderBy(frontendPages.slug);
+  }
+
+  async getFrontendPageBySlug(slug: string): Promise<FrontendPage | undefined> {
+    const [page] = await db.select().from(frontendPages).where(eq(frontendPages.slug, slug));
+    return page;
+  }
+
+  async updateFrontendPage(slug: string, updates: Partial<InsertFrontendPage>, userId: string): Promise<FrontendPage | undefined> {
+    const [result] = await db
+      .update(frontendPages)
+      .set({ ...updates, updatedBy: userId, updatedAt: new Date() })
+      .where(eq(frontendPages.slug, slug))
+      .returning();
+    return result;
   }
 
   // Password Reset Token Methods

@@ -694,6 +694,35 @@ export const insertServiceSchema = createInsertSchema(services, {
   updatedAt: true,
 });
 
+// Frontend Pages - WYSIWYG editable content for frontend pages
+export const frontendPageSlugEnum = ["home", "about", "locations", "hotels", "services", "contact", "terms", "privacy", "help", "safety"] as const;
+export type FrontendPageSlug = typeof frontendPageSlugEnum[number];
+
+export const frontendPages = pgTable("frontend_pages", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  slug: varchar("slug", { enum: frontendPageSlugEnum }).notNull().unique(),
+  title: varchar("title").notNull(), // Page title for metadata and display
+  content: jsonb("content").notNull(), // Tiptap JSON content
+  isActive: boolean("is_active").default(true),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("frontend_pages_slug_idx").on(table.slug),
+]);
+
+export const insertFrontendPageSchema = createInsertSchema(frontendPages, {
+  slug: z.enum(frontendPageSlugEnum),
+  content: z.any(), // Tiptap JSON content
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type FrontendPage = typeof frontendPages.$inferSelect;
+export type InsertFrontendPage = z.infer<typeof insertFrontendPageSchema>;
+
 // Password reset tokens
 export const passwordResetTokens = pgTable("password_reset_tokens", {
   id: uuid("id").defaultRandom().primaryKey(),

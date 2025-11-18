@@ -78,6 +78,7 @@ import BrandSettings from "@/components/BrandSettings";
 import MediaLibrary from "@/components/MediaLibrary";
 import { ServiceCMS } from "@/components/ServiceCMS";
 import { BookingDetailsDialog } from "@/components/BookingDetailsDialog";
+import { FrontendPageEditor } from "@/components/FrontendPageEditor";
 
 interface DashboardStats {
   totalRevenue: string;
@@ -3342,6 +3343,170 @@ function InvoiceManagement() {
   );
 }
 
+function FrontendPagesSection({ selectedSlug }: { selectedSlug: string | null }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState(selectedSlug || 'home');
+  const [pageContents, setPageContents] = useState<Record<string, any>>({});
+  const [savingSlug, setSavingSlug] = useState<string | null>(null);
+
+  // Page slugs and display names
+  const pages = [
+    { slug: 'home', name: 'Home' },
+    { slug: 'about', name: 'About' },
+    { slug: 'locations', name: 'Locations' },
+    { slug: 'hotels', name: 'Hotels' },
+    { slug: 'services', name: 'Services' },
+    { slug: 'contact', name: 'Contact' },
+    { slug: 'terms', name: 'Terms' },
+    { slug: 'privacy', name: 'Privacy' },
+    { slug: 'help', name: 'Help' },
+    { slug: 'safety', name: 'Safety' },
+  ];
+
+  // Fetch all frontend pages
+  const { data: frontendPages, isLoading } = useQuery<any[]>({
+    queryKey: ['/api/admin/frontend-pages'],
+  });
+
+  // Initialize page contents when data is loaded
+  useEffect(() => {
+    if (frontendPages) {
+      const contents: Record<string, any> = {};
+      frontendPages.forEach(page => {
+        contents[page.slug] = page.content;
+      });
+      setPageContents(contents);
+    }
+  }, [frontendPages]);
+
+  // Update active tab when selectedSlug changes
+  useEffect(() => {
+    if (selectedSlug) {
+      setActiveTab(selectedSlug);
+    }
+  }, [selectedSlug]);
+
+  const handleContentChange = (slug: string, content: any) => {
+    setPageContents(prev => ({
+      ...prev,
+      [slug]: content
+    }));
+  };
+
+  const handleSave = async (slug: string) => {
+    try {
+      setSavingSlug(slug);
+      const page = frontendPages?.find(p => p.slug === slug);
+      if (!page) {
+        throw new Error('Page not found');
+      }
+
+      const response = await apiRequest('PUT', `/api/admin/frontend-pages/${slug}`, {
+        title: page.title,
+        content: pageContents[slug],
+        isActive: page.isActive,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save page');
+      }
+
+      toast({
+        title: 'Success',
+        description: `${page.title} page has been updated successfully.`,
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/frontend-pages'] });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to save page. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingSlug(null);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Card id="frontend-pages-section" className="border-slate-200 shadow-sm">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center py-8">
+            <div className="text-slate-500">Loading pages...</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card 
+      id="frontend-pages-section"
+      data-testid="frontend-pages-editor"
+      className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white"
+    >
+      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50/30 border-b border-slate-200">
+        <CardTitle className="flex items-center gap-3 text-slate-900">
+          <div className="bg-blue-600 p-2 rounded-lg">
+            <FileText className="w-5 h-5 text-white" />
+          </div>
+          <span>Frontend Pages Editor</span>
+        </CardTitle>
+        <CardDescription className="text-slate-600">
+          Edit the content of your frontend pages using the WYSIWYG editor
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-5 lg:grid-cols-10 gap-2 h-auto p-2 bg-slate-100">
+            {pages.map(page => (
+              <TabsTrigger
+                key={page.slug}
+                value={page.slug}
+                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+                data-testid={`tab-${page.slug}`}
+              >
+                {page.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {pages.map(page => {
+            const pageData = frontendPages?.find(p => p.slug === page.slug);
+            
+            return (
+              <TabsContent key={page.slug} value={page.slug} className="mt-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      {pageData?.title || page.name}
+                    </h3>
+                    <Button
+                      onClick={() => handleSave(page.slug)}
+                      disabled={savingSlug === page.slug}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      data-testid={`button-save-${page.slug}`}
+                    >
+                      {savingSlug === page.slug ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  </div>
+
+                  <FrontendPageEditor
+                    content={pageContents[page.slug] || pageData?.content || ''}
+                    onChange={(content) => handleContentChange(page.slug, content)}
+                  />
+                </div>
+              </TabsContent>
+            );
+          })}
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function AdminDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -3368,6 +3533,8 @@ export default function AdminDashboard() {
   const [visibleCMSSection, setVisibleCMSSection] = useState<
     "pages" | "media" | null
   >(null);
+  const [showFrontendPageEditor, setShowFrontendPageEditor] = useState(false);
+  const [selectedFrontendPageSlug, setSelectedFrontendPageSlug] = useState<string | null>(null);
   const [showBookings, setShowBookings] = useState(false);
   const [showInvoices, setShowInvoices] = useState(false);
   const [showVehicleTypes, setShowVehicleTypes] = useState(false);
@@ -3597,6 +3764,18 @@ export default function AdminDashboard() {
         setShowBookings(false);
         setTimeout(() => {
           document.getElementById('invoices-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else if (section === 'frontend') {
+        setShowFrontendPageEditor(true);
+        setSelectedFrontendPageSlug(subsection);
+        setVisibleCredentialsSection(null);
+        setVisibleSettingsSection(null);
+        setVisibleCMSSection(null);
+        setShowUserManager(false);
+        setShowBookings(false);
+        setShowInvoices(false);
+        setTimeout(() => {
+          document.getElementById('frontend-pages-section')?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       }
 
@@ -6701,27 +6880,6 @@ export default function AdminDashboard() {
           </Card>
         )}
 
-        {/* CMS - Pages Management */}
-        {visibleCMSSection === "pages" && (
-          <Card
-            id="cms-section"
-            data-testid="cms-pages-management"
-            className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white"
-          >
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50/30 border-b border-slate-200">
-              <CardTitle className="flex items-center gap-3 text-slate-900">
-                <div className="bg-blue-600 p-2 rounded-lg">
-                  <FileText className="w-5 h-5 text-white" />
-                </div>
-                <span>Pages Management</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <BrandSettings />
-            </CardContent>
-          </Card>
-        )}
-
         {/* CMS - Media Management */}
         {visibleCMSSection === "media" && (
           <Card
@@ -6763,6 +6921,9 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         )}
+
+        {/* Frontend Pages Editor */}
+        {showFrontendPageEditor && <FrontendPagesSection selectedSlug={selectedFrontendPageSlug} />}
 
         {/* Bookings Management */}
         {showBookings && (

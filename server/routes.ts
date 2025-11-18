@@ -7546,6 +7546,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ========================================
+  // Frontend Pages API Routes
+  // ========================================
+
+  // Get a specific frontend page by slug (public)
+  app.get('/api/frontend-pages/:slug', async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const page = await storage.getFrontendPageBySlug(slug);
+      
+      if (!page) {
+        return res.status(404).json({ message: 'Page not found' });
+      }
+      
+      res.json(page);
+    } catch (error) {
+      console.error('Get frontend page error:', error);
+      res.status(500).json({ message: 'Failed to fetch page' });
+    }
+  });
+
+  // Get all frontend pages (admin only)
+  app.get('/api/admin/frontend-pages', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const pages = await storage.getAllFrontendPages();
+      res.json(pages);
+    } catch (error) {
+      console.error('Get all frontend pages error:', error);
+      res.status(500).json({ message: 'Failed to fetch pages' });
+    }
+  });
+
+  // Update a frontend page (admin only)
+  app.put('/api/admin/frontend-pages/:slug', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { slug } = req.params;
+      const userId = req.adminUser.id;
+      const { title, content, isActive } = req.body;
+      
+      // Validate required fields
+      if (!content) {
+        return res.status(400).json({ message: 'Content is required' });
+      }
+      
+      const updates: Partial<any> = {};
+      if (title !== undefined) updates.title = title;
+      if (content !== undefined) updates.content = content;
+      if (isActive !== undefined) updates.isActive = isActive;
+      
+      const updatedPage = await storage.updateFrontendPage(slug, updates, userId);
+      
+      if (!updatedPage) {
+        return res.status(404).json({ message: 'Page not found' });
+      }
+      
+      res.json(updatedPage);
+    } catch (error) {
+      console.error('Update frontend page error:', error);
+      res.status(500).json({ message: 'Failed to update page' });
+    }
+  });
+
+  // ========================================
   // CMS API Routes
   // ========================================
 
