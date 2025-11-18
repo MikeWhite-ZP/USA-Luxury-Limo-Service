@@ -1,0 +1,142 @@
+version: '3.9'
+
+networks:
+  coolify:
+    name: coolify
+    external: true
+  pcs4sg04w4c0wocck88804cs:
+    name: pcs4sg04w4c0wocck88804cs
+    external: true
+
+services:
+  # Ana uygulama servisi
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    labels:
+      # Coolify yönetim etiketleri
+      - coolify.managed=true
+      - coolify.version=4.0.0-beta.444
+      - coolify.applicationId=3
+      - coolify.type=application
+      - coolify.name=app-pcs4sg04w4c0wocck88804cs-000543621070
+      - coolify.resourceName=hopelimo
+      - coolify.projectName=limo-application
+      - coolify.serviceName=hopelimo
+      - coolify.environmentName=hopelimo
+      - coolify.pullRequestId=0
+      # Caddy reverse proxy ayarları
+      - 'caddy_0=https://aps.hopelimo.com'
+      - 'caddy_0.reverse_proxy={{upstreams 5001}}'
+      - 'caddy_0.encode=zstd gzip'
+      - caddy_0.header=-Server
+      - 'caddy_1=https://adminaccess.hopelimo.com'
+      - 'caddy_1.reverse_proxy={{upstreams 5001}}'
+      - 'caddy_1.encode=zstd gzip'
+      - caddy_1.header=-Server
+      - caddy_ingress_network=pcs4sg04w4c0wocck88804cs
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+      - 'DATABASE_URL=${DATABASE_URL}'
+      - 'STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}'
+      - 'VITE_STRIPE_PUBLIC_KEY=${VITE_STRIPE_PUBLIC_KEY}'
+      - 'SESSION_SECRET=${SESSION_SECRET}'
+      # MinIO servisi ile bağlantı
+      - 'MINIO_ENDPOINT=http://minio:9000'
+      - 'MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}'
+      - 'MINIO_SECRET_KEY=${MINIO_SECRET_KEY}'
+      - 'MINIO_BUCKET=${MINIO_BUCKET:-hopelimo}'
+      - 'SMTP_HOST=${SMTP_HOST}'
+      - 'SMTP_PORT=${SMTP_PORT}'
+      - 'SMTP_SECURE=${SMTP_SECURE}'
+      - 'SMTP_USER=${SMTP_USER}'
+      - 'SMTP_PASS=${SMTP_PASS}'
+      - 'EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-Hope Limo}'
+      - 'EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}'
+      - 'TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}'
+      - 'TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}'
+      - 'TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}'
+      - 'TOMTOM_API_KEY=${TOMTOM_API_KEY}'
+      - 'RAPIDAPI_KEY=${RAPIDAPI_KEY}'
+      - 'SETTINGS_ENCRYPTION_KEY=${SETTINGS_ENCRYPTION_KEY}'
+      - 'ADMIN_PANEL_HOSTS=${ADMIN_PANEL_HOSTS:-adminaccess.hopelimo.com}'
+      - 'VITE_ADMIN_PANEL_HOSTS=${VITE_ADMIN_PANEL_HOSTS:-adminaccess.hopelimo.com}'
+      # Coolify ortam değişkenleri
+      - COOLIFY_BRANCH=production_Hope_Limo
+      - COOLIFY_RESOURCE_UUID=pcs4sg04w4c0wocck88804cs
+      - COOLIFY_CONTAINER_NAME=app-pcs4sg04w4c0wocck88804cs-000543621070
+      - SERVICE_URL_APP=https://aps.hopelimo.com
+      - SERVICE_FQDN_APP=aps.hopelimo.com
+      - COOLIFY_URL=https://aps.hopelimo.com,https://adminaccess.hopelimo.com
+      - COOLIFY_FQDN=aps.hopelimo.com,adminaccess.hopelimo.com
+      - SERVICE_NAME_APP=app
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - '--quiet'
+        - '--tries=1'
+        - '--spider'
+        - 'http://localhost:5001/health'
+      interval: 30s
+      timeout: 3s
+      start_period: 40s
+      retries: 3
+    networks:
+      - coolify
+      - pcs4sg04w4c0wocck88804cs
+    container_name: app-pcs4sg04w4c0wocck88804cs-000543621070
+    env_file:
+      - .env
+    depends_on:
+      database:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  # PostgreSQL Veritabanı Servisi
+  database:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-hope_limo}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pcs4sg04w4c0wocck88804cs
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    container_name: database-hopelimo
+
+  # MinIO Object Storage Servisi (S3-compatible)
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    networks:
+      - pcs4sg04w4c0wocck88804cs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    container_name: minio-hopelimo
+
+volumes:
+  postgres_data:
+    driver: local
+  minio_data:
+    driver: local
