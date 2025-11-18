@@ -7608,6 +7608,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ========================================
+  // Email Templates API Routes
+  // ========================================
+
+  // Get all email templates (admin only)
+  app.get('/api/admin/email-templates', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const templates = await storage.getAllEmailTemplates();
+      res.json(templates);
+    } catch (error) {
+      console.error('Get all email templates error:', error);
+      res.status(500).json({ message: 'Failed to fetch email templates' });
+    }
+  });
+
+  // Get single email template by slug (admin only)
+  app.get('/api/admin/email-templates/:slug', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { slug } = req.params;
+      const template = await storage.getEmailTemplateBySlug(slug);
+      
+      if (!template) {
+        return res.status(404).json({ message: 'Email template not found' });
+      }
+      
+      res.json(template);
+    } catch (error) {
+      console.error('Get email template error:', error);
+      res.status(500).json({ message: 'Failed to fetch email template' });
+    }
+  });
+
+  // Update an email template (admin only)
+  app.put('/api/admin/email-templates/:slug', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { slug } = req.params;
+      const userId = req.adminUser.id;
+      const { name, subject, body, variables, category, description, isActive } = req.body;
+      
+      // Validate required fields
+      if (!subject || !body) {
+        return res.status(400).json({ message: 'Subject and body are required' });
+      }
+      
+      const updates: Partial<any> = {};
+      if (name !== undefined) updates.name = name;
+      if (subject !== undefined) updates.subject = subject;
+      if (body !== undefined) updates.body = body;
+      if (variables !== undefined) updates.variables = variables;
+      if (category !== undefined) updates.category = category;
+      if (description !== undefined) updates.description = description;
+      if (isActive !== undefined) updates.isActive = isActive;
+      
+      const updatedTemplate = await storage.updateEmailTemplate(slug, updates, userId);
+      
+      if (!updatedTemplate) {
+        return res.status(404).json({ message: 'Email template not found' });
+      }
+      
+      res.json(updatedTemplate);
+    } catch (error) {
+      console.error('Update email template error:', error);
+      res.status(500).json({ message: 'Failed to update email template' });
+    }
+  });
+
+  // Reset email template to default (admin only)
+  app.post('/api/admin/email-templates/:slug/reset', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { slug } = req.params;
+      const userId = req.adminUser.id;
+      
+      const resetTemplate = await storage.resetEmailTemplateToDefault(slug, userId);
+      
+      if (!resetTemplate) {
+        return res.status(404).json({ message: 'Email template not found or no default available' });
+      }
+      
+      res.json(resetTemplate);
+    } catch (error) {
+      console.error('Reset email template error:', error);
+      res.status(500).json({ message: 'Failed to reset email template' });
+    }
+  });
+
+  // Send test email (admin only)
+  app.post('/api/admin/email-templates/:slug/test', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { slug } = req.params;
+      const { toEmail } = req.body;
+      
+      if (!toEmail) {
+        return res.status(400).json({ message: 'Recipient email is required' });
+      }
+      
+      const template = await storage.getEmailTemplateBySlug(slug);
+      
+      if (!template) {
+        return res.status(404).json({ message: 'Email template not found' });
+      }
+      
+      // Import the test email helper
+      const { sendTestEmail } = await import('./emailTemplateDefaults');
+      const success = await sendTestEmail(slug, toEmail);
+      
+      if (!success) {
+        return res.status(500).json({ message: 'Failed to send test email. Check SMTP settings.' });
+      }
+      
+      res.json({ message: 'Test email sent successfully', toEmail });
+    } catch (error) {
+      console.error('Send test email error:', error);
+      res.status(500).json({ message: 'Failed to send test email' });
+    }
+  });
+
+  // ========================================
   // CMS API Routes
   // ========================================
 
