@@ -46,10 +46,11 @@ interface AdminNavProps {
   onVehicleTypesClick?: () => void;
   onSettingsClick?: (section: 'commission' | 'email' | 'sms' | 'database' | 'branding') => void;
   onCMSClick?: (section: 'pages' | 'media' | 'services') => void;
+  onFrontendPagesClick?: (slug: 'home' | 'about' | 'locations' | 'hotels' | 'services' | 'contact' | 'terms' | 'privacy' | 'help' | 'safety') => void;
   onPricingClick?: () => void;
 }
 
-export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onVehicleTypesClick, onSettingsClick, onCMSClick, onPricingClick }: AdminNavProps) {
+export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onVehicleTypesClick, onSettingsClick, onCMSClick, onFrontendPagesClick, onPricingClick }: AdminNavProps) {
   const [location, setLocation] = useLocation();
   const { logoutMutation } = useAuth();
   const { logoUrl, logoAltText } = useSiteLogo();
@@ -516,7 +517,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   Frontend Pages
                 </DropdownMenuLabel>
                 <DropdownMenuItem 
-                  onClick={() => setLocation('/admin#frontend-home')}
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onFrontendPagesClick?.('home');
+                    } else {
+                      setLocation('/admin#frontend-home');
+                    }
+                  }}
                   className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-home"
                 >
@@ -528,7 +535,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setLocation('/admin#frontend-about')}
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onFrontendPagesClick?.('about');
+                    } else {
+                      setLocation('/admin#frontend-about');
+                    }
+                  }}
                   className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-about"
                 >
@@ -540,7 +553,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setLocation('/admin#frontend-locations')}
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onFrontendPagesClick?.('locations');
+                    } else {
+                      setLocation('/admin#frontend-locations');
+                    }
+                  }}
                   className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-locations"
                 >
@@ -552,7 +571,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setLocation('/admin#frontend-hotels')}
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onFrontendPagesClick?.('hotels');
+                    } else {
+                      setLocation('/admin#frontend-hotels');
+                    }
+                  }}
                   className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-hotels"
                 >
@@ -564,7 +589,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setLocation('/admin#frontend-services')}
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onFrontendPagesClick?.('services');
+                    } else {
+                      setLocation('/admin#frontend-services');
+                    }
+                  }}
                   className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-services"
                 >
@@ -576,7 +607,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setLocation('/admin#frontend-contact')}
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onFrontendPagesClick?.('contact');
+                    } else {
+                      setLocation('/admin#frontend-contact');
+                    }
+                  }}
                   className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-contact"
                 >
@@ -589,7 +626,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="my-2" />
                 <DropdownMenuItem 
-                  onClick={() => setLocation('/admin#frontend-terms')}
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onFrontendPagesClick?.('terms');
+                    } else {
+                      setLocation('/admin#frontend-terms');
+                    }
+                  }}
                   className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-terms"
                 >
@@ -601,7 +644,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setLocation('/admin#frontend-privacy')}
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onFrontendPagesClick?.('privacy');
+                    } else {
+                      setLocation('/admin#frontend-privacy');
+                    }
+                  }}
                   className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-privacy"
                 >
@@ -613,7 +662,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setLocation('/admin#frontend-help')}
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onFrontendPagesClick?.('help');
+                    } else {
+                      setLocation('/admin#frontend-help');
+                    }
+                  }}
                   className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-help"
                 >
@@ -625,7 +680,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setLocation('/admin#frontend-safety')}
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onFrontendPagesClick?.('safety');
+                    } else {
+                      setLocation('/admin#frontend-safety');
+                    }
+                  }}
                   className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-safety"
                 >

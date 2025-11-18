@@ -3531,7 +3531,7 @@ export default function AdminDashboard() {
     "commission" | "email" | "sms" | "database" | "branding" | null
   >(null);
   const [visibleCMSSection, setVisibleCMSSection] = useState<
-    "pages" | "media" | null
+    "pages" | "media" | "services" | null
   >(null);
   const [showFrontendPageEditor, setShowFrontendPageEditor] = useState(false);
   const [selectedFrontendPageSlug, setSelectedFrontendPageSlug] = useState<string | null>(null);
@@ -5874,9 +5874,26 @@ export default function AdminDashboard() {
           setShowBookings(false);
           setShowInvoices(false);
           setShowVehicleTypes(false);
+          setShowFrontendPageEditor(false);
           setTimeout(() => {
             document
               .getElementById("cms-section")
+              ?.scrollIntoView({ behavior: "smooth" });
+          }, 100);
+        }}
+        onFrontendPagesClick={(slug) => {
+          setSelectedFrontendPageSlug(slug);
+          setShowFrontendPageEditor(true);
+          setVisibleCMSSection(null);
+          setVisibleCredentialsSection(null);
+          setVisibleSettingsSection(null);
+          setShowUserManager(false);
+          setShowBookings(false);
+          setShowInvoices(false);
+          setShowVehicleTypes(false);
+          setTimeout(() => {
+            document
+              .getElementById("frontend-pages-section")
               ?.scrollIntoView({ behavior: "smooth" });
           }, 100);
         }}
