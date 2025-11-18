@@ -96,26 +96,49 @@ const LoadingFallback = () => (
 
 // Component to dynamically load and update favicon from CMS
 function FaviconLoader() {
-  const { data: faviconData } = useQuery<{ favicon: { id: string; url: string; } | null }>({
+  const { data: faviconData } = useQuery<{ favicon: { id: string; url: string; altText: string; } | null }>({
     queryKey: ['/api/site-favicon'],
     refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
   });
 
   useEffect(() => {
     if (faviconData?.favicon?.url) {
-      // Add cache-busting timestamp to ensure fresh favicon loads
-      const faviconUrl = `${faviconData.favicon.url}?t=${Date.now()}`;
+      const faviconUrl = faviconData.favicon.url;
       
-      // Update or create favicon link element
-      let faviconLink = document.querySelector("link[rel='icon']") as HTMLLinkElement;
-      
-      if (!faviconLink) {
-        faviconLink = document.createElement('link');
-        faviconLink.rel = 'icon';
-        document.head.appendChild(faviconLink);
+      const faviconSizes = [
+        { size: '16x16', rel: 'icon', type: 'image/png' },
+        { size: '32x32', rel: 'icon', type: 'image/png' },
+        { size: '192x192', rel: 'icon', type: 'image/png' },
+        { size: '512x512', rel: 'icon', type: 'image/png' },
+        { size: '180x180', rel: 'apple-touch-icon', type: null },
+      ];
+
+      faviconSizes.forEach(({ size, rel, type }) => {
+        const selector = type 
+          ? `link[rel="${rel}"][type="${type}"][sizes="${size}"]`
+          : `link[rel="${rel}"][sizes="${size}"]`;
+        
+        let link = document.querySelector(selector) as HTMLLinkElement;
+        
+        if (!link) {
+          link = document.createElement('link');
+          link.rel = rel;
+          if (type) link.type = type;
+          link.sizes.value = size;
+          document.head.appendChild(link);
+        }
+        
+        link.href = faviconUrl;
+      });
+
+      let shortcutIcon = document.querySelector('link[rel="shortcut icon"]') as HTMLLinkElement;
+      if (!shortcutIcon) {
+        shortcutIcon = document.createElement('link');
+        shortcutIcon.rel = 'shortcut icon';
+        document.head.appendChild(shortcutIcon);
       }
-      
-      faviconLink.href = faviconUrl;
+      shortcutIcon.href = faviconUrl;
     }
   }, [faviconData]);
 
