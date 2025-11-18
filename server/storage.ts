@@ -65,6 +65,9 @@ import {
   frontendPages,
   type FrontendPage,
   type InsertFrontendPage,
+  emailTemplates,
+  type EmailTemplate,
+  type InsertEmailTemplate,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -250,6 +253,12 @@ export interface IStorage {
   getAllFrontendPages(): Promise<FrontendPage[]>;
   getFrontendPageBySlug(slug: string): Promise<FrontendPage | undefined>;
   updateFrontendPage(slug: string, updates: Partial<InsertFrontendPage>, userId: string): Promise<FrontendPage | undefined>;
+  
+  // Email Templates (WYSIWYG editable)
+  getAllEmailTemplates(): Promise<EmailTemplate[]>;
+  getEmailTemplateBySlug(slug: string): Promise<EmailTemplate | undefined>;
+  updateEmailTemplate(slug: string, updates: Partial<InsertEmailTemplate>, userId: string): Promise<EmailTemplate | undefined>;
+  resetEmailTemplateToDefault(slug: string, userId: string): Promise<EmailTemplate | undefined>;
   
   // Password Reset (User Table-based)
   // Sets hashed reset token and expiration on user record (atomic update)
@@ -2140,6 +2149,48 @@ export class DatabaseStorage implements IStorage {
       .update(frontendPages)
       .set({ ...updates, updatedBy: userId, updatedAt: new Date() })
       .where(eq(frontendPages.slug, slug))
+      .returning();
+    return result;
+  }
+
+  // Email Templates Methods
+  async getAllEmailTemplates(): Promise<EmailTemplate[]> {
+    return await db.select().from(emailTemplates).orderBy(emailTemplates.category, emailTemplates.slug);
+  }
+
+  async getEmailTemplateBySlug(slug: string): Promise<EmailTemplate | undefined> {
+    const [template] = await db.select().from(emailTemplates).where(eq(emailTemplates.slug, slug));
+    return template;
+  }
+
+  async updateEmailTemplate(slug: string, updates: Partial<InsertEmailTemplate>, userId: string): Promise<EmailTemplate | undefined> {
+    const [result] = await db
+      .update(emailTemplates)
+      .set({ ...updates, updatedBy: userId, updatedAt: new Date() })
+      .where(eq(emailTemplates.slug, slug))
+      .returning();
+    return result;
+  }
+
+  async resetEmailTemplateToDefault(slug: string, userId: string): Promise<EmailTemplate | undefined> {
+    // We'll import default templates from a helper function
+    const { getDefaultEmailTemplate } = await import('./emailTemplateDefaults');
+    const defaultTemplate = await getDefaultEmailTemplate(slug);
+    
+    if (!defaultTemplate) {
+      return undefined;
+    }
+
+    const [result] = await db
+      .update(emailTemplates)
+      .set({ 
+        subject: defaultTemplate.subject,
+        body: defaultTemplate.body,
+        variables: defaultTemplate.variables,
+        updatedBy: userId,
+        updatedAt: new Date() 
+      })
+      .where(eq(emailTemplates.slug, slug))
       .returning();
     return result;
   }
