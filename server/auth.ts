@@ -306,8 +306,15 @@ export function setupAuth(app: Express) {
 
       // Determine default isActive based on role
       // Admin accounts start as inactive and must be activated by existing admins
+      // EXCEPT: In development mode, activate admin accounts immediately for testing
       const userRole = role || "passenger";
-      const defaultIsActive = userRole === "admin" ? false : true;
+      let defaultIsActive = userRole === "admin" ? false : true;
+      
+      // In development mode, activate admin accounts immediately
+      if (userRole === "admin" && process.env.NODE_ENV === "development") {
+        defaultIsActive = true;
+        console.log("ℹ️ Development mode: Auto-activating admin account");
+      }
 
       const user = await storage.createUser({
         username,
