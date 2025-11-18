@@ -723,6 +723,59 @@ export const insertFrontendPageSchema = createInsertSchema(frontendPages, {
 export type FrontendPage = typeof frontendPages.$inferSelect;
 export type InsertFrontendPage = z.infer<typeof insertFrontendPageSchema>;
 
+// Email Templates - WYSIWYG editable email templates
+export const emailTemplateSlugEnum = [
+  "contact_form",
+  "booking_confirmation",
+  "booking_status_update",
+  "driver_assignment",
+  "password_reset",
+  "payment_confirmation",
+  "driver_on_way",
+  "driver_arrived",
+  "booking_cancelled",
+  "temporary_password",
+  "username_reminder",
+  "new_booking_report",
+  "cancelled_booking_report",
+  "driver_activity_report",
+  "test_email"
+] as const;
+export type EmailTemplateSlug = typeof emailTemplateSlugEnum[number];
+
+export const emailTemplates = pgTable("email_templates", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  slug: varchar("slug", { enum: emailTemplateSlugEnum }).notNull().unique(),
+  name: varchar("name").notNull(), // Display name
+  subject: varchar("subject").notNull(), // Email subject line
+  body: text("body").notNull(), // HTML body with variable placeholders
+  variables: jsonb("variables").default(sql`'[]'::jsonb`).notNull(), // Available variables for this template
+  category: varchar("category", { enum: ["customer", "driver", "admin", "system"] }).default("customer").notNull(),
+  description: text("description"), // Description of when this email is sent
+  isActive: boolean("is_active").default(true),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("email_templates_slug_idx").on(table.slug),
+]);
+
+export const insertEmailTemplateSchema = createInsertSchema(emailTemplates, {
+  slug: z.enum(emailTemplateSlugEnum),
+  variables: z.array(z.object({
+    name: z.string(),
+    description: z.string(),
+    example: z.string().optional(),
+  })).default([]),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type EmailTemplate = typeof emailTemplates.$inferSelect;
+export type InsertEmailTemplate = z.infer<typeof insertEmailTemplateSchema>;
+
 // Password reset tokens
 export const passwordResetTokens = pgTable("password_reset_tokens", {
   id: uuid("id").defaultRandom().primaryKey(),
