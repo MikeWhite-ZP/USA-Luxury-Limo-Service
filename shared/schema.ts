@@ -586,7 +586,9 @@ export const insertDriverRatingSchema = createInsertSchema(driverRatings).omit({
 });
 
 // CMS Settings - Brand settings (logos, colors, social media, etc.)
-export const cmsSettingCategoryEnum = ["branding", "colors", "social", "contact", "seo"] as const;
+// Legacy categories: branding, colors, social, contact, seo (kept for backward compatibility)
+// New categories: general, app, web (for the redesigned 3-tab interface)
+export const cmsSettingCategoryEnum = ["branding", "colors", "social", "contact", "seo", "general", "app", "web"] as const;
 export type CmsSettingCategory = typeof cmsSettingCategoryEnum[number];
 
 export const cmsSettings = pgTable("cms_settings", {

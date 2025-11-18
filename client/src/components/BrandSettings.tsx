@@ -7,42 +7,53 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Settings, Palette, Share2, Mail, Globe } from 'lucide-react';
+import { Loader2, Building2, Smartphone, Globe as GlobeIcon, Image as ImageIcon } from 'lucide-react';
 
 type CmsSetting = {
   id: string;
   key: string;
   value: string;
-  category: 'branding' | 'colors' | 'social' | 'contact' | 'seo';
+  category: 'branding' | 'colors' | 'social' | 'contact' | 'seo' | 'general' | 'app' | 'web';
   description: string | null;
   updatedAt: string;
+};
+
+type CmsMedia = {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  folder: string;
+  altText: string | null;
 };
 
 export default function BrandSettings() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('branding');
   
-  // Controlled state for colors to ensure picker and hex input stay synchronized
-  const [primaryColor, setPrimaryColor] = useState('#1a1a1a');
-  const [secondaryColor, setSecondaryColor] = useState('#666666');
-  const [accentColor, setAccentColor] = useState('#d4af37');
+  // Controlled state for colors
+  const [appPrimaryColor, setAppPrimaryColor] = useState('#e74c3c');
+  const [webPrimaryColor, setWebPrimaryColor] = useState('#000000');
 
   // Fetch all settings
   const { data: settings, isLoading } = useQuery<CmsSetting[]>({
     queryKey: ['/api/admin/cms/settings'],
   });
 
+  // Fetch media library for image selection
+  const { data: mediaLibrary } = useQuery<CmsMedia[]>({
+    queryKey: ['/api/admin/cms/media'],
+  });
+
   // Initialize color state from fetched settings
   useEffect(() => {
     if (settings) {
-      const primary = settings.find(s => s.key === 'BRAND_PRIMARY_COLOR')?.value;
-      const secondary = settings.find(s => s.key === 'BRAND_SECONDARY_COLOR')?.value;
-      const accent = settings.find(s => s.key === 'BRAND_ACCENT_COLOR')?.value;
+      const appColor = settings.find(s => s.key === 'APP_PRIMARY_COLOR')?.value;
+      const webColor = settings.find(s => s.key === 'WEB_PRIMARY_COLOR')?.value;
       
-      if (primary) setPrimaryColor(primary);
-      if (secondary) setSecondaryColor(secondary);
-      if (accent) setAccentColor(accent);
+      if (appColor) setAppPrimaryColor(appColor);
+      if (webColor) setWebPrimaryColor(webColor);
     }
   }, [settings]);
 
@@ -57,6 +68,7 @@ export default function BrandSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/settings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/branding'] });
       toast({
         title: 'Success',
         description: 'Setting saved successfully',
@@ -82,6 +94,10 @@ export default function BrandSettings() {
     saveSetting.mutate({ key, value, category, description });
   };
 
+  // Filter media library by folder type
+  const logoImages = mediaLibrary?.filter(m => m.folder === 'logos') || [];
+  const faviconImages = mediaLibrary?.filter(m => m.folder === 'favicon') || [];
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -93,328 +109,432 @@ export default function BrandSettings() {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="h-10 items-center justify-center rounded-md bg-muted p-1 grid w-full grid-cols-5 text-[#ff0000]">
+        <TabsList className="h-11 items-center justify-center rounded-md bg-muted p-1 grid w-full grid-cols-3">
           <TabsTrigger value="branding" className="flex items-center gap-2" data-testid="tab-branding">
-            <Settings className="w-4 h-4" />
+            <Building2 className="w-4 h-4" />
             <span>Branding</span>
           </TabsTrigger>
-          <TabsTrigger value="colors" className="flex items-center gap-2" data-testid="tab-colors">
-            <Palette className="w-4 h-4" />
-            <span>Colors</span>
+          <TabsTrigger value="app" className="flex items-center gap-2" data-testid="tab-app">
+            <Smartphone className="w-4 h-4" />
+            <span>App</span>
           </TabsTrigger>
-          <TabsTrigger value="social" className="flex items-center gap-2" data-testid="tab-social">
-            <Share2 className="w-4 h-4" />
-            <span>Social</span>
-          </TabsTrigger>
-          <TabsTrigger value="contact" className="flex items-center gap-2" data-testid="tab-contact">
-            <Mail className="w-4 h-4" />
-            <span>Contact</span>
-          </TabsTrigger>
-          <TabsTrigger value="seo" className="flex items-center gap-2" data-testid="tab-seo">
-            <Globe className="w-4 h-4" />
-            <span>SEO</span>
+          <TabsTrigger value="web" className="flex items-center gap-2" data-testid="tab-web">
+            <GlobeIcon className="w-4 h-4" />
+            <span>Web</span>
           </TabsTrigger>
         </TabsList>
 
-        {/* Branding Tab */}
-        <TabsContent value="branding" className="space-y-4">
+        {/* Branding Tab - General Business Information */}
+        <TabsContent value="branding" className="space-y-4 mt-6">
           <Card data-testid="card-branding">
             <CardHeader>
-              <CardTitle className="text-[#0040ff]">Brand Identity</CardTitle>
-              <CardDescription>Manage your company logos, name, and tagline</CardDescription>
+              <CardTitle>Business Information</CardTitle>
+              <CardDescription>Manage your company's general business details</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Company Name */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Business Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="business-name">Business Name</Label>
+                  <Input
+                    id="business-name"
+                    data-testid="input-business-name"
+                    defaultValue={getSetting('BUSINESS_NAME')}
+                    onBlur={(e) => handleSettingChange('BUSINESS_NAME', e.target.value, 'general', 'Business legal name')}
+                    placeholder="USA Luxury Limo Service"
+                  />
+                </div>
+
+                {/* Email */}
+                <div className="space-y-2">
+                  <Label htmlFor="business-email">Email</Label>
+                  <Input
+                    id="business-email"
+                    data-testid="input-business-email"
+                    type="email"
+                    defaultValue={getSetting('BUSINESS_EMAIL')}
+                    onBlur={(e) => handleSettingChange('BUSINESS_EMAIL', e.target.value, 'general', 'Business contact email')}
+                    placeholder="usaluxurylimo@gmail.com"
+                  />
+                </div>
+
+                {/* Phone Number */}
+                <div className="space-y-2">
+                  <Label htmlFor="business-phone">Number</Label>
+                  <Input
+                    id="business-phone"
+                    data-testid="input-business-phone"
+                    type="tel"
+                    defaultValue={getSetting('BUSINESS_PHONE')}
+                    onBlur={(e) => handleSettingChange('BUSINESS_PHONE', e.target.value, 'general', 'Business phone number')}
+                    placeholder="+1 (832) 479-4519"
+                  />
+                </div>
+
+                {/* Whatsapp Number */}
+                <div className="space-y-2">
+                  <Label htmlFor="whatsapp-number">Whatsapp Number</Label>
+                  <Input
+                    id="whatsapp-number"
+                    data-testid="input-whatsapp-number"
+                    type="tel"
+                    defaultValue={getSetting('WHATSAPP_NUMBER')}
+                    onBlur={(e) => handleSettingChange('WHATSAPP_NUMBER', e.target.value, 'general', 'WhatsApp contact number')}
+                    placeholder="+18324793281"
+                  />
+                </div>
+              </div>
+
+              {/* Address */}
               <div className="space-y-2">
-                <Label htmlFor="company-name">Company Name</Label>
+                <Label htmlFor="business-address">Address</Label>
                 <Input
-                  id="company-name"
-                  data-testid="input-company-name"
-                  defaultValue={getSetting('BRAND_COMPANY_NAME')}
-                  onBlur={(e) => handleSettingChange('BRAND_COMPANY_NAME', e.target.value, 'branding', 'Company name displayed across the website')}
+                  id="business-address"
+                  data-testid="input-business-address"
+                  defaultValue={getSetting('BUSINESS_ADDRESS')}
+                  onBlur={(e) => handleSettingChange('BUSINESS_ADDRESS', e.target.value, 'general', 'Business physical address')}
+                  placeholder="Houston, TX"
+                />
+              </div>
+
+              {/* Social Media Links */}
+              <div className="pt-4 border-t">
+                <h3 className="text-sm font-semibold mb-4">Social Media Links</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Facebook URL */}
+                  <div className="space-y-2">
+                    <Label htmlFor="facebook-url">Facebook URL</Label>
+                    <Input
+                      id="facebook-url"
+                      data-testid="input-facebook-url"
+                      type="url"
+                      defaultValue={getSetting('FACEBOOK_URL')}
+                      onBlur={(e) => handleSettingChange('FACEBOOK_URL', e.target.value, 'general', 'Facebook page URL')}
+                      placeholder="https://www.facebook.com/share/17kSjwxcqL7Hm8de4qf/?mibextid=wwXIfr"
+                    />
+                  </div>
+
+                  {/* LinkedIn URL */}
+                  <div className="space-y-2">
+                    <Label htmlFor="linkedin-url">LinkedIn URL</Label>
+                    <Input
+                      id="linkedin-url"
+                      data-testid="input-linkedin-url"
+                      type="url"
+                      defaultValue={getSetting('LINKEDIN_URL')}
+                      onBlur={(e) => handleSettingChange('LINKEDIN_URL', e.target.value, 'general', 'LinkedIn profile URL')}
+                      placeholder="https://www.linkedin.com/in/usa-luxury-limo-service"
+                    />
+                  </div>
+
+                  {/* Instagram URL */}
+                  <div className="space-y-2">
+                    <Label htmlFor="instagram-url">Instagram URL</Label>
+                    <Input
+                      id="instagram-url"
+                      data-testid="input-instagram-url"
+                      type="url"
+                      defaultValue={getSetting('INSTAGRAM_URL')}
+                      onBlur={(e) => handleSettingChange('INSTAGRAM_URL', e.target.value, 'general', 'Instagram profile URL')}
+                      placeholder="https://www.instagram.com/usaluxury_limo/profilecard/?igsh=OTdIggsulM1Ogzk0"
+                    />
+                  </div>
+
+                  {/* Google URL */}
+                  <div className="space-y-2">
+                    <Label htmlFor="google-url">Google URL</Label>
+                    <Input
+                      id="google-url"
+                      data-testid="input-google-url"
+                      type="url"
+                      defaultValue={getSetting('GOOGLE_URL')}
+                      onBlur={(e) => handleSettingChange('GOOGLE_URL', e.target.value, 'general', 'Google Business Profile URL')}
+                      placeholder="https://maps.app.goo.gl/HW2oboMxKxHrDqpt8"
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* App Tab - Mobile App Settings */}
+        <TabsContent value="app" className="space-y-4 mt-6">
+          <Card data-testid="card-app">
+            <CardHeader>
+              <CardTitle>App Info</CardTitle>
+              <CardDescription>Configure your mobile application settings</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* App Name */}
+              <div className="space-y-2">
+                <Label htmlFor="app-name">App Name</Label>
+                <Input
+                  id="app-name"
+                  data-testid="input-app-name"
+                  defaultValue={getSetting('APP_NAME')}
+                  onBlur={(e) => handleSettingChange('APP_NAME', e.target.value, 'app', 'Mobile app display name')}
                   placeholder="USA Luxury Limo"
                 />
               </div>
 
-              {/* Tagline */}
+              {/* App Logo Selection */}
               <div className="space-y-2">
-                <Label htmlFor="tagline">Tagline</Label>
-                <Input
-                  id="tagline"
-                  data-testid="input-tagline"
-                  defaultValue={getSetting('BRAND_TAGLINE')}
-                  onBlur={(e) => handleSettingChange('BRAND_TAGLINE', e.target.value, 'branding', 'Company tagline or slogan')}
-                  placeholder="Premium Transportation Services"
-                />
+                <Label htmlFor="app-logo">App Logo</Label>
+                <Select
+                  value={getSetting('APP_LOGO_ID') || undefined}
+                  onValueChange={(value) => handleSettingChange('APP_LOGO_ID', value, 'app', 'App logo image ID from media library')}
+                >
+                  <SelectTrigger id="app-logo" data-testid="select-app-logo" className="w-full">
+                    <SelectValue placeholder="Choose file" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {logoImages.length > 0 ? (
+                      logoImages.map((img) => (
+                        <SelectItem key={img.id} value={img.id}>
+                          <div className="flex items-center gap-2">
+                            <ImageIcon className="w-4 h-4" />
+                            {img.fileName}
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                        No logos uploaded yet
+                      </div>
+                    )}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Upload logos via CMS → Media & Images Management
+                </p>
               </div>
 
-              {/* Description */}
+              {/* App Icon Selection */}
               <div className="space-y-2">
-                <Label htmlFor="description">Brand Description</Label>
+                <Label htmlFor="app-icon">App Icon</Label>
+                <Select
+                  value={getSetting('APP_ICON_ID') || undefined}
+                  onValueChange={(value) => handleSettingChange('APP_ICON_ID', value, 'app', 'App icon image ID from media library')}
+                >
+                  <SelectTrigger id="app-icon" data-testid="select-app-icon" className="w-full">
+                    <SelectValue placeholder="Choose file" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {logoImages.length > 0 ? (
+                      logoImages.map((img) => (
+                        <SelectItem key={img.id} value={img.id}>
+                          <div className="flex items-center gap-2">
+                            <ImageIcon className="w-4 h-4" />
+                            {img.fileName}
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                        No icons uploaded yet
+                      </div>
+                    )}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Upload icons via CMS → Media & Images Management
+                </p>
+              </div>
+
+              {/* App Description */}
+              <div className="space-y-2">
+                <Label htmlFor="app-description">App Description</Label>
                 <Textarea
-                  id="description"
-                  data-testid="input-description"
-                  defaultValue={getSetting('BRAND_DESCRIPTION')}
-                  onBlur={(e) => handleSettingChange('BRAND_DESCRIPTION', e.target.value, 'branding', 'Short brand description')}
-                  placeholder="Luxury limousine services for all occasions..."
+                  id="app-description"
+                  data-testid="input-app-description"
+                  defaultValue={getSetting('APP_DESCRIPTION')}
+                  onBlur={(e) => handleSettingChange('APP_DESCRIPTION', e.target.value, 'app', 'Mobile app store description')}
+                  placeholder="Experience Luxury, Comfort, and Class – Every Mile with USA Luxury Limo Service"
                   rows={4}
                 />
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
-        {/* Colors Tab */}
-        <TabsContent value="colors" className="space-y-4">
-          <Card data-testid="card-colors">
-            <CardHeader>
-              <CardTitle>Brand Colors</CardTitle>
-              <CardDescription>Customize your website's color scheme</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Primary Color - Synchronized */}
+              {/* App Store Links */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="primary-color">Primary Color</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="color"
-                      id="primary-color"
-                      data-testid="input-primary-color"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      onBlur={(e) => handleSettingChange('BRAND_PRIMARY_COLOR', e.target.value, 'colors', 'Primary brand color')}
-                      className="w-20 h-10 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      onBlur={(e) => handleSettingChange('BRAND_PRIMARY_COLOR', e.target.value, 'colors', 'Primary brand color')}
-                      placeholder="#1a1a1a"
-                      data-testid="input-primary-color-hex"
-                    />
-                  </div>
-                  {saveSetting.isPending && saveSetting.variables?.key === 'BRAND_PRIMARY_COLOR' && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                      <span>Saving...</span>
-                    </div>
-                  )}
+                  <Label htmlFor="android-app-link">Android Passenger App Link</Label>
+                  <Input
+                    id="android-app-link"
+                    data-testid="input-android-app-link"
+                    type="url"
+                    defaultValue={getSetting('ANDROID_APP_LINK')}
+                    onBlur={(e) => handleSettingChange('ANDROID_APP_LINK', e.target.value, 'app', 'Google Play Store app URL')}
+                    placeholder="https://play.google.com/store/apps/usaluxurylimo"
+                  />
                 </div>
 
-                {/* Secondary Color - Synchronized */}
                 <div className="space-y-2">
-                  <Label htmlFor="secondary-color">Secondary Color</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="color"
-                      id="secondary-color"
-                      data-testid="input-secondary-color"
-                      value={secondaryColor}
-                      onChange={(e) => setSecondaryColor(e.target.value)}
-                      onBlur={(e) => handleSettingChange('BRAND_SECONDARY_COLOR', e.target.value, 'colors', 'Secondary brand color')}
-                      className="w-20 h-10 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={secondaryColor}
-                      onChange={(e) => setSecondaryColor(e.target.value)}
-                      onBlur={(e) => handleSettingChange('BRAND_SECONDARY_COLOR', e.target.value, 'colors', 'Secondary brand color')}
-                      placeholder="#666666"
-                      data-testid="input-secondary-color-hex"
-                    />
-                  </div>
-                  {saveSetting.isPending && saveSetting.variables?.key === 'BRAND_SECONDARY_COLOR' && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                      <span>Saving...</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Accent Color - Synchronized */}
-                <div className="space-y-2">
-                  <Label htmlFor="accent-color">Accent Color</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="color"
-                      id="accent-color"
-                      data-testid="input-accent-color"
-                      value={accentColor}
-                      onChange={(e) => setAccentColor(e.target.value)}
-                      onBlur={(e) => handleSettingChange('BRAND_ACCENT_COLOR', e.target.value, 'colors', 'Accent brand color')}
-                      className="w-20 h-10 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={accentColor}
-                      onChange={(e) => setAccentColor(e.target.value)}
-                      onBlur={(e) => handleSettingChange('BRAND_ACCENT_COLOR', e.target.value, 'colors', 'Accent brand color')}
-                      placeholder="#d4af37"
-                      data-testid="input-accent-color-hex"
-                    />
-                  </div>
-                  {saveSetting.isPending && saveSetting.variables?.key === 'BRAND_ACCENT_COLOR' && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                      <span>Saving...</span>
-                    </div>
-                  )}
+                  <Label htmlFor="ios-app-link">iOS Passenger App Link</Label>
+                  <Input
+                    id="ios-app-link"
+                    data-testid="input-ios-app-link"
+                    type="url"
+                    defaultValue={getSetting('IOS_APP_LINK')}
+                    onBlur={(e) => handleSettingChange('IOS_APP_LINK', e.target.value, 'app', 'Apple App Store app URL')}
+                    placeholder="https://apps.apple.com/us/app/usa-luxury-limo"
+                  />
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
-        {/* Social Tab */}
-        <TabsContent value="social" className="space-y-4">
-          <Card data-testid="card-social">
-            <CardHeader>
-              <CardTitle>Social Media Links</CardTitle>
-              <CardDescription>Add your social media profiles</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              {/* App Slogan */}
               <div className="space-y-2">
-                <Label htmlFor="facebook">Facebook</Label>
+                <Label htmlFor="app-slogan">App Slogan</Label>
                 <Input
-                  id="facebook"
-                  data-testid="input-facebook"
-                  type="url"
-                  defaultValue={getSetting('SOCIAL_FACEBOOK')}
-                  onBlur={(e) => handleSettingChange('SOCIAL_FACEBOOK', e.target.value, 'social', 'Facebook profile URL')}
-                  placeholder="https://facebook.com/yourpage"
+                  id="app-slogan"
+                  data-testid="input-app-slogan"
+                  defaultValue={getSetting('APP_SLOGAN')}
+                  onBlur={(e) => handleSettingChange('APP_SLOGAN', e.target.value, 'app', 'App tagline or slogan')}
+                  placeholder="Ride in Style"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="twitter">Twitter/X</Label>
-                <Input
-                  id="twitter"
-                  data-testid="input-twitter"
-                  type="url"
-                  defaultValue={getSetting('SOCIAL_TWITTER')}
-                  onBlur={(e) => handleSettingChange('SOCIAL_TWITTER', e.target.value, 'social', 'Twitter/X profile URL')}
-                  placeholder="https://twitter.com/yourhandle"
-                />
-              </div>
+              {/* App Theme Settings */}
+              <div className="pt-4 border-t">
+                <h3 className="text-sm font-semibold mb-4">App Theme</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* App Primary Color */}
+                  <div className="space-y-2">
+                    <Label htmlFor="app-primary-color">App Primary Color</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="color"
+                        id="app-primary-color"
+                        data-testid="input-app-primary-color"
+                        value={appPrimaryColor}
+                        onChange={(e) => setAppPrimaryColor(e.target.value)}
+                        onBlur={(e) => handleSettingChange('APP_PRIMARY_COLOR', e.target.value, 'app', 'App primary theme color')}
+                        className="w-20 h-10 cursor-pointer"
+                      />
+                      <Input
+                        type="text"
+                        value={appPrimaryColor}
+                        onChange={(e) => setAppPrimaryColor(e.target.value)}
+                        onBlur={(e) => handleSettingChange('APP_PRIMARY_COLOR', e.target.value, 'app', 'App primary theme color')}
+                        placeholder="#e74c3c"
+                        data-testid="input-app-primary-color-hex"
+                      />
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="instagram">Instagram</Label>
-                <Input
-                  id="instagram"
-                  data-testid="input-instagram"
-                  type="url"
-                  defaultValue={getSetting('SOCIAL_INSTAGRAM')}
-                  onBlur={(e) => handleSettingChange('SOCIAL_INSTAGRAM', e.target.value, 'social', 'Instagram profile URL')}
-                  placeholder="https://instagram.com/yourhandle"
-                />
-              </div>
+                  {/* App Splash Screen Mode */}
+                  <div className="space-y-2">
+                    <Label htmlFor="app-splash-mode">App Splash Screen Mode</Label>
+                    <Select
+                      value={getSetting('APP_SPLASH_MODE') || 'image'}
+                      onValueChange={(value) => handleSettingChange('APP_SPLASH_MODE', value, 'app', 'Splash screen display mode')}
+                    >
+                      <SelectTrigger id="app-splash-mode" data-testid="select-app-splash-mode">
+                        <SelectValue placeholder="Select mode" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="image">Image</SelectItem>
+                        <SelectItem value="logo">Logo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="linkedin">LinkedIn</Label>
-                <Input
-                  id="linkedin"
-                  data-testid="input-linkedin"
-                  type="url"
-                  defaultValue={getSetting('SOCIAL_LINKEDIN')}
-                  onBlur={(e) => handleSettingChange('SOCIAL_LINKEDIN', e.target.value, 'social', 'LinkedIn profile URL')}
-                  placeholder="https://linkedin.com/company/yourcompany"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Contact Tab */}
-        <TabsContent value="contact" className="space-y-4">
-          <Card data-testid="card-contact">
-            <CardHeader>
-              <CardTitle>Contact Information</CardTitle>
-              <CardDescription>Update your company contact details</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="contact-email">Email</Label>
-                <Input
-                  id="contact-email"
-                  data-testid="input-contact-email"
-                  type="email"
-                  defaultValue={getSetting('CONTACT_EMAIL')}
-                  onBlur={(e) => handleSettingChange('CONTACT_EMAIL', e.target.value, 'contact', 'Primary contact email')}
-                  placeholder="info@usaluxurylimo.com"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="contact-phone">Phone</Label>
-                <Input
-                  id="contact-phone"
-                  data-testid="input-contact-phone"
-                  type="tel"
-                  defaultValue={getSetting('CONTACT_PHONE')}
-                  onBlur={(e) => handleSettingChange('CONTACT_PHONE', e.target.value, 'contact', 'Primary contact phone number')}
-                  placeholder="+1 (555) 123-4567"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="contact-address">Address</Label>
-                <Textarea
-                  id="contact-address"
-                  data-testid="input-contact-address"
-                  defaultValue={getSetting('CONTACT_ADDRESS')}
-                  onBlur={(e) => handleSettingChange('CONTACT_ADDRESS', e.target.value, 'contact', 'Physical business address')}
-                  placeholder="123 Main St, New York, NY 10001"
-                  rows={3}
-                />
+                  {/* App Appearance Mode */}
+                  <div className="space-y-2">
+                    <Label htmlFor="app-appearance-mode">App Appearance Mode</Label>
+                    <Select
+                      value={getSetting('APP_APPEARANCE_MODE') || 'light'}
+                      onValueChange={(value) => handleSettingChange('APP_APPEARANCE_MODE', value, 'app', 'App theme appearance')}
+                    >
+                      <SelectTrigger id="app-appearance-mode" data-testid="select-app-appearance-mode">
+                        <SelectValue placeholder="Select mode" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="light">Light</SelectItem>
+                        <SelectItem value="dark">Dark</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* SEO Tab */}
-        <TabsContent value="seo" className="space-y-4">
-          <Card data-testid="card-seo">
+        {/* Web Tab - Website Branding */}
+        <TabsContent value="web" className="space-y-4 mt-6">
+          <Card data-testid="card-web">
             <CardHeader>
-              <CardTitle>SEO Settings</CardTitle>
-              <CardDescription>Optimize your website for search engines</CardDescription>
+              <CardTitle>Web Branding</CardTitle>
+              <CardDescription>Customize your website's visual identity</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+              {/* Web Primary Color */}
               <div className="space-y-2">
-                <Label htmlFor="seo-title">Site Title</Label>
-                <Input
-                  id="seo-title"
-                  data-testid="input-seo-title"
-                  defaultValue={getSetting('SEO_SITE_TITLE')}
-                  onBlur={(e) => handleSettingChange('SEO_SITE_TITLE', e.target.value, 'seo', 'Default page title for SEO')}
-                  placeholder="USA Luxury Limo - Premium Transportation"
-                />
+                <Label htmlFor="web-primary-color">Web Primary Color</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="color"
+                    id="web-primary-color"
+                    data-testid="input-web-primary-color"
+                    value={webPrimaryColor}
+                    onChange={(e) => setWebPrimaryColor(e.target.value)}
+                    onBlur={(e) => handleSettingChange('WEB_PRIMARY_COLOR', e.target.value, 'web', 'Website primary theme color')}
+                    className="w-20 h-10 cursor-pointer"
+                  />
+                  <Input
+                    type="text"
+                    value={webPrimaryColor}
+                    onChange={(e) => setWebPrimaryColor(e.target.value)}
+                    onBlur={(e) => handleSettingChange('WEB_PRIMARY_COLOR', e.target.value, 'web', 'Website primary theme color')}
+                    placeholder="#000000"
+                    data-testid="input-web-primary-color-hex"
+                  />
+                </div>
               </div>
 
+              {/* Favicon Selection */}
               <div className="space-y-2">
-                <Label htmlFor="seo-description">Meta Description</Label>
-                <Textarea
-                  id="seo-description"
-                  data-testid="input-seo-description"
-                  defaultValue={getSetting('SEO_META_DESCRIPTION')}
-                  onBlur={(e) => handleSettingChange('SEO_META_DESCRIPTION', e.target.value, 'seo', 'Default meta description for SEO')}
-                  placeholder="Book premium limousine services for weddings, corporate events, and special occasions..."
-                  rows={3}
-                />
-                <p className="text-xs text-muted-foreground">Recommended: 150-160 characters</p>
+                <Label htmlFor="web-favicon">Favicon</Label>
+                <Select
+                  value={getSetting('WEB_FAVICON_ID') || undefined}
+                  onValueChange={(value) => handleSettingChange('WEB_FAVICON_ID', value, 'web', 'Website favicon image ID from media library')}
+                >
+                  <SelectTrigger id="web-favicon" data-testid="select-web-favicon" className="w-full">
+                    <SelectValue placeholder="Choose file" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {faviconImages.length > 0 ? (
+                      faviconImages.map((img) => (
+                        <SelectItem key={img.id} value={img.id}>
+                          <div className="flex items-center gap-2">
+                            <ImageIcon className="w-4 h-4" />
+                            {img.fileName}
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                        No favicons uploaded yet
+                      </div>
+                    )}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Upload favicons via CMS → Media & Images Management
+                </p>
               </div>
 
+              {/* Web Slogan */}
               <div className="space-y-2">
-                <Label htmlFor="seo-keywords">Keywords</Label>
+                <Label htmlFor="web-slogan">Slogan</Label>
                 <Input
-                  id="seo-keywords"
-                  data-testid="input-seo-keywords"
-                  defaultValue={getSetting('SEO_KEYWORDS')}
-                  onBlur={(e) => handleSettingChange('SEO_KEYWORDS', e.target.value, 'seo', 'SEO keywords (comma-separated)')}
-                  placeholder="limousine service, luxury transportation, chauffeur"
+                  id="web-slogan"
+                  data-testid="input-web-slogan"
+                  defaultValue={getSetting('WEB_SLOGAN')}
+                  onBlur={(e) => handleSettingChange('WEB_SLOGAN', e.target.value, 'web', 'Website tagline or slogan')}
+                  placeholder="USA Luxury Limo Service"
                 />
-                <p className="text-xs text-muted-foreground">Separate keywords with commas</p>
               </div>
             </CardContent>
           </Card>
