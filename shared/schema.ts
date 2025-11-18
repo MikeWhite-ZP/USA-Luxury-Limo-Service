@@ -750,7 +750,7 @@ export const emailTemplates = pgTable("email_templates", {
   subject: varchar("subject").notNull(), // Email subject line
   body: text("body").notNull(), // HTML body with variable placeholders
   variables: jsonb("variables").default(sql`'[]'::jsonb`).notNull(), // Available variables for this template
-  category: varchar("category", { enum: ["customer", "driver", "admin", "system"] }).default("customer").notNull(),
+  category: varchar("category", { enum: ["customer", "driver", "admin", "test"] }).default("customer").notNull(),
   description: text("description"), // Description of when this email is sent
   isActive: boolean("is_active").default(true),
   updatedBy: varchar("updated_by").references(() => users.id),

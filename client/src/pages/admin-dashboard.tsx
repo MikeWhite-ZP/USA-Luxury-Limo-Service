@@ -79,6 +79,7 @@ import MediaLibrary from "@/components/MediaLibrary";
 import { ServiceCMS } from "@/components/ServiceCMS";
 import { BookingDetailsDialog } from "@/components/BookingDetailsDialog";
 import { FrontendPageEditor } from "@/components/FrontendPageEditor";
+import { EmailTemplateEditor } from "@/components/EmailTemplateEditor";
 
 interface DashboardStats {
   totalRevenue: string;
@@ -3343,6 +3344,56 @@ function InvoiceManagement() {
   );
 }
 
+function EmailTemplatesSection({ selectedSlug }: { selectedSlug: string | null }) {
+  if (!selectedSlug) {
+    return (
+      <Card
+        id="email-templates-section"
+        data-testid="email-templates-section"
+        className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white"
+      >
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50/30 border-b border-slate-200">
+          <CardTitle className="flex items-center gap-3 text-slate-900">
+            <div className="bg-purple-600 p-2 rounded-lg">
+              <Mail className="w-5 h-5 text-white" />
+            </div>
+            <span>Email Templates Editor</span>
+          </CardTitle>
+          <CardDescription className="text-slate-600">
+            Select a template from the dropdown menu to edit
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6 text-center text-gray-500">
+          Please select an email template from the Email Templates dropdown menu
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card
+      id="email-templates-section"
+      data-testid="email-templates-section"
+      className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white"
+    >
+      <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50/30 border-b border-slate-200">
+        <CardTitle className="flex items-center gap-3 text-slate-900">
+          <div className="bg-purple-600 p-2 rounded-lg">
+            <Mail className="w-5 h-5 text-white" />
+          </div>
+          <span>Email Templates Editor</span>
+        </CardTitle>
+        <CardDescription className="text-slate-600">
+          Edit email template content and settings
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-6">
+        <EmailTemplateEditor templateSlug={selectedSlug} />
+      </CardContent>
+    </Card>
+  );
+}
+
 function FrontendPagesSection({ selectedSlug }: { selectedSlug: string | null }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -3535,6 +3586,8 @@ export default function AdminDashboard() {
   >(null);
   const [showFrontendPageEditor, setShowFrontendPageEditor] = useState(false);
   const [selectedFrontendPageSlug, setSelectedFrontendPageSlug] = useState<string | null>(null);
+  const [showEmailTemplateEditor, setShowEmailTemplateEditor] = useState(false);
+  const [selectedEmailTemplateSlug, setSelectedEmailTemplateSlug] = useState<string | null>(null);
   const [showBookings, setShowBookings] = useState(false);
   const [showInvoices, setShowInvoices] = useState(false);
   const [showVehicleTypes, setShowVehicleTypes] = useState(false);
@@ -5891,9 +5944,27 @@ export default function AdminDashboard() {
           setShowBookings(false);
           setShowInvoices(false);
           setShowVehicleTypes(false);
+          setShowEmailTemplateEditor(false);
           setTimeout(() => {
             document
               .getElementById("frontend-pages-section")
+              ?.scrollIntoView({ behavior: "smooth" });
+          }, 100);
+        }}
+        onEmailTemplatesClick={(slug) => {
+          setSelectedEmailTemplateSlug(slug);
+          setShowEmailTemplateEditor(true);
+          setVisibleCMSSection(null);
+          setVisibleCredentialsSection(null);
+          setVisibleSettingsSection(null);
+          setShowUserManager(false);
+          setShowBookings(false);
+          setShowInvoices(false);
+          setShowVehicleTypes(false);
+          setShowFrontendPageEditor(false);
+          setTimeout(() => {
+            document
+              .getElementById("email-templates-section")
               ?.scrollIntoView({ behavior: "smooth" });
           }, 100);
         }}
@@ -6941,6 +7012,9 @@ export default function AdminDashboard() {
 
         {/* Frontend Pages Editor */}
         {showFrontendPageEditor && <FrontendPagesSection selectedSlug={selectedFrontendPageSlug} />}
+
+        {/* Email Templates Editor */}
+        {showEmailTemplateEditor && <EmailTemplatesSection selectedSlug={selectedEmailTemplateSlug} />}
 
         {/* Bookings Management */}
         {showBookings && (
