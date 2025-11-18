@@ -15,7 +15,6 @@ services:
       context: .
       dockerfile: Dockerfile
     labels:
-      # Coolify yönetim etiketleri
       - coolify.managed=true
       - coolify.version=4.0.0-beta.444
       - coolify.applicationId=3
@@ -26,7 +25,6 @@ services:
       - coolify.serviceName=hopelimo
       - coolify.environmentName=hopelimo
       - coolify.pullRequestId=0
-      # Caddy reverse proxy ayarları
       - 'caddy_0=https://aps.hopelimo.com'
       - 'caddy_0.reverse_proxy={{upstreams 5001}}'
       - 'caddy_0.encode=zstd gzip'
@@ -43,7 +41,6 @@ services:
       - 'STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}'
       - 'VITE_STRIPE_PUBLIC_KEY=${VITE_STRIPE_PUBLIC_KEY}'
       - 'SESSION_SECRET=${SESSION_SECRET}'
-      # MinIO servisi ile bağlantı
       - 'MINIO_ENDPOINT=http://minio:9000'
       - 'MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}'
       - 'MINIO_SECRET_KEY=${MINIO_SECRET_KEY}'
@@ -63,7 +60,6 @@ services:
       - 'SETTINGS_ENCRYPTION_KEY=${SETTINGS_ENCRYPTION_KEY}'
       - 'ADMIN_PANEL_HOSTS=${ADMIN_PANEL_HOSTS:-adminaccess.hopelimo.com}'
       - 'VITE_ADMIN_PANEL_HOSTS=${VITE_ADMIN_PANEL_HOSTS:-adminaccess.hopelimo.com}'
-      # Coolify ortam değişkenleri
       - COOLIFY_BRANCH=production_Hope_Limo
       - COOLIFY_RESOURCE_UUID=pcs4sg04w4c0wocck88804cs
       - COOLIFY_CONTAINER_NAME=app-pcs4sg04w4c0wocck88804cs-000543621070
@@ -97,7 +93,7 @@ services:
       minio:
         condition: service_healthy
 
-  # PostgreSQL Veritabanı Servisi
+  # PostgreSQL Veritabanı
   database:
     image: postgres:15-alpine
     restart: unless-stopped
@@ -106,7 +102,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-hope_limo}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pcs4sg04w4c0wocck88804cs_postgres-data:/var/lib/postgresql/data
     networks:
       - pcs4sg04w4c0wocck88804cs
     healthcheck:
@@ -114,9 +110,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    container_name: database-hopelimo
+    container_name: database-pcs4sg04w4c0wocck88804cs-123456789
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.0.0-beta.444
+      - coolify.applicationId=3
+      - coolify.type=application
+      - coolify.name=database-pcs4sg04w4c0wocck88804cs-123456789
+      - coolify.resourceName=hopelimo
+      - coolify.projectName=limo-application
+      - coolify.serviceName=hopelimo
+      - coolify.environmentName=hopelimo
+      - coolify.pullRequestId=0
 
-  # MinIO Object Storage Servisi (S3-compatible)
+  # MinIO Object Storage
   minio:
     image: minio/minio:latest
     restart: unless-stopped
@@ -125,7 +132,7 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
-      - minio_data:/data
+      - pcs4sg04w4c0wocck88804cs_minio-data:/data
     networks:
       - pcs4sg04w4c0wocck88804cs
     healthcheck:
@@ -133,10 +140,21 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-    container_name: minio-hopelimo
+    container_name: minio-pcs4sg04w4c0wocck88804cs-020636781964
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.0.0-beta.444
+      - coolify.applicationId=3
+      - coolify.type=application
+      - coolify.name=minio-pcs4sg04w4c0wocck88804cs-020636781964
+      - coolify.resourceName=hopelimo
+      - coolify.projectName=limo-application
+      - coolify.serviceName=hopelimo
+      - coolify.environmentName=hopelimo
+      - coolify.pullRequestId=0
 
 volumes:
-  postgres_data:
-    driver: local
-  minio_data:
-    driver: local
+  pcs4sg04w4c0wocck88804cs_postgres-data:
+    name: pcs4sg04w4c0wocck88804cs_postgres-data
+  pcs4sg04w4c0wocck88804cs_minio-data:
+    name: pcs4sg04w4c0wocck88804cs_minio-data
