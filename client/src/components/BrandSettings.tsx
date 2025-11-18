@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Upload, Settings, Palette, Share2, Mail, Globe, Pencil, Trash2 } from 'lucide-react';
+import { Loader2, Settings, Palette, Share2, Mail, Globe } from 'lucide-react';
 
 type CmsSetting = {
   id: string;
@@ -22,10 +22,6 @@ type CmsSetting = {
 export default function BrandSettings() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('branding');
-  
-  // Refs for file inputs to trigger programmatically
-  const logoInputRef = useRef<HTMLInputElement>(null);
-  const faviconInputRef = useRef<HTMLInputElement>(null);
   
   // Controlled state for colors to ensure picker and hex input stay synchronized
   const [primaryColor, setPrimaryColor] = useState('#1a1a1a');
@@ -84,122 +80,6 @@ export default function BrandSettings() {
   // Helper to handle input changes with auto-save
   const handleSettingChange = (key: string, value: string, category: string, description?: string) => {
     saveSetting.mutate({ key, value, category, description });
-  };
-
-  // Handle logo/favicon upload to MinIO
-  // Uses /api/admin/cms/media/upload which uploads directly to MinIO at /cms/logos/
-  // and stores metadata in cms_media table for tracking and reusability
-  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>, logoType: 'logo' | 'favicon') => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file size (2MB limit)
-    if (file.size > 2 * 1024 * 1024) {
-      toast({
-        title: 'Error',
-        description: 'File size must be less than 2MB',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: 'Error',
-        description: 'Please upload an image file',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    // Capture the input element reference before async operations
-    const inputElement = event.currentTarget;
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', 'logos'); // Uploads to /cms/logos/ in MinIO
-    formData.append('altText', `${logoType === 'logo' ? 'Company Logo' : 'Favicon'}`);
-
-    // Show uploading toast
-    const uploadingToast = toast({
-      title: 'Uploading...',
-      description: `Uploading ${logoType} to MinIO storage`,
-    });
-
-    try {
-      // Upload to MinIO via CMS media endpoint
-      const response = await fetch('/api/admin/cms/media/upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Upload failed');
-      }
-
-      const media = await response.json();
-      const key = logoType === 'logo' ? 'BRAND_LOGO_URL' : 'BRAND_FAVICON_URL';
-      
-      // Save MinIO URL to settings
-      handleSettingChange(key, media.fileUrl, 'branding', `${logoType === 'logo' ? 'Main company logo' : 'Browser favicon'}`);
-      
-      // Reset input to allow re-uploading the same file
-      if (inputElement) inputElement.value = '';
-      
-      toast({
-        title: 'Success',
-        description: `${logoType === 'logo' ? 'Logo' : 'Favicon'} uploaded successfully to MinIO`,
-      });
-    } catch (error) {
-      console.error('Logo upload error:', error);
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to upload logo',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  // Handle logo delete
-  const handleLogoDelete = async (logoType: 'logo' | 'favicon') => {
-    const key = logoType === 'logo' ? 'BRAND_LOGO_URL' : 'BRAND_FAVICON_URL';
-    const currentUrl = getSetting(key);
-    
-    if (!currentUrl) return;
-
-    try {
-      // Find the media record by URL
-      const response = await fetch('/api/admin/cms/media', {
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        const allMedia = await response.json();
-        const mediaRecord = allMedia.find((m: any) => m.fileUrl === currentUrl);
-        
-        if (mediaRecord) {
-          // Delete the media file from storage
-          await apiRequest(`/api/admin/cms/media/${mediaRecord.id}`, 'DELETE');
-        }
-      }
-      
-      // Clear the setting value
-      handleSettingChange(key, '', 'branding', `${logoType === 'logo' ? 'Main company logo' : 'Browser favicon'}`);
-      
-      toast({
-        title: 'Success',
-        description: `${logoType === 'logo' ? 'Logo' : 'Favicon'} removed successfully`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: `Failed to delete ${logoType}`,
-        variant: 'destructive',
-      });
-    }
   };
 
   if (isLoading) {
@@ -279,130 +159,6 @@ export default function BrandSettings() {
                   placeholder="Luxury limousine services for all occasions..."
                   rows={4}
                 />
-              </div>
-
-              {/* Logo Upload */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">Main Logo</Label>
-                {getSetting('BRAND_LOGO_URL') ? (
-                  <div className="space-y-3">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50 flex items-center justify-center">
-                      <img 
-                        src={getSetting('BRAND_LOGO_URL')} 
-                        alt="Current Logo" 
-                        className="max-h-32 max-w-full object-contain"
-                        data-testid="img-current-logo"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => logoInputRef.current?.click()}
-                        className="flex items-center gap-2"
-                        data-testid="button-edit-logo"
-                      >
-                        <Pencil className="w-4 h-4" />
-                        Edit Logo
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleLogoDelete('logo')}
-                        className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        data-testid="button-delete-logo"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 bg-gray-50 flex flex-col items-center justify-center gap-3">
-                      <Upload className="w-12 h-12 text-gray-400" />
-                      <p className="text-sm text-gray-600">No logo uploaded yet</p>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => logoInputRef.current?.click()}
-                        className="flex items-center gap-2"
-                        data-testid="button-upload-logo"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Upload Logo
-                      </Button>
-                    </div>
-                  </div>
-                )}
-                <Input
-                  ref={logoInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleLogoUpload(e, 'logo')}
-                  className="hidden"
-                  data-testid="input-logo-upload"
-                />
-                <p className="text-xs text-muted-foreground">Recommended: PNG or SVG, transparent background, max 2MB. Stored in MinIO object storage.</p>
-              </div>
-
-              {/* Favicon Upload */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">Favicon</Label>
-                {getSetting('BRAND_FAVICON_URL') ? (
-                  <div className="space-y-3">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50 flex items-center justify-center">
-                      <img 
-                        src={getSetting('BRAND_FAVICON_URL')} 
-                        alt="Current Favicon" 
-                        className="max-h-16 max-w-full object-contain"
-                        data-testid="img-current-favicon"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => faviconInputRef.current?.click()}
-                        className="flex items-center gap-2"
-                        data-testid="button-edit-favicon"
-                      >
-                        <Pencil className="w-4 h-4" />
-                        Edit Favicon
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleLogoDelete('favicon')}
-                        className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        data-testid="button-delete-favicon"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 bg-gray-50 flex flex-col items-center justify-center gap-3">
-                      <Upload className="w-12 h-12 text-gray-400" />
-                      <p className="text-sm text-gray-600">No favicon uploaded yet</p>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => faviconInputRef.current?.click()}
-                        className="flex items-center gap-2"
-                        data-testid="button-upload-favicon"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Upload Favicon
-                      </Button>
-                    </div>
-                  </div>
-                )}
-                <Input
-                  ref={faviconInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleLogoUpload(e, 'favicon')}
-                  className="hidden"
-                  data-testid="input-favicon-upload"
-                />
-                <p className="text-xs text-muted-foreground">Recommended: 32x32 or 64x64 PNG/ICO, square format, max 2MB. Stored in MinIO object storage.</p>
               </div>
             </CardContent>
           </Card>
