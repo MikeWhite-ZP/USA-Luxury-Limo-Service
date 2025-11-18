@@ -6,6 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import {
   Key,
@@ -26,6 +27,13 @@ import {
   Database,
   Navigation,
   Palette,
+  Home,
+  MapPin,
+  Building2,
+  Phone,
+  Shield,
+  BookOpen,
+  HelpCircle,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
@@ -55,28 +63,30 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
   };
 
   return (
-    <header className="bg-white dark:bg-slate-900 sticky top-0 z-50 shadow-md border-b border-gray-200 dark:border-slate-700">
+    <header className="bg-white sticky top-0 z-50 shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto">
-        {/* Top Bar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-700/50">
-          <div className="flex items-center gap-3">
+        {/* Top Bar - Clean and Spacious */}
+        <div className="flex items-center justify-between px-8 py-4">
+          <div className="flex items-center gap-4">
             <Link href="/">
               <img 
                 src={logoUrl} 
                 alt={logoAltText} 
-                className="h-12 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
+                className="h-10 w-auto object-contain cursor-pointer hover:opacity-90 transition-opacity"
                 data-testid="admin-logo"
               />
             </Link>
+            <div className="h-8 w-px bg-gray-200 mx-2" />
             <div>
-              <p className="text-[24px] font-bold text-gray-900 dark:text-white pl-[30px] pr-[30px] text-center">Admin Portal</p>
+              <h1 className="text-xl font-semibold text-gray-900">Admin Portal</h1>
+              <p className="text-xs text-gray-500">Management Dashboard</p>
             </div>
           </div>
           
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="sm"
-            className="text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700/50 transition-all duration-200"
+            className="text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-400 transition-all"
             onClick={handleLogout}
             disabled={logoutMutation.isPending}
             data-testid="nav-logout"
@@ -86,23 +96,28 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
           </Button>
         </div>
 
-        {/* Navigation Bar */}
-        <div className="px-6">
-          <nav className="flex items-center gap-1 -mb-px" data-testid="admin-nav">
+        {/* Navigation Bar - Modern Minimal Design */}
+        <div className="px-8 bg-gradient-to-b from-gray-50 to-white border-t border-gray-100">
+          <nav className="flex items-center gap-2 py-2" data-testid="admin-nav">
+            
+            {/* Users Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="text-sm font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
+                  className="text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all px-3 py-2 rounded-lg"
                   data-testid="nav-user-manager"
                 >
                   <Users className="w-4 h-4 mr-2" />
                   Users
-                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
+                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-xl">
+              <DropdownMenuContent align="start" className="w-64 bg-white border-gray-200 shadow-lg rounded-xl p-2">
+                <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+                  User Management
+                </DropdownMenuLabel>
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -111,13 +126,20 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#users-all');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-blue-50 focus:bg-blue-50 text-gray-700 hover:text-blue-700 transition-colors"
                   data-testid="nav-all-users"
                 >
-                  <Users className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">All Users</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">All Users</p>
+                      <p className="text-xs text-gray-500">View all system users</p>
+                    </div>
+                  </div>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="my-2" />
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -126,11 +148,15 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#users-passenger');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-blue-50 focus:bg-blue-50 text-gray-700 hover:text-blue-700 transition-colors"
                   data-testid="nav-passengers"
                 >
-                  <Users className="w-4 h-4 mr-3 text-blue-500" />
-                  <span className="font-medium">Passengers</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <span className="font-medium text-sm">Passengers</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -140,11 +166,15 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#users-driver');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-blue-50 focus:bg-blue-50 text-gray-700 hover:text-blue-700 transition-colors"
                   data-testid="nav-drivers"
                 >
-                  <Car className="w-4 h-4 mr-3 text-green-500" />
-                  <span className="font-medium">Drivers</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                      <Car className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <span className="font-medium text-sm">Drivers</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -154,11 +184,15 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#users-dispatcher');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-blue-50 focus:bg-blue-50 text-gray-700 hover:text-blue-700 transition-colors"
                   data-testid="nav-dispatchers"
                 >
-                  <SettingsIcon className="w-4 h-4 mr-3 text-purple-500" />
-                  <span className="font-medium">Dispatchers</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center">
+                      <SettingsIcon className="w-4 h-4 text-orange-600" />
+                    </div>
+                    <span className="font-medium text-sm">Dispatchers</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -168,29 +202,37 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#users-admin');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-blue-50 focus:bg-blue-50 text-gray-700 hover:text-blue-700 transition-colors"
                   data-testid="nav-admins"
                 >
-                  <Star className="w-4 h-4 mr-3 text-yellow-500" />
-                  <span className="font-medium">Admins</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                      <Star className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <span className="font-medium text-sm">Admins</span>
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
+            {/* Settings Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="text-sm font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
+                  className="text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 transition-all px-3 py-2 rounded-lg"
                   data-testid="nav-settings"
                 >
                   <SettingsIcon className="w-4 h-4 mr-2" />
                   Settings
-                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
+                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-xl">
+              <DropdownMenuContent align="start" className="w-64 bg-white border-gray-200 shadow-lg rounded-xl p-2">
+                <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+                  System Configuration
+                </DropdownMenuLabel>
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -199,13 +241,16 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin-pricing');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-indigo-50 focus:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-colors"
                   data-testid="nav-pricing"
                 >
-                  <DollarSign className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Pricing</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                      <DollarSign className="w-4 h-4 text-green-600" />
+                    </div>
+                    <span className="font-medium text-sm">Pricing</span>
+                  </div>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -214,13 +259,22 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#settings-branding');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-indigo-50 focus:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-colors"
                   data-testid="nav-branding"
                 >
-                  <Palette className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Branding</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center">
+                      <Palette className="w-4 h-4 text-pink-600" />
+                    </div>
+                    <span className="font-medium text-sm">Branding</span>
+                  </div>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                
+                <DropdownMenuSeparator className="my-2" />
+                <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+                  Credentials & API
+                </DropdownMenuLabel>
+                
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -229,11 +283,15 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#credentials-api');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-indigo-50 focus:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-colors"
                   data-testid="nav-api-credentials"
                 >
-                  <Key className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">API Credentials</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <Key className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <span className="font-medium text-sm">API Credentials</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -243,11 +301,15 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#credentials-payment');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-indigo-50 focus:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-colors"
                   data-testid="nav-payment-systems"
                 >
-                  <DollarSign className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Payment Systems</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                      <DollarSign className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <span className="font-medium text-sm">Payment Systems</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -257,20 +319,34 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#credentials-minio');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-indigo-50 focus:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-colors"
                   data-testid="nav-minio-storage"
                 >
-                  <Key className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">MinIO Storage</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center">
+                      <Database className="w-4 h-4 text-cyan-600" />
+                    </div>
+                    <span className="font-medium text-sm">MinIO Storage</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin/minio-browser')}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-indigo-50 focus:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-colors"
                   data-testid="nav-minio-browser"
                 >
-                  <Image className="w-4 h-4 mr-3 text-cyan-500" />
-                  <span className="font-medium">Browse Images</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center">
+                      <Image className="w-4 h-4 text-teal-600" />
+                    </div>
+                    <span className="font-medium text-sm">Browse Images</span>
+                  </div>
                 </DropdownMenuItem>
+                
+                <DropdownMenuSeparator className="my-2" />
+                <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+                  System Settings
+                </DropdownMenuLabel>
+                
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -279,13 +355,16 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#vehicle-types');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-indigo-50 focus:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-colors"
                   data-testid="nav-vehicle-types"
                 >
-                  <Car className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Vehicle Types</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                      <Car className="w-4 h-4 text-violet-600" />
+                    </div>
+                    <span className="font-medium text-sm">Vehicle Types</span>
+                  </div>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -294,11 +373,15 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#settings-commission');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-indigo-50 focus:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-colors"
                   data-testid="nav-system-commission"
                 >
-                  <Percent className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">System Commission</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center">
+                      <Percent className="w-4 h-4 text-orange-600" />
+                    </div>
+                    <span className="font-medium text-sm">System Commission</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -308,11 +391,15 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#settings-email');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-indigo-50 focus:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-colors"
                   data-testid="nav-email-settings"
                 >
-                  <Mail className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Email Settings</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                      <Mail className="w-4 h-4 text-red-600" />
+                    </div>
+                    <span className="font-medium text-sm">Email Settings</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -322,13 +409,16 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#settings-sms');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-indigo-50 focus:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-colors"
                   data-testid="nav-sms-settings"
                 >
-                  <MessageSquare className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">SMS Notifications</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center">
+                      <MessageSquare className="w-4 h-4 text-sky-600" />
+                    </div>
+                    <span className="font-medium text-sm">SMS Notifications</span>
+                  </div>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -337,29 +427,37 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#settings-database');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-indigo-50 focus:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-colors"
                   data-testid="nav-database-settings"
                 >
-                  <Database className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Database URL</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                      <Database className="w-4 h-4 text-slate-600" />
+                    </div>
+                    <span className="font-medium text-sm">Database URL</span>
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
+            {/* CMS Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="text-sm font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
+                  className="text-sm font-medium text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-all px-3 py-2 rounded-lg"
                   data-testid="nav-cms"
                 >
                   <FileText className="w-4 h-4 mr-2" />
                   CMS
-                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
+                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-xl">
+              <DropdownMenuContent align="start" className="w-64 bg-white border-gray-200 shadow-lg rounded-xl p-2">
+                <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+                  Content Management
+                </DropdownMenuLabel>
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -368,11 +466,15 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#cms-media');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-purple-50 focus:bg-purple-50 text-gray-700 hover:text-purple-700 transition-colors"
                   data-testid="nav-cms-media"
                 >
-                  <Image className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Media & Images</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                      <Image className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <span className="font-medium text-sm">Media & Images</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -382,117 +484,166 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#cms-services');
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-purple-50 focus:bg-purple-50 text-gray-700 hover:text-purple-700 transition-colors"
                   data-testid="nav-cms-services"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Services</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-indigo-600" />
+                    </div>
+                    <span className="font-medium text-sm">Services</span>
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
+            {/* Frontend Pages Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="text-sm font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
+                  className="text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all px-3 py-2 rounded-lg"
                   data-testid="nav-frontend-pages"
                 >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Frontend Pages
-                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
+                  <LayoutDashboard className="w-4 h-4 mr-2" />
+                  Pages
+                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-xl">
+              <DropdownMenuContent align="start" className="w-64 bg-white border-gray-200 shadow-lg rounded-xl p-2">
+                <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+                  Frontend Pages
+                </DropdownMenuLabel>
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin#frontend-home')}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-home"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Home</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                      <Home className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <span className="font-medium text-sm">Home</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin#frontend-about')}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-about"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">About</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <span className="font-medium text-sm">About</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin#frontend-locations')}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-locations"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Locations</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center">
+                      <MapPin className="w-4 h-4 text-orange-600" />
+                    </div>
+                    <span className="font-medium text-sm">Locations</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin#frontend-hotels')}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-hotels"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Hotels</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                      <Building2 className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <span className="font-medium text-sm">Hotels</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin#frontend-services')}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-services"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Services</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center">
+                      <Star className="w-4 h-4 text-cyan-600" />
+                    </div>
+                    <span className="font-medium text-sm">Services</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin#frontend-contact')}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-contact"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Contact</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center">
+                      <Phone className="w-4 h-4 text-pink-600" />
+                    </div>
+                    <span className="font-medium text-sm">Contact</span>
+                  </div>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="my-2" />
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin#frontend-terms')}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-terms"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Terms</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                      <BookOpen className="w-4 h-4 text-slate-600" />
+                    </div>
+                    <span className="font-medium text-sm">Terms</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin#frontend-privacy')}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-privacy"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Privacy</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                      <Shield className="w-4 h-4 text-indigo-600" />
+                    </div>
+                    <span className="font-medium text-sm">Privacy</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin#frontend-help')}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-help"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Help</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                      <HelpCircle className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <span className="font-medium text-sm">Help</span>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin#frontend-safety')}
-                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-emerald-50 focus:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition-colors"
                   data-testid="nav-frontend-safety"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                  <span className="font-medium">Safety</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                      <Shield className="w-4 h-4 text-red-600" />
+                    </div>
+                    <span className="font-medium text-sm">Safety</span>
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             
+            {/* Bookings Button */}
             <Button 
               variant="ghost" 
               size="sm"
-              className="text-sm font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
+              className="text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all px-3 py-2 rounded-lg"
               onClick={() => {
                 if (location === '/admin' || location === '/admin-dashboard') {
                   onBookingsClick?.();
@@ -506,10 +657,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               Bookings
             </Button>
             
+            {/* Invoices Button */}
             <Button 
               variant="ghost" 
               size="sm"
-              className="text-sm font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
+              className="text-sm font-medium text-gray-700 hover:text-green-600 hover:bg-green-50 transition-all px-3 py-2 rounded-lg"
               onClick={() => {
                 if (location === '/admin' || location === '/admin-dashboard') {
                   onInvoicesClick?.();
@@ -523,10 +675,11 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               Invoices
             </Button>
             
+            {/* Drivers Map Button */}
             <Button 
               variant="ghost" 
               size="sm"
-              className="text-sm font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-all duration-200 rounded-t-lg rounded-b-none px-4 py-2.5"
+              className="text-sm font-medium text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-all px-3 py-2 rounded-lg"
               onClick={() => setLocation('/admin/drivers-map')}
               data-testid="nav-drivers-map"
             >
