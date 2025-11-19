@@ -65,10 +65,8 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async (data: EmailTemplateFormData) => {
-      return await apiRequest(`/api/admin/email-templates/${templateSlug}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest("PUT", `/api/admin/email-templates/${templateSlug}`, data);
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/email-templates", templateSlug] });
@@ -89,9 +87,8 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
   // Reset mutation
   const resetMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest(`/api/admin/email-templates/${templateSlug}/reset`, {
-        method: "POST",
-      });
+      const response = await apiRequest("POST", `/api/admin/email-templates/${templateSlug}/reset`);
+      return await response.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/email-templates", templateSlug] });
@@ -117,10 +114,8 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
   // Test email mutation
   const testEmailMutation = useMutation({
     mutationFn: async (email: string) => {
-      return await apiRequest(`/api/admin/email-templates/${templateSlug}/test`, {
-        method: "POST",
-        body: JSON.stringify({ toEmail: email }),
-      });
+      const response = await apiRequest("POST", `/api/admin/email-templates/${templateSlug}/test`, { toEmail: email });
+      return await response.json();
     },
     onSuccess: () => {
       setTestEmailOpen(false);
