@@ -317,7 +317,7 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
                 checked={form.watch("logoActive")}
                 onCheckedChange={(checked) => form.setValue("logoActive", checked)}
                 data-testid="switch-logo-active"
-                className="bg-red-500"
+                className="data-[state=checked]:bg-red-500 data-[state=unchecked]:bg-gray-300"
               />
             </div>
 
