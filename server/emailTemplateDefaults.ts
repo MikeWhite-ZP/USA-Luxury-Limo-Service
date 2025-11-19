@@ -1233,19 +1233,47 @@ export async function sendTestEmail(slug: EmailTemplateSlug, toEmail: string): P
       });
     }
 
+    // Prepare email attachments array
+    const attachments: Array<{ filename: string; content: Buffer; cid: string }> = [];
+
     // Add logo or company name based on template settings
     if (dbTemplate.logoActive && dbTemplate.logoMediaId) {
       try {
         // Fetch logo from media library
         const logoMedia = await storage.getCmsMediaById(dbTemplate.logoMediaId);
         if (logoMedia && logoMedia.fileUrl) {
-          // Use the fileUrl directly - it will be accessible in emails
-          // For emails, we can use data URIs or hosted URLs
-          // For now, use the fileUrl as-is (assuming it's publicly accessible or a data URI)
-          exampleData.email_logo_html = `<img src="${logoMedia.fileUrl}" alt="Company Logo" style="max-width: 200px; height: auto;" />`;
-          exampleData.company_name = ''; // Empty when logo is shown
+          // Import the storage adapter to download the image
+          const { getStorageAdapter } = await import('./objectStorageAdapter');
+          const storageAdapter = getStorageAdapter();
+          
+          // Download the logo image data (fileUrl contains the storage path)
+          const downloadResult = await storageAdapter.downloadAsBytes(logoMedia.fileUrl);
+          
+          if (downloadResult.ok && downloadResult.value) {
+            // Convert value to Buffer (handle Uint8Array from Replit storage)
+            const imageBuffer = Buffer.isBuffer(downloadResult.value) 
+              ? downloadResult.value 
+              : Buffer.from(downloadResult.value);
+            
+            // Embed logo as email attachment with CID
+            const logoFilename = logoMedia.fileUrl.split('/').pop() || 'logo.png';
+            attachments.push({
+              filename: logoFilename,
+              content: imageBuffer,
+              cid: 'company-logo' // Content-ID for inline embedding
+            });
+            
+            // Use CID in the img src (cid: protocol)
+            exampleData.email_logo_html = `<img src="cid:company-logo" alt="Company Logo" style="max-width: 200px; height: auto; display: block; margin: 0 auto;" />`;
+            exampleData.company_name = ''; // Empty when logo is shown
+          } else {
+            // Fallback to company name if download fails
+            console.error('Failed to download logo image:', downloadResult.error);
+            exampleData.email_logo_html = '';
+            exampleData.company_name = 'USA Luxury Limo';
+          }
         } else {
-          // Fallback to company name
+          // Fallback to company name if no fileUrl
           exampleData.email_logo_html = '';
           exampleData.company_name = 'USA Luxury Limo';
         }
@@ -1269,6 +1297,7 @@ export async function sendTestEmail(slug: EmailTemplateSlug, toEmail: string): P
       to: toEmail,
       subject: `[TEST] ${subject}`,
       html: body,
+      attachments: attachments.length > 0 ? attachments : undefined,
     });
   } catch (error) {
     console.error('Error sending test email:', error);

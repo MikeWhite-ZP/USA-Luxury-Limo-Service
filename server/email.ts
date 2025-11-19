@@ -7,6 +7,11 @@ interface EmailOptions {
   subject: string;
   html: string;
   text?: string;
+  attachments?: Array<{
+    filename: string;
+    content: Buffer;
+    cid?: string;
+  }>;
 }
 
 interface SMTPSettings {
@@ -109,13 +114,18 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       return false;
     }
 
-    const mailOptions = {
+    const mailOptions: any = {
       from: `"${settings.fromName}" <${settings.fromEmail}>`,
       to: options.to,
       subject: options.subject,
       html: options.html,
       text: options.text || options.html.replace(/<[^>]*>/g, ''), // Strip HTML for text version
     };
+
+    // Add attachments if provided
+    if (options.attachments && options.attachments.length > 0) {
+      mailOptions.attachments = options.attachments;
+    }
 
     await transporter.sendMail(mailOptions);
     console.log(`Email sent successfully to ${options.to}`);
