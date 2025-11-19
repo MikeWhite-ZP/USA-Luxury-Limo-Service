@@ -7713,13 +7713,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const success = await sendTestEmail(slug, toEmail);
       
       if (!success) {
-        return res.status(500).json({ message: 'Failed to send test email. Check SMTP settings.' });
+        return res.status(500).json({ 
+          message: 'Failed to send test email. Please configure SMTP settings in Admin Settings > Email Configuration first.' 
+        });
       }
       
       res.json({ message: 'Test email sent successfully', toEmail });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Send test email error:', error);
-      res.status(500).json({ message: 'Failed to send test email' });
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to send test email.';
+      
+      if (error.code === 'EAUTH') {
+        errorMessage = 'SMTP authentication failed. Please check your SMTP username and password in Admin Settings > Email Configuration.';
+      } else if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
+        errorMessage = 'Cannot connect to SMTP server. Please check your SMTP host and port settings in Admin Settings > Email Configuration.';
+      } else if (error.message) {
+        errorMessage = `Failed to send test email: ${error.message}`;
+      }
+      
+      res.status(500).json({ message: errorMessage });
     }
   });
 
