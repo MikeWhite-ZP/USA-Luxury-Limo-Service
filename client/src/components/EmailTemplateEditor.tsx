@@ -62,6 +62,14 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
     enabled: !!templateSlug,
   });
 
+  // Debug logging
+  if (template) {
+    console.log('[EMAIL TEMPLATE DEBUG] Template data:', template);
+    console.log('[EMAIL TEMPLATE DEBUG] logoActive:', template.logoActive);
+    console.log('[EMAIL TEMPLATE DEBUG] logoMediaId:', template.logoMediaId);
+    console.log('[EMAIL TEMPLATE DEBUG] All keys:', Object.keys(template));
+  }
+
   // Fetch logos from media library
   const { data: mediaLogos } = useQuery<any[]>({
     queryKey: ["/api/admin/cms/media", "logos"],
