@@ -7644,7 +7644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { slug } = req.params;
       const userId = req.adminUser.id;
-      const { name, subject, body, variables, category, description, isActive } = req.body;
+      const { name, subject, body, variables, category, description, isActive, logoActive, logoMediaId } = req.body;
       
       // Validate required fields
       if (!subject || !body) {
@@ -7659,6 +7659,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (category !== undefined) updates.category = category;
       if (description !== undefined) updates.description = description;
       if (isActive !== undefined) updates.isActive = isActive;
+      if (logoActive !== undefined) updates.logoActive = logoActive;
+      if (logoMediaId !== undefined) updates.logoMediaId = logoMediaId;
       
       const updatedTemplate = await storage.updateEmailTemplate(slug, updates, userId);
       

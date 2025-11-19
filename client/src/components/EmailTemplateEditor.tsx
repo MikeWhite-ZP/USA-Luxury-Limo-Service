@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Loader2, Save, RotateCcw, Mail, Info } from "lucide-react";
+import { Loader2, Save, RotateCcw, Mail, Info, Image as ImageIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Dialog,
@@ -27,6 +27,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface EmailTemplateEditorProps {
   templateSlug: string;
@@ -36,6 +44,8 @@ const emailTemplateSchema = z.object({
   name: z.string().min(1, "Name is required"),
   subject: z.string().min(1, "Subject is required"),
   body: z.string().min(1, "Body is required"),
+  logoActive: z.boolean().default(false),
+  logoMediaId: z.string().nullable().optional(),
 });
 
 type EmailTemplateFormData = z.infer<typeof emailTemplateSchema>;
@@ -52,6 +62,18 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
     enabled: !!templateSlug,
   });
 
+  // Fetch logos from media library
+  const { data: mediaLogos } = useQuery<any[]>({
+    queryKey: ["/api/admin/cms/media", "logos"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/cms/media?folder=logos", {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to fetch logos");
+      return response.json();
+    },
+  });
+
   // Form setup
   const form = useForm<EmailTemplateFormData>({
     resolver: zodResolver(emailTemplateSchema),
@@ -59,7 +81,23 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
       name: template.name || "",
       subject: template.subject || "",
       body: template.body || "",
+      logoActive: template.logoActive || false,
+      logoMediaId: template.logoMediaId || null,
     } : undefined,
+  });
+
+  // Fetch selected logo details if logoMediaId exists
+  const selectedLogoId = form.watch("logoMediaId");
+  const { data: selectedLogo } = useQuery<any>({
+    queryKey: ["/api/admin/cms/media", selectedLogoId],
+    enabled: !!selectedLogoId,
+    queryFn: async () => {
+      const response = await fetch(`/api/admin/cms/media/${selectedLogoId}`, {
+        credentials: "include",
+      });
+      if (!response.ok) return null;
+      return response.json();
+    },
   });
 
   // Update mutation
@@ -96,6 +134,8 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
         name: data.name,
         subject: data.subject,
         body: data.body,
+        logoActive: data.logoActive || false,
+        logoMediaId: data.logoMediaId || null,
       });
       toast({
         title: "Success",
@@ -244,6 +284,101 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
                 Tip: Use HTML tags for formatting. Variables should be wrapped in double curly braces like {"{{variable_name}}"}.
               </p>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Email Logo Settings</CardTitle>
+            <CardDescription>
+              Control whether to display your logo image or company name text in emails
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="logo-active" data-testid="label-logo-active">
+                  Display Logo in Email
+                </Label>
+                <p className="text-sm text-gray-500">
+                  When active, emails will show the selected logo image. When inactive, company name text is displayed instead.
+                </p>
+              </div>
+              <Switch
+                id="logo-active"
+                checked={form.watch("logoActive")}
+                onCheckedChange={(checked) => form.setValue("logoActive", checked)}
+                data-testid="switch-logo-active"
+              />
+            </div>
+
+            {form.watch("logoActive") && (
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="logo-select" data-testid="label-logo-select">
+                    Select Logo
+                  </Label>
+                  <Select
+                    value={form.watch("logoMediaId") || ""}
+                    onValueChange={(value) => form.setValue("logoMediaId", value || null)}
+                  >
+                    <SelectTrigger id="logo-select" data-testid="select-logo">
+                      <SelectValue placeholder="Choose a logo from media library" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mediaLogos && mediaLogos.length > 0 ? (
+                        mediaLogos.map((logo: any) => (
+                          <SelectItem key={logo.id} value={logo.id}>
+                            {logo.fileName}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-logos" disabled>
+                          No logos available. Upload a logo in CMS &gt; Media &amp; Images
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Logos are managed in CMS &gt; Media &amp; Images (logos folder)
+                  </p>
+                </div>
+
+                {selectedLogo && (
+                  <div className="p-4 border rounded-lg bg-gray-50">
+                    <Label className="text-sm font-medium mb-2 block">Logo Preview</Label>
+                    <div className="flex items-start gap-3">
+                      <div className="w-32 h-32 border rounded bg-white flex items-center justify-center p-2">
+                        <img
+                          src={selectedLogo.fileUrl}
+                          alt={selectedLogo.altText || "Logo preview"}
+                          className="max-w-full max-h-full object-contain"
+                          data-testid="img-logo-preview"
+                        />
+                      </div>
+                      <div className="flex-1 text-sm">
+                        <p className="font-medium">{selectedLogo.fileName}</p>
+                        <p className="text-gray-500 text-xs mt-1">
+                          {selectedLogo.width} × {selectedLogo.height}px
+                        </p>
+                        <p className="text-gray-500 text-xs">
+                          {selectedLogo.altText || "No alt text"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {!selectedLogoId && (
+                  <Alert>
+                    <ImageIcon className="h-4 w-4" />
+                    <AlertDescription>
+                      No logo selected. Please choose a logo from the dropdown above, or upload one in CMS &gt; Media &amp; Images.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 

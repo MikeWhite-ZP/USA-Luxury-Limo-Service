@@ -44,6 +44,8 @@ const defaultTemplates: Record<EmailTemplateSlug, DefaultEmailTemplate> = {
       { name: 'service_type', description: 'Requested service type', example: 'Airport Transfer' },
       { name: 'message', description: 'Customer message', example: 'I need a quote...' },
       { name: 'submitted_at', description: 'Submission timestamp', example: 'January 1, 2025 at 10:00 AM' },
+      { name: 'email_logo_html', description: 'Company logo image HTML (if enabled) or empty string', example: '<img src="..." alt="Company Logo" style="max-width: 200px;" />' },
+      { name: 'company_name', description: 'Company name text (if logo not enabled)', example: 'USA Luxury Limo' },
     ],
     body: `<!DOCTYPE html>
 <html>
@@ -63,7 +65,7 @@ const defaultTemplates: Record<EmailTemplateSlug, DefaultEmailTemplate> = {
     <div class="container">
       <div class="header">
         <h1 style="margin: 0;">🚗 New Contact Form Submission</h1>
-        <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+        {{email_logo_html}}<p style="margin: 10px 0 0 0;">{{company_name}}</p>
       </div>
       <div class="content">
         <div class="field">
@@ -991,14 +993,23 @@ export async function getAllDefaultEmailTemplates(): Promise<DefaultEmailTemplat
 // Helper function to send a test email
 export async function sendTestEmail(slug: EmailTemplateSlug, toEmail: string): Promise<boolean> {
   try {
-    const template = defaultTemplates[slug];
-    if (!template) {
+    // Import storage and get template from database
+    const { storage } = await import('./storage');
+    const dbTemplate = await storage.getEmailTemplateBySlug(slug);
+    
+    if (!dbTemplate) {
+      return false;
+    }
+
+    // Get default template for example data
+    const defaultTemplate = defaultTemplates[slug];
+    if (!defaultTemplate) {
       return false;
     }
 
     // Replace variables with example data
     const exampleData: Record<string, string> = {};
-    template.variables.forEach(variable => {
+    defaultTemplate.variables.forEach(variable => {
       exampleData[variable.name] = variable.example;
     });
     
@@ -1010,8 +1021,37 @@ export async function sendTestEmail(slug: EmailTemplateSlug, toEmail: string): P
       });
     }
 
-    const body = replaceVariables(template.body, exampleData);
-    const subject = replaceVariables(template.subject, exampleData);
+    // Add logo or company name based on template settings
+    if (dbTemplate.logoActive && dbTemplate.logoMediaId) {
+      try {
+        // Fetch logo from media library
+        const logoMedia = await storage.getCmsMediaById(dbTemplate.logoMediaId);
+        if (logoMedia && logoMedia.fileUrl) {
+          // Use the fileUrl directly - it will be accessible in emails
+          // For emails, we can use data URIs or hosted URLs
+          // For now, use the fileUrl as-is (assuming it's publicly accessible or a data URI)
+          exampleData.email_logo_html = `<img src="${logoMedia.fileUrl}" alt="Company Logo" style="max-width: 200px; height: auto;" />`;
+          exampleData.company_name = ''; // Empty when logo is shown
+        } else {
+          // Fallback to company name
+          exampleData.email_logo_html = '';
+          exampleData.company_name = 'USA Luxury Limo';
+        }
+      } catch (error) {
+        console.error('Error fetching logo for email:', error);
+        // Fallback to company name on error
+        exampleData.email_logo_html = '';
+        exampleData.company_name = 'USA Luxury Limo';
+      }
+    } else {
+      // Logo not active, use company name
+      exampleData.email_logo_html = '';
+      exampleData.company_name = 'USA Luxury Limo';
+    }
+
+    // Use the database template body and subject
+    const body = replaceVariables(dbTemplate.body, exampleData);
+    const subject = replaceVariables(dbTemplate.subject, exampleData);
 
     return await sendEmail({
       to: toEmail,
