@@ -753,6 +753,8 @@ export const emailTemplates = pgTable("email_templates", {
   category: varchar("category", { enum: ["customer", "driver", "admin", "test"] }).default("customer").notNull(),
   description: text("description"), // Description of when this email is sent
   isActive: boolean("is_active").default(true),
+  logoActive: boolean("logo_active").default(false), // Whether to show logo in email
+  logoMediaId: uuid("logo_media_id").references(() => cmsMedia.id), // Reference to logo image in media library
   updatedBy: varchar("updated_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
