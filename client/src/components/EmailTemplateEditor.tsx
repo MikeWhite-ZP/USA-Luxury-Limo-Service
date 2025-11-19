@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Loader2, Save, RotateCcw, Mail, Info } from "lucide-react";
+import { Loader2, Save, RotateCcw, Mail, Info, Code, Eye, Bold, Italic, Strikethrough, List, ListOrdered, Link2, Image as ImageIcon, Heading1, Heading2, Heading3 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Dialog,
@@ -27,6 +27,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 interface EmailTemplateEditorProps {
   templateSlug: string;
@@ -45,11 +57,48 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
   const queryClient = useQueryClient();
   const [testEmailOpen, setTestEmailOpen] = useState(false);
   const [testEmail, setTestEmail] = useState("");
+  const [editorMode, setEditorMode] = useState<"visual" | "html">("visual");
+  const [htmlSource, setHtmlSource] = useState("");
 
   // Fetch template data
   const { data: template, isLoading } = useQuery<any>({
     queryKey: ["/api/admin/email-templates", templateSlug],
     enabled: !!templateSlug,
+  });
+
+  // Tiptap editor for WYSIWYG editing
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3],
+        },
+      }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-blue-600 underline hover:text-blue-800',
+        },
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'max-w-full h-auto',
+        },
+      }),
+      TextStyle,
+      Color,
+    ],
+    content: '',
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm max-w-none focus:outline-none min-h-[400px] p-4 border rounded-md',
+      },
+    },
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      setHtmlSource(html);
+      form.setValue('body', html);
+    },
   });
 
   // Form setup
@@ -62,13 +111,32 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
     } : undefined,
   });
 
+  // Sync template body with editor
+  useEffect(() => {
+    if (template?.body && editor) {
+      editor.commands.setContent(template.body);
+      setHtmlSource(template.body);
+    }
+  }, [template, editor]);
+
+  // Handle mode switch between visual and HTML
+  const handleModeSwitch = (mode: "visual" | "html") => {
+    if (mode === "html" && editor) {
+      // Switch to HTML mode - get current HTML from editor
+      const html = editor.getHTML();
+      setHtmlSource(html);
+    } else if (mode === "visual" && editor) {
+      // Switch to visual mode - set HTML source to editor
+      editor.commands.setContent(htmlSource);
+    }
+    setEditorMode(mode);
+  };
+
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async (data: EmailTemplateFormData) => {
-      return await apiRequest(`/api/admin/email-templates/${templateSlug}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
+      const res = await apiRequest("PUT", `/api/admin/email-templates/${templateSlug}`, data);
+      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/email-templates", templateSlug] });
@@ -89,12 +157,15 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
   // Reset mutation
   const resetMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest(`/api/admin/email-templates/${templateSlug}/reset`, {
-        method: "POST",
-      });
+      const res = await apiRequest("POST", `/api/admin/email-templates/${templateSlug}/reset`);
+      return res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/email-templates", templateSlug] });
+      if (editor) {
+        editor.commands.setContent(data.body);
+      }
+      setHtmlSource(data.body);
       form.reset({
         name: data.name,
         subject: data.subject,
@@ -117,10 +188,8 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
   // Test email mutation
   const testEmailMutation = useMutation({
     mutationFn: async (email: string) => {
-      return await apiRequest(`/api/admin/email-templates/${templateSlug}/test`, {
-        method: "POST",
-        body: JSON.stringify({ toEmail: email }),
-      });
+      const res = await apiRequest("POST", `/api/admin/email-templates/${templateSlug}/test`, { toEmail: email });
+      return res.json();
     },
     onSuccess: () => {
       setTestEmailOpen(false);
@@ -152,6 +221,41 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
   const handleSendTest = () => {
     if (testEmail) {
       testEmailMutation.mutate(testEmail);
+    }
+  };
+
+  // Toolbar helper functions
+  const setLink = () => {
+    if (!editor) return;
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('URL', previousUrl);
+
+    if (url === null) {
+      return;
+    }
+
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  };
+
+  const addImage = () => {
+    if (!editor) return;
+    const url = window.prompt('Image URL');
+
+    if (url) {
+      editor.chain().focus().setImage({ src: url }).run();
+    }
+  };
+
+  const setColor = () => {
+    if (!editor) return;
+    const color = window.prompt('Enter text color (e.g., #ff0000 or red)');
+    if (color) {
+      editor.chain().focus().setColor(color).run();
     }
   };
 
@@ -234,20 +338,190 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
             </div>
 
             <div>
-              <Label htmlFor="body" data-testid="label-template-body">Email Body (HTML)</Label>
-              <Textarea
-                id="body"
-                {...form.register("body")}
-                placeholder="Email HTML content (you can use variables like {{user_name}})"
-                className="font-mono text-sm min-h-[400px]"
-                data-testid="textarea-template-body"
-              />
+              <Label htmlFor="body" data-testid="label-template-body">Email Body</Label>
+              
+              <Tabs value={editorMode} onValueChange={(value) => handleModeSwitch(value as "visual" | "html")} className="mt-2">
+                <TabsList className="grid w-full max-w-md grid-cols-2">
+                  <TabsTrigger value="visual" data-testid="tab-visual">
+                    <Eye className="w-4 h-4 mr-2" />
+                    Visual Editor
+                  </TabsTrigger>
+                  <TabsTrigger value="html" data-testid="tab-html">
+                    <Code className="w-4 h-4 mr-2" />
+                    HTML Source
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="visual" className="mt-4">
+                  {editor && (
+                    <div className="border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm">
+                      {/* Toolbar */}
+                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-slate-200 p-3 flex flex-wrap gap-1">
+                        {/* Text Formatting */}
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={editor.isActive('bold') ? 'default' : 'outline'}
+                          onClick={() => editor.chain().focus().toggleBold().run()}
+                          className="h-9 w-9 p-0"
+                          data-testid="toolbar-bold"
+                        >
+                          <Bold className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={editor.isActive('italic') ? 'default' : 'outline'}
+                          onClick={() => editor.chain().focus().toggleItalic().run()}
+                          className="h-9 w-9 p-0"
+                          data-testid="toolbar-italic"
+                        >
+                          <Italic className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={editor.isActive('strike') ? 'default' : 'outline'}
+                          onClick={() => editor.chain().focus().toggleStrike().run()}
+                          className="h-9 w-9 p-0"
+                          data-testid="toolbar-strikethrough"
+                        >
+                          <Strikethrough className="h-4 w-4" />
+                        </Button>
+
+                        <div className="w-px h-9 bg-slate-300 mx-1" />
+
+                        {/* Headings */}
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={editor.isActive('heading', { level: 1 }) ? 'default' : 'outline'}
+                          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                          className="h-9 w-9 p-0"
+                          data-testid="toolbar-h1"
+                        >
+                          <Heading1 className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={editor.isActive('heading', { level: 2 }) ? 'default' : 'outline'}
+                          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                          className="h-9 w-9 p-0"
+                          data-testid="toolbar-h2"
+                        >
+                          <Heading2 className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={editor.isActive('heading', { level: 3 }) ? 'default' : 'outline'}
+                          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                          className="h-9 w-9 p-0"
+                          data-testid="toolbar-h3"
+                        >
+                          <Heading3 className="h-4 w-4" />
+                        </Button>
+
+                        <div className="w-px h-9 bg-slate-300 mx-1" />
+
+                        {/* Lists */}
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={editor.isActive('bulletList') ? 'default' : 'outline'}
+                          onClick={() => editor.chain().focus().toggleBulletList().run()}
+                          className="h-9 w-9 p-0"
+                          data-testid="toolbar-bullet-list"
+                        >
+                          <List className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={editor.isActive('orderedList') ? 'default' : 'outline'}
+                          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                          className="h-9 w-9 p-0"
+                          data-testid="toolbar-ordered-list"
+                        >
+                          <ListOrdered className="h-4 w-4" />
+                        </Button>
+
+                        <div className="w-px h-9 bg-slate-300 mx-1" />
+
+                        {/* Link & Image */}
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={editor.isActive('link') ? 'default' : 'outline'}
+                          onClick={setLink}
+                          className="h-9 w-9 p-0"
+                          data-testid="toolbar-link"
+                        >
+                          <Link2 className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={addImage}
+                          className="h-9 w-9 p-0"
+                          data-testid="toolbar-image"
+                        >
+                          <ImageIcon className="h-4 w-4" />
+                        </Button>
+
+                        <div className="w-px h-9 bg-slate-300 mx-1" />
+
+                        {/* Color */}
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={setColor}
+                          className="h-9 px-3"
+                          data-testid="toolbar-text-color"
+                        >
+                          <span className="text-xs font-medium">Text Color</span>
+                        </Button>
+                      </div>
+
+                      {/* Editor Content */}
+                      <EditorContent editor={editor} className="bg-white" data-testid="wysiwyg-editor" />
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500 mt-2">
+                    Use the toolbar to format your email. Variables like {"{{variable_name}}"} will be automatically replaced when sending.
+                  </p>
+                </TabsContent>
+                
+                <TabsContent value="html" className="mt-4">
+                  <Textarea
+                    id="body"
+                    value={htmlSource}
+                    onChange={(e) => {
+                      setHtmlSource(e.target.value);
+                      form.setValue('body', e.target.value);
+                    }}
+                    placeholder="Email HTML content (you can use variables like {{user_name}})"
+                    className="font-mono text-sm min-h-[400px]"
+                    data-testid="textarea-html-source"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Edit the HTML source directly. Variables should be wrapped in double curly braces like {"{{variable_name}}"}.
+                  </p>
+                </TabsContent>
+              </Tabs>
+              
               {form.formState.errors.body && (
                 <p className="text-sm text-red-500 mt-1">{form.formState.errors.body.message}</p>
               )}
-              <p className="text-xs text-gray-500 mt-1">
-                Tip: Use HTML tags for formatting. Variables should be wrapped in double curly braces like {"{{variable_name}}"}.
-              </p>
             </div>
           </CardContent>
         </Card>
