@@ -117,73 +117,285 @@ const defaultTemplates: Record<EmailTemplateSlug, DefaultEmailTemplate> = {
       { name: 'vehicle_type', description: 'Vehicle type', example: 'Luxury Sedan' },
       { name: 'total_amount', description: 'Total amount', example: '150.00' },
       { name: 'status', description: 'Booking status', example: 'confirmed' },
+      { name: 'email_logo_html', description: 'Company logo image HTML (if enabled) or empty string', example: '<img src="..." alt="Company Logo" style="max-width: 200px;" />' },
+      { name: 'company_name', description: 'Company name text (if logo not enabled)', example: 'USA Luxury Limo' },
     ],
     body: `<!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-      .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-      .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
-      .booking-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
-      .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-      .detail-label { font-weight: bold; color: #555; }
-      .detail-value { color: #333; }
-      .total-amount { font-size: 24px; font-weight: bold; color: #1a1a2e; text-align: center; margin: 20px 0; padding: 20px; background: #fff3cd; border-radius: 8px; }
-      .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6; 
+        background: #f5f5f5;
+        padding: 40px 20px;
+      }
+      .email-wrapper { 
+        max-width: 640px; 
+        margin: 0 auto; 
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+      .header { 
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        padding: 40px 40px 36px;
+        text-align: center;
+        position: relative;
+      }
+      .header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+      }
+      .subtitle { 
+        color: #94a3b8;
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin-bottom: 20px;
+      }
+      .logo-container {
+        min-height: 40px;
+      }
+      .logo-container img {
+        max-height: 80px;
+        max-width: 300px;
+        height: auto;
+        width: auto;
+      }
+      .logo-container p {
+        font-size: 32px;
+        font-weight: 700;
+        color: white;
+        letter-spacing: -0.5px;
+        margin: 0;
+      }
+      .content { 
+        padding: 40px;
+      }
+      .greeting {
+        color: #1f2937;
+        font-size: 16px;
+        margin-bottom: 12px;
+        font-weight: 500;
+      }
+      .intro {
+        background: #f0fdf4;
+        border-left: 4px solid #10b981;
+        padding: 16px 20px;
+        margin-bottom: 32px;
+        border-radius: 4px;
+      }
+      .intro p {
+        color: #065f46;
+        font-size: 14px;
+        line-height: 1.5;
+        margin: 0;
+      }
+      .booking-details {
+        background: #fafafa;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 24px;
+        border: 1px solid #e5e7eb;
+      }
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 14px 0;
+        border-bottom: 1px solid #e5e7eb;
+        gap: 20px;
+      }
+      .detail-row:last-child {
+        border-bottom: none;
+      }
+      .detail-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        flex-shrink: 0;
+      }
+      .detail-value {
+        color: #1f2937;
+        font-size: 15px;
+        font-weight: 500;
+        text-align: right;
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .total-amount {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 24px;
+        border-radius: 8px;
+        text-align: center;
+        margin: 24px 0;
+        box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+      }
+      .total-label {
+        font-size: 14px;
+        font-weight: 500;
+        opacity: 0.9;
+        margin-bottom: 4px;
+      }
+      .total-value {
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: -1px;
+      }
+      .info-section {
+        background: #f8fafc;
+        padding: 20px 24px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        margin: 24px 0;
+      }
+      .info-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .info-list li {
+        padding: 8px 0 8px 24px;
+        color: #475569;
+        font-size: 14px;
+        position: relative;
+        line-height: 1.5;
+      }
+      .info-list li:before {
+        content: '→';
+        position: absolute;
+        left: 0;
+        color: #10b981;
+        font-weight: bold;
+      }
+      .footer { 
+        background: #f8fafc;
+        padding: 32px 40px;
+        text-align: center;
+        border-top: 1px solid #e5e7eb;
+      }
+      .footer p {
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+      
+      @media only screen and (max-width: 640px) {
+        body { padding: 20px 10px; }
+        .content { padding: 24px 20px; }
+        .header { padding: 32px 20px 28px; }
+        .footer { padding: 24px 20px; }
+        .logo-container img { max-height: 60px; max-width: 260px; }
+        .logo-container p { font-size: 26px; }
+        .subtitle { font-size: 16px; }
+        .detail-row {
+          flex-direction: column;
+          gap: 4px;
+        }
+        .detail-value {
+          text-align: left;
+        }
+        .total-value {
+          font-size: 28px;
+        }
+        .booking-details {
+          padding: 16px;
+        }
+      }
     </style>
   </head>
   <body>
-    <div class="container">
+    <div class="email-wrapper">
       <div class="header">
-        <h1 style="margin: 0;">✅ Booking Confirmation</h1>
-        <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+        <div class="subtitle">Booking Confirmation</div>
+        <div class="logo-container">
+          {{email_logo_html}}<p>{{company_name}}</p>
+        </div>
       </div>
+      
       <div class="content">
-        <p>Dear {{passenger_name}},</p>
-        <p>Thank you for choosing USA Luxury Limo! Your booking has been confirmed.</p>
+        <p class="greeting">Dear {{passenger_name}},</p>
         
+        <div class="intro">
+          <p><strong>Thank you for choosing us!</strong> Your booking has been confirmed and we look forward to serving you.</p>
+        </div>
+
         <div class="booking-details">
           <div class="detail-row">
-            <span class="detail-label">Booking ID:</span>
+            <span class="detail-label">Booking ID</span>
             <span class="detail-value">{{booking_id}}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Pickup Location:</span>
+            <span class="detail-label">Pickup Location</span>
             <span class="detail-value">{{pickup_address}}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Destination:</span>
+            <span class="detail-label">Destination</span>
             <span class="detail-value">{{destination_address}}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Scheduled Date & Time:</span>
+            <span class="detail-label">Scheduled Date & Time</span>
             <span class="detail-value">{{scheduled_datetime}}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Vehicle Type:</span>
+            <span class="detail-label">Vehicle Type</span>
             <span class="detail-value">{{vehicle_type}}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Status:</span>
-            <span class="detail-value">{{status}}</span>
+            <span class="detail-label">Status</span>
+            <span class="detail-value">
+              <span class="status-badge">{{status}}</span>
+            </span>
           </div>
         </div>
 
         <div class="total-amount">
-          Total Amount: \${{total_amount}}
+          <div class="total-label">Total Amount</div>
+          <div class="total-value">\${{total_amount}}</div>
         </div>
 
-        <p><strong>Important Information:</strong></p>
-        <ul>
-          <li>Please be ready 10 minutes before your scheduled pickup time</li>
-          <li>Our driver will contact you before arrival</li>
-          <li>For any changes or cancellations, please contact us immediately</li>
-        </ul>
+        <div class="info-section">
+          <div class="info-title">Important Information</div>
+          <ul class="info-list">
+            <li>Please be ready 10 minutes before your scheduled pickup time</li>
+            <li>Our driver will contact you before arrival</li>
+            <li>For any changes or cancellations, please contact us immediately</li>
+            <li>Keep your booking ID handy for reference</li>
+          </ul>
+        </div>
       </div>
+
       <div class="footer">
-        <p><strong>USA Luxury Limo</strong></p>
+        <p><strong>{{company_name}}</strong> | Premium Transportation Services</p>
         <p>Your journey, our passion.</p>
       </div>
     </div>
