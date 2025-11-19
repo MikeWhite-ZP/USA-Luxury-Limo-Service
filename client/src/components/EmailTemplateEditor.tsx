@@ -125,9 +125,12 @@ export function EmailTemplateEditor({ templateSlug }: EmailTemplateEditorProps) 
       // Switch to HTML mode - get current HTML from editor
       const html = editor.getHTML();
       setHtmlSource(html);
+      form.setValue('body', html);
     } else if (mode === "visual" && editor) {
-      // Switch to visual mode - set HTML source to editor
-      editor.commands.setContent(htmlSource);
+      // Switch to visual mode - get HTML from form (most up-to-date) and set to editor
+      const currentHtml = form.getValues('body') || htmlSource;
+      editor.commands.setContent(currentHtml);
+      setHtmlSource(currentHtml);
     }
     setEditorMode(mode);
   };
