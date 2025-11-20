@@ -10,65 +10,6 @@ networks:
     driver: bridge
 
 services:
-  # The main application service (your original definition)
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    labels:
-      # Labels for Caddy/Coolify reverse proxy and SSL
-      - 'caddy=best-chauffeurs.com, www.best-chauffeurs.com, adminaccess.best-chauffeurs.com'
-      - 'caddy.reverse_proxy={{upstreams 5000}}'
-    environment:
-      - NODE_ENV=production
-      - PORT=5000
-      - 'DATABASE_URL=${DATABASE_URL}'
-      - 'STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}'
-      - 'VITE_STRIPE_PUBLIC_KEY=${VITE_STRIPE_PUBLIC_KEY}'
-      - 'SESSION_SECRET=${SESSION_SECRET}'
-      - 'MINIO_ENDPOINT=http://minio:9000' # Matches the internal service name 'minio'
-      - 'MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}'
-      - 'MINIO_SECRET_KEY=${MINIO_SECRET_KEY}'
-      - 'MINIO_BUCKET=${MINIO_BUCKET:-best-chauffeurs}'
-      - 'SMTP_HOST=${SMTP_HOST}'
-      - 'SMTP_PORT=${SMTP_PORT}'
-      - 'SMTP_SECURE=${SMTP_SECURE}'
-      - 'SMTP_USER=${SMTP_USER}'
-      - 'SMTP_PASS=${SMTP_PASS}'
-      - 'EMAIL_FROM_NAME=${EMAIL_FROM_NAME}'
-      - 'EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}'
-      - 'TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}'
-      - 'TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}'
-      - 'TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}'
-      - 'TOMTOM_API_KEY=${TOMTOM_API_KEY}'
-      - 'RAPIDAPI_KEY=${RAPIDAPI_KEY}'
-      - 'SETTINGS_ENCRYPTION_KEY=${SETTINGS_ENCRYPTION_KEY}'
-      - 'ADMIN_PANEL_HOSTS=${ADMIN_PANEL_HOSTS:-adminaccess.best-chauffeurs.com}'
-      - 'VITE_ADMIN_PANEL_HOSTS=${VITE_ADMIN_PANEL_HOSTS:-adminaccess.best-chauffeurs.com}'
-      - 'REPLIT_DEV_DOMAIN=${REPLIT_DEV_DOMAIN:-best-chauffeurs.com}'
-    restart: unless-stopped
-    healthcheck:
-      test:
-        - CMD
-        - wget
-        - '--quiet'
-        - '--tries=1'
-        - '--spider'
-        - 'http://localhost:5000/health'
-      interval: 30s
-      timeout: 3s
-      start_period: 40s
-      retries: 3
-    networks:
-      # Connects to the external Coolify network for public exposure
-      - coolify
-      # Connects to the internal network to talk to 'minio' and 'database'
-      - internal_backend
-      
-  # ----------------------------------------------------
-  # Dependent Services
-  # ----------------------------------------------------
-
   # PostgreSQL Database Service
   database:
     image: postgres:15-alpine
@@ -94,8 +35,8 @@ services:
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-${MINIO_ACCESS_KEY:-minioadmin}}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-${MINIO_SECRET_KEY}}
     volumes:
       # Persistent storage for files
       - minio_data:/data
@@ -106,6 +47,65 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+
+  # The main application service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    labels:
+      # Labels for Caddy/Coolify reverse proxy and SSL
+      - 'caddy=best-chauffeurs.com, www.best-chauffeurs.com, adminaccess.best-chauffeurs.com'
+      - 'caddy.reverse_proxy={{upstreams 5000}}'
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - 'DATABASE_URL=${DATABASE_URL}'
+      - 'STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}'
+      - 'VITE_STRIPE_PUBLIC_KEY=${VITE_STRIPE_PUBLIC_KEY}'
+      - 'SESSION_SECRET=${SESSION_SECRET}'
+      - 'MINIO_ENDPOINT=http://minio:9000'
+      - 'MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}'
+      - 'MINIO_SECRET_KEY=${MINIO_SECRET_KEY}'
+      - 'MINIO_BUCKET=${MINIO_BUCKET:-best-chauffeurs}'
+      - 'SMTP_HOST=${SMTP_HOST}'
+      - 'SMTP_PORT=${SMTP_PORT}'
+      - 'SMTP_SECURE=${SMTP_SECURE}'
+      - 'SMTP_USER=${SMTP_USER}'
+      - 'SMTP_PASS=${SMTP_PASS}'
+      - 'EMAIL_FROM_NAME=${EMAIL_FROM_NAME}'
+      - 'EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}'
+      - 'TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}'
+      - 'TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}'
+      - 'TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}'
+      - 'TOMTOM_API_KEY=${TOMTOM_API_KEY}'
+      - 'RAPIDAPI_KEY=${RAPIDAPI_KEY}'
+      - 'SETTINGS_ENCRYPTION_KEY=${SETTINGS_ENCRYPTION_KEY}'
+      - 'ADMIN_PANEL_HOSTS=${ADMIN_PANEL_HOSTS:-adminaccess.best-chauffeurs.com}'
+      - 'VITE_ADMIN_PANEL_HOSTS=${VITE_ADMIN_PANEL_HOSTS:-adminaccess.best-chauffeurs.com}'
+      - 'REPLIT_DEV_DOMAIN=${REPLIT_DEV_DOMAIN:-best-chauffeurs.com}'
+    restart: unless-stopped
+    # KRITIK: Database ve MinIO'nun hazır olmasını bekle
+    depends_on:
+      database:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - '--quiet'
+        - '--tries=1'
+        - '--spider'
+        - 'http://localhost:5000/health'
+      interval: 30s
+      timeout: 3s
+      start_period: 40s
+      retries: 3
+    networks:
+      - coolify
+      - internal_backend
 
 volumes:
   postgres_data:
