@@ -2,9 +2,14 @@ import { db } from './db';
 import { emailTemplates } from '@shared/schema';
 import { getAllDefaultEmailTemplates } from './emailTemplateDefaults';
 
-async function seedEmailTemplates() {
+/**
+ * Ensures all default email templates are seeded into the database.
+ * This function is idempotent and safe to call on every server boot.
+ * It will insert missing templates and update existing ones.
+ */
+export async function ensureEmailTemplatesSeeded(): Promise<void> {
   try {
-    console.log('Seeding email templates...');
+    console.log('🌱 [SEED] Checking email templates...');
     
     const defaultTemplates = await getAllDefaultEmailTemplates();
     
@@ -31,15 +36,25 @@ async function seedEmailTemplates() {
         },
       });
       
-      console.log(`✓ Seeded template: ${template.slug}`);
+      console.log(`  ✓ Template ready: ${template.slug}`);
     }
     
-    console.log('✅ All email templates seeded successfully!');
-    process.exit(0);
+    console.log('✅ [SEED] All email templates ready!');
   } catch (error) {
-    console.error('Error seeding email templates:', error);
-    process.exit(1);
+    console.error('❌ [SEED] Error seeding email templates:', error);
+    throw error; // Re-throw to prevent server start with missing templates
   }
 }
 
-seedEmailTemplates();
+// Allow running this file directly for manual seeding
+if (import.meta.url === `file://${process.argv[1]}`) {
+  ensureEmailTemplatesSeeded()
+    .then(() => {
+      console.log('Manual seed completed successfully!');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Manual seed failed:', error);
+      process.exit(1);
+    });
+}

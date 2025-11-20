@@ -70,6 +70,11 @@ app.use((req, res, next) => {
 
 (async () => {
   try {
+    // Seed email templates on startup (idempotent - safe to run every time)
+    log("Ensuring email templates are seeded...");
+    const { ensureEmailTemplatesSeeded } = await import("./seedEmailTemplates.js");
+    await ensureEmailTemplatesSeeded();
+    
     // Register API routes first
     const server = await registerRoutes(app);
 
