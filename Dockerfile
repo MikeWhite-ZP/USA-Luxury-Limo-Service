@@ -76,9 +76,6 @@ COPY --from=builder /app/dist ./dist
 # Copy shared folder (contains non-bundled assets or logic needed at runtime)
 COPY --from=builder /app/shared ./shared
 
-# Copy database folder if it exists (for schema definitions)
-COPY --from=builder /app/db ./db 2>/dev/null || true
-
 # Copy drizzle configuration for migrations
 COPY drizzle.config.ts ./
 
