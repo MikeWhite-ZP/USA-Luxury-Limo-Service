@@ -1237,23 +1237,35 @@ export async function sendTestEmail(slug: EmailTemplateSlug, toEmail: string): P
     const attachments: Array<{ filename: string; content: Buffer; cid: string }> = [];
 
     // Add logo or company name based on template settings
+    console.log('🔍 [EMAIL LOGO DEBUG] Starting logo check...');
+    console.log('🔍 [EMAIL LOGO DEBUG] logoActive:', dbTemplate.logoActive);
+    console.log('🔍 [EMAIL LOGO DEBUG] logoMediaId:', dbTemplate.logoMediaId);
+    
     if (dbTemplate.logoActive && dbTemplate.logoMediaId) {
       try {
         // Fetch logo from media library
         const logoMedia = await storage.getCmsMediaById(dbTemplate.logoMediaId);
+        console.log('🔍 [EMAIL LOGO DEBUG] Logo media found:', logoMedia ? 'YES' : 'NO');
+        
         if (logoMedia && logoMedia.fileUrl) {
+          console.log('🔍 [EMAIL LOGO DEBUG] Logo fileUrl:', logoMedia.fileUrl);
+          console.log('🔍 [EMAIL LOGO DEBUG] Logo fileName:', logoMedia.fileName);
+          
           // Import the storage adapter to download the image
           const { getStorageAdapter } = await import('./objectStorageAdapter');
           const storageAdapter = getStorageAdapter();
           
           // Download the logo image data (fileUrl contains the storage path)
           const downloadResult = await storageAdapter.downloadAsBytes(logoMedia.fileUrl);
+          console.log('🔍 [EMAIL LOGO DEBUG] Download result OK:', downloadResult.ok);
           
           if (downloadResult.ok && downloadResult.value) {
             // Convert value to Buffer (handle Uint8Array from Replit storage)
             const imageBuffer = Buffer.isBuffer(downloadResult.value) 
               ? downloadResult.value 
               : Buffer.from(downloadResult.value);
+            
+            console.log('🔍 [EMAIL LOGO DEBUG] Image buffer size:', imageBuffer.length, 'bytes');
             
             // Embed logo as email attachment with CID
             const logoFilename = logoMedia.fileUrl.split('/').pop() || 'logo.png';
@@ -1263,42 +1275,68 @@ export async function sendTestEmail(slug: EmailTemplateSlug, toEmail: string): P
               cid: 'company-logo' // Content-ID for inline embedding
             });
             
+            console.log('🔍 [EMAIL LOGO DEBUG] Attachment added with CID: company-logo');
+            console.log('🔍 [EMAIL LOGO DEBUG] Total attachments:', attachments.length);
+            
             // Use CID in the img src (cid: protocol)
             exampleData.email_logo_html = `<img src="cid:company-logo" alt="Company Logo" style="max-width: 200px; height: auto; display: block; margin: 0 auto;" />`;
             exampleData.company_name = ''; // Empty when logo is shown
+            
+            console.log('🔍 [EMAIL LOGO DEBUG] email_logo_html:', exampleData.email_logo_html);
+            console.log('🔍 [EMAIL LOGO DEBUG] company_name:', exampleData.company_name || '(empty)');
           } else {
             // Fallback to company name if download fails
-            console.error('Failed to download logo image:', downloadResult.error);
+            console.error('❌ [EMAIL LOGO DEBUG] Failed to download logo image:', downloadResult.error);
             exampleData.email_logo_html = '';
             exampleData.company_name = 'USA Luxury Limo';
           }
         } else {
           // Fallback to company name if no fileUrl
+          console.log('⚠️ [EMAIL LOGO DEBUG] No fileUrl found for logo media');
           exampleData.email_logo_html = '';
           exampleData.company_name = 'USA Luxury Limo';
         }
       } catch (error) {
-        console.error('Error fetching logo for email:', error);
+        console.error('❌ [EMAIL LOGO DEBUG] Error fetching logo for email:', error);
         // Fallback to company name on error
         exampleData.email_logo_html = '';
         exampleData.company_name = 'USA Luxury Limo';
       }
     } else {
       // Logo not active, use company name
+      console.log('⚠️ [EMAIL LOGO DEBUG] Logo not active or no media ID selected');
       exampleData.email_logo_html = '';
       exampleData.company_name = 'USA Luxury Limo';
     }
+    
+    console.log('🔍 [EMAIL LOGO DEBUG] Final attachment count:', attachments.length);
 
     // Use the database template body and subject
     const body = replaceVariables(dbTemplate.body, exampleData);
     const subject = replaceVariables(dbTemplate.subject, exampleData);
 
-    return await sendEmail({
+    console.log('📧 [EMAIL SEND DEBUG] Preparing to send email...');
+    console.log('📧 [EMAIL SEND DEBUG] To:', toEmail);
+    console.log('📧 [EMAIL SEND DEBUG] Subject:', `[TEST] ${subject}`);
+    console.log('📧 [EMAIL SEND DEBUG] Attachments count:', attachments.length);
+    console.log('📧 [EMAIL SEND DEBUG] HTML preview (first 300 chars):', body.substring(0, 300));
+    
+    if (attachments.length > 0) {
+      console.log('📧 [EMAIL SEND DEBUG] Attachment details:');
+      attachments.forEach((att, idx) => {
+        console.log(`  [${idx}] filename: ${att.filename}, cid: ${att.cid}, size: ${att.content.length} bytes`);
+      });
+    }
+
+    const emailResult = await sendEmail({
       to: toEmail,
       subject: `[TEST] ${subject}`,
       html: body,
       attachments: attachments.length > 0 ? attachments : undefined,
     });
+    
+    console.log('📧 [EMAIL SEND DEBUG] Email sent successfully:', emailResult);
+    return emailResult;
   } catch (error) {
     console.error('Error sending test email:', error);
     return false;
