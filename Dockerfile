@@ -4,7 +4,7 @@
 FROM node:20-alpine AS builder
 
 # Add labels for image metadata
-LABEL maintainer="USA Luxury Limo"
+LABEL maintainer="Best Chauffeurs"
 LABEL description="Luxury transportation booking platform"
 LABEL version="1.0.0"
 
@@ -41,12 +41,12 @@ RUN ls -la dist/index.js && \
 FROM node:20-alpine AS production
 
 # Add labels
-LABEL maintainer="USA Luxury Limo"
+LABEL maintainer="Best Chauffeurs"
 LABEL description="Luxury transportation booking platform - Production"
 LABEL version="1.0.0"
 
-# Install wget for healthcheck and security updates
-RUN apk add --no-cache wget \
+# Install wget, netcat for healthcheck and database connectivity
+RUN apk add --no-cache wget netcat-openbsd postgresql-client \
     && apk upgrade --no-cache
 
 # Create non-root user for security
@@ -67,16 +67,22 @@ COPY package*.json ./
 # Using '--omit=dev' ensures a small image size
 RUN npm ci --omit=dev --ignore-scripts
 
-# Install drizzle-kit separately for migrations (it's in devDependencies)
-RUN npm install drizzle-kit --no-save
+# Install drizzle-kit as root user before switching to nodejs user
+RUN npm install -g drizzle-kit@0.31.7
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
-# Assuming 'shared' contains non-bundled assets or logic needed at runtime
+
+# Copy shared folder (contains non-bundled assets or logic needed at runtime)
 COPY --from=builder /app/shared ./shared
+
+# Copy database folder if it exists (for schema definitions)
+COPY --from=builder /app/db ./db 2>/dev/null || true
 
 # Copy drizzle configuration for migrations
 COPY drizzle.config.ts ./
+
+# Copy migrations folder
 COPY --from=builder /app/migrations ./migrations
 
 # Copy startup script
@@ -93,7 +99,7 @@ USER nodejs
 EXPOSE 5000
 
 # Health check configuration (matches the syntax used in docker-compose)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
 CMD wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1
 
 # Use entrypoint script to run migrations before starting app
