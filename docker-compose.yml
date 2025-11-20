@@ -1,17 +1,14 @@
 version: '3.9'
 
 services:
-  # MinIO - S3-compatible object storage for file uploads
+  # MinIO - S3-compatible object storage
   minio:
     image: minio/minio:latest
-    container_name: usa-limo-minio
-    ports:
-      - "9000:9000"  # API port
-      - "9001:9001"  # Console port
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY:-minioadmin}
-      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+    restart: unless-stopped
     command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-${MINIO_ACCESS_KEY:-minioadmin}}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-${MINIO_SECRET_KEY}}
     volumes:
       - minio-data:/data
     healthcheck:
@@ -19,7 +16,24 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+    networks:
+      - app-network
+
+  # PostgreSQL Database
+  database:
+    image: postgres:15-alpine
     restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - app-network
 
@@ -28,9 +42,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: usa-luxury-limo
-    ports:
-      - "5000:5000"
+    restart: unless-stopped
     environment:
       - NODE_ENV=production
       - PORT=5000
@@ -41,12 +53,12 @@ services:
       - VITE_STRIPE_PUBLIC_KEY=${VITE_STRIPE_PUBLIC_KEY}
       # Session
       - SESSION_SECRET=${SESSION_SECRET}
-      # MinIO Object Storage
+      # MinIO Object Storage (internal network)
       - MINIO_ENDPOINT=http://minio:9000
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-      - MINIO_BUCKET=${MINIO_BUCKET:-usa-luxury-limo}
-      # Email (optional)
+      - MINIO_BUCKET=${MINIO_BUCKET:-best-chauffeurs}
+      # Email
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_PORT=${SMTP_PORT}
       - SMTP_SECURE=${SMTP_SECURE}
@@ -54,24 +66,71 @@ services:
       - SMTP_PASS=${SMTP_PASS}
       - EMAIL_FROM_NAME=${EMAIL_FROM_NAME}
       - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
-      # SMS (optional)
+      # SMS
       - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
       - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
       - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
-      # APIs (optional)
+      # APIs
       - TOMTOM_API_KEY=${TOMTOM_API_KEY}
       - RAPIDAPI_KEY=${RAPIDAPI_KEY}
+      - SETTINGS_ENCRYPTION_KEY=${SETTINGS_ENCRYPTION_KEY}
+      # Admin Panel
+      - ADMIN_PANEL_HOSTS=${ADMIN_PANEL_HOSTS:-adminaccess.best-chauffeurs.com}
+      - VITE_ADMIN_PANEL_HOSTS=${VITE_ADMIN_PANEL_HOSTS:-adminaccess.best-chauffeurs.com}
+      - REPLIT_DEV_DOMAIN=${REPLIT_DEV_DOMAIN:-best-chauffeurs.com}
     depends_on:
+      database:
+        condition: service_healthy
       minio:
         condition: service_healthy
-    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - '--quiet'
+        - '--tries=1'
+        - '--spider'
+        - 'http://localhost:5000/health'
+      interval: 30s
+      timeout: 3s
+      start_period: 40s
+      retries: 3
     networks:
       - app-network
 
 volumes:
+  postgres-data:
+    driver: local
   minio-data:
     driver: local
 
 networks:
   app-network:
     driver: bridge
+```
+
+## Önemli Değişiklikler:
+
+1. **`database` servisi eklendi** ✅
+2. **`postgres-data` volume eklendi** ✅
+3. **`app` servisi `depends_on` ile database'i bekliyor** ✅
+4. **MINIO_ENDPOINT internal network kullanıyor** (`http://minio:9000`)
+
+## Coolify'da DATABASE_URL Kontrolü
+
+Coolify environment variables'da `DATABASE_URL` şöyle olmalı:
+```
+DATABASE_URL=postgresql://postgres:Erka75810916%3F@database:5432/postgres
+```
+
+**DİKKAT:** `@database:5432` - `database` kelimesi docker-compose'daki servis adıdır!
+
+## Deploy Adımları:
+
+1. Yukarıdaki `docker-compose.yml` dosyasını repository'nize commit edin
+2. Coolify'da "Redeploy" butonuna tıklayın
+3. Log'larda şunları göreceksiniz:
+```
+   ✅ Database is ready!
+   ✅ Migrations completed successfully!
+   ✅ Application starting...
