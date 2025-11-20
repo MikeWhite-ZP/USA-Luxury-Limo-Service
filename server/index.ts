@@ -70,6 +70,36 @@ app.use((req, res, next) => {
 
 (async () => {
   try {
+    // Run database migrations on startup (production only)
+    if (process.env.NODE_ENV === "production") {
+      log("Running database migrations...");
+      const { spawn } = await import("child_process");
+      const { promisify } = await import("util");
+      const execAsync = promisify(spawn);
+      
+      try {
+        const migration = spawn("npx", ["drizzle-kit", "push", "--force"], {
+          stdio: "inherit",
+          env: process.env,
+        });
+        
+        await new Promise((resolve, reject) => {
+          migration.on('close', (code) => {
+            if (code === 0) {
+              log("✅ Database migrations completed successfully");
+              resolve(code);
+            } else {
+              reject(new Error(`Migration failed with code ${code}`));
+            }
+          });
+          migration.on('error', reject);
+        });
+      } catch (migrationError) {
+        log("⚠️ Migration failed, continuing with startup:", migrationError);
+        // Continue anyway - tables might already exist
+      }
+    }
+    
     // Seed email templates on startup (idempotent - safe to run every time)
     log("Ensuring email templates are seeded...");
     const { ensureEmailTemplatesSeeded } = await import("./seedEmailTemplates.js");
