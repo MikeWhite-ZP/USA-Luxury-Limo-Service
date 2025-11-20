@@ -67,10 +67,21 @@ COPY package*.json ./
 # Using '--omit=dev' ensures a small image size
 RUN npm ci --omit=dev --ignore-scripts
 
+# Install drizzle-kit separately for migrations (it's in devDependencies)
+RUN npm install drizzle-kit --no-save
+
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 # Assuming 'shared' contains non-bundled assets or logic needed at runtime
 COPY --from=builder /app/shared ./shared
+
+# Copy drizzle configuration for migrations
+COPY drizzle.config.ts ./
+COPY --from=builder /app/migrations ./migrations
+
+# Copy startup script
+COPY entrypoint.sh ./
+RUN chmod +x entrypoint.sh
 
 # Change ownership to non-root user
 RUN chown -R nodejs:nodejs /app
@@ -85,5 +96,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
 CMD wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1
 
-# Start the Node.js server directly
-CMD ["node", "dist/index.js"]
+# Use entrypoint script to run migrations before starting app
+ENTRYPOINT ["./entrypoint.sh"]
