@@ -1,10 +1,10 @@
-import type { Config } from 'drizzle-kit';
+import { defineConfig } from 'drizzle-kit';
 
-const config: Config = {
-  schema: './db/schema.ts',
+export default defineConfig({
+  schema: './shared/schema.ts', // veya './db/schema.ts' - sizin schema path'inize göre
   out: './migrations',
-  dialect: 'postgresql',
+  dialect: 'postgresql',  // ← BU ÇOK ÖNEMLİ!
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },
-};
+});
