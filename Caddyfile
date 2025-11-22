@@ -1,7 +1,7 @@
-{
-    admin off
+best-chauffeurs.com, www.best-chauffeurs.com {
+    reverse_proxy 127.0.0.1:5000
 }
 
-:5000 {
-    reverse_proxy localhost:3000
+adminaccess.best-chauffeurs.com {
+    reverse_proxy 127.0.0.1:5001
 }
