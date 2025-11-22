@@ -38,6 +38,12 @@ app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// Favicon endpoint - CRITICAL: Must be BEFORE async startup to prevent 503 errors
+// This prevents browser errors when app is starting up or if routes fail to register
+app.get("/favicon.ico", (_req, res) => {
+  res.status(204).end();
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
