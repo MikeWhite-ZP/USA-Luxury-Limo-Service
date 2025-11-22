@@ -1,5 +1,13 @@
 # Coolify Deployment Guide - USA Luxury Limo
 
+## 🚨 EMERGENCY FIX FOR 503 ERRORS
+
+**If your production site is showing 503 errors right now:**
+1. See **QUICK-FIX.md** for 2-minute solution
+2. See **DEPLOYMENT-FIX-GUIDE.md** for complete step-by-step fix
+
+---
+
 ## 🚀 Otomatik Database Migration ile Production Deployment
 
 Bu guide, Ubuntu server'da Coolify kullanarak Docker Compose deployment için hazırlanmıştır.
