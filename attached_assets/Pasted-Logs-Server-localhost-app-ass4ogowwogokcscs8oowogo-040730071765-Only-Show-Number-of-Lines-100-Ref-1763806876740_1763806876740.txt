@@ -1,0 +1,147 @@
+Logs
+Server: localhost
+app-ass4ogowwogokcscs8oowogo-040730071765
+Only Show Number of Lines
+*
+100
+Refresh
+Stream Logs
+Include Timestamps
+
+🚀 Starting Best Chauffeurs Application...
+⏳ Waiting for database to be ready...
+✅ Database is ready!
+📦 Running database migrations...
+No config path provided, using default 'drizzle.config.ts'
+Reading config file '/app/drizzle.config.ts'
+Using 'pg' driver for database querying
+[⣷] Pulling schema from database...
+✅ Migrations completed successfully!
+🎯 Starting application server...
+WARNING: ALLOWED_ORIGINS not set in production! Allowing all origins.
+Ensuring email templates are seeded...
+🌱 [SEED] Checking email templates...
+🌱 [SEED] Checking email templates...
+    at new Client (/app/node_modules/pg/lib/client.js:18:33)
+    at BoundPool.newClient (/app/node_modules/pg-pool/index.js:218:20)
+    at BoundPool.connect (/app/node_modules/pg-pool/index.js:212:10)
+    at BoundPool.query (/app/node_modules/pg-pool/index.js:399:10)
+    at file:///app/node_modules/drizzle-orm/node-postgres/session.js:80:25
+    at Object.startActiveSpan (file:///app/node_modules/drizzle-orm/tracing.js:8:14)
+    at file:///app/node_modules/drizzle-orm/node-postgres/session.js:74:23 {
+  code: 'ERR_INVALID_URL',
+  input: 'postgresql://postgres:Erka75810916?@database:5432/postgres',
+  base: 'postgres://base'
+}
+Manual seed failed: TypeError: Invalid URL
+    at new URL (node:internal/url:806:29)
+    at parse (/app/node_modules/pg-connection-string/index.js:29:14)
+    at new ConnectionParameters (/app/node_modules/pg/lib/connection-parameters.js:56:42)
+    at new Client (/app/node_modules/pg/lib/client.js:18:33)
+    at BoundPool.newClient (/app/node_modules/pg-pool/index.js:218:20)
+    at BoundPool.connect (/app/node_modules/pg-pool/index.js:212:10)
+    at BoundPool.query (/app/node_modules/pg-pool/index.js:399:10)
+    at file:///app/node_modules/drizzle-orm/node-postgres/session.js:80:25
+    at Object.startActiveSpan (file:///app/node_modules/drizzle-orm/tracing.js:8:14)
+    at file:///app/node_modules/drizzle-orm/node-postgres/session.js:74:23 {
+  code: 'ERR_INVALID_URL',
+  input: 'postgresql://postgres:Erka75810916?@database:5432/postgres',
+  base: 'postgres://base'
+}
+TypeError: Invalid URL
+    at new URL (node:internal/url:806:29)
+    at parse (/app/node_modules/pg-connection-string/index.js:29:14)
+    at new ConnectionParameters (/app/node_modules/pg/lib/connection-parameters.js:56:42)
+    at new Client (/app/node_modules/pg/lib/client.js:18:33)
+    at BoundPool.newClient (/app/node_modules/pg-pool/index.js:218:20)
+    at BoundPool.connect (/app/node_modules/pg-pool/index.js:212:10)
+    at BoundPool.query (/app/node_modules/pg-pool/index.js:399:10)
+    at Object.query (/app/node_modules/drizzle-kit/bin.cjs:80622:39)
+    at fromDatabase2 (/app/node_modules/drizzle-kit/bin.cjs:19276:34)
+    at pgPushIntrospect (/app/node_modules/drizzle-kit/bin.cjs:83692:9) {
+  code: 'ERR_INVALID_URL',
+  input: 'postgresql://postgres:Erka75810916?@database:5432/postgres',
+  base: 'postgres://base'
+}
+❌ [SEED] Error seeding email templates: TypeError: Invalid URL
+    at new URL (node:internal/url:806:29)
+    at parse (/app/node_modules/pg-connection-string/index.js:29:14)
+    at new ConnectionParameters (/app/node_modules/pg/lib/connection-parameters.js:56:42)
+    at new Client (/app/node_modules/pg/lib/client.js:18:33)
+    at BoundPool.newClient (/app/node_modules/pg-pool/index.js:218:20)
+    at BoundPool.connect (/app/node_modules/pg-pool/index.js:212:10)
+    at BoundPool.query (/app/node_modules/pg-pool/index.js:399:10)
+    at file:///app/node_modules/drizzle-orm/node-postgres/session.js:80:25
+    at Object.startActiveSpan (file:///app/node_modules/drizzle-orm/tracing.js:8:14)
+    at file:///app/node_modules/drizzle-orm/node-postgres/session.js:74:23 {
+  code: 'ERR_INVALID_URL',
+  input: 'postgresql://postgres:Erka75810916?@database:5432/postgres',
+  base: 'postgres://base'
+}
+❌ [SEED] Error seeding email templates: TypeError: Invalid URL
+    at new URL (node:internal/url:806:29)
+    at parse (/app/node_modules/pg-connection-string/index.js:29:14)
+    at new ConnectionParameters (/app/node_modules/pg/lib/connection-parameters.js:56:42)
+    at new Client (/app/node_modules/pg/lib/client.js:18:33)
+    at BoundPool.newClient (/app/node_modules/pg-pool/index.js:218:20)
+    at BoundPool.connect (/app/node_modules/pg-pool/index.js:212:10)
+    at BoundPool.query (/app/node_modules/pg-pool/index.js:399:10)
+    at file:///app/node_modules/drizzle-orm/node-postgres/session.js:80:25
+    at Object.startActiveSpan (file:///app/node_modules/drizzle-orm/tracing.js:8:14)
+    at file:///app/node_modules/drizzle-orm/node-postgres/session.js:74:23 {
+  code: 'ERR_INVALID_URL',
+  input: 'postgresql://postgres:Erka75810916?@database:5432/postgres',
+  base: 'postgres://base'
+}
+Manual seed failed: TypeError: Invalid URL
+    at new URL (node:internal/url:806:29)
+    at parse (/app/node_modules/pg-connection-string/index.js:29:14)
+    at new ConnectionParameters (/app/node_modules/pg/lib/connection-parameters.js:56:42)
+    at new Client (/app/node_modules/pg/lib/client.js:18:33)
+    at BoundPool.newClient (/app/node_modules/pg-pool/index.js:218:20)
+    at BoundPool.connect (/app/node_modules/pg-pool/index.js:212:10)
+    at BoundPool.query (/app/node_modules/pg-pool/index.js:399:10)
+    at file:///app/node_modules/drizzle-orm/node-postgres/session.js:80:25
+    at Object.startActiveSpan (file:///app/node_modules/drizzle-orm/tracing.js:8:14)
+    at file:///app/node_modules/drizzle-orm/node-postgres/session.js:74:23 {
+  code: 'ERR_INVALID_URL',
+  input: 'postgresql://postgres:Erka75810916?@database:5432/postgres',
+  base: 'postgres://base'
+}
+minio-ass4ogowwogokcscs8oowogo-040730062620
+Only Show Number of Lines
+*
+100
+Refresh
+Stream Logs
+Include Timestamps
+
+INFO: WARNING: MINIO_ACCESS_KEY and MINIO_SECRET_KEY are deprecated.
+         Please use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD
+MinIO Object Storage Server
+Copyright: 2015-2025 MinIO, Inc.
+License: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html
+Version: RELEASE.2025-09-07T16-13-09Z (go1.24.6 linux/amd64)
+
+API: http://10.0.1.10:9000  http://10.0.5.3:9000  http://10.0.3.2:9000  http://127.0.0.1:9000 
+WebUI: http://10.0.1.10:9001 http://10.0.5.3:9001 http://10.0.3.2:9001 http://127.0.0.1:9001    
+
+Docs: https://docs.min.io
+database-ass4ogowwogokcscs8oowogo-040730051811
+Only Show Number of Lines
+*
+100
+Refresh
+Stream Logs
+Include Timestamps
+
+PostgreSQL Database directory appears to contain a database; Skipping initialization
+
+2025-11-22 04:10:56.241 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2025-11-22 04:10:56.242 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-11-22 04:10:56.242 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2025-11-22 04:10:56.246 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2025-11-22 04:10:56.260 UTC [27] LOG:  database system was shut down at 2025-11-22 04:10:51 UTC
+2025-11-22 04:10:56.278 UTC [1] LOG:  database system is ready to accept connections
+2025-11-22 04:15:56.353 UTC [25] LOG:  checkpoint starting: time
+2025-11-22 04:15:56.370 UTC [25] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.004 s, sync=0.002 s, total=0.018 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB
