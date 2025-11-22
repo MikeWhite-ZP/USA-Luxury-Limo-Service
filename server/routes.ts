@@ -360,6 +360,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Favicon fallback route - prevents 503 errors when browsers request favicon
+  app.get('/favicon.ico', (req, res) => {
+    // This route serves as a fallback if static file serving hasn't loaded yet
+    // Return a 204 (No Content) response to prevent browser errors
+    res.status(204).end();
+  });
+
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {

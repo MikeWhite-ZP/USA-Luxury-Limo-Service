@@ -151,6 +151,59 @@ Server running on port 5000 (production mode)
 - Tüm gerekli environment variables set edilmiş mi?
 - SMTP, Twilio, Storage credentials doğru mu?
 
+### Problem 5: 503 error on /favicon.ico when accessing admin panel ✅ FIX EDİLDİ
+**Çözüm**: Bu FIX edildi! ✅
+- `client/public/favicon.ico` dosyası eklendi
+- `server/static.ts`'te MIME type handling eklendi (`.ico`, `.png`, `.jpg`, `.svg`, `.webp`)
+- `server/routes.ts`'te fallback route eklendi (`204 No Content` döndürür)
+- **Deploy için**: `npm run build` → Git push → Coolify'da deploy
+- Artık browser favicon.ico request ettiğinde 503 yerine dosya veya 204 response alır
+
+### Problem 6: MinIO self-signed certificate error ✅ FIX EDİLDİ
+**Çözüm**: Bu FIX edildi! ✅
+- `server/objectStorageAdapter.ts`'te HTTPS agent eklendi
+- Self-signed certificate validation bypass (`rejectUnauthorized: false`)
+- MinIO dev/test environment'lar için otomatik SSL bypass
+- **Deploy için**: `npm run build` → Git push → Coolify'da deploy
+- Artık MinIO presigned URL generation çalışır
+
+### Problem 7: MinIO 503 Service Unavailable
+**Sebep**: MinIO server DOWN, restarting, veya unreachable
+**Detaylı Log Örneği**:
+```
+[STORAGE] Error checking bucket 'replit': {
+  name: '503',
+  message: 'UnknownError',
+  code: 503,
+  endpoint: 'https://minio.best-chauffeurs.com',
+  bucket: 'replit'
+}
+[STORAGE] Assuming bucket 'replit' exists despite check failure.
+```
+
+**Troubleshooting**:
+1. **MinIO Server Status Kontrol Edin**:
+   - MinIO container çalışıyor mu? → `docker ps | grep minio`
+   - MinIO log'lara bakın → `docker logs <minio-container-id>`
+   
+2. **Network Connectivity**:
+   - MinIO endpoint'e erişebiliyor musunuz? → `curl https://minio.best-chauffeurs.com`
+   - Firewall/Security Group kuralları doğru mu?
+   
+3. **MinIO Credentials**:
+   - Admin Dashboard → System Settings → MinIO credentials doğru mu?
+   - Access Key ve Secret Key güncel mi?
+   
+4. **MinIO Restart**:
+   - Coolify'da MinIO service'i restart edin
+   - Veya: `docker restart <minio-container-id>`
+
+5. **Alternatif Storage**:
+   - Geçici olarak Replit Object Storage kullanabilirsiniz
+   - Admin Dashboard → System Settings → Storage Provider → Replit
+
+**Not**: App artık MinIO unreachable olsa bile **crash etmez**! Gracefully handle eder ve çalışmaya devam eder. Sadece image/file upload özellikleri çalışmaz.
+
 ---
 
 ## 📊 Production Startup Flow

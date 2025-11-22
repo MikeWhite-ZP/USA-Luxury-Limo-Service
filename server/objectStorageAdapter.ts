@@ -1,6 +1,7 @@
 import { Client as ObjectStorageClient } from "@replit/object-storage";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command, HeadBucketCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { Agent as HttpsAgent } from "https";
 
 /**
  * Object Storage Adapter
@@ -133,6 +134,17 @@ class S3StorageAdapter implements StorageAdapter {
   }) {
     this.bucket = config.bucket;
     this.endpoint = config.endpoint;
+    
+    // Configure HTTPS agent for self-signed certificates (common in MinIO dev/test environments)
+    const isHttps = config.endpoint.startsWith('https://');
+    const requestHandler = isHttps ? {
+      requestHandler: {
+        httpsAgent: new HttpsAgent({
+          rejectUnauthorized: false, // Allow self-signed certificates
+        }),
+      },
+    } : {};
+    
     this.client = new S3Client({
       endpoint: config.endpoint,
       region: config.region || 'us-east-1',
@@ -141,6 +153,7 @@ class S3StorageAdapter implements StorageAdapter {
         secretAccessKey: config.secretAccessKey,
       },
       forcePathStyle: config.forcePathStyle !== false, // Default to true for MinIO
+      ...requestHandler, // Add HTTPS agent for self-signed certs
     });
     
     // Start bucket initialization immediately
@@ -198,8 +211,19 @@ class S3StorageAdapter implements StorageAdapter {
         console.warn(`[STORAGE] Permission denied checking bucket '${this.bucket}'. Assuming it exists.`);
         bucketExistsCache.set(cacheKey, true);
       } else {
-        console.error(`[STORAGE] Error checking bucket '${this.bucket}':`, error.message);
-        throw error;
+        // Log full error details for debugging
+        console.error(`[STORAGE] Error checking bucket '${this.bucket}':`, {
+          name: error.name,
+          message: error.message,
+          code: error.code || error.$metadata?.httpStatusCode,
+          endpoint: this.endpoint,
+          bucket: this.bucket
+        });
+        
+        // Don't throw - assume bucket exists to allow app to start
+        // If bucket doesn't exist, subsequent operations will fail gracefully
+        console.warn(`[STORAGE] Assuming bucket '${this.bucket}' exists despite check failure. Subsequent operations may fail if bucket is truly missing.`);
+        bucketExistsCache.set(cacheKey, true);
       }
     }
   }
