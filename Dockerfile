@@ -50,8 +50,9 @@ COPY package*.json ./
 # Install production dependencies only
 # Using '--omit=dev' ensures a small image size
 RUN npm ci --omit=dev --ignore-scripts
-# Install drizzle-kit as root user before switching to nodejs user
-RUN npm install -g drizzle-kit@0.31.7
+# Ensure drizzle-kit is available (it should be in node_modules from package.json)
+# If it's not in package.json dependencies, install it locally
+RUN npm ls drizzle-kit || npm install --save drizzle-kit@0.31.7
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 # Copy shared folder (contains schema.ts and other runtime dependencies)
