@@ -22,7 +22,7 @@ echo "✅ Database is ready!"
 
 # Migration'ları çalıştır
 echo "📦 Running database migrations..."
-if npx drizzle-kit push; then
+if npx drizzle-kit push --accept; then
   echo "✅ Migrations completed successfully!"
 else
   echo "❌ Migration failed!"
