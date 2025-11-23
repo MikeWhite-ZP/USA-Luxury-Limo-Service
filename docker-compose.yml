@@ -119,7 +119,7 @@ networks:
 
 ## Coolify environment variables'da `DATABASE_URL` şöyle olmalı:
 
-DATABASE_URL=postgresql://postgres:Erka75810916%3F@database:5432/postgres
+## DATABASE_URL=postgresql://postgres:Erka75810916%3F@database:5432/postgres
 
 
 ## *DİKKAT:** `@database:5432` - `database` kelimesi docker-compose'daki servis adıdır!
