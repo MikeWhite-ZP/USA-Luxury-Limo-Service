@@ -1,10 +1,11 @@
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
-  schema: './shared/schema.ts', // veya './db/schema.ts' - sizin schema path'inize göre
+  schema: './shared/schema.ts', // Lütfen bu yolu kendi schema dosyanızla değiştirin.
   out: './migrations',
-  dialect: 'postgresql',  // ← BU ÇOK ÖNEMLİ!
+  dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    // Ortam değişkenini kullanın
+    url: process.env.DATABASE_URL!, 
   },
 });
