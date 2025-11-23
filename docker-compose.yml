@@ -110,26 +110,26 @@ networks:
 
 ## Önemli Değişiklikler:
 
-1. **`database` servisi eklendi** ✅
-2. **`postgres-data` volume eklendi** ✅
-3. **`app` servisi `depends_on` ile database'i bekliyor** ✅
-4. **MINIO_ENDPOINT internal network kullanıyor** (`http://minio:9000`)
+## 1. **`database` servisi eklendi** ✅
+## 2. **`postgres-data` volume eklendi** ✅
+## 3. **`app` servisi `depends_on` ile database'i bekliyor** ✅
+## 4. **MINIO_ENDPOINT internal network kullanıyor** (`http://minio:9000`)
 
 ## Coolify'da DATABASE_URL Kontrolü
 
-Coolify environment variables'da `DATABASE_URL` şöyle olmalı:
+## Coolify environment variables'da `DATABASE_URL` şöyle olmalı:
 
 DATABASE_URL=postgresql://postgres:Erka75810916%3F@database:5432/postgres
 
 
-**DİKKAT:** `@database:5432` - `database` kelimesi docker-compose'daki servis adıdır!
+## *DİKKAT:** `@database:5432` - `database` kelimesi docker-compose'daki servis adıdır!
 
 ## Deploy Adımları:
 
-1. Yukarıdaki `docker-compose.yml` dosyasını repository'nize commit edin
-2. Coolify'da "Redeploy" butonuna tıklayın
-3. Log'larda şunları göreceksiniz:
+## 1. Yukarıdaki `docker-compose.yml` dosyasını repository'nize commit edin
+## 2. Coolify'da "Redeploy" butonuna tıklayın
+## 3. Log'larda şunları göreceksiniz:
 
-   ✅ Database is ready!
-   ✅ Migrations completed successfully!
-   ✅ Application starting...
+##   ✅ Database is ready!
+ ##  ✅ Migrations completed successfully!
+ ##  ✅ Application starting...
