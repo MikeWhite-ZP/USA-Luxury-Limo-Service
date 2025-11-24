@@ -7,7 +7,7 @@ FROM node:20-alpine AS frontend-builder
 WORKDIR /app
 
 COPY package*.json ./
-# Üretim (production) bağımlılıklarını kur
+# Install production dependencies
 RUN npm ci --only=production && npm cache clean --force
 
 COPY client ./client
@@ -25,7 +25,7 @@ FROM node:20-alpine AS backend-builder
 WORKDIR /app
 
 COPY package*.json ./
-# Üretim (production) bağımlılıklarını kur
+# Install production dependencies
 RUN npm ci --only=production && npm cache clean --force
 
 COPY server ./server
@@ -39,11 +39,11 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Yalnızca üretim (production) bağımlılıklarını kur
+# Install production dependencies only
 COPY package*.json ./
 RUN npm ci --only=production && npm cache clean --force
 
-# Derlenen (built) varlıkları önceki aşamalardan kopyala
+# Copy built assets from build stages
 COPY --from=frontend-builder /app/dist ./dist
 COPY --from=backend-builder /app/server ./server
 COPY --from=backend-builder /app/shared ./shared
@@ -51,27 +51,26 @@ COPY --from=backend-builder /app/db ./db
 COPY --from=backend-builder /app/drizzle.config.ts ./
 COPY --from=backend-builder /app/tsconfig.json ./
 
-# Dağıtım komut dosyalarını kopyala (Fix Applied Here!)
-# Kaynak: deployment/entrypoint.sh (Context'e göre repo'nun kökü)
-# Hedef: entrypoint.sh (Mevcut dizinde /app olarak)
-COPY deployment/entrypoint.sh entrypoint.sh   # <-- Düzeltildi
-COPY deployment/healthcheck.sh healthcheck.sh # <-- Düzeltildi
+# Copy deployment scripts (FIX: Assuming scripts are now in the repository root)
+# Eğer bu komut dosyaları (entrypoint.sh, healthcheck.sh) deponuzun ana dizininde ise bu satırlar çalışacaktır.
+COPY entrypoint.sh ./
+COPY healthcheck.sh ./
 RUN chmod +x entrypoint.sh healthcheck.sh
 
-# Kök olmayan kullanıcı (non-root user) oluştur
+# Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 && \
     chown -R nodejs:nodejs /app
 
 USER nodejs
 
-# Port açığa çıkarma
+# Expose port
 EXPOSE 5000
 
-# Sağlık kontrolü (Health check)
+# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD node healthcheck.sh
 
-# Uygulamayı başlat
+# Start application
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["node", "--import", "tsx", "server/index.ts"]
