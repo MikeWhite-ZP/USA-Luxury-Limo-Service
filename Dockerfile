@@ -54,4 +54,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
   CMD wget --quiet --tries=3 --spider http://localhost:5000/health || exit 1
 
 # Start command: Run migrations, then start app
-CMD ["sh", "-c", "echo '📦 Running database migrations...' && npx drizzle-kit push --config=drizzle.config.ts || true && echo '✅ Migrations complete, starting application...' && node dist/index.js"]
+CMD ["sh", "-c", "echo '📦 Running database migrations...' && echo 'yes' | npx drizzle-kit push --config=drizzle.config.ts || true && echo '✅ Migrations complete, starting application...' && node dist/index.js"]
