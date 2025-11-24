@@ -1,35 +1,22 @@
 #!/bin/sh
 set -e
 
-echo "🚀 Starting Best Chauffeurs Application..."
+echo "🔄 Checking database connection..."
+# (İsteğe bağlı) DB'nin hazır olmasını bekleme mantığı buraya eklenebilir ama
+# Coolify depends_on ile bunu zaten yönetiyor.
 
-# Database bağlantısını bekle
-echo "⏳ Waiting for database to be ready..."
-max_attempts=30
-attempt=0
-
-until nc -z database 5432 2>/dev/null; do
-  attempt=$((attempt + 1))
-  if [ $attempt -eq $max_attempts ]; then
-    echo "❌ Database connection timeout after $max_attempts attempts"
-    exit 1
-  fi
-  echo "⏳ Attempt $attempt/$max_attempts: Database not ready yet, waiting..."
-  sleep 2
-done
-
-echo "✅ Database is ready!"
-
-# Migration'ları çalıştır
-echo "📦 Running database migrations..."
-if npx drizzle-kit push; then
-  echo "✅ Migrations completed successfully!"
+echo "📦 Running Database Migrations..."
+# Drizzle ile şemayı veritabanına push et
+# --force veya yes komutu gerekebilir, push komutu interaktiftir.
+if [ "$NODE_ENV" = "production" ]; then
+  # Production'da veri kaybını önlemek için migrate komutu daha güvenlidir
+  # Ancak push kullanıyorsanız ve loglarda takılıyorsa:
+  npx drizzle-kit push --force
 else
-  echo "❌ Migration failed!"
-  echo "📋 Migration error details above"
-  exit 1
+  npx drizzle-kit push
 fi
 
-# Uygulamayı başlat
-echo "🎯 Starting application server..."
-exec node dist/index.js
+echo "✅ Migrations completed successfully."
+
+echo "🚀 Starting Application..."
+exec "$@"
