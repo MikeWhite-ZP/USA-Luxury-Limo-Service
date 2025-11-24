@@ -1,57 +1,38 @@
-# Builder Stage
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy and install all dependencies
-COPY package*.json ./
-RUN npm ci
+# Install dependencies needed for build and runtime
+RUN apk add --no-cache python3 make g++ curl
 
-# Copy application source
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including devDependencies for build)
+RUN npm install
+
+# Copy source code
 COPY . .
 
-# Build application
-RUN npx vite build
-RUN npx esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --packages=external --external:vite --external:@vitejs/* --external:./server/vite.ts --external:./server/vite.js
+# Build the application
+RUN npm run build
 
-# Production Stage
-FROM node:20-alpine AS production
+# Prune dev dependencies to save space (optional, remove if causes issues)
+# RUN npm prune --production
 
-# Install utilities for healthcheck and DB connectivity
-RUN apk add --no-cache wget netcat-openbsd postgresql-client
-
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
-
-WORKDIR /app
-
-# Set environment variables
-ENV NODE_ENV=production
-ENV PORT=5000
-
-# Copy package files and install only production dependencies
-COPY package*.json ./
-RUN npm ci --omit=dev && npm install drizzle-kit
-
-# Copy built application and configuration files
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/shared ./shared
-COPY --from=builder /app/database ./database
-COPY drizzle.config.ts ./
-COPY --from=builder /app/migrations ./migrations
-
-# Change ownership to non-root user
-RUN chown -R nodejs:nodejs /app
-
-# Switch to non-root user
-USER nodejs
+# Copy entrypoint script and make it executable
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 # Expose port
 EXPOSE 5000
 
-# Health check - more lenient since app needs time to start migrations
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
-  CMD wget --quiet --tries=3 --spider http://localhost:5000/health || exit 1
+# Environment variables
+ENV NODE_ENV=production
+ENV PORT=5000
 
-# Start command: Run migrations, then start app
-CMD ["sh", "-c", "echo '📦 Running database migrations...' && echo 'yes' | npx drizzle-kit push --config=drizzle.config.ts || true && echo '✅ Migrations complete, starting application...' && node dist/index.js"]
+# Use the entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# Start the application (passed to exec "$@" in entrypoint)
+CMD ["node", "dist/index.js"]
