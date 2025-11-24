@@ -2,21 +2,20 @@
 set -e
 
 echo "🔄 Checking database connection..."
-# (İsteğe bağlı) DB'nin hazır olmasını bekleme mantığı buraya eklenebilir ama
-# Coolify depends_on ile bunu zaten yönetiyor.
 
-echo "📦 Running Database Migrations..."
-# Drizzle ile şemayı veritabanına push et
-# --force veya yes komutu gerekebilir, push komutu interaktiftir.
-if [ "$NODE_ENV" = "production" ]; then
-  # Production'da veri kaybını önlemek için migrate komutu daha güvenlidir
-  # Ancak push kullanıyorsanız ve loglarda takılıyorsa:
-  npx drizzle-kit push --force
-else
-  npx drizzle-kit push
-fi
+echo "📦 Running Database Migrations (Forcing non-interactive push)..."
+
+# KRİTİK DÜZELTME: Drizzle'ın 'rename vs create' sorusuna takılmasını engellemek için
+# 'y' yanıtını otomatik olarak pipe ediyoruz.
+echo 'y' | npx drizzle-kit push
+
+# NOT: Eğer yukarıdaki 'y' yanıtı yeterli gelmezse, 
+# 'drizzle.config.ts' dosyanızda 'strict: false' ayarını kontrol edin
+# veya production için daha güvenilir olan 'drizzle-kit generate/migrate' 
+# akışına geçmeyi düşünün.
 
 echo "✅ Migrations completed successfully."
 
 echo "🚀 Starting Application..."
+# Uygulamayı başlat
 exec "$@"
