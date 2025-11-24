@@ -1,57 +1,76 @@
-# Builder Stage
-FROM node:20-alpine AS builder
+# Production-optimized Dockerfile for USA Luxury Limo
+# Multi-stage build for minimal image size
+
+# Stage 1: Build frontend
+FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app
 
-# Copy and install all dependencies
 COPY package*.json ./
-RUN npm ci
+# Install production dependencies
+RUN npm ci --only=production && npm cache clean --force
 
-# Copy application source
-COPY . .
+COPY client ./client
+COPY shared ./shared
+COPY tsconfig.json ./
+COPY vite.config.ts ./
+COPY tailwind.config.ts ./
+COPY postcss.config.js ./
 
-# Build application
-RUN npx vite build
-RUN npx esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --packages=external --external:vite --external:@vitejs/* --external:./server/vite.ts --external:./server/vite.js
+RUN npm run build
 
-# Production Stage
-FROM node:20-alpine AS production
-
-# Install utilities for healthcheck and DB connectivity
-RUN apk add --no-cache wget netcat-openbsd postgresql-client
-
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+# Stage 2: Build backend
+FROM node:20-alpine AS backend-builder
 
 WORKDIR /app
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV PORT=5000
-
-# Copy package files and install only production dependencies
 COPY package*.json ./
-RUN npm ci --omit=dev && npm install drizzle-kit
+# Install production dependencies
+RUN npm ci --only=production && npm cache clean --force
 
-# Copy built application and configuration files
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/shared ./shared
-COPY --from=builder /app/database ./database
+COPY server ./server
+COPY shared ./shared
+COPY db ./db
+COPY tsconfig.json ./
 COPY drizzle.config.ts ./
-COPY --from=builder /app/migrations ./migrations
 
-# Change ownership to non-root user
-RUN chown -R nodejs:nodejs /app
+# Stage 3: Production runtime
+FROM node:20-alpine
 
-# Switch to non-root user
+WORKDIR /app
+
+# Install production dependencies only
+COPY package*.json ./
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy built assets from build stages
+COPY --from=frontend-builder /app/dist ./dist
+COPY --from=backend-builder /app/server ./server
+COPY --from=backend-builder /app/shared ./shared
+COPY --from=backend-builder /app/db ./db
+COPY --from=backend-builder /app/drizzle.config.ts ./
+COPY --from=backend-builder /app/tsconfig.json ./
+
+# Copy deployment scripts (FIX: Assuming scripts are now in the repository root)
+# Eğer bu komut dosyaları (entrypoint.sh, healthcheck.sh) deponuzun ana dizininde ise bu satırlar çalışacaktır.
+COPY entrypoint.sh ./
+COPY healthcheck.sh ./
+RUN chmod +x entrypoint.sh healthcheck.sh
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /app
+
 USER nodejs
 
 # Expose port
 EXPOSE 5000
 
-# Health check - more lenient since app needs time to start migrations
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
-  CMD wget --quiet --tries=3 --spider http://localhost:5000/health || exit 1
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD node healthcheck.sh
 
-# Start command: Run migrations, then start app
-CMD ["sh", "-c", "echo '📦 Attempting database migrations...' && npx drizzle-kit push --config=drizzle.config.ts 2>&1 | tee /tmp/migration.log || true && echo '✅ Migrations completed (or skipped if already applied).' && echo '🚀 Starting Application...' && node dist/index.js"]
+# Start application
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["node", "--import", "tsx", "server/index.ts"]
