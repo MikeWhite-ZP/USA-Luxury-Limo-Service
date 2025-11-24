@@ -17,10 +17,8 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Prune dev dependencies to save space (optional, remove if causes issues)
-# RUN npm prune --production
-
 # Copy entrypoint script and make it executable
+# KRİTİK: Script'in kullanıldığından emin olun.
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
