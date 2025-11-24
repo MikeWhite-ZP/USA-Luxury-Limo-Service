@@ -56,9 +56,9 @@ services:
       dockerfile: Dockerfile
     container_name: best-chauffeurs-app
     labels:
-      # Labels for Caddy/Coolify reverse proxy and SSL
-      - 'caddy=best-chauffeurs.com, www.best-chauffeurs.com, adminaccess.best-chauffeurs.com'
-      - 'caddy.reverse_proxy={{upstreams 5000}}'
+      # Coolify'ın linkleri tanıması için https:// ile başlayın ve aralarına virgul+boşluk koyun
+      - "caddy=https://best-chauffeurs.com, https://www.best-chauffeurs.com, https://adminaccess.best-chauffeurs.com"
+      - "caddy.reverse_proxy={{upstreams 5000}}"
     environment:
       - NODE_ENV=production
       - PORT=5000
