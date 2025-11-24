@@ -1,0 +1,97 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    
+    container_name: usa-luxury-limo
+    
+    restart: unless-stopped
+    
+    # Environment variables - Configure these in Coolify UI or use .env file
+    environment:
+      # Application
+      - NODE_ENV=production
+      
+      # Database (External PostgreSQL container)
+      # CRITICAL: URL-encode special characters in password (? becomes %3F)
+      - DATABASE_URL=${DATABASE_URL}
+      
+      # Session (Production uses PostgreSQL)
+      - SESSION_SECRET=${SESSION_SECRET}
+      
+      # MinIO/Object Storage (External MinIO container)
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_PORT=${MINIO_PORT:-443}
+      - MINIO_USE_SSL=${MINIO_USE_SSL:-true}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET:-replit}
+      
+      # Replit Auth (OIDC)
+      - ISSUER_URL=${ISSUER_URL}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      
+      # Admin Panel Access Control
+      - ADMIN_PANEL_HOSTS=${ADMIN_PANEL_HOSTS}
+      
+      # API Keys
+      - TOMTOM_API_KEY=${TOMTOM_API_KEY}
+      - AERODATABOX_API_KEY=${AERODATABOX_API_KEY}
+      
+      # Payment Providers
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - VITE_STRIPE_PUBLIC_KEY=${VITE_STRIPE_PUBLIC_KEY}
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID}
+      - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET}
+      - SQUARE_ACCESS_TOKEN=${SQUARE_ACCESS_TOKEN}
+      - SQUARE_LOCATION_ID=${SQUARE_LOCATION_ID}
+      
+      # Twilio (SMS)
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+      
+      # Email (Nodemailer)
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT:-587}
+      - EMAIL_SECURE=${EMAIL_SECURE:-false}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_FROM=${EMAIL_FROM}
+    
+    # Coolify Caddy labels for automatic SSL and domain routing
+    labels:
+      # Primary domain
+      - "caddy_0=https://adminaccess.best-chauffeurs.com"
+      - "caddy_0.encode=zstd gzip"
+      - "caddy_0.reverse_proxy={{upstreams 5000}}"
+      - "caddy_0.header=-Server"
+      - "caddy_0.header.X-Frame-Options=SAMEORIGIN"
+      - "caddy_0.header.X-Content-Type-Options=nosniff"
+      
+      # WWW redirect (optional)
+      - "caddy_1.redir=https://adminaccess.best-chauffeurs.com{uri}"
+      - "caddy_1=https://www.adminaccess.best-chauffeurs.com"
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # DO NOT expose ports - Coolify + Caddy handle this automatically
+    # ports:
+    #   - "5000:5000"  # ❌ Don't do this!
+    
+    # Volumes for persistent data (optional)
+    # volumes:
+    #   - app-data:/app/data
+
+# volumes:
+#   app-data:
