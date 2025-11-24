@@ -68,35 +68,32 @@ app.use((req, res, next) => {
 
 (async () => {
   try {
-    // DO NOT run migrations here - they should be run in Docker entrypoint
-    // This is handled in the Dockerfile CMD before this script starts
-    
     // Seed email templates on startup (idempotent - safe to run every time)
-    // Only run if database is ready and migrations are complete
-    if (process.env.NODE_ENV === "production" || process.env.RUN_SEEDS === "true") {
-      log("🌱 Ensuring email templates are seeded...");
-      try {
-        const { ensureEmailTemplatesSeeded } = await import("./seedEmailTemplates.js");
-        await ensureEmailTemplatesSeeded();
-        log("✅ Email templates seeded successfully");
-      } catch (seedError) {
-        log("⚠️ Warning: Email template seeding failed (may already exist):", seedError);
-        // Don't exit - email templates might already exist
-      }
+    // Note: Database migrations run in entrypoint.sh before this script starts
+    log("Ensuring email templates are seeded...");
+    
+    // 🔥 KRİTİK DÜZELTME: Seed işlemini bir try/catch içine alıyoruz.
+    // Böylece 'relation "email_templates" does not exist' hatası fırlasa bile
+    // uygulama ÇÖKMEZ ve çalışmaya devam ederek 502 hatasını engeller.
+    try {
+      const { ensureEmailTemplatesSeeded } = await import("./seedEmailTemplates.js");
+      await ensureEmailTemplatesSeeded();
+      log("✅ Email templates seeded successfully or already exist.");
+    } catch (seedError) {
+      // Sadece uyarı verip devam et. (Çünkü app'in çökmesi Caddy'de 502 hatasına neden oluyor)
+      console.warn("⚠️ Warning: Email template seeding failed (may continue to fail until migrations complete):", seedError);
     }
-    
+
     // Register API routes first
-    log("📝 Registering API routes...");
     const server = await registerRoutes(app);
-    log("✅ Routes registered");
-    
+
     // Setup Vite dev server or serve static files
     if (process.env.NODE_ENV !== "production") {
-      log("🔧 Starting in development mode with Vite...");
+      log("Starting in development mode with Vite...");
       const { setupVite } = await import("./vite.js");
       await setupVite(app, server);
     } else {
-      log("📦 Starting in production mode...");
+      log("Starting in production mode...");
       const { serveStatic } = await import("./static.js");
       serveStatic(app);
     }
@@ -110,6 +107,7 @@ app.use((req, res, next) => {
 
     // Use PORT env var or default to 5000
     const port = parseInt(process.env.PORT || '5000', 10);
+
     server.listen({
       port,
       host: "0.0.0.0",
@@ -119,7 +117,7 @@ app.use((req, res, next) => {
       startScheduledJobs();
     });
   } catch (error) {
-    console.error("❌ Failed to start server:", error);
+    console.error("Failed to start server:", error);
     process.exit(1);
   }
 })();
