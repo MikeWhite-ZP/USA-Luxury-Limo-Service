@@ -2,7 +2,6 @@ import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { registerRoutes } from "./routes";
 import { startScheduledJobs } from "./scheduledJobs";
-
 const log = console.log;
 const app = express();
 
@@ -13,14 +12,12 @@ const getAllowedOrigins = (): string[] | boolean => {
   if (process.env.NODE_ENV !== 'production') {
     return true;
   }
-
   // Production mode - only allow specified origins
   const allowedOriginsEnv = process.env.ALLOWED_ORIGINS;
   if (!allowedOriginsEnv) {
     log('WARNING: ALLOWED_ORIGINS not set in production! Allowing all origins.');
     return true;
   }
-
   // Parse comma-separated list of allowed origins
   return allowedOriginsEnv.split(',').map(origin => origin.trim()).filter(Boolean);
 };
@@ -48,13 +45,11 @@ app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
     capturedJsonResponse = bodyJson;
     return originalResJson.apply(res, [bodyJson, ...args]);
   };
-
   res.on("finish", () => {
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
@@ -62,36 +57,46 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
       if (logLine.length > 80) {
         logLine = logLine.slice(0, 79) + "…";
       }
-
       log(logLine);
     }
   });
-
   next();
 });
 
 (async () => {
   try {
+    // DO NOT run migrations here - they should be run in Docker entrypoint
+    // This is handled in the Dockerfile CMD before this script starts
+    
     // Seed email templates on startup (idempotent - safe to run every time)
-    // Note: Database migrations run in entrypoint.sh before this script starts
-    log("Ensuring email templates are seeded...");
-    const { ensureEmailTemplatesSeeded } = await import("./seedEmailTemplates.js");
-    await ensureEmailTemplatesSeeded();
+    // Only run if database is ready and migrations are complete
+    if (process.env.NODE_ENV === "production" || process.env.RUN_SEEDS === "true") {
+      log("🌱 Ensuring email templates are seeded...");
+      try {
+        const { ensureEmailTemplatesSeeded } = await import("./seedEmailTemplates.js");
+        await ensureEmailTemplatesSeeded();
+        log("✅ Email templates seeded successfully");
+      } catch (seedError) {
+        log("⚠️ Warning: Email template seeding failed (may already exist):", seedError);
+        // Don't exit - email templates might already exist
+      }
+    }
     
     // Register API routes first
+    log("📝 Registering API routes...");
     const server = await registerRoutes(app);
-
+    log("✅ Routes registered");
+    
     // Setup Vite dev server or serve static files
     if (process.env.NODE_ENV !== "production") {
-      log("Starting in development mode with Vite...");
+      log("🔧 Starting in development mode with Vite...");
       const { setupVite } = await import("./vite.js");
       await setupVite(app, server);
     } else {
-      log("Starting in production mode...");
+      log("📦 Starting in production mode...");
       const { serveStatic } = await import("./static.js");
       serveStatic(app);
     }
@@ -105,17 +110,16 @@ app.use((req, res, next) => {
 
     // Use PORT env var or default to 5000
     const port = parseInt(process.env.PORT || '5000', 10);
-
     server.listen({
       port,
       host: "0.0.0.0",
       reusePort: true,
     }, () => {
-      log(`Server running on port ${port} (${process.env.NODE_ENV || 'development'} mode)`);
+      log(`✅ Server running on port ${port} (${process.env.NODE_ENV || 'development'} mode)`);
       startScheduledJobs();
     });
   } catch (error) {
-    console.error("Failed to start server:", error);
+    console.error("❌ Failed to start server:", error);
     process.exit(1);
   }
 })();
