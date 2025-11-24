@@ -7,6 +7,7 @@ FROM node:20-alpine AS frontend-builder
 WORKDIR /app
 
 COPY package*.json ./
+# Üretim (production) bağımlılıklarını kur
 RUN npm ci --only=production && npm cache clean --force
 
 COPY client ./client
@@ -24,6 +25,7 @@ FROM node:20-alpine AS backend-builder
 WORKDIR /app
 
 COPY package*.json ./
+# Üretim (production) bağımlılıklarını kur
 RUN npm ci --only=production && npm cache clean --force
 
 COPY server ./server
@@ -37,11 +39,11 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install production dependencies only
+# Yalnızca üretim (production) bağımlılıklarını kur
 COPY package*.json ./
 RUN npm ci --only=production && npm cache clean --force
 
-# Copy built assets from build stages
+# Derlenen (built) varlıkları önceki aşamalardan kopyala
 COPY --from=frontend-builder /app/dist ./dist
 COPY --from=backend-builder /app/server ./server
 COPY --from=backend-builder /app/shared ./shared
@@ -49,25 +51,27 @@ COPY --from=backend-builder /app/db ./db
 COPY --from=backend-builder /app/drizzle.config.ts ./
 COPY --from=backend-builder /app/tsconfig.json ./
 
-# Copy deployment scripts
-COPY deployment/entrypoint.sh ./
-COPY deployment/healthcheck.sh ./
+# Dağıtım komut dosyalarını kopyala (Fix Applied Here!)
+# Kaynak: deployment/entrypoint.sh (Context'e göre repo'nun kökü)
+# Hedef: entrypoint.sh (Mevcut dizinde /app olarak)
+COPY deployment/entrypoint.sh entrypoint.sh   # <-- Düzeltildi
+COPY deployment/healthcheck.sh healthcheck.sh # <-- Düzeltildi
 RUN chmod +x entrypoint.sh healthcheck.sh
 
-# Create non-root user
+# Kök olmayan kullanıcı (non-root user) oluştur
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 && \
     chown -R nodejs:nodejs /app
 
 USER nodejs
 
-# Expose port
+# Port açığa çıkarma
 EXPOSE 5000
 
-# Health check
+# Sağlık kontrolü (Health check)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node healthcheck.sh
+    CMD node healthcheck.sh
 
-# Start application
+# Uygulamayı başlat
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["node", "--import", "tsx", "server/index.ts"]
