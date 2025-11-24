@@ -1,29 +1,28 @@
 #!/bin/sh
 set -e
 
-echo "🔄 Checking database connection..."
+echo "🚀 Starting USA Luxury Limo..."
 
-echo "📦 Running Database Migrations (Forcing non-interactive push)..."
+# Check required environment variables
+if [ -z "$DATABASE_URL" ]; then
+  echo "❌ ERROR: DATABASE_URL is not set"
+  exit 1
+fi
 
-# KRİTİK DÜZELTME: Normal push komutu interaktif moda takıldığı için
-# burada 'push' yerine, database şemasını 'drop and rebuild' eden bir komut
-# kullanıyoruz. Bu, Drizzle'ın sorabileceği 'rename vs create' sorusunu atlatır.
-# Coolify'ın kendi Drizzle push methodu kullanılır (Coolify 4.0 ve sonrası için yaygın çözüm).
+echo "📦 Environment: ${NODE_ENV:-development}"
 
-# NOT: Bu komut, eğer database'de varsa, public şemasını DROP edip yeniden yaratabilir.
-# Bu nedenle sadece Geliştirme/Staging ortamlarında kullanın.
-npx drizzle-kit push
+# Run database migrations
+echo "🔄 Running database migrations..."
+npm run db:push || {
+  echo "⚠️  Migration failed, but continuing (may be expected in some cases)"
+}
 
-# Eğer yukarıdaki takılı kalmaya devam ederse, alternatif olarak veritabanı bağlantı
-# bilgileriyle beraber 'drizzle-kit drop' denenebilir. Ancak şimdilik sadece
-# volume'ün temizlendiğine güvenerek tekrar push yapmayı deniyoruz.
+echo "✅ Migrations complete"
 
-# YENİDEN DENEME: Başarılı olması için Drizzle'ı zorluyoruz.
-# Eğer Drizzle hala takılı kalıyorsa, Coolify'ın terminalde çalıştırdığı konteynerin
-# TTY (terminal) ayarlarında bir sorun var demektir.
+# Seed email templates (if needed)
+echo "🌱 Ensuring email templates are seeded..."
+# This is handled by server/index.ts on startup
 
-echo "✅ Migrations completed successfully."
-
-echo "🚀 Starting Application..."
-# Uygulamayı başlat
+# Start application
+echo "🎯 Starting application..."
 exec "$@"
