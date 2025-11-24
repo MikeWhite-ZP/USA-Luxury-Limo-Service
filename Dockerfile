@@ -49,9 +49,9 @@ USER nodejs
 # Expose port
 EXPOSE 5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1
+# Health check - more lenient since app needs time to start migrations
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
+  CMD wget --quiet --tries=3 --spider http://localhost:5000/health || exit 1
 
 # Start command: Run migrations, then start app
 CMD ["sh", "-c", "echo '📦 Running database migrations...' && npx drizzle-kit push --config=drizzle.config.ts || true && echo '✅ Migrations complete, starting application...' && node dist/index.js"]
