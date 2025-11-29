@@ -19,12 +19,15 @@ app.set("trust proxy", 1);
 
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "SAMEORIGIN");
   res.setHeader("X-XSS-Protection", "1; mode=block");
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.stripe.com https://*.tiles.mapbox.com https://api.tomtom.com; frame-src https://js.stripe.com;"
-  );
+  
+  if (process.env.NODE_ENV === "production") {
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+    res.setHeader(
+      "Content-Security-Policy",
+      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.stripe.com https://*.tiles.mapbox.com https://api.tomtom.com wss://*.replit.dev; frame-src https://js.stripe.com; frame-ancestors 'self';"
+    );
+  }
   next();
 });
 
