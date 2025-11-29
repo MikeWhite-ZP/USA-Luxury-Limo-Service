@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
-import { User, Mail, Phone, ArrowLeft, Save, Lock, Eye, EyeOff, Shield, Calendar, CheckCircle2, Camera, Upload } from "lucide-react";
+import { User, Mail, Phone, ArrowLeft, Save, Lock, Eye, EyeOff, Shield, Calendar, CheckCircle2, Camera, Upload, Settings, KeyRound } from "lucide-react";
 import Header from "@/components/Header";
 
 export default function AccountPage() {
@@ -25,11 +25,9 @@ export default function AccountPage() {
   const [username, setUsername] = useState(user?.username || '');
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   
-  // Profile picture states
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(user?.profileImageUrl || null);
 
-  // Password update states
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -157,14 +155,12 @@ export default function AccountPage() {
     });
   };
   
-  // Check username availability with debounce
   useEffect(() => {
     if (!username || username === user?.username) {
       setUsernameStatus('idle');
       return;
     }
 
-    // Validate format first
     const usernameRegex = /^[a-zA-Z0-9_-]+$/;
     if (!usernameRegex.test(username) || username.length < 3 || username.length > 30) {
       setUsernameStatus('idle');
@@ -255,7 +251,6 @@ export default function AccountPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Invalid File Type",
@@ -265,7 +260,6 @@ export default function AccountPage() {
       return;
     }
 
-    // Validate file size (2MB max)
     if (file.size > 2 * 1024 * 1024) {
       toast({
         title: "File Too Large",
@@ -277,7 +271,6 @@ export default function AccountPage() {
 
     setProfilePicture(file);
     
-    // Create preview URL
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreviewUrl(reader.result as string);
@@ -308,8 +301,8 @@ export default function AccountPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 border-t-red-600 mx-auto"></div>
+          <p className="mt-4 text-gray-500 text-sm">Loading your account...</p>
         </div>
       </div>
     );
@@ -320,14 +313,15 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back Button */}
         <Button
           variant="ghost"
           onClick={() => setLocation('/')}
-          className="mb-6 hover:bg-slate-100"
+          className="mb-6 text-gray-600 hover:text-gray-900 hover:bg-gray-100 -ml-2"
           data-testid="button-back"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -336,66 +330,54 @@ export default function AccountPage() {
 
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Account Settings</h1>
-          <p className="text-slate-600">Manage your personal information and security preferences</p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-sm">
+              <Settings className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Account Settings</h1>
+          </div>
+          <p className="text-gray-500 ml-[52px]">Manage your personal information and security preferences</p>
         </div>
 
-        <div className="grid gap-6">
+        <div className="space-y-6">
           {/* Account Overview Card */}
-          <Card data-testid="account-details-card" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-slate-50 border-b border-slate-100">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg">
-                    <Shield className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-slate-900 text-xl">Account Overview</CardTitle>
-                    <CardDescription className="text-slate-600 mt-1">Your account information and status</CardDescription>
-                  </div>
+          <Card data-testid="account-details-card" className="bg-white border border-gray-200 shadow-sm overflow-hidden">
+            <CardHeader className="bg-white border-b border-gray-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <Shield className="w-4.5 h-4.5 text-blue-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-gray-900 text-lg font-semibold">Account Overview</CardTitle>
+                  <CardDescription className="text-gray-500 text-sm">Your account information and status</CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="bg-blue-100 p-1.5 rounded-lg">
-                      <User className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <p className="text-xs font-medium text-slate-600">Account Type</p>
-                  </div>
-                  <Badge className="bg-blue-600 hover:bg-blue-700 text-white" data-testid="text-role">
+            <CardContent className="pt-5 pb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Account Type</p>
+                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-0 font-medium" data-testid="text-role">
                     {user?.role || 'N/A'}
                   </Badge>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="bg-green-100 p-1.5 rounded-lg">
-                      <CheckCircle2 className="w-4 h-4 text-green-600" />
-                    </div>
-                    <p className="text-xs font-medium text-slate-600">Account Status</p>
-                  </div>
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Account Status</p>
                   <div data-testid="text-status">
                     {user?.isActive ? (
-                      <Badge className="bg-green-600 hover:bg-green-700 text-white">
+                      <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-0 font-medium">
                         <CheckCircle2 className="w-3 h-3 mr-1" />
                         Active
                       </Badge>
                     ) : (
-                      <Badge variant="destructive">Inactive</Badge>
+                      <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-0 font-medium">Inactive</Badge>
                     )}
                   </div>
                 </div>
                 {user?.createdAt && (
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="bg-purple-100 p-1.5 rounded-lg">
-                        <Calendar className="w-4 h-4 text-purple-600" />
-                      </div>
-                      <p className="text-xs font-medium text-slate-600">Member Since</p>
-                    </div>
-                    <p className="font-semibold text-slate-900" data-testid="text-created-at">
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Member Since</p>
+                    <p className="font-semibold text-gray-900" data-testid="text-created-at">
                       {new Date(user.createdAt).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
@@ -409,26 +391,26 @@ export default function AccountPage() {
           </Card>
 
           {/* Profile Picture Card */}
-          <Card data-testid="profile-picture-card" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50/30 border-b border-slate-100">
+          <Card data-testid="profile-picture-card" className="bg-white border border-gray-200 shadow-sm overflow-hidden">
+            <CardHeader className="bg-white border-b border-gray-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="bg-purple-600 p-2.5 rounded-xl shadow-lg">
-                  <Camera className="w-5 h-5 text-white" />
+                <div className="w-9 h-9 bg-purple-50 rounded-lg flex items-center justify-center">
+                  <Camera className="w-4.5 h-4.5 text-purple-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-slate-900 text-xl">Profile Picture</CardTitle>
-                  <CardDescription className="text-slate-600 mt-1">
+                  <CardTitle className="text-gray-900 text-lg font-semibold">Profile Picture</CardTitle>
+                  <CardDescription className="text-gray-500 text-sm">
                     Upload a profile picture to personalize your account
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="flex flex-col md:flex-row items-center gap-6">
+            <CardContent className="pt-5 pb-6">
+              <div className="flex flex-col sm:flex-row items-center gap-6">
                 {/* Avatar Preview */}
                 <div className="flex-shrink-0">
                   <div className="relative group">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-100 shadow-lg bg-gradient-to-br from-purple-100 to-pink-100">
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-100 shadow-sm bg-gray-100">
                       {previewUrl ? (
                         <img
                           src={previewUrl}
@@ -437,23 +419,18 @@ export default function AccountPage() {
                           data-testid="img-profile-preview"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <User className="w-16 h-16 text-purple-300" />
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                          <User className="w-10 h-10 text-gray-400" />
                         </div>
                       )}
                     </div>
-                    {previewUrl && (
-                      <div className="absolute inset-0 rounded-full bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-                        <Camera className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    )}
                   </div>
                 </div>
 
                 {/* Upload Controls */}
                 <div className="flex-1 space-y-4 w-full">
                   <div>
-                    <Label htmlFor="profile-picture-file" className="text-sm font-semibold text-slate-700 mb-2 block">
+                    <Label htmlFor="profile-picture-file" className="text-sm font-medium text-gray-700 mb-2 block">
                       Choose Profile Picture
                     </Label>
                     <Input
@@ -461,10 +438,10 @@ export default function AccountPage() {
                       type="file"
                       accept="image/*"
                       onChange={handleProfilePictureChange}
-                      className="border-slate-300 focus:border-purple-500 focus:ring-purple-500"
+                      className="border-gray-200 focus:border-purple-500 focus:ring-purple-500 text-sm"
                       data-testid="input-profile-picture"
                     />
-                    <p className="text-xs text-slate-500 mt-2 bg-purple-50 p-2 rounded border border-purple-200">
+                    <p className="text-xs text-gray-500 mt-2">
                       Accepted formats: JPG, PNG, WEBP. Max size: 2MB
                     </p>
                   </div>
@@ -472,11 +449,14 @@ export default function AccountPage() {
                   <Button
                     onClick={handleUploadProfilePicture}
                     disabled={!profilePicture || uploadProfilePictureMutation.isPending}
-                    className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white shadow-md"
+                    className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium"
                     data-testid="button-upload-profile-picture"
                   >
                     {uploadProfilePictureMutation.isPending ? (
-                      <>Uploading...</>
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                        Uploading...
+                      </>
                     ) : (
                       <>
                         <Upload className="w-4 h-4 mr-2" />
@@ -490,57 +470,55 @@ export default function AccountPage() {
           </Card>
 
           {/* Profile Information Card */}
-          <Card data-testid="profile-card" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50/30 border-b border-slate-100">
+          <Card data-testid="profile-card" className="bg-white border border-gray-200 shadow-sm overflow-hidden">
+            <CardHeader className="bg-white border-b border-gray-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="bg-slate-600 p-2.5 rounded-xl shadow-lg">
-                  <User className="w-5 h-5 text-white" />
+                <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <User className="w-4.5 h-4.5 text-gray-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-slate-900 text-xl">Personal Information</CardTitle>
-                  <CardDescription className="text-slate-600 mt-1">
+                  <CardTitle className="text-gray-900 text-lg font-semibold">Personal Information</CardTitle>
+                  <CardDescription className="text-gray-500 text-sm">
                     Update your personal information and contact details
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="pt-5 pb-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="firstName" className="text-sm font-semibold text-slate-700 mb-2 block">
-                      First Name *
+                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700 mb-1.5 block">
+                      First Name <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="firstName"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="Enter your first name"
-                      className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                      className="border-gray-200 focus:border-gray-400 focus:ring-gray-400 text-sm h-10"
                       data-testid="input-first-name"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="lastName" className="text-sm font-semibold text-slate-700 mb-2 block">
-                      Last Name *
+                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700 mb-1.5 block">
+                      Last Name <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="lastName"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Enter your last name"
-                      className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                      className="border-gray-200 focus:border-gray-400 focus:ring-gray-400 text-sm h-10"
                       data-testid="input-last-name"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="email" className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                    <div className="bg-blue-100 p-1 rounded">
-                      <Mail className="w-3.5 h-3.5 text-blue-600" />
-                    </div>
-                    Email Address *
+                  <Label htmlFor="email" className="text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-2">
+                    <Mail className="w-3.5 h-3.5 text-gray-400" />
+                    Email Address <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="email"
@@ -548,16 +526,14 @@ export default function AccountPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="border-gray-200 focus:border-gray-400 focus:ring-gray-400 text-sm h-10"
                     data-testid="input-email"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="phone" className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                    <div className="bg-green-100 p-1 rounded">
-                      <Phone className="w-3.5 h-3.5 text-green-600" />
-                    </div>
+                  <Label htmlFor="phone" className="text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-2">
+                    <Phone className="w-3.5 h-3.5 text-gray-400" />
                     Phone Number
                   </Label>
                   <Input
@@ -566,16 +542,14 @@ export default function AccountPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Enter your phone number"
-                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="border-gray-200 focus:border-gray-400 focus:ring-gray-400 text-sm h-10"
                     data-testid="input-phone"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="username" className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                    <div className="bg-purple-100 p-1 rounded">
-                      <User className="w-3.5 h-3.5 text-purple-600" />
-                    </div>
+                  <Label htmlFor="username" className="text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-2">
+                    <User className="w-3.5 h-3.5 text-gray-400" />
                     Username
                   </Label>
                   <Input
@@ -584,30 +558,30 @@ export default function AccountPage() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Choose a username"
-                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="border-gray-200 focus:border-gray-400 focus:ring-gray-400 text-sm h-10"
                     data-testid="input-username"
                   />
                   {username && username !== user?.username && (
-                    <p className={`text-xs mt-2 flex items-center gap-1 ${
-                      usernameStatus === 'checking' ? 'text-slate-500' :
+                    <p className={`text-xs mt-1.5 flex items-center gap-1 ${
+                      usernameStatus === 'checking' ? 'text-gray-500' :
                       usernameStatus === 'available' ? 'text-green-600' :
                       usernameStatus === 'taken' ? 'text-red-600' :
-                      'text-slate-500'
+                      'text-gray-500'
                     }`}>
-                      {usernameStatus === 'checking' && '⏳ Checking availability...'}
-                      {usernameStatus === 'available' && '✓ Username is available'}
-                      {usernameStatus === 'taken' && '✗ Username is already taken'}
+                      {usernameStatus === 'checking' && 'Checking availability...'}
+                      {usernameStatus === 'available' && 'Username is available'}
+                      {usernameStatus === 'taken' && 'Username is already taken'}
                       {usernameStatus === 'idle' && 'Username must be 3-30 characters (letters, numbers, -, _)'}
                     </p>
                   )}
                 </div>
 
-                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                <div className="flex gap-3 pt-4 border-t border-gray-100">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setLocation('/')}
-                    className="flex-1 border-slate-300 hover:bg-slate-100"
+                    className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-medium"
                     data-testid="button-cancel"
                   >
                     Cancel
@@ -615,11 +589,14 @@ export default function AccountPage() {
                   <Button
                     type="submit"
                     disabled={updateProfileMutation.isPending || usernameStatus === 'taken' || usernameStatus === 'checking'}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+                    className="flex-1 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium"
                     data-testid="button-save"
                   >
                     {updateProfileMutation.isPending ? (
-                      <>Saving...</>
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                        Saving...
+                      </>
                     ) : (
                       <>
                         <Save className="w-4 h-4 mr-2" />
@@ -633,25 +610,25 @@ export default function AccountPage() {
           </Card>
 
           {/* Change Password Card */}
-          <Card data-testid="change-password-card" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50/30 border-b border-slate-100">
+          <Card data-testid="change-password-card" className="bg-white border border-gray-200 shadow-sm overflow-hidden">
+            <CardHeader className="bg-white border-b border-gray-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="bg-amber-600 p-2.5 rounded-xl shadow-lg">
-                  <Lock className="w-5 h-5 text-white" />
+                <div className="w-9 h-9 bg-amber-50 rounded-lg flex items-center justify-center">
+                  <KeyRound className="w-4.5 h-4.5 text-amber-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-slate-900 text-xl">Security Settings</CardTitle>
-                  <CardDescription className="text-slate-600 mt-1">
+                  <CardTitle className="text-gray-900 text-lg font-semibold">Security Settings</CardTitle>
+                  <CardDescription className="text-gray-500 text-sm">
                     Update your password to keep your account secure
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pt-5 pb-6">
               <form onSubmit={handlePasswordSubmit} className="space-y-5">
                 <div>
-                  <Label htmlFor="currentPassword" className="text-sm font-semibold text-slate-700 mb-2 block">
-                    Current Password *
+                  <Label htmlFor="currentPassword" className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    Current Password <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <Input
@@ -660,13 +637,13 @@ export default function AccountPage() {
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="Enter your current password"
-                      className="border-slate-300 focus:border-amber-500 focus:ring-amber-500 pr-10"
+                      className="border-gray-200 focus:border-gray-400 focus:ring-gray-400 text-sm h-10 pr-10"
                       data-testid="input-current-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       data-testid="toggle-current-password"
                     >
                       {showCurrentPassword ? (
@@ -679,8 +656,8 @@ export default function AccountPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="newPassword" className="text-sm font-semibold text-slate-700 mb-2 block">
-                    New Password *
+                  <Label htmlFor="newPassword" className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    New Password <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <Input
@@ -689,13 +666,13 @@ export default function AccountPage() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter your new password"
-                      className="border-slate-300 focus:border-amber-500 focus:ring-amber-500 pr-10"
+                      className="border-gray-200 focus:border-gray-400 focus:ring-gray-400 text-sm h-10 pr-10"
                       data-testid="input-new-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       data-testid="toggle-new-password"
                     >
                       {showNewPassword ? (
@@ -705,14 +682,14 @@ export default function AccountPage() {
                       )}
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500 mt-2 bg-amber-50 p-2 rounded border border-amber-200">
+                  <p className="text-xs text-gray-500 mt-1.5">
                     Minimum 8 characters with uppercase, lowercase, and numbers
                   </p>
                 </div>
 
                 <div>
-                  <Label htmlFor="confirmPassword" className="text-sm font-semibold text-slate-700 mb-2 block">
-                    Confirm New Password *
+                  <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    Confirm New Password <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <Input
@@ -721,13 +698,13 @@ export default function AccountPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm your new password"
-                      className="border-slate-300 focus:border-amber-500 focus:ring-amber-500 pr-10"
+                      className="border-gray-200 focus:border-gray-400 focus:ring-gray-400 text-sm h-10 pr-10"
                       data-testid="input-confirm-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       data-testid="toggle-confirm-password"
                     >
                       {showConfirmPassword ? (
@@ -739,7 +716,7 @@ export default function AccountPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                <div className="flex gap-3 pt-4 border-t border-gray-100">
                   <Button
                     type="button"
                     variant="outline"
@@ -748,7 +725,7 @@ export default function AccountPage() {
                       setNewPassword('');
                       setConfirmPassword('');
                     }}
-                    className="flex-1 border-slate-300 hover:bg-slate-100"
+                    className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-medium"
                     data-testid="button-cancel-password"
                   >
                     Clear
@@ -756,11 +733,14 @@ export default function AccountPage() {
                   <Button
                     type="submit"
                     disabled={updatePasswordMutation.isPending}
-                    className="flex-1 bg-amber-600 hover:bg-amber-700 text-white shadow-md"
+                    className="flex-1 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium"
                     data-testid="button-update-password"
                   >
                     {updatePasswordMutation.isPending ? (
-                      <>Updating...</>
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                        Updating...
+                      </>
                     ) : (
                       <>
                         <Lock className="w-4 h-4 mr-2" />
