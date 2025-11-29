@@ -1,86 +1,75 @@
-# ------------------------------------
-# 1. Builder Stage: Install dependencies and build the app
-# ------------------------------------
-FROM node:20-alpine AS builder
+# Multi-stage build for optimized production image
+FROM node:20-alpine AS base
 
-# Add labels for image metadata
-LABEL maintainer="Hope Limo"
-LABEL description="Luxury transportation booking platform"
-LABEL version="1.0.0"
-
+# Install dependencies only when needed
+FROM base AS deps
 WORKDIR /app
 
-# IMPORTANT: Do NOT set NODE_ENV=production in builder stage
-# We need devDependencies (like vite, esbuild, typescript) to build
-
-# Copy package files and install ALL dependencies (including dev)
-COPY package*.json ./
-RUN npm ci --ignore-scripts
-
-# Copy application source
-COPY . .
-
-# Build frontend (outputs to dist/public)
-RUN npx vite build
-
-# Verify frontend build succeeded
-RUN ls -la dist/public/ && \
-    ls -la dist/public/assets/ && \
-    echo "Frontend build verification: PASSED"
-
-# Build backend with esbuild (outputs to dist/index.js)
-RUN npx esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --packages=external --external:vite --external:@vitejs/* --external:./server/vite.ts --external:./server/vite.js
-
-# Verify backend build succeeded
-RUN ls -la dist/index.js && \
-    echo "Backend build verification: PASSED"
-
-# ------------------------------------
-# 2. Production Stage: Minimal, secure image for running the app
-# ------------------------------------
-FROM node:20-alpine AS production
-
-# Add labels
-LABEL maintainer="Hope Limo"
-LABEL description="Luxury transportation booking platform - Production"
-LABEL version="1.0.0"
-
-# Install wget for healthcheck and security updates
-RUN apk add --no-cache wget \
-    && apk upgrade --no-cache
-
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs \
-    && adduser -S nodejs -u 1001
-
-WORKDIR /app
-
-# Set production environment (only in production stage)
-ENV NODE_ENV=hopelimo
-ENV PORT=5001
+# Install build dependencies
+RUN apk add --no-cache libc6-compat python3 make g++
 
 # Copy package files
 COPY package*.json ./
 
-# Install production dependencies only
-RUN npm ci --omit=dev --ignore-scripts
+# Install dependencies with clean install
+RUN npm ci --only=production && \
+    npm cache clean --force
 
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/shared ./shared
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
 
-# Change ownership to non-root user
-RUN chown -R nodejs:nodejs /app
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Install all dependencies (including dev)
+RUN npm install
+
+# Set build environment variables
+ENV NODE_ENV=production
+ENV VITE_API_URL=/api
+
+# Build the application
+RUN npm run build
+
+# Production image, copy all the files and run
+FROM base AS runner
+WORKDIR /app
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Create a non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 expressjs
+
+# Copy built application
+COPY --from=builder --chown=expressjs:nodejs /app/dist ./dist
+COPY --from=deps --chown=expressjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=expressjs:nodejs /app/package*.json ./
+
+# Create uploads directory
+RUN mkdir -p /app/uploads && \
+    chown -R expressjs:nodejs /app/uploads
 
 # Switch to non-root user
-USER nodejs
+USER expressjs
 
-# Expose port 5000
-EXPOSE 5001
+# Expose port
+EXPOSE 5000
 
-# Health check configuration
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1
+# Set environment
+ENV NODE_ENV=production
+ENV PORT=5000
+ENV HOST=0.0.0.0
 
-# Start the Node.js server directly
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:5000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application
 CMD ["node", "dist/index.js"]
