@@ -16,11 +16,14 @@ import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { S3Client, HeadBucketCommand, ListBucketsCommand } from "@aws-sdk/client-s3";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
-}
+// Initialize Stripe only if secret key is available
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+  : null;
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+if (!stripe) {
+  console.warn('[STRIPE] Warning: STRIPE_SECRET_KEY not configured. Payment features will be disabled.');
+}
 
 // Initialize Object Storage adapter lazily (on first use) to avoid startup errors
 let objectStorage: StorageAdapter | null = null;
@@ -2331,6 +2334,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authorize & Capture payment (Admin/Dispatcher only)
   app.post('/api/bookings/:id/authorize-payment', isAuthenticated, async (req: any, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ message: 'Payment service not configured' });
+      }
+      
       const { id } = req.params;
       const userId = req.user.id;
       
@@ -3914,6 +3921,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create payment intent for invoice payment (public - token-based auth)
   app.post('/api/payment-intents/invoice', async (req: any, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ message: 'Payment service not configured' });
+      }
+      
       const { token, invoiceId } = req.body;
 
       if (!token || !invoiceId) {
@@ -6566,6 +6577,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe payment routes
   app.post("/api/create-payment-intent", isAuthenticated, async (req: any, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ message: 'Payment service not configured' });
+      }
+      
       const { amount, bookingId } = req.body;
       
       if (!amount || amount <= 0) {
@@ -6596,6 +6611,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Payment methods management
   app.get('/api/payment-methods', isAuthenticated, async (req: any, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ message: 'Payment service not configured' });
+      }
+      
       const userId = req.user.id;
       const user = await storage.getUser(userId);
       
@@ -6631,6 +6650,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/payment-methods', isAuthenticated, async (req: any, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ message: 'Payment service not configured' });
+      }
+      
       const userId = req.user.id;
       const { paymentMethodId } = req.body;
       
@@ -6682,6 +6705,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/payment-methods/:id', isAuthenticated, async (req: any, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ message: 'Payment service not configured' });
+      }
+      
       const { id } = req.params;
       
       // Detach payment method from customer
@@ -6696,6 +6723,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/payment-methods/:id/default', isAuthenticated, async (req: any, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ message: 'Payment service not configured' });
+      }
+      
       const userId = req.user.id;
       const { id } = req.params;
       
