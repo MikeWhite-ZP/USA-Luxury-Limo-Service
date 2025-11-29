@@ -172,80 +172,88 @@ export default function MobileDispatcher() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-gray-100">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="p-3 sm:p-4 flex items-center justify-between">
+      <div className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-40">
+        <div className="px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={() => setLocation('/')}
-              className="text-gray-700 hover:bg-gray-100"
+              className="h-9 w-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl touch-manipulation"
               data-testid="button-back"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Dispatch Center</h1>
-              <p className="text-xs text-gray-600">Fleet Management</p>
+              <h1 className="text-lg font-bold text-gray-900">Dispatch Center</h1>
+              <p className="text-xs text-gray-500">Fleet Management</p>
             </div>
           </div>
           <Button
             onClick={() => setFleetDialogOpen(true)}
-            className="bg-red-600 hover:bg-red-700 text-white"
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md shadow-blue-600/20 rounded-xl touch-manipulation"
             size="sm"
             data-testid="button-fleet-monitor"
           >
-            <MapPin className="w-4 h-4 mr-1" />
+            <MapPin className="w-4 h-4 mr-1.5" />
             Fleet
           </Button>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="p-3 grid grid-cols-2 gap-2 sm:gap-3 sm:p-4">
-        <Card className="bg-white border-green-200 shadow-sm">
-          <CardContent className="p-3 sm:p-4 text-center">
-            <Car className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 mx-auto mb-1 sm:mb-2" />
-            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="stat-active-drivers">{stats?.activeDrivers || 0}</p>
-            <p className="text-xs text-gray-600">Active Drivers</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border-blue-200 shadow-sm">
-          <CardContent className="p-3 sm:p-4 text-center">
-            <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mx-auto mb-1 sm:mb-2" />
-            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="stat-active-rides">{stats?.activeRides || 0}</p>
-            <p className="text-xs text-gray-600">Active Rides</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border-orange-200 shadow-sm">
-          <CardContent className="p-3 sm:p-4 text-center">
-            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 mx-auto mb-1 sm:mb-2" />
-            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="stat-pending-requests">{stats?.pendingRequests || 0}</p>
-            <p className="text-xs text-gray-600">Pending</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border-gray-200 shadow-sm">
-          <CardContent className="p-3 sm:p-4 text-center">
-            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 mx-auto mb-1 sm:mb-2" />
-            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="stat-utilization">{stats?.fleetUtilization || '0%'}</p>
-            <p className="text-xs text-gray-600">Utilization</p>
-          </CardContent>
-        </Card>
+      <div className="p-4 grid grid-cols-2 gap-3">
+        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-2xl p-4 border border-emerald-100">
+          <div className="flex items-center justify-center mb-2">
+            <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center">
+              <Car className="w-5 h-5 text-emerald-600" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-emerald-700 text-center" data-testid="stat-active-drivers">{stats?.activeDrivers || 0}</p>
+          <p className="text-xs text-emerald-600/70 text-center font-medium">Active Drivers</p>
+        </div>
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-4 border border-blue-100">
+          <div className="flex items-center justify-center mb-2">
+            <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center">
+              <Activity className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-blue-700 text-center" data-testid="stat-active-rides">{stats?.activeRides || 0}</p>
+          <p className="text-xs text-blue-600/70 text-center font-medium">Active Rides</p>
+        </div>
+        <div className="bg-gradient-to-br from-amber-50 to-amber-100/50 rounded-2xl p-4 border border-amber-100">
+          <div className="flex items-center justify-center mb-2">
+            <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-amber-600" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-amber-700 text-center" data-testid="stat-pending-requests">{stats?.pendingRequests || 0}</p>
+          <p className="text-xs text-amber-600/70 text-center font-medium">Pending</p>
+        </div>
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl p-4 border border-gray-200">
+          <div className="flex items-center justify-center mb-2">
+            <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
+              <Users className="w-5 h-5 text-gray-600" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-gray-700 text-center" data-testid="stat-utilization">{stats?.fleetUtilization || '0%'}</p>
+          <p className="text-xs text-gray-500 text-center font-medium">Utilization</p>
+        </div>
       </div>
 
       {/* Tabs for Rides */}
-      <div className="p-3 sm:p-4">
+      <div className="px-4 pb-6">
         <Tabs defaultValue="pending" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-100">
-            <TabsTrigger value="pending" className="data-[state=active]:bg-white data-[state=active]:text-red-600" data-testid="tab-pending">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-100/80 p-1 rounded-xl">
+            <TabsTrigger value="pending" className="data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-lg text-xs font-medium" data-testid="tab-pending">
               Pending ({pendingBookings.length})
             </TabsTrigger>
-            <TabsTrigger value="assigned" className="data-[state=active]:bg-white data-[state=active]:text-red-600" data-testid="tab-assigned">
+            <TabsTrigger value="assigned" className="data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-lg text-xs font-medium" data-testid="tab-assigned">
               Assigned ({assignedBookings.length})
             </TabsTrigger>
-            <TabsTrigger value="active" className="data-[state=active]:bg-white data-[state=active]:text-red-600" data-testid="tab-active">
+            <TabsTrigger value="active" className="data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-lg text-xs font-medium" data-testid="tab-active">
               Active ({activeBookings.length})
             </TabsTrigger>
           </TabsList>

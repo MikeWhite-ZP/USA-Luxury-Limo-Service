@@ -197,9 +197,9 @@ export default function MobilePaymentMethods() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-gray-100 p-6 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading payment methods...</p>
         </div>
       </div>
@@ -209,60 +209,76 @@ export default function MobilePaymentMethods() {
   // Check if Stripe is configured
   if (!stripePromise) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/mobile-passenger')}
-          className="mb-6"
-          data-testid="button-back"
-        >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back
-        </Button>
-        <Card className="text-center p-8 border-2 border-blue-100 shadow-sm">
-          <CardContent className="pt-6">
-            <CreditCard className="w-16 h-16 mx-auto mb-4 text-blue-200" />
-            <h3 className="text-lg font-semibold text-slate-700 mb-2">Payment Setup Required</h3>
-            <p className="text-slate-500">
-              Payment method management is not available. Please contact support.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-gray-100">
+        <div className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-40">
+          <div className="px-5 pt-5 pb-4">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/mobile-passenger')}
+                className="h-9 w-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl touch-manipulation"
+                data-testid="button-back"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div>
+                <h1 className="text-lg font-bold text-gray-900">Payment Methods</h1>
+                <p className="text-gray-500 text-xs">Manage your credit cards</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="p-4">
+          <Card className="text-center p-8 border border-gray-100 shadow-sm rounded-2xl bg-white">
+            <CardContent className="pt-6">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CreditCard className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Payment Setup Required</h3>
+              <p className="text-gray-500 text-sm">
+                Payment method management is not available. Please contact support.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-gray-100 pb-20">
       {/* Header */}
-      <div className="bg-white border-b-2 border-blue-100 p-6 pb-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/mobile-passenger')}
-            className="text-blue-700 hover:bg-blue-50"
-            data-testid="button-back"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => setAddPaymentOpen(true)}
-            className="text-blue-700 hover:bg-blue-50"
-            data-testid="button-add-payment-method"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Add Card
-          </Button>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-100 p-2.5 rounded-xl">
-            <CreditCard className="w-6 h-6 text-blue-600" />
+      <div className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-40">
+        <div className="px-5 pt-5 pb-4">
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/mobile-passenger')}
+              className="h-9 w-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl touch-manipulation"
+              data-testid="button-back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <Button
+              onClick={() => setAddPaymentOpen(true)}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md shadow-blue-600/20 rounded-xl touch-manipulation"
+              size="sm"
+              data-testid="button-add-payment-method"
+            >
+              <Plus className="w-4 h-4 mr-1.5" />
+              Add Card
+            </Button>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-blue-900">Payment Methods</h1>
-            <p className="text-slate-600 text-sm mt-0.5">Manage your credit cards</p>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900">Payment Methods</h1>
+              <p className="text-gray-500 text-xs">Manage your credit cards</p>
+            </div>
           </div>
         </div>
       </div>

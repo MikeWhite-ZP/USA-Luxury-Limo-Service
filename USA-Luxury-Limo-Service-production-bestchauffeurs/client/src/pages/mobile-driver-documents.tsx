@@ -184,38 +184,47 @@ export default function MobileDriverDocuments() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading documents...</p>
+          <p className="text-gray-500">Loading documents...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5">
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-gray-100 pb-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-primary-foreground p-6 shadow-lg sticky top-0 z-10">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setLocation('/mobile-driver')}
-            className="text-primary-foreground hover:bg-primary-foreground/20"
-            data-testid="button-back"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </Button>
-          <h1 className="text-2xl font-bold" data-testid="header-title">My Documents</h1>
+      <div className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-40">
+        <div className="px-5 pt-5 pb-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setLocation('/mobile-driver')}
+              className="h-9 w-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl touch-manipulation"
+              data-testid="button-back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-gray-900" data-testid="header-title">My Documents</h1>
+                <p className="text-gray-500 text-xs">Upload and manage verification docs</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <p className="text-green-50 text-sm mt-2 ml-14">Upload and manage your verification documents</p>
       </div>
 
       {/* Documents */}
       <div className="p-4 space-y-4">
         {/* Driver License */}
-        <Card className="bg-card border-primary/30 shadow-md" data-testid="card-driver-license">
+        <Card className="bg-white border border-gray-100 shadow-sm rounded-2xl" data-testid="card-driver-license">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -299,7 +308,7 @@ export default function MobileDriverDocuments() {
         </Card>
 
         {/* Limo License */}
-        <Card className="bg-card border-primary/30 shadow-md" data-testid="card-limo-license">
+        <Card className="bg-white border border-gray-100 shadow-sm rounded-2xl" data-testid="card-limo-license">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -383,7 +392,7 @@ export default function MobileDriverDocuments() {
         </Card>
 
         {/* Insurance Certificate */}
-        <Card className="bg-card border-primary/30 shadow-md" data-testid="card-insurance-certificate">
+        <Card className="bg-white border border-gray-100 shadow-sm rounded-2xl" data-testid="card-insurance-certificate">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -467,7 +476,7 @@ export default function MobileDriverDocuments() {
         </Card>
 
         {/* Vehicle Image */}
-        <Card className="bg-card border-primary/30 shadow-md" data-testid="card-vehicle-image">
+        <Card className="bg-white border border-gray-100 shadow-sm rounded-2xl" data-testid="card-vehicle-image">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -552,7 +561,7 @@ export default function MobileDriverDocuments() {
         </Card>
 
         {/* Profile Photo */}
-        <Card className="bg-card border-primary/30 shadow-md" data-testid="card-profile-photo">
+        <Card className="bg-white border border-gray-100 shadow-sm rounded-2xl" data-testid="card-profile-photo">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

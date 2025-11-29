@@ -445,55 +445,59 @@ export default function MobileInvoices() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-6">
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-gray-100 pb-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 pb-8 rounded-b-3xl shadow-lg">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/mobile-passenger')}
-            className="text-white hover:bg-primary-foreground/20 dark:bg-primary-foreground/25"
-            data-testid="button-back"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">My Invoices</h1>
-            <p className="text-blue-100 text-sm mt-1">View and manage your ride invoices</p>
+      <div className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-40">
+        <div className="px-5 pt-5 pb-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/mobile-passenger')}
+              className="h-9 w-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl touch-manipulation"
+              data-testid="button-back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900">My Invoices</h1>
+              <p className="text-gray-500 text-xs">View and manage your ride invoices</p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Search Bar */}
-      <div className="px-4 -mt-6 mb-4">
+      <div className="px-4 py-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
             type="text"
             placeholder="Search by invoice number or address..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-12 bg-white shadow-md border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+            className="pl-10 h-11 bg-white shadow-sm border-gray-100 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-sm"
             data-testid="input-search"
           />
         </div>
       </div>
 
       {/* Date Range Filters */}
-      <div className="px-4 mb-6">
-        <div className="bg-white shadow-md rounded-lg p-4 border border-slate-200">
+      <div className="px-4 mb-4">
+        <div className="bg-white shadow-sm rounded-2xl p-4 border border-gray-100">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-semibold text-slate-900">Filter by Date</span>
+              <div className="p-1.5 bg-blue-50 rounded-lg">
+                <Calendar className="w-4 h-4 text-blue-600" />
+              </div>
+              <span className="text-sm font-semibold text-gray-900">Filter by Date</span>
             </div>
             {hasActiveFilters && (
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={clearFilters}
-                className="h-7 px-2 text-xs text-slate-600 hover:text-red-600 hover:bg-red-50"
+                className="h-7 px-2 text-xs text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg touch-manipulation"
                 data-testid="button-clear-filters"
               >
                 <X className="w-3 h-3 mr-1" />

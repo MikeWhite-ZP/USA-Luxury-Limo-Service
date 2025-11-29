@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Car, UserCircle, Radio, Sparkles } from 'lucide-react';
+import { Car, UserCircle, Radio, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { setDevicePreference } from '@/lib/deviceDetection';
 import { useQuery } from '@tanstack/react-query';
@@ -68,207 +68,196 @@ export default function MobileSplash() {
     navigate(`/mobile-login?role=${role}`);
   };
 
+  const roles = [
+    {
+      id: 'passenger' as UserRole,
+      label: 'Passenger',
+      description: 'Book and manage your rides',
+      icon: UserCircle,
+      color: 'from-blue-500 to-blue-600',
+      bgLight: 'bg-blue-50',
+      border: 'border-blue-100',
+    },
+    {
+      id: 'driver' as UserRole,
+      label: 'Driver',
+      description: 'Accept and complete rides',
+      icon: Car,
+      color: 'from-emerald-500 to-emerald-600',
+      bgLight: 'bg-emerald-50',
+      border: 'border-emerald-100',
+    },
+    {
+      id: 'dispatcher' as UserRole,
+      label: 'Dispatcher',
+      description: 'Manage fleet operations',
+      icon: Radio,
+      color: 'from-violet-500 to-violet-600',
+      bgLight: 'bg-violet-50',
+      border: 'border-violet-100',
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-96 h-96 bg-red-50 rounded-full blur-3xl -top-48 -left-24 animate-pulse" />
-        <div className="absolute w-96 h-96 bg-gray-50 rounded-full blur-3xl -bottom-48 -right-24 animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute w-80 h-80 bg-red-50 rounded-full blur-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{ animationDelay: '2s' }} />
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-gray-100 flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute w-[500px] h-[500px] bg-gradient-to-br from-gray-100/80 to-gray-200/40 rounded-full blur-3xl -top-64 -right-32" />
+        <div className="absolute w-[400px] h-[400px] bg-gradient-to-tr from-gray-100/60 to-gray-50/40 rounded-full blur-3xl -bottom-48 -left-24" />
       </div>
       
       <AnimatePresence mode="wait">
-        {/* Stage 1: Animated Logo */}
         {stage === 'logo' && (
           <motion.div
             key="logo"
-            initial={{ opacity: 0, scale: 0.5 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.2 }}
-            transition={{ duration: 0.8 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
             className="text-center relative z-10"
           >
             <motion.div
-              initial={{ rotate: 0 }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-              className="inline-block mb-8 relative"
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="inline-block mb-6"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-red-100/50 via-gray-100/50 to-red-100/50 rounded-full blur-2xl animate-pulse" />
-              <img 
-                src={logoUrl} 
-                alt={companyName} 
-                className="w-72 h-auto relative z-10 drop-shadow-2xl"
-              />
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-200/50 to-gray-100/30 rounded-3xl blur-2xl scale-110" />
+                <img 
+                  src={logoUrl} 
+                  alt={companyName} 
+                  className="w-64 h-auto relative z-10 drop-shadow-lg"
+                />
+              </div>
             </motion.div>
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-red-600 to-gray-900 bg-clip-text text-transparent mb-2"
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="text-4xl font-bold text-gray-900 mb-3 tracking-tight"
             >
               {companyName}
             </motion.h1>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-              className="flex items-center justify-center gap-2 mt-4"
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+              className="text-gray-500 text-lg font-light"
             >
-              <Sparkles className="w-5 h-5 text-red-600" />
-              <p className="text-gray-600 text-xl font-light tracking-wide">
-                {tagline}
-              </p>
-              <Sparkles className="w-5 h-5 text-red-600" />
+              {tagline}
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8, duration: 0.4 }}
+              className="mt-8 flex justify-center"
+            >
+              <div className="flex gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-gray-300 animate-pulse" />
+                <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" style={{ animationDelay: '0.2s' }} />
+                <div className="w-2 h-2 rounded-full bg-gray-300 animate-pulse" style={{ animationDelay: '0.4s' }} />
+              </div>
             </motion.div>
           </motion.div>
         )}
 
-        {/* Stage 2: Luxury Chauffeur Image */}
         {stage === 'chauffeur' && (
           <motion.div
             key="chauffeur"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
-            className="relative w-full max-w-2xl z-10"
+            transition={{ duration: 0.8 }}
+            className="relative w-full max-w-lg z-10"
           >
             <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
-              className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-200"
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="relative rounded-3xl overflow-hidden shadow-2xl shadow-gray-300/50"
             >
               <img
                 src={chauffeurImage}
                 alt="Luxury Chauffeur Service"
-                className="w-full h-[70vh] object-cover"
+                className="w-full h-[65vh] object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-white/98 via-white/60 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-white via-white/70 to-transparent" />
               <motion.div
-                initial={{ y: 50, opacity: 0 }}
+                initial={{ y: 30, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="absolute bottom-0 left-0 right-0 p-8 text-center"
+                transition={{ delay: 0.4, duration: 0.6 }}
+                className="absolute bottom-0 left-0 right-0 p-6"
               >
-                <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-6 border border-gray-200 shadow-lg">
-                  <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-gray-900 via-red-600 to-gray-900 bg-clip-text text-transparent">
+                <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-gray-100">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     Premium Chauffeur Experience
                   </h2>
-                  <p className="text-gray-600 text-lg font-light">Professional • Reliable • Luxurious</p>
+                  <p className="text-gray-500 text-sm font-medium tracking-wide">
+                    Professional  •  Reliable  •  Luxurious
+                  </p>
                 </div>
               </motion.div>
             </motion.div>
           </motion.div>
         )}
 
-        {/* Stage 3: Role Selection */}
         {stage === 'role-selection' && (
           <motion.div
             key="role-selection"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.6 }}
-            className="w-full max-w-md relative z-10"
+            transition={{ duration: 0.5 }}
+            className="w-full max-w-sm relative z-10"
           >
             <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="text-center mb-10"
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+              className="text-center mb-8"
             >
-              <motion.div
-                initial={{ y: -10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-xl border border-gray-200 rounded-full px-6 py-2 mb-6 shadow-sm"
-              >
-                <Sparkles className="w-4 h-4 text-red-600" />
-                <span className="text-gray-600 text-sm font-medium">Select Your Portal</span>
-              </motion.div>
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-red-600 to-gray-900 bg-clip-text text-transparent mb-3">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
                 Welcome
               </h2>
-              <p className="text-gray-600 text-lg font-light">Choose your role to continue</p>
+              <p className="text-gray-500">Select your role to continue</p>
             </motion.div>
 
-            <div className="space-y-3 flex flex-col items-center">
-              <motion.div
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="w-full max-w-sm"
-              >
-                <Button
-                  onClick={() => handleRoleSelect('passenger')}
-                  className="group w-full bg-white hover:bg-red-50 text-red-600 rounded-xl font-medium shadow-md hover:shadow-lg border-2 border-red-200 hover:border-red-400 transition-all py-6 h-auto touch-manipulation"
-                  data-testid="button-role-passenger"
-                >
-                  <div className="flex items-center justify-start gap-4">
-                    <div className="bg-red-100 p-3 rounded-lg group-hover:bg-red-200 transition-colors">
-                      <UserCircle className="w-6 h-6 text-red-600" />
-                    </div>
-                    <div className="text-left">
-                      <div className="text-base font-semibold text-gray-900">Passenger</div>
-                      <div className="text-sm text-gray-600 font-normal">Book and manage rides</div>
-                    </div>
-                  </div>
-                </Button>
-              </motion.div>
-
-              <motion.div
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                className="w-full max-w-sm"
-              >
-                <Button
-                  onClick={() => handleRoleSelect('driver')}
-                  className="group w-full bg-white hover:bg-red-50 text-red-600 rounded-xl font-medium shadow-md hover:shadow-lg border-2 border-red-200 hover:border-red-400 transition-all py-6 h-auto touch-manipulation"
-                  data-testid="button-role-driver"
-                >
-                  <div className="flex items-center justify-start gap-4">
-                    <div className="bg-red-100 p-3 rounded-lg group-hover:bg-red-200 transition-colors">
-                      <Car className="w-6 h-6 text-red-600" />
-                    </div>
-                    <div className="text-left">
-                      <div className="text-base font-semibold text-gray-900">Driver</div>
-                      <div className="text-sm text-gray-600 font-normal">Accept and complete rides</div>
-                    </div>
-                  </div>
-                </Button>
-              </motion.div>
-
-              <motion.div
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="w-full max-w-sm"
-              >
-                <Button
-                  onClick={() => handleRoleSelect('dispatcher')}
-                  className="group w-full bg-white hover:bg-red-50 text-red-600 rounded-xl font-medium shadow-md hover:shadow-lg border-2 border-red-200 hover:border-red-400 transition-all py-6 h-auto touch-manipulation"
-                  data-testid="button-role-dispatcher"
-                >
-                  <div className="flex items-center justify-start gap-4">
-                    <div className="bg-red-100 p-3 rounded-lg group-hover:bg-red-200 transition-colors">
-                      <Radio className="w-6 h-6 text-red-600" />
-                    </div>
-                    <div className="text-left">
-                      <div className="text-base font-semibold text-gray-900">Dispatcher</div>
-                      <div className="text-sm text-gray-600 font-normal">Manage fleet operations</div>
-                    </div>
-                  </div>
-                </Button>
-              </motion.div>
+            <div className="space-y-3">
+              {roles.map((role, index) => {
+                const Icon = role.icon;
+                return (
+                  <motion.div
+                    key={role.id}
+                    initial={{ x: -30, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 + index * 0.1, duration: 0.4 }}
+                  >
+                    <Button
+                      onClick={() => handleRoleSelect(role.id)}
+                      variant="ghost"
+                      className={`w-full h-auto p-4 ${role.bgLight} hover:${role.bgLight} ${role.border} border rounded-2xl justify-between group transition-all duration-200 hover:shadow-md touch-manipulation`}
+                      data-testid={`button-role-${role.id}`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={`p-3 rounded-xl bg-gradient-to-br ${role.color} shadow-sm`}>
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="text-left">
+                          <div className="text-base font-semibold text-gray-900">{role.label}</div>
+                          <div className="text-sm text-gray-500 font-normal">{role.description}</div>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
+                    </Button>
+                  </motion.div>
+                );
+              })}
             </div>
 
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
+              transition={{ delay: 0.6, duration: 0.4 }}
               className="text-center mt-10"
             >
               <button
@@ -276,11 +265,10 @@ export default function MobileSplash() {
                   setDevicePreference('desktop');
                   navigate('/');
                 }}
-                className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all text-sm group touch-manipulation py-3 px-4"
+                className="text-gray-400 hover:text-gray-600 text-sm transition-colors touch-manipulation py-3 px-4"
                 data-testid="button-view-desktop-site"
               >
-                <span className="group-hover:-translate-x-1 transition-transform">←</span>
-                <span>View Desktop Site</span>
+                View Desktop Site
               </button>
             </motion.div>
           </motion.div>

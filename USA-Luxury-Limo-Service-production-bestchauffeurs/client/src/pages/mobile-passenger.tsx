@@ -405,21 +405,21 @@ export default function MobilePassenger() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-gray-100 pb-24">
       {/* Modern Header */}
-      <div className="bg-white border-b border-gray-200 shadow-lg">
-        <div className="px-6 pt-6 pb-4">
-          <div className="flex justify-between items-start mb-6">
+      <div className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-40">
+        <div className="px-5 pt-5 pb-4">
+          <div className="flex justify-between items-start mb-5">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
-              <p className="text-gray-600 mt-1 text-sm">{user.firstName || ''} {user.lastName || ''}</p>
+              <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Welcome back</p>
+              <h1 className="text-xl font-bold text-gray-900 mt-0.5">{user.firstName || ''} {user.lastName || ''}</h1>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="text-gray-700 hover:bg-gray-100 touch-manipulation"
+                className="h-9 w-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl touch-manipulation"
                 data-testid="button-menu"
               >
                 {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -428,7 +428,7 @@ export default function MobilePassenger() {
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
-                className="text-gray-700 hover:bg-gray-100 touch-manipulation"
+                className="h-9 w-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl touch-manipulation"
                 data-testid="button-logout"
               >
                 <LogOut className="w-5 h-5" />
@@ -437,25 +437,25 @@ export default function MobilePassenger() {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white border border-red-200 rounded-xl p-3 shadow-sm">
-              <p className="text-gray-600 text-xs">Active</p>
-              <p className="text-xl font-bold text-red-600 mt-1">{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
+          <div className="grid grid-cols-3 gap-2.5">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl p-3 border border-blue-100">
+              <p className="text-blue-600/70 text-[10px] font-medium uppercase tracking-wide">Active</p>
+              <p className="text-2xl font-bold text-blue-600 mt-0.5">{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
             </div>
-            <div className="bg-white border border-blue-200 rounded-xl p-3 shadow-sm">
-              <p className="text-gray-600 text-xs">Upcoming</p>
-              <p className="text-xl font-bold text-blue-600 mt-1">{upcomingBookings.length}</p>
+            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-xl p-3 border border-emerald-100">
+              <p className="text-emerald-600/70 text-[10px] font-medium uppercase tracking-wide">Upcoming</p>
+              <p className="text-2xl font-bold text-emerald-600 mt-0.5">{upcomingBookings.length}</p>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
-              <p className="text-gray-600 text-xs">Total</p>
-              <p className="text-xl font-bold text-gray-900 mt-1">{bookings?.length || 0}</p>
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl p-3 border border-gray-200">
+              <p className="text-gray-500 text-[10px] font-medium uppercase tracking-wide">Total</p>
+              <p className="text-2xl font-bold text-gray-700 mt-0.5">{bookings?.length || 0}</p>
             </div>
           </div>
         </div>
 
         {/* Navigation Menu */}
-        <div className="px-2 pt-2 pb-0 overflow-x-auto scrollbar-hide">
-          <div className="flex gap-1 min-w-max">
+        <div className="px-3 pb-2 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1 min-w-max bg-gray-100/80 p-1 rounded-xl">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id;
@@ -470,15 +470,15 @@ export default function MobilePassenger() {
                     }
                     setMenuOpen(false);
                   }}
-                  className={`flex flex-col items-center gap-0.5 px-2.5 py-2 rounded-t-lg transition-all touch-manipulation ${
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all touch-manipulation ${
                     isActive
-                      ? 'bg-gray-50 text-red-600 shadow-lg border-t border-x border-gray-200'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
                   }`}
                   data-testid={`nav-${item.id}`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />
-                  <span className={`text-[10px] font-medium whitespace-nowrap ${isActive ? 'text-red-600' : ''}`}>
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : ''}`} />
+                  <span className={`text-xs font-medium whitespace-nowrap ${isActive ? 'text-gray-900' : ''}`}>
                     {item.label}
                   </span>
                 </button>
@@ -489,35 +489,37 @@ export default function MobilePassenger() {
       </div>
 
       {/* Main Content */}
-      <div className="px-4 py-6 space-y-4">
+      <div className="px-4 py-5 space-y-4">
         {/* Home Section */}
         {activeSection === 'home' && (
           <>
             {/* Quick Action Button */}
             <Button
               onClick={() => navigate('/mobile-booking')}
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-6 rounded-2xl text-lg font-semibold shadow-lg transition-all transform active:scale-95"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-5 rounded-2xl text-base font-semibold shadow-lg shadow-blue-600/20 transition-all transform active:scale-[0.98] touch-manipulation"
               data-testid="button-new-booking-home"
             >
-              <Plus className="w-6 h-6 mr-2" />
+              <Plus className="w-5 h-5 mr-2" />
               Book New Ride
             </Button>
 
             {/* Bookings Section */}
-            <Card className="shadow-md border-gray-200 bg-white">
-              <CardHeader className="pb-3 bg-white border-b border-gray-100">
-                <CardTitle className="text-lg flex items-center gap-2 text-gray-900">
-                  <Car className="w-5 h-5 text-red-600" />
+            <Card className="shadow-sm border-gray-100 bg-white rounded-2xl overflow-hidden">
+              <CardHeader className="pb-3 bg-gray-50/50 border-b border-gray-100 px-4 pt-4">
+                <CardTitle className="text-base font-semibold flex items-center gap-2 text-gray-900">
+                  <div className="p-1.5 bg-blue-100 rounded-lg">
+                    <Car className="w-4 h-4 text-blue-600" />
+                  </div>
                   My Rides
                 </CardTitle>
               </CardHeader>
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'upcoming' | 'past')} className="w-full">
-              <TabsList className="w-full grid grid-cols-2 bg-gray-100 mx-4 mb-3" style={{width: 'calc(100% - 2rem)'}}>
-                <TabsTrigger value="upcoming" className="data-[state=active]:bg-white data-[state=active]:text-red-600" data-testid="tab-upcoming">
+              <TabsList className="w-full grid grid-cols-2 bg-gray-100/80 mx-4 mb-3 rounded-lg p-0.5" style={{width: 'calc(100% - 2rem)'}}>
+                <TabsTrigger value="upcoming" className="data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md text-sm" data-testid="tab-upcoming">
                   Upcoming ({upcomingBookings.length})
                 </TabsTrigger>
-                <TabsTrigger value="past" className="data-[state=active]:bg-white data-[state=active]:text-red-600" data-testid="tab-past">
+                <TabsTrigger value="past" className="data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md text-sm" data-testid="tab-past">
                   Past ({pastBookings.length})
                 </TabsTrigger>
               </TabsList>
@@ -544,40 +546,44 @@ export default function MobilePassenger() {
                       <div
                         key={booking.id}
                         onClick={() => navigate(`/mobile-booking-details/${booking.id}`)}
-                        className="bg-white border border-gray-200 rounded-xl p-4 active:bg-gray-50 transition-colors cursor-pointer shadow-sm hover:shadow-md"
+                        className="bg-white border border-gray-100 rounded-xl p-4 active:bg-gray-50 transition-all cursor-pointer shadow-sm hover:shadow-md touch-manipulation"
                         data-testid={`booking-card-${booking.id}`}
                       >
                         <div className="flex justify-between items-start mb-3">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+                          <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${getStatusColor(booking.status)}`}>
                             {formatStatus(booking.status)}
                           </span>
                           <span className="text-lg font-bold text-gray-900">${booking.totalAmount}</span>
                         </div>
                         
-                        <div className="space-y-2 text-sm">
-                          <div className="flex items-start gap-2">
-                            <Clock className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-gray-900">
+                        <div className="space-y-2.5 text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="p-1 bg-gray-100 rounded-md">
+                              <Clock className="w-3.5 h-3.5 text-gray-500" />
+                            </div>
+                            <span className="text-gray-700">
                               {new Date(booking.scheduledDateTime).toLocaleString()}
                             </span>
                           </div>
                           
                           <div className="flex items-start gap-2">
-                            <MapPin className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                            <div className="p-1 bg-blue-50 rounded-md mt-0.5">
+                              <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                            </div>
                             <div className="flex-1">
-                              <p className="text-gray-900 font-medium">{booking.pickupAddress}</p>
+                              <p className="text-gray-900 font-medium text-sm">{booking.pickupAddress}</p>
                               {booking.destinationAddress && (
                                 <>
-                                  <div className="h-4 w-px bg-gray-300 ml-2 my-1" />
-                                  <p className="text-gray-600">{booking.destinationAddress}</p>
+                                  <div className="h-3 w-px bg-gray-200 ml-2 my-1" />
+                                  <p className="text-gray-500 text-sm">{booking.destinationAddress}</p>
                                 </>
                               )}
                             </div>
                           </div>
 
                           {booking.bookingType === 'hourly' && (
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <Clock className="w-4 h-4" />
+                            <div className="flex items-center gap-2 text-gray-500 text-sm">
+                              <Clock className="w-3.5 h-3.5" />
                               <span>Hourly Service - {booking.requestedHours}h</span>
                             </div>
                           )}

@@ -29,22 +29,18 @@ export default function MobileProfile() {
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
 
-  // Fetch driver documents to check profile photo approval status
   const { data: documents } = useQuery<DriverDocument[]>({
     queryKey: ['/api/driver/documents'],
     retry: false,
   });
 
-  // Find profile photo document
   const profilePhotoDoc = documents?.find(doc => doc.documentType === 'profile_photo');
   
-  // Show profile picture if it exists (pending or approved)
   const displayUrl = localPreviewUrl || profilePhotoDoc?.documentUrl || user?.profileImageUrl || null;
   const isPending = profilePhotoDoc?.status === 'pending';
   const isApproved = profilePhotoDoc?.status === 'approved';
   const isRejected = profilePhotoDoc?.status === 'rejected';
 
-  // Upload profile picture mutation
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
@@ -87,7 +83,6 @@ export default function MobileProfile() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Invalid File Type",
@@ -97,7 +92,6 @@ export default function MobileProfile() {
       return;
     }
 
-    // Validate file size (2MB max)
     if (file.size > 2 * 1024 * 1024) {
       toast({
         title: "File Too Large",
@@ -109,7 +103,6 @@ export default function MobileProfile() {
 
     setProfilePicture(file);
     
-    // Create preview URL
     const reader = new FileReader();
     reader.onloadend = () => {
       setLocalPreviewUrl(reader.result as string);
@@ -131,36 +124,39 @@ export default function MobileProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-gray-100">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 shadow-lg sticky top-0 z-10">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setLocation('/mobile-driver')}
-            className="text-white hover:bg-primary-foreground/20 dark:bg-primary-foreground/25"
-            data-testid="button-back"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </Button>
-          <h1 className="text-2xl font-bold" data-testid="header-title">My Profile</h1>
+      <div className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-40">
+        <div className="px-5 pt-5 pb-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setLocation('/mobile-driver')}
+              className="h-9 w-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl touch-manipulation"
+              data-testid="button-back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900" data-testid="header-title">My Profile</h1>
+              <p className="text-gray-500 text-xs">Update your profile picture</p>
+            </div>
+          </div>
         </div>
-        <p className="text-green-50 text-sm mt-2 ml-14">Update your profile picture</p>
       </div>
+
       {/* Profile Picture Card */}
       <div className="p-4">
-        <Card className="bg-white border-green-200 shadow-md" data-testid="card-profile-picture">
-          <CardContent className="p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <Camera className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900">Profile Picture</h3>
-                  <p className="text-xs text-gray-500">Update your photo</p>
-                </div>
+        <Card className="bg-white border-gray-100 shadow-sm rounded-2xl" data-testid="card-profile-picture">
+          <CardContent className="p-5 space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <Camera className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Profile Picture</h3>
+                <p className="text-xs text-gray-500">Update your photo</p>
               </div>
             </div>
 
@@ -168,7 +164,7 @@ export default function MobileProfile() {
             <div className="flex justify-center py-4">
               <div className="relative">
                 <div className={`w-32 h-32 rounded-full overflow-hidden border-4 shadow-lg bg-white ${
-                  isPending ? 'border-yellow-300' : isRejected ? 'border-red-300' : 'border-green-100'
+                  isPending ? 'border-yellow-200' : isRejected ? 'border-red-200' : 'border-blue-100'
                 }`}>
                   <img
                     src={displayUrl || defaultUserImage}
@@ -178,7 +174,7 @@ export default function MobileProfile() {
                   />
                 </div>
                 <div className={`absolute bottom-0 right-0 w-10 h-10 rounded-full flex items-center justify-center shadow-md border-2 border-white ${
-                  isPending ? 'bg-yellow-500' : isRejected ? 'bg-red-500' : 'bg-green-600'
+                  isPending ? 'bg-yellow-500' : isRejected ? 'bg-red-500' : 'bg-blue-600'
                 }`}>
                   <Camera className="w-5 h-5 text-white" />
                 </div>
@@ -187,28 +183,28 @@ export default function MobileProfile() {
 
             {/* Status Badge */}
             {isPending && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
-                <p className="text-sm text-yellow-800 font-medium">⏳ Pending Approval</p>
-                <p className="text-xs text-yellow-600 mt-1">Your photo is awaiting admin review</p>
+              <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-3 text-center">
+                <p className="text-sm text-yellow-700 font-medium">Pending Approval</p>
+                <p className="text-xs text-yellow-600 mt-0.5">Your photo is awaiting admin review</p>
               </div>
             )}
             {isRejected && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
-                <p className="text-sm text-red-800 font-medium">❌ Rejected</p>
-                <p className="text-xs text-red-600 mt-1">{profilePhotoDoc?.rejectionReason || 'Please upload a new photo'}</p>
+              <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-center">
+                <p className="text-sm text-red-700 font-medium">Rejected</p>
+                <p className="text-xs text-red-600 mt-0.5">{profilePhotoDoc?.rejectionReason || 'Please upload a new photo'}</p>
               </div>
             )}
             {isApproved && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-                <p className="text-sm text-green-800 font-medium">✓ Approved</p>
-                <p className="text-xs text-green-600 mt-1">Your profile picture is active</p>
+              <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
+                <p className="text-sm text-emerald-700 font-medium">Approved</p>
+                <p className="text-xs text-emerald-600 mt-0.5">Your profile picture is active</p>
               </div>
             )}
 
             {/* Upload Controls */}
             <div className="space-y-3">
               <div>
-                <Label htmlFor="profile-picture-file" className="text-gray-700 font-medium mb-2 block">
+                <Label htmlFor="profile-picture-file" className="text-gray-700 font-medium text-sm mb-2 block">
                   {displayUrl ? 'Replace Photo' : 'Upload Photo'}
                 </Label>
                 <Input
@@ -217,16 +213,16 @@ export default function MobileProfile() {
                   accept="image/*"
                   capture="user"
                   onChange={handleFileChange}
-                  className="bg-white border-gray-300"
+                  className="bg-gray-50 border-gray-200 rounded-xl"
                   data-testid="input-profile-picture-file"
                 />
-                <p className="text-xs mt-1 text-gray-500">Image only, max 2MB. Photo will be visible immediately but requires admin approval.</p>
+                <p className="text-xs mt-1.5 text-gray-500">Image only, max 2MB. Photo will be visible immediately but requires admin approval.</p>
               </div>
               
               <Button
                 onClick={handleUpload}
                 disabled={!profilePicture || uploadMutation.isPending}
-                className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-base font-semibold rounded-xl shadow-md"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white h-12 text-base font-semibold rounded-xl shadow-md shadow-blue-600/20 touch-manipulation"
                 data-testid="button-upload-profile-picture"
               >
                 <Upload className="w-5 h-5 mr-2" />
