@@ -176,6 +176,7 @@ export function AdminLogin() {
                         id="admin-login-username"
                         type="text"
                         placeholder="Enter your username"
+                        autoComplete="username"
                         value={loginForm.username}
                         onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
                         required
@@ -196,6 +197,7 @@ export function AdminLogin() {
                         id="admin-login-password"
                         type="password"
                         placeholder="Enter your password"
+                        autoComplete="current-password"
                         value={loginForm.password}
                         onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
                         required

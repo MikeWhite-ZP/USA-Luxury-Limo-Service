@@ -188,6 +188,7 @@ export default function MobileLogin() {
                   id="username"
                   type="text"
                   placeholder="Enter your username"
+                  autoComplete="username"
                   {...register('username')}
                   className="h-12 text-base bg-gray-50 border-gray-200 focus:border-gray-400 focus:ring-gray-400 rounded-xl touch-manipulation"
                   data-testid="input-mobile-username"
@@ -206,6 +207,7 @@ export default function MobileLogin() {
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
+                    autoComplete="current-password"
                     {...register('password')}
                     className="h-12 text-base pr-12 bg-gray-50 border-gray-200 focus:border-gray-400 focus:ring-gray-400 rounded-xl touch-manipulation"
                     data-testid="input-mobile-password"

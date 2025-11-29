@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Car, MapPin, Clock, Activity, Users, CheckCircle2, AlertCircle, Navigation2, Phone, Mail } from 'lucide-react';
@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface DashboardStats {
   activeDrivers: number;
@@ -54,24 +55,35 @@ export default function MobileDispatcher() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user, isLoading: authLoading } = useAuth();
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [fleetDialogOpen, setFleetDialogOpen] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [selectedDriverId, setSelectedDriverId] = useState<string>("");
 
-  // Fetch dashboard stats
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      setLocation('/mobile-login?role=dispatcher');
+    }
+  }, [user, authLoading, setLocation]);
+
+  // Fetch dashboard stats - enabled when auth is loaded and user exists
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/dispatcher/stats'],
+    enabled: !authLoading && !!user,
   });
 
-  // Fetch all bookings
+  // Fetch all bookings - enabled when auth is loaded and user exists
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
     queryKey: ['/api/admin/bookings'],
+    enabled: !authLoading && !!user,
   });
 
-  // Fetch all drivers
+  // Fetch all drivers - enabled when auth is loaded and user exists
   const { data: drivers, isLoading: driversLoading } = useQuery<Driver[]>({
     queryKey: ['/api/admin/drivers'],
+    enabled: !authLoading && !!user,
   });
 
   // Filter bookings (exclude past-due bookings)
@@ -160,7 +172,7 @@ export default function MobileDispatcher() {
     }
   };
 
-  if (statsLoading || bookingsLoading || driversLoading) {
+  if (authLoading || statsLoading || bookingsLoading || driversLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-gray-900 text-center">
@@ -169,6 +181,11 @@ export default function MobileDispatcher() {
         </div>
       </div>
     );
+  }
+
+  // If user is not authenticated, show nothing (redirect will happen via useEffect)
+  if (!user) {
+    return null;
   }
 
   return (

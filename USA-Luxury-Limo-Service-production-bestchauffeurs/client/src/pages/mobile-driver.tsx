@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { format } from 'date-fns';
+import { useAuth } from '@/hooks/useAuth';
 
 interface DriverData {
   id: number;
@@ -48,21 +49,31 @@ export default function MobileDriver() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user, isLoading: authLoading } = useAuth();
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const watchIdRef = useRef<number | null>(null);
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch driver profile
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      setLocation('/mobile-login?role=driver');
+    }
+  }, [user, authLoading, setLocation]);
+
+  // Fetch driver profile - enabled when auth is loaded and user exists
   const { data: driver, isLoading: driverLoading } = useQuery<DriverData>({
     queryKey: ['/api/driver/profile'],
     retry: false,
+    enabled: !authLoading && !!user,
   });
 
-  // Fetch driver bookings
+  // Fetch driver bookings - enabled when auth is loaded and user exists
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
     queryKey: ['/api/bookings'],
     retry: false,
+    enabled: !authLoading && !!user,
   });
 
   // Toggle availability mutation
@@ -272,7 +283,7 @@ export default function MobileDriver() {
   const completedToday = completedBookings
     .filter(b => b.scheduledDateTime && new Date(b.scheduledDateTime) >= today).length;
 
-  if (driverLoading || bookingsLoading) {
+  if (authLoading || driverLoading || bookingsLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -281,6 +292,11 @@ export default function MobileDriver() {
         </div>
       </div>
     );
+  }
+
+  // If user is not authenticated, show nothing (redirect will happen via useEffect)
+  if (!user) {
+    return null;
   }
 
   if (!driver) {
