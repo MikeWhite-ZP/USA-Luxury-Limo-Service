@@ -55,6 +55,7 @@ const Hotels = lazy(() => import("@/pages/Hotels"));
 const Contact = lazy(() => import("@/pages/contact"));
 const RoleLogin = lazy(() => import("@/pages/RoleLogin").then(m => ({ default: m.RoleLogin })));
 const AdminLogin = lazy(() => import("@/pages/AdminLogin").then(m => ({ default: m.AdminLogin })));
+const FirstAdminSetup = lazy(() => import("@/pages/FirstAdminSetup"));
 const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword").then(m => ({ default: m.ResetPassword })));
 const AdminDashboard = lazy(() => import("@/pages/admin-dashboard"));
@@ -187,6 +188,7 @@ function Router() {
       <Route path="/login" component={RoleLogin} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin-login" component={AdminLogin} />
+      <Route path="/admin-setup" component={FirstAdminSetup} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
       

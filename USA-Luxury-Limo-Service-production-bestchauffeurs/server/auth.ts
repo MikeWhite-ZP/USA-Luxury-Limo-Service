@@ -289,6 +289,16 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "Username, password, and email are required" });
       }
 
+      // Security check: Only authenticated admins can create admin accounts
+      const requestedRole = role || "passenger";
+      if (requestedRole === "admin") {
+        if (!req.isAuthenticated() || !req.user || req.user.role !== "admin") {
+          return res.status(403).json({ 
+            message: "Only authenticated administrators can create new admin accounts. Use the admin setup page for the first admin." 
+          });
+        }
+      }
+
       // Check if username already exists
       const existingUser = await storage.getUserByUsername(username);
       if (existingUser) {
@@ -304,10 +314,10 @@ export function setupAuth(app: Express) {
       // Create user with hashed password
       const hashedPassword = await hashPassword(password);
 
-      // Determine default isActive based on role
-      // Admin accounts start as inactive and must be activated by existing admins
-      const userRole = role || "passenger";
-      const defaultIsActive = userRole === "admin" ? false : true;
+      // For admin accounts created by other admins, they are active by default
+      // For non-admin accounts (passengers, drivers, dispatchers), they are active by default
+      const userRole = requestedRole;
+      const defaultIsActive = true;
 
       const user = await storage.createUser({
         username,
@@ -496,6 +506,92 @@ export function setupAuth(app: Express) {
         'x-forwarded-for': req.get('x-forwarded-for'),
       }
     });
+  });
+
+  // Check if any admin users exist (for first-time setup)
+  app.get("/api/admin/exists", async (req, res) => {
+    try {
+      const adminCount = await storage.countAdminUsers();
+      res.json({ exists: adminCount > 0, count: adminCount });
+    } catch (error) {
+      console.error("Error checking admin existence:", error);
+      res.status(500).json({ message: "Failed to check admin status" });
+    }
+  });
+
+  // Create first admin account (only works when no admins exist)
+  app.post("/api/setup/first-admin", async (req, res, next) => {
+    try {
+      // Check if any admin already exists
+      const adminCount = await storage.countAdminUsers();
+      if (adminCount > 0) {
+        return res.status(403).json({ 
+          message: "Admin account already exists. Use the admin dashboard to create additional admins." 
+        });
+      }
+
+      const { username, password, email, firstName, lastName } = req.body;
+
+      // Validate required fields
+      if (!username || !password || !email) {
+        return res.status(400).json({ message: "Username, password, and email are required" });
+      }
+
+      // Validate password strength
+      if (password.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters long" });
+      }
+
+      // Check if username already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+
+      // Check if email already exists
+      const existingEmail = await storage.getUserByEmail(email);
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+
+      // Create the first admin user with hashed password
+      const hashedPassword = await hashPassword(password);
+
+      const user = await storage.createUser({
+        username,
+        password: hashedPassword,
+        email,
+        firstName: firstName || '',
+        lastName: lastName || '',
+        role: 'admin',
+        oauthProvider: 'local',
+        isActive: true, // First admin is automatically active
+      });
+
+      console.log("✅ First admin account created:", user.id);
+
+      // Log the admin in
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          console.error("🔴 First admin login error:", loginErr);
+          return next(loginErr);
+        }
+
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error("🔴 First admin session save error:", saveErr);
+            return next(saveErr);
+          }
+
+          // Send user data without password
+          const { password: _, ...userWithoutPassword } = user;
+          res.status(201).json(userWithoutPassword);
+        });
+      });
+    } catch (error) {
+      console.error("First admin creation error:", error);
+      res.status(500).json({ message: "Failed to create admin account" });
+    }
   });
 }
 
