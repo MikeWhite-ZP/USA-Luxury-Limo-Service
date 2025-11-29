@@ -1,0 +1,67 @@
+const openEditBookingDialog = (booking) => {
+        console.log("📝 OPENING EDIT BOOKING DIALOG");
+        console.log("Booking to edit:", booking);
+        setEditingBooking(booking);
+        const scheduledDate = new Date(booking.scheduledDateTime);
+        const formattedDateTime = scheduledDate.toISOString().slice(0, 16);
+        setBookingFormData({
+            passengerId: booking.passengerId || "",
+            pickupAddress: booking.pickupAddress || "",
+            destinationAddress: booking.destinationAddress || "",
+            scheduledDateTime: formattedDateTime,
+            totalAmount: booking.totalAmount?.toString() || "",
+            vehicleTypeId: booking.vehicleTypeId || "",
+            bookingType: booking.bookingType || "transfer",
+            status: booking.status || "pending",
+            pickupCoords: null,
+            destinationCoords: null,
+            requestedHours: booking.requestedHours?.toString() || "2",
+            bookingFor: booking.bookingFor || "self",
+            passengerName: booking.passengerName || "",
+            passengerPhone: booking.passengerPhone || "",
+            passengerEmail: booking.passengerEmail || "",
+            passengerCount: booking.passengerCount || 1,
+            luggageCount: booking.luggageCount || booking.luggage_count || 0,
+            babySeat: booking.babySeat || booking.baby_seat || false,
+            specialInstructions: booking.specialInstructions || booking.special_instructions || "",
+            flightNumber: booking.flightNumber || booking.flight_number || "",
+            flightAirline: booking.flightAirline || booking.flight_airline || "",
+            flightDepartureAirport: booking.flightDepartureAirport || booking.flight_departure_airport || "",
+            flightArrivalAirport: booking.flightArrivalAirport || booking.flight_arrival_airport || ""
+        });
+        setCalculatedPrice("");
+        console.log("✈️ CHECKING FOR FLIGHT DATA IN BOOKING");
+        const flightNum = booking.flightNumber || booking.flight_number;
+        const flightAir = booking.flightAirline || booking.flight_airline;
+        const deptAirport = booking.flightDepartureAirport || booking.flight_departure_airport;
+        const arrAirport = booking.flightArrivalAirport || booking.flight_arrival_airport;
+        console.log("Flight Number found:", flightNum);
+        console.log("Flight Airline found:", flightAir);
+        console.log("Departure Airport found:", deptAirport);
+        console.log("Arrival Airport found:", arrAirport);
+        if (flightNum && flightAir) {
+            console.log("✅ Flight data exists, restoring flight information");
+            const restoredFlight = {
+                flightNumber: flightNum,
+                airline: flightAir,
+                departureAirport: deptAirport || "N/A",
+                arrivalAirport: arrAirport || "N/A",
+                departureTime: "N/A",
+                arrivalTime: "N/A",
+                departureTerminal: "N/A",
+                arrivalTerminal: "N/A",
+                baggageClaim: "N/A",
+                aircraft: "N/A"
+            };
+            console.log("Restored flight object:", restoredFlight);
+            setFlightSearchInput(flightNum);
+            setSelectedFlight(restoredFlight);
+        } else {
+            console.log("❌ No flight data found in booking, clearing flight state");
+            setFlightSearchInput("");
+            setSelectedFlight(null);
+        }
+        console.log("📂 Opening booking dialog...");
+        setBookingDialogOpen(true);
+    }
+    ;

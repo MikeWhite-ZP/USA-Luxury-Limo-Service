@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  iOS Info.plist Template for USA Luxury Limo
+  
+  This template contains all required permission descriptions for Capacitor plugins.
+  
+  USAGE:
+  After regenerating the iOS project with `npx cap add ios`, copy the permission
+  keys below and paste them into ios/App/App/Info.plist before the closing </dict> tag.
+  
+  Alternatively, if ios/App/App/Info.plist is committed in git, it should already
+  contain these permissions.
+-->
+<plist version="1.0">
+<dict>
+    <!-- Required permissions for Capacitor plugins -->
+    <key>NSCameraUsageDescription</key>
+    <string>USA Luxury Limo needs access to your camera to upload photos and documents for driver verification and trip documentation.</string>
+    
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>USA Luxury Limo needs access to your photo library to select and upload images.</string>
+    
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>USA Luxury Limo needs permission to save photos to your library.</string>
+    
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>USA Luxury Limo needs your location to show nearby pickup points and provide accurate ride tracking.</string>
+    
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>USA Luxury Limo uses your location to provide real-time ride tracking and accurate driver-passenger coordination.</string>
+    
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>USA Luxury Limo uses your location to provide real-time ride tracking and accurate driver-passenger coordination.</string>
+    
+    <!-- Push notifications background mode -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>remote-notification</string>
+    </array>
+</dict>
+</plist>

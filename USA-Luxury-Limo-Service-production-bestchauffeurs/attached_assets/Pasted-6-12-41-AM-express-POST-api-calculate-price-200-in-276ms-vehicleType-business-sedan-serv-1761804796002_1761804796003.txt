@@ -1,0 +1,70 @@
+6:12:41 AM [express] POST /api/calculate-price 200 in 276ms :: {"vehicleType":"business_sedan","serv…
+🔵 Deserializing user ID: 312afc88-c8c2-4a3a-a249-a8a3af31d2ca
+🔵 User found: mikeadmin2
+🔍 Auth check - Path: /api/admin/bookings
+🔍 SessionID: YZE4okfD1zAvvabJCOfDu8jGiRj7PdPy
+🔍 Session exists? true
+🔍 Session.passport: { user: '312afc88-c8c2-4a3a-a249-a8a3af31d2ca' }
+🔍 req.isAuthenticated(): true
+🔍 req.user: 312afc88-c8c2-4a3a-a249-a8a3af31d2ca
+✅ Authentication successful for user: 312afc88-c8c2-4a3a-a249-a8a3af31d2ca
+Admin create booking error: ZodError: [
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "number",
+    "path": [
+      "surgePricingMultiplier"
+    ],
+    "message": "Expected string, received number"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "number",
+    "path": [
+      "discountPercentage"
+    ],
+    "message": "Expected string, received number"
+  }
+]
+    at get error [as error] (file:///home/runner/workspace/node_modules/zod/lib/index.mjs:587:31)
+    at ZodObject.parse (file:///home/runner/workspace/node_modules/zod/lib/index.mjs:663:22)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:1502:47)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  issues: [
+    {
+      code: 'invalid_type',
+      expected: 'string',
+      received: 'number',
+      path: [Array],
+      message: 'Expected string, received number'
+    },
+    {
+      code: 'invalid_type',
+      expected: 'string',
+      received: 'number',
+      path: [Array],
+      message: 'Expected string, received number'
+    }
+  ],
+  addIssue: [Function (anonymous)],
+  addIssues: [Function (anonymous)],
+  errors: [
+    {
+      code: 'invalid_type',
+      expected: 'string',
+      received: 'number',
+      path: [Array],
+      message: 'Expected string, received number'
+    },
+    {
+      code: 'invalid_type',
+      expected: 'string',
+      received: 'number',
+      path: [Array],
+      message: 'Expected string, received number'
+    }
+  ]
+}
+6:12:44 AM [express] POST /api/admin/bookings 400 in 127ms :: {"message":"Invalid booking data","err…

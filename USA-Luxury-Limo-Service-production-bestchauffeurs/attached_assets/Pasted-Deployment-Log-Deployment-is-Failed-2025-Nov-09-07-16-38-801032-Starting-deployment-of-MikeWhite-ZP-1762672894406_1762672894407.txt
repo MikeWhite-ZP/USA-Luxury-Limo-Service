@@ -1,0 +1,708 @@
+Deployment Log
+Deployment is Failed.
+2025-Nov-09 07:16:38.801032 Starting deployment of MikeWhite-ZP/USA-Luxury-Limo-Service:main to localhost.
+2025-Nov-09 07:16:39.513648 Preparing container with helper image: ghcr.io/coollabsio/coolify-helper:1.0.12
+2025-Nov-09 07:16:39.900329 [CMD]: docker stop --time=30 v00coocck8wk08ksoww0s4g8
+2025-Nov-09 07:16:39.900329 Flag --time has been deprecated, use --timeout instead
+2025-Nov-09 07:16:39.902012 Error response from daemon: No such container: v00coocck8wk08ksoww0s4g8
+2025-Nov-09 07:16:40.286761 [CMD]: docker rm -f v00coocck8wk08ksoww0s4g8
+2025-Nov-09 07:16:40.286761 Error response from daemon: No such container: v00coocck8wk08ksoww0s4g8
+2025-Nov-09 07:16:40.750734 [CMD]: docker run -d --network coolify --name v00coocck8wk08ksoww0s4g8  --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/coollabsio/coolify-helper:1.0.12
+2025-Nov-09 07:16:40.750734 c6425761b7e891698d0ed0a95b4229679f5b6a06d437a3772fa83344a5aa986d
+2025-Nov-09 07:16:43.544321 [CMD]: docker exec v00coocck8wk08ksoww0s4g8 bash -c 'GIT_SSH_COMMAND="ssh -o ConnectTimeout=30 -p 22 -o Port=22 -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git ls-remote https://x-access-token:<REDACTED>@github.com/MikeWhite-ZP/USA-Luxury-Limo-Service.git refs/heads/main'
+2025-Nov-09 07:16:43.544321 47e8133e2315201731e19918e7b79028169d2b95	refs/heads/main
+2025-Nov-09 07:16:43.991289 ----------------------------------------
+2025-Nov-09 07:16:43.999156 Importing MikeWhite-ZP/USA-Luxury-Limo-Service:main (commit sha 47e8133e2315201731e19918e7b79028169d2b95) to /artifacts/v00coocck8wk08ksoww0s4g8.
+2025-Nov-09 07:16:44.447909 [CMD]: docker exec v00coocck8wk08ksoww0s4g8 bash -c 'git clone --depth=1 --recurse-submodules --shallow-submodules -b 'main' 'https://x-access-token:<REDACTED>@github.com/MikeWhite-ZP/USA-Luxury-Limo-Service.git' '/artifacts/v00coocck8wk08ksoww0s4g8' && cd '/artifacts/v00coocck8wk08ksoww0s4g8' && if [ -f .gitmodules ]; then git submodule sync && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git submodule update --init --recursive --depth=1; fi && cd '/artifacts/v00coocck8wk08ksoww0s4g8' && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git lfs pull'
+2025-Nov-09 07:16:44.447909 Cloning into '/artifacts/v00coocck8wk08ksoww0s4g8'...
+2025-Nov-09 07:16:47.011139 [CMD]: docker exec v00coocck8wk08ksoww0s4g8 bash -c 'cd /artifacts/v00coocck8wk08ksoww0s4g8 && git log -1 47e8133e2315201731e19918e7b79028169d2b95 --pretty=%B'
+2025-Nov-09 07:16:47.011139 Final cleanup before force push to new SSH remote
+2025-Nov-09 07:16:47.414461 Image not found (ek8o8ckow44gckkg8k00w0sc:47e8133e2315201731e19918e7b79028169d2b95). Building new image.
+2025-Nov-09 07:16:49.147452 [CMD]: docker exec v00coocck8wk08ksoww0s4g8 bash -c 'cat /artifacts/v00coocck8wk08ksoww0s4g8/Dockerfile'
+2025-Nov-09 07:16:49.147452 # Build stage
+2025-Nov-09 07:16:49.147452 FROM node:20-alpine AS builder
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Add labels for image metadata
+2025-Nov-09 07:16:49.147452 LABEL maintainer="USA Luxury Limo"
+2025-Nov-09 07:16:49.147452 LABEL description="Luxury transportation booking platform"
+2025-Nov-09 07:16:49.147452 LABEL version="1.0.0"
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 WORKDIR /app
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Copy package files and install dependencies
+2025-Nov-09 07:16:49.147452 COPY package*.json ./
+2025-Nov-09 07:16:49.147452 RUN npm ci --ignore-scripts
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Copy application source
+2025-Nov-09 07:16:49.147452 COPY . .
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Build application
+2025-Nov-09 07:16:49.147452 RUN npm run build
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Production stage
+2025-Nov-09 07:16:49.147452 FROM node:20-alpine AS production
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Add labels
+2025-Nov-09 07:16:49.147452 LABEL maintainer="USA Luxury Limo"
+2025-Nov-09 07:16:49.147452 LABEL description="Luxury transportation booking platform - Production"
+2025-Nov-09 07:16:49.147452 LABEL version="1.0.0"
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Install wget for healthcheck and security updates
+2025-Nov-09 07:16:49.147452 RUN apk add --no-cache wget \
+2025-Nov-09 07:16:49.147452 && apk upgrade --no-cache
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Create non-root user for security
+2025-Nov-09 07:16:49.147452 RUN addgroup -g 1001 -S nodejs \
+2025-Nov-09 07:16:49.147452 && adduser -S nodejs -u 1001
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 WORKDIR /app
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Set production environment
+2025-Nov-09 07:16:49.147452 ENV NODE_ENV=production
+2025-Nov-09 07:16:49.147452 ENV PORT=5000
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Copy package files
+2025-Nov-09 07:16:49.147452 COPY package*.json ./
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Install production dependencies only
+2025-Nov-09 07:16:49.147452 RUN npm ci --omit=dev --ignore-scripts
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Copy built application from builder stage
+2025-Nov-09 07:16:49.147452 COPY --from=builder /app/dist ./dist
+2025-Nov-09 07:16:49.147452 COPY --from=builder /app/shared ./shared
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Change ownership to non-root user
+2025-Nov-09 07:16:49.147452 RUN chown -R nodejs:nodejs /app
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Switch to non-root user
+2025-Nov-09 07:16:49.147452 USER nodejs
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Expose port 5000 (Coolify will handle SSL/routing)
+2025-Nov-09 07:16:49.147452 EXPOSE 5000
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Health check
+2025-Nov-09 07:16:49.147452 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+2025-Nov-09 07:16:49.147452 CMD wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1
+2025-Nov-09 07:16:49.147452
+2025-Nov-09 07:16:49.147452 # Start the Node.js server directly
+2025-Nov-09 07:16:49.147452 CMD ["node", "dist/index.js"]
+2025-Nov-09 07:16:49.629327 Creating build-time .env file in /artifacts (outside Docker context).
+2025-Nov-09 07:16:50.565717 [CMD]: docker exec v00coocck8wk08ksoww0s4g8 bash -c 'cat /artifacts/build-time.env'
+2025-Nov-09 07:16:50.565717 SOURCE_COMMIT='47e8133e2315201731e19918e7b79028169d2b95'
+2025-Nov-09 07:16:50.565717 COOLIFY_URL='https://ek8o8ckow44gckkg8k00w0sc.best-chauffeurs.com'
+2025-Nov-09 07:16:50.565717 COOLIFY_FQDN='ek8o8ckow44gckkg8k00w0sc.best-chauffeurs.com'
+2025-Nov-09 07:16:50.565717 COOLIFY_BRANCH='main'
+2025-Nov-09 07:16:50.565717 COOLIFY_RESOURCE_UUID='ek8o8ckow44gckkg8k00w0sc'
+2025-Nov-09 07:16:50.565717 COOLIFY_CONTAINER_NAME='ek8o8ckow44gckkg8k00w0sc-071637205962'
+2025-Nov-09 07:16:50.565717 DATABASE_URL="postgresql://user:password@host:5432/database"
+2025-Nov-09 07:16:50.565717 MINIO_ACCESS_KEY="minioadmin"
+2025-Nov-09 07:16:50.565717 MINIO_BUCKET="usa-luxury-limo"
+2025-Nov-09 07:16:50.565717 MINIO_ENDPOINT="http://usa-limo-minio:9000"
+2025-Nov-09 07:16:50.565717 MINIO_SECRET_KEY="your-minio-password"
+2025-Nov-09 07:16:50.565717 SESSION_SECRET="generate-with-openssl-rand-base64-32"
+2025-Nov-09 07:16:50.565717 STRIPE_SECRET_KEY="sk_live_your_key"
+2025-Nov-09 07:16:50.565717 VITE_STRIPE_PUBLIC_KEY="pk_live_your_key"
+2025-Nov-09 07:16:51.042497 [CMD]: docker exec v00coocck8wk08ksoww0s4g8 bash -c 'cat /artifacts/v00coocck8wk08ksoww0s4g8/Dockerfile'
+2025-Nov-09 07:16:51.042497 # Build stage
+2025-Nov-09 07:16:51.042497 FROM node:20-alpine AS builder
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Add labels for image metadata
+2025-Nov-09 07:16:51.042497 LABEL maintainer="USA Luxury Limo"
+2025-Nov-09 07:16:51.042497 LABEL description="Luxury transportation booking platform"
+2025-Nov-09 07:16:51.042497 LABEL version="1.0.0"
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 WORKDIR /app
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Copy package files and install dependencies
+2025-Nov-09 07:16:51.042497 COPY package*.json ./
+2025-Nov-09 07:16:51.042497 RUN npm ci --ignore-scripts
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Copy application source
+2025-Nov-09 07:16:51.042497 COPY . .
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Build application
+2025-Nov-09 07:16:51.042497 RUN npm run build
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Production stage
+2025-Nov-09 07:16:51.042497 FROM node:20-alpine AS production
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Add labels
+2025-Nov-09 07:16:51.042497 LABEL maintainer="USA Luxury Limo"
+2025-Nov-09 07:16:51.042497 LABEL description="Luxury transportation booking platform - Production"
+2025-Nov-09 07:16:51.042497 LABEL version="1.0.0"
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Install wget for healthcheck and security updates
+2025-Nov-09 07:16:51.042497 RUN apk add --no-cache wget \
+2025-Nov-09 07:16:51.042497 && apk upgrade --no-cache
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Create non-root user for security
+2025-Nov-09 07:16:51.042497 RUN addgroup -g 1001 -S nodejs \
+2025-Nov-09 07:16:51.042497 && adduser -S nodejs -u 1001
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 WORKDIR /app
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Set production environment
+2025-Nov-09 07:16:51.042497 ENV NODE_ENV=production
+2025-Nov-09 07:16:51.042497 ENV PORT=5000
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Copy package files
+2025-Nov-09 07:16:51.042497 COPY package*.json ./
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Install production dependencies only
+2025-Nov-09 07:16:51.042497 RUN npm ci --omit=dev --ignore-scripts
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Copy built application from builder stage
+2025-Nov-09 07:16:51.042497 COPY --from=builder /app/dist ./dist
+2025-Nov-09 07:16:51.042497 COPY --from=builder /app/shared ./shared
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Change ownership to non-root user
+2025-Nov-09 07:16:51.042497 RUN chown -R nodejs:nodejs /app
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Switch to non-root user
+2025-Nov-09 07:16:51.042497 USER nodejs
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Expose port 5000 (Coolify will handle SSL/routing)
+2025-Nov-09 07:16:51.042497 EXPOSE 5000
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Health check
+2025-Nov-09 07:16:51.042497 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+2025-Nov-09 07:16:51.042497 CMD wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1
+2025-Nov-09 07:16:51.042497
+2025-Nov-09 07:16:51.042497 # Start the Node.js server directly
+2025-Nov-09 07:16:51.042497 CMD ["node", "dist/index.js"]
+2025-Nov-09 07:16:51.077784 Final Dockerfile:
+2025-Nov-09 07:16:51.993807 [CMD]: docker exec v00coocck8wk08ksoww0s4g8 bash -c 'cat /artifacts/v00coocck8wk08ksoww0s4g8/Dockerfile'
+2025-Nov-09 07:16:51.993807 # Build stage
+2025-Nov-09 07:16:51.993807 FROM node:20-alpine AS builder
+2025-Nov-09 07:16:51.993807 ARG DATABASE_URL=postgresql://user:password@host:5432/database
+2025-Nov-09 07:16:51.993807 ARG MINIO_ACCESS_KEY=minioadmin
+2025-Nov-09 07:16:51.993807 ARG MINIO_BUCKET=usa-luxury-limo
+2025-Nov-09 07:16:51.993807 ARG MINIO_ENDPOINT=http://usa-limo-minio:9000
+2025-Nov-09 07:16:51.993807 ARG MINIO_SECRET_KEY=your-minio-password
+2025-Nov-09 07:16:51.993807 ARG SESSION_SECRET=generate-with-openssl-rand-base64-32
+2025-Nov-09 07:16:51.993807 ARG STRIPE_SECRET_KEY=sk_live_your_key
+2025-Nov-09 07:16:51.993807 ARG VITE_STRIPE_PUBLIC_KEY=pk_live_your_key
+2025-Nov-09 07:16:51.993807 ARG SOURCE_COMMIT=47e8133e2315201731e19918e7b79028169d2b95
+2025-Nov-09 07:16:51.993807 ARG COOLIFY_URL=https://ek8o8ckow44gckkg8k00w0sc.best-chauffeurs.com
+2025-Nov-09 07:16:51.993807 ARG COOLIFY_FQDN=ek8o8ckow44gckkg8k00w0sc.best-chauffeurs.com
+2025-Nov-09 07:16:51.993807 ARG COOLIFY_BRANCH=main
+2025-Nov-09 07:16:51.993807 ARG COOLIFY_RESOURCE_UUID=ek8o8ckow44gckkg8k00w0sc
+2025-Nov-09 07:16:51.993807 ARG COOLIFY_CONTAINER_NAME=ek8o8ckow44gckkg8k00w0sc-071637205962
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Add labels for image metadata
+2025-Nov-09 07:16:51.993807 LABEL maintainer="USA Luxury Limo"
+2025-Nov-09 07:16:51.993807 LABEL description="Luxury transportation booking platform"
+2025-Nov-09 07:16:51.993807 LABEL version="1.0.0"
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 WORKDIR /app
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Copy package files and install dependencies
+2025-Nov-09 07:16:51.993807 COPY package*.json ./
+2025-Nov-09 07:16:51.993807 RUN npm ci --ignore-scripts
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Copy application source
+2025-Nov-09 07:16:51.993807 COPY . .
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Build application
+2025-Nov-09 07:16:51.993807 RUN npm run build
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Production stage
+2025-Nov-09 07:16:51.993807 FROM node:20-alpine AS production
+2025-Nov-09 07:16:51.993807 ARG DATABASE_URL=postgresql://user:password@host:5432/database
+2025-Nov-09 07:16:51.993807 ARG MINIO_ACCESS_KEY=minioadmin
+2025-Nov-09 07:16:51.993807 ARG MINIO_BUCKET=usa-luxury-limo
+2025-Nov-09 07:16:51.993807 ARG MINIO_ENDPOINT=http://usa-limo-minio:9000
+2025-Nov-09 07:16:51.993807 ARG MINIO_SECRET_KEY=your-minio-password
+2025-Nov-09 07:16:51.993807 ARG SESSION_SECRET=generate-with-openssl-rand-base64-32
+2025-Nov-09 07:16:51.993807 ARG STRIPE_SECRET_KEY=sk_live_your_key
+2025-Nov-09 07:16:51.993807 ARG VITE_STRIPE_PUBLIC_KEY=pk_live_your_key
+2025-Nov-09 07:16:51.993807 ARG SOURCE_COMMIT=47e8133e2315201731e19918e7b79028169d2b95
+2025-Nov-09 07:16:51.993807 ARG COOLIFY_URL=https://ek8o8ckow44gckkg8k00w0sc.best-chauffeurs.com
+2025-Nov-09 07:16:51.993807 ARG COOLIFY_FQDN=ek8o8ckow44gckkg8k00w0sc.best-chauffeurs.com
+2025-Nov-09 07:16:51.993807 ARG COOLIFY_BRANCH=main
+2025-Nov-09 07:16:51.993807 ARG COOLIFY_RESOURCE_UUID=ek8o8ckow44gckkg8k00w0sc
+2025-Nov-09 07:16:51.993807 ARG COOLIFY_CONTAINER_NAME=ek8o8ckow44gckkg8k00w0sc-071637205962
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Add labels
+2025-Nov-09 07:16:51.993807 LABEL maintainer="USA Luxury Limo"
+2025-Nov-09 07:16:51.993807 LABEL description="Luxury transportation booking platform - Production"
+2025-Nov-09 07:16:51.993807 LABEL version="1.0.0"
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Install wget for healthcheck and security updates
+2025-Nov-09 07:16:51.993807 RUN apk add --no-cache wget \
+2025-Nov-09 07:16:51.993807 && apk upgrade --no-cache
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Create non-root user for security
+2025-Nov-09 07:16:51.993807 RUN addgroup -g 1001 -S nodejs \
+2025-Nov-09 07:16:51.993807 && adduser -S nodejs -u 1001
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 WORKDIR /app
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Set production environment
+2025-Nov-09 07:16:51.993807 ENV NODE_ENV=production
+2025-Nov-09 07:16:51.993807 ENV PORT=5000
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Copy package files
+2025-Nov-09 07:16:51.993807 COPY package*.json ./
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Install production dependencies only
+2025-Nov-09 07:16:51.993807 RUN npm ci --omit=dev --ignore-scripts
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Copy built application from builder stage
+2025-Nov-09 07:16:51.993807 COPY --from=builder /app/dist ./dist
+2025-Nov-09 07:16:51.993807 COPY --from=builder /app/shared ./shared
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Change ownership to non-root user
+2025-Nov-09 07:16:51.993807 RUN chown -R nodejs:nodejs /app
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Switch to non-root user
+2025-Nov-09 07:16:51.993807 USER nodejs
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Expose port 5000 (Coolify will handle SSL/routing)
+2025-Nov-09 07:16:51.993807 EXPOSE 5000
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Health check
+2025-Nov-09 07:16:51.993807 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+2025-Nov-09 07:16:51.993807 CMD wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1
+2025-Nov-09 07:16:51.993807
+2025-Nov-09 07:16:51.993807 # Start the Node.js server directly
+2025-Nov-09 07:16:51.993807 CMD ["node", "dist/index.js"]
+2025-Nov-09 07:16:52.004464 ----------------------------------------
+2025-Nov-09 07:16:52.013929 Building docker image started.
+2025-Nov-09 07:16:52.021434 To check the current progress, click on Show Debug Logs.
+2025-Nov-09 07:16:52.922903 [CMD]: docker exec v00coocck8wk08ksoww0s4g8 bash -c 'cat /artifacts/build.sh'
+2025-Nov-09 07:16:52.922903 cd /artifacts/v00coocck8wk08ksoww0s4g8 && set -a && source /artifacts/build-time.env && set +a && docker build  --add-host coolify:10.0.1.5 --add-host coolify-db:10.0.1.3 --add-host coolify-realtime:10.0.1.4 --add-host coolify-redis:10.0.1.2 --network host -f /artifacts/v00coocck8wk08ksoww0s4g8/Dockerfile --build-arg SOURCE_COMMIT --build-arg COOLIFY_URL --build-arg COOLIFY_FQDN --build-arg COOLIFY_BRANCH --build-arg COOLIFY_RESOURCE_UUID --build-arg COOLIFY_CONTAINER_NAME --build-arg DATABASE_URL --build-arg MINIO_ACCESS_KEY --build-arg MINIO_BUCKET --build-arg MINIO_ENDPOINT --build-arg MINIO_SECRET_KEY --build-arg SESSION_SECRET --build-arg STRIPE_SECRET_KEY --build-arg VITE_STRIPE_PUBLIC_KEY --build-arg COOLIFY_BUILD_SECRETS_HASH=19b3b4b1a2b5d2a7161a9ef6c6c4f8e8fc1d0ed6a775aef7747b335ee736a8bb --build-arg 'SOURCE_COMMIT' --build-arg 'COOLIFY_URL' --build-arg 'COOLIFY_FQDN' --build-arg 'COOLIFY_BRANCH' --build-arg 'COOLIFY_RESOURCE_UUID' --build-arg 'COOLIFY_CONTAINER_NAME' --progress plain -t ek8o8ckow44gckkg8k00w0sc:47e8133e2315201731e19918e7b79028169d2b95 /artifacts/v00coocck8wk08ksoww0s4g8
+2025-Nov-09 07:16:54.624258 [CMD]: docker exec v00coocck8wk08ksoww0s4g8 bash -c 'bash /artifacts/build.sh'
+2025-Nov-09 07:16:54.624258 #0 building with "default" instance using docker driver
+2025-Nov-09 07:16:54.624258
+2025-Nov-09 07:16:54.624258 #1 [internal] load build definition from Dockerfile
+2025-Nov-09 07:16:54.627562 #1 transferring dockerfile: 2.93kB 0.0s done
+2025-Nov-09 07:16:54.627562 #1 DONE 0.0s
+2025-Nov-09 07:16:54.627562
+2025-Nov-09 07:16:54.627562 #2 [internal] load metadata for docker.io/library/node:20-alpine
+2025-Nov-09 07:16:55.763955 #2 DONE 1.3s
+2025-Nov-09 07:16:55.901744 #3 [internal] load .dockerignore
+2025-Nov-09 07:16:55.901744 #3 transferring context: 221B done
+2025-Nov-09 07:16:55.908860 #3 DONE 0.0s
+2025-Nov-09 07:16:55.908860
+2025-Nov-09 07:16:55.908860 #4 [builder 1/6] FROM docker.io/library/node:20-alpine@sha256:6178e78b972f79c335df281f4b7674a2d85071aae2af020ffa39f0a770265435
+2025-Nov-09 07:16:55.908860 #4 resolve docker.io/library/node:20-alpine@sha256:6178e78b972f79c335df281f4b7674a2d85071aae2af020ffa39f0a770265435 0.0s done
+2025-Nov-09 07:16:55.908860 #4 sha256:6178e78b972f79c335df281f4b7674a2d85071aae2af020ffa39f0a770265435 7.67kB / 7.67kB done
+2025-Nov-09 07:16:55.908860 #4 sha256:be8d32d651b3e0c9c2b28fdc1d3888408125d703232013cff955344d052027e5 1.72kB / 1.72kB done
+2025-Nov-09 07:16:55.908860 #4 sha256:2b56f2779663b9e1a77bdb5235dc31f1a81e534ccab1c1b35c716a8db79eeab9 6.42kB / 6.42kB done
+2025-Nov-09 07:16:56.032509 #4 DONE 0.2s
+2025-Nov-09 07:16:56.032509
+2025-Nov-09 07:16:56.032509 #5 [internal] load build context
+2025-Nov-09 07:16:56.128234 #5 transferring context: 9.79MB 0.2s done
+2025-Nov-09 07:16:56.128234 #5 DONE 0.3s
+2025-Nov-09 07:16:56.128234
+2025-Nov-09 07:16:56.128234 #6 [builder 2/6] WORKDIR /app
+2025-Nov-09 07:16:56.255311 #6 DONE 0.2s
+2025-Nov-09 07:16:56.255311
+2025-Nov-09 07:16:56.255311 #7 [builder 3/6] COPY package*.json ./
+2025-Nov-09 07:16:56.421371 #7 DONE 0.1s
+2025-Nov-09 07:16:56.421371
+2025-Nov-09 07:16:56.421371 #8 [builder 4/6] RUN npm ci --ignore-scripts
+2025-Nov-09 07:16:58.937714 #8 ...
+2025-Nov-09 07:16:58.937714
+2025-Nov-09 07:16:58.937714 #9 [production 2/9] RUN apk add --no-cache wget     && apk upgrade --no-cache
+2025-Nov-09 07:16:58.937714 #9 0.216 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/APKINDEX.tar.gz
+2025-Nov-09 07:16:58.937714 #9 0.685 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/community/x86_64/APKINDEX.tar.gz
+2025-Nov-09 07:16:58.937714 #9 1.161 (1/4) Installing libunistring (1.3-r0)
+2025-Nov-09 07:16:58.937714 #9 1.217 (2/4) Installing libidn2 (2.3.7-r0)
+2025-Nov-09 07:16:58.937714 #9 1.254 (3/4) Installing pcre2 (10.46-r0)
+2025-Nov-09 07:16:58.937714 #9 1.301 (4/4) Installing wget (1.25.0-r1)
+2025-Nov-09 07:16:58.937714 #9 1.344 Executing busybox-1.37.0-r19.trigger
+2025-Nov-09 07:16:58.937714 #9 1.379 OK: 13 MiB in 22 packages
+2025-Nov-09 07:16:58.937714 #9 1.502 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/APKINDEX.tar.gz
+2025-Nov-09 07:16:58.937714 #9 1.820 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/community/x86_64/APKINDEX.tar.gz
+2025-Nov-09 07:16:58.937714 #9 2.708 OK: 13 MiB in 22 packages
+2025-Nov-09 07:16:58.937714 #9 DONE 2.9s
+2025-Nov-09 07:16:59.095959 #10 [production 3/9] RUN addgroup -g 1001 -S nodejs     && adduser -S nodejs -u 1001
+2025-Nov-09 07:16:59.307300 #10 DONE 0.4s
+2025-Nov-09 07:16:59.307300
+2025-Nov-09 07:16:59.307300 #8 [builder 4/6] RUN npm ci --ignore-scripts
+2025-Nov-09 07:16:59.459372 #8 ...
+2025-Nov-09 07:16:59.459372
+2025-Nov-09 07:16:59.459372 #11 [production 4/9] WORKDIR /app
+2025-Nov-09 07:16:59.459372 #11 DONE 0.1s
+2025-Nov-09 07:16:59.459372
+2025-Nov-09 07:16:59.459372 #12 [production 5/9] COPY package*.json ./
+2025-Nov-09 07:16:59.459372 #12 DONE 0.1s
+2025-Nov-09 07:16:59.613778 #13 [production 6/9] RUN npm ci --omit=dev --ignore-scripts
+2025-Nov-09 07:17:25.785182 #13 ...
+2025-Nov-09 07:17:25.785182
+2025-Nov-09 07:17:25.785182 #8 [builder 4/6] RUN npm ci --ignore-scripts
+2025-Nov-09 07:17:25.785182 #8 29.51 npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+2025-Nov-09 07:17:26.215865 #8 29.93 npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+2025-Nov-09 07:17:55.797380 #8 ...
+2025-Nov-09 07:17:55.797380
+2025-Nov-09 07:17:55.797380 #13 [production 6/9] RUN npm ci --omit=dev --ignore-scripts
+2025-Nov-09 07:17:55.797380 #13 56.33
+2025-Nov-09 07:17:55.797380 #13 56.33 added 688 packages, and audited 689 packages in 56s
+2025-Nov-09 07:17:55.955708 #13 56.33
+2025-Nov-09 07:17:55.955708 #13 56.33 74 packages are looking for funding
+2025-Nov-09 07:17:55.955708 #13 56.33   run `npm fund` for details
+2025-Nov-09 07:17:55.955708 #13 56.34
+2025-Nov-09 07:17:55.955708 #13 56.34 3 low severity vulnerabilities
+2025-Nov-09 07:17:55.955708 #13 56.34
+2025-Nov-09 07:17:55.955708 #13 56.34 To address all issues, run:
+2025-Nov-09 07:17:55.955708 #13 56.34   npm audit fix
+2025-Nov-09 07:17:55.955708 #13 56.34
+2025-Nov-09 07:17:55.955708 #13 56.34 Run `npm audit` for details.
+2025-Nov-09 07:17:55.955708 #13 56.34 npm notice
+2025-Nov-09 07:17:55.955708 #13 56.34 npm notice New major version of npm available! 10.8.2 -> 11.6.2
+2025-Nov-09 07:17:55.955708 #13 56.34 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.2
+2025-Nov-09 07:17:55.955708 #13 56.34 npm notice To update run: npm install -g npm@11.6.2
+2025-Nov-09 07:17:55.955708 #13 56.34 npm notice
+2025-Nov-09 07:17:57.123125 #13 DONE 57.7s
+2025-Nov-09 07:17:57.123125
+2025-Nov-09 07:17:57.123125 #8 [builder 4/6] RUN npm ci --ignore-scripts
+2025-Nov-09 07:17:57.956836 #8 61.69
+2025-Nov-09 07:17:57.956836 #8 61.69 added 781 packages, and audited 782 packages in 1m
+2025-Nov-09 07:17:58.142319 #8 61.69
+2025-Nov-09 07:17:58.142319 #8 61.69 86 packages are looking for funding
+2025-Nov-09 07:17:58.142319 #8 61.69   run `npm fund` for details
+2025-Nov-09 07:17:58.142319 #8 61.72
+2025-Nov-09 07:17:58.142319 #8 61.72 8 vulnerabilities (3 low, 5 moderate)
+2025-Nov-09 07:17:58.142319 #8 61.72
+2025-Nov-09 07:17:58.142319 #8 61.72 To address issues that do not require attention, run:
+2025-Nov-09 07:17:58.142319 #8 61.72   npm audit fix
+2025-Nov-09 07:17:58.142319 #8 61.72
+2025-Nov-09 07:17:58.142319 #8 61.72 To address all issues (including breaking changes), run:
+2025-Nov-09 07:17:58.142319 #8 61.72   npm audit fix --force
+2025-Nov-09 07:17:58.142319 #8 61.72
+2025-Nov-09 07:17:58.142319 #8 61.72 Run `npm audit` for details.
+2025-Nov-09 07:17:58.142319 #8 61.72 npm notice
+2025-Nov-09 07:17:58.142319 #8 61.72 npm notice New major version of npm available! 10.8.2 -> 11.6.2
+2025-Nov-09 07:17:58.142319 #8 61.72 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.2
+2025-Nov-09 07:17:58.142319 #8 61.72 npm notice To update run: npm install -g npm@11.6.2
+2025-Nov-09 07:17:58.142319 #8 61.72 npm notice
+2025-Nov-09 07:17:58.355197 #8 DONE 62.1s
+2025-Nov-09 07:17:58.466223 #14 [builder 5/6] COPY . .
+2025-Nov-09 07:17:58.466223 #14 DONE 0.1s
+2025-Nov-09 07:17:58.619106 #15 [builder 6/6] RUN npm run build
+2025-Nov-09 07:17:58.744173 #15 0.277
+2025-Nov-09 07:17:58.744173 #15 0.277 > rest-express@1.0.0 build
+2025-Nov-09 07:17:58.744173 #15 0.277 > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+2025-Nov-09 07:17:58.744173 #15 0.277
+2025-Nov-09 07:17:59.238413 #15 0.769 vite v5.4.20 building for production...
+2025-Nov-09 07:17:59.352424 #15 0.886 transforming...
+2025-Nov-09 07:18:16.229432 #15 17.76 ✓ 2861 modules transformed.
+2025-Nov-09 07:18:17.273694 #15 18.81 rendering chunks...
+2025-Nov-09 07:18:18.242587 #15 19.78 computing gzip size...
+2025-Nov-09 07:18:18.403308 #15 19.94 ../dist/public/index.html                                       2.81 kB │ gzip:   1.04 kB
+2025-Nov-09 07:18:18.571918 #15 19.94 ../dist/public/assets/admin-dashboard-XpA3E8X7.css             37.00 kB │ gzip:   9.25 kB
+2025-Nov-09 07:18:18.577166 #15 19.94 ../dist/public/assets/index-CGqUC-qF.css                      171.79 kB │ gzip:  23.87 kB
+2025-Nov-09 07:18:18.577166 #15 19.94 ../dist/public/assets/authUtils-CcDzk6i0.js                     0.08 kB │ gzip:   0.10 kB
+2025-Nov-09 07:18:18.577166 #15 19.94 ../dist/public/assets/index-DZlJZjXB.js                         0.14 kB │ gzip:   0.14 kB
+2025-Nov-09 07:18:18.577166 #15 19.94 ../dist/public/assets/index-Cc-A4vFy.js                         0.23 kB │ gzip:   0.17 kB
+2025-Nov-09 07:18:18.577166 #15 19.94 ../dist/public/assets/check-bVxNbiVd.js                         0.29 kB │ gzip:   0.24 kB
+2025-Nov-09 07:18:18.577166 #15 19.94 ../dist/public/assets/chevron-down-BtdlIOWa.js                  0.30 kB │ gzip:   0.24 kB
+2025-Nov-09 07:18:18.577166 #15 19.94 ../dist/public/assets/loader-circle-CjMdTdmV.js                 0.31 kB │ gzip:   0.26 kB
+2025-Nov-09 07:18:18.577166 #15 19.94 ../dist/public/assets/navigation-DEm3Nd1p.js                    0.32 kB │ gzip:   0.26 kB
+2025-Nov-09 07:18:18.577166 #15 19.94 ../dist/public/assets/navigation-2-Cib1bEqg.js                  0.32 kB │ gzip:   0.26 kB
+2025-Nov-09 07:18:18.577166 #15 19.94 ../dist/public/assets/plus-B0GpYfsa.js                          0.32 kB │ gzip:   0.25 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/arrow-left-CCP5NYfV.js                    0.33 kB │ gzip:   0.26 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/search-CiQcssS4.js                        0.34 kB │ gzip:   0.27 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/circle-check-Bu-5BoTc.js                  0.34 kB │ gzip:   0.27 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/clock-DN8F6U_I.js                         0.35 kB │ gzip:   0.27 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/message-square-Ba8VhHX0.js                0.35 kB │ gzip:   0.27 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/circle-check-big-B6zgp5w5.js              0.36 kB │ gzip:   0.28 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/user-BeJgR0t2.js                          0.37 kB │ gzip:   0.28 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/circle-x-fL2f-rFl.js                      0.37 kB │ gzip:   0.28 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/lock-BsqQJEXt.js                          0.38 kB │ gzip:   0.29 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/credit-card-B8OMtaVF.js                   0.38 kB │ gzip:   0.29 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/star-DSSSdeNc.js                          0.38 kB │ gzip:   0.29 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mail-T1giduvK.js                          0.38 kB │ gzip:   0.30 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/dollar-sign-CffVOBnD.js                   0.39 kB │ gzip:   0.30 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/briefcase-CqsAdIgz.js                     0.39 kB │ gzip:   0.30 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/circle-help-D1rucKva.js                   0.40 kB │ gzip:   0.30 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/activity-DiduQCWI.js                      0.40 kB │ gzip:   0.30 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/pen-DdrBomcO.js                           0.40 kB │ gzip:   0.31 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/useSiteLogo-CL10z2TL.js                   0.41 kB │ gzip:   0.30 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/heart-BOlENZVb.js                         0.41 kB │ gzip:   0.31 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/camera-BKDxgIpC.js                        0.42 kB │ gzip:   0.31 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/circle-alert-nw3XEl_m.js                  0.42 kB │ gzip:   0.29 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/eye-Ck4pAB4J.js                           0.42 kB │ gzip:   0.30 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/user-check-CYFZmXPY.js                    0.42 kB │ gzip:   0.32 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/map-pin-BljyXoIE.js                       0.42 kB │ gzip:   0.32 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/calendar-B86A4nY3.js                      0.43 kB │ gzip:   0.30 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/upload-l98Apvgd.js                        0.43 kB │ gzip:   0.32 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/log-out-oVYj_Z18.js                       0.43 kB │ gzip:   0.32 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/triangle-alert-Bx6PcqsX.js                0.43 kB │ gzip:   0.31 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/shield-D8vqEHsq.js                        0.44 kB │ gzip:   0.33 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/award-BuEWB_be.js                         0.44 kB │ gzip:   0.33 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/pencil-B4vdI9B8.js                        0.45 kB │ gzip:   0.33 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/house-CpZZAjUA.js                         0.46 kB │ gzip:   0.32 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/send-CUZCr1Xu.js                          0.46 kB │ gzip:   0.33 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/receipt-CO83sS87.js                       0.46 kB │ gzip:   0.31 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/plane-6qTriKmx.js                         0.47 kB │ gzip:   0.35 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/users-LtGhCLVt.js                         0.47 kB │ gzip:   0.32 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/contact-_saZ7o-U.js                       0.49 kB │ gzip:   0.31 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/square-pen-e6lskUu9.js                    0.49 kB │ gzip:   0.34 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/printer-d6VB1j_p.js                       0.49 kB │ gzip:   0.33 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/textarea-DoPjgfkp.js                      0.50 kB │ gzip:   0.33 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/save-CJ_Srm2t.js                          0.50 kB │ gzip:   0.33 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/file-text-DdudqbU-.js                     0.50 kB │ gzip:   0.32 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/trash-2-BoHO8cgO.js                       0.53 kB │ gzip:   0.35 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/baby-BCAfLqPY.js                          0.56 kB │ gzip:   0.36 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/phone-aZJLVFxm.js                         0.56 kB │ gzip:   0.36 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/car-DPAJdsTh.js                           0.57 kB │ gzip:   0.39 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/eye-off-v6UY58i5.js                       0.60 kB │ gzip:   0.38 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/building-2-BlVzR2FM.js                    0.61 kB │ gzip:   0.35 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/not-found-BDYXt9-O.js                     0.67 kB │ gzip:   0.38 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/separator-C8UQQAbA.js                     0.67 kB │ gzip:   0.40 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mobile-booking-Ubf4mNwR.js                0.67 kB │ gzip:   0.40 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/badge-Ck8QYkOd.js                         0.71 kB │ gzip:   0.37 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/settings-BaD7Bwvn.js                      0.89 kB │ gzip:   0.44 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/card-DYvxjbeK.js                          0.99 kB │ gzip:   0.36 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/label-D6DI6kQb.js                         1.07 kB │ gzip:   0.57 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/home-CQRnSbV-.js                          1.40 kB │ gzip:   0.71 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/booking-BxD2L4cn.js                       1.47 kB │ gzip:   0.73 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/form-CO3tnwXn.js                          1.73 kB │ gzip:   0.75 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/switch-aZmb9UMh.js                        2.37 kB │ gzip:   1.20 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/PaymentSuccess-BIKK5pR7.js                2.77 kB │ gzip:   1.08 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/tabs-CmDP1pP2.js                          3.28 kB │ gzip:   1.37 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/ForgotPassword-7diFzYb0.js                3.34 kB │ gzip:   1.45 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/index-DMZeEZ9s.js                         3.41 kB │ gzip:   1.54 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mobile-profile-SPmaM7ln.js                4.54 kB │ gzip:   1.86 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mobile-login-C7fmMMaB.js                  4.60 kB │ gzip:   1.86 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/Header-CwFE-_Iv.js                        4.87 kB │ gzip:   1.68 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/ResetPassword-2xx7JOJR.js                 4.94 kB │ gzip:   1.97 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/ContactSection-CnZ4Q3E2.js                5.18 kB │ gzip:   1.69 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/Footer-Dxff9_Ze.js                        5.96 kB │ gzip:   1.74 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/VehicleDetail-B1dARPLO.js                 6.65 kB │ gzip:   2.34 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/landing-B1TgcKPN.js                       6.74 kB │ gzip:   1.80 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/dialog-CcRyScAC.js                        7.29 kB │ gzip:   2.69 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mobile-payment-methods-BBsj0R1M.js        7.83 kB │ gzip:   2.62 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/ServiceDetail-lIHWS9_A.js                 8.21 kB │ gzip:   2.78 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/AboutUs-DTTXeFvu.js                       9.71 kB │ gzip:   2.50 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/driver-documents-CDXe3akc.js             10.79 kB │ gzip:   2.67 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/AdminNav-B4TzsenQ.js                     11.07 kB │ gzip:   2.26 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/PayInvoice-DmdsSzau.js                   11.15 kB │ gzip:   2.88 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/Safety-CshLKnYN.js                       11.33 kB │ gzip:   3.34 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mobile-splash-B-g1zPZg.js                11.50 kB │ gzip:   3.77 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/checkout-Vmo_CBOl.js                     11.82 kB │ gzip:   3.28 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/AdminLogin-C_La6dSE.js                   12.01 kB │ gzip:   3.04 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/FeaturesSection-BgpB7k5O.js              12.53 kB │ gzip:   4.25 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mobile-driver-ride-details-CaEO7d0o.js   12.54 kB │ gzip:   3.35 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/FeaturedAreaDetail-DSR7vkz3.js           12.55 kB │ gzip:   3.83 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/index-CezWKl7L.js                        13.06 kB │ gzip:   5.10 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mobile-dispatcher-DXIO5E1V.js            13.90 kB │ gzip:   3.36 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/Hotels-DMXwJ93u.js                       15.26 kB │ gzip:   3.90 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/RoleLogin-DOhEpa0r.js                    15.51 kB │ gzip:   3.89 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/Combination-lcx-okEY.js                  16.57 kB │ gzip:   6.25 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/account-B8XbaAWc.js                      17.36 kB │ gzip:   4.08 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mobile-booking-details-Cs0zh4pZ.js       17.79 kB │ gzip:   5.08 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mobile-driver-documents-B3J7XN-a.js      18.87 kB │ gzip:   3.40 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mobile-driver-Dk1Tt-XS.js                19.41 kB │ gzip:   4.71 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/PrivacyPolicy-DIfluv0p.js                19.94 kB │ gzip:   5.02 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/format-Bv91UDgY.js                       20.25 kB │ gzip:   5.73 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/dropdown-menu-CWVd2dIu.js                21.52 kB │ gzip:   6.31 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/select-C0UTXFOC.js                       21.54 kB │ gzip:   7.54 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/Locations-DUcxpyju.js                    22.60 kB │ gzip:   5.84 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mobile-invoices-3uFgF9In.js              24.76 kB │ gzip:   5.81 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/TermsOfService-DbTD1Olr.js               28.11 kB │ gzip:   7.54 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/mobile-passenger-Bu8iwn3u.js             29.10 kB │ gzip:   6.60 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/HelpCenter-DSQJ1I-W.js                   29.12 kB │ gzip:   8.01 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/admin-pricing-Bkf0I8Ks.js                31.78 kB │ gzip:   6.79 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/driver-dashboard-CZutArD0.js             49.27 kB │ gzip:   8.73 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/DispatcherDashboard-BMe_io5B.js          50.29 kB │ gzip:  11.01 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/BookingForm-Dc7OMGxl.js                  50.53 kB │ gzip:  11.53 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/index-DiU7kzhp.js                        87.23 kB │ gzip:  24.23 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/proxy-BS2UzzVT.js                       112.12 kB │ gzip:  36.86 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/passenger-dashboard-CWsV9l3o.js         141.68 kB │ gzip:  31.05 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/index-CfkoghVH.js                       290.27 kB │ gzip:  94.80 kB
+2025-Nov-09 07:18:18.577166 #15 19.95 ../dist/public/assets/admin-dashboard-IBBDACJ_.js             606.06 kB │ gzip: 139.19 kB
+2025-Nov-09 07:18:18.577166 #15 19.95
+2025-Nov-09 07:18:18.577166 #15 19.95 (!) Some chunks are larger than 500 kB after minification. Consider:
+2025-Nov-09 07:18:18.577166 #15 19.95 - Using dynamic import() to code-split the application
+2025-Nov-09 07:18:18.577166 #15 19.95 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+2025-Nov-09 07:18:18.577166 #15 19.95 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+2025-Nov-09 07:18:18.577166 #15 19.95 ✓ built in 19.15s
+2025-Nov-09 07:18:18.636789 #15 20.17
+2025-Nov-09 07:18:18.636789 #15 20.17   dist/index.js  410.3kb
+2025-Nov-09 07:18:18.636789 #15 20.17
+2025-Nov-09 07:18:18.636789 #15 20.17 ⚡ Done in 33ms
+2025-Nov-09 07:18:18.871181 #15 DONE 20.2s
+2025-Nov-09 07:18:23.989618 #16 [production 7/9] COPY --from=builder /app/dist ./dist
+2025-Nov-09 07:18:24.155008 #16 DONE 0.2s
+2025-Nov-09 07:18:24.345148 #17 [production 8/9] COPY --from=builder /app/shared ./shared
+2025-Nov-09 07:18:24.345148 #17 DONE 0.0s
+2025-Nov-09 07:18:24.345148
+2025-Nov-09 07:18:24.345148 #18 [production 9/9] RUN chown -R nodejs:nodejs /app
+2025-Nov-09 07:19:50.267536 #18 DONE 86.1s
+2025-Nov-09 07:19:50.446179 #19 exporting to image
+2025-Nov-09 07:19:50.446179 #19 exporting layers
+2025-Nov-09 07:19:57.541021 #19 exporting layers 7.3s done
+2025-Nov-09 07:19:57.702914 #19 writing image sha256:e8924a304d2949adb3e62988de6dc2139eb0835b88528ec51bebee2b748f03e7 done
+2025-Nov-09 07:19:57.702914 #19 naming to docker.io/library/ek8o8ckow44gckkg8k00w0sc:47e8133e2315201731e19918e7b79028169d2b95 done
+2025-Nov-09 07:19:57.702914 #19 DONE 7.3s
+2025-Nov-09 07:19:57.710465 8 warnings found (use docker --debug to expand):
+2025-Nov-09 07:19:57.710465 - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ARG "MINIO_ACCESS_KEY") (line 38)
+2025-Nov-09 07:19:57.710465 - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ARG "MINIO_SECRET_KEY") (line 41)
+2025-Nov-09 07:19:57.710465 - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ARG "SESSION_SECRET") (line 42)
+2025-Nov-09 07:19:57.710465 - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ARG "STRIPE_SECRET_KEY") (line 43)
+2025-Nov-09 07:19:57.710465 - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ARG "MINIO_ACCESS_KEY") (line 4)
+2025-Nov-09 07:19:57.710465 - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ARG "MINIO_SECRET_KEY") (line 7)
+2025-Nov-09 07:19:57.710465 - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ARG "SESSION_SECRET") (line 8)
+2025-Nov-09 07:19:57.710465 - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ARG "STRIPE_SECRET_KEY") (line 9)
+2025-Nov-09 07:19:57.737467 Building docker image completed.
+2025-Nov-09 07:19:57.773669 Creating .env file with runtime variables for build phase.
+2025-Nov-09 07:19:58.641004 [CMD]: docker exec v00coocck8wk08ksoww0s4g8 bash -c 'cat /artifacts/v00coocck8wk08ksoww0s4g8/.env'
+2025-Nov-09 07:19:58.641004 SOURCE_COMMIT=47e8133e2315201731e19918e7b79028169d2b95
+2025-Nov-09 07:19:58.641004 COOLIFY_URL=https://ek8o8ckow44gckkg8k00w0sc.best-chauffeurs.com
+2025-Nov-09 07:19:58.641004 COOLIFY_FQDN=ek8o8ckow44gckkg8k00w0sc.best-chauffeurs.com
+2025-Nov-09 07:19:58.641004 COOLIFY_BRANCH=main
+2025-Nov-09 07:19:58.641004 COOLIFY_RESOURCE_UUID=ek8o8ckow44gckkg8k00w0sc
+2025-Nov-09 07:19:58.641004 COOLIFY_CONTAINER_NAME=ek8o8ckow44gckkg8k00w0sc-071637205962
+2025-Nov-09 07:19:58.641004 NODE_ENV=production
+2025-Nov-09 07:19:58.641004 DATABASE_URL=postgresql://user:password@host:5432/database
+2025-Nov-09 07:19:58.641004 SESSION_SECRET=generate-with-openssl-rand-base64-32
+2025-Nov-09 07:19:58.641004 STRIPE_SECRET_KEY=sk_live_your_key
+2025-Nov-09 07:19:58.641004 VITE_STRIPE_PUBLIC_KEY=pk_live_your_key
+2025-Nov-09 07:19:58.641004 MINIO_ENDPOINT=http://usa-limo-minio:9000
+2025-Nov-09 07:19:58.641004 MINIO_ACCESS_KEY=minioadmin
+2025-Nov-09 07:19:58.641004 MINIO_SECRET_KEY=your-minio-password
+2025-Nov-09 07:19:58.641004 MINIO_BUCKET=usa-luxury-limo
+2025-Nov-09 07:19:58.641004 PORT=5000
+2025-Nov-09 07:19:58.641004 HOST=0.0.0.0
+2025-Nov-09 07:19:59.106609 ----------------------------------------
+2025-Nov-09 07:19:59.119768 Rolling update started.
+2025-Nov-09 07:20:00.515234 [CMD]: docker exec v00coocck8wk08ksoww0s4g8 bash -c 'SOURCE_COMMIT=47e8133e2315201731e19918e7b79028169d2b95 COOLIFY_URL=https://ek8o8ckow44gckkg8k00w0sc.best-chauffeurs.com COOLIFY_FQDN=ek8o8ckow44gckkg8k00w0sc.best-chauffeurs.com COOLIFY_BRANCH=main COOLIFY_RESOURCE_UUID=ek8o8ckow44gckkg8k00w0sc COOLIFY_CONTAINER_NAME=ek8o8ckow44gckkg8k00w0sc-071637205962  docker compose --project-name ek8o8ckow44gckkg8k00w0sc --project-directory /artifacts/v00coocck8wk08ksoww0s4g8 -f /artifacts/v00coocck8wk08ksoww0s4g8/docker-compose.yaml up --build -d'
+2025-Nov-09 07:20:00.515234 Container ek8o8ckow44gckkg8k00w0sc-071637205962  Creating
+2025-Nov-09 07:20:00.823498 ek8o8ckow44gckkg8k00w0sc-071637205962 Your kernel does not support memory swappiness capabilities or the cgroup is not mounted. Memory swappiness discarded.
+2025-Nov-09 07:20:00.835812 Container ek8o8ckow44gckkg8k00w0sc-071637205962  Created
+2025-Nov-09 07:20:00.835812 Container ek8o8ckow44gckkg8k00w0sc-071637205962  Starting
+2025-Nov-09 07:20:01.437463 Container ek8o8ckow44gckkg8k00w0sc-071637205962  Started
+2025-Nov-09 07:20:01.514672 New container started.
+2025-Nov-09 07:20:01.647676 Custom healthcheck found in Dockerfile.
+2025-Nov-09 07:20:01.704070 Waiting for healthcheck to pass on the new container.
+2025-Nov-09 07:20:01.739715 Waiting for the start period (40 seconds) before starting healthcheck.
+2025-Nov-09 07:20:42.577371 [CMD]: docker inspect --format='{{json .State.Health.Status}}' ek8o8ckow44gckkg8k00w0sc-071637205962
+2025-Nov-09 07:20:42.577371 "unhealthy"
+2025-Nov-09 07:20:43.004016 [CMD]: docker inspect --format='{{json .State.Health.Log}}' ek8o8ckow44gckkg8k00w0sc-071637205962
+2025-Nov-09 07:20:43.004016 []
+2025-Nov-09 07:20:43.018504 Attempt 1 of 3 | Healthcheck status: "unhealthy"
+2025-Nov-09 07:20:43.026482 ----------------------------------------
+2025-Nov-09 07:20:43.035312 Container logs:
+2025-Nov-09 07:20:43.427221 [CMD]: docker logs -n 100 ek8o8ckow44gckkg8k00w0sc-071637205962
+2025-Nov-09 07:20:43.427221 ^
+2025-Nov-09 07:20:43.427221
+2025-Nov-09 07:20:43.427221 Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+2025-Nov-09 07:20:43.427221 at packageResolve (node:internal/modules/esm/resolve:873:9)
+2025-Nov-09 07:20:43.427221 at moduleResolve (node:internal/modules/esm/resolve:946:18)
+2025-Nov-09 07:20:43.427221 at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+2025-Nov-09 07:20:43.427221 at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+2025-Nov-09 07:20:43.427221 at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+2025-Nov-09 07:20:43.427221 code: 'ERR_MODULE_NOT_FOUND'
+2025-Nov-09 07:20:43.427221 }
+2025-Nov-09 07:20:43.427221
+2025-Nov-09 07:20:43.427221 Node.js v20.19.5
+2025-Nov-09 07:20:43.427221 node:internal/modules/esm/resolve:873
+2025-Nov-09 07:20:43.427221 throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+2025-Nov-09 07:20:43.427221 ^
+2025-Nov-09 07:20:43.427221
+2025-Nov-09 07:20:43.427221 Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+2025-Nov-09 07:20:43.427221 at packageResolve (node:internal/modules/esm/resolve:873:9)
+2025-Nov-09 07:20:43.427221 at moduleResolve (node:internal/modules/esm/resolve:946:18)
+2025-Nov-09 07:20:43.427221 at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+2025-Nov-09 07:20:43.427221 at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+2025-Nov-09 07:20:43.427221 at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+2025-Nov-09 07:20:43.427221 code: 'ERR_MODULE_NOT_FOUND'
+2025-Nov-09 07:20:43.427221 }
+2025-Nov-09 07:20:43.427221
+2025-Nov-09 07:20:43.427221 Node.js v20.19.5
+2025-Nov-09 07:20:43.427221 node:internal/modules/esm/resolve:873
+2025-Nov-09 07:20:43.427221 throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+2025-Nov-09 07:20:43.427221 ^
+2025-Nov-09 07:20:43.427221
+2025-Nov-09 07:20:43.427221 Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+2025-Nov-09 07:20:43.427221 at packageResolve (node:internal/modules/esm/resolve:873:9)
+2025-Nov-09 07:20:43.427221 at moduleResolve (node:internal/modules/esm/resolve:946:18)
+2025-Nov-09 07:20:43.427221 at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+2025-Nov-09 07:20:43.427221 at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+2025-Nov-09 07:20:43.427221 at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+2025-Nov-09 07:20:43.427221 code: 'ERR_MODULE_NOT_FOUND'
+2025-Nov-09 07:20:43.427221 }
+2025-Nov-09 07:20:43.427221
+2025-Nov-09 07:20:43.427221 Node.js v20.19.5
+2025-Nov-09 07:20:43.427221 node:internal/modules/esm/resolve:873
+2025-Nov-09 07:20:43.427221 throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+2025-Nov-09 07:20:43.427221 ^
+2025-Nov-09 07:20:43.427221
+2025-Nov-09 07:20:43.427221 Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+2025-Nov-09 07:20:43.427221 at packageResolve (node:internal/modules/esm/resolve:873:9)
+2025-Nov-09 07:20:43.427221 at moduleResolve (node:internal/modules/esm/resolve:946:18)
+2025-Nov-09 07:20:43.427221 at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+2025-Nov-09 07:20:43.427221 at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+2025-Nov-09 07:20:43.427221 at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+2025-Nov-09 07:20:43.427221 code: 'ERR_MODULE_NOT_FOUND'
+2025-Nov-09 07:20:43.427221 }
+2025-Nov-09 07:20:43.427221
+2025-Nov-09 07:20:43.427221 Node.js v20.19.5
+2025-Nov-09 07:20:43.427221 node:internal/modules/esm/resolve:873
+2025-Nov-09 07:20:43.427221 throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+2025-Nov-09 07:20:43.427221 ^
+2025-Nov-09 07:20:43.427221
+2025-Nov-09 07:20:43.427221 Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+2025-Nov-09 07:20:43.427221 at packageResolve (node:internal/modules/esm/resolve:873:9)
+2025-Nov-09 07:20:43.427221 at moduleResolve (node:internal/modules/esm/resolve:946:18)
+2025-Nov-09 07:20:43.427221 at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+2025-Nov-09 07:20:43.427221 at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+2025-Nov-09 07:20:43.427221 at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+2025-Nov-09 07:20:43.427221 code: 'ERR_MODULE_NOT_FOUND'
+2025-Nov-09 07:20:43.427221 }
+2025-Nov-09 07:20:43.427221
+2025-Nov-09 07:20:43.427221 Node.js v20.19.5
+2025-Nov-09 07:20:43.427221 node:internal/modules/esm/resolve:873
+2025-Nov-09 07:20:43.427221 throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+2025-Nov-09 07:20:43.427221 ^
+2025-Nov-09 07:20:43.427221
+2025-Nov-09 07:20:43.427221 Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+2025-Nov-09 07:20:43.427221 at packageResolve (node:internal/modules/esm/resolve:873:9)
+2025-Nov-09 07:20:43.427221 at moduleResolve (node:internal/modules/esm/resolve:946:18)
+2025-Nov-09 07:20:43.427221 at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+2025-Nov-09 07:20:43.427221 at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+2025-Nov-09 07:20:43.427221 at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+2025-Nov-09 07:20:43.427221 at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+2025-Nov-09 07:20:43.427221 code: 'ERR_MODULE_NOT_FOUND'
+2025-Nov-09 07:20:43.427221 }
+2025-Nov-09 07:20:43.427221
+2025-Nov-09 07:20:43.427221 Node.js v20.19.5
+2025-Nov-09 07:20:43.436774 ----------------------------------------
+2025-Nov-09 07:20:43.448733 Removing old containers.
+2025-Nov-09 07:20:43.458660 ----------------------------------------
+2025-Nov-09 07:20:43.467767 WARNING: Dockerfile or Docker Image based deployment detected. The healthcheck needs a curl or wget command to check the health of the application. Please make sure that it is available in the image or turn off healthcheck on Coolify's UI.
+2025-Nov-09 07:20:43.476582 ----------------------------------------
+2025-Nov-09 07:20:43.485549 New container is not healthy, rolling back to the old container.
+2025-Nov-09 07:20:43.925527 [CMD]: docker stop --time=30 ek8o8ckow44gckkg8k00w0sc-071637205962
+2025-Nov-09 07:20:43.925527 Flag --time has been deprecated, use --timeout instead
+2025-Nov-09 07:20:43.937345 ek8o8ckow44gckkg8k00w0sc-071637205962
+2025-Nov-09 07:20:44.367085 [CMD]: docker rm -f ek8o8ckow44gckkg8k00w0sc-071637205962
+2025-Nov-09 07:20:44.367085 ek8o8ckow44gckkg8k00w0sc-071637205962
+2025-Nov-09 07:20:44.380876 Rolling update completed.
+2025-Nov-09 07:20:45.572340 Gracefully shutting down build container: v00coocck8wk08ksoww0s4g8
+2025-Nov-09 07:20:45.967628 [CMD]: docker stop --time=30 v00coocck8wk08ksoww0s4g8
+2025-Nov-09 07:20:45.967628 Flag --time has been deprecated, use --timeout instead
+2025-Nov-09 07:20:46.160511 v00coocck8wk08ksoww0s4g8
+2025-Nov-09 07:20:46.588534 [CMD]: docker rm -f v00coocck8wk08ksoww0s4g8
+2025-Nov-09 07:20:46.588534 Error response from daemon: No such container: v00coocck8wk08ksoww0s4g8

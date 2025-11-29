@@ -1,0 +1,219 @@
+Project name: USA Luxury Limo
+Goal: Create a full-stack replica of https://lavishride.com/
+ using the provided assets and business rules. Do not copy their booking form — use the attached booking form HTML file instead. Use the attached logo file as the site logo. Pricing logic must follow the attached n8n workflow JSON. Site font: Montserrat.
+
+High-level requirements (do not remove or change)
+
+Replicate the visual and content structure of lavishride.com but brand it as USA Luxury Limo.
+
+Use attached logo file. Use Montserrat font across the site.
+
+Booking form: do NOT copy lavishride’s booking form. Instead use the attached booking form HTML as the booking UI.
+
+Pricing calculation: implement pricing logic exactly as specified in the attached n8n workflow JSON — use it as the single source of truth for fare calculation.
+
+Authentication / user types: implement three login types:
+
+Passenger (user)
+
+Driver
+
+Admin
+
+Build a back end supporting all three user types. We will focus on each type's front-end later, but backend must support full operations for them now.
+
+Passenger (user) profile must store:
+
+first name, last name, email, phone number
+
+payment info recorded with Stripe (tokenization; do not store raw card data)
+
+3 pre-recorded addresses (home, work, other)
+
+ride history: past and future ride requests
+
+invoices and receipts
+
+Driver profile must store:
+
+personal details and contact
+
+vehicle details (make/model/license plate)
+
+marketplace-required documents (upload & verification status)
+
+availability and assigned rides
+
+Admin portal must include:
+
+settings page to add/update: Stripe keys, TomTom API key, and other system-wide settings/links
+
+system-wide administrative options (user/driver management, bookings oversight, fare override, logs)
+
+Implement secure payment processing with Stripe (test & production key support via admin settings).
+
+Mapping / routing uses TomTom (TomTom key in admin settings).
+
+Use best practices: authentication, authorization, password hashing, role-based access control, input validation, rate-limiting, CSRF/XSS protections, and logging.
+
+Deliver documented API (OpenAPI / Swagger), DB schema, and deployment instructions.
+
+Recommended tech stack (you may propose alternatives but justify)
+
+Frontend: React (Vite or Next.js) — PWA-capable, Montserrat font, responsive.
+
+Backend: Node.js + Express or NestJS (RESTful API).
+
+Database: PostgreSQL (relational schema for users, drivers, bookings, invoices).
+
+Storage: S3-compatible (for driver docs/uploads).
+
+Authentication: JWT for APIs + secure refresh tokens; password hashing with bcrypt/argon2.
+
+Payments: Stripe (Stripe Elements on frontend; server-side webhooks for payment events).
+
+Mapping: TomTom SDK / REST API.
+
+DevOps: Docker, CI (GitHub Actions), deploy to VPS or cloud (DigitalOcean, AWS) — provide deployment scripts.
+
+Tests: unit + integration tests, Postman collection for APIs.
+
+Deliverables & acceptance criteria
+
+Functional backend API with:
+
+Auth endpoints: register/login/logout/forgot-password/role management.
+
+Passenger endpoints: CRUD profile, add/remove pre-recorded addresses, create/cancel/list bookings, list invoices.
+
+Driver endpoints: upload docs, set availability, accept/reject rides, list assigned rides.
+
+Admin endpoints: manage settings (Stripe/TomTom keys), manage users/drivers/bookings, export logs.
+
+Fare calculation endpoint that exactly mirrors the attached n8n workflow logic (include unit tests demonstrating parity).
+
+Webhook endpoint to receive Stripe events and reconcile payments.
+
+OpenAPI (Swagger) documentation.
+
+Frontend skeleton:
+
+Public site pages (home/services/about/contact) matching lavishride layout but branded.
+
+Booking page using attached booking form HTML (integrate with pricing endpoint and Stripe checkout/tokenization).
+
+Simple login/register flows for the three roles.
+
+Admin dashboard page to set Stripe/TomTom keys and view basic analytics.
+
+Driver dashboard skeleton for uploads and assigned rides.
+
+Database schema (SQL migration files) for all entities.
+
+Automated tests:
+
+Unit tests for fare logic (show parity with n8n).
+
+Integration tests for auth and booking flows.
+
+Documentation:
+
+README with setup, env vars, Stripe/TomTom test keys usage.
+
+Deployment steps (Docker-compose or Kubernetes manifest + sample cloud deploy).
+
+API reference (Swagger link).
+
+Security:
+
+Document how card data is not stored; tokens used instead.
+
+Provide instructions for rotating Stripe keys and TomTom keys.
+
+Example data & scripts:
+
+Seed script to create admin/passenger/driver demo accounts.
+
+Exportable Postman collection (or similar) for testing.
+
+Acceptance: All endpoints respond as documented, fare calculations match n8n workflow for sample inputs, Stripe flows succeed in test mode, TomTom requests work with provided key in test environment.
+
+Implementation details / dev notes (explicit, actionable)
+
+Attachments referenced: logo.png (or attached logo file), booking_form.html (attached), n8n-pricing-workflow.json (attached). Use these exact filenames.
+
+Booking flow:
+
+Passenger fills booking_form.html (attached).
+
+Frontend validates data and calls POST /api/bookings/estimate -> backend returns fare using n8n-derived logic.
+
+Passenger either confirm booking (creates pending ride) and pays via Stripe (payment intent) OR selects pay-later (if enabled).
+
+Stripe webhook updates booking payment status and creates invoice.
+
+Fare endpoint: POST /api/fare/calc (accepts: pickup, dropoff, serviceType, extras, time, promoCode). Responds: { fareBreakdown, total, currency }.
+
+Driver docs: allow multiple file types (PDF/JPG/PNG), virus-scan recommendation, signed verification flag in DB.
+
+Admin settings: store Stripe & TomTom keys encrypted at rest; allow separate test/prod toggle.
+
+Logging & errors: centralized logging (winston or pino), error tracking (Sentry recommended).
+
+Localization: default English; ensure currency handling is pluggable for USD.
+
+Rate-limiting: throttle booking creation endpoints.
+
+Compliance: PCI SAQ guidance — only use Stripe tokens so PCI scope minimized.
+
+Milestones (example)
+
+Project scaffolding + DB schema + auth (3 days)
+
+Fare calculation endpoint (2 days) + unit tests (1 day)
+
+Booking endpoints + Stripe integration (3 days)
+
+Admin settings + TomTom basic integration (2 days)
+
+Frontend core pages + booking form integration (4 days)
+
+Driver dashboard + uploads (2 days)
+
+Tests, docs, deployment scripts (3 days)
+
+These are example milestones — adjust based on team and resources.
+
+What I am attaching (include these exactly)
+
+logo.png (use as the site logo)
+
+booking_form.html (use as booking UI)
+
+n8n-pricing-workflow.json (pricing logic — required)
+
+The implementation must read the n8n JSON to implement identical pricing rules (not an approximation).
+
+Extra instructions for the developer/AI
+
+Do not copy the booking form from lavishride.com — use only the attached booking_form.html.
+
+Use Montserrat font via Google Fonts.
+
+Keep UI modern and mobile-first.
+
+Ensure checkout does not transmit raw card numbers to the backend (use Stripe Elements or Payment Intents).
+
+Provide seed/demo credentials and a Postman collection.
+
+Output I expect from you (when you deliver)
+
+Link to a Git repository (or zipped project) containing code.
+
+Clear README with setup steps, env variables, and how to run locally with test Stripe keys.
+
+Swagger/OpenAPI JSON or link.
+
+Short test report proving fare parity with n8n (sample inputs → expected outputs).
+
+Postman collection or curl examples to exercise main flows.

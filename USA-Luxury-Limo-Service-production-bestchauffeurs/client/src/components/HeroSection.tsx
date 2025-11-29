@@ -1,0 +1,69 @@
+import BookingForm from "@/components/BookingForm";
+import PWAInstall from "@/components/PWAInstall";
+import { useQuery } from "@tanstack/react-query";
+
+const heroBackground = '/images/khalid_1759128435991.webp';
+
+interface HeroResponse {
+  hero: {
+    id: string;
+    url: string;
+    altText: string;
+    fileName: string;
+  } | null;
+}
+
+export default function HeroSection() {
+  const { data: heroData } = useQuery<HeroResponse>({
+    queryKey: ['/api/site-hero'],
+    retry: false,
+  });
+
+  const heroImageUrl = heroData?.hero?.url || heroBackground;
+
+  return (
+    <section id="home" className="relative min-h-screen flex items-center">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+        style={{
+          backgroundImage: `url(${heroImageUrl})`
+        }}
+      >
+        <div className="absolute inset-0 bg-black/50"></div>
+      </div>
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 items-center text-justify">
+          {/* Hero Content */}
+          <div className="text-white">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight" data-testid="hero-title">
+              Premium 
+              <span className="text-primary"> Luxury</span>
+              <br />Transportation
+            </h1>
+            <p className="text-xl mb-8 text-gray-200 max-w-lg" data-testid="hero-description">
+              Experience unparalleled comfort and reliability with our professional chauffeur services. 
+              Available 24/7 for all your transportation needs.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <PWAInstall />
+              <button 
+                className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all pl-[20px] pr-[20px] pt-[5px] pb-[5px]"
+                onClick={() => document.getElementById('fleet')?.scrollIntoView({ behavior: 'smooth' })}
+                data-testid="button-view-fleet"
+              >
+                View Fleet
+              </button>
+            </div>
+          </div>
+
+          {/* Booking Form Widget */}
+          <div id="hero-booking" className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-2xl w-[70%] text-[12px] pl-[0px] pr-[0px] pt-[0px] pb-[0px]">
+            <BookingForm isQuickBooking={true} />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

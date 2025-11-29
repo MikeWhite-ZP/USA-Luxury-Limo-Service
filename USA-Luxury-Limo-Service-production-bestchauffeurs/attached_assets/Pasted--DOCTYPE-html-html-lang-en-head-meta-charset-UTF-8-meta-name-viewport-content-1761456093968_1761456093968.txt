@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Map Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 0;
+            height: calc(100vh - 200px);
+            min-height: 600px;
+        }
+
+        .sidebar {
+            border-right: 1px solid #e5e5e5;
+            padding: 24px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .via-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+        }
+
+        .via-section h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .via-input-wrapper {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .via-number {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .via-input-wrapper input {
+            padding-left: 46px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .route-info {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #e5e5e5;
+            display: none;
+        }
+
+        .route-info.visible {
+            display: block;
+        }
+
+        .route-info h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+            display: none;
+        }
+
+        .loading.visible {
+            display: block;
+        }
+
+        .marker-pickup {
+            background: #10b981;
+            border: 3px solid white;
+        }
+
+        .marker-destination {
+            background: #ef4444;
+            border: 3px solid white;
+        }
+
+        .marker-via {
+            background: #667eea;
+            border: 3px solid white;
+        }
+
+        /* Custom marker styles */
+        .custom-marker {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 968px) {
+            .content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid #e5e5e5;
+            }
+
+            #map {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Route Map Viewer</h1>
+            <p>Visualize your journey with pickup, waypoints, and destination</p>
+        </div>
+        
+        <div class="content">
+            <div class="sidebar">
+                <div class="form-group">
+                    <label>Pickup Location</label>
+                    <input type="text" id="pickup" placeholder="e.g., 41.0082,28.9784" />
+                </div>
+
+                <div class="via-section">
+                    <h3>Via Points (Optional)</h3>
+                    <div class="via-input-wrapper">
+                        <div class="via-number">1</div>
+                        <input type="text" id="via1" placeholder="e.g., 41.0120,28.9800" />
+                    </div>
+                    <div class="via-input-wrapper">
+                        <div class="via-number">2</div>
+                        <input type="text" id="via2" placeholder="Optional" />
+                    </div>
+                    <div class="via-input-wrapper">
+                        <div class="via-number">3</div>
+                        <input type="text" id="via3" placeholder="Optional" />
+                    </div>
+                    <div class="via-input-wrapper">
+                        <div class="via-number">4</div>
+                        <input type="text" id="via4" placeholder="Optional" />
+                    </div>
+                    <div class="via-input-wrapper">
+                        <div class="via-number">5</div>
+                        <input type="text" id="via5" placeholder="Optional" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Destination</label>
+                    <input type="text" id="destination" placeholder="e.g., 41.0250,28.9950" />
+                </div>
+
+                <button class="btn" onclick="displayRoute()">Show Route on Map</button>
+                
+                <div class="loading" id="loading">Calculating route...</div>
+                <div class="error-message" id="error"></div>
+
+                <div class="route-info" id="routeInfo">
+                    <h3>Route Summary</h3>
+                    <div class="info-item">
+                        <span class="info-label">Total Distance:</span>
+                        <span class="info-value" id="totalDistance">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Estimated Time:</span>
+                        <span class="info-value" id="estimatedTime">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Waypoints:</span>
+                        <span class="info-value" id="waypointCount">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
+    
+    <script>
+        // Initialize map
+        let map = L.map('map').setView([41.0082, 28.9784], 13);
+        let routingControl = null;
+        let markers = [];
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Utility function to parse coordinates
+        function parseCoordinates(input) {
+            if (!input || !input.trim()) return null;
+            
+            const cleaned = input.trim().replace(/\s+/g, '');
+            const parts = cleaned.split(',');
+            
+            if (parts.length !== 2) return null;
+            
+            const lat = parseFloat(parts[0]);
+            const lng = parseFloat(parts[1]);
+            
+            if (isNaN(lat) || isNaN(lng)) return null;
+            if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+            
+            return { lat, lng };
+        }
+
+        // Create custom marker
+        function createCustomMarker(lat, lng, type, label) {
+            let className = 'marker-' + type;
+            let icon = L.divIcon({
+                className: 'custom-marker ' + className,
+                html: label || '',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+            
+            return L.marker([lat, lng], { icon: icon });
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorEl = document.getElementById('error');
+            errorEl.textContent = message;
+            errorEl.classList.add('visible');
+            setTimeout(() => errorEl.classList.remove('visible'), 5000);
+        }
+
+        // Show loading state
+        function setLoading(isLoading) {
+            document.getElementById('loading').classList.toggle('visible', isLoading);
+        }
+
+        // Update route info
+        function updateRouteInfo(distance, time, waypointCount) {
+            document.getElementById('totalDistance').textContent = distance;
+            document.getElementById('estimatedTime').textContent = time;
+            document.getElementById('waypointCount').textContent = waypointCount;
+            document.getElementById('routeInfo').classList.add('visible');
+        }
+
+        // Clear previous route and markers
+        function clearMap() {
+            if (routingControl) {
+                map.removeControl(routingControl);
+                routingControl = null;
+            }
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+        }
+
+        // Main function to display route
+        function displayRoute() {
+            // Clear previous state
+            clearMap();
+            document.getElementById('error').classList.remove('visible');
+            document.getElementById('routeInfo').classList.remove('visible');
+
+            // Parse pickup location
+            const pickupInput = document.getElementById('pickup').value;
+            const pickup = parseCoordinates(pickupInput);
+            
+            if (!pickup) {
+                showError('Invalid pickup location. Use format: latitude,longitude (e.g., 41.0082,28.9784)');
+                return;
+            }
+
+            // Parse destination
+            const destinationInput = document.getElementById('destination').value;
+            const destination = parseCoordinates(destinationInput);
+            
+            if (!destination) {
+                showError('Invalid destination. Use format: latitude,longitude');
+                return;
+            }
+
+            // Parse via points (filter out empty ones)
+            const viaPoints = [];
+            for (let i = 1; i <= 5; i++) {
+                const viaInput = document.getElementById(`via${i}`).value;
+                if (viaInput && viaInput.trim()) {
+                    const viaCoord = parseCoordinates(viaInput);
+                    if (viaCoord) {
+                        viaPoints.push(viaCoord);
+                    } else {
+                        showError(`Invalid via point ${i}. Skipping it.`);
+                    }
+                }
+            }
+
+            // Build waypoints array for routing
+            const waypoints = [
+                L.latLng(pickup.lat, pickup.lng),
+                ...viaPoints.map(via => L.latLng(via.lat, via.lng)),
+                L.latLng(destination.lat, destination.lng)
+            ];
+
+            setLoading(true);
+
+            // Create routing control
+            try {
+                routingControl = L.Routing.control({
+                    waypoints: waypoints,
+                    routeWhileDragging: false,
+                    addWaypoints: false,
+                    draggableWaypoints: false,
+                    fitSelectedRoutes: true,
+                    showAlternatives: false,
+                    lineOptions: {
+                        styles: [{ color: '#667eea', weight: 5, opacity: 0.7 }]
+                    },
+                    createMarker: function(i, waypoint, n) {
+                        // Don't create default markers, we'll create custom ones
+                        return null;
+                    }
+                }).addTo(map);
+
+                // Add custom markers
+                const pickupMarker = createCustomMarker(pickup.lat, pickup.lng, 'pickup', 'P');
+                pickupMarker.bindPopup('<b>Pickup Location</b>');
+                pickupMarker.addTo(map);
+                markers.push(pickupMarker);
+
+                viaPoints.forEach((via, index) => {
+                    const viaMarker = createCustomMarker(via.lat, via.lng, 'via', (index + 1).toString());
+                    viaMarker.bindPopup(`<b>Via Point ${index + 1}</b>`);
+                    viaMarker.addTo(map);
+                    markers.push(viaMarker);
+                });
+
+                const destMarker = createCustomMarker(destination.lat, destination.lng, 'destination', 'D');
+                destMarker.bindPopup('<b>Destination</b>');
+                destMarker.addTo(map);
+                markers.push(destMarker);
+
+                // Handle route found event
+                routingControl.on('routesfound', function(e) {
+                    setLoading(false);
+                    const routes = e.routes;
+                    const summary = routes[0].summary;
+                    
+                    const distance = (summary.totalDistance / 1000).toFixed(2) + ' km';
+                    const time = Math.round(summary.totalTime / 60) + ' min';
+                    const waypointCount = viaPoints.length + 2; // pickup + vias + destination
+                    
+                    updateRouteInfo(distance, time, waypointCount);
+                });
+
+                // Handle routing error
+                routingControl.on('routingerror', function(e) {
+                    setLoading(false);
+                    showError('Could not calculate route. Please check your coordinates and try again.');
+                });
+
+            } catch (error) {
+                setLoading(false);
+                showError('Error creating route: ' + error.message);
+                console.error('Routing error:', error);
+            }
+        }
+
+        // Demo data loader (optional - for testing)
+        function loadDemoData() {
+            document.getElementById('pickup').value = '41.0082,28.9784';
+            document.getElementById('via1').value = '41.0120,28.9800';
+            document.getElementById('via2').value = '41.0180,28.9850';
+            document.getElementById('destination').value = '41.0250,28.9950';
+        }
+
+        // Allow Enter key to trigger route display
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    displayRoute();
+                }
+            });
+        });
+
+        // Uncomment to load demo data on start
+        // loadDemoData();
+    </script>
+</body>
+</html>
