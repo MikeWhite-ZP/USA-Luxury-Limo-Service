@@ -9,32 +9,26 @@ import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import DeviceRedirect from "@/components/DeviceRedirect";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
-// Utility to check if accessing via admin subdomain
 function isAdminSubdomain(): boolean {
   const hostname = window.location.hostname.toLowerCase();
   
-  // Check if hostname starts with "adminaccess."
   if (hostname.startsWith('adminaccess.')) {
     return true;
   }
   
-  // Check against configured admin hosts (if provided via env var)
   const adminHosts = import.meta.env.VITE_ADMIN_PANEL_HOSTS?.split(',').map((h: string) => h.trim().toLowerCase()) || [];
   return adminHosts.some((host: string) => hostname === host);
 }
 
-// Component to handle admin subdomain routing
 function AdminSubdomainRedirect() {
   const [location, setLocation] = useLocation();
   const isAdminHost = isAdminSubdomain();
   
   useEffect(() => {
-    // If on admin subdomain and at root, redirect to admin login
     if (isAdminHost && location === '/') {
       setLocation('/admin-login');
     }
     
-    // If NOT on admin subdomain but trying to access admin login, block it (production only)
     if (!isAdminHost && !import.meta.env.DEV && (location === '/admin-login' || location === '/admin/login')) {
       console.warn('Admin login is only accessible via admin subdomain');
       setLocation('/login');
@@ -44,6 +38,7 @@ function AdminSubdomainRedirect() {
   return null;
 }
 
+const SetupWizard = lazy(() => import("@/pages/SetupWizard"));
 const Landing = lazy(() => import("@/pages/landing"));
 const Home = lazy(() => import("@/pages/home"));
 const Booking = lazy(() => import("@/pages/booking"));
@@ -94,19 +89,17 @@ const LoadingFallback = () => (
   </div>
 );
 
-// Component to dynamically load and update favicon from CMS
 function FaviconLoader() {
   const { data: faviconData } = useQuery<{ favicon: { id: string; url: string; } | null }>({
     queryKey: ['/api/site-favicon'],
     refetchOnWindowFocus: false,
+    retry: false,
   });
 
   useEffect(() => {
     if (faviconData?.favicon?.url) {
-      // Add cache-busting timestamp to ensure fresh favicon loads
       const faviconUrl = `${faviconData.favicon.url}?t=${Date.now()}`;
       
-      // Update or create favicon link element
       let faviconLink = document.querySelector("link[rel='icon']") as HTMLLinkElement;
       
       if (!faviconLink) {
@@ -122,6 +115,33 @@ function FaviconLoader() {
   return null;
 }
 
+function SetupCheck() {
+  const { data: setupStatus, isLoading, error } = useQuery<{
+    setupComplete: boolean;
+    companyName: string | null;
+    hasDatabase: boolean;
+    hasMinio: boolean;
+  }>({
+    queryKey: ['/api/setup/status'],
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
+  if (isLoading) {
+    return <LoadingFallback />;
+  }
+
+  if (!setupStatus?.setupComplete) {
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        <SetupWizard />
+      </Suspense>
+    );
+  }
+
+  return <Router />;
+}
+
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
@@ -133,7 +153,6 @@ function Router() {
     <Suspense fallback={<LoadingFallback />}>
       <AdminSubdomainRedirect />
       <Switch>
-      {/* Mobile PWA Routes */}
       <Route path="/mobile" component={MobileSplash} />
       <Route path="/mobile-splash" component={MobileSplash} />
       <Route path="/mobile-login" component={MobileLogin} />
@@ -149,7 +168,6 @@ function Router() {
       <Route path="/mobile-driver/account" component={AccountPage} />
       <Route path="/mobile-dispatcher" component={MobileDispatcher} />
       
-      {/* Public routes */}
       <Route path="/booking" component={Booking} />
       <Route path="/vehicle/:id" component={VehicleDetail} />
       <Route path="/service/:id" component={ServiceDetail} />
@@ -163,11 +181,9 @@ function Router() {
       <Route path="/hotels" component={Hotels} />
       <Route path="/contact" component={Contact} />
       
-      {/* Payment routes (public - token-based auth) */}
       <Route path="/pay/:token" component={PayInvoice} />
       <Route path="/pay/:token/success" component={PaymentSuccess} />
       
-      {/* Authentication routes */}
       <Route path="/login" component={RoleLogin} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin-login" component={AdminLogin} />
@@ -218,7 +234,7 @@ function App() {
         <TooltipProvider>
           <FaviconLoader />
           <Toaster />
-          <Router />
+          <SetupCheck />
           <PWAInstallPrompt />
         </TooltipProvider>
       </ThemeProvider>

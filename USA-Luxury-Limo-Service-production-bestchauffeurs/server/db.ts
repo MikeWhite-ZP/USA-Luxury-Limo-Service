@@ -2,20 +2,38 @@ import pg from 'pg';
 const { Pool } = pg;
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
+import { getSetupConfig, isSetupComplete } from './setupConfig';
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+function getDatabaseUrl(): string | null {
+  if (process.env.DATABASE_URL) {
+    return process.env.DATABASE_URL;
+  }
+
+  const config = getSetupConfig();
+  if (config?.databaseUrl) {
+    return config.databaseUrl;
+  }
+
+  return null;
 }
 
-export const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
-  ssl: false
-});
+const databaseUrl = getDatabaseUrl();
 
-pool.on('error', (err) => {
-  console.error('Unexpected database pool error:', err);
-});
+if (!databaseUrl) {
+  console.log('[DATABASE] No database URL configured - running in setup mode');
+}
 
-export const db = drizzle({ client: pool, schema });
+export const pool = databaseUrl ? new Pool({ 
+  connectionString: databaseUrl,
+  ssl: databaseUrl?.includes('sslmode=require') 
+    ? { rejectUnauthorized: false } 
+    : false
+}) : null as unknown as pg.Pool;
+
+if (pool) {
+  pool.on('error', (err) => {
+    console.error('Unexpected database pool error:', err);
+  });
+}
+
+export const db = pool ? drizzle({ client: pool, schema }) : null as unknown as ReturnType<typeof drizzle<typeof schema>>;

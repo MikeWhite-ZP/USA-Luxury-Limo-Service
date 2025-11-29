@@ -12,15 +12,33 @@ import { getStorageAdapter, type StorageAdapter, type StorageCredentials } from 
 import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML, getPaymentConfirmationEmailHTML, getDriverOnTheWayEmailHTML, getDriverArrivedEmailHTML, getBookingCancelledEmailHTML, sendPasswordResetEmail, sendTemporaryPasswordEmail, sendUsernameReminderEmail } from "./email";
 import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS, sendDriverOnTheWaySMS, sendDriverArrivedSMS, sendBookingCancelledSMS, sendAdminNewBookingAlertSMS, sendPasswordResetSMS, sendTemporaryPasswordSMS, sendUsernameReminderSMS } from "./sms";
 import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityReport } from "./emailReports";
+import { isSetupComplete } from "./setupConfig";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { S3Client, HeadBucketCommand, ListBucketsCommand } from "@aws-sdk/client-s3";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
-}
+let stripe: Stripe | null = null;
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+async function getStripeFromDb(): Promise<Stripe | null> {
+  if (stripe) return stripe;
+  
+  if (process.env.STRIPE_SECRET_KEY) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    return stripe;
+  }
+  
+  try {
+    const stripeSystem = await storage.getPaymentSystem('stripe');
+    if (stripeSystem?.secretKey) {
+      stripe = new Stripe(stripeSystem.secretKey);
+      return stripe;
+    }
+  } catch (error) {
+    console.log('[STRIPE] Could not load Stripe from database');
+  }
+  
+  return null;
+}
 
 // Initialize Object Storage adapter lazily (on first use) to avoid startup errors
 let objectStorage: StorageAdapter | null = null;
