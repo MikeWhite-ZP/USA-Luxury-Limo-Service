@@ -1,77 +1,172 @@
 version: '3.9'
 
 services:
-  # MinIO - S3-compatible object storage for file uploads
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: usa-limo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-usa_luxury_limo}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - usa-limo-network
+
+  # MinIO Object Storage (S3-compatible)
   minio:
     image: minio/minio:latest
     container_name: usa-limo-minio
-    ports:
-      - "9000:9000"  # API port
-      - "9001:9001"  # Console port
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY:-minioadmin}
-      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+    restart: unless-stopped
     command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin123}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
     volumes:
-      - minio-data:/data
+      - minio_data:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
-    restart: unless-stopped
     networks:
-      - app-network
+      - usa-limo-network
 
-  # Main Application
+  # MinIO Client - Create bucket on startup
+  minio-init:
+    image: minio/mc:latest
+    container_name: usa-limo-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ACCESS_KEY:-minioadmin} ${MINIO_SECRET_KEY:-minioadmin123};
+      /usr/bin/mc mb myminio/${MINIO_BUCKET:-usa-luxury-limo} --ignore-existing;
+      /usr/bin/mc anonymous set download myminio/${MINIO_BUCKET:-usa-luxury-limo};
+      exit 0;
+      "
+    networks:
+      - usa-limo-network
+
+  # Application (Development)
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: usa-luxury-limo
-    ports:
-      - "5000:5000"
-    environment:
-      - NODE_ENV=production
-      - PORT=5000
-      # Database
-      - DATABASE_URL=${DATABASE_URL}
-      # Stripe
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - VITE_STRIPE_PUBLIC_KEY=${VITE_STRIPE_PUBLIC_KEY}
-      # Session
-      - SESSION_SECRET=${SESSION_SECRET}
-      # MinIO Object Storage
-      - MINIO_ENDPOINT=http://minio:9000
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-      - MINIO_BUCKET=${MINIO_BUCKET:-usa-luxury-limo}
-      # Email (optional)
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_SECURE=${SMTP_SECURE}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASS=${SMTP_PASS}
-      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME}
-      - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
-      # SMS (optional)
-      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
-      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
-      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
-      # APIs (optional)
-      - TOMTOM_API_KEY=${TOMTOM_API_KEY}
-      - RAPIDAPI_KEY=${RAPIDAPI_KEY}
+      target: runner
+    container_name: usa-limo-app
+    restart: unless-stopped
     depends_on:
+      postgres:
+        condition: service_healthy
       minio:
         condition: service_healthy
-    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-5000}
+      HOST: 0.0.0.0
+      
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-usa_luxury_limo}
+      
+      # Session
+      SESSION_SECRET: ${SESSION_SECRET:-change-this-secret-in-production}
+      
+      # Storage
+      STORAGE_PROVIDER: minio
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin123}
+      MINIO_BUCKET: ${MINIO_BUCKET:-usa-luxury-limo}
+      MINIO_USE_SSL: false
+      
+      # Payment
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      VITE_STRIPE_PUBLIC_KEY: ${VITE_STRIPE_PUBLIC_KEY}
+      
+      # Email
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_FROM:-USA Luxury Limo <noreply@usaluxurylimo.com>}
+      
+      # SMS
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
+      
+      # APIs
+      TOMTOM_API_KEY: ${TOMTOM_API_KEY}
+      RAPIDAPI_KEY: ${RAPIDAPI_KEY}
+      
+      # App URLs
+      VITE_APP_URL: ${VITE_APP_URL:-http://localhost:5000}
+      VITE_API_URL: /api
+    ports:
+      - "${APP_PORT:-5000}:5000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     networks:
-      - app-network
+      - usa-limo-network
+
+  # Redis (Optional - for caching/sessions)
+  redis:
+    image: redis:7-alpine
+    container_name: usa-limo-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - usa-limo-network
+    profiles:
+      - with-redis
 
 volumes:
-  minio-data:
+  postgres_data:
+    driver: local
+  minio_data:
+    driver: local
+  redis_data:
     driver: local
 
 networks:
-  app-network:
+  usa-limo-network:
     driver: bridge
+
+# Usage:
+# Development: docker-compose up -d
+# With Redis: docker-compose --profile with-redis up -d
+# View logs: docker-compose logs -f app
+# Stop all: docker-compose down
+# Clean volumes: docker-compose down -v
