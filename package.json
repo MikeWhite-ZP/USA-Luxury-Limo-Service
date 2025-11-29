@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "vite build && esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --external:@aws-sdk/* --external:@capacitor/* --external:@babel/* --external:lightningcss --external:@tailwindcss/* --external:pg --external:pg-native --external:sharp --external:bufferutil --external:express --external:drizzle-orm --external:passport --external:passport-local --external:passport-google-oauth20 --external:passport-apple --external:express-session --external:connect-pg-simple --external:memorystore --external:ws --external:stripe --external:twilio --external:nodemailer --external:multer --external:bcrypt --external:openid-client --external:cors --external:zod",
+    "build": "vite build && esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --external:@aws-sdk/* --external:@capacitor/* --external:@babel/* --external:@replit/* --external:@vitejs/* --external:lightningcss --external:@tailwindcss/* --external:vite --external:esbuild --external:drizzle-kit --external:tsx --external:typescript --external:pg --external:pg-native --external:sharp --external:bufferutil --external:express --external:drizzle-orm --external:passport --external:passport-local --external:passport-google-oauth20 --external:passport-apple --external:express-session --external:connect-pg-simple --external:memorystore --external:ws --external:stripe --external:twilio --external:nodemailer --external:multer --external:bcrypt --external:openid-client --external:cors --external:zod",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push"
