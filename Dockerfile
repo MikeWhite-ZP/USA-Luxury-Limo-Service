@@ -11,20 +11,17 @@ RUN apk add --no-cache libc6-compat python3 make g++
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies with clean install
-RUN npm ci --only=production && \
+# Install ALL dependencies first (we need them for building)
+RUN npm ci && \
     npm cache clean --force
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 
-# Copy dependencies from deps stage
+# Copy all dependencies
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Install all dependencies (including dev)
-RUN npm install
 
 # Set build environment variables
 ENV NODE_ENV=production
@@ -46,6 +43,7 @@ RUN addgroup --system --gid 1001 nodejs && \
 
 # Copy built application
 COPY --from=builder --chown=expressjs:nodejs /app/dist ./dist
+# Copy ALL node_modules since esbuild may have left some imports as external
 COPY --from=deps --chown=expressjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=expressjs:nodejs /app/package*.json ./
 
@@ -66,7 +64,7 @@ ENV HOST=0.0.0.0
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:5000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+    CMD node -e "require('http').get('http://localhost:5000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
