@@ -1,0 +1,169 @@
+# ============================================
+# White-Label Limo Service - Standalone Docker Compose
+# Use for: Ubuntu VPS without Coolify
+# ============================================
+# Usage:
+#   1. Copy .env.example to .env and fill values
+#   2. docker compose up -d
+#   3. Access at http://your-server-ip:5000
+# ============================================
+
+version: '3.9'
+
+services:
+  # ========================================
+  # PostgreSQL Database
+  # ========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: limo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-limo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      POSTGRES_DB: ${POSTGRES_DB:-limo_service}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-limo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - limo-network
+
+  # ========================================
+  # MinIO Object Storage (S3-compatible)
+  # ========================================
+  minio:
+    image: minio/minio:latest
+    container_name: limo-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:?MINIO_SECRET_KEY required}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - limo-network
+
+  # ========================================
+  # MinIO Bucket Initialization
+  # ========================================
+  minio-init:
+    image: minio/mc:latest
+    container_name: limo-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set storage http://minio:9000 ${MINIO_ACCESS_KEY:-minioadmin} ${MINIO_SECRET_KEY};
+      /usr/bin/mc mb storage/${MINIO_BUCKET:-limo-uploads} --ignore-existing;
+      /usr/bin/mc anonymous set download storage/${MINIO_BUCKET:-limo-uploads}/public 2>/dev/null || true;
+      echo 'MinIO bucket initialized successfully';
+      exit 0;
+      "
+    networks:
+      - limo-network
+
+  # ========================================
+  # Main Application
+  # ========================================
+  app:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    container_name: limo-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      # Core Settings
+      NODE_ENV: production
+      PORT: 5000
+      HOST: 0.0.0.0
+      
+      # Database (internal network)
+      DATABASE_URL: postgresql://${POSTGRES_USER:-limo}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-limo_service}
+      
+      # Session & Security
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET required}
+      
+      # Object Storage (internal network)
+      STORAGE_PROVIDER: minio
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-limo-uploads}
+      MINIO_USE_SSL: "false"
+      
+      # Payment (Optional - leave empty to disable)
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      VITE_STRIPE_PUBLIC_KEY: ${VITE_STRIPE_PUBLIC_KEY:-}
+      
+      # Email (Optional)
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-Limo Service}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-}
+      
+      # SMS (Optional)
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}
+      
+      # APIs (Optional)
+      TOMTOM_API_KEY: ${TOMTOM_API_KEY:-}
+      RAPIDAPI_KEY: ${RAPIDAPI_KEY:-}
+      
+      # Domain (for email links)
+      REPLIT_DEV_DOMAIN: ${APP_DOMAIN:-}
+    ports:
+      - "${APP_PORT:-5000}:5000"
+    volumes:
+      - uploads_data:/app/uploads
+      - logs_data:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - limo-network
+
+# ========================================
+# Named Volumes (safer than bind mounts)
+# ========================================
+volumes:
+  postgres_data:
+    driver: local
+  minio_data:
+    driver: local
+  uploads_data:
+    driver: local
+  logs_data:
+    driver: local
+
+# ========================================
+# Networks
+# ========================================
+networks:
+  limo-network:
+    driver: bridge

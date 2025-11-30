@@ -1,634 +1,383 @@
-# USA Luxury Limo - Deployment Guide
+# Deployment Guide
 
-Complete deployment documentation for USA Luxury Limo across different platforms.
-
-**⚠️ Having deployment issues?** See [TROUBLESHOOTING_DEPLOYMENT.md](./TROUBLESHOOTING_DEPLOYMENT.md) for solutions to white screens, 404 errors, and other common problems.
-
-## Quick Links
-
-- 🚀 **Deploying with Coolify?** See [COOLIFY_DEPLOYMENT.md](COOLIFY_DEPLOYMENT.md) - Complete Coolify guide
-- 📘 **New to Deployment?** Start with [QUICK_START.md](QUICK_START.md) - Deploy in 5 minutes
-- 📗 **Need GitHub Help?** See [GITHUB_SETUP.md](GITHUB_SETUP.md) - Create repository step-by-step
-- ✅ **Ready to Deploy?** Use [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) - Validation checklist
-
-## Deployment Platforms
-
-### Recommended: Coolify (VPS)
-
-**Best for:** Production deployments with full control
-
-- ✅ Docker-based deployment
-- ✅ Automatic SSL certificates
-- ✅ Built-in monitoring
-- ✅ Easy environment management
-- ✅ Auto-deploy from GitHub
-
-👉 **[Read Full Coolify Guide](COOLIFY_DEPLOYMENT.md)**
-
-**Quick Fix for Current Issue (White Screen):**
-1. Coolify Dashboard → Your app → "Deployments" tab
-2. Click **"Force Rebuild & Redeploy"**
-3. Wait 3-5 minutes
-4. Clear browser cache and test
-
-### Alternative: Replit Deployments
-
-**Best for:** Quick prototyping and development
-
-- ✅ Zero configuration
-- ✅ Built-in database
-- ✅ Automatic HTTPS
-- ✅ Instant deployments
-
-### Alternative: Docker Compose (Any VPS)
-
-**Best for:** Self-hosted deployments
-
-Use `docker-compose-best-chauffeurs.yml` file included in the repository.
-- 🏗️ **Want to Understand?** Read [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture
+Complete guide for deploying the White-Label Limo Service on Ubuntu VPS with Coolify or standalone Docker.
 
 ## Table of Contents
+
 1. [Prerequisites](#prerequisites)
-2. [Prepare Your GitHub Repository](#prepare-your-github-repository)
-3. [Setup MinIO for Object Storage](#setup-minio-for-object-storage)
-4. [Deploy Application on Coolify](#deploy-application-on-coolify)
-5. [Configure Environment Variables](#configure-environment-variables)
-6. [Post-Deployment Configuration](#post-deployment-configuration)
-7. [Troubleshooting](#troubleshooting)
+2. [Quick Start](#quick-start)
+3. [Coolify Deployment](#coolify-deployment)
+4. [Standalone Docker Deployment](#standalone-docker-deployment)
+5. [Environment Variables](#environment-variables)
+6. [External Services Setup](#external-services-setup)
+7. [Post-Deployment](#post-deployment)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Prerequisites
 
-### What You Need
+### Server Requirements
+- Ubuntu 20.04+ or Debian 10+
+- 2GB RAM minimum (4GB recommended)
+- 20GB storage
+- Public IP address
 
-✅ **Coolify** installed on your Hostinger VPS  
-✅ **GitHub account** with your code repository  
-✅ **PostgreSQL database** (from Neon or your own server)  
-✅ **Domain name** (optional, but recommended for production)
-
-### Services Required
-
-- **Stripe Account** - Payment processing ([stripe.com](https://stripe.com))
-- **Twilio Account** - SMS notifications ([twilio.com](https://twilio.com))
-- **TomTom API Key** - Geocoding ([developer.tomtom.com](https://developer.tomtom.com))
-- **RapidAPI Key** - Flight search ([rapidapi.com](https://rapidapi.com))
+### External Services (Recommended)
+- **Database**: Neon PostgreSQL (free tier available) or Supabase
+- **Domain**: Your own domain name
+- **Optional**: Stripe account for payments
 
 ---
 
-## 1. Prepare Your GitHub Repository
+## Quick Start
 
-### Step 1: Push Your Code to GitHub
+### Fastest Way (Ubuntu VPS)
 
 ```bash
-# Initialize git if not already done
-git init
+# 1. Clone the repository
+git clone https://github.com/yourusername/limo-service.git
+cd limo-service/deployment
 
-# Add all files
-git add .
+# 2. Run automated deployment
+chmod +x deploy.sh
+sudo ./deploy.sh
 
-# Commit your changes
-git commit -m "Prepare for Coolify deployment"
-
-# Add your GitHub repository as remote
-git remote add origin https://github.com/yourusername/new-usa-luxury-limo-service.git
-
-# Push to GitHub
-git push -u origin main
+# 3. Follow the prompts
 ```
 
-### Step 2: Verify Required Files
-
-Make sure these files exist in your repository:
-- ✅ `Dockerfile` - For building the production image
-- ✅ `.dockerignore` - To exclude unnecessary files
-- ✅ `.env.example` - Environment variables template
-- ✅ `docker-compose.yml` - Local testing (optional for Coolify)
+The script will:
+- Install Docker and dependencies
+- Generate secure passwords
+- Build and start all containers
+- Configure the database
 
 ---
 
-## 2. Setup MinIO for Object Storage
+## Coolify Deployment
 
-MinIO will store your uploaded files (driver documents, profile pictures, CMS media).
+Coolify is a self-hosted PaaS that simplifies deployment with automatic SSL and easy management.
 
-### Option A: Deploy MinIO in Coolify (Recommended)
+### Step 1: Install Coolify
 
-1. **In Coolify Dashboard**:
-   - Click **+ New Resource** → **Service**
-   - Search for **"MinIO"**
-   - Click **Deploy**
-
-2. **Configure MinIO**:
-   - **Service Name**: `usa-limo-minio`
-   - **Root User**: `minioadmin` (default)
-   - **Root Password**: Generate a strong password (save this!)
-   
-3. **After Deployment**:
-   - Note the internal service URL (e.g., `http://usa-limo-minio:9000`)
-   - Access MinIO Console at: `https://your-minio-domain.com` (if you set up a domain)
-
-4. **Create Bucket**:
-   - Open MinIO Console (port 9001)
-   - Login with root credentials
-   - Click **Buckets** → **Create Bucket**
-   - Bucket Name: `usa-luxury-limo`
-   - Click **Create**
-
-### Option B: Use External S3 Storage
-
-If you prefer AWS S3 or another S3-compatible service, skip MinIO and use those credentials instead in your environment variables.
-
----
-
-## 3. Deploy Application on Coolify
-
-### Step 1: Create New Application
-
-1. **In Coolify Dashboard**:
-   - Navigate to your Project/Environment
-   - Click **+ New Resource** → **Application**
-
-2. **Choose Source**:
-   - Select **GitHub** (connect your account if not already connected)
-   - Choose your repository: `yourusername/new-usa-luxury-limo-service`
-   - Select branch: `main` (or your production branch)
-   - Click **Continue**
-
-### Step 2: Configure Build Settings
-
-1. **Build Pack**: 
-   - Select **Dockerfile**
-   - Dockerfile Location: `/Dockerfile` (default)
-
-2. **Port Configuration**:
-   - **Port**: `5000`
-   - **Protocol**: HTTP
-   - The app runs Node.js directly on port 5000 (Coolify handles SSL/routing)
-
-3. **Health Check** (Recommended):
-   - **Path**: `/health` or `/api/health`
-   - **Port**: `5000`
-   - **Interval**: `30s`
-   - **Timeout**: `3s`
-   - **Retries**: `3`
-   - The Dockerfile includes a built-in health check
-
-### Step 3: Configure Deployment
-
-1. **Auto Deploy**:
-   - ✅ Enable "Auto Deploy on Commit" (optional)
-   - This will automatically redeploy when you push to GitHub
-
-2. **Domain** (Optional):
-   - Add your custom domain or use Coolify's generated domain
-   - Coolify will automatically provision SSL certificate via Let's Encrypt
-
-3. Click **Save**
-
----
-
-## 4. Configure Environment Variables
-
-Critical step! Your app won't work without these.
-
-### In Coolify UI
-
-1. Go to your application
-2. Click **Environment Variables** tab
-3. Click **+ Add**
-4. Add each variable below
-
-### Required Environment Variables
-
-#### Core Configuration
 ```bash
-NODE_ENV=production
-PORT=5000  # Default port, Coolify will inject this automatically
+# On your VPS
+curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 ```
 
-#### Database (REQUIRED)
-```bash
-DATABASE_URL=postgresql://user:password@host:5432/database
-```
-Get this from your Neon dashboard or PostgreSQL provider.
+Access Coolify at `http://your-server-ip:8000`
 
-#### Session Secret (REQUIRED)
-```bash
-SESSION_SECRET=generate-a-random-32-char-secret-here
-```
-Generate with: `openssl rand -base64 32`
+### Step 2: Create New Application
 
-#### Stripe Payment (REQUIRED)
-```bash
-STRIPE_SECRET_KEY=sk_live_your_stripe_secret_key
-VITE_STRIPE_PUBLIC_KEY=pk_live_your_stripe_public_key
-```
-Mark `STRIPE_SECRET_KEY` as **Build Variable** in Coolify.
+1. Go to **Projects** > **New Project**
+2. Add new **Resource** > **Docker Compose**
+3. Connect your Git repository
 
-#### MinIO Object Storage (REQUIRED)
-```bash
-MINIO_ENDPOINT=http://usa-limo-minio:9000
-MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=your-strong-password-from-minio-setup
-MINIO_BUCKET=usa-luxury-limo
-```
-**Important**: Use the internal Docker service name (e.g., `usa-limo-minio`) not external domain!
+### Step 3: Configure Build Settings
 
-#### Email Configuration (Optional but Recommended)
-```bash
+In Coolify application settings:
+
+```
+Build Path: deployment/
+Docker Compose File: deployment/docker-compose.coolify.yml
+```
+
+### Step 4: Add Environment Variables
+
+In **Environment Variables** section, add:
+
+**Required:**
+```
+DATABASE_URL=postgresql://user:pass@host:5432/database?sslmode=require
+SESSION_SECRET=your-secret-here
+```
+
+**Storage (choose one):**
+
+*Option A - MinIO:*
+```
+STORAGE_PROVIDER=minio
+MINIO_ENDPOINT=https://your-minio-server.com
+MINIO_ACCESS_KEY=your-access-key
+MINIO_SECRET_KEY=your-secret-key
+MINIO_BUCKET=limo-uploads
+MINIO_USE_SSL=true
+```
+
+*Option B - AWS S3:*
+```
+STORAGE_PROVIDER=s3
+AWS_ACCESS_KEY_ID=AKIA...
+AWS_SECRET_ACCESS_KEY=your-secret
+AWS_S3_BUCKET=your-bucket-name
+AWS_REGION=us-east-1
+```
+
+**Optional:**
+```
+STRIPE_SECRET_KEY=sk_live_...
+VITE_STRIPE_PUBLIC_KEY=pk_live_...
+TWILIO_ACCOUNT_SID=AC...
+TWILIO_AUTH_TOKEN=...
 SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-specific-password
-EMAIL_FROM_NAME=USA Luxury Limo
-EMAIL_FROM_ADDRESS=noreply@usaluxurylimo.com
+SMTP_USER=your@email.com
+SMTP_PASS=your-app-password
 ```
 
-#### SMS Configuration (Optional but Recommended)
-```bash
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_PHONE_NUMBER=+1234567890
-```
+### Step 5: Configure Domain
 
-#### API Keys (Optional but Recommended)
-```bash
-TOMTOM_API_KEY=your_tomtom_api_key
-RAPIDAPI_KEY=your_rapidapi_key
-```
+1. In **Domains** section, add your domain
+2. Enable **Auto SSL** for HTTPS
+3. Save and deploy
 
-#### Domain Configuration (Optional)
-```bash
-REPLIT_DEV_DOMAIN=your-domain.com
-```
-Set this to your production domain for email links and payment redirects.
+### Step 6: Deploy
 
-### Step 4: Mark Build Variables
-
-In Coolify, mark these as **Build Variables** (checkbox):
-- `VITE_STRIPE_PUBLIC_KEY` (any variable starting with `VITE_`)
-
-### Step 5: Save and Deploy
-
-1. Click **Update** to save environment variables
-2. Click **Deploy** to start your first deployment
-3. Monitor the build logs in real-time
+Click **Deploy** and monitor the build logs.
 
 ---
 
-## 5. Post-Deployment Configuration
+## Standalone Docker Deployment
 
-### Step 1: Run Database Migrations
+For servers without Coolify.
 
-After first successful deployment:
+### Step 1: Clone Repository
 
-1. **Connect to your application container**:
-   ```bash
-   # In Coolify, go to your app → Logs/Terminal
-   # Or SSH into your VPS and run:
-   docker exec -it usa-luxury-limo sh
-   ```
+```bash
+git clone https://github.com/yourusername/limo-service.git
+cd limo-service
+```
 
-2. **Push database schema**:
-   ```bash
-   npm run db:push
-   ```
+### Step 2: Configure Environment
 
-3. **Verify database connection**:
-   Check your app logs to ensure database connected successfully.
+```bash
+cd deployment
+cp .env.example .env
+nano .env  # Edit with your values
+```
 
-### Step 2: Create Admin Account
+### Step 3: Run Deployment Script
 
-1. Visit your application: `https://your-domain.com`
-2. Click **Login** and choose role: **Admin**
-3. Create your first admin account
+```bash
+chmod +x deploy.sh
+sudo ./deploy.sh
+```
 
-### Step 3: Test File Upload
+Or manually with Docker Compose:
+
+```bash
+docker compose -f docker-compose.yml up -d
+```
+
+### Step 4: Run Database Migrations
+
+```bash
+docker exec limo-app npm run db:push
+```
+
+### Step 5: Set Up Reverse Proxy (Optional)
+
+For SSL/HTTPS, use Nginx or Caddy:
+
+**Caddy Example (with automatic SSL):**
+```
+your-domain.com {
+    reverse_proxy localhost:5000
+}
+```
+
+---
+
+## Environment Variables
+
+### Required Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host:5432/db` |
+| `SESSION_SECRET` | Session encryption key | Generate with `openssl rand -base64 32` |
+| `MINIO_SECRET_KEY` | Object storage password | Secure random string |
+
+### Optional Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `STRIPE_SECRET_KEY` | Stripe API key | (disabled if empty) |
+| `VITE_STRIPE_PUBLIC_KEY` | Stripe public key | (disabled if empty) |
+| `TWILIO_ACCOUNT_SID` | Twilio account SID | (SMS disabled if empty) |
+| `TWILIO_AUTH_TOKEN` | Twilio auth token | |
+| `TWILIO_PHONE_NUMBER` | Twilio phone number | |
+| `SMTP_HOST` | Email server | |
+| `SMTP_PORT` | Email port | 587 |
+| `SMTP_USER` | Email username | |
+| `SMTP_PASS` | Email password | |
+| `TOMTOM_API_KEY` | TomTom geocoding API | |
+| `RAPIDAPI_KEY` | RapidAPI for flights | |
+
+---
+
+## External Services Setup
+
+### Neon Database (Recommended)
+
+1. Go to [neon.tech](https://neon.tech)
+2. Create free account
+3. Create new project
+4. Copy connection string to `DATABASE_URL`
+
+### MinIO Object Storage
+
+**Option A: Self-hosted MinIO**
+```bash
+docker run -d \
+  -p 9000:9000 -p 9001:9001 \
+  -v minio_data:/data \
+  -e MINIO_ROOT_USER=admin \
+  -e MINIO_ROOT_PASSWORD=your-password \
+  minio/minio server /data --console-address ":9001"
+```
+
+**Option B: MinIO Cloud**
+1. Go to [min.io/cloud](https://min.io/cloud)
+2. Create bucket
+3. Generate access keys
+4. Add credentials to environment
+
+### Stripe Payments (Optional)
+
+1. Go to [stripe.com/dashboard](https://stripe.com/dashboard)
+2. Get API keys from **Developers** > **API keys**
+3. Add `STRIPE_SECRET_KEY` and `VITE_STRIPE_PUBLIC_KEY`
+
+### Twilio SMS (Optional)
+
+1. Go to [console.twilio.com](https://console.twilio.com)
+2. Get Account SID and Auth Token
+3. Buy a phone number
+4. Add credentials to environment
+
+---
+
+## Post-Deployment
+
+### Create Admin Account
+
+1. Access your deployed application
+2. Click "Sign Up" or "Register"
+3. Create first account
+4. Default admin: `mikewhite` / `admin123` (change immediately)
+
+### Configure Branding
 
 1. Login as admin
-2. Go to **CMS** settings
-3. Try uploading a logo or hero image
-4. Verify it displays correctly (this tests MinIO integration)
+2. Go to **Settings** > **Branding**
+3. Upload logo and set company name
+4. Configure colors and theme
 
-### Step 4: Configure Payment Providers
+### Set Up Vehicle Types
 
-1. Go to **Admin Dashboard** → **System Settings**
-2. Add your payment provider credentials (Stripe, PayPal, Square)
-3. Test a booking to ensure payment flow works
+1. Go to **Admin** > **Fleet**
+2. Add vehicle types with pricing
+3. Upload vehicle images
 
 ---
 
-## 6. Troubleshooting
+## Troubleshooting
 
-### Application Won't Start
+### Application Not Starting
 
-**Check logs in Coolify**:
-- Look for errors related to missing environment variables
-- Verify `DATABASE_URL` is correct
-- Ensure `STRIPE_SECRET_KEY` is set
-
-**Common issues**:
-```
-❌ "DATABASE_URL must be set"
-   → Add DATABASE_URL to environment variables
-
-❌ "Object Storage not configured"
-   → Verify MINIO_* variables are set correctly
-
-❌ "Missing required Stripe secret"
-   → Add STRIPE_SECRET_KEY
-```
-
-### Files Not Uploading
-
-**Check MinIO connection**:
 ```bash
-# In app container:
-curl http://usa-limo-minio:9000/minio/health/live
-```
-
-**Common issues**:
-- ❌ Bucket doesn't exist → Create bucket in MinIO console
-- ❌ Wrong MINIO_ENDPOINT → Use internal Docker name, not external domain
-- ❌ Wrong credentials → Verify MINIO_ACCESS_KEY and MINIO_SECRET_KEY
-
-### Database Connection Errors
-
-**Check if database is accessible**:
-```bash
-# Test connection (replace with your DATABASE_URL)
-psql "postgresql://user:password@host:5432/database"
-```
-
-**Common issues**:
-- ❌ Firewall blocking connection → Allow Coolify server IP in database firewall
-- ❌ SSL issues → Check if your database requires SSL connection string parameter
-
-### Build Failures
-
-**Check Dockerfile**:
-- Ensure all dependencies are in `package.json`
-- Verify `npm run build` works locally
-
-**Check build logs**:
-- Look for missing packages or TypeScript errors
-- Ensure `shared` folder is copied in Dockerfile
-
-### Email Not Sending
-
-**Test SMTP connection**:
-- Login as admin
-- Go to **System Settings** → **Email Configuration**
-- Click **Test Email Connection**
-
-**Common issues**:
-- ❌ Gmail blocking: Enable "App Passwords" in Google Account settings
-- ❌ Wrong port: Try 587 (TLS) or 465 (SSL)
-- ❌ Authentication failed: Double-check SMTP_USER and SMTP_PASS
-
-### 502 Bad Gateway Error
-
-This is the most common Coolify deployment error.
-
-**CRITICAL: Your app MUST listen on 0.0.0.0, NOT localhost**
-```typescript
-// ✅ CORRECT (our app already does this in server/index.ts)
-server.listen({ port: 5000, host: "0.0.0.0" })
-
-// ❌ WRONG - Will cause 502 error
-server.listen({ port: 5000, host: "localhost" })
-```
-
-**Note**: The simplified Dockerfile runs Node.js directly on port 5000. Coolify handles all SSL certificates and reverse proxy routing automatically.
-
-**Other common causes**:
-- ❌ Port mismatch: Verify Coolify "Port Exposes" setting matches your app's PORT (5000)
-- ❌ App crash on startup: Check logs for missing env vars or database connection errors
-- ❌ Health check failing: Remove or fix the health check configuration
-- ❌ Build succeeded but container exited: Check for errors in startup logs
-
-**Verify container is running**:
-```bash
-# SSH into your VPS
-docker ps | grep usa-luxury-limo
-
 # Check container logs
-docker logs <container-id>
-```
+docker logs limo-app -f
 
-### Deployment Stuck in Queue
-
-If deployment is added to queue but never starts:
-
-**Common causes**:
-1. **High CPU usage**: Server resources maxed out
-   ```bash
-   # Check server load
-   htop
-   ```
-   - **Solution**: Upgrade server resources or reduce concurrent builds
-
-2. **Server validation failed**:
-   - In Coolify, go to **Servers** → Validate your localhost server
-   - Restart Coolify if validation keeps failing:
-     ```bash
-     cd /data/coolify/source
-     docker compose restart
-     ```
-
-3. **Queue corruption**:
-   ```bash
-   # Restart Coolify completely
-   cd /data/coolify/source
-   docker compose down
-   docker compose up -d
-   ```
-
-### GitHub Integration Issues
-
-**"Failed to get access token" error**:
-
-This is usually a time synchronization issue.
-
-**Fix**:
-```bash
-# SSH into your Ubuntu server
-sudo timedatectl set-ntp true
-sudo systemctl restart systemd-timesyncd
-
-# Verify time is synced
-timedatectl status
-```
-
-### Server Crashes During Build
-
-If your server becomes unresponsive during Docker builds:
-
-**Solutions**:
-1. **Upgrade server resources** (minimum 2GB RAM, 2 CPUs recommended)
-2. **Use GitHub Actions** to build images externally
-3. **Deploy pre-built images** instead of building from source
-4. **Free up disk space**:
-   ```bash
-   # Remove unused Docker resources
-   docker system prune -a
-   
-   # Check disk usage
-   df -h
-   docker system df
-   ```
-
-### MinIO Network Issues
-
-**Cannot connect to MinIO from app**:
-
-**CRITICAL: Use internal Docker service name, NOT external domain**
-
-```bash
-# ✅ CORRECT - Internal Docker network
-MINIO_ENDPOINT=http://usa-limo-minio:9000
-
-# ❌ WRONG - External domain won't work from inside container
-MINIO_ENDPOINT=https://minio.yourdomain.com
-```
-
-**Verify MinIO is running**:
-```bash
-# Check MinIO container
-docker ps | grep minio
-
-# Check MinIO health
-docker logs <minio-container-id>
-```
-
-### SSH Connection to Coolify Server
-
-If Coolify can't connect to your server:
-
-**Fix**:
-```bash
-# Add Coolify's public key to authorized_keys
-cat /data/coolify/ssh/keys/id.root@host.docker.internal.pub >> ~/.ssh/authorized_keys
-
-# For Ubuntu Server, allow root SSH
-sudo nano /etc/ssh/sshd_config
-# Add or modify: AllowGroups admin root
-sudo systemctl restart sshd
-```
-
-### Quick Diagnostic Commands
-
-```bash
-# Check Coolify status
-cd /data/coolify/source
+# Check all containers
 docker compose ps
-docker compose logs -f
+```
 
-# Check proxy (Traefik) logs
-docker logs coolify-proxy
+### Database Connection Failed
 
-# Free up disk space
-docker system prune -a
+Common fixes:
+- Verify `DATABASE_URL` format
+- Check database firewall allows connections
+- Ensure SSL mode is correct (`?sslmode=require` for Neon)
 
-# Check all running containers
-docker ps -a
+### 502 Bad Gateway
 
-# View real-time resource usage
-htop
+- Application might still be starting (wait 30-60 seconds)
+- Check if port 5000 is correctly mapped
+- Verify `HOST=0.0.0.0` in environment
 
-# Check disk space
-df -h
+### Storage Upload Errors
+
+- Verify MinIO credentials
+- Check bucket exists
+- Ensure `MINIO_USE_SSL` matches your setup
+
+### Health Check
+
+```bash
+curl http://localhost:5000/health
+```
+
+Should return:
+```json
+{"status": "ok", "database": "connected"}
 ```
 
 ---
 
-## 7. Production Checklist
+## Updating
 
-Before going live, verify:
+To update an existing deployment:
 
-- [ ] All environment variables are set
-- [ ] Database migrations are up to date (`npm run db:push`)
-- [ ] MinIO bucket is created and accessible
-- [ ] SSL certificate is active (HTTPS)
-- [ ] Stripe is in production mode (not test mode)
-- [ ] Admin account is created
-- [ ] Test booking works end-to-end
-- [ ] Email notifications are sending
-- [ ] SMS notifications are working (if configured)
-- [ ] Custom domain is pointing to Coolify (if using)
-- [ ] Backup strategy is in place for database and MinIO data
+```bash
+cd deployment
+./update.sh
+```
 
----
+Or manually:
 
-## 8. Updating Your Application
-
-### To Deploy New Changes:
-
-1. **Push to GitHub**:
-   ```bash
-   git add .
-   git commit -m "Your update message"
-   git push origin main
-   ```
-
-2. **In Coolify**:
-   - If auto-deploy is enabled, it will deploy automatically
-   - Otherwise, click **Deploy** button manually
-
-3. **Monitor deployment**:
-   - Watch build logs for any errors
-   - Test the new features after deployment
-
-### Rollback if Needed:
-
-1. In Coolify, go to **Deployments** tab
-2. Find the last working deployment
-3. Click **Redeploy**
+```bash
+git pull
+docker compose build --no-cache app
+docker compose up -d app
+```
 
 ---
 
-## 9. Maintenance Tips
+## Backup & Restore
 
-### Regular Tasks
+### Database Backup
 
-- **Backup Database**: Schedule regular PostgreSQL backups
-- **Backup MinIO Data**: Export MinIO volumes periodically
-- **Monitor Logs**: Check Coolify logs for errors weekly
-- **Update Dependencies**: Keep packages updated (`npm update`)
-- **Security Updates**: Monitor for security advisories
+```bash
+# Create backup
+docker exec limo-postgres pg_dump -U limo limo_service > backup.sql
 
-### Scaling
+# Restore backup
+cat backup.sql | docker exec -i limo-postgres psql -U limo limo_service
+```
 
-If your app grows:
-- **Horizontal Scaling**: Deploy multiple app instances behind a load balancer
-- **Database**: Upgrade to larger Neon plan or dedicated PostgreSQL server
-- **MinIO**: Consider switching to AWS S3 for better scalability
+---
+
+## Deployment Files
+
+All deployment resources are in the `deployment/` folder:
+
+| File | Purpose |
+|------|---------|
+| `Dockerfile` | Optimized production Docker image |
+| `docker-compose.yml` | Standalone deployment with all services |
+| `docker-compose.coolify.yml` | Coolify-optimized (external DB/storage) |
+| `.env.example` | Environment variable template |
+| `deploy.sh` | Automated deployment script |
+| `update.sh` | Update existing deployments |
+| `coolify-deploy.sh` | Coolify setup guide |
 
 ---
 
 ## Support
 
-Need help? Check these resources:
-
-- **Coolify Documentation**: [coolify.io/docs](https://coolify.io/docs)
-- **MinIO Docs**: [min.io/docs](https://min.io/docs)
-- **Neon Database Docs**: [neon.tech/docs](https://neon.tech/docs)
-- **Stripe Integration**: [stripe.com/docs](https://stripe.com/docs)
-
----
-
-## Summary
-
-You've successfully deployed USA Luxury Limo to Coolify! 🎉
-
-Your stack:
-- ✅ **App**: Node.js + React running in Docker
-- ✅ **Database**: PostgreSQL (Neon or self-hosted)
-- ✅ **Storage**: MinIO (or S3)
-- ✅ **Deployment**: Coolify on Hostinger VPS
-- ✅ **SSL**: Automatic with Let's Encrypt
-- ✅ **Payments**: Stripe integration
-- ✅ **Notifications**: Email (SMTP) + SMS (Twilio)
-
-Enjoy your production-ready luxury limo booking platform!
+- Check logs: `docker logs limo-app -f`
+- Health endpoint: `http://your-domain/health`
+- [Coolify Docs](https://coolify.io/docs)
+- [Neon Docs](https://neon.tech/docs)
+- [Docker Docs](https://docs.docker.com)
