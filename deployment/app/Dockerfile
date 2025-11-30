@@ -1,6 +1,6 @@
 # ============================================
 # White-Label Limo Service - Production Dockerfile
-# Optimized multi-stage build for Ubuntu VPS / Coolify
+# For per-tenant app deployments
 # ============================================
 
 # Stage 1: Base

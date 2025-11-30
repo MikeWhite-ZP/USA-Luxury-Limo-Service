@@ -34,13 +34,11 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
 The application is designed for flexible deployment across Replit, external Docker-based platforms (like Coolify), and native iOS/Android apps. It features a simplified Dockerfile, health check endpoints, and robust code splitting. Object storage and authentication are abstracted to allow switching between Replit-specific services and generic alternatives.
 - **Security & Configuration**: Sensitive settings are encrypted using AES-256-GCM. Admin dashboard and API endpoints are protected by subdomain-based access control, enforced both frontend and backend, configurable via `ADMIN_PANEL_HOSTS` environment variables.
 - **Database Persistence**: Employs external managed PostgreSQL (Neon) for data persistence across deployments. Follows best practices for data safety including external managed databases, separation of concerns, migration management with Drizzle, backup/recovery strategies, environment separation, and robust deployment workflows. Requires `NODE_ENV=production` for persistent session storage in production environments.
-- **Deployment**: All deployment resources are consolidated in the `deployment/` folder:
-    - `deploy.sh`: Automated standalone deployment for Ubuntu VPS
-    - `update.sh`: Update script for existing deployments
-    - `coolify-deploy.sh`: Coolify setup guide
-    - `docker-compose.yml`: Standalone deployment with PostgreSQL/MinIO
-    - `docker-compose.coolify.yml`: Coolify deployment with external services
-    - `.env.example`: Environment variable template
+- **Deployment**: Multi-tenant architecture with centralized infrastructure. Resources in `deployment/` folder:
+    - `infrastructure/`: Central PostgreSQL and MinIO servers (deploy once)
+    - `app/`: Per-tenant application deployment with Dockerfile
+    - `scripts/provision-tenant.sh`: Creates database and bucket for new companies
+    - Each company gets own database + storage bucket on shared infrastructure
 
 ## External Dependencies
 - **Twilio**: SMS messaging.
