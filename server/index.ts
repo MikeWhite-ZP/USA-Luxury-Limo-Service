@@ -1,30 +1,20 @@
 import express, { type Request, Response, NextFunction } from "express";
+import { createServer } from "http";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
-import { db } from "../db";
+import { db } from "./db";
 import path from "path";
 import { fileURLToPath } from "url";
-
-// Import seed function
-import { seedEmailTemplates } from "./seed";
-
-const shouldRunSeeds = process.env.SKIP_AUTO_SEED !== 'true';
-
-if (shouldRunSeeds) {
-  await seedEmailTemplates();
-}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Trust proxy - critical for Coolify deployments
 app.set("trust proxy", 1);
 
-// Security headers
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
@@ -36,11 +26,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Request parsing
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: false, limit: "10mb" }));
 
-// Session configuration with PostgreSQL store
 const PgSession = connectPgSimple(session);
 
 const sessionConfig: session.SessionOptions = {
@@ -61,7 +49,7 @@ const sessionConfig: session.SessionOptions = {
   cookie: {
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    maxAge: 30 * 24 * 60 * 60 * 1000,
     sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
   },
   rolling: true,
@@ -69,7 +57,6 @@ const sessionConfig: session.SessionOptions = {
 
 app.use(session(sessionConfig));
 
-// Health check endpoint - critical for load balancers
 app.get("/health", (req, res) => {
   res.status(200).json({ 
     status: "ok", 
@@ -78,15 +65,13 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Favicon handler
 app.get("/favicon.ico", (req, res) => {
   res.status(404).send("");
 });
 
-// API routes
 app.use((req, res, next) => {
   const start = Date.now();
-  const path = req.path;
+  const reqPath = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
@@ -97,8 +82,8 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+    if (reqPath.startsWith("/api")) {
+      let logLine = `${req.method} ${reqPath} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
@@ -116,17 +101,14 @@ app.use((req, res, next) => {
 
 (async () => {
   try {
-    // Register API routes
     await registerRoutes(app);
 
-    // Global error handler
     app.use((err: any, req: Request, res: Response, next: NextFunction) => {
       console.error("Global error handler:", err);
 
       const status = err.status || err.statusCode || 500;
       const message = err.message || "Internal Server Error";
 
-      // Don't expose internal errors in production
       if (process.env.NODE_ENV === "production" && status === 500) {
         res.status(500).json({ 
           message: "An unexpected error occurred",
@@ -141,36 +123,27 @@ app.use((req, res, next) => {
       }
     });
 
-    // Setup Vite or static file serving
+    const PORT = Number(process.env.PORT) || 5000;
+    const HOST = "0.0.0.0";
+
+    const server = createServer(app);
+
+    app.use("/api/*", (req, res) => {
+      res.status(404).json({ message: "Not found" });
+    });
+
     if (app.get("env") === "development") {
-      await setupVite(app);
+      await setupVite(app, server);
     } else {
       serveStatic(app);
     }
 
-    // 404 handler - Make sure this handles both API and non-API routes properly
-    app.use((req, res) => {
-      // For API routes, return JSON 404
-      if (req.path.startsWith("/api")) {
-        res.status(404).json({ message: "Not found" });
-      } else {
-        // For all other routes, serve index.html (SPA)
-        res.status(200).sendFile(path.join(__dirname, "../dist/public/index.html"));
-      }
-    });
-
-    // CRITICAL: Bind to 0.0.0.0 for Docker/Coolify
-    const PORT = process.env.PORT || 5000;
-    const HOST = "0.0.0.0";
-
-    // Start the server
-    const server = app.listen(PORT, HOST, () => {
+    server.listen(PORT, HOST, () => {
       log(`Server running on http://${HOST}:${PORT}`);
       log(`Environment: ${process.env.NODE_ENV || "development"}`);
       log(`Database: ${process.env.DATABASE_URL ? "Connected" : "Not configured"}`);
     });
 
-    // Graceful shutdown
     process.on("SIGTERM", () => {
       log("SIGTERM signal received: closing HTTP server");
       server.close(() => {
