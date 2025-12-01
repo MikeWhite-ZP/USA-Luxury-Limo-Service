@@ -7,6 +7,12 @@ import { db } from "../db";
 import path from "path";
 import { fileURLToPath } from "url";
 
+const shouldRunSeeds = process.env.SKIP_AUTO_SEED !== 'true';
+
+if (shouldRunSeeds) {
+  await seedEmailTemplates();
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
