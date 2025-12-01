@@ -21,6 +21,12 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+// Favicon handler
+app.get("/favicon.ico", (req, res) => {
+  res.status(404).send(""); // Return empty 404 instead of 503
+});
+
+
 // Trust proxy - critical for Coolify deployments
 app.set("trust proxy", 1);
 
