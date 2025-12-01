@@ -7,6 +7,9 @@ import { db } from "../db";
 import path from "path";
 import { fileURLToPath } from "url";
 
+// Import seed function
+import { seedEmailTemplates } from "./seed";
+
 const shouldRunSeeds = process.env.SKIP_AUTO_SEED !== 'true';
 
 if (shouldRunSeeds) {
@@ -109,7 +112,7 @@ app.use((req, res, next) => {
 (async () => {
   try {
     // Register API routes
-    const server = await registerRoutes(app);
+    await registerRoutes(app);
 
     // Global error handler
     app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -135,7 +138,7 @@ app.use((req, res, next) => {
 
     // Setup Vite or static file serving
     if (app.get("env") === "development") {
-      await setupVite(app, server);
+      await setupVite(app); // Fixed: Removed server parameter
     } else {
       serveStatic(app);
     }
@@ -155,7 +158,8 @@ app.use((req, res, next) => {
     const PORT = process.env.PORT || 5000;
     const HOST = "0.0.0.0";
 
-    server.listen(PORT, HOST, () => {
+    // Start the server
+    const server = app.listen(PORT, HOST, () => {
       log(`Server running on http://${HOST}:${PORT}`);
       log(`Environment: ${process.env.NODE_ENV || "development"}`);
       log(`Database: ${process.env.DATABASE_URL ? "Connected" : "Not configured"}`);
