@@ -102,7 +102,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl">
+              <DropdownMenuContent align="start" className="w-56 bg-slate-800 border-slate-700 shadow-xl">
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -111,13 +111,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#users-all');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-all-users"
                 >
-                  <Users className="w-4 h-4 mr-3 text-slate-500" />
+                  <Users className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">All Users</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-slate-700" />
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -126,10 +126,10 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#users-passenger');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-passengers"
                 >
-                  <Users className="w-4 h-4 mr-3 text-blue-500" />
+                  <Users className="w-4 h-4 mr-3 text-blue-400" />
                   <span className="font-medium">Passengers</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -140,10 +140,10 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#users-driver');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-drivers"
                 >
-                  <Car className="w-4 h-4 mr-3 text-green-500" />
+                  <Car className="w-4 h-4 mr-3 text-green-400" />
                   <span className="font-medium">Drivers</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -154,10 +154,10 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#users-dispatcher');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-dispatchers"
                 >
-                  <SettingsIcon className="w-4 h-4 mr-3 text-purple-500" />
+                  <SettingsIcon className="w-4 h-4 mr-3 text-purple-400" />
                   <span className="font-medium">Dispatchers</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -168,10 +168,10 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#users-admin');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-admins"
                 >
-                  <Star className="w-4 h-4 mr-3 text-yellow-500" />
+                  <Star className="w-4 h-4 mr-3 text-yellow-400" />
                   <span className="font-medium">Admins</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -190,7 +190,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl">
+              <DropdownMenuContent align="start" className="w-56 bg-slate-800 border-slate-700 shadow-xl">
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -199,13 +199,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin-pricing');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-pricing"
                 >
-                  <DollarSign className="w-4 h-4 mr-3 text-slate-500" />
+                  <DollarSign className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">Pricing</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-slate-700" />
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -214,13 +214,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#settings-branding');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-branding"
                 >
-                  <Palette className="w-4 h-4 mr-3 text-slate-500" />
+                  <Palette className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">Branding</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-slate-700" />
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -229,10 +229,10 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#credentials-api');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-api-credentials"
                 >
-                  <Key className="w-4 h-4 mr-3 text-slate-500" />
+                  <Key className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">API Credentials</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -243,10 +243,10 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#credentials-payment');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-payment-systems"
                 >
-                  <DollarSign className="w-4 h-4 mr-3 text-slate-500" />
+                  <DollarSign className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">Payment Systems</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -257,18 +257,18 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#credentials-minio');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-minio-storage"
                 >
-                  <Key className="w-4 h-4 mr-3 text-slate-500" />
+                  <Key className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">MinIO Storage</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin/minio-browser')}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-minio-browser"
                 >
-                  <Image className="w-4 h-4 mr-3 text-cyan-500" />
+                  <Image className="w-4 h-4 mr-3 text-cyan-400" />
                   <span className="font-medium">Browse Images</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -279,13 +279,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#vehicle-types');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-vehicle-types"
                 >
-                  <Car className="w-4 h-4 mr-3 text-slate-500" />
+                  <Car className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">Vehicle Types</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-slate-700" />
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -294,10 +294,10 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#settings-commission');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-system-commission"
                 >
-                  <Percent className="w-4 h-4 mr-3 text-slate-500" />
+                  <Percent className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">System Commission</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -308,10 +308,10 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#settings-email');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-email-settings"
                 >
-                  <Mail className="w-4 h-4 mr-3 text-slate-500" />
+                  <Mail className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">Email Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -322,13 +322,13 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#settings-sms');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-sms-settings"
                 >
-                  <MessageSquare className="w-4 h-4 mr-3 text-slate-500" />
+                  <MessageSquare className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">SMS Notifications</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-slate-700" />
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -337,10 +337,10 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#settings-database');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-database-settings"
                 >
-                  <Database className="w-4 h-4 mr-3 text-slate-500" />
+                  <Database className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">Database URL</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -359,7 +359,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   <ChevronDown className="w-3.5 h-3.5 ml-1.5 opacity-70" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl">
+              <DropdownMenuContent align="start" className="w-56 bg-slate-800 border-slate-700 shadow-xl">
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
@@ -368,10 +368,10 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#cms-pages');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-cms-pages"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <FileText className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">Pages</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -382,10 +382,10 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#cms-media');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-cms-media"
                 >
-                  <Image className="w-4 h-4 mr-3 text-slate-500" />
+                  <Image className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">Media & Images</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -396,10 +396,10 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                       setLocation('/admin#cms-services');
                     }
                   }}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-slate-100 dark:focus:bg-slate-700 py-2.5"
+                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
                   data-testid="nav-cms-services"
                 >
-                  <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                  <FileText className="w-4 h-4 mr-3 text-slate-400" />
                   <span className="font-medium">Services</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
