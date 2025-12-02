@@ -46,7 +46,16 @@ self.addEventListener('fetch', (event) => {
 
   // Skip caching for API requests and external resources
   if (url.includes('/api/') || url.includes('fonts.googleapis.com') || url.includes('fonts.gstatic.com')) {
-    event.respondWith(fetch(event.request));
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // Return an empty response if fetch fails for external resources
+        return new Response('', { 
+          status: 200, 
+          statusText: 'OK',
+          headers: { 'Content-Type': 'text/css' }
+        });
+      })
+    );
     return;
   }
 
