@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Upload, Settings, Palette, Share2, Mail, Globe, Pencil, Trash2 } from 'lucide-react';
+import { Loader2, Upload, Settings, Palette, Share2, Mail, Globe, Pencil, Trash2 } from 'lucide-react';
 
 type CmsSetting = {
   id: string;
@@ -102,7 +102,6 @@ export default function BrandSettings() {
     }
 
     const inputElement = event.currentTarget;
-
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', 'logos');
@@ -120,66 +119,27 @@ export default function BrandSettings() {
         credentials: 'include',
       });
 
-      const responseText = await response.text();
-
       if (!response.ok) {
-        console.error('Upload failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          body: responseText
-        });
-
-        let errorMessage = 'Upload failed';
-        try {
-          const errorData = JSON.parse(responseText);
-          errorMessage = errorData.message || errorData.error || 'Upload failed';
-        } catch {
-          errorMessage = responseText || `Server error (${response.status})`;
-        }
-
-        throw new Error(errorMessage);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Upload failed');
       }
 
-      let media;
-      try {
-        media = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('Failed to parse response:', responseText);
-        throw new Error('Invalid response from server');
-      }
-
-      if (!media.fileUrl) {
-        throw new Error('No file URL returned from server');
-      }
-
+      const media = await response.json();
       const key = logoType === 'logo' ? 'BRAND_LOGO_URL' : 'BRAND_FAVICON_URL';
 
-      handleSettingChange(
-        key, 
-        media.fileUrl, 
-        'branding', 
-        `${logoType === 'logo' ? 'Main company logo' : 'Browser favicon'}`
-      );
+      handleSettingChange(key, media.fileUrl, 'branding', `${logoType === 'logo' ? 'Main company logo' : 'Browser favicon'}`);
 
-      if (inputElement) {
-        inputElement.value = '';
-      }
+      if (inputElement) inputElement.value = '';
 
       toast({
         title: 'Success',
         description: `${logoType === 'logo' ? 'Logo' : 'Favicon'} uploaded successfully`,
       });
-
     } catch (error) {
       console.error('Logo upload error:', error);
-
-      if (inputElement) {
-        inputElement.value = '';
-      }
-
       toast({
-        title: 'Upload Failed',
-        description: error instanceof Error ? error.message : 'Failed to upload file. Please check server logs.',
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to upload logo',
         variant: 'destructive',
       });
     }
@@ -231,7 +191,7 @@ export default function BrandSettings() {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="h-10 items-center justify-center rounded-md bg-muted p-1 grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="branding" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
             <span>Branding</span>
