@@ -17,7 +17,7 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
 - **Backend**: Node.js with Express.js, TypeScript, RESTful JSON APIs.
 - **Database**: PostgreSQL (Neon for hosting) with Drizzle ORM.
 - **Authentication**: Replit Auth with OpenID Connect, environment-aware session management (PostgreSQL-backed in production, MemoryStore in development), and scrypt hashing for multi-role access. Production deployment requires `NODE_ENV=production` for persistent PostgreSQL session storage. Complete password recovery and management system with secure tokens and anti-enumeration protection.
-- **Object Storage**: Replit Object Storage with custom Buffer normalization, supporting MinIO and AWS S3 via an abstract adapter. Production-ready presigned URL system dynamically generates time-limited URLs for secure direct access to images.
+- **Object Storage**: Replit Object Storage with custom Buffer normalization, supporting MinIO and AWS S3 via an abstract adapter. Production-ready presigned URL system dynamically generates time-limited URLs for secure direct access to images. **Local Storage Fallback**: In development mode when no cloud storage is configured, files are automatically stored in the `uploads/` directory and served via `/api/uploads/*` endpoint with path traversal protection and proper MIME type handling.
 - **Core Features**:
     - **Notifications**: Comprehensive email and SMS notification system (Twilio, Nodemailer) for booking lifecycle events using a fire-and-forget async pattern.
     - **Payment**: Integration with multiple providers (Stripe, PayPal, Square), supporting "Pay Now", "Pay Later", and "Pay with Cash" options, including surcharge management.
