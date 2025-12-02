@@ -7998,12 +7998,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         storage.getCmsSetting('BRAND_ACCENT_COLOR')
       ]);
 
+      // Convert logo and favicon URLs to presigned URLs if they're storage paths
+      const resolvedLogoUrl = logoUrl?.value 
+        ? await getPresignedUrl(logoUrl.value) 
+        : '/images/logo_1759125364025.png';
+      const resolvedFaviconUrl = faviconUrl?.value 
+        ? await getPresignedUrl(faviconUrl.value) 
+        : '/images/favicon_1759253989963.png';
+
       res.json({
         companyName: companyName?.value || 'USA Luxury Limo',
         tagline: tagline?.value || 'Premium Transportation Excellence',
         description: description?.value || 'Premium luxury transportation services across the United States. Experience comfort, reliability, and professionalism with every ride.',
-        logoUrl: logoUrl?.value || '/images/logo_1759125364025.png',
-        faviconUrl: faviconUrl?.value || '/images/favicon_1759253989963.png',
+        logoUrl: resolvedLogoUrl,
+        faviconUrl: resolvedFaviconUrl,
         colors: {
           primary: primaryColor?.value || '#1a1a1a',
           secondary: secondaryColor?.value || '#666666',
