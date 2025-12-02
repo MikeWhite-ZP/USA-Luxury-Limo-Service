@@ -76,6 +76,9 @@ server/public
 *.sqlite
 *.sqlite3
 
+# Local uploads (development)
+uploads/
+
 # Test coverage
 coverage
 .nyc_output

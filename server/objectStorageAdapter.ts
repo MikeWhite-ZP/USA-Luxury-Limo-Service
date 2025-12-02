@@ -1,6 +1,8 @@
 import { Client as ObjectStorageClient } from "@replit/object-storage";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command, HeadBucketCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import * as fs from "fs";
+import * as path from "path";
 
 /**
  * Object Storage Adapter
@@ -331,6 +333,181 @@ async getDownloadUrl(path: string): Promise<{ ok: boolean; url?: string; error?:
   }
 }
 
+class LocalStorageAdapter implements StorageAdapter {
+  private baseDir: string;
+
+  constructor(baseDir: string = 'uploads') {
+    this.baseDir = path.resolve(process.cwd(), baseDir);
+    if (!fs.existsSync(this.baseDir)) {
+      fs.mkdirSync(this.baseDir, { recursive: true });
+    }
+    console.log(`[STORAGE] LocalStorageAdapter initialized at: ${this.baseDir}`);
+  }
+
+  private sanitizePath(filePath: string): string | null {
+    // Remove leading slashes and normalize
+    let cleanPath = filePath.replace(/^\/+/, '');
+    
+    // Reject any path containing .. to prevent traversal
+    if (cleanPath.includes('..')) {
+      console.warn(`[LOCAL-STORAGE] Rejected path traversal attempt: ${filePath}`);
+      return null;
+    }
+    
+    // Reject absolute paths
+    if (path.isAbsolute(cleanPath)) {
+      console.warn(`[LOCAL-STORAGE] Rejected absolute path: ${filePath}`);
+      return null;
+    }
+    
+    // Normalize the path and ensure it stays within baseDir
+    const normalizedPath = path.normalize(cleanPath);
+    const fullPath = path.join(this.baseDir, normalizedPath);
+    const resolvedPath = path.resolve(fullPath);
+    
+    // Final check: ensure resolved path is within baseDir
+    if (!resolvedPath.startsWith(this.baseDir + path.sep) && resolvedPath !== this.baseDir) {
+      console.warn(`[LOCAL-STORAGE] Path escaped base directory: ${filePath}`);
+      return null;
+    }
+    
+    return resolvedPath;
+  }
+
+  private getFilePath(filePath: string): string | null {
+    return this.sanitizePath(filePath);
+  }
+
+  private ensureDirectoryExists(filePath: string): void {
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  }
+
+  async uploadFromBytes(filePath: string, data: Buffer, metadata?: { contentType?: string }): Promise<{ ok: boolean; error?: string }> {
+    try {
+      const fullPath = this.getFilePath(filePath);
+      if (!fullPath) {
+        return { ok: false, error: 'Invalid file path' };
+      }
+      this.ensureDirectoryExists(fullPath);
+      fs.writeFileSync(fullPath, data);
+      console.log(`[LOCAL-STORAGE] Uploaded: ${filePath}`);
+      return { ok: true };
+    } catch (error: any) {
+      console.error(`[LOCAL-STORAGE] Upload failed: ${error.message}`);
+      return { ok: false, error: error.message };
+    }
+  }
+
+  async downloadAsBytes(filePath: string): Promise<{ ok: boolean; value?: any; error?: string }> {
+    try {
+      const fullPath = this.getFilePath(filePath);
+      if (!fullPath) {
+        return { ok: false, error: 'Invalid file path' };
+      }
+      if (!fs.existsSync(fullPath)) {
+        return { ok: false, error: 'File not found' };
+      }
+      const data = fs.readFileSync(fullPath);
+      return { ok: true, value: data };
+    } catch (error: any) {
+      return { ok: false, error: error.message };
+    }
+  }
+
+  async getDownloadUrl(filePath: string): Promise<{ ok: boolean; url?: string; error?: string }> {
+    // Validate path before generating URL
+    const fullPath = this.getFilePath(filePath);
+    if (!fullPath) {
+      return { ok: false, error: 'Invalid file path' };
+    }
+    const cleanPath = filePath.replace(/^\/+/, '');
+    return { ok: true, url: `/api/uploads/${cleanPath}` };
+  }
+
+  async delete(filePath: string): Promise<{ ok: boolean; error?: string }> {
+    try {
+      const fullPath = this.getFilePath(filePath);
+      if (!fullPath) {
+        return { ok: false, error: 'Invalid file path' };
+      }
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+        console.log(`[LOCAL-STORAGE] Deleted: ${filePath}`);
+      }
+      return { ok: true };
+    } catch (error: any) {
+      return { ok: false, error: error.message };
+    }
+  }
+
+  async list(prefix?: string): Promise<{ ok: boolean; keys?: string[]; error?: string }> {
+    try {
+      const searchDir = prefix ? this.getFilePath(prefix) : this.baseDir;
+      if (!searchDir) {
+        return { ok: false, error: 'Invalid path prefix' };
+      }
+      if (!fs.existsSync(searchDir)) {
+        return { ok: true, keys: [] };
+      }
+      const keys = this.getAllFiles(searchDir, this.baseDir);
+      return { ok: true, keys };
+    } catch (error: any) {
+      return { ok: false, error: error.message };
+    }
+  }
+
+  async listWithMetadata(prefix?: string): Promise<{ ok: boolean; objects?: StorageObject[]; error?: string }> {
+    try {
+      const searchDir = prefix ? this.getFilePath(prefix) : this.baseDir;
+      if (!searchDir) {
+        return { ok: false, error: 'Invalid path prefix' };
+      }
+      if (!fs.existsSync(searchDir)) {
+        return { ok: true, objects: [] };
+      }
+      
+      const keys = this.getAllFiles(searchDir, this.baseDir);
+      const objects: StorageObject[] = [];
+      for (const key of keys) {
+        const keyPath = this.getFilePath(key);
+        if (keyPath) {
+          const stats = fs.statSync(keyPath);
+          objects.push({
+            key,
+            size: stats.size,
+            lastModified: stats.mtime,
+            url: `/api/uploads/${key}`,
+          });
+        }
+      }
+      
+      return { ok: true, objects };
+    } catch (error: any) {
+      return { ok: false, error: error.message };
+    }
+  }
+
+  private getAllFiles(dir: string, baseDir: string): string[] {
+    const files: string[] = [];
+    if (!fs.existsSync(dir)) return files;
+    
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        files.push(...this.getAllFiles(fullPath, baseDir));
+      } else {
+        const relativePath = path.relative(baseDir, fullPath);
+        files.push(relativePath);
+      }
+    }
+    return files;
+  }
+}
+
 export interface StorageCredentials {
   minioEndpoint?: string;
   minioAccessKey?: string;
@@ -393,5 +570,7 @@ export function getStorageAdapter(credentials?: StorageCredentials): StorageAdap
     return new ReplitStorageAdapter(replitBucketId);
   }
 
-  throw new Error('No object storage configured. Set either MINIO_* or S3_* or DEFAULT_OBJECT_STORAGE_BUCKET_ID environment variables.');
+  // Fall back to local file storage for development
+  console.log('[STORAGE] No cloud storage configured, using local file storage (development mode)');
+  return new LocalStorageAdapter('uploads');
 }

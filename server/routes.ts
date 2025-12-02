@@ -363,6 +363,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Serve uploaded files from local storage (development fallback)
+  app.get('/api/uploads/*', async (req: any, res) => {
+    try {
+      const filePath = req.params[0] as string;
+      if (!filePath) {
+        return res.status(400).json({ message: 'Invalid file path' });
+      }
+      
+      const objStorage = await getObjectStorage();
+      const { ok, value, error } = await objStorage.downloadAsBytes(filePath);
+      
+      if (!ok || !value) {
+        return res.status(404).json({ message: `File not found: ${error}` });
+      }
+      
+      // Determine content type from file extension
+      const ext = filePath.split('.').pop()?.toLowerCase() || '';
+      const contentTypeMap: Record<string, string> = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'webp': 'image/webp',
+        'svg': 'image/svg+xml',
+        'pdf': 'application/pdf',
+      };
+      const contentType = contentTypeMap[ext] || 'application/octet-stream';
+      
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+      res.send(value);
+    } catch (error: any) {
+      console.error('Error serving uploaded file:', error);
+      res.status(500).json({ message: 'Failed to serve file' });
+    }
+  });
+
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {

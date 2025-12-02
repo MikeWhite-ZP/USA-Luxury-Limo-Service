@@ -38,30 +38,52 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Don't try to cache chrome-extension, moz-extension, or other unsupported schemes
+  const url = event.request.url;
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return;
+  }
+
+  // Skip caching for API requests and external resources
+  if (url.includes('/api/') || url.includes('fonts.googleapis.com') || url.includes('fonts.gstatic.com')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
 
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-
-        return response;
-      })
-      .catch(() => {
-        return caches.match(event.request).then((response) => {
-          if (response) {
+      return fetch(event.request)
+        .then((response) => {
+          // Don't cache non-successful responses or opaque responses
+          if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
           }
-          
-          if (event.request.headers.get('accept').includes('text/html')) {
-            return caches.match('/');
-          }
+
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+
+          return response;
+        })
+        .catch(() => {
+          // Return cached version or offline fallback
+          return caches.match(event.request).then((response) => {
+            if (response) {
+              return response;
+            }
+            
+            // Return index.html for navigation requests
+            const acceptHeader = event.request.headers.get('accept');
+            if (acceptHeader && acceptHeader.includes('text/html')) {
+              return caches.match('/');
+            }
+          });
         });
-      })
+    })
   );
 });
