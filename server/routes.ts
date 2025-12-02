@@ -8125,13 +8125,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/cms/media/upload', isAuthenticated, requireAdmin, upload.single('file'), async (req: any, res) => {
     try {
-      const userId = req.adminUser.id;
+      const userId = req.adminUser?.id;
+      
+      if (!userId) {
+        console.error('Upload CMS media error: adminUser not properly set');
+        return res.status(401).json({ message: 'Admin user not authenticated' });
+      }
 
       if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
       }
 
       const { folder = 'general', altText, description } = req.body;
+      
+      // Validate folder value
+      if (!folder || typeof folder !== 'string') {
+        return res.status(400).json({ message: 'Invalid folder specified' });
+      }
       
       // Generate unique filename
       const timestamp = Date.now();
@@ -8165,6 +8175,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       if (!validationResult.success) {
+        console.error('Media validation failed:', validationResult.error.errors);
         return res.status(400).json({ 
           message: 'Invalid media data', 
           errors: validationResult.error.errors 
@@ -8174,8 +8185,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const media = await storage.createCmsMedia(validationResult.data);
       res.json(media);
     } catch (error) {
-      console.error('Upload CMS media error:', error);
-      res.status(500).json({ message: 'Failed to upload media' });
+      console.error('Upload CMS media error:', error instanceof Error ? error.message : error);
+      console.error('Upload CMS media stack:', error instanceof Error ? error.stack : 'No stack');
+      res.status(500).json({ message: 'Failed to upload media', error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
