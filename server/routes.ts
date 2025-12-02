@@ -7793,7 +7793,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         logo: {
           id: media.id,
-          url: media.fileUrl,
+          url: await getPresignedUrl(media.fileUrl),
           altText: media.altText,
           fileName: media.fileName
         }
@@ -7855,7 +7855,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         hero: {
           id: media.id,
-          url: media.fileUrl,
+          url: await getPresignedUrl(media.fileUrl),
           altText: media.altText,
           fileName: media.fileName
         }
@@ -7917,7 +7917,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         favicon: {
           id: media.id,
-          url: media.fileUrl,
+          url: await getPresignedUrl(media.fileUrl),
           altText: media.altText,
           fileName: media.fileName
         }
@@ -8028,7 +8028,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (faviconSetting?.value) {
         const media = await storage.getCmsMediaById(faviconSetting.value);
         if (media) {
-          faviconUrl = media.fileUrl;
+          faviconUrl = await getPresignedUrl(media.fileUrl);
           faviconMimeType = media.fileType; // Get actual MIME type (image/png, image/jpeg, image/webp, etc.)
           etag = `"${media.id}"`; // Use media ID as ETag for cache invalidation (quoted)
         }
