@@ -5,6 +5,7 @@ import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
+import { useBrandTheme } from "@/hooks/useBrandTheme";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import DeviceRedirect from "@/components/DeviceRedirect";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -122,6 +123,12 @@ function FaviconLoader() {
   return null;
 }
 
+// Component to apply brand colors as CSS variables
+function BrandThemeLoader() {
+  useBrandTheme();
+  return null;
+}
+
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
@@ -216,6 +223,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
+          <BrandThemeLoader />
           <FaviconLoader />
           <Toaster />
           <Router />

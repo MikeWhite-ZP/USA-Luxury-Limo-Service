@@ -39,9 +39,9 @@ export default function Header() {
   };
 
   return (
-    <header className="border-b border-border sticky top-0 z-50 backdrop-blur-md bg-[#ffffff]">
+    <header className="border-b border-gray-100 sticky top-0 z-50 backdrop-blur-md bg-white/95 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-18">
           {/* Logo */}
           <div className="flex items-center">
             <img 
@@ -53,52 +53,52 @@ export default function Header() {
           </div>
 
           {/* Navigation */}
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex space-x-6">
             <button 
               onClick={() => handleNavClick('#home')} 
-              className="nav-link text-foreground hover:text-primary font-medium"
+              className="text-gray-700 hover:text-black font-medium transition-colors duration-200"
               data-testid="nav-home"
             >
               Home
             </button>
             <button 
               onClick={() => setLocation('/about-us')} 
-              className="nav-link text-foreground hover:text-primary font-medium"
+              className="text-gray-700 hover:text-black font-medium transition-colors duration-200"
               data-testid="nav-about"
             >
               About
             </button>
             <button 
               onClick={() => setLocation('/locations')} 
-              className="nav-link text-foreground hover:text-primary font-medium"
+              className="text-gray-700 hover:text-black font-medium transition-colors duration-200"
               data-testid="nav-locations"
             >
               Locations
             </button>
             <button 
               onClick={() => setLocation('/hotels')} 
-              className="nav-link text-foreground hover:text-primary font-medium"
+              className="text-gray-700 hover:text-black font-medium transition-colors duration-200"
               data-testid="nav-hotels"
             >
               Hotels
             </button>
             <button 
               onClick={() => handleNavClick('#services')} 
-              className="nav-link text-foreground hover:text-primary font-medium"
+              className="text-gray-700 hover:text-black font-medium transition-colors duration-200"
               data-testid="nav-services"
             >
               Services
             </button>
             <button 
               onClick={() => handleNavClick('#fleet')} 
-              className="nav-link text-foreground hover:text-primary font-medium"
+              className="text-gray-700 hover:text-black font-medium transition-colors duration-200"
               data-testid="nav-fleet"
             >
               Fleet
             </button>
             <button 
               onClick={() => handleNavClick('#contact')} 
-              className="nav-link text-foreground hover:text-primary font-medium"
+              className="text-gray-700 hover:text-black font-medium transition-colors duration-200"
               data-testid="nav-contact"
             >
               Contact
@@ -181,14 +181,14 @@ export default function Header() {
               <>
                 <button 
                   onClick={() => setLocation('/login')}
-                  className="text-foreground hover:text-primary font-medium bg-[transparent]"
+                  className="text-gray-700 hover:text-black font-medium transition-colors duration-200"
                   data-testid="button-signin"
                 >
                   Sign In
                 </button>
                 <Button 
                   onClick={() => setLocation('/booking')}
-                  className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                  className="bg-black text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-800 transition-all duration-200 shadow-sm"
                   data-testid="button-book-now"
                 >
                   Book Now
