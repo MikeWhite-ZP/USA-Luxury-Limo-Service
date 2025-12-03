@@ -17,15 +17,16 @@ import { DollarSign, Plus, Edit, Trash2, X } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 
 // TypeScript interfaces for advanced pricing
+// Note: Form inputs store strings, but API expects numbers. Conversion happens in mutation.
 interface AirportFee {
   airportCode: string;
-  fee: number;
+  fee: number | string;
   waiverMinutes?: number;
 }
 
 interface MeetAndGreet {
   enabled: boolean;
-  charge: number;
+  charge: number | string;
 }
 
 interface SurgePricing {
@@ -36,8 +37,8 @@ interface SurgePricing {
 }
 
 interface DistanceTier {
-  miles: number;
-  ratePerMile: number;
+  miles: number | string;
+  ratePerMile: number | string;
   isRemaining?: boolean;
 }
 
@@ -180,9 +181,51 @@ export default function AdminPricing() {
     enabled: isAuthenticated && user?.role === 'admin',
   });
 
+  // Helper function to parse and validate numeric value
+  const parseNumeric = (value: any, fieldName: string): number => {
+    if (typeof value === 'number') return value;
+    const parsed = parseFloat(value);
+    if (isNaN(parsed)) {
+      throw new Error(`${fieldName} must be a valid number`);
+    }
+    return parsed;
+  };
+
   // Create pricing rule mutation
   const createMutation = useMutation({
     mutationFn: async (data: Partial<PricingFormData>) => {
+      // Convert distanceTiers to proper number types with validation
+      const normalizedDistanceTiers = (data.distanceTiers || []).map((tier, idx) => ({
+        miles: parseNumeric(tier.miles, `Distance tier ${idx + 1} miles`),
+        ratePerMile: parseNumeric(tier.ratePerMile, `Distance tier ${idx + 1} rate`),
+        ...(tier.isRemaining !== undefined && { isRemaining: tier.isRemaining })
+      }));
+      
+      // Convert surgePricing to proper number types with validation
+      const normalizedSurgePricing = (data.surgePricing || []).map((surge, idx) => ({
+        dayOfWeek: typeof surge.dayOfWeek === 'string' ? parseInt(surge.dayOfWeek) : surge.dayOfWeek,
+        startTime: surge.startTime,
+        endTime: surge.endTime,
+        multiplier: parseNumeric(surge.multiplier, `Surge pricing ${idx + 1} multiplier`)
+      }));
+      
+      // Convert airportFees to proper number types with validation
+      const normalizedAirportFees = (data.airportFees || [])
+        .filter(fee => fee.airportCode && fee.airportCode.trim().length >= 3)
+        .map((fee, idx) => ({
+          airportCode: fee.airportCode.trim().toUpperCase(),
+          fee: parseNumeric(fee.fee, `Airport fee ${idx + 1}`),
+          ...(fee.waiverMinutes !== undefined && { 
+            waiverMinutes: typeof fee.waiverMinutes === 'string' ? parseInt(fee.waiverMinutes) : fee.waiverMinutes
+          })
+        }));
+      
+      // Normalize meetAndGreet with validation
+      const normalizedMeetAndGreet = data.meetAndGreet ? {
+        enabled: data.meetAndGreet.enabled,
+        charge: parseNumeric(data.meetAndGreet.charge, 'Meet & Greet charge')
+      } : { enabled: false, charge: 0 };
+      
       const payload = {
         vehicleType: data.vehicleType,
         serviceType: data.serviceType,
@@ -192,10 +235,10 @@ export default function AdminPricing() {
         minimumHours: data.minimumHours ? parseInt(String(data.minimumHours)) : null,
         minimumFare: data.minimumFare ? String(data.minimumFare) : null,
         gratuityPercent: data.gratuityPercent ? String(data.gratuityPercent) : "20",
-        airportFees: (data.airportFees || []).filter(fee => fee.airportCode && fee.airportCode.trim().length >= 3),
-        meetAndGreet: data.meetAndGreet || { enabled: false, charge: 0 },
-        surgePricing: data.surgePricing || [],
-        distanceTiers: data.distanceTiers || [],
+        airportFees: normalizedAirportFees,
+        meetAndGreet: normalizedMeetAndGreet,
+        surgePricing: normalizedSurgePricing,
+        distanceTiers: normalizedDistanceTiers,
         overtimeRate: data.overtimeRate ? String(data.overtimeRate) : null,
         effectiveStart: (data.effectiveStart && data.effectiveStart.trim() !== '') ? new Date(data.effectiveStart) : null,
         effectiveEnd: (data.effectiveEnd && data.effectiveEnd.trim() !== '') ? new Date(data.effectiveEnd) : null,
@@ -236,6 +279,38 @@ export default function AdminPricing() {
   // Update pricing rule mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<PricingFormData> }) => {
+      // Convert distanceTiers to proper number types with validation
+      const normalizedDistanceTiers = (data.distanceTiers || []).map((tier, idx) => ({
+        miles: parseNumeric(tier.miles, `Distance tier ${idx + 1} miles`),
+        ratePerMile: parseNumeric(tier.ratePerMile, `Distance tier ${idx + 1} rate`),
+        ...(tier.isRemaining !== undefined && { isRemaining: tier.isRemaining })
+      }));
+      
+      // Convert surgePricing to proper number types with validation
+      const normalizedSurgePricing = (data.surgePricing || []).map((surge, idx) => ({
+        dayOfWeek: typeof surge.dayOfWeek === 'string' ? parseInt(surge.dayOfWeek) : surge.dayOfWeek,
+        startTime: surge.startTime,
+        endTime: surge.endTime,
+        multiplier: parseNumeric(surge.multiplier, `Surge pricing ${idx + 1} multiplier`)
+      }));
+      
+      // Convert airportFees to proper number types with validation
+      const normalizedAirportFees = (data.airportFees || [])
+        .filter(fee => fee.airportCode && fee.airportCode.trim().length >= 3)
+        .map((fee, idx) => ({
+          airportCode: fee.airportCode.trim().toUpperCase(),
+          fee: parseNumeric(fee.fee, `Airport fee ${idx + 1}`),
+          ...(fee.waiverMinutes !== undefined && { 
+            waiverMinutes: typeof fee.waiverMinutes === 'string' ? parseInt(fee.waiverMinutes) : fee.waiverMinutes
+          })
+        }));
+      
+      // Normalize meetAndGreet with validation
+      const normalizedMeetAndGreet = data.meetAndGreet ? {
+        enabled: data.meetAndGreet.enabled,
+        charge: parseNumeric(data.meetAndGreet.charge, 'Meet & Greet charge')
+      } : { enabled: false, charge: 0 };
+      
       const payload = {
         vehicleType: data.vehicleType,
         serviceType: data.serviceType,
@@ -245,10 +320,10 @@ export default function AdminPricing() {
         minimumHours: data.minimumHours ? parseInt(String(data.minimumHours)) : null,
         minimumFare: data.minimumFare ? String(data.minimumFare) : null,
         gratuityPercent: data.gratuityPercent ? String(data.gratuityPercent) : "20",
-        airportFees: (data.airportFees || []).filter(fee => fee.airportCode && fee.airportCode.trim().length >= 3),
-        meetAndGreet: data.meetAndGreet || { enabled: false, charge: 0 },
-        surgePricing: data.surgePricing || [],
-        distanceTiers: data.distanceTiers || [],
+        airportFees: normalizedAirportFees,
+        meetAndGreet: normalizedMeetAndGreet,
+        surgePricing: normalizedSurgePricing,
+        distanceTiers: normalizedDistanceTiers,
         overtimeRate: data.overtimeRate ? String(data.overtimeRate) : null,
         effectiveStart: (data.effectiveStart && data.effectiveStart.trim() !== '') ? new Date(data.effectiveStart) : null,
         effectiveEnd: (data.effectiveEnd && data.effectiveEnd.trim() !== '') ? new Date(data.effectiveEnd) : null,
@@ -411,12 +486,68 @@ export default function AdminPricing() {
           });
           return;
         }
+        
+        // Validate distance tier values
+        for (let i = 0; i < formData.distanceTiers.length; i++) {
+          const tier = formData.distanceTiers[i];
+          const miles = typeof tier.miles === 'string' ? parseFloat(tier.miles) : tier.miles;
+          const rate = typeof tier.ratePerMile === 'string' ? parseFloat(tier.ratePerMile) : tier.ratePerMile;
+          
+          if (isNaN(miles) || miles < 0) {
+            toast({
+              title: "Validation Error",
+              description: `Distance tier ${i + 1}: Miles must be a valid positive number`,
+              variant: "destructive",
+            });
+            return;
+          }
+          
+          if (isNaN(rate) || rate < 0) {
+            toast({
+              title: "Validation Error",
+              description: `Distance tier ${i + 1}: Rate per mile must be a valid positive number`,
+              variant: "destructive",
+            });
+            return;
+          }
+        }
       }
     } else if (formData.serviceType === 'hourly') {
       if (!formData.hourlyRate || !formData.minimumHours) {
         toast({
           title: "Validation Error",
           description: "Hourly rate and minimum hours are required for hourly service",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
+    // Validate airport fees if any exist
+    for (let i = 0; i < formData.airportFees.length; i++) {
+      const fee = formData.airportFees[i];
+      if (fee.airportCode && fee.airportCode.trim().length >= 3) {
+        const feeValue = typeof fee.fee === 'string' ? parseFloat(fee.fee) : fee.fee;
+        if (isNaN(feeValue) || feeValue < 0) {
+          toast({
+            title: "Validation Error",
+            description: `Airport fee for ${fee.airportCode}: Fee must be a valid positive number`,
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+    }
+    
+    // Validate meet & greet charge if enabled
+    if (formData.meetAndGreet.enabled) {
+      const charge = typeof formData.meetAndGreet.charge === 'string' 
+        ? parseFloat(formData.meetAndGreet.charge) 
+        : formData.meetAndGreet.charge;
+      if (isNaN(charge) || charge < 0) {
+        toast({
+          title: "Validation Error",
+          description: "Meet & Greet charge must be a valid positive number",
           variant: "destructive",
         });
         return;
@@ -444,7 +575,7 @@ export default function AdminPricing() {
   const addAirportFee = () => {
     setFormData(prev => ({
       ...prev,
-      airportFees: [...prev.airportFees, { airportCode: "", fee: 0 }]
+      airportFees: [...prev.airportFees, { airportCode: "", fee: "" }]
     }));
   };
 
@@ -492,14 +623,14 @@ export default function AdminPricing() {
   const addDistanceTier = () => {
     setFormData(prev => ({
       ...prev,
-      distanceTiers: [...prev.distanceTiers, { miles: 0, ratePerMile: 0 }]
+      distanceTiers: [...prev.distanceTiers, { miles: "", ratePerMile: "" }]
     }));
   };
 
   const addRemainingTier = () => {
     setFormData(prev => ({
       ...prev,
-      distanceTiers: [...prev.distanceTiers, { miles: 0, ratePerMile: 0, isRemaining: true }]
+      distanceTiers: [...prev.distanceTiers, { miles: "", ratePerMile: "", isRemaining: true }]
     }));
   };
 
@@ -739,7 +870,7 @@ export default function AdminPricing() {
                                           placeholder="20"
                                           className="w-32 border-slate-300"
                                           value={tier.miles}
-                                          onChange={(e) => updateDistanceTier(index, 'miles', parseFloat(e.target.value) || 0)}
+                                          onChange={(e) => updateDistanceTier(index, 'miles', e.target.value)}
                                           data-testid={`input-tier-miles-${index}`}
                                         />
                                         <span className="text-sm text-slate-600">mile</span>
@@ -753,7 +884,7 @@ export default function AdminPricing() {
                                       placeholder="0"
                                       className="w-32 border-slate-300"
                                       value={tier.ratePerMile}
-                                      onChange={(e) => updateDistanceTier(index, 'ratePerMile', parseFloat(e.target.value) || 0)}
+                                      onChange={(e) => updateDistanceTier(index, 'ratePerMile', e.target.value)}
                                       data-testid={`input-tier-rate-${index}`}
                                     />
                                     <Button type="button" variant="destructive" size="sm" className="bg-red-600 hover:bg-red-700" onClick={() => removeDistanceTier(index)}>
@@ -859,7 +990,7 @@ export default function AdminPricing() {
                                   type="number"
                                   step="0.01"
                                   value={fee.fee}
-                                  onChange={(e) => updateAirportFee(index, 'fee', parseFloat(e.target.value) || 0)}
+                                  onChange={(e) => updateAirportFee(index, 'fee', e.target.value)}
                                   data-testid={`input-airport-fee-${index}`}
                                 />
                               </div>
@@ -908,7 +1039,7 @@ export default function AdminPricing() {
                                 value={formData.meetAndGreet.charge}
                                 onChange={(e) => setFormData(prev => ({ 
                                   ...prev, 
-                                  meetAndGreet: { ...prev.meetAndGreet, charge: parseFloat(e.target.value) || 0 }
+                                  meetAndGreet: { ...prev.meetAndGreet, charge: e.target.value }
                                 }))}
                                 disabled={!formData.meetAndGreet.enabled}
                                 data-testid="input-meet-greet-charge"
@@ -1073,7 +1204,7 @@ export default function AdminPricing() {
                                   type="number"
                                   step="0.01"
                                   value={fee.fee}
-                                  onChange={(e) => updateAirportFee(index, 'fee', parseFloat(e.target.value) || 0)}
+                                  onChange={(e) => updateAirportFee(index, 'fee', e.target.value)}
                                   data-testid={`input-airport-fee-hourly-${index}`}
                                 />
                               </div>

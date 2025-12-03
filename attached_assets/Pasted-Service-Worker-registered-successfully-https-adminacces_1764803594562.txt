@@ -1,0 +1,90 @@
+Service Worker registered successfully: https://adminaccess.hopelimo.com/ index-BiowJilr.js:79:75453
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. dialog-BYED4W5t.js:5:496
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 2 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 4 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 2 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 2 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 2 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 9 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 6 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 3 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 3 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 3 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 2 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+=== FORM SUBMISSION === admin-pricing-XJff_Xal.js:1:7154
+Service Type: transfer admin-pricing-XJff_Xal.js:1:7193
+Pricing Method: per-mile admin-pricing-XJff_Xal.js:1:7236
+Base Rate: 50 admin-pricing-XJff_Xal.js:1:7269
+Per Mile Rate: 2.50 admin-pricing-XJff_Xal.js:1:7306
+Distance Tiers: 
+Array []
+admin-pricing-XJff_Xal.js:1:7350
+Distance Tiers Count: 0 admin-pricing-XJff_Xal.js:1:7397
+Hourly Rate: <empty string> admin-pricing-XJff_Xal.js:1:7457
+Minimum Hours: <empty string> admin-pricing-XJff_Xal.js:1:7498
+====================== admin-pricing-XJff_Xal.js:1:7543
+=== FORM SUBMISSION === admin-pricing-XJff_Xal.js:1:7154
+Service Type: transfer admin-pricing-XJff_Xal.js:1:7193
+Pricing Method: per-mile admin-pricing-XJff_Xal.js:1:7236
+Base Rate: 50 admin-pricing-XJff_Xal.js:1:7269
+Per Mile Rate: 2.50 admin-pricing-XJff_Xal.js:1:7306
+Distance Tiers: 
+Array []
+admin-pricing-XJff_Xal.js:1:7350
+Distance Tiers Count: 0 admin-pricing-XJff_Xal.js:1:7397
+Hourly Rate: <empty string> admin-pricing-XJff_Xal.js:1:7457
+Minimum Hours: <empty string> admin-pricing-XJff_Xal.js:1:7498
+====================== admin-pricing-XJff_Xal.js:1:7543
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 3 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 2 content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined 4 content_script.js:1:422997
+=== FORM SUBMISSION === admin-pricing-XJff_Xal.js:1:7154
+Service Type: transfer admin-pricing-XJff_Xal.js:1:7193
+Pricing Method: distance-breakdown admin-pricing-XJff_Xal.js:1:7236
+Base Rate: 50 admin-pricing-XJff_Xal.js:1:7269
+Per Mile Rate: 2.50 admin-pricing-XJff_Xal.js:1:7306
+Distance Tiers: 
+Array(3) [ {…}, {…}, {…} ]
+admin-pricing-XJff_Xal.js:1:7350
+Distance Tiers Count: 3 admin-pricing-XJff_Xal.js:1:7397
+Hourly Rate: <empty string> admin-pricing-XJff_Xal.js:1:7457
+Minimum Hours: <empty string> admin-pricing-XJff_Xal.js:1:7498
+====================== admin-pricing-XJff_Xal.js:1:7543
+=== FORM SUBMISSION === admin-pricing-XJff_Xal.js:1:7154
+Service Type: transfer admin-pricing-XJff_Xal.js:1:7193
+Pricing Method: distance-breakdown admin-pricing-XJff_Xal.js:1:7236
+Base Rate: 50 admin-pricing-XJff_Xal.js:1:7269
+Per Mile Rate: 2.50 admin-pricing-XJff_Xal.js:1:7306
+Distance Tiers: 
+Array(3) [ {…}, {…}, {…} ]
+admin-pricing-XJff_Xal.js:1:7350
+Distance Tiers Count: 3 admin-pricing-XJff_Xal.js:1:7397
+Hourly Rate: <empty string> admin-pricing-XJff_Xal.js:1:7457
+Minimum Hours: <empty string> admin-pricing-XJff_Xal.js:1:7498
+====================== admin-pricing-XJff_Xal.js:1:7543
+XHRPOST
+https://adminaccess.hopelimo.com/api/admin/pricing-rules
+[HTTP/3 400  168ms]
+
