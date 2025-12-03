@@ -518,24 +518,27 @@ export interface StorageCredentials {
 /**
  * Get the appropriate storage adapter based on configuration
  * Priority:
- * 1. Provided credentials (from database or direct params)
- * 2. Environment variables
- * 3. Replit Object Storage (fallback)
+ * 1. Production mode: Use MinIO/S3 if configured
+ * 2. Development mode: Use local storage (MinIO credentials ignored to avoid connection errors)
+ * 3. Replit Object Storage as fallback
  */
 export function getStorageAdapter(credentials?: StorageCredentials): StorageAdapter {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
   // Check for MinIO configuration from provided credentials or environment
   const minioEndpoint = credentials?.minioEndpoint || process.env.MINIO_ENDPOINT;
   const minioAccessKey = credentials?.minioAccessKey || process.env.MINIO_ACCESS_KEY;
   const minioSecretKey = credentials?.minioSecretKey || process.env.MINIO_SECRET_KEY;
   const minioBucket = credentials?.minioBucket || process.env.MINIO_BUCKET || 'usa-luxury-limo';
 
-  if (minioEndpoint && minioAccessKey && minioSecretKey) {
+  // Only use MinIO in production mode to avoid connection errors in development
+  if (isProduction && minioEndpoint && minioAccessKey && minioSecretKey) {
     // Validate bucket name
     if (!minioBucket || typeof minioBucket !== 'string' || minioBucket.trim() === '') {
       throw new Error('Invalid MinIO bucket name. Bucket name must be a non-empty string.');
     }
     
-    console.log('[STORAGE] Using MinIO/S3 storage adapter');
+    console.log('[STORAGE] Using MinIO/S3 storage adapter (production mode)');
     return new S3StorageAdapter({
       endpoint: minioEndpoint,
       accessKeyId: minioAccessKey,
@@ -543,16 +546,18 @@ export function getStorageAdapter(credentials?: StorageCredentials): StorageAdap
       bucket: minioBucket.trim(),
       forcePathStyle: true, // Required for MinIO
     });
+  } else if (!isProduction && minioEndpoint) {
+    console.log('[STORAGE] MinIO credentials detected but skipping in development mode (using local storage)');
   }
 
-  // Check for AWS S3 configuration
+  // Check for AWS S3 configuration (production only)
   const s3Bucket = process.env.S3_BUCKET;
   const awsAccessKey = process.env.AWS_ACCESS_KEY_ID;
   const awsSecretKey = process.env.AWS_SECRET_ACCESS_KEY;
   const awsRegion = process.env.AWS_REGION || 'us-east-1';
 
-  if (s3Bucket && awsAccessKey && awsSecretKey) {
-    console.log('[STORAGE] Using AWS S3 storage adapter');
+  if (isProduction && s3Bucket && awsAccessKey && awsSecretKey) {
+    console.log('[STORAGE] Using AWS S3 storage adapter (production mode)');
     return new S3StorageAdapter({
       endpoint: `https://s3.${awsRegion}.amazonaws.com`,
       region: awsRegion,
@@ -571,6 +576,6 @@ export function getStorageAdapter(credentials?: StorageCredentials): StorageAdap
   }
 
   // Fall back to local file storage for development
-  console.log('[STORAGE] No cloud storage configured, using local file storage (development mode)');
+  console.log('[STORAGE] Using local file storage (development mode)');
   return new LocalStorageAdapter('uploads');
 }

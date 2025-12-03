@@ -138,14 +138,15 @@ async function getPresignedUrl(pathOrUrl: string | null | undefined): Promise<st
     const result = await objStorage.getDownloadUrl(storageKey);
     
     if (result.ok && result.url) {
+      console.log(`[PRESIGNED-URL] Generated URL for ${storageKey}: ${result.url.substring(0, 80)}...`);
       return result.url;
     }
     
     // If presigned URL generation fails, return the original path for debugging
-    console.warn(`Failed to generate presigned URL for ${storageKey}:`, result.error);
+    console.warn(`[PRESIGNED-URL] Failed to generate presigned URL for ${storageKey}:`, result.error);
     return pathOrUrl;
   } catch (error) {
-    console.error(`Error generating presigned URL for ${storageKey}:`, error);
+    console.error(`[PRESIGNED-URL] Error generating presigned URL for ${storageKey}:`, error);
     return pathOrUrl;
   }
 }
@@ -8217,7 +8218,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const media = await storage.createCmsMedia(validationResult.data);
-      res.json(media);
+      
+      // Generate presigned URL for the response so frontend can display immediately
+      const presignedUrl = await getPresignedUrl(media.fileUrl);
+      
+      res.json({
+        ...media,
+        fileUrl: presignedUrl
+      });
     } catch (error) {
       console.error('Upload CMS media error:', error instanceof Error ? error.message : error);
       console.error('Upload CMS media stack:', error instanceof Error ? error.stack : 'No stack');
