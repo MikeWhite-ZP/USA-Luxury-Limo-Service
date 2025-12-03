@@ -155,7 +155,7 @@ async function getPresignedUrl(pathOrUrl: string | null | undefined): Promise<st
  * Used for deletion operations
  * 
  * @param urlOrPath - Either a full URL or an object storage key
- * @returns Object storage key
+ * @returns Object storage key (without leading slash or bucket prefix)
  */
 function extractStorageKey(urlOrPath: string): string {
   try {
@@ -164,9 +164,9 @@ function extractStorageKey(urlOrPath: string): string {
       const url = new URL(urlOrPath);
       let pathname = url.pathname.startsWith('/') ? url.pathname.slice(1) : url.pathname;
       
-      // Remove bucket name from path if present (e.g., "replit/cms/..." -> "cms/...")
+      // Remove bucket name from path if present (e.g., "bucket-name/cms/..." -> "cms/...")
       // MinIO URLs have format: https://minio.example.com/bucket-name/object-key
-      const bucketName = process.env.MINIO_BUCKET || 'replit';
+      const bucketName = process.env.MINIO_BUCKET || 'usa-luxury-limo';
       if (pathname.startsWith(bucketName + '/')) {
         pathname = pathname.slice(bucketName.length + 1);
       }
@@ -174,8 +174,10 @@ function extractStorageKey(urlOrPath: string): string {
       return pathname;
     }
     
-    // Otherwise, it's already a key - just remove leading slash if present
-    return urlOrPath.startsWith('/') ? urlOrPath.slice(1) : urlOrPath;
+    // For non-URL paths: just remove leading slash if present
+    // Do NOT strip bucket prefix from raw keys - they're already storage keys
+    const key = urlOrPath.startsWith('/') ? urlOrPath.slice(1) : urlOrPath;
+    return key;
   } catch (error) {
     // If URL parsing fails, treat as a path
     return urlOrPath.startsWith('/') ? urlOrPath.slice(1) : urlOrPath;
@@ -186,7 +188,7 @@ function extractStorageKey(urlOrPath: string): string {
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 2 * 1024 * 1024 // 2MB file size limit
+    fileSize: 10 * 1024 * 1024 // 10MB file size limit
   },
   fileFilter: (req, file, cb) => {
     // Accept PDF and common image formats
@@ -197,13 +199,17 @@ const upload = multer({
       'image/png',
       'image/webp',
       'image/heic',
-      'image/heif'
+      'image/heif',
+      'image/gif',
+      'image/svg+xml',
+      'image/x-icon',
+      'image/vnd.microsoft.icon'
     ];
     
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only PDF and image files (JPEG, PNG, WEBP, HEIC) are allowed.'));
+      cb(new Error(`Invalid file type: ${file.mimetype}. Only PDF and image files (JPEG, PNG, WEBP, HEIC, GIF, SVG, ICO) are allowed.`));
     }
   }
 });
@@ -5666,7 +5672,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Handle multer errors
       if (error.message && error.message.includes('File too large')) {
-        return res.status(400).json({ message: 'File size exceeds 2MB limit' });
+        return res.status(400).json({ message: 'File size exceeds 10MB limit' });
       }
       
       if (error.message && error.message.includes('Invalid file type')) {
@@ -8174,7 +8180,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const timestamp = Date.now();
       const fileExtension = req.file.originalname.split('.').pop();
       const fileName = `cms-${folder}-${timestamp}.${fileExtension}`;
-      const filePath = `/cms/${folder}/${fileName}`;
+      // Store without leading slash for consistency across storage adapters
+      const filePath = `cms/${folder}/${fileName}`;
 
       // Upload to Object Storage
       const objStorage = await getObjectStorage();

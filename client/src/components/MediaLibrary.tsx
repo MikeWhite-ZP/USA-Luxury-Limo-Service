@@ -83,7 +83,10 @@ export default function MediaLibrary() {
         body: formData,
         credentials: 'include',
       });
-      if (!response.ok) throw new Error('Upload failed');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Upload failed' }));
+        throw new Error(errorData.message || `Upload failed with status ${response.status}`);
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -94,10 +97,11 @@ export default function MediaLibrary() {
         description: 'Media uploaded successfully',
       });
     },
-    onError: () => {
+    onError: (error: Error) => {
+      console.error('Media upload error:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to upload media',
+        title: 'Upload Error',
+        description: error.message || 'Failed to upload media',
         variant: 'destructive',
       });
     },
@@ -194,7 +198,10 @@ export default function MediaLibrary() {
         body: formData,
         credentials: 'include',
       });
-      if (!uploadResponse.ok) throw new Error('Upload failed');
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json().catch(() => ({ message: 'Upload failed' }));
+        throw new Error(errorData.message || `Upload failed with status ${uploadResponse.status}`);
+      }
       const uploadData = await uploadResponse.json();
       
       if (uploadData.id) {
@@ -249,7 +256,10 @@ export default function MediaLibrary() {
         body: formData,
         credentials: 'include',
       });
-      if (!uploadResponse.ok) throw new Error('Upload failed');
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json().catch(() => ({ message: 'Upload failed' }));
+        throw new Error(errorData.message || `Upload failed with status ${uploadResponse.status}`);
+      }
       const uploadData = await uploadResponse.json();
       
       if (uploadData.id) {
