@@ -301,12 +301,20 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "Email already exists" });
       }
 
-      // Create user with hashed password
-      const hashedPassword = await hashPassword(password);
-
       // Determine default isActive based on role
       // Admin accounts start as inactive and must be activated by existing admins
       const userRole = role || "passenger";
+
+      // Server-side enforcement: Prevent creating admin accounts if an active admin already exists
+      if (userRole === "admin") {
+        const hasActiveAdmin = await storage.hasActiveAdminUser();
+        if (hasActiveAdmin) {
+          return res.status(403).json({ message: "Admin account creation is disabled. Please contact the system administrator." });
+        }
+      }
+
+      // Create user with hashed password
+      const hashedPassword = await hashPassword(password);
       const defaultIsActive = userRole === "admin" ? false : true;
 
       const user = await storage.createUser({

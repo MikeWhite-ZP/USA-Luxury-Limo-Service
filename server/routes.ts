@@ -471,6 +471,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public: Check if any active admin user exists (used to hide registration on login screen)
+  app.get('/api/auth/has-admin', async (req, res) => {
+    try {
+      const hasAdmin = await storage.hasActiveAdminUser();
+      res.json({ hasAdmin });
+    } catch (error) {
+      console.error('Error checking admin existence:', error);
+      res.status(500).json({ message: 'Failed to check admin status' });
+    }
+  });
+
   // Public: Request password reset
   app.post('/api/auth/forgot-password', async (req, res) => {
     try {

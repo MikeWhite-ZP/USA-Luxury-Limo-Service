@@ -79,6 +79,7 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
   deleteUser(id: string): Promise<boolean>;
+  hasActiveAdminUser(): Promise<boolean>;
   
   // Driver operations
   createDriver(driver: InsertDriver): Promise<Driver>;
@@ -327,6 +328,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(users)
       .orderBy(desc(users.createdAt));
+  }
+
+  async hasActiveAdminUser(): Promise<boolean> {
+    const [result] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(and(eq(users.role, 'admin'), eq(users.isActive, true)));
+    return (result?.count ?? 0) > 0;
   }
 
   async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {

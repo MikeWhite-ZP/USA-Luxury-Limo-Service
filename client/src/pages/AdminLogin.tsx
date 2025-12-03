@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation, Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth, type LoginData, type RegisterData } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,12 +12,27 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Shield, Settings, Users, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 export function AdminLogin() {
   const [, setLocation] = useLocation();
   const { loginMutation, registerMutation, user } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
+
+  // Check if any active admin user exists
+  // Default to true (hide signup) until we confirm no admin exists
+  const { data: adminCheck, isLoading: isCheckingAdmin } = useQuery({
+    queryKey: ['has-admin'],
+    queryFn: async () => {
+      const res = await apiRequest('GET', '/api/auth/has-admin');
+      return res.json() as Promise<{ hasAdmin: boolean }>;
+    },
+    staleTime: 60000, // Cache for 1 minute
+  });
+
+  // Hide signup by default while loading or if admin exists (defense in depth)
+  const hasExistingAdmin = isCheckingAdmin || adminCheck?.hasAdmin !== false;
   
   // Login form state
   const [loginForm, setLoginForm] = useState<LoginData>({
@@ -183,16 +199,18 @@ export function AdminLogin() {
                     </div>
                   </div>
 
-                  {/* Login/Signup Tabs */}
-                  <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "login" | "signup")}>
-                    <TabsList className="grid w-full grid-cols-2 bg-slate-100">
-                      <TabsTrigger value="login" data-testid="tab-login" className="data-[state=active]:bg-white data-[state=active]:text-blue-700">
-                        Sign In
-                      </TabsTrigger>
-                      <TabsTrigger value="signup" data-testid="tab-signup" className="data-[state=active]:bg-white data-[state=active]:text-blue-700">
-                        Create Account
-                      </TabsTrigger>
-                    </TabsList>
+                  {/* Login/Signup Tabs - Only show signup tab if no admin exists */}
+                  <Tabs value={hasExistingAdmin ? "login" : activeTab} onValueChange={(v) => setActiveTab(v as "login" | "signup")}>
+                    {!hasExistingAdmin && (
+                      <TabsList className="grid w-full grid-cols-2 bg-slate-100">
+                        <TabsTrigger value="login" data-testid="tab-login" className="data-[state=active]:bg-white data-[state=active]:text-blue-700">
+                          Sign In
+                        </TabsTrigger>
+                        <TabsTrigger value="signup" data-testid="tab-signup" className="data-[state=active]:bg-white data-[state=active]:text-blue-700">
+                          Create Account
+                        </TabsTrigger>
+                      </TabsList>
+                    )}
                     
                     <TabsContent value="login" className="mt-6">
                       <form onSubmit={handleLogin} className="space-y-5">
@@ -243,95 +261,97 @@ export function AdminLogin() {
                       </form>
                     </TabsContent>
                     
-                    <TabsContent value="signup" className="mt-6">
-                      <form onSubmit={handleSignup} className="space-y-5">
-                        <div className="grid grid-cols-2 gap-4">
+                    {!hasExistingAdmin && (
+                      <TabsContent value="signup" className="mt-6">
+                        <form onSubmit={handleSignup} className="space-y-5">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="admin-signup-firstname" className="text-sm font-semibold text-slate-700">
+                                First Name
+                              </Label>
+                              <Input
+                                id="admin-signup-firstname"
+                                type="text"
+                                placeholder="First name"
+                                value={signupForm.firstName}
+                                onChange={(e) => setSignupForm(prev => ({ ...prev, firstName: e.target.value }))}
+                                className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                                data-testid="input-signup-firstname"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="admin-signup-lastname" className="text-sm font-semibold text-slate-700">
+                                Last Name
+                              </Label>
+                              <Input
+                                id="admin-signup-lastname"
+                                type="text"
+                                placeholder="Last name"
+                                value={signupForm.lastName}
+                                onChange={(e) => setSignupForm(prev => ({ ...prev, lastName: e.target.value }))}
+                                className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                                data-testid="input-signup-lastname"
+                              />
+                            </div>
+                          </div>
                           <div className="space-y-2">
-                            <Label htmlFor="admin-signup-firstname" className="text-sm font-semibold text-slate-700">
-                              First Name
+                            <Label htmlFor="admin-signup-email" className="text-sm font-semibold text-slate-700">
+                              Email Address *
                             </Label>
                             <Input
-                              id="admin-signup-firstname"
-                              type="text"
-                              placeholder="First name"
-                              value={signupForm.firstName}
-                              onChange={(e) => setSignupForm(prev => ({ ...prev, firstName: e.target.value }))}
+                              id="admin-signup-email"
+                              type="email"
+                              placeholder="admin@example.com"
+                              value={signupForm.email}
+                              onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
+                              required
                               className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                              data-testid="input-signup-firstname"
+                              data-testid="input-signup-email"
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="admin-signup-lastname" className="text-sm font-semibold text-slate-700">
-                              Last Name
+                            <Label htmlFor="admin-signup-username" className="text-sm font-semibold text-slate-700">
+                              Username *
                             </Label>
                             <Input
-                              id="admin-signup-lastname"
+                              id="admin-signup-username"
                               type="text"
-                              placeholder="Last name"
-                              value={signupForm.lastName}
-                              onChange={(e) => setSignupForm(prev => ({ ...prev, lastName: e.target.value }))}
+                              placeholder="Choose a username"
+                              value={signupForm.username}
+                              onChange={(e) => setSignupForm(prev => ({ ...prev, username: e.target.value }))}
+                              required
                               className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                              data-testid="input-signup-lastname"
+                              data-testid="input-signup-username"
                             />
                           </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="admin-signup-email" className="text-sm font-semibold text-slate-700">
-                            Email Address *
-                          </Label>
-                          <Input
-                            id="admin-signup-email"
-                            type="email"
-                            placeholder="admin@example.com"
-                            value={signupForm.email}
-                            onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
-                            required
-                            className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                            data-testid="input-signup-email"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="admin-signup-username" className="text-sm font-semibold text-slate-700">
-                            Username *
-                          </Label>
-                          <Input
-                            id="admin-signup-username"
-                            type="text"
-                            placeholder="Choose a username"
-                            value={signupForm.username}
-                            onChange={(e) => setSignupForm(prev => ({ ...prev, username: e.target.value }))}
-                            required
-                            className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                            data-testid="input-signup-username"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="admin-signup-password" className="text-sm font-semibold text-slate-700">
-                            Password *
-                          </Label>
-                          <Input
-                            id="admin-signup-password"
-                            type="password"
-                            placeholder="Min. 6 characters"
-                            value={signupForm.password}
-                            onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
-                            required
-                            minLength={6}
-                            className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                            data-testid="input-signup-password"
-                          />
-                        </div>
-                        <Button 
-                          type="submit" 
-                          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
-                          disabled={registerMutation.isPending}
-                          data-testid="button-signup-submit"
-                        >
-                          <Shield className="w-5 h-5 mr-2" />
-                          {registerMutation.isPending ? 'Creating Account...' : 'Create Administrator Account'}
-                        </Button>
-                      </form>
-                    </TabsContent>
+                          <div className="space-y-2">
+                            <Label htmlFor="admin-signup-password" className="text-sm font-semibold text-slate-700">
+                              Password *
+                            </Label>
+                            <Input
+                              id="admin-signup-password"
+                              type="password"
+                              placeholder="Min. 6 characters"
+                              value={signupForm.password}
+                              onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
+                              required
+                              minLength={6}
+                              className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                              data-testid="input-signup-password"
+                            />
+                          </div>
+                          <Button 
+                            type="submit" 
+                            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
+                            disabled={registerMutation.isPending}
+                            data-testid="button-signup-submit"
+                          >
+                            <Shield className="w-5 h-5 mr-2" />
+                            {registerMutation.isPending ? 'Creating Account...' : 'Create Administrator Account'}
+                          </Button>
+                        </form>
+                      </TabsContent>
+                    )}
                   </Tabs>
 
                   <div className="grid grid-cols-2 gap-6 pt-6 border-t border-slate-200">
