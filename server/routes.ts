@@ -31,8 +31,11 @@ let lastCredentialCheck = 0;
 const CREDENTIAL_CACHE_MS = 60000; // Cache credentials for 1 minute
 
 /**
- * Get object storage adapter with credentials from database (if configured)
- * Falls back to environment variables if database doesn't have MinIO credentials
+ * Get object storage adapter with credentials
+ * Priority order:
+ * 1. Environment variables (secrets) - always takes priority for production deployments
+ * 2. Database settings - used as fallback for development/admin configuration
+ * 3. Replit Object Storage or local storage - final fallback
  * Caches the adapter instance for performance
  */
 async function getObjectStorage(): Promise<StorageAdapter> {
@@ -44,39 +47,52 @@ async function getObjectStorage(): Promise<StorageAdapter> {
   }
 
   try {
-    // Try to fetch MinIO credentials from database
     let credentials: StorageCredentials = {};
     
-    try {
-      // Extract .value from SystemSetting objects
-      const endpointSetting = await storage.getSetting('MINIO_ENDPOINT');
-      const accessKeySetting = await storage.getSetting('MINIO_ACCESS_KEY');
-      const secretKeySetting = await storage.getSetting('MINIO_SECRET_KEY');
-      const bucketSetting = await storage.getSetting('MINIO_BUCKET');
+    // Check environment variables FIRST (they take priority for production)
+    const envEndpoint = process.env.MINIO_ENDPOINT?.trim();
+    const envAccessKey = process.env.MINIO_ACCESS_KEY?.trim();
+    const envSecretKey = process.env.MINIO_SECRET_KEY?.trim();
+    const envBucket = process.env.MINIO_BUCKET?.trim();
+    
+    if (envEndpoint && envAccessKey && envSecretKey) {
+      const effectiveBucket = envBucket && envBucket !== '' ? envBucket : 'usa-luxury-limo';
+      credentials = {
+        minioEndpoint: envEndpoint,
+        minioAccessKey: envAccessKey,
+        minioSecretKey: envSecretKey,
+        minioBucket: effectiveBucket,
+      };
+      console.log(`[STORAGE] Using MinIO credentials from environment variables, bucket: ${effectiveBucket}`);
+    } else {
+      // Fall back to database settings if environment variables not set
+      try {
+        const endpointSetting = await storage.getSetting('MINIO_ENDPOINT');
+        const accessKeySetting = await storage.getSetting('MINIO_ACCESS_KEY');
+        const secretKeySetting = await storage.getSetting('MINIO_SECRET_KEY');
+        const bucketSetting = await storage.getSetting('MINIO_BUCKET');
 
-      const endpoint = endpointSetting?.value?.trim();
-      const accessKey = accessKeySetting?.value?.trim();
-      const secretKey = secretKeySetting?.value?.trim();
-      const bucket = bucketSetting?.value?.trim();
+        const endpoint = endpointSetting?.value?.trim();
+        const accessKey = accessKeySetting?.value?.trim();
+        const secretKey = secretKeySetting?.value?.trim();
+        const bucket = bucketSetting?.value?.trim();
 
-      // Only use database credentials if all required fields are present
-      if (endpoint && accessKey && secretKey) {
-        const effectiveBucket = bucket && bucket !== '' ? bucket : 'usa-luxury-limo';
-        credentials = {
-          minioEndpoint: endpoint,
-          minioAccessKey: accessKey,
-          minioSecretKey: secretKey,
-          minioBucket: effectiveBucket,
-        };
-        console.log(`[STORAGE] Using MinIO credentials from database, bucket: ${effectiveBucket}`);
+        if (endpoint && accessKey && secretKey) {
+          const effectiveBucket = bucket && bucket !== '' ? bucket : 'usa-luxury-limo';
+          credentials = {
+            minioEndpoint: endpoint,
+            minioAccessKey: accessKey,
+            minioSecretKey: secretKey,
+            minioBucket: effectiveBucket,
+          };
+          console.log(`[STORAGE] Using MinIO credentials from database, bucket: ${effectiveBucket}`);
+        }
+      } catch (dbError: any) {
+        console.log('[STORAGE] Could not fetch credentials from database, using default storage');
       }
-    } catch (dbError: any) {
-      // Database might not be available or settings not configured
-      // This is okay - we'll fall back to environment variables
-      console.log('[STORAGE] Could not fetch credentials from database, using environment variables');
     }
 
-    // Initialize storage adapter (will fall back to env vars if credentials are empty)
+    // Initialize storage adapter (will use Replit storage or local as fallback)
     objectStorage = getStorageAdapter(credentials);
     lastCredentialCheck = now;
     
