@@ -363,20 +363,6 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 <DropdownMenuItem 
                   onClick={() => {
                     if (location === '/admin' || location === '/admin-dashboard') {
-                      onCMSClick?.('pages');
-                    } else {
-                      setLocation('/admin#cms-pages');
-                    }
-                  }}
-                  className="cursor-pointer text-white hover:bg-slate-700 focus:bg-slate-700 py-2.5"
-                  data-testid="nav-cms-pages"
-                >
-                  <FileText className="w-4 h-4 mr-3 text-slate-400" />
-                  <span className="font-medium">Pages</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => {
-                    if (location === '/admin' || location === '/admin-dashboard') {
                       onCMSClick?.('media');
                     } else {
                       setLocation('/admin#cms-media');
