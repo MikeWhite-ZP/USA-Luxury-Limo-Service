@@ -2,6 +2,23 @@ import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import { storage } from './storage';
 
+function getAppBaseUrl(): string {
+  if (process.env.ALLOWED_ORIGINS) {
+    const origins = process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim());
+    const mainOrigin = origins.find(o => !o.includes('admin') && !o.includes('api') && !o.includes('www.'));
+    return mainOrigin || origins[0];
+  }
+  if (process.env.COOLIFY_URL) {
+    const urls = process.env.COOLIFY_URL.split(',').map(u => u.trim());
+    const mainUrl = urls.find(u => !u.includes('admin') && !u.includes('api') && !u.includes('www.'));
+    return mainUrl || urls[0];
+  }
+  if (process.env.REPLIT_DEV_DOMAIN) {
+    return process.env.REPLIT_DEV_DOMAIN.trim();
+  }
+  return 'http://localhost:5000';
+}
+
 interface EmailOptions {
   to: string;
   subject: string;
@@ -1269,7 +1286,7 @@ export async function sendPasswordResetEmail(
   resetToken: string,
   username: string
 ): Promise<boolean> {
-  const resetUrl = `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+  const resetUrl = `${getAppBaseUrl()}/reset-password?token=${resetToken}`;
   
   const html = `
     <!DOCTYPE html>
@@ -1321,7 +1338,7 @@ export async function sendTemporaryPasswordEmail(
   tempPassword: string,
   username: string
 ): Promise<boolean> {
-  const loginUrl = `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/login`;
+  const loginUrl = `${getAppBaseUrl()}/login`;
   
   const html = `
     <!DOCTYPE html>
@@ -1372,7 +1389,7 @@ export async function sendUsernameReminderEmail(
   email: string,
   username: string
 ): Promise<boolean> {
-  const loginUrl = `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/login`;
+  const loginUrl = `${getAppBaseUrl()}/login`;
   
   const html = `
     <!DOCTYPE html>
