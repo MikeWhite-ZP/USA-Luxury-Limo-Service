@@ -1,4 +1,4 @@
-const CACHE_NAME = 'usa-luxury-limo-v1';
+const CACHE_NAME = 'usa-luxury-limo-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -44,6 +44,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip handling for external storage URLs (MinIO, S3, etc.) - let browser handle directly
+  // These are cross-origin requests with presigned URLs that should not be intercepted
+  if (url.includes('minio.') || 
+      url.includes('.s3.') || 
+      url.includes('s3.amazonaws.com') ||
+      url.includes('X-Amz-Signature') ||
+      url.includes('X-Amz-Credential')) {
+    return; // Don't intercept, let browser fetch directly
+  }
+
   // Skip caching for API requests and external resources
   if (url.includes('/api/') || url.includes('fonts.googleapis.com') || url.includes('fonts.gstatic.com')) {
     event.respondWith(
@@ -56,6 +66,15 @@ self.addEventListener('fetch', (event) => {
         });
       })
     );
+    return;
+  }
+
+  // Only handle same-origin requests for caching
+  const requestUrl = new URL(url);
+  const isSameOrigin = requestUrl.origin === self.location.origin;
+  
+  if (!isSameOrigin) {
+    // For cross-origin requests, just fetch without caching
     return;
   }
 
