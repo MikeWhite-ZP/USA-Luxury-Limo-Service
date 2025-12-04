@@ -5,20 +5,44 @@ import { isMobileDevice } from '@/lib/deviceDetection';
 const Landing = lazy(() => import('@/pages/landing'));
 
 /**
- * Component that automatically redirects mobile users to /mobile
+ * Utility to check if accessing via admin subdomain
+ */
+function isAdminSubdomain(): boolean {
+  const hostname = window.location.hostname.toLowerCase();
+  
+  if (hostname.startsWith('adminaccess.')) {
+    return true;
+  }
+  
+  const adminHosts = import.meta.env.VITE_ADMIN_PANEL_HOSTS?.split(',').map((h: string) => h.trim().toLowerCase()) || [];
+  return adminHosts.some((host: string) => hostname === host);
+}
+
+/**
+ * Component that automatically redirects mobile users to /mobile (or /mobile-admin-login for admin subdomain)
  * and displays the normal landing page for desktop users
  */
 export default function DeviceRedirect() {
   const [, navigate] = useLocation();
 
   useEffect(() => {
-    // Auto-redirect mobile users to /mobile
     if (isMobileDevice()) {
-      navigate('/mobile');
+      if (isAdminSubdomain()) {
+        navigate('/mobile-admin-login');
+      } else {
+        navigate('/mobile');
+      }
     }
   }, [navigate]);
 
-  // Desktop users see the normal landing page
+  if (isAdminSubdomain()) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">

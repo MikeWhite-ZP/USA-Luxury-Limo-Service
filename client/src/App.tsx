@@ -63,6 +63,16 @@ function AdminSubdomainRedirect() {
       if (!isMobile && location === '/mobile-admin-login') {
         setLocation('/admin-login');
       }
+      
+      // On admin subdomain, redirect regular mobile pages to mobile admin
+      if (isMobile) {
+        const userMobilePages = ['/mobile', '/mobile-splash', '/mobile-login', '/mobile-register', 
+          '/mobile-passenger', '/mobile-driver', '/mobile-dispatcher', '/mobile-booking',
+          '/mobile-invoices', '/mobile-payment-methods', '/mobile-profile'];
+        if (userMobilePages.some(page => location === page || location.startsWith(page + '/'))) {
+          setLocation('/mobile-admin-login');
+        }
+      }
     }
     
     // If NOT on admin subdomain but trying to access admin login, block it (production only)
