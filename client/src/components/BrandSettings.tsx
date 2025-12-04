@@ -19,6 +19,13 @@ type CmsSetting = {
   updatedAt: string;
 };
 
+type SiteMediaData = {
+  id: string;
+  url: string;
+  altText: string;
+  fileName: string;
+} | null;
+
 export default function BrandSettings() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('branding');
@@ -32,6 +39,14 @@ export default function BrandSettings() {
 
   const { data: settings, isLoading } = useQuery<CmsSetting[]>({
     queryKey: ['/api/admin/cms/settings'],
+  });
+
+  const { data: siteLogoData } = useQuery<{ logo: SiteMediaData }>({
+    queryKey: ['/api/site-logo'],
+  });
+
+  const { data: siteFaviconData } = useQuery<{ favicon: SiteMediaData }>({
+    queryKey: ['/api/site-favicon'],
   });
 
   useEffect(() => {
@@ -102,9 +117,10 @@ export default function BrandSettings() {
     }
 
     const inputElement = event.currentTarget;
+    const folder = logoType === 'logo' ? 'logos' : 'favicon';
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('folder', 'logos');
+    formData.append('folder', folder);
     formData.append('altText', `${logoType === 'logo' ? 'Company Logo' : 'Favicon'}`);
 
     toast({
@@ -125,15 +141,29 @@ export default function BrandSettings() {
       }
 
       const media = await response.json();
-      const key = logoType === 'logo' ? 'BRAND_LOGO_URL' : 'BRAND_FAVICON_URL';
 
-      handleSettingChange(key, media.fileUrl, 'branding', `${logoType === 'logo' ? 'Main company logo' : 'Browser favicon'}`);
+      const endpoint = logoType === 'logo' ? '/api/admin/site-logo' : '/api/admin/site-favicon';
+      const setResponse = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mediaId: media.id }),
+        credentials: 'include',
+      });
+
+      if (!setResponse.ok) {
+        throw new Error(`Failed to set ${logoType} as active`);
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['/api/site-logo'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/site-favicon'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/branding'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
 
       if (inputElement) inputElement.value = '';
 
       toast({
         title: 'Success',
-        description: `${logoType === 'logo' ? 'Logo' : 'Favicon'} uploaded successfully`,
+        description: `${logoType === 'logo' ? 'Logo' : 'Favicon'} uploaded and set successfully`,
       });
     } catch (error) {
       console.error('Logo upload error:', error);
@@ -146,26 +176,31 @@ export default function BrandSettings() {
   };
 
   const handleLogoDelete = async (logoType: 'logo' | 'favicon') => {
-    const key = logoType === 'logo' ? 'BRAND_LOGO_URL' : 'BRAND_FAVICON_URL';
-    const currentUrl = getSetting(key);
-
-    if (!currentUrl) return;
+    const currentMedia = logoType === 'logo' ? siteLogoData?.logo : siteFaviconData?.favicon;
+    
+    if (!currentMedia?.id) {
+      toast({
+        title: 'Info',
+        description: `No ${logoType} to remove`,
+      });
+      return;
+    }
 
     try {
-      const response = await fetch('/api/admin/cms/media', {
+      const endpoint = logoType === 'logo' ? '/api/admin/site-logo' : '/api/admin/site-favicon';
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
         credentials: 'include',
       });
 
-      if (response.ok) {
-        const allMedia = await response.json();
-        const mediaRecord = allMedia.find((m: any) => m.fileUrl === currentUrl);
-
-        if (mediaRecord) {
-          await apiRequest(`/api/admin/cms/media/${mediaRecord.id}`, 'DELETE');
-        }
+      if (!response.ok) {
+        throw new Error(`Failed to remove ${logoType}`);
       }
 
-      handleSettingChange(key, '', 'branding', `${logoType === 'logo' ? 'Main company logo' : 'Browser favicon'}`);
+      queryClient.invalidateQueries({ queryKey: ['/api/site-logo'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/site-favicon'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/branding'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/media'] });
 
       toast({
         title: 'Success',
@@ -254,15 +289,16 @@ export default function BrandSettings() {
 
               <div className="space-y-3">
                 <Label className="text-base font-semibold">Main Logo</Label>
-                {getSetting('BRAND_LOGO_URL') ? (
+                {siteLogoData?.logo?.url ? (
                   <div className="space-y-3">
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50 flex items-center justify-center">
                       <img 
-                        src={getSetting('BRAND_LOGO_URL')} 
-                        alt="Current Logo" 
+                        src={siteLogoData.logo.url} 
+                        alt={siteLogoData.logo.altText || "Current Logo"} 
                         className="max-h-32 max-w-full object-contain"
                       />
                     </div>
+                    <p className="text-xs text-gray-500">File: {siteLogoData.logo.fileName}</p>
                     <div className="flex items-center gap-2">
                       <Button 
                         variant="outline" 
@@ -270,7 +306,7 @@ export default function BrandSettings() {
                         className="flex items-center gap-2"
                       >
                         <Pencil className="w-4 h-4" />
-                        Edit Logo
+                        Change Logo
                       </Button>
                       <Button 
                         variant="outline" 
@@ -278,7 +314,7 @@ export default function BrandSettings() {
                         className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <Trash2 className="w-4 h-4" />
-                        Delete
+                        Remove
                       </Button>
                     </div>
                   </div>
@@ -286,7 +322,7 @@ export default function BrandSettings() {
                   <div className="space-y-3">
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 bg-gray-50 flex flex-col items-center justify-center gap-3">
                       <Upload className="w-12 h-12 text-gray-400" />
-                      <p className="text-sm text-gray-600">No logo uploaded yet</p>
+                      <p className="text-sm text-gray-600">No logo set. Upload a new one or select from Media Library.</p>
                       <Button 
                         variant="outline" 
                         onClick={() => logoInputRef.current?.click()}
@@ -305,20 +341,21 @@ export default function BrandSettings() {
                   onChange={(e) => handleLogoUpload(e, 'logo')}
                   className="hidden"
                 />
-                <p className="text-xs text-muted-foreground">Recommended: PNG or SVG, transparent background, max 2MB</p>
+                <p className="text-xs text-muted-foreground">Recommended: PNG or SVG, transparent background, max 2MB. You can also set logo from CMS Media Library.</p>
               </div>
 
               <div className="space-y-3">
                 <Label className="text-base font-semibold">Favicon</Label>
-                {getSetting('BRAND_FAVICON_URL') ? (
+                {siteFaviconData?.favicon?.url ? (
                   <div className="space-y-3">
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50 flex items-center justify-center">
                       <img 
-                        src={getSetting('BRAND_FAVICON_URL')} 
-                        alt="Current Favicon" 
+                        src={siteFaviconData.favicon.url} 
+                        alt={siteFaviconData.favicon.altText || "Current Favicon"} 
                         className="max-h-16 max-w-full object-contain"
                       />
                     </div>
+                    <p className="text-xs text-gray-500">File: {siteFaviconData.favicon.fileName}</p>
                     <div className="flex items-center gap-2">
                       <Button 
                         variant="outline" 
@@ -326,7 +363,7 @@ export default function BrandSettings() {
                         className="flex items-center gap-2"
                       >
                         <Pencil className="w-4 h-4" />
-                        Edit Favicon
+                        Change Favicon
                       </Button>
                       <Button 
                         variant="outline" 
@@ -334,7 +371,7 @@ export default function BrandSettings() {
                         className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <Trash2 className="w-4 h-4" />
-                        Delete
+                        Remove
                       </Button>
                     </div>
                   </div>
@@ -342,7 +379,7 @@ export default function BrandSettings() {
                   <div className="space-y-3">
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 bg-gray-50 flex flex-col items-center justify-center gap-3">
                       <Upload className="w-12 h-12 text-gray-400" />
-                      <p className="text-sm text-gray-600">No favicon uploaded yet</p>
+                      <p className="text-sm text-gray-600">No favicon set. Upload a new one or select from Media Library.</p>
                       <Button 
                         variant="outline" 
                         onClick={() => faviconInputRef.current?.click()}
@@ -361,7 +398,7 @@ export default function BrandSettings() {
                   onChange={(e) => handleLogoUpload(e, 'favicon')}
                   className="hidden"
                 />
-                <p className="text-xs text-muted-foreground">Recommended: 32x32 or 64x64 PNG/ICO, square format, max 2MB</p>
+                <p className="text-xs text-muted-foreground">Recommended: 32x32 or 64x64 PNG/ICO, square format, max 2MB. You can also set favicon from CMS Media Library.</p>
               </div>
             </CardContent>
           </Card>

@@ -8016,8 +8016,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         companyName,
         tagline,
         description,
-        logoUrl,
-        faviconUrl,
+        logoSetting,
+        faviconSetting,
         primaryColor,
         secondaryColor,
         accentColor
@@ -8025,20 +8025,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         storage.getCmsSetting('BRAND_COMPANY_NAME'),
         storage.getCmsSetting('BRAND_TAGLINE'),
         storage.getCmsSetting('BRAND_DESCRIPTION'),
-        storage.getCmsSetting('BRAND_LOGO_URL'),
-        storage.getCmsSetting('BRAND_FAVICON_URL'),
+        storage.getCmsSetting('site_logo'),
+        storage.getCmsSetting('site_favicon'),
         storage.getCmsSetting('BRAND_PRIMARY_COLOR'),
         storage.getCmsSetting('BRAND_SECONDARY_COLOR'),
         storage.getCmsSetting('BRAND_ACCENT_COLOR')
       ]);
 
-      // Convert logo and favicon URLs to presigned URLs if they're storage paths
-      const resolvedLogoUrl = logoUrl?.value 
-        ? await getPresignedUrl(logoUrl.value) 
-        : '/images/logo_1759125364025.png';
-      const resolvedFaviconUrl = faviconUrl?.value 
-        ? await getPresignedUrl(faviconUrl.value) 
-        : '/images/favicon_1759253989963.png';
+      // Get logo URL from unified site_logo setting (same as MediaLibrary uses)
+      let resolvedLogoUrl = '/images/logo_1759125364025.png';
+      if (logoSetting?.value) {
+        const logoMedia = await storage.getCmsMediaById(logoSetting.value);
+        if (logoMedia) {
+          resolvedLogoUrl = await getPresignedUrl(logoMedia.fileUrl);
+        }
+      }
+
+      // Get favicon URL from unified site_favicon setting (same as MediaLibrary uses)
+      let resolvedFaviconUrl = '/images/favicon_1759253989963.png';
+      if (faviconSetting?.value) {
+        const faviconMedia = await storage.getCmsMediaById(faviconSetting.value);
+        if (faviconMedia) {
+          resolvedFaviconUrl = await getPresignedUrl(faviconMedia.fileUrl);
+        }
+      }
 
       res.json({
         companyName: companyName?.value || 'USA Luxury Limo',
