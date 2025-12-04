@@ -410,12 +410,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'gif': 'image/gif',
         'webp': 'image/webp',
         'svg': 'image/svg+xml',
+        'ico': 'image/x-icon',
         'pdf': 'application/pdf',
       };
       const contentType = contentTypeMap[ext] || 'application/octet-stream';
       
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=31536000');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
       res.send(value);
     } catch (error: any) {
       console.error('Error serving uploaded file:', error);
