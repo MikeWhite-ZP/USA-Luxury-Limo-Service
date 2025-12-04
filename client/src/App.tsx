@@ -24,23 +24,59 @@ function isAdminSubdomain(): boolean {
   return adminHosts.some((host: string) => hostname === host);
 }
 
+// Utility to check if device is mobile
+function isMobileDevice(): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera || '';
+  const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+  const isSmallScreen = window.innerWidth <= 768;
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  
+  return isMobileUA || (isSmallScreen && isTouchDevice);
+}
+
 // Component to handle admin subdomain routing
 function AdminSubdomainRedirect() {
   const [location, setLocation] = useLocation();
   const isAdminHost = isAdminSubdomain();
+  const isMobile = isMobileDevice();
   
   useEffect(() => {
-    // If on admin subdomain and at root, redirect to admin login
-    if (isAdminHost && location === '/') {
-      setLocation('/admin-login');
+    // If on admin subdomain
+    if (isAdminHost) {
+      // Redirect to appropriate login based on device
+      if (location === '/') {
+        if (isMobile) {
+          setLocation('/mobile-admin-login');
+        } else {
+          setLocation('/admin-login');
+        }
+      }
+      
+      // Redirect desktop admin login to mobile on mobile devices
+      if (isMobile && location === '/admin-login') {
+        setLocation('/mobile-admin-login');
+      }
+      
+      // Redirect mobile admin login to desktop on desktop devices
+      if (!isMobile && location === '/mobile-admin-login') {
+        setLocation('/admin-login');
+      }
     }
     
     // If NOT on admin subdomain but trying to access admin login, block it (production only)
-    if (!isAdminHost && !import.meta.env.DEV && (location === '/admin-login' || location === '/admin/login')) {
-      console.warn('Admin login is only accessible via admin subdomain');
-      setLocation('/login');
+    if (!isAdminHost && !import.meta.env.DEV) {
+      if (location === '/admin-login' || location === '/admin/login') {
+        console.warn('Admin login is only accessible via admin subdomain');
+        setLocation('/login');
+      }
+      if (location === '/mobile-admin-login' || location === '/mobile-admin') {
+        console.warn('Mobile admin is only accessible via admin subdomain');
+        setLocation('/mobile');
+      }
     }
-  }, [location, setLocation, isAdminHost]);
+  }, [location, setLocation, isAdminHost, isMobile]);
   
   return null;
 }
@@ -86,6 +122,8 @@ const MobileDriverRideDetails = lazy(() => import("@/pages/mobile-driver-ride-de
 const MobileDriverDocuments = lazy(() => import("@/pages/mobile-driver-documents"));
 const MobileProfile = lazy(() => import("@/pages/mobile-profile"));
 const MobileDispatcher = lazy(() => import("@/pages/mobile-dispatcher"));
+const MobileAdminLogin = lazy(() => import("@/pages/mobile-admin-login"));
+const MobileAdmin = lazy(() => import("@/pages/mobile-admin"));
 const PayInvoice = lazy(() => import("@/pages/PayInvoice"));
 const PaymentSuccess = lazy(() => import("@/pages/PaymentSuccess"));
 const NotFound = lazy(() => import("@/pages/not-found"));
@@ -157,6 +195,10 @@ function Router() {
       <Route path="/mobile-driver/profile" component={MobileProfile} />
       <Route path="/mobile-driver/account" component={AccountPage} />
       <Route path="/mobile-dispatcher" component={MobileDispatcher} />
+      
+      {/* Mobile Admin PWA Routes (admin subdomain only) */}
+      <Route path="/mobile-admin-login" component={MobileAdminLogin} />
+      <Route path="/mobile-admin" component={MobileAdmin} />
       
       {/* Public routes */}
       <Route path="/booking" component={Booking} />

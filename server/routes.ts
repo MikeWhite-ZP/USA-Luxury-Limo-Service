@@ -8068,21 +8068,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Dynamic PWA manifest.json endpoint
+  // Dynamic PWA manifest.json endpoint - serves different manifest for admin subdomain
   app.get('/manifest.json', async (req, res) => {
     try {
+      // Check if accessing from admin subdomain (handle reverse proxy with X-Forwarded-Host)
+      const forwardedHost = (req.headers['x-forwarded-host'] as string)?.split(',')[0]?.trim();
+      const hostname = (forwardedHost || req.hostname || req.headers.host?.split(':')[0] || '').toLowerCase();
+      const adminHosts = (process.env.ADMIN_PANEL_HOSTS || '').split(',').map(h => h.trim().toLowerCase()).filter(Boolean);
+      const isAdminSubdomain = hostname.startsWith('adminaccess.') || adminHosts.includes(hostname);
+      
       // Fetch active favicon from CMS
       const faviconSetting = await storage.getCmsSetting('site_favicon');
       let faviconUrl: string | null = null;
       let faviconMimeType: string | null = null;
-      let etag = '"static"'; // Quoted ETag
+      let etag = isAdminSubdomain ? '"admin-static"' : '"static"'; // Quoted ETag
       
       if (faviconSetting?.value) {
         const media = await storage.getCmsMediaById(faviconSetting.value);
         if (media) {
           faviconUrl = await getPresignedUrl(media.fileUrl);
-          faviconMimeType = media.fileType; // Get actual MIME type (image/png, image/jpeg, image/webp, etc.)
-          etag = `"${media.id}"`; // Use media ID as ETag for cache invalidation (quoted)
+          faviconMimeType = media.fileType;
+          etag = isAdminSubdomain ? `"admin-${media.id}"` : `"${media.id}"`;
         }
       }
       
@@ -8091,11 +8097,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const icons = iconSizes.map(size => ({
         src: faviconUrl || `/icon-${size}x${size}.png`,
         sizes: `${size}x${size}`,
-        type: faviconUrl && faviconMimeType ? faviconMimeType : "image/png", // Use actual MIME type from CMS or PNG for static fallback
+        type: faviconUrl && faviconMimeType ? faviconMimeType : "image/png",
         purpose: "any maskable"
       }));
       
-      const manifest = {
+      // Generate different manifest based on subdomain
+      const manifest = isAdminSubdomain ? {
+        name: "Admin Panel",
+        short_name: "Admin",
+        description: "Administrative control panel for managing bookings, users, vehicles, and system settings",
+        start_url: "/mobile-admin-login",
+        display: "standalone",
+        background_color: "#0f172a",
+        theme_color: "#1e3a8a",
+        orientation: "portrait-primary",
+        icons,
+        categories: ["business", "productivity"]
+      } : {
         name: "USA Luxury Limo",
         short_name: "USA Limo",
         description: "Professional luxury transportation booking platform for passengers, drivers, and dispatchers",
