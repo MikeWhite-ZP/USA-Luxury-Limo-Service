@@ -178,7 +178,7 @@ export default function BrandSettings() {
 
   const handleLogoDelete = async (logoType: 'logo' | 'favicon') => {
     const currentMedia = logoType === 'logo' ? siteLogoData?.logo : siteFaviconData?.favicon;
-
+    
     if (!currentMedia?.id) {
       toast({
         title: 'Info',
@@ -230,23 +230,23 @@ export default function BrandSettings() {
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="branding" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
-            <span className="hidden sm:inline">Branding</span>
+            <span>Branding</span>
           </TabsTrigger>
           <TabsTrigger value="colors" className="flex items-center gap-2">
             <Palette className="w-4 h-4" />
-            <span className="hidden sm:inline">Colors</span>
+            <span>Colors</span>
           </TabsTrigger>
           <TabsTrigger value="social" className="flex items-center gap-2">
             <Share2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Social</span>
+            <span>Social</span>
           </TabsTrigger>
           <TabsTrigger value="contact" className="flex items-center gap-2">
             <Mail className="w-4 h-4" />
-            <span className="hidden sm:inline">Contact</span>
+            <span>Contact</span>
           </TabsTrigger>
           <TabsTrigger value="seo" className="flex items-center gap-2">
             <Globe className="w-4 h-4" />
-            <span className="hidden sm:inline">SEO</span>
+            <span>SEO</span>
           </TabsTrigger>
         </TabsList>
 
@@ -261,7 +261,6 @@ export default function BrandSettings() {
                 <Label htmlFor="company-name">Company Name</Label>
                 <Input
                   id="company-name"
-                  key={getSetting('BRAND_COMPANY_NAME')}
                   defaultValue={getSetting('BRAND_COMPANY_NAME')}
                   onBlur={(e) => handleSettingChange('BRAND_COMPANY_NAME', e.target.value, 'branding', 'Company name displayed across the website')}
                   placeholder="USA Luxury Limo"
@@ -272,7 +271,6 @@ export default function BrandSettings() {
                 <Label htmlFor="tagline">Tagline</Label>
                 <Input
                   id="tagline"
-                  key={getSetting('BRAND_TAGLINE')}
                   defaultValue={getSetting('BRAND_TAGLINE')}
                   onBlur={(e) => handleSettingChange('BRAND_TAGLINE', e.target.value, 'branding', 'Company tagline or slogan')}
                   placeholder="Premium Transportation Services"
@@ -283,7 +281,6 @@ export default function BrandSettings() {
                 <Label htmlFor="description">Brand Description</Label>
                 <Textarea
                   id="description"
-                  key={getSetting('BRAND_DESCRIPTION')}
                   defaultValue={getSetting('BRAND_DESCRIPTION')}
                   onBlur={(e) => handleSettingChange('BRAND_DESCRIPTION', e.target.value, 'branding', 'Short brand description')}
                   placeholder="Luxury limousine services for all occasions..."
@@ -495,7 +492,6 @@ export default function BrandSettings() {
                 <Input
                   id="facebook"
                   type="url"
-                  key={getSetting('SOCIAL_FACEBOOK')}
                   defaultValue={getSetting('SOCIAL_FACEBOOK')}
                   onBlur={(e) => handleSettingChange('SOCIAL_FACEBOOK', e.target.value, 'social', 'Facebook profile URL')}
                   placeholder="https://facebook.com/yourpage"
@@ -507,7 +503,6 @@ export default function BrandSettings() {
                 <Input
                   id="twitter"
                   type="url"
-                  key={getSetting('SOCIAL_TWITTER')}
                   defaultValue={getSetting('SOCIAL_TWITTER')}
                   onBlur={(e) => handleSettingChange('SOCIAL_TWITTER', e.target.value, 'social', 'Twitter/X profile URL')}
                   placeholder="https://twitter.com/yourhandle"
@@ -519,7 +514,6 @@ export default function BrandSettings() {
                 <Input
                   id="instagram"
                   type="url"
-                  key={getSetting('SOCIAL_INSTAGRAM')}
                   defaultValue={getSetting('SOCIAL_INSTAGRAM')}
                   onBlur={(e) => handleSettingChange('SOCIAL_INSTAGRAM', e.target.value, 'social', 'Instagram profile URL')}
                   placeholder="https://instagram.com/yourhandle"
@@ -531,7 +525,6 @@ export default function BrandSettings() {
                 <Input
                   id="linkedin"
                   type="url"
-                  key={getSetting('SOCIAL_LINKEDIN')}
                   defaultValue={getSetting('SOCIAL_LINKEDIN')}
                   onBlur={(e) => handleSettingChange('SOCIAL_LINKEDIN', e.target.value, 'social', 'LinkedIn profile URL')}
                   placeholder="https://linkedin.com/company/yourcompany"
@@ -553,7 +546,6 @@ export default function BrandSettings() {
                 <Input
                   id="contact-email"
                   type="email"
-                  key={getSetting('CONTACT_EMAIL')}
                   defaultValue={getSetting('CONTACT_EMAIL')}
                   onBlur={(e) => handleSettingChange('CONTACT_EMAIL', e.target.value, 'contact', 'Primary contact email')}
                   placeholder="info@usaluxurylimo.com"
@@ -565,7 +557,6 @@ export default function BrandSettings() {
                 <Input
                   id="contact-phone"
                   type="tel"
-                  key={getSetting('CONTACT_PHONE')}
                   defaultValue={getSetting('CONTACT_PHONE')}
                   onBlur={(e) => handleSettingChange('CONTACT_PHONE', e.target.value, 'contact', 'Primary contact phone number')}
                   placeholder="+1 (555) 123-4567"
@@ -576,7 +567,6 @@ export default function BrandSettings() {
                 <Label htmlFor="contact-address">Address</Label>
                 <Textarea
                   id="contact-address"
-                  key={getSetting('CONTACT_ADDRESS')}
                   defaultValue={getSetting('CONTACT_ADDRESS')}
                   onBlur={(e) => handleSettingChange('CONTACT_ADDRESS', e.target.value, 'contact', 'Physical business address')}
                   placeholder="123 Main St, New York, NY 10001"
@@ -598,7 +588,6 @@ export default function BrandSettings() {
                 <Label htmlFor="seo-title">Site Title</Label>
                 <Input
                   id="seo-title"
-                  key={getSetting('SEO_SITE_TITLE')}
                   defaultValue={getSetting('SEO_SITE_TITLE')}
                   onBlur={(e) => handleSettingChange('SEO_SITE_TITLE', e.target.value, 'seo', 'Default page title for SEO')}
                   placeholder="USA Luxury Limo - Premium Transportation"
@@ -609,7 +598,6 @@ export default function BrandSettings() {
                 <Label htmlFor="seo-description">Meta Description</Label>
                 <Textarea
                   id="seo-description"
-                  key={getSetting('SEO_META_DESCRIPTION')}
                   defaultValue={getSetting('SEO_META_DESCRIPTION')}
                   onBlur={(e) => handleSettingChange('SEO_META_DESCRIPTION', e.target.value, 'seo', 'Default meta description for SEO')}
                   placeholder="Book premium limousine services for weddings, corporate events, and special occasions..."
@@ -622,7 +610,6 @@ export default function BrandSettings() {
                 <Label htmlFor="seo-keywords">Keywords</Label>
                 <Input
                   id="seo-keywords"
-                  key={getSetting('SEO_KEYWORDS')}
                   defaultValue={getSetting('SEO_KEYWORDS')}
                   onBlur={(e) => handleSettingChange('SEO_KEYWORDS', e.target.value, 'seo', 'SEO keywords (comma-separated)')}
                   placeholder="limousine service, luxury transportation, chauffeur"
