@@ -1,0 +1,43 @@
+Service Worker registered successfully: https://adminaccess.usaluxurylimo.net/ index-CF9Pf_lu.js:79:75453
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. dialog-a03iYDVZ.js:5:496
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+=== FORM SUBMISSION === admin-pricing-CRXvppKy.js:1:8672
+Service Type: transfer admin-pricing-CRXvppKy.js:1:8711
+Pricing Method: distance-breakdown admin-pricing-CRXvppKy.js:1:8754
+Base Rate: 113.00 admin-pricing-CRXvppKy.js:1:8787
+Per Mile Rate: <empty string> admin-pricing-CRXvppKy.js:1:8824
+Distance Tiers: 
+Array(4) [ {…}, {…}, {…}, {…} ]
+admin-pricing-CRXvppKy.js:1:8868
+Distance Tiers Count: 4 admin-pricing-CRXvppKy.js:1:8915
+Hourly Rate: <empty string> admin-pricing-CRXvppKy.js:1:8975
+Minimum Hours: <empty string> admin-pricing-CRXvppKy.js:1:9016
+====================== admin-pricing-CRXvppKy.js:1:9061
+=== FORM SUBMISSION === admin-pricing-CRXvppKy.js:1:8672
+Service Type: transfer admin-pricing-CRXvppKy.js:1:8711
+Pricing Method: distance-breakdown admin-pricing-CRXvppKy.js:1:8754
+Base Rate: 113.00 admin-pricing-CRXvppKy.js:1:8787
+Per Mile Rate: <empty string> admin-pricing-CRXvppKy.js:1:8824
+Distance Tiers: 
+Array(3) [ {…}, {…}, {…} ]
+admin-pricing-CRXvppKy.js:1:8868
+Distance Tiers Count: 3 admin-pricing-CRXvppKy.js:1:8915
+Hourly Rate: <empty string> admin-pricing-CRXvppKy.js:1:8975
+Minimum Hours: <empty string> admin-pricing-CRXvppKy.js:1:9016
+====================== admin-pricing-CRXvppKy.js:1:9061
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. dialog-a03iYDVZ.js:5:496
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+=== FORM SUBMISSION === admin-pricing-CRXvppKy.js:1:8672
+Service Type: transfer admin-pricing-CRXvppKy.js:1:8711
+Pricing Method: distance-breakdown admin-pricing-CRXvppKy.js:1:8754
+Base Rate: 113.00 admin-pricing-CRXvppKy.js:1:8787
+Per Mile Rate: <empty string> admin-pricing-CRXvppKy.js:1:8824
+Distance Tiers: 
+Array(4) [ {…}, {…}, {…}, {…} ]
+admin-pricing-CRXvppKy.js:1:8868
+Distance Tiers Count: 4 admin-pricing-CRXvppKy.js:1:8915
+Hourly Rate: <empty string> admin-pricing-CRXvppKy.js:1:8975
+Minimum Hours: <empty string> admin-pricing-CRXvppKy.js:1:9016
+====================== admin-pricing-CRXvppKy.js:1:9061

@@ -195,8 +195,9 @@ export default function AdminPricing() {
   const createMutation = useMutation({
     mutationFn: async (data: Partial<PricingFormData>) => {
       // Convert distanceTiers to proper number types with validation
+      // For "Remaining" tiers, miles is set to 0 since they apply to all remaining miles
       const normalizedDistanceTiers = (data.distanceTiers || []).map((tier, idx) => ({
-        miles: parseNumeric(tier.miles, `Distance tier ${idx + 1} miles`),
+        miles: tier.isRemaining ? 0 : parseNumeric(tier.miles, `Distance tier ${idx + 1} miles`),
         ratePerMile: parseNumeric(tier.ratePerMile, `Distance tier ${idx + 1} rate`),
         ...(tier.isRemaining !== undefined && { isRemaining: tier.isRemaining })
       }));
@@ -280,8 +281,9 @@ export default function AdminPricing() {
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<PricingFormData> }) => {
       // Convert distanceTiers to proper number types with validation
+      // For "Remaining" tiers, miles is set to 0 since they apply to all remaining miles
       const normalizedDistanceTiers = (data.distanceTiers || []).map((tier, idx) => ({
-        miles: parseNumeric(tier.miles, `Distance tier ${idx + 1} miles`),
+        miles: tier.isRemaining ? 0 : parseNumeric(tier.miles, `Distance tier ${idx + 1} miles`),
         ratePerMile: parseNumeric(tier.ratePerMile, `Distance tier ${idx + 1} rate`),
         ...(tier.isRemaining !== undefined && { isRemaining: tier.isRemaining })
       }));
