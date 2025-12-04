@@ -1,4 +1,4 @@
-const CACHE_NAME = 'usa-luxury-limo-v2';
+const CACHE_NAME = 'usa-luxury-limo-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -33,6 +33,33 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+function shouldSkipRequest(url) {
+  // Skip external storage URLs (MinIO, S3, Replit Object Storage, etc.)
+  if (url.includes('minio.') || 
+      url.includes('.s3.') || 
+      url.includes('s3.amazonaws.com') ||
+      url.includes('X-Amz-Signature') ||
+      url.includes('X-Amz-Credential') ||
+      url.includes('replit.dev') ||
+      url.includes('object.storage') ||
+      url.includes('objectstorage')) {
+    return true;
+  }
+  
+  // Skip CMS uploaded media files (pattern: cms-*-timestamp.extension)
+  // Supports folder names with hyphens like hero-images, testimonials, etc.
+  if (/cms-[a-zA-Z0-9_-]+-\d+\.(png|jpg|jpeg|gif|webp|ico|svg)/.test(url)) {
+    return true;
+  }
+  
+  // Skip any URL with presigned query parameters
+  if (url.includes('?') && (url.includes('Signature') || url.includes('Expires') || url.includes('token'))) {
+    return true;
+  }
+  
+  return false;
+}
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') {
     return;
@@ -44,21 +71,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip handling for external storage URLs (MinIO, S3, etc.) - let browser handle directly
-  // These are cross-origin requests with presigned URLs that should not be intercepted
-  if (url.includes('minio.') || 
-      url.includes('.s3.') || 
-      url.includes('s3.amazonaws.com') ||
-      url.includes('X-Amz-Signature') ||
-      url.includes('X-Amz-Credential')) {
-    return; // Don't intercept, let browser fetch directly
+  // Skip handling for external storage URLs and CMS media - let browser handle directly
+  if (shouldSkipRequest(url)) {
+    return;
   }
 
   // Skip caching for API requests and external resources
   if (url.includes('/api/') || url.includes('fonts.googleapis.com') || url.includes('fonts.gstatic.com')) {
     event.respondWith(
       fetch(event.request).catch(() => {
-        // Return an empty response if fetch fails for external resources
         return new Response('', { 
           status: 200, 
           statusText: 'OK',
