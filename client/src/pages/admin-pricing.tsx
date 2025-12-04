@@ -490,22 +490,26 @@ export default function AdminPricing() {
         // Validate distance tier values
         for (let i = 0; i < formData.distanceTiers.length; i++) {
           const tier = formData.distanceTiers[i];
-          const miles = typeof tier.miles === 'string' ? parseFloat(tier.miles) : tier.miles;
           const rate = typeof tier.ratePerMile === 'string' ? parseFloat(tier.ratePerMile) : tier.ratePerMile;
           
-          if (isNaN(miles) || miles < 0) {
-            toast({
-              title: "Validation Error",
-              description: `Distance tier ${i + 1}: Miles must be a valid positive number`,
-              variant: "destructive",
-            });
-            return;
+          // Skip miles validation for "Remaining" tiers - they don't need a miles value
+          if (!tier.isRemaining) {
+            const miles = typeof tier.miles === 'string' ? parseFloat(tier.miles) : tier.miles;
+            if (isNaN(miles) || miles <= 0) {
+              toast({
+                title: "Validation Error",
+                description: `Distance tier ${i + 1}: Miles must be a valid positive number`,
+                variant: "destructive",
+              });
+              return;
+            }
           }
           
+          // Rate is always required for all tiers including Remaining
           if (isNaN(rate) || rate < 0) {
             toast({
               title: "Validation Error",
-              description: `Distance tier ${i + 1}: Rate per mile must be a valid positive number`,
+              description: `Distance tier ${i + 1}${tier.isRemaining ? ' (Remaining)' : ''}: Rate per mile must be a valid positive number`,
               variant: "destructive",
             });
             return;
