@@ -200,6 +200,16 @@ export default function MobileLogin() {
           </form>
 
           <div className="mt-6 text-center space-y-3">
+            <p className="text-gray-600 text-sm">
+              Don't have an account?{' '}
+              <button
+                onClick={() => navigate(`/mobile-register?role=${selectedRole}`)}
+                className="text-red-600 hover:text-red-700 font-semibold transition-colors touch-manipulation"
+                data-testid="button-go-to-register"
+              >
+                Register
+              </button>
+            </p>
             <button
               onClick={() => navigate('/mobile-splash')}
               className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors touch-manipulation py-2 px-4"

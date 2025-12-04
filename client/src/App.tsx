@@ -75,6 +75,7 @@ const Checkout = lazy(() => import("@/pages/checkout"));
 const AccountPage = lazy(() => import("@/pages/account"));
 const MobileSplash = lazy(() => import("@/pages/mobile-splash"));
 const MobileLogin = lazy(() => import("@/pages/mobile-login"));
+const MobileRegister = lazy(() => import("@/pages/mobile-register"));
 const MobilePassenger = lazy(() => import("@/pages/mobile-passenger"));
 const MobileBooking = lazy(() => import("@/pages/mobile-booking"));
 const MobileBookingDetails = lazy(() => import("@/pages/mobile-booking-details"));
@@ -144,6 +145,7 @@ function Router() {
       <Route path="/mobile" component={MobileSplash} />
       <Route path="/mobile-splash" component={MobileSplash} />
       <Route path="/mobile-login" component={MobileLogin} />
+      <Route path="/mobile-register" component={MobileRegister} />
       <Route path="/mobile-passenger" component={MobilePassenger} />
       <Route path="/mobile-booking" component={MobileBooking} />
       <Route path="/mobile-booking-details/:id" component={MobileBookingDetails} />
