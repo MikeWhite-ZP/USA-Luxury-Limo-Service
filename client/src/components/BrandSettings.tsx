@@ -63,7 +63,7 @@ export default function BrandSettings() {
 
   const saveSetting = useMutation({
     mutationFn: async (data: { key: string; value: string; category: string; description?: string }) => {
-      return apiRequest('/api/admin/cms/settings', 'PUT', { 
+      return apiRequest('PUT', '/api/admin/cms/settings', { 
         key: data.key,
         value: data.value, 
         category: data.category, 
