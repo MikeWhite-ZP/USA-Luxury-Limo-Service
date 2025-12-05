@@ -130,6 +130,12 @@ async function getPresignedUrl(pathOrUrl: string | null | undefined): Promise<st
   } else {
     // Remove leading slash if present
     storageKey = pathOrUrl.startsWith('/') ? pathOrUrl.slice(1) : pathOrUrl;
+    
+    // Strip 'api/uploads/' prefix if present (backwards compatibility with stored paths)
+    // This handles cases where imageUrl was stored with the local storage serving path prefix
+    if (storageKey.startsWith('api/uploads/')) {
+      storageKey = storageKey.slice('api/uploads/'.length);
+    }
   }
   
   // Generate presigned URL for the storage key
