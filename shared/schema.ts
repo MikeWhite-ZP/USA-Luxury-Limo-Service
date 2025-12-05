@@ -360,6 +360,18 @@ export const paymentSystems = pgTable("payment_systems", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Payment Options - System-wide payment method availability (controlled by admin)
+export const paymentOptions = pgTable("payment_options", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  optionType: varchar("option_type", { enum: ["credit_card", "pay_later", "cash"] }).unique().notNull(),
+  displayName: varchar("display_name").notNull(),
+  description: text("description"),
+  isEnabled: boolean("is_enabled").default(false),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Invoice/Receipt records
 export const invoices = pgTable("invoices", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -537,6 +549,12 @@ export const insertPricingRuleSchema = createInsertSchema(pricingRules)
   );
 
 export const insertPaymentSystemSchema = createInsertSchema(paymentSystems).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPaymentOptionSchema = createInsertSchema(paymentOptions).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -772,6 +790,7 @@ export type Invoice = typeof invoices.$inferSelect;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 export type PricingRule = typeof pricingRules.$inferSelect;
 export type PaymentSystem = typeof paymentSystems.$inferSelect;
+export type PaymentOption = typeof paymentOptions.$inferSelect;
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
 export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSchema>;
 
@@ -783,6 +802,7 @@ export type InsertContact = z.infer<typeof insertContactSchema>;
 export type InsertSavedAddress = z.infer<typeof insertSavedAddressSchema>;
 export type InsertPricingRule = z.infer<typeof insertPricingRuleSchema>;
 export type InsertPaymentSystem = z.infer<typeof insertPaymentSystemSchema>;
+export type InsertPaymentOption = z.infer<typeof insertPaymentOptionSchema>;
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
 export type PaymentToken = typeof paymentTokens.$inferSelect;
 export type InsertPaymentToken = z.infer<typeof insertPaymentTokenSchema>;

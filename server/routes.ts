@@ -6282,6 +6282,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Payment Options management (system-wide payment method availability)
+  // Public endpoint - get enabled payment options for passengers
+  app.get('/api/payment-options/enabled', async (req, res) => {
+    try {
+      const options = await storage.getEnabledPaymentOptions();
+      
+      // Also check if credit card provider is configured
+      const activePaymentSystem = await storage.getActivePaymentSystem();
+      const hasActiveProvider = !!activePaymentSystem;
+      
+      res.json({
+        options,
+        hasActiveProvider,
+        activeProvider: activePaymentSystem?.provider || null
+      });
+    } catch (error) {
+      console.error('Get enabled payment options error:', error);
+      res.status(500).json({ message: 'Failed to fetch payment options' });
+    }
+  });
+
+  // Admin endpoint - get all payment options
+  app.get('/api/payment-options', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const options = await storage.getPaymentOptions();
+      
+      // Also get active payment system info
+      const activePaymentSystem = await storage.getActivePaymentSystem();
+      const paymentSystems = await storage.getPaymentSystems();
+      
+      res.json({
+        options,
+        paymentSystems: paymentSystems.map(ps => ({
+          provider: ps.provider,
+          isActive: ps.isActive,
+          hasCredentials: !!(ps.publicKey || ps.secretKey)
+        })),
+        activeProvider: activePaymentSystem?.provider || null
+      });
+    } catch (error) {
+      console.error('Get payment options error:', error);
+      res.status(500).json({ message: 'Failed to fetch payment options' });
+    }
+  });
+
+  // Admin endpoint - update payment option
+  app.put('/api/payment-options/:optionType', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { optionType } = req.params;
+      const { isEnabled, displayName, description } = req.body;
+      
+      const updated = await storage.updatePaymentOption(optionType, {
+        isEnabled,
+        displayName,
+        description
+      });
+      
+      if (!updated) {
+        return res.status(404).json({ message: 'Payment option not found' });
+      }
+      
+      res.json(updated);
+    } catch (error) {
+      console.error('Update payment option error:', error);
+      res.status(500).json({ message: 'Failed to update payment option' });
+    }
+  });
+
   // Pricing rules management (admin only)
   app.get('/api/admin/pricing-rules', isAuthenticated, async (req: any, res) => {
     try {
