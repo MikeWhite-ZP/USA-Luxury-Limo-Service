@@ -15,6 +15,7 @@ import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityRep
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { S3Client, HeadBucketCommand, ListBucketsCommand } from "@aws-sdk/client-s3";
+import { strictAuthRateLimit, moderateAuthRateLimit } from "./authMiddleware";
 
 // Initialize Stripe only if secret key is available
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -498,8 +499,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public: Request password reset
-  app.post('/api/auth/forgot-password', async (req, res) => {
+  // Public: Request password reset (rate limited to prevent abuse)
+  app.post('/api/auth/forgot-password', strictAuthRateLimit, async (req, res) => {
     try {
       const { emailOrPhone } = req.body;
       
@@ -541,8 +542,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public: Request username reminder
-  app.post('/api/auth/forgot-username', async (req, res) => {
+  // Public: Request username reminder (rate limited to prevent abuse)
+  app.post('/api/auth/forgot-username', strictAuthRateLimit, async (req, res) => {
     try {
       const { emailOrPhone } = req.body;
       
@@ -603,8 +604,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public: Reset password using token
-  app.post('/api/auth/reset-password', async (req, res) => {
+  // Public: Reset password using token (rate limited to prevent brute-force)
+  app.post('/api/auth/reset-password', strictAuthRateLimit, async (req, res) => {
     try {
       const { token, newPassword } = req.body;
       

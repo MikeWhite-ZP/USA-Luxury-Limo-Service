@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { db } from '../db';
-import { users } from '@db/schema';
+import { db } from './db';
+import { users } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { UnauthorizedError, ForbiddenError } from './apiErrorHandler';
 
@@ -116,7 +116,7 @@ export const requireOwnershipOrAdmin = (
   };
 };
 
-// Rate limiting per user
+// Rate limiting per user (for authenticated endpoints)
 const userRequestCounts = new Map<number, { count: number; resetTime: number }>();
 
 export const rateLimitByUser = (
@@ -155,6 +155,121 @@ export const rateLimitByUser = (
     next();
   };
 };
+
+// =====================================================
+// IP-BASED RATE LIMITING (for unauthenticated endpoints like login/register)
+// =====================================================
+
+interface IpRateLimitEntry {
+  count: number;
+  resetTime: number;
+  blockedUntil?: number;
+}
+
+const ipRequestCounts = new Map<string, IpRateLimitEntry>();
+
+// Clean up expired entries periodically (every 5 minutes)
+setInterval(() => {
+  const now = Date.now();
+  const entries = Array.from(ipRequestCounts.entries());
+  for (let i = 0; i < entries.length; i++) {
+    const [ip, entry] = entries[i];
+    if (now > entry.resetTime && (!entry.blockedUntil || now > entry.blockedUntil)) {
+      ipRequestCounts.delete(ip);
+    }
+  }
+}, 5 * 60 * 1000);
+
+/**
+ * IP-based rate limiting for unauthenticated endpoints
+ * Protects against brute-force attacks on login, register, password reset
+ * 
+ * @param maxRequests - Maximum requests allowed in the window (default: 5)
+ * @param windowMs - Time window in milliseconds (default: 15 minutes)
+ * @param blockDurationMs - How long to block after exceeding limit (default: 30 minutes)
+ */
+export const rateLimitByIP = (
+  maxRequests: number = 5,
+  windowMs: number = 15 * 60 * 1000, // 15 minutes
+  blockDurationMs: number = 30 * 60 * 1000 // 30 minutes block after exceeding
+) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    // Get client IP (considers proxy headers)
+    const clientIP = getClientIP(req);
+    const now = Date.now();
+    
+    let entry = ipRequestCounts.get(clientIP);
+    
+    // Check if IP is currently blocked
+    if (entry?.blockedUntil && now < entry.blockedUntil) {
+      const retryAfter = Math.ceil((entry.blockedUntil - now) / 1000);
+      res.setHeader('Retry-After', retryAfter.toString());
+      console.warn(`[SECURITY] Blocked IP ${clientIP} attempted access. Blocked for ${retryAfter}s more.`);
+      return res.status(429).json({
+        message: 'Too many failed attempts. Please try again later.',
+        code: 'IP_RATE_LIMIT_EXCEEDED',
+        retryAfter,
+      });
+    }
+    
+    // Reset if window expired
+    if (!entry || now > entry.resetTime) {
+      entry = {
+        count: 1,
+        resetTime: now + windowMs,
+      };
+      ipRequestCounts.set(clientIP, entry);
+      return next();
+    }
+    
+    // Check if limit exceeded
+    if (entry.count >= maxRequests) {
+      // Block the IP for the specified duration
+      entry.blockedUntil = now + blockDurationMs;
+      ipRequestCounts.set(clientIP, entry);
+      
+      const retryAfter = Math.ceil(blockDurationMs / 1000);
+      res.setHeader('Retry-After', retryAfter.toString());
+      console.warn(`[SECURITY] IP ${clientIP} exceeded rate limit (${maxRequests} requests). Blocking for ${retryAfter}s.`);
+      return res.status(429).json({
+        message: 'Too many requests. Please try again later.',
+        code: 'IP_RATE_LIMIT_EXCEEDED',
+        retryAfter,
+      });
+    }
+    
+    // Increment counter
+    entry.count++;
+    next();
+  };
+};
+
+/**
+ * Stricter rate limiting for sensitive auth endpoints (login, password reset)
+ * 5 attempts per 15 minutes, 30 minute block
+ */
+export const strictAuthRateLimit = rateLimitByIP(5, 15 * 60 * 1000, 30 * 60 * 1000);
+
+/**
+ * Moderate rate limiting for less sensitive auth endpoints (register)
+ * 10 attempts per 15 minutes, 15 minute block
+ */
+export const moderateAuthRateLimit = rateLimitByIP(10, 15 * 60 * 1000, 15 * 60 * 1000);
+
+/**
+ * Get client IP address, accounting for proxies
+ */
+function getClientIP(req: Request): string {
+  // Trust X-Forwarded-For if behind proxy (app.set('trust proxy', 1) is set)
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string') {
+    // X-Forwarded-For can contain multiple IPs, first one is the client
+    return forwarded.split(',')[0].trim();
+  }
+  
+  // Fallback to direct connection IP
+  return req.ip || req.socket?.remoteAddress || 'unknown';
+}
 
 // Optional authentication (doesn't fail if not authenticated)
 export const optionalAuth = async (
