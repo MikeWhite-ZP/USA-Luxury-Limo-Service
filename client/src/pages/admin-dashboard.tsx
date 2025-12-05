@@ -69,7 +69,10 @@ import {
   FileImage,
   Server,
   Palette,
+  CreditCard,
+  Banknote,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { AdminSMSSettings } from "@/components/admin-sms-settings";
@@ -3665,6 +3668,53 @@ export default function AdminDashboard() {
       enabled: isAuthenticated && user?.role === "admin",
     });
 
+  // Fetch payment options (system-wide payment method availability)
+  interface PaymentOptionsResponse {
+    options: Array<{
+      id: string;
+      optionType: string;
+      displayName: string;
+      description: string | null;
+      isEnabled: boolean;
+      sortOrder: number;
+    }>;
+    paymentSystems: Array<{
+      provider: string;
+      isActive: boolean;
+      hasCredentials: boolean;
+    }>;
+    activeProvider: string | null;
+  }
+  
+  const { data: paymentOptionsData, isLoading: paymentOptionsLoading } =
+    useQuery<PaymentOptionsResponse>({
+      queryKey: ["/api/payment-options"],
+      retry: false,
+      enabled: isAuthenticated && user?.role === "admin",
+    });
+
+  // Update payment option mutation
+  const updatePaymentOptionMutation = useMutation({
+    mutationFn: async ({ optionType, isEnabled }: { optionType: string; isEnabled: boolean }) => {
+      const response = await apiRequest("PUT", `/api/payment-options/${optionType}`, { isEnabled });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/payment-options"] });
+      toast({
+        title: "Payment Option Updated",
+        description: "Payment method availability has been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update payment option",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Fetch all users
   const { data: allUsers = [], isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
@@ -6504,6 +6554,98 @@ export default function AdminDashboard() {
                       <div>
                         <strong className="font-semibold text-blue-900">Note:</strong>{" "}
                         <span>Only one payment system can be active at a time. The active system will be used for all payment processing throughout the application. Set environment variables STRIPE_SECRET_KEY and STRIPE_PUBLIC_KEY for Stripe integration.</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Options Section */}
+                  <div className="mt-8 pt-6 border-t border-slate-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="bg-purple-600 p-2 rounded-lg">
+                        <CreditCard className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg text-slate-900">Payment Method Controls</h3>
+                        <p className="text-sm text-slate-600">Enable or disable payment methods available to passengers</p>
+                      </div>
+                    </div>
+
+                    {paymentOptionsLoading ? (
+                      <div className="flex items-center justify-center p-6">
+                        <div className="animate-spin w-6 h-6 border-4 border-purple-600 border-t-transparent rounded-full" />
+                      </div>
+                    ) : (
+                      <div className="grid gap-4">
+                        {paymentOptionsData?.options?.map((option) => {
+                          const icons: Record<string, any> = {
+                            credit_card: <CreditCard className="w-5 h-5" />,
+                            pay_later: <Clock className="w-5 h-5" />,
+                            cash: <Banknote className="w-5 h-5" />,
+                          };
+                          const colors: Record<string, { bg: string; border: string; text: string }> = {
+                            credit_card: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-600' },
+                            pay_later: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-600' },
+                            cash: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-600' },
+                          };
+                          const colorScheme = colors[option.optionType] || colors.credit_card;
+                          
+                          const needsProvider = option.optionType === 'credit_card' || option.optionType === 'pay_later';
+                          const hasProvider = paymentOptionsData?.activeProvider;
+                          const isDisabledDueToProvider = needsProvider && !hasProvider;
+
+                          return (
+                            <div
+                              key={option.id}
+                              className={`border rounded-xl p-5 transition-all ${
+                                option.isEnabled
+                                  ? `${colorScheme.border} ${colorScheme.bg}`
+                                  : 'border-slate-200 bg-white'
+                              }`}
+                              data-testid={`payment-option-${option.optionType}`}
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-start gap-3">
+                                  <div className={`p-2 rounded-lg ${option.isEnabled ? colorScheme.bg : 'bg-slate-100'} ${option.isEnabled ? colorScheme.text : 'text-slate-400'}`}>
+                                    {icons[option.optionType]}
+                                  </div>
+                                  <div>
+                                    <h4 className="font-semibold text-slate-900">{option.displayName}</h4>
+                                    <p className="text-sm text-slate-600 mt-0.5">{option.description}</p>
+                                    {isDisabledDueToProvider && (
+                                      <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
+                                        <AlertCircle className="w-3 h-3" />
+                                        Requires an active payment provider (Stripe, PayPal, or Square)
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Switch
+                                    checked={option.isEnabled}
+                                    onCheckedChange={(checked) => {
+                                      updatePaymentOptionMutation.mutate({
+                                        optionType: option.optionType,
+                                        isEnabled: checked,
+                                      });
+                                    }}
+                                    disabled={updatePaymentOptionMutation.isPending}
+                                    data-testid={`switch-${option.optionType}`}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    <div className="mt-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                        <div className="text-sm text-slate-700">
+                          <strong className="font-semibold text-purple-900">Payment Methods:</strong>{" "}
+                          <span>Enable the payment methods you want passengers to see during booking. Credit card and Pay Later options require a configured payment provider above.</span>
+                        </div>
                       </div>
                     </div>
                   </div>
