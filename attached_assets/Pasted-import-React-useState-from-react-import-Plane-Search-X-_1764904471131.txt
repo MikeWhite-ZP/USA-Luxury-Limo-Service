@@ -1,0 +1,295 @@
+import React, { useState } from 'react';
+import { Plane, Search, X } from 'lucide-react';
+
+export default function FlightSearchApp() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchType, setSearchType] = useState('flight'); // 'flight' or 'airport'
+  const [flightData, setFlightData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const searchFlight = async () => {
+    if (!searchQuery.trim()) {
+      setError('Please enter a flight number or airport code');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setFlightData(null);
+
+    try {
+      let response;
+      
+      if (searchType === 'flight') {
+        // Search by flight number
+        const today = new Date().toISOString().split('T')[0];
+        response = await fetch(
+          `https://aerodatabox.p.rapidapi.com/flights/number/${searchQuery}/${today}?withAircraftImage=false&withLocation=false`,
+          {
+            method: 'GET',
+            headers: {
+              'x-rapidapi-key': '65ef168452msh9dee6e3ef54aa5bp1d1f4bjsn95553a7ac3e1',
+              'x-rapidapi-host': 'aerodatabox.p.rapidapi.com'
+            }
+          }
+        );
+      } else {
+        // Search by airport code
+        response = await fetch(
+          `https://aerodatabox.p.rapidapi.com/flights/airports/iata/${searchQuery}?withLeg=true&direction=Both&withCancelled=true&withCodeshared=true&withCargo=false&withPrivate=false&withLocation=false`,
+          {
+            method: 'GET',
+            headers: {
+              'x-rapidapi-key': '65ef168452msh9dee6e3ef54aa5bp1d1f4bjsn95553a7ac3e1',
+              'x-rapidapi-host': 'aerodatabox.p.rapidapi.com'
+            }
+          }
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('API Response:', data); // For debugging
+      
+      if (searchType === 'airport') {
+        // For airport search, get departures and arrivals
+        if (data.departures || data.arrivals) {
+          const allFlights = [...(data.departures || []), ...(data.arrivals || [])];
+          if (allFlights.length > 0) {
+            setFlightData({ type: 'airport', flights: allFlights.slice(0, 10) }); // Show first 10
+          } else {
+            setError('No flights found for this airport');
+          }
+        } else {
+          setError('No flight data available for this airport');
+        }
+      } else {
+        // For flight number search
+        if (data && data.length > 0) {
+          setFlightData({ type: 'flight', data: data[0] });
+        } else {
+          setError('No flight data found for this flight number today');
+        }
+      }
+    } catch (err) {
+      setError(`Error: ${err.message}`);
+      console.error('Flight search error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatTime = (dateString) => {
+    if (!dateString) return '--:--';
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    });
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '--';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { 
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).replace(/ /g, ',');
+  };
+
+  const FlightCard = ({ flight }) => {
+    const departure = flight.departure;
+    const arrival = flight.arrival;
+
+    return (
+      <div className="border-2 border-gray-200 rounded-xl p-6 mb-4">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex-1">
+            <h3 className="text-5xl font-bold text-gray-900">
+              {departure?.airport?.iata || 'N/A'}
+            </h3>
+            <p className="text-gray-600 mt-2">
+              {departure?.airport?.name || 'Unknown'} - {formatDate(departure?.scheduledTime?.local)}
+            </p>
+          </div>
+
+          <div className="flex-1 flex justify-center">
+            <div className="relative w-full max-w-md">
+              <div className="h-1 bg-green-600 w-full"></div>
+              <Plane className="absolute -top-4 right-0 text-green-600" size={32} />
+            </div>
+          </div>
+
+          <div className="flex-1 text-right">
+            <h3 className="text-5xl font-bold text-gray-900">
+              {arrival?.airport?.iata || 'N/A'}
+            </h3>
+            <p className="text-gray-600 mt-2">
+              {arrival?.airport?.name || 'Unknown'} - {formatDate(arrival?.scheduledTime?.local)}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-8 border-t pt-6">
+          <div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-gray-600 mb-1">Departed</p>
+                <p className="text-3xl font-bold text-green-600">
+                  {formatTime(departure?.actualTime?.local || departure?.scheduledTime?.local)}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-600 mb-1">Terminal</p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {departure?.terminal || '-'}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-gray-600 mb-1">Arrival</p>
+                <p className="text-3xl font-bold text-green-600">
+                  {formatTime(arrival?.actualTime?.local || arrival?.scheduledTime?.local)}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-600 mb-1">Terminal</p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {arrival?.terminal || '-'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Flight Info */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t">
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="text-sm text-gray-600">Flight Number</p>
+            <p className="text-lg font-bold text-gray-900">{flight.number || 'N/A'}</p>
+          </div>
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="text-sm text-gray-600">Airline</p>
+            <p className="text-lg font-bold text-gray-900">{flight.airline?.name || 'N/A'}</p>
+          </div>
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="text-sm text-gray-600">Aircraft</p>
+            <p className="text-lg font-bold text-gray-900">{flight.aircraft?.model || 'N/A'}</p>
+          </div>
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="text-sm text-gray-600">Status</p>
+            <p className="text-lg font-bold text-green-600">{flight.status || 'Scheduled'}</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">Flight Details Search</h1>
+          
+          {/* Search Type Toggle */}
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setSearchType('flight')}
+              className={`px-4 py-2 rounded-lg font-semibold transition ${
+                searchType === 'flight' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Search by Flight Number
+            </button>
+            <button
+              onClick={() => setSearchType('airport')}
+              className={`px-4 py-2 rounded-lg font-semibold transition ${
+                searchType === 'airport' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Search by Airport Code
+            </button>
+          </div>
+
+          {/* Search Box */}
+          <div className="flex gap-3">
+            <input
+              type="text"
+              placeholder={searchType === 'flight' ? 'Enter flight number (e.g., UA469)' : 'Enter airport code (e.g., IAH, YYZ)'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
+              onKeyPress={(e) => e.key === 'Enter' && searchFlight()}
+              className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
+            />
+            <button
+              onClick={searchFlight}
+              disabled={loading}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2 font-semibold"
+            >
+              <Search size={20} />
+              {loading ? 'Searching...' : 'Search'}
+            </button>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+              {error}
+            </div>
+          )}
+
+          {/* Tips */}
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 className="font-semibold text-blue-900 mb-2">Tips:</h3>
+            <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+              <li><strong>Flight Number:</strong> Enter like "UA469" or "AA100" (searches today's flights)</li>
+              <li><strong>Airport Code:</strong> Enter like "IAH", "YYZ", or "JFK" (shows all flights)</li>
+              <li>Try: IAH, YYZ, JFK, LAX, ORD for airport search</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Flight Details Display */}
+        {flightData && (
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="flex justify-between items-start mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">
+                {flightData.type === 'airport' ? 'Airport Flights' : 'Flight Detail'}
+              </h2>
+              <button 
+                onClick={() => setFlightData(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {flightData.type === 'flight' ? (
+              <FlightCard flight={flightData.data} />
+            ) : (
+              <div className="space-y-4 max-h-[800px] overflow-y-auto">
+                {flightData.flights.map((flight, index) => (
+                  <FlightCard key={index} flight={flight} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
