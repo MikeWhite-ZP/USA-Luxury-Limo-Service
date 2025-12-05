@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CreditCard, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, CreditCard, Plus, Trash2, Clock, Banknote, Info } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+
+interface PaymentOptionsResponse {
+  options: Array<{
+    id: string;
+    optionType: string;
+    displayName: string;
+    description: string | null;
+    isEnabled: boolean;
+    sortOrder: number;
+  }>;
+  paymentSystems: Array<{
+    provider: string;
+    isActive: boolean;
+    hasCredentials: boolean;
+  }>;
+  activeProvider: string | null;
+}
 
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
   console.warn('Missing VITE_STRIPE_PUBLIC_KEY');
@@ -128,11 +145,20 @@ export default function MobilePaymentMethods() {
   const queryClient = useQueryClient();
   const [addPaymentOpen, setAddPaymentOpen] = useState(false);
 
-  // Fetch payment methods
-  const { data: paymentData, isLoading } = useQuery<PaymentMethodsResponse>({
-    queryKey: ['/api/payment-methods'],
+  // Fetch payment options (admin-controlled availability)
+  const { data: paymentOptionsData, isLoading: paymentOptionsLoading } = useQuery<PaymentOptionsResponse>({
+    queryKey: ['/api/payment-options'],
     retry: false,
   });
+
+  // Fetch payment methods
+  const { data: paymentData, isLoading: paymentMethodsLoading } = useQuery<PaymentMethodsResponse>({
+    queryKey: ['/api/payment-methods'],
+    retry: false,
+    enabled: !!paymentOptionsData?.options?.find(o => o.optionType === 'credit_card' && o.isEnabled),
+  });
+  
+  const isLoading = paymentOptionsLoading || paymentMethodsLoading;
 
   const paymentMethods = paymentData?.paymentMethods || [];
   const defaultPaymentMethodId = paymentData?.defaultPaymentMethodId || null;
@@ -206,28 +232,122 @@ export default function MobilePaymentMethods() {
     );
   }
 
-  // Check if Stripe is configured
-  if (!stripePromise) {
+  // Extract payment option availability from admin settings
+  const creditCardOption = paymentOptionsData?.options?.find(o => o.optionType === 'credit_card');
+  const payLaterOption = paymentOptionsData?.options?.find(o => o.optionType === 'pay_later');
+  const cashOption = paymentOptionsData?.options?.find(o => o.optionType === 'cash');
+  
+  const isCreditCardEnabled = creditCardOption?.isEnabled ?? false;
+  const isPayLaterEnabled = payLaterOption?.isEnabled ?? false;
+  const isCashEnabled = cashOption?.isEnabled ?? false;
+
+  // Card management is available when admin enabled credit_card AND Stripe public key is configured
+  // Note: stripePromise checks for VITE_STRIPE_PUBLIC_KEY at build time
+  const canManageCreditCards = isCreditCardEnabled && stripePromise;
+
+  // Show alternative payment options page when:
+  // 1. Credit card is disabled by admin, OR
+  // 2. Stripe public key is not configured (stripePromise is null)
+  if (!canManageCreditCards) {
+    const enabledOptions = [];
+    // Pay Later is available when admin enabled it
+    if (isPayLaterEnabled) {
+      enabledOptions.push({ icon: Clock, label: 'Pay Later', description: 'Pay after your ride' });
+    }
+    // Cash is available when admin enabled it (no provider required)
+    if (isCashEnabled) {
+      enabledOptions.push({ icon: Banknote, label: 'Cash', description: 'Pay with cash to driver' });
+    }
+
+    // Determine the reason credit cards aren't available and provide appropriate guidance
+    const isStripeSetupIssue = isCreditCardEnabled && !stripePromise;
+    const creditCardUnavailableTitle = isStripeSetupIssue
+      ? "Credit Card Setup In Progress"
+      : "Credit Card Payments Unavailable";
+    const creditCardUnavailableReason = isStripeSetupIssue
+      ? "Online credit card payments are being configured. Please check back later or use one of the payment options below."
+      : "Credit card payments are not currently offered. Please select from the available payment options below.";
+
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/mobile-passenger')}
-          className="mb-6"
-          data-testid="button-back"
-        >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back
-        </Button>
-        <Card className="text-center p-8 border-2 border-blue-100 shadow-sm">
-          <CardContent className="pt-6">
-            <CreditCard className="w-16 h-16 mx-auto mb-4 text-blue-200" />
-            <h3 className="text-lg font-semibold text-slate-700 mb-2">Payment Setup Required</h3>
-            <p className="text-slate-500">
-              Payment method management is not available. Please contact support.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 pb-20">
+        {/* Header */}
+        <div className="bg-white border-b-2 border-blue-100 p-6 pb-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/mobile-passenger')}
+              className="text-blue-700 hover:bg-blue-50"
+              data-testid="button-back"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back
+            </Button>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-100 p-2.5 rounded-xl">
+              <CreditCard className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-blue-900">Payment Options</h1>
+              <p className="text-slate-600 text-sm mt-0.5">Available payment methods</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-4">
+          {/* Credit Card Unavailable Message */}
+          <Card className={`border-2 shadow-sm ${isStripeSetupIssue ? 'border-blue-100 bg-blue-50' : 'border-amber-100 bg-amber-50'}`}>
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-lg ${isStripeSetupIssue ? 'bg-blue-100' : 'bg-amber-100'}`}>
+                  <Info className={`w-5 h-5 ${isStripeSetupIssue ? 'text-blue-600' : 'text-amber-600'}`} />
+                </div>
+                <div>
+                  <h3 className={`font-semibold ${isStripeSetupIssue ? 'text-blue-900' : 'text-amber-900'}`}>
+                    {creditCardUnavailableTitle}
+                  </h3>
+                  <p className={`text-sm mt-1 ${isStripeSetupIssue ? 'text-blue-700' : 'text-amber-700'}`}>
+                    {creditCardUnavailableReason}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Available Payment Methods */}
+          {enabledOptions.length > 0 ? (
+            <>
+              <h2 className="text-lg font-semibold text-slate-700 mt-6 mb-3">Available Payment Methods</h2>
+              {enabledOptions.map((option, index) => (
+                <Card key={index} className="border-2 border-green-100 bg-white shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-green-100 p-3 rounded-lg">
+                        <option.icon className="w-6 h-6 text-green-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-slate-900">{option.label}</h3>
+                        <p className="text-sm text-slate-600">{option.description}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
+          ) : (
+            <Card className="text-center p-8 border-2 border-slate-200 shadow-sm bg-white">
+              <CardContent className="pt-6">
+                <div className="bg-slate-100 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                  <CreditCard className="w-10 h-10 text-slate-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-700 mb-2">No Payment Methods Available</h3>
+                <p className="text-slate-500">
+                  Payment options are currently unavailable. Please contact support for assistance.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     );
   }
@@ -346,6 +466,50 @@ export default function MobilePaymentMethods() {
           })
         )}
       </div>
+
+      {/* Other Payment Options Section */}
+      {(isPayLaterEnabled || isCashEnabled) && (
+        <div className="px-6 pb-6 space-y-3">
+          <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-2">
+            <span className="bg-slate-100 p-1.5 rounded-lg">
+              <Banknote className="w-4 h-4 text-slate-600" />
+            </span>
+            Other Payment Options
+          </h2>
+          <div className="space-y-3">
+            {isPayLaterEnabled && (
+              <Card className="border-2 border-amber-100 bg-amber-50/50 shadow-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-amber-100 p-3 rounded-lg">
+                      <Clock className="w-6 h-6 text-amber-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-900">Pay Later</h3>
+                      <p className="text-sm text-slate-600">Pay after your ride is completed</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            {isCashEnabled && (
+              <Card className="border-2 border-green-100 bg-green-50/50 shadow-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-green-100 p-3 rounded-lg">
+                      <Banknote className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-900">Cash</h3>
+                      <p className="text-sm text-slate-600">Pay with cash to your driver</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Add Payment Method Dialog */}
       <Dialog open={addPaymentOpen} onOpenChange={setAddPaymentOpen}>
