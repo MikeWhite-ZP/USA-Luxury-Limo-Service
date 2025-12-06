@@ -425,7 +425,7 @@ export default function MobileAdmin() {
                       {getStatusBadge(booking.status)}
                     </div>
                     <div className="flex items-center justify-between text-xs text-slate-500">
-                      <span>{format(new Date(booking.pickupDate), 'MMM d, h:mm a')}</span>
+                      <span>{booking.pickupDate ? format(new Date(booking.pickupDate), 'MMM d, h:mm a') : 'No date'}</span>
                       <span className="font-medium text-slate-900">${booking.totalAmount}</span>
                     </div>
                   </div>
@@ -541,7 +541,7 @@ export default function MobileAdmin() {
                     <div className="flex items-center justify-between pt-3 border-t">
                       <div className="flex items-center gap-2 text-sm text-slate-500">
                         <Clock className="w-4 h-4" />
-                        {format(new Date(booking.pickupDate), 'MMM d, yyyy h:mm a')}
+                        {booking.pickupDate ? format(new Date(booking.pickupDate), 'MMM d, yyyy h:mm a') : 'No date'}
                       </div>
                       <span className="font-bold text-lg">${booking.totalAmount}</span>
                     </div>
