@@ -1601,7 +1601,7 @@ export function BookingDetailsDialog({
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 text-lg"
                     data-testid="button-submit-driver"
                   >
-                    {isSaving ? 'Submitting...' : (editingBooking ? 'SUBMIT TO DRIVER' : 'CREATE BOOKING')}
+                    {isSaving ? 'Submitting...' : (editingBooking ? 'Update the booking' : 'CREATE BOOKING')}
                   </Button>
 
                   {/* Payment Actions (Admin/Dispatcher only) */}
