@@ -111,6 +111,7 @@ interface BookingFormData {
   flightArrivalAirport: string;
   specialInstructions: string;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+  paymentMethod: 'pay_now' | 'pay_later' | 'cash';
 }
 
 interface BookingDetailsDialogProps {
@@ -1294,7 +1295,8 @@ export function BookingDetailsDialog({
 
           {/* RIGHT PANEL - Dispatch & Invoice */}
           <div className="overflow-y-auto p-6 bg-white">
-            {/* Dispatch Job Section (Top) */}
+            {/* Dispatch Job Section (Top) - Only show when editing existing booking */}
+            {editingBooking && (
             <div className="mb-6">
               <Card className="border-indigo-200 shadow-sm">
                 <CardHeader className="bg-gradient-to-r from-indigo-100 to-violet-100 border-b border-indigo-200">
@@ -1497,6 +1499,7 @@ export function BookingDetailsDialog({
                 </CardContent>
               </Card>
             </div>
+            )}
 
             {/* Invoice Section (Bottom) */}
             <div>
@@ -1529,12 +1532,30 @@ export function BookingDetailsDialog({
                   {/* Payment Method */}
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <h4 className="text-sm font-semibold text-blue-900 mb-3">Payment Method</h4>
-                    <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-100">
-                      <div className="bg-blue-100 p-2 rounded-full">
-                        <DollarSign className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <span className="text-sm font-medium text-slate-900">Card Payment</span>
-                    </div>
+                    <Select
+                      value={formData.paymentMethod}
+                      onValueChange={(value: 'pay_now' | 'pay_later' | 'cash') => setFormData({ ...formData, paymentMethod: value })}
+                    >
+                      <SelectTrigger className="bg-white border-blue-200" data-testid="select-payment-method">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-blue-100 p-1.5 rounded-full">
+                            <DollarSign className="w-3.5 h-3.5 text-blue-600" />
+                          </div>
+                          <SelectValue placeholder="Select payment method" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pay_now">
+                          <span className="font-medium">Pay with Card Now</span>
+                        </SelectItem>
+                        <SelectItem value="pay_later">
+                          <span className="font-medium">Pay Later with Card</span>
+                        </SelectItem>
+                        <SelectItem value="cash">
+                          <span className="font-medium">Pay with Cash</span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Journey Fare */}

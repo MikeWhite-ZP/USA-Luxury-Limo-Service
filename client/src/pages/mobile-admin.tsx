@@ -108,6 +108,7 @@ interface BookingFormData {
   flightArrivalAirport: string;
   specialInstructions: string;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+  paymentMethod: 'pay_now' | 'pay_later' | 'cash';
 }
 
 const defaultFormData: BookingFormData = {
@@ -143,6 +144,7 @@ const defaultFormData: BookingFormData = {
   flightArrivalAirport: '',
   specialInstructions: '',
   status: 'pending',
+  paymentMethod: 'pay_now',
 };
 
 interface DashboardStats {
@@ -326,6 +328,7 @@ export default function MobileAdmin() {
         flightArrivalAirport: formData.flightArrivalAirport || null,
         specialInstructions: formData.specialInstructions || null,
         status: formData.status,
+        paymentMethod: formData.paymentMethod,
       };
 
       if (editingBooking) {

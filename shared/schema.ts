@@ -258,6 +258,9 @@ export const bookings = pgTable("bookings", {
     enum: ["pending", "paid", "failed", "refunded"] 
   }).default("pending"),
   paymentIntentId: varchar("payment_intent_id"),
+  paymentMethod: varchar("payment_method", { 
+    enum: ["pay_now", "pay_later", "cash"] 
+  }).default("pay_now"),
   
   // Metadata
   specialInstructions: text("special_instructions"),

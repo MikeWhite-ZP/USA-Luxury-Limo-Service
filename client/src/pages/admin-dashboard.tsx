@@ -3495,6 +3495,8 @@ export default function AdminDashboard() {
     flightAirline: "",
     flightDepartureAirport: "",
     flightArrivalAirport: "",
+    // Payment method
+    paymentMethod: "pay_now" as "pay_now" | "pay_later" | "cash",
   });
   const [calculatedPrice, setCalculatedPrice] = useState<string>("");
   const [calculatingPrice, setCalculatingPrice] = useState(false);
@@ -4469,6 +4471,7 @@ export default function AdminDashboard() {
         flightAirline: "",
         flightDepartureAirport: "",
         flightArrivalAirport: "",
+        paymentMethod: "pay_now",
       });
       setCalculatedPrice("");
       setFlightSearchInput("");
@@ -4953,6 +4956,7 @@ export default function AdminDashboard() {
       flightAirline: "",
       flightDepartureAirport: "",
       flightArrivalAirport: "",
+      paymentMethod: "pay_now",
     });
     setCalculatedPrice("");
     setFlightSearchInput("");
@@ -5027,6 +5031,7 @@ export default function AdminDashboard() {
         "",
       flightArrivalAirport:
         booking.flightArrivalAirport || booking.flight_arrival_airport || "",
+      paymentMethod: booking.paymentMethod || "pay_now",
     });
     setCalculatedPrice("");
 
@@ -8402,6 +8407,7 @@ export default function AdminDashboard() {
                       bookingFormData.flightDepartureAirport || undefined,
                     flightArrivalAirport:
                       bookingFormData.flightArrivalAirport || undefined,
+                    paymentMethod: bookingFormData.paymentMethod,
                   };
                   saveBookingMutation.mutate(bookingData);
                 }}
