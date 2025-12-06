@@ -12,6 +12,7 @@ import { scrypt, randomBytes, timingSafeEqual, createHash } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import type { User as SelectUser } from "@shared/schema";
+import { strictAuthRateLimit, moderateAuthRateLimit } from "./authMiddleware";
 
 const PgSession = connectPg(session);
 const MemStore = MemoryStore(session);
@@ -107,9 +108,14 @@ export function setupAuth(app: Express) {
 
   console.log(`[SESSION] Using ${isProduction ? 'PostgreSQL' : 'Memory'} session store`);
 
+  // SECURITY: Use SESSION_SECRET from environment (validated in index.ts)
+  // In production, index.ts ensures SESSION_SECRET is set
+  // In development, index.ts generates a random secret
+  const sessionSecret = process.env.SESSION_SECRET || randomBytes(32).toString('hex');
+  
   const sessionSettings: session.SessionOptions = {
     store: sessionStore,
-    secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
+    secret: sessionSecret,
     resave: false, // Don't save if unmodified (best practice)
     saveUninitialized: false, // Don't create session until something stored
     rolling: true, // Reset maxAge on every request
@@ -279,8 +285,8 @@ export function setupAuth(app: Express) {
 
   // Authentication routes
 
-  // Local registration
-  app.post("/api/register", async (req, res, next) => {
+  // Local registration (rate limited to prevent abuse)
+  app.post("/api/register", moderateAuthRateLimit, async (req, res, next) => {
     try {
       const { username, password, email, firstName, lastName, role } = req.body;
 
@@ -353,8 +359,8 @@ export function setupAuth(app: Express) {
     }
   });
 
-  // Local login
-  app.post("/api/login", (req, res, next) => {
+  // Local login (rate limited to prevent brute-force attacks)
+  app.post("/api/login", strictAuthRateLimit, (req, res, next) => {
     const { username, password } = req.body;
 
     if (!username || !password) {

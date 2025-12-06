@@ -590,22 +590,35 @@ export default function MobileBookingForm() {
         const departure = flight.departure || {};
         const arrival = flight.arrival || {};
         
+        // Get IATA codes for large display
+        const departureIata = departure.airport?.iata || '';
+        const arrivalIata = arrival.airport?.iata || '';
+        
         const departureAirport = departure.airport?.name || departure.airport?.iata || 'N/A';
         const arrivalAirport = arrival.airport?.name || arrival.airport?.iata || 'N/A';
         
-        const departureTime = departure.scheduledTimeLocal || departure.scheduledTime || 'N/A';
-        const arrivalTime = arrival.scheduledTimeLocal || arrival.scheduledTime || 'N/A';
+        // Get actual or scheduled times
+        const departureTimeActual = departure.actualTimeLocal || departure.actualTime?.local;
+        const departureTimeScheduled = departure.scheduledTimeLocal || departure.scheduledTime?.local || departure.scheduledTime;
+        const arrivalTimeActual = arrival.actualTimeLocal || arrival.actualTime?.local;
+        const arrivalTimeScheduled = arrival.scheduledTimeLocal || arrival.scheduledTime?.local || arrival.scheduledTime;
         
-        const departureTerminal = departure.terminal || 'N/A';
-        const arrivalTerminal = arrival.terminal || 'N/A';
-        const arrivalBaggage = arrival.baggageClaim || 'N/A';
+        const departureTime = departureTimeActual || departureTimeScheduled || 'N/A';
+        const arrivalTime = arrivalTimeActual || arrivalTimeScheduled || 'N/A';
         
-        const aircraftModel = flight.aircraft?.model || 'N/A';
+        const departureTerminal = departure.terminal || '';
+        const arrivalTerminal = arrival.terminal || '';
+        const arrivalBaggage = arrival.baggageClaim || '';
+        
+        const aircraftModel = flight.aircraft?.model || '';
+        const flightStatus = flight.status || 'Scheduled';
         
         return {
           id: index + 1,
           flightNumber: flightNum.trim(),
           airline: airlineName,
+          departureIata,
+          arrivalIata,
           departureAirport,
           arrivalAirport,
           departureTime,
@@ -614,6 +627,7 @@ export default function MobileBookingForm() {
           arrivalTerminal,
           baggageClaim: arrivalBaggage,
           aircraft: aircraftModel,
+          status: flightStatus,
         };
       });
 
@@ -1436,25 +1450,88 @@ export default function MobileBookingForm() {
                 Flight Information (Optional)
               </h3>
               {selectedFlight ? (
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <p className="font-semibold text-blue-900">{selectedFlight.airline}</p>
-                      <p className="text-sm text-blue-700">{selectedFlight.flightNumber}</p>
+                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-3">
+                  {/* Header with airline and remove button */}
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 bg-green-600 rounded-lg flex items-center justify-center">
+                        <Plane className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-green-800 text-sm">{selectedFlight.airline} - {selectedFlight.flightNumber}</p>
+                        <p className="text-xs text-green-600">{selectedFlight.status || 'Scheduled'}</p>
+                      </div>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setSelectedFlight(null)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 h-7 w-7 p-0"
                       data-testid="button-remove-flight"
                     >
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
-                  <p className="text-xs text-blue-700">
-                    {selectedFlight.departureAirport} → {selectedFlight.arrivalAirport}
-                  </p>
+                  
+                  {/* Route Display with Airport Codes */}
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex-1">
+                      <h4 className="text-xl font-bold text-gray-900">
+                        {selectedFlight.departureIata || 'N/A'}
+                      </h4>
+                      <p className="text-xs text-gray-600">{selectedFlight.departureAirport}</p>
+                    </div>
+
+                    <div className="flex-1 flex justify-center px-2">
+                      <div className="relative w-full max-w-[60px]">
+                        <div className="h-0.5 bg-green-600 w-full rounded"></div>
+                        <Plane className="absolute -top-1.5 right-0 text-green-600" size={14} />
+                      </div>
+                    </div>
+
+                    <div className="flex-1 text-right">
+                      <h4 className="text-xl font-bold text-gray-900">
+                        {selectedFlight.arrivalIata || 'N/A'}
+                      </h4>
+                      <p className="text-xs text-gray-600">{selectedFlight.arrivalAirport}</p>
+                    </div>
+                  </div>
+
+                  {/* Time and Terminal Grid */}
+                  <div className="grid grid-cols-2 gap-3 text-xs border-t border-green-200 pt-2">
+                    <div className="grid grid-cols-2 gap-1">
+                      <div>
+                        <p className="text-gray-500">Depart</p>
+                        <p className="text-base font-bold text-green-600">
+                          {selectedFlight.departureTime && selectedFlight.departureTime !== 'N/A' 
+                            ? new Date(selectedFlight.departureTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+                            : '--:--'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Term.</p>
+                        <p className="text-base font-bold text-gray-900">
+                          {selectedFlight.departureTerminal || '-'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1">
+                      <div>
+                        <p className="text-gray-500">Arrive</p>
+                        <p className="text-base font-bold text-green-600">
+                          {selectedFlight.arrivalTime && selectedFlight.arrivalTime !== 'N/A' 
+                            ? new Date(selectedFlight.arrivalTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+                            : '--:--'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Term.</p>
+                        <p className="text-base font-bold text-gray-900">
+                          {selectedFlight.arrivalTerminal || '-'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -1510,38 +1587,138 @@ export default function MobileBookingForm() {
 
       {/* Flight Selection Dialog */}
       <Dialog open={showFlightDialog} onOpenChange={setShowFlightDialog}>
-        <DialogContent className="max-w-[90vw] max-h-[80vh] overflow-auto bg-white">
+        <DialogContent className="max-w-[95vw] max-h-[85vh] overflow-auto bg-white">
           <DialogHeader>
-            <DialogTitle>Select Your Flight</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Flight Detail</DialogTitle>
             <DialogDescription>
-              Multiple flights found. Please select the correct one.
+              Select your flight to add it to your booking.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
-            {flightResults.map((flight) => (
-              <button
-                key={flight.id}
-                onClick={() => {
-                  setSelectedFlight(flight);
-                  setShowFlightDialog(false);
-                  toast({
-                    title: "Flight Selected",
-                    description: `${flight.airline} ${flight.flightNumber} added to booking`,
+          <div className="space-y-3">
+            {flightResults.map((flight) => {
+              const formatFlightTime = (dateString: string) => {
+                if (!dateString || dateString === 'N/A') return '--:--';
+                try {
+                  const date = new Date(dateString);
+                  return date.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false 
                   });
-                }}
-                className="w-full text-left p-3 bg-white hover:bg-blue-50 border border-gray-200 rounded-lg transition-all"
-                data-testid={`flight-option-${flight.id}`}
-              >
-                <div className="font-semibold text-gray-900">{flight.airline}</div>
-                <div className="text-sm text-gray-700">{flight.flightNumber}</div>
-                <div className="text-xs text-gray-600 mt-1">
-                  {flight.departureAirport} → {flight.arrivalAirport}
-                </div>
-                <div className="text-xs text-gray-500">
-                  Departs: {flight.departureTime} | Arrives: {flight.arrivalTime}
-                </div>
-              </button>
-            ))}
+                } catch {
+                  return '--:--';
+                }
+              };
+
+              const formatFlightDate = (dateString: string) => {
+                if (!dateString || dateString === 'N/A') return '';
+                try {
+                  const date = new Date(dateString);
+                  return date.toLocaleDateString('en-GB', { 
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                  });
+                } catch {
+                  return '';
+                }
+              };
+
+              return (
+                <button
+                  key={flight.id}
+                  onClick={() => {
+                    setSelectedFlight(flight);
+                    setShowFlightDialog(false);
+                    toast({
+                      title: "Flight Selected",
+                      description: `${flight.airline} ${flight.flightNumber} added to booking`,
+                    });
+                  }}
+                  className="w-full text-left p-4 bg-white hover:bg-green-50 border-2 border-gray-200 hover:border-green-500 rounded-xl transition-all"
+                  data-testid={`flight-option-${flight.id}`}
+                >
+                  {/* Route Header with Large Airport Codes */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-3xl font-bold text-gray-900">
+                        {flight.departureIata || 'N/A'}
+                      </h3>
+                      <p className="text-gray-600 text-xs">
+                        {flight.departureAirport}
+                      </p>
+                      {formatFlightDate(flight.departureTime) && (
+                        <p className="text-gray-500 text-xs">{formatFlightDate(flight.departureTime)}</p>
+                      )}
+                    </div>
+
+                    <div className="flex-1 flex justify-center px-2">
+                      <div className="relative w-full max-w-[80px]">
+                        <div className="h-1 bg-green-600 w-full rounded"></div>
+                        <Plane className="absolute -top-2.5 right-0 text-green-600" size={20} />
+                      </div>
+                    </div>
+
+                    <div className="flex-1 text-right">
+                      <h3 className="text-3xl font-bold text-gray-900">
+                        {flight.arrivalIata || 'N/A'}
+                      </h3>
+                      <p className="text-gray-600 text-xs">
+                        {flight.arrivalAirport}
+                      </p>
+                      {formatFlightDate(flight.arrivalTime) && (
+                        <p className="text-gray-500 text-xs">{formatFlightDate(flight.arrivalTime)}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Time and Terminal Grid */}
+                  <div className="grid grid-cols-2 gap-4 border-t pt-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-gray-600 text-xs">Departed</p>
+                        <p className="text-xl font-bold text-green-600">
+                          {formatFlightTime(flight.departureTime)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600 text-xs">Terminal</p>
+                        <p className="text-xl font-bold text-gray-900">
+                          {flight.departureTerminal || '-'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-gray-600 text-xs">Arrival</p>
+                        <p className="text-xl font-bold text-green-600">
+                          {formatFlightTime(flight.arrivalTime)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600 text-xs">Terminal</p>
+                        <p className="text-xl font-bold text-gray-900">
+                          {flight.arrivalTerminal || '-'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Flight Info Footer */}
+                  <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t">
+                    <span className="bg-gray-100 px-2 py-1 rounded text-xs">
+                      <strong>{flight.flightNumber}</strong>
+                    </span>
+                    <span className="bg-gray-100 px-2 py-1 rounded text-xs">
+                      {flight.airline}
+                    </span>
+                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">
+                      {flight.status}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </DialogContent>
       </Dialog>

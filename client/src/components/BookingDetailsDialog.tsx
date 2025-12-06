@@ -1494,16 +1494,6 @@ export function BookingDetailsDialog({
                       data-testid="textarea-driver-note"
                     />
                   </div>
-
-                  {/* Submit Button */}
-                  <Button
-                    onClick={onSave}
-                    disabled={isSaving}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 text-lg"
-                    data-testid="button-save-booking"
-                  >
-                    {isSaving ? 'Saving...' : (editingBooking ? 'UPDATE BOOKING' : 'CREATE BOOKING')}
-                  </Button>
                 </CardContent>
               </Card>
             </div>
@@ -1786,6 +1776,16 @@ export function BookingDetailsDialog({
                       </span>
                     </div>
                   </div>
+
+                  {/* Submit to Driver Button */}
+                  <Button
+                    onClick={onSave}
+                    disabled={isSaving}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 text-lg"
+                    data-testid="button-submit-driver"
+                  >
+                    {isSaving ? 'Submitting...' : (editingBooking ? 'SUBMIT TO DRIVER' : 'CREATE BOOKING')}
+                  </Button>
 
                   {/* Payment Actions (Admin/Dispatcher only) */}
                   {editingBooking && canManageCharges && (

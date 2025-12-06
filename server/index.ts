@@ -7,9 +7,25 @@ import connectPgSimple from "connect-pg-simple";
 import { db } from "./db";
 import path from "path";
 import { fileURLToPath } from "url";
+import { randomBytes } from "crypto";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// SECURITY: Enforce SESSION_SECRET in production
+const SESSION_SECRET = process.env.SESSION_SECRET;
+if (process.env.NODE_ENV === 'production' && !SESSION_SECRET) {
+  console.error('[SECURITY] FATAL: SESSION_SECRET environment variable is required in production!');
+  console.error('[SECURITY] Please set a secure, random SESSION_SECRET in your environment secrets.');
+  process.exit(1);
+}
+
+// Generate a random secret for development only (with warning)
+const sessionSecret = SESSION_SECRET || (() => {
+  console.warn('[SECURITY] WARNING: Using auto-generated session secret for development.');
+  console.warn('[SECURITY] This is insecure for production. Set SESSION_SECRET environment variable.');
+  return randomBytes(32).toString('hex');
+})();
 
 const app = express();
 
@@ -42,7 +58,7 @@ const sessionConfig: session.SessionOptions = {
     tableName: "session",
     createTableIfMissing: true,
   }),
-  secret: process.env.SESSION_SECRET || "usa-luxury-limo-secret-key-change-this",
+  secret: sessionSecret,
   resave: false,
   saveUninitialized: false,
   name: "sessionId",

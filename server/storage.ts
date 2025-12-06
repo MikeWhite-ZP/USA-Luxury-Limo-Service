@@ -10,6 +10,7 @@ import {
   contactSubmissions,
   pricingRules,
   paymentSystems,
+  paymentOptions,
   passwordResetTokens,
   services,
   type User,
@@ -24,6 +25,8 @@ import {
   type ContactSubmission,
   type PricingRule,
   type PaymentSystem,
+  type PaymentOption,
+  type InsertPaymentOption,
   type InsertDriver,
   type InsertVehicleType,
   type InsertBooking,
@@ -201,6 +204,12 @@ export interface IStorage {
   updatePaymentSystem(provider: string, updates: Partial<InsertPaymentSystem>): Promise<PaymentSystem | undefined>;
   setActivePaymentSystem(provider: string): Promise<void>;
   deletePaymentSystem(provider: string): Promise<void>;
+  
+  // Payment Options (system-wide payment method availability)
+  getPaymentOptions(): Promise<PaymentOption[]>;
+  getPaymentOption(optionType: string): Promise<PaymentOption | undefined>;
+  getEnabledPaymentOptions(): Promise<PaymentOption[]>;
+  updatePaymentOption(optionType: string, updates: Partial<InsertPaymentOption>): Promise<PaymentOption | undefined>;
   
   // Driver Documents
   createDriverDocument(doc: InsertDriverDocument): Promise<DriverDocument>;
@@ -1756,6 +1765,31 @@ export class DatabaseStorage implements IStorage {
 
   async deletePaymentSystem(provider: string): Promise<void> {
     await db.delete(paymentSystems).where(sql`${paymentSystems.provider} = ${provider}`);
+  }
+
+  // Payment Options methods
+  async getPaymentOptions(): Promise<PaymentOption[]> {
+    return await db.select().from(paymentOptions).orderBy(paymentOptions.sortOrder);
+  }
+
+  async getPaymentOption(optionType: string): Promise<PaymentOption | undefined> {
+    const [option] = await db.select().from(paymentOptions).where(eq(paymentOptions.optionType, optionType));
+    return option;
+  }
+
+  async getEnabledPaymentOptions(): Promise<PaymentOption[]> {
+    return await db.select().from(paymentOptions)
+      .where(eq(paymentOptions.isEnabled, true))
+      .orderBy(paymentOptions.sortOrder);
+  }
+
+  async updatePaymentOption(optionType: string, updates: Partial<InsertPaymentOption>): Promise<PaymentOption | undefined> {
+    const [updated] = await db
+      .update(paymentOptions)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(paymentOptions.optionType, optionType))
+      .returning();
+    return updated;
   }
 
   async createDriverDocument(doc: InsertDriverDocument): Promise<DriverDocument> {

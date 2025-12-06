@@ -15,6 +15,7 @@ import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityRep
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { S3Client, HeadBucketCommand, ListBucketsCommand } from "@aws-sdk/client-s3";
+import { strictAuthRateLimit, moderateAuthRateLimit } from "./authMiddleware";
 
 // Initialize Stripe only if secret key is available
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -130,6 +131,12 @@ async function getPresignedUrl(pathOrUrl: string | null | undefined): Promise<st
   } else {
     // Remove leading slash if present
     storageKey = pathOrUrl.startsWith('/') ? pathOrUrl.slice(1) : pathOrUrl;
+    
+    // Strip 'api/uploads/' prefix if present (backwards compatibility with stored paths)
+    // This handles cases where imageUrl was stored with the local storage serving path prefix
+    if (storageKey.startsWith('api/uploads/')) {
+      storageKey = storageKey.slice('api/uploads/'.length);
+    }
   }
   
   // Generate presigned URL for the storage key
@@ -410,12 +417,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'gif': 'image/gif',
         'webp': 'image/webp',
         'svg': 'image/svg+xml',
+        'ico': 'image/x-icon',
         'pdf': 'application/pdf',
       };
       const contentType = contentTypeMap[ext] || 'application/octet-stream';
       
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=31536000');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
       res.send(value);
     } catch (error: any) {
       console.error('Error serving uploaded file:', error);
@@ -489,8 +499,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public: Request password reset
-  app.post('/api/auth/forgot-password', async (req, res) => {
+  // Public: Request password reset (rate limited to prevent abuse)
+  app.post('/api/auth/forgot-password', strictAuthRateLimit, async (req, res) => {
     try {
       const { emailOrPhone } = req.body;
       
@@ -532,8 +542,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public: Request username reminder
-  app.post('/api/auth/forgot-username', async (req, res) => {
+  // Public: Request username reminder (rate limited to prevent abuse)
+  app.post('/api/auth/forgot-username', strictAuthRateLimit, async (req, res) => {
     try {
       const { emailOrPhone } = req.body;
       
@@ -594,8 +604,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public: Reset password using token
-  app.post('/api/auth/reset-password', async (req, res) => {
+  // Public: Reset password using token (rate limited to prevent brute-force)
+  app.post('/api/auth/reset-password', strictAuthRateLimit, async (req, res) => {
     try {
       const { token, newPassword } = req.body;
       
@@ -6273,6 +6283,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Payment Options management (system-wide payment method availability)
+  // Public endpoint - get enabled payment options for passengers
+  app.get('/api/payment-options/enabled', async (req, res) => {
+    try {
+      const options = await storage.getEnabledPaymentOptions();
+      
+      // Also check if credit card provider is configured
+      const activePaymentSystem = await storage.getActivePaymentSystem();
+      const hasActiveProvider = !!activePaymentSystem;
+      
+      res.json({
+        options,
+        hasActiveProvider,
+        activeProvider: activePaymentSystem?.provider || null
+      });
+    } catch (error) {
+      console.error('Get enabled payment options error:', error);
+      res.status(500).json({ message: 'Failed to fetch payment options' });
+    }
+  });
+
+  // Admin endpoint - get all payment options
+  app.get('/api/payment-options', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const options = await storage.getPaymentOptions();
+      
+      // Also get active payment system info
+      const activePaymentSystem = await storage.getActivePaymentSystem();
+      const paymentSystems = await storage.getPaymentSystems();
+      
+      res.json({
+        options,
+        paymentSystems: paymentSystems.map(ps => ({
+          provider: ps.provider,
+          isActive: ps.isActive,
+          hasCredentials: !!(ps.publicKey || ps.secretKey)
+        })),
+        activeProvider: activePaymentSystem?.provider || null
+      });
+    } catch (error) {
+      console.error('Get payment options error:', error);
+      res.status(500).json({ message: 'Failed to fetch payment options' });
+    }
+  });
+
+  // Admin endpoint - update payment option
+  app.put('/api/payment-options/:optionType', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { optionType } = req.params;
+      const { isEnabled, displayName, description } = req.body;
+      
+      const updated = await storage.updatePaymentOption(optionType, {
+        isEnabled,
+        displayName,
+        description
+      });
+      
+      if (!updated) {
+        return res.status(404).json({ message: 'Payment option not found' });
+      }
+      
+      res.json(updated);
+    } catch (error) {
+      console.error('Update payment option error:', error);
+      res.status(500).json({ message: 'Failed to update payment option' });
+    }
+  });
+
   // Pricing rules management (admin only)
   app.get('/api/admin/pricing-rules', isAuthenticated, async (req: any, res) => {
     try {
@@ -8016,8 +8108,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         companyName,
         tagline,
         description,
-        logoUrl,
-        faviconUrl,
+        logoSetting,
+        faviconSetting,
         primaryColor,
         secondaryColor,
         accentColor
@@ -8025,20 +8117,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         storage.getCmsSetting('BRAND_COMPANY_NAME'),
         storage.getCmsSetting('BRAND_TAGLINE'),
         storage.getCmsSetting('BRAND_DESCRIPTION'),
-        storage.getCmsSetting('BRAND_LOGO_URL'),
-        storage.getCmsSetting('BRAND_FAVICON_URL'),
+        storage.getCmsSetting('site_logo'),
+        storage.getCmsSetting('site_favicon'),
         storage.getCmsSetting('BRAND_PRIMARY_COLOR'),
         storage.getCmsSetting('BRAND_SECONDARY_COLOR'),
         storage.getCmsSetting('BRAND_ACCENT_COLOR')
       ]);
 
-      // Convert logo and favicon URLs to presigned URLs if they're storage paths
-      const resolvedLogoUrl = logoUrl?.value 
-        ? await getPresignedUrl(logoUrl.value) 
-        : '/images/logo_1759125364025.png';
-      const resolvedFaviconUrl = faviconUrl?.value 
-        ? await getPresignedUrl(faviconUrl.value) 
-        : '/images/favicon_1759253989963.png';
+      // Get logo URL from unified site_logo setting (same as MediaLibrary uses)
+      let resolvedLogoUrl = '/images/logo_1759125364025.png';
+      if (logoSetting?.value) {
+        const logoMedia = await storage.getCmsMediaById(logoSetting.value);
+        if (logoMedia) {
+          resolvedLogoUrl = await getPresignedUrl(logoMedia.fileUrl);
+        }
+      }
+
+      // Get favicon URL from unified site_favicon setting (same as MediaLibrary uses)
+      let resolvedFaviconUrl = '/images/favicon_1759253989963.png';
+      if (faviconSetting?.value) {
+        const faviconMedia = await storage.getCmsMediaById(faviconSetting.value);
+        if (faviconMedia) {
+          resolvedFaviconUrl = await getPresignedUrl(faviconMedia.fileUrl);
+        }
+      }
 
       res.json({
         companyName: companyName?.value || 'USA Luxury Limo',
@@ -8058,21 +8160,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Dynamic PWA manifest.json endpoint
+  // Dynamic PWA manifest.json endpoint - serves different manifest for admin subdomain
   app.get('/manifest.json', async (req, res) => {
     try {
+      // Check if accessing from admin subdomain (handle reverse proxy with X-Forwarded-Host)
+      const forwardedHost = (req.headers['x-forwarded-host'] as string)?.split(',')[0]?.trim();
+      const hostname = (forwardedHost || req.hostname || req.headers.host?.split(':')[0] || '').toLowerCase();
+      const adminHosts = (process.env.ADMIN_PANEL_HOSTS || '').split(',').map(h => h.trim().toLowerCase()).filter(Boolean);
+      const isAdminSubdomain = hostname.startsWith('adminaccess.') || adminHosts.includes(hostname);
+      
       // Fetch active favicon from CMS
       const faviconSetting = await storage.getCmsSetting('site_favicon');
       let faviconUrl: string | null = null;
       let faviconMimeType: string | null = null;
-      let etag = '"static"'; // Quoted ETag
+      let etag = isAdminSubdomain ? '"admin-static"' : '"static"'; // Quoted ETag
       
       if (faviconSetting?.value) {
         const media = await storage.getCmsMediaById(faviconSetting.value);
         if (media) {
           faviconUrl = await getPresignedUrl(media.fileUrl);
-          faviconMimeType = media.fileType; // Get actual MIME type (image/png, image/jpeg, image/webp, etc.)
-          etag = `"${media.id}"`; // Use media ID as ETag for cache invalidation (quoted)
+          faviconMimeType = media.fileType;
+          etag = isAdminSubdomain ? `"admin-${media.id}"` : `"${media.id}"`;
         }
       }
       
@@ -8081,11 +8189,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const icons = iconSizes.map(size => ({
         src: faviconUrl || `/icon-${size}x${size}.png`,
         sizes: `${size}x${size}`,
-        type: faviconUrl && faviconMimeType ? faviconMimeType : "image/png", // Use actual MIME type from CMS or PNG for static fallback
+        type: faviconUrl && faviconMimeType ? faviconMimeType : "image/png",
         purpose: "any maskable"
       }));
       
-      const manifest = {
+      // Generate different manifest based on subdomain
+      const manifest = isAdminSubdomain ? {
+        name: "Admin Panel",
+        short_name: "Admin",
+        description: "Administrative control panel for managing bookings, users, vehicles, and system settings",
+        start_url: "/mobile-admin-login",
+        display: "standalone",
+        background_color: "#0f172a",
+        theme_color: "#1e3a8a",
+        orientation: "portrait-primary",
+        icons,
+        categories: ["business", "productivity"]
+      } : {
         name: "USA Luxury Limo",
         short_name: "USA Limo",
         description: "Professional luxury transportation booking platform for passengers, drivers, and dispatchers",

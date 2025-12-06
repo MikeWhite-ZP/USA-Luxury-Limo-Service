@@ -1,0 +1,78 @@
+GET
+https://minio.best-chauffeurs.com/usa-luxury-limo/cms/favicon/cms-favicon-1764879241353.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=minioadmin/20251204/us-east-1/s3/aws4_request&X-Amz-Date=20251204T202049Z&X-Amz-Expires=3600&X-Amz-Signature=32da7e080b7762dab670ae078716181a302f10bb90435ded7561a86db237cd59&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject?t=1764879649492
+NS_BINDING_ABORTED
+
+	
+GET
+	https://minio.best-chauffeurs.com/usa-luxury-limo/cms/favicon/cms-favicon-1764879241353.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=minioadmin/20251204/us-east-1/s3/aws4_request&X-Amz-Date=20251204T202049Z&X-Amz-Expires=3600&X-Amz-Signature=32da7e080b7762dab670ae078716181a302f10bb90435ded7561a86db237cd59&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject?t=1764879649492
+Status
+403
+VersionHTTP/3
+Transferred487 B (0 B size)
+Referrer Policystrict-origin-when-cross-origin
+DNS ResolutionSystem
+
+    	
+    accept-ranges
+    	bytes
+    content-length
+    	511
+    content-type
+    	application/xml
+    date
+    	Thu, 04 Dec 2025 20:20:49 GMT
+    server
+    	MinIO
+    strict-transport-security
+    	max-age=31536000; includeSubDomains
+    vary
+    	Accept-Encoding
+    vary
+    	Origin
+    vary
+    	Accept-Encoding
+    x-amz-id-2
+    	dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+    x-amz-request-id
+    	187E1CB0CBBF0079
+    x-content-type-options
+    	nosniff
+    x-ratelimit-limit
+    	1786
+    x-ratelimit-remaining
+    	1786
+    x-xss-protection
+    	1; mode=block
+    	
+    Accept
+    	image/avif,image/jxl,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5
+    Accept-Encoding
+    	gzip, deflate, br, zstd
+    Accept-Language
+    	en-US,en;q=0.5
+    Alt-Used
+    	minio.best-chauffeurs.com
+    Cache-Control
+    	no-cache
+    Connection
+    	keep-alive
+    Host
+    	minio.best-chauffeurs.com
+    Pragma
+    	no-cache
+    Priority
+    	u=6
+    Referer
+    	https://adminaccess.usaluxurylimo.net/
+    Sec-Fetch-Dest
+    	image
+    Sec-Fetch-Mode
+    	no-cors
+    Sec-Fetch-Site
+    	cross-site
+    Sec-GPC
+    	1
+    TE
+    	trailers
+    User-Agent
+    	Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:145.0) Gecko/20100101 Firefox/145.0
