@@ -101,18 +101,10 @@ export default function MobileSplash() {
                 className="w-72 h-auto relative z-10 drop-shadow-2xl"
               />
             </motion.div>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-red-600 to-gray-900 bg-clip-text text-transparent mb-2"
-            >
-              {companyName}
-            </motion.h1>
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
               className="flex items-center justify-center gap-2 mt-4"
             >
               <Sparkles className="w-5 h-5 text-red-600" />
