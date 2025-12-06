@@ -84,4 +84,5 @@ coverage
 .nyc_output
 
 # Misc
-vite.config.ts.*
+vite.config.ts.**.log
+attached_assets/*.txt

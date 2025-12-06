@@ -31,15 +31,23 @@ const app = express();
 
 app.set("trust proxy", 1);
 
-app.use((req, res, next) => {
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader("X-XSS-Protection", "1; mode=block");
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.stripe.com https://*.tiles.mapbox.com https://api.tomtom.com https://fonts.googleapis.com https://fonts.gstatic.com; frame-src https://js.stripe.com;"
-  );
-  next();
+import helmet from "helmet";
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://js.stripe.com", "https://cdn.jsdelivr.net"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        connectSrc: ["'self'", "https://api.stripe.com", "https://*.tiles.mapbox.com", "https://api.tomtom.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+        frameSrc: ["https://js.stripe.com"],
+        upgradeInsecureRequests: [],
+      },
+    },
+  })(req, res, next);
 });
 
 app.use(express.json({ limit: "10mb" }));
@@ -73,25 +81,25 @@ const sessionConfig: session.SessionOptions = {
 
 app.use(session(sessionConfig));
 
-app.get("/health", (req, res) => {
-  res.status(200).json({ 
-    status: "ok", 
+app.get("/health", (req: Request, res: Response) => {
+  res.status(200).json({
+    status: "ok",
     timestamp: new Date().toISOString(),
-    env: process.env.NODE_ENV 
+    env: process.env.NODE_ENV
   });
 });
 
-app.get("/favicon.ico", (req, res) => {
+app.get("/favicon.ico", (req: Request, res: Response) => {
   res.status(404).send("");
 });
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
   const reqPath = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
+  res.json = function (bodyJson: any, ...args: any[]) {
     capturedJsonResponse = bodyJson;
     return originalResJson.apply(res, [bodyJson, ...args]);
   };
@@ -126,12 +134,12 @@ app.use((req, res, next) => {
       const message = err.message || "Internal Server Error";
 
       if (process.env.NODE_ENV === "production" && status === 500) {
-        res.status(500).json({ 
+        res.status(500).json({
           message: "An unexpected error occurred",
-          error: "INTERNAL_SERVER_ERROR" 
+          error: "INTERNAL_SERVER_ERROR"
         });
       } else {
-        res.status(status).json({ 
+        res.status(status).json({
           message,
           error: err.code || "ERROR",
           ...(process.env.NODE_ENV !== "production" && { stack: err.stack })
@@ -144,7 +152,7 @@ app.use((req, res, next) => {
 
     const server = createServer(app);
 
-    app.use("/api/*", (req, res) => {
+    app.use("/api/*", (req: Request, res: Response) => {
       res.status(404).json({ message: "Not found" });
     });
 
