@@ -801,9 +801,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBooking(bookingData: InsertBooking): Promise<Booking> {
+    // Sanitize numeric fields - convert empty strings to null
+    const sanitizedData = {
+      ...bookingData,
+      baseFare: bookingData.baseFare === '' ? null : bookingData.baseFare,
+      distanceFare: bookingData.distanceFare === '' ? null : bookingData.distanceFare,
+      timeFare: bookingData.timeFare === '' ? null : bookingData.timeFare,
+      gratuityAmount: bookingData.gratuityAmount === '' ? null : bookingData.gratuityAmount,
+      airportFeeAmount: bookingData.airportFeeAmount === '' ? null : bookingData.airportFeeAmount,
+      surgePricingMultiplier: bookingData.surgePricingMultiplier === '' ? null : bookingData.surgePricingMultiplier,
+      surgePricingAmount: bookingData.surgePricingAmount === '' ? null : bookingData.surgePricingAmount,
+      regularPrice: bookingData.regularPrice === '' ? null : bookingData.regularPrice,
+      discountPercentage: bookingData.discountPercentage === '' ? null : bookingData.discountPercentage,
+      discountAmount: bookingData.discountAmount === '' ? null : bookingData.discountAmount,
+      totalAmount: bookingData.totalAmount === '' ? null : bookingData.totalAmount,
+      driverPayment: bookingData.driverPayment === '' ? null : bookingData.driverPayment,
+      estimatedDistance: bookingData.estimatedDistance === '' ? null : bookingData.estimatedDistance,
+      pickupLat: bookingData.pickupLat === '' ? null : bookingData.pickupLat,
+      pickupLon: bookingData.pickupLon === '' ? null : bookingData.pickupLon,
+      destinationLat: bookingData.destinationLat === '' ? null : bookingData.destinationLat,
+      destinationLon: bookingData.destinationLon === '' ? null : bookingData.destinationLon,
+    };
+    
     const [booking] = await db
       .insert(bookings)
-      .values(bookingData)
+      .values(sanitizedData as InsertBooking)
       .returning();
     
     // Auto-create invoice for this booking

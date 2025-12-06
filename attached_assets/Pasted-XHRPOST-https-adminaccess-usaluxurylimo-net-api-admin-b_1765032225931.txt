@@ -1,0 +1,79 @@
+XHRPOST
+https://adminaccess.usaluxurylimo.net/api/admin/bookings
+[HTTP/3 500  88ms]
+
+	
+POST
+	https://adminaccess.usaluxurylimo.net/api/admin/bookings
+Status
+500
+VersionHTTP/3
+Transferred992 B (38 B size)
+Referrer Policystrict-origin-when-cross-origin
+Request PriorityHighest
+DNS ResolutionSystem
+
+    	
+    content-length
+    	38
+    content-security-policy
+    	default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.stripe.com https://*.tiles.mapbox.com https://api.tomtom.com https://fonts.googleapis.com https://fonts.gstatic.com; frame-src https://js.stripe.com;
+    content-type
+    	application/json; charset=utf-8
+    date
+    	Sat, 06 Dec 2025 14:43:10 GMT
+    etag
+    	W/"26-QaUws5seZn3PdkrooFW4yw7y6oM"
+    set-cookie
+    	sessionId=s%3ALUUEvflyVYFcVpQFuPj39aS2_UqFtlhe.t1QQ7olH9IawH0G0GlqT17F8Z%2B7Z3sjhvTGxPaJKkvI; Path=/; Expires=Mon, 05 Jan 2026 14:43:10 GMT; HttpOnly; Secure; SameSite=Strict
+    vary
+    	Accept-Encoding
+    x-content-type-options
+    	nosniff
+    x-frame-options
+    	DENY
+    x-powered-by
+    	Express
+    x-xss-protection
+    	1; mode=block
+    	
+    Accept
+    	*/*
+    Accept-Encoding
+    	gzip, deflate, br, zstd
+    Accept-Language
+    	en-US,en;q=0.5
+    Alt-Used
+    	adminaccess.usaluxurylimo.net
+    Cache-Control
+    	no-cache
+    Connection
+    	keep-alive
+    Content-Length
+    	929
+    Content-Type
+    	application/json
+    Cookie
+    	_ga_S4HMJ5EXYY=GS2.1.s1762163850$o1$g1$t1762164049$j33$l0$h0; _ga=GA1.2.602033374.1762163850; sessionId=s%3ALUUEvflyVYFcVpQFuPj39aS2_UqFtlhe.t1QQ7olH9IawH0G0GlqT17F8Z%2B7Z3sjhvTGxPaJKkvI; __stripe_mid=d4127925-52b2-4747-a847-6679b67a6247750115
+    Host
+    	adminaccess.usaluxurylimo.net
+    Origin
+    	https://adminaccess.usaluxurylimo.net
+    Pragma
+    	no-cache
+    Priority
+    	u=0
+    Referer
+    	https://adminaccess.usaluxurylimo.net/admin
+    Sec-Fetch-Dest
+    	empty
+    Sec-Fetch-Mode
+    	cors
+    Sec-Fetch-Site
+    	same-origin
+    Sec-GPC
+    	1
+    TE
+    	trailers
+    User-Agent
+    	Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:145.0) Gecko/20100101 Firefox/145.0
