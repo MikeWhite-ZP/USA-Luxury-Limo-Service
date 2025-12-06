@@ -1,0 +1,106 @@
+Logs
+Server: localhost
+ew0wkcsk08cww448c84wcckg-152837577305
+Only Show Number of Lines *
+Stream Logs
+Include Timestamps
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+[PRESIGNED-URL] Generated URL for cms/logos/cms-logos-1764913058546.webp: https://minio.best-chauffeurs.com/usa-luxury-limo/cms/logos/cms-logos-1764913058...
+🔵 User found: MikeWhiteAdmin
+🔵 User found: MikeWhiteAdmin
+🔵 User found: MikeWhiteAdmin
+🔵 User found: MikeWhiteAdmin
+🔵 User found: MikeWhiteAdmin
+🔵 User found: MikeWhiteAdmin
+🔵 User found: MikeWhiteAdmin
+🔵 User found: MikeWhiteAdmin
+[PRESIGNED-URL] Generated URL for cms/vehicles/cms-vehicles-1764740580246.webp: https://minio.best-chauffeurs.com/usa-luxury-limo/cms/vehicles/cms-vehicles-1764...
+[PRESIGNED-URL] Generated URL for cms/vehicles/cms-vehicles-1764741761576.webp: https://minio.best-chauffeurs.com/usa-luxury-limo/cms/vehicles/cms-vehicles-1764...
+[PRESIGNED-URL] Generated URL for cms/vehicles/cms-vehicles-1764741962605.webp: https://minio.best-chauffeurs.com/usa-luxury-limo/cms/vehicles/cms-vehicles-1764...
+[PRESIGNED-URL] Generated URL for cms/vehicles/cms-vehicles-1764741895979.png: https://minio.best-chauffeurs.com/usa-luxury-limo/cms/vehicles/cms-vehicles-1764...
+[PRESIGNED-URL] Generated URL for cms/vehicles/cms-vehicles-1764741849682.webp: https://minio.best-chauffeurs.com/usa-luxury-limo/cms/vehicles/cms-vehicles-1764...
+3:30:21 PM [express] GET /api/site-logo 200 in 105ms :: {"logo":{"id":"29b63a09-1502-4003-b0e2-34587…
+3:30:21 PM [express] GET /api/admin/settings 200 in 102ms :: {"credentials":[{"key":"SMTP_HOST","has…
+3:30:21 PM [express] GET /api/vehicle-types 200 in 78ms :: [{"id":"dffe7302-e9d0-4c5b-bb62-d411e9fd7…
+3:30:21 PM [express] GET /api/admin/contacts 200 in 100ms :: []
+3:30:21 PM [express] GET /api/admin/active-drivers 200 in 92ms :: [{"id":"edc93bcc-9c23-43d1-a6ac-67…
+3:30:21 PM [express] GET /api/admin/bookings 200 in 95ms :: [{"id":"c6f29895-2a97-4dfb-9181-118c9ec6…
+3:30:21 PM [express] GET /api/payment-systems 200 in 101ms :: [{"id":"b17457e9-1f0e-474a-9ca9-de8776…
+3:30:21 PM [express] GET /api/admin/users 200 in 93ms :: [{"id":"4d2a847e-9460-43b7-acfb-7640fe58306…
+3:30:21 PM [express] GET /api/payment-options 200 in 113ms :: {"options":[{"id":"a180c8ae-1eed-42ea-…
+🔵 User found: MikeWhiteAdmin
+3:30:22 PM [express] GET /api/admin/dashboard 200 in 163ms :: {"totalRevenue":"0","monthlyRevenue":"…
+3:30:22 PM [express] GET /api/admin/system-commission 200 in 123ms :: {"percentage":25,"description"…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:30:27 PM [express] GET /api/saved-addresses/user/8b5d9b07-e17f-4ef9-8404-8f7ef7e12743 200 in 14ms …
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:30:31 PM [express] PATCH /api/admin/bookings/c6f29895-2a97-4dfb-9181-118c9ec6ca38 500 in 30ms :: {…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:30:35 PM [express] PATCH /api/admin/bookings/c6f29895-2a97-4dfb-9181-118c9ec6ca38 500 in 38ms :: {…
+Admin update booking error: error: invalid input syntax for type numeric: ""
+    at /app/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+    at async DatabaseStorage.updateBooking (file:///app/dist/index.js:1463:23)
+    at async file:///app/dist/index.js:9335:23 {
+  length: 132,
+  severity: 'ERROR',
+  code: '22P02',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: "unnamed portal parameter $10 = ''",
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'numeric.c',
+  line: '801',
+  routine: 'numeric_in'
+}
+Admin update booking error: error: invalid input syntax for type numeric: ""
+    at /app/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+    at async DatabaseStorage.updateBooking (file:///app/dist/index.js:1463:23)
+    at async file:///app/dist/index.js:9335:23 {
+  length: 132,
+  severity: 'ERROR',
+  code: '22P02',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: "unnamed portal parameter $10 = ''",
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'numeric.c',
+  line: '801',
+  routine: 'numeric_in'
+}

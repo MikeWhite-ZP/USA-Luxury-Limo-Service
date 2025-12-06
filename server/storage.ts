@@ -903,9 +903,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateBooking(id: string, updates: Partial<InsertBooking>): Promise<Booking | undefined> {
+    // Sanitize numeric fields - convert empty strings to null
+    const sanitizedUpdates = {
+      ...updates,
+      baseFare: updates.baseFare === '' ? null : updates.baseFare,
+      distanceFare: updates.distanceFare === '' ? null : updates.distanceFare,
+      timeFare: updates.timeFare === '' ? null : updates.timeFare,
+      gratuityAmount: updates.gratuityAmount === '' ? null : updates.gratuityAmount,
+      airportFeeAmount: updates.airportFeeAmount === '' ? null : updates.airportFeeAmount,
+      surgePricingMultiplier: updates.surgePricingMultiplier === '' ? null : updates.surgePricingMultiplier,
+      surgePricingAmount: updates.surgePricingAmount === '' ? null : updates.surgePricingAmount,
+      regularPrice: updates.regularPrice === '' ? null : updates.regularPrice,
+      discountPercentage: updates.discountPercentage === '' ? null : updates.discountPercentage,
+      discountAmount: updates.discountAmount === '' ? null : updates.discountAmount,
+      totalAmount: updates.totalAmount === '' ? null : updates.totalAmount,
+      driverPayment: updates.driverPayment === '' ? null : updates.driverPayment,
+      estimatedDistance: updates.estimatedDistance === '' ? null : updates.estimatedDistance,
+      pickupLat: updates.pickupLat === '' ? null : updates.pickupLat,
+      pickupLon: updates.pickupLon === '' ? null : updates.pickupLon,
+      destinationLat: updates.destinationLat === '' ? null : updates.destinationLat,
+      destinationLon: updates.destinationLon === '' ? null : updates.destinationLon,
+    };
+    
     const [booking] = await db
       .update(bookings)
-      .set({ ...updates, updatedAt: new Date() })
+      .set({ ...sanitizedUpdates, updatedAt: new Date() })
       .where(eq(bookings.id, id))
       .returning();
     
