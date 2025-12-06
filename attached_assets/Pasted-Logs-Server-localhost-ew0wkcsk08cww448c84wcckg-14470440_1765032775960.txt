@@ -1,0 +1,106 @@
+Logs
+Server: localhost
+ew0wkcsk08cww448c84wcckg-144704405323
+Only Show Number of Lines *
+Stream Logs
+Include Timestamps
+2:49:15 PM [express] GET /api/vehicle-types 200 in 204ms :: [{"id":"dffe7302-e9d0-4c5b-bb62-d411e9fd…
+2:49:15 PM [express] GET /api/admin/contacts 200 in 220ms :: []
+2:49:15 PM [express] GET /api/admin/users 200 in 210ms :: [{"id":"4d2a847e-9460-43b7-acfb-7640fe5830…
+2:49:15 PM [express] GET /api/payment-systems 200 in 190ms :: [{"id":"b17457e9-1f0e-474a-9ca9-de8776…
+2:49:15 PM [express] GET /api/payment-options 500 in 206ms :: {"message":"Failed to fetch payment op…
+2:49:15 PM [express] GET /api/admin/system-commission 200 in 217ms :: {"percentage":25,"description"…
+2:49:15 PM [express] GET /api/admin/bookings 200 in 227ms :: [{"id":"0a9da362-68bf-46c3-81ba-94672bd…
+2:49:15 PM [express] GET /api/admin/active-drivers 200 in 216ms :: [{"id":"edc93bcc-9c23-43d1-a6ac-6…
+2:49:15 PM [express] GET /api/admin/settings 200 in 226ms :: {"credentials":[{"key":"SMTP_HOST","has…
+2:49:15 PM [express] GET /api/admin/dashboard 200 in 226ms :: {"totalRevenue":"0","monthlyRevenue":"…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+2:49:33 PM [express] GET /api/saved-addresses/user/8b5d9b07-e17f-4ef9-8404-8f7ef7e12743 200 in 30ms …
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+2:49:46 PM [express] GET /api/geocode 200 in 470ms :: {"summary":{"query":"ia","queryType":"NON_NEAR…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+2:49:46 PM [express] GET /api/geocode 200 in 119ms :: {"summary":{"query":"iah","queryType":"NON_NEA…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+2:49:55 PM [express] POST /api/calculate-price 200 in 18ms :: {"vehicleType":"business_sedan","servi…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+2:50:02 PM [express] POST /api/admin/bookings 500 in 68ms :: {"message":"Failed to create booking"}
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+2:51:46 PM [express] POST /api/admin/bookings 500 in 29ms :: {"message":"Failed to create booking"}
+Get payment options error: error: relation "payment_options" does not exist
+    at /app/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+    at async DatabaseStorage.getPaymentOptions (file:///app/dist/index.js:2007:12)
+    at async file:///app/dist/index.js:12550:23 {
+  length: 115,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '120',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+Admin create booking error: error: column "payment_method" of relation "bookings" does not exist
+    at /app/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+    at async DatabaseStorage.createBooking (file:///app/dist/index.js:1420:23)
+    at async file:///app/dist/index.js:9270:23 {
+  length: 136,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '608',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_target.c',
+  line: '1065',
+  routine: 'checkInsertTargets'
+}
+Admin create booking error: error: column "payment_method" of relation "bookings" does not exist
+    at /app/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+    at async DatabaseStorage.createBooking (file:///app/dist/index.js:1420:23)
+    at async file:///app/dist/index.js:9270:23 {
+  length: 136,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '608',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_target.c',
+  line: '1065',
+  routine: 'checkInsertTargets'
+}
