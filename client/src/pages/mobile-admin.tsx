@@ -71,8 +71,79 @@ import {
   Menu,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { BookingDetailsDialog } from '@/components/BookingDetailsDialog';
 
 type AdminSection = 'dashboard' | 'bookings' | 'users' | 'vehicles' | 'settings';
+
+interface BookingFormData {
+  passengerId: string;
+  bookingType: 'transfer' | 'hourly';
+  vehicleTypeId: string;
+  pickupAddress: string;
+  pickupCoords: { lat: number; lon: number } | null;
+  destinationAddress: string;
+  destinationCoords: { lat: number; lon: number } | null;
+  viaPoints: { address: string; lat: number; lon: number }[];
+  scheduledDateTime: string;
+  totalAmount: string;
+  regularPrice: string;
+  discountPercentage: string;
+  discountAmount: string;
+  baseFare: string;
+  gratuityAmount: string;
+  airportFeeAmount: string;
+  surgePricingMultiplier: string;
+  surgePricingAmount: string;
+  requestedHours: string;
+  passengerCount: number;
+  luggageCount: number;
+  babySeat: boolean;
+  bookingFor: 'self' | 'someone_else';
+  passengerName: string;
+  passengerEmail: string;
+  passengerPhone: string;
+  flightNumber: string;
+  flightAirline: string;
+  flightDepartureAirport: string;
+  flightArrivalAirport: string;
+  specialInstructions: string;
+  status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+}
+
+const defaultFormData: BookingFormData = {
+  passengerId: '',
+  bookingType: 'transfer',
+  vehicleTypeId: '',
+  pickupAddress: '',
+  pickupCoords: null,
+  destinationAddress: '',
+  destinationCoords: null,
+  viaPoints: [],
+  scheduledDateTime: '',
+  totalAmount: '',
+  regularPrice: '',
+  discountPercentage: '',
+  discountAmount: '',
+  baseFare: '',
+  gratuityAmount: '',
+  airportFeeAmount: '',
+  surgePricingMultiplier: '1',
+  surgePricingAmount: '0',
+  requestedHours: '',
+  passengerCount: 1,
+  luggageCount: 0,
+  babySeat: false,
+  bookingFor: 'self',
+  passengerName: '',
+  passengerEmail: '',
+  passengerPhone: '',
+  flightNumber: '',
+  flightAirline: '',
+  flightDepartureAirport: '',
+  flightArrivalAirport: '',
+  specialInstructions: '',
+  status: 'pending',
+};
 
 interface DashboardStats {
   totalRevenue: string;
@@ -134,6 +205,19 @@ export default function MobileAdmin() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ type: string; id: string; name: string } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  
+  // Booking dialog states
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [bookingFormData, setBookingFormData] = useState<BookingFormData>(defaultFormData);
+  const [editingBooking, setEditingBooking] = useState<any | null>(null);
+  const [selectedDriverId, setSelectedDriverId] = useState('');
+  const [manualDriverPayment, setManualDriverPayment] = useState('');
+  const [calculatingPrice, setCalculatingPrice] = useState(false);
+  const [calculatedPrice, setCalculatedPrice] = useState('');
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [selectedFlight, setSelectedFlight] = useState<any | null>(null);
+  const [flightSearchInput, setFlightSearchInput] = useState('');
+  const [isSearchingFlight, setIsSearchingFlight] = useState(false);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'admin')) {
@@ -158,6 +242,18 @@ export default function MobileAdmin() {
 
   const { data: vehicles, isLoading: vehiclesLoading, refetch: refetchVehicles } = useQuery<Vehicle[]>({
     queryKey: ['/api/admin/vehicle-types'],
+    enabled: !!user && user.role === 'admin',
+  });
+
+  // Query for active drivers (needed for BookingDetailsDialog)
+  const { data: activeDrivers } = useQuery<any[]>({
+    queryKey: ['/api/admin/active-drivers'],
+    enabled: !!user && user.role === 'admin',
+  });
+
+  // Query for all users (needed for BookingDetailsDialog passenger selection)
+  const { data: allUsers } = useQuery<any[]>({
+    queryKey: ['/api/admin/users'],
     enabled: !!user && user.role === 'admin',
   });
 
@@ -191,6 +287,135 @@ export default function MobileAdmin() {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
+
+  // Save booking mutation for creating/updating bookings
+  const saveBookingMutation = useMutation({
+    mutationFn: async (formData: BookingFormData) => {
+      const bookingData = {
+        passengerId: formData.passengerId || null,
+        bookingType: formData.bookingType,
+        vehicleTypeId: formData.vehicleTypeId,
+        pickupAddress: formData.pickupAddress,
+        pickupLat: formData.pickupCoords?.lat?.toString() || null,
+        pickupLon: formData.pickupCoords?.lon?.toString() || null,
+        destinationAddress: formData.destinationAddress,
+        destinationLat: formData.destinationCoords?.lat?.toString() || null,
+        destinationLon: formData.destinationCoords?.lon?.toString() || null,
+        viaPoints: formData.viaPoints,
+        scheduledDateTime: formData.scheduledDateTime || null,
+        totalAmount: formData.totalAmount,
+        regularPrice: formData.regularPrice || null,
+        discountPercentage: formData.discountPercentage || null,
+        discountAmount: formData.discountAmount || null,
+        baseFare: formData.baseFare || null,
+        gratuityAmount: formData.gratuityAmount || null,
+        airportFeeAmount: formData.airportFeeAmount || null,
+        surgePricingMultiplier: formData.surgePricingMultiplier || '1',
+        surgePricingAmount: formData.surgePricingAmount || '0',
+        requestedHours: formData.bookingType === 'hourly' ? formData.requestedHours : null,
+        passengerCount: formData.passengerCount,
+        luggageCount: formData.luggageCount,
+        babySeat: formData.babySeat,
+        bookingFor: formData.bookingFor,
+        passengerName: formData.passengerName,
+        passengerEmail: formData.passengerEmail,
+        passengerPhone: formData.passengerPhone,
+        flightNumber: formData.flightNumber || null,
+        flightAirline: formData.flightAirline || null,
+        flightDepartureAirport: formData.flightDepartureAirport || null,
+        flightArrivalAirport: formData.flightArrivalAirport || null,
+        specialInstructions: formData.specialInstructions || null,
+        status: formData.status,
+      };
+
+      if (editingBooking) {
+        const response = await apiRequest('PATCH', `/api/admin/bookings/${editingBooking.id}`, bookingData);
+        return response.json();
+      } else {
+        const response = await apiRequest('POST', '/api/admin/bookings', bookingData);
+        return response.json();
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard-stats'] });
+      setBookingDialogOpen(false);
+      setBookingFormData(defaultFormData);
+      setEditingBooking(null);
+      toast({ 
+        title: 'Success', 
+        description: editingBooking ? 'Booking updated successfully' : 'Booking created successfully' 
+      });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  // Handle calculate price
+  const handleCalculatePrice = async () => {
+    if (!bookingFormData.pickupCoords || !bookingFormData.destinationCoords || !bookingFormData.vehicleTypeId) {
+      toast({ title: 'Missing Info', description: 'Please fill pickup, destination, and vehicle type', variant: 'destructive' });
+      return;
+    }
+    setCalculatingPrice(true);
+    try {
+      const response = await apiRequest('POST', '/api/calculate-price', {
+        pickupLat: bookingFormData.pickupCoords.lat,
+        pickupLon: bookingFormData.pickupCoords.lon,
+        destinationLat: bookingFormData.destinationCoords.lat,
+        destinationLon: bookingFormData.destinationCoords.lon,
+        vehicleTypeId: bookingFormData.vehicleTypeId,
+        bookingType: bookingFormData.bookingType,
+        requestedHours: bookingFormData.requestedHours,
+      });
+      const data = await response.json();
+      setCalculatedPrice(data.totalAmount || '0');
+      setBookingFormData(prev => ({ ...prev, totalAmount: data.totalAmount || '0' }));
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to calculate price', variant: 'destructive' });
+    } finally {
+      setCalculatingPrice(false);
+    }
+  };
+
+  // Handle flight search
+  const handleFlightSearch = async () => {
+    if (!flightSearchInput.trim()) return;
+    setIsSearchingFlight(true);
+    try {
+      const response = await apiRequest('GET', `/api/flights/search?flightNumber=${encodeURIComponent(flightSearchInput)}`);
+      const data = await response.json();
+      if (data && data.length > 0) {
+        setSelectedFlight(data[0]);
+        setBookingFormData(prev => ({
+          ...prev,
+          flightNumber: data[0].flightNumber || flightSearchInput,
+          flightAirline: data[0].airline || '',
+          flightDepartureAirport: data[0].departureAirport || '',
+          flightArrivalAirport: data[0].arrivalAirport || '',
+        }));
+      } else {
+        toast({ title: 'Not Found', description: 'Flight not found' });
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to search flight', variant: 'destructive' });
+    } finally {
+      setIsSearchingFlight(false);
+    }
+  };
+
+  // Open new booking dialog
+  const handleOpenNewBooking = () => {
+    setEditingBooking(null);
+    setBookingFormData(defaultFormData);
+    setSelectedDriverId('');
+    setManualDriverPayment('');
+    setCalculatedPrice('');
+    setSelectedFlight(null);
+    setFlightSearchInput('');
+    setBookingDialogOpen(true);
+  };
 
   const handleLogout = async () => {
     try {
@@ -483,6 +708,18 @@ export default function MobileAdmin() {
 
         {activeSection === 'bookings' && (
           <div className="space-y-4">
+            {/* Header with Add Button */}
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Bookings</h2>
+              <Button
+                onClick={handleOpenNewBooking}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                New Booking
+              </Button>
+            </div>
+
             {/* Search and Filter */}
             <div className="flex gap-2">
               <div className="flex-1 relative">
@@ -837,6 +1074,35 @@ export default function MobileAdmin() {
           </button>
         </div>
       </nav>
+
+      {/* Booking Details Dialog */}
+      <BookingDetailsDialog
+        open={bookingDialogOpen}
+        onOpenChange={setBookingDialogOpen}
+        formData={bookingFormData}
+        setFormData={setBookingFormData}
+        editingBooking={editingBooking}
+        onSave={() => saveBookingMutation.mutate(bookingFormData)}
+        isSaving={saveBookingMutation.isPending}
+        vehicleTypes={vehicles || []}
+        allUsers={allUsers || []}
+        activeDrivers={activeDrivers || []}
+        selectedDriverId={selectedDriverId}
+        setSelectedDriverId={setSelectedDriverId}
+        driverPayment={manualDriverPayment}
+        setDriverPayment={setManualDriverPayment}
+        onCalculatePrice={handleCalculatePrice}
+        isCalculatingPrice={calculatingPrice}
+        calculatedPrice={calculatedPrice}
+        userSearchQuery={userSearchQuery}
+        setUserSearchQuery={setUserSearchQuery}
+        selectedFlight={selectedFlight}
+        setSelectedFlight={setSelectedFlight}
+        flightSearchInput={flightSearchInput}
+        setFlightSearchInput={setFlightSearchInput}
+        onFlightSearch={handleFlightSearch}
+        isSearchingFlight={isSearchingFlight}
+      />
 
       {/* User Edit Dialog */}
       <Dialog open={showUserDialog} onOpenChange={setShowUserDialog}>
