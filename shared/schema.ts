@@ -259,8 +259,9 @@ export const bookings = pgTable("bookings", {
   }).default("pending"),
   paymentIntentId: varchar("payment_intent_id"),
   paymentMethod: varchar("payment_method", { 
-    enum: ["pay_now", "pay_later", "cash"] 
+    enum: ["pay_now", "pay_later", "cash", "ride_credit"] 
   }).default("pay_now"),
+  creditAmountApplied: decimal("credit_amount_applied", { precision: 10, scale: 2 }), // Amount paid with ride credits
   
   // Metadata
   specialInstructions: text("special_instructions"),
@@ -366,7 +367,7 @@ export const paymentSystems = pgTable("payment_systems", {
 // Payment Options - System-wide payment method availability (controlled by admin)
 export const paymentOptions = pgTable("payment_options", {
   id: uuid("id").defaultRandom().primaryKey(),
-  optionType: varchar("option_type", { enum: ["credit_card", "pay_later", "cash"] }).unique().notNull(),
+  optionType: varchar("option_type", { enum: ["credit_card", "pay_later", "cash", "ride_credit"] }).unique().notNull(),
   displayName: varchar("display_name").notNull(),
   description: text("description"),
   isEnabled: boolean("is_enabled").default(false),
@@ -415,6 +416,44 @@ export const contactSubmissions = pgTable("contact_submissions", {
   serviceType: varchar("service_type"),
   message: text("message").notNull(),
   status: varchar("status", { enum: ["new", "contacted", "resolved"] }).default("new"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Ride Credits - User balance for refunded cancellations
+export const rideCredits = pgTable("ride_credits", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull().unique(),
+  balance: decimal("balance", { precision: 10, scale: 2 }).default("0.00").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Ride Credit Transactions - Audit trail for credit changes
+export const rideCreditTransactionTypes = ["earned", "spent", "adjustment", "expired"] as const;
+export const rideCreditTransactions = pgTable("ride_credit_transactions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  bookingId: uuid("booking_id").references(() => bookings.id),
+  transactionType: varchar("transaction_type", { enum: rideCreditTransactionTypes }).notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(), // positive for earned, negative for spent
+  balanceAfter: decimal("balance_after", { precision: 10, scale: 2 }).notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Booking cancellations - Track cancellation details
+export const bookingCancellations = pgTable("booking_cancellations", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  bookingId: uuid("booking_id").references(() => bookings.id).notNull().unique(),
+  cancelledBy: varchar("cancelled_by", { enum: ["passenger", "driver", "admin", "system"] }).notNull(),
+  cancellationReason: text("cancellation_reason"),
+  hoursBeforePickup: decimal("hours_before_pickup", { precision: 8, scale: 2 }), // How many hours before pickup
+  wasDriverOnTheWay: boolean("was_driver_on_the_way").default(false),
+  chargeApplied: boolean("charge_applied").default(false), // True if customer was charged
+  chargeAmount: decimal("charge_amount", { precision: 10, scale: 2 }), // Amount charged
+  creditIssued: boolean("credit_issued").default(false), // True if ride credit was issued
+  creditAmount: decimal("credit_amount", { precision: 10, scale: 2 }), // Amount credited
+  refundStatus: varchar("refund_status", { enum: ["none", "credit_issued", "charged", "full_refund"] }).default("none"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -780,6 +819,17 @@ export const insertEmergencyIncidentSchema = createInsertSchema(emergencyInciden
   updatedAt: true,
 });
 
+// Insert schemas for ride credits
+export const insertRideCreditTransactionSchema = createInsertSchema(rideCreditTransactions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertBookingCancellationSchema = createInsertSchema(bookingCancellations).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -796,6 +846,11 @@ export type PaymentSystem = typeof paymentSystems.$inferSelect;
 export type PaymentOption = typeof paymentOptions.$inferSelect;
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
 export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSchema>;
+export type RideCredit = typeof rideCredits.$inferSelect;
+export type RideCreditTransaction = typeof rideCreditTransactions.$inferSelect;
+export type InsertRideCreditTransaction = z.infer<typeof insertRideCreditTransactionSchema>;
+export type BookingCancellation = typeof bookingCancellations.$inferSelect;
+export type InsertBookingCancellation = z.infer<typeof insertBookingCancellationSchema>;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertDriver = z.infer<typeof insertDriverSchema>;
