@@ -2119,6 +2119,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cancel booking (passengers can cancel confirmed bookings, admins can cancel any)
+  // Cancellation policy: 
+  // - If driver is on the way AND less than 2 hours before pickup = charge customer
+  // - If more than 2 hours before pickup = refund as ride credits
   app.patch('/api/bookings/:id/cancel', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
@@ -2144,8 +2147,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Calculate hours before pickup for cancellation policy
+      const now = new Date();
+      const pickupTime = new Date(booking.scheduledDateTime);
+      const hoursBeforePickup = (pickupTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+      
+      // Check if driver is on the way (trip has started moving)
+      const driverOnTheWay = ['on_the_way', 'arrived', 'on_board', 'in_progress'].includes(booking.status);
+      
+      // Cancellation policy: 
+      // - If driver is on the way AND less than 2 hours before pickup = charge customer
+      // - If more than 2 hours before pickup = refund as ride credits
+      const shouldCharge = driverOnTheWay && hoursBeforePickup < 2;
+      const shouldIssueCredit = hoursBeforePickup >= 2 && booking.totalAmount && parseFloat(booking.totalAmount) > 0;
+      
+      let cancellationDetails: any = {
+        chargeApplied: false,
+        creditIssued: false,
+        chargeAmount: null,
+        creditAmount: null,
+        refundStatus: 'none'
+      };
+
       // Update booking status to cancelled
-      const updatedBooking = await storage.updateBooking(id, { status: 'cancelled', cancelledAt: new Date(), cancelReason: req.body.reason || 'Cancelled by user' });
+      const updatedBooking = await storage.updateBooking(id, { 
+        status: 'cancelled', 
+        cancelledAt: now, 
+        cancelReason: req.body.reason || 'Cancelled by user' 
+      });
+
+      // Process cancellation policy
+      if (shouldCharge) {
+        // Customer will be charged - no refund
+        cancellationDetails = {
+          chargeApplied: true,
+          creditIssued: false,
+          chargeAmount: booking.totalAmount,
+          creditAmount: null,
+          refundStatus: 'charged'
+        };
+      } else if (shouldIssueCredit) {
+        // Issue ride credits to the passenger
+        const creditAmount = booking.totalAmount || '0';
+        await storage.addRideCredits(
+          booking.passengerId, 
+          creditAmount, 
+          id, 
+          `Cancellation refund for booking #${id.slice(0, 8)}`
+        );
+        cancellationDetails = {
+          chargeApplied: false,
+          creditIssued: true,
+          chargeAmount: null,
+          creditAmount: creditAmount,
+          refundStatus: 'credit_issued'
+        };
+      }
+
+      // Record cancellation details
+      await storage.createBookingCancellation({
+        bookingId: id,
+        cancelledBy: user?.role === 'admin' ? 'admin' : 'passenger',
+        cancellationReason: req.body.reason || 'Cancelled by user',
+        hoursBeforePickup: hoursBeforePickup.toFixed(2),
+        wasDriverOnTheWay: driverOnTheWay,
+        ...cancellationDetails
+      });
       
       // Send cancellation notifications (fire-and-forget)
       (async () => {
@@ -2168,6 +2235,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
               timeStyle: 'short'
             });
             
+            // Include cancellation policy info in email
+            let policyMessage = '';
+            if (cancellationDetails.creditIssued) {
+              policyMessage = `<p><strong>Ride Credit Issued:</strong> $${cancellationDetails.creditAmount} has been added to your account as ride credits for future bookings.</p>`;
+            } else if (cancellationDetails.chargeApplied) {
+              policyMessage = `<p><strong>Cancellation Fee:</strong> Because the driver was already on the way and the cancellation was less than 2 hours before pickup, the full fare of $${cancellationDetails.chargeAmount} applies.</p>`;
+            }
+            
             await sendEmail({
               to: passenger.email,
               subject: `Booking Cancelled - USA Luxury Limo #${updatedBooking.id.slice(0, 8)}`,
@@ -2178,12 +2253,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 destinationAddress: updatedBooking.destinationAddress || undefined,
                 scheduledDateTime,
                 cancelReason: updatedBooking.cancelReason || undefined
-              })
+              }) + policyMessage
             });
             
-            // 3. Send passenger cancellation SMS
+            // 3. Send passenger cancellation SMS with policy info
             if (passenger.phone) {
-              await sendBookingCancelledSMS(passenger.phone, updatedBooking.id);
+              let smsMessage = `Your booking #${updatedBooking.id.slice(0, 8)} has been cancelled.`;
+              if (cancellationDetails.creditIssued) {
+                smsMessage += ` $${cancellationDetails.creditAmount} ride credits added to your account.`;
+              }
+              await sendSMS(passenger.phone, smsMessage);
             }
           }
         } catch (error) {
@@ -2191,7 +2270,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       })();
       
-      res.json(updatedBooking);
+      res.json({
+        ...updatedBooking,
+        cancellationPolicy: {
+          hoursBeforePickup: parseFloat(hoursBeforePickup.toFixed(2)),
+          driverOnTheWay,
+          ...cancellationDetails
+        }
+      });
     } catch (error) {
       console.error('Cancel booking error:', error);
       res.status(500).json({ message: 'Failed to cancel booking' });
@@ -6365,6 +6451,154 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Update payment option error:', error);
       res.status(500).json({ message: 'Failed to update payment option' });
+    }
+  });
+
+  // Ride Credits API endpoints
+  // Get current user's ride credit balance
+  app.get('/api/ride-credits', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const credits = await storage.getRideCredits(userId);
+      
+      res.json({
+        balance: credits?.balance || '0.00',
+        hasCredits: credits ? parseFloat(credits.balance) > 0 : false
+      });
+    } catch (error) {
+      console.error('Get ride credits error:', error);
+      res.status(500).json({ message: 'Failed to fetch ride credits' });
+    }
+  });
+
+  // Get current user's ride credit transaction history
+  app.get('/api/ride-credits/transactions', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const transactions = await storage.getRideCreditTransactions(userId);
+      
+      res.json(transactions);
+    } catch (error) {
+      console.error('Get ride credit transactions error:', error);
+      res.status(500).json({ message: 'Failed to fetch transaction history' });
+    }
+  });
+
+  // Preview cancellation policy for a booking (for UI to show warning)
+  app.get('/api/bookings/:id/cancellation-preview', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      // Check permissions
+      const user = await storage.getUser(userId);
+      if (booking.passengerId !== userId && user?.role !== 'admin') {
+        return res.status(403).json({ message: 'Not authorized' });
+      }
+
+      // Can't cancel completed or already cancelled bookings
+      if (booking.status === 'completed' || booking.status === 'cancelled') {
+        return res.json({
+          canCancel: false,
+          reason: `Booking is ${booking.status}`,
+          hoursBeforePickup: 0,
+          driverOnTheWay: false,
+          willBeCharged: false,
+          willReceiveCredit: false,
+          amount: '0'
+        });
+      }
+
+      // Calculate cancellation policy preview
+      const now = new Date();
+      const pickupTime = new Date(booking.scheduledDateTime);
+      const hoursBeforePickup = (pickupTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+      const driverOnTheWay = ['on_the_way', 'arrived', 'on_board', 'in_progress'].includes(booking.status);
+      
+      const willBeCharged = driverOnTheWay && hoursBeforePickup < 2;
+      const willReceiveCredit = hoursBeforePickup >= 2 && booking.totalAmount && parseFloat(booking.totalAmount) > 0;
+
+      res.json({
+        canCancel: true,
+        hoursBeforePickup: parseFloat(hoursBeforePickup.toFixed(2)),
+        driverOnTheWay,
+        willBeCharged,
+        willReceiveCredit,
+        amount: booking.totalAmount || '0',
+        policyMessage: willBeCharged 
+          ? `The driver is on the way and pickup is in less than 2 hours. The full fare of $${booking.totalAmount || '0'} will be charged.`
+          : willReceiveCredit
+            ? `You will receive $${booking.totalAmount || '0'} in ride credits for your next booking.`
+            : 'This booking can be cancelled without charges.'
+      });
+    } catch (error) {
+      console.error('Cancellation preview error:', error);
+      res.status(500).json({ message: 'Failed to get cancellation preview' });
+    }
+  });
+
+  // Admin: Get user's ride credits
+  app.get('/api/admin/users/:userId/ride-credits', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const targetUserId = req.params.userId;
+      const credits = await storage.getRideCredits(targetUserId);
+      const transactions = await storage.getRideCreditTransactions(targetUserId);
+      
+      res.json({
+        balance: credits?.balance || '0.00',
+        transactions
+      });
+    } catch (error) {
+      console.error('Admin get user ride credits error:', error);
+      res.status(500).json({ message: 'Failed to fetch user ride credits' });
+    }
+  });
+
+  // Admin: Add ride credits to user (adjustment)
+  app.post('/api/admin/users/:userId/ride-credits', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { amount, description } = req.body;
+      if (!amount || isNaN(parseFloat(amount))) {
+        return res.status(400).json({ message: 'Valid amount is required' });
+      }
+
+      const targetUserId = req.params.userId;
+      const transaction = await storage.addRideCredits(
+        targetUserId, 
+        amount, 
+        null, 
+        description || `Admin adjustment by ${user.firstName} ${user.lastName}`
+      );
+      
+      const credits = await storage.getRideCredits(targetUserId);
+      
+      res.json({
+        success: true,
+        transaction,
+        newBalance: credits?.balance || '0.00'
+      });
+    } catch (error) {
+      console.error('Admin add ride credits error:', error);
+      res.status(500).json({ message: 'Failed to add ride credits' });
     }
   });
 
