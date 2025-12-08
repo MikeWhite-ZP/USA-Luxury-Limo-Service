@@ -16,7 +16,10 @@ import {
   Plane,
   FileText,
   Check,
-  X
+  X,
+  AlertTriangle,
+  Wallet,
+  Ban
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,6 +57,17 @@ interface PriceComparison {
   };
 }
 
+interface CancellationPreview {
+  canCancel: boolean;
+  reason?: string;
+  hoursBeforePickup: number;
+  driverOnTheWay: boolean;
+  willBeCharged: boolean;
+  willReceiveCredit: boolean;
+  amount: string;
+  policyMessage: string;
+}
+
 export default function MobileBookingDetails() {
   const [, navigate] = useLocation();
   const { id } = useParams();
@@ -62,6 +76,8 @@ export default function MobileBookingDetails() {
   const [showPriceApproval, setShowPriceApproval] = useState(false);
   const [priceComparison, setPriceComparison] = useState<PriceComparison | null>(null);
   const [pendingUpdate, setPendingUpdate] = useState<any>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelPreview, setCancelPreview] = useState<CancellationPreview | null>(null);
 
   // Fetch booking details
   const { data: booking, isLoading } = useQuery<Booking>({
@@ -146,6 +162,71 @@ export default function MobileBookingDetails() {
         time: data.scheduledDateTime?.split('T')[1],
       });
       return response.json();
+    },
+  });
+
+  // Fetch cancellation preview
+  const fetchCancellationPreview = async () => {
+    try {
+      const response = await apiRequest('GET', `/api/bookings/${id}/cancellation-preview`);
+      if (response.ok) {
+        const preview = await response.json();
+        setCancelPreview(preview);
+        setShowCancelConfirm(true);
+      } else {
+        const error = await response.json();
+        toast({
+          title: 'Cannot Cancel',
+          description: error.message || 'Unable to cancel this booking',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to check cancellation policy',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Cancel booking mutation
+  const cancelMutation = useMutation({
+    mutationFn: async (reason?: string) => {
+      const response = await apiRequest('PATCH', `/api/bookings/${id}/cancel`, { reason });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to cancel booking');
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings', id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/ride-credits'] });
+      setShowCancelConfirm(false);
+      setCancelPreview(null);
+      
+      const policy = data.cancellationPolicy;
+      let description = 'Your booking has been cancelled.';
+      if (policy?.creditIssued) {
+        description += ` $${policy.creditAmount} in ride credits have been added to your account.`;
+      } else if (policy?.chargeApplied) {
+        description += ` The full fare of $${policy.chargeAmount} has been charged due to late cancellation.`;
+      }
+      
+      toast({
+        title: 'Booking Cancelled',
+        description,
+      });
+      navigate('/mobile-passenger');
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Cancellation Failed',
+        description: error.message,
+        variant: 'destructive',
+      });
     },
   });
 
@@ -254,15 +335,20 @@ export default function MobileBookingDetails() {
     );
   }
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     pending: 'bg-yellow-100 text-yellow-800',
+    pending_driver_acceptance: 'bg-orange-100 text-orange-800',
     confirmed: 'bg-blue-100 text-blue-800',
+    on_the_way: 'bg-indigo-100 text-indigo-800',
+    arrived: 'bg-purple-100 text-purple-800',
+    on_board: 'bg-green-100 text-green-800',
     in_progress: 'bg-green-100 text-green-800',
     completed: 'bg-gray-100 text-gray-800',
     cancelled: 'bg-red-100 text-red-800',
   };
 
   const canEdit = booking.status === 'pending';
+  const canCancel = !['completed', 'cancelled'].includes(booking.status || '');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-20">
@@ -600,6 +686,19 @@ export default function MobileBookingDetails() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Cancel Booking Button */}
+            {canCancel && (
+              <Button
+                variant="outline"
+                onClick={fetchCancellationPreview}
+                className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                data-testid="button-cancel-booking"
+              >
+                <Ban className="w-4 h-4 mr-2" />
+                Cancel Booking
+              </Button>
+            )}
           </>
         )}
       </div>
@@ -686,6 +785,109 @@ export default function MobileBookingDetails() {
               data-testid="button-approve-price"
             >
               {updateMutation.isPending ? 'Saving...' : 'Approve & Save'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancellation Confirmation Dialog */}
+      <Dialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+        <DialogContent className="max-w-md" data-testid="dialog-cancel-confirm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
+              Cancel Booking?
+            </DialogTitle>
+            <DialogDescription>
+              Please review the cancellation policy before proceeding.
+            </DialogDescription>
+          </DialogHeader>
+
+          {cancelPreview && (
+            <div className="space-y-4">
+              {/* Cancellation Policy Info */}
+              <div className={`rounded-lg p-4 ${
+                cancelPreview.willBeCharged 
+                  ? 'bg-red-50 border border-red-200' 
+                  : cancelPreview.willReceiveCredit
+                    ? 'bg-green-50 border border-green-200'
+                    : 'bg-gray-50 border border-gray-200'
+              }`}>
+                {cancelPreview.willBeCharged ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-red-700">
+                      <AlertTriangle className="w-5 h-5" />
+                      <span className="font-semibold">Cancellation Fee Applies</span>
+                    </div>
+                    <p className="text-sm text-red-600">
+                      {cancelPreview.policyMessage}
+                    </p>
+                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-red-200">
+                      <span className="text-red-700">Fee Amount</span>
+                      <span className="text-xl font-bold text-red-700">${cancelPreview.amount}</span>
+                    </div>
+                  </div>
+                ) : cancelPreview.willReceiveCredit ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-green-700">
+                      <Wallet className="w-5 h-5" />
+                      <span className="font-semibold">Ride Credits Refund</span>
+                    </div>
+                    <p className="text-sm text-green-600">
+                      {cancelPreview.policyMessage}
+                    </p>
+                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-green-200">
+                      <span className="text-green-700">Credit Amount</span>
+                      <span className="text-xl font-bold text-green-700">${cancelPreview.amount}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <Check className="w-5 h-5" />
+                      <span className="font-semibold">No Charge</span>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      {cancelPreview.policyMessage}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Time Info */}
+              <div className="bg-gray-50 rounded-lg p-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Hours until pickup</span>
+                  <span className="font-medium">{cancelPreview.hoursBeforePickup.toFixed(1)} hours</span>
+                </div>
+                {cancelPreview.driverOnTheWay && (
+                  <div className="flex justify-between mt-2 text-amber-600">
+                    <span>Driver Status</span>
+                    <span className="font-medium">On the way</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowCancelConfirm(false);
+                setCancelPreview(null);
+              }}
+              data-testid="button-keep-booking"
+            >
+              Keep Booking
+            </Button>
+            <Button
+              onClick={() => cancelMutation.mutate('Cancelled by passenger')}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={cancelMutation.isPending}
+              data-testid="button-confirm-cancel"
+            >
+              {cancelMutation.isPending ? 'Cancelling...' : 'Confirm Cancellation'}
             </Button>
           </DialogFooter>
         </DialogContent>

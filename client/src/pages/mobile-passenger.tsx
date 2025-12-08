@@ -23,7 +23,8 @@ import {
   Save,
   Lock,
   Eye,
-  EyeOff
+  EyeOff,
+  Wallet
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -100,6 +101,12 @@ export default function MobilePassenger() {
   // Fetch user's saved addresses
   const { data: savedAddresses, isLoading: savedAddressesLoading } = useQuery<any[]>({
     queryKey: ['/api/saved-addresses'],
+    enabled: !!user,
+  });
+
+  // Fetch user's ride credits balance
+  const { data: rideCredits } = useQuery<{ balance: string; hasCredits: boolean }>({
+    queryKey: ['/api/ride-credits'],
     enabled: !!user,
   });
 
@@ -437,18 +444,25 @@ export default function MobilePassenger() {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white border border-red-200 rounded-xl p-3 shadow-sm">
-              <p className="text-gray-600 text-xs">Active</p>
-              <p className="text-xl font-bold text-red-600 mt-1">{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
+          <div className="grid grid-cols-4 gap-2">
+            <div className="bg-white border border-red-200 rounded-xl p-2 shadow-sm">
+              <p className="text-gray-600 text-[10px]">Active</p>
+              <p className="text-lg font-bold text-red-600 mt-0.5">{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
             </div>
-            <div className="bg-white border border-blue-200 rounded-xl p-3 shadow-sm">
-              <p className="text-gray-600 text-xs">Upcoming</p>
-              <p className="text-xl font-bold text-blue-600 mt-1">{upcomingBookings.length}</p>
+            <div className="bg-white border border-blue-200 rounded-xl p-2 shadow-sm">
+              <p className="text-gray-600 text-[10px]">Upcoming</p>
+              <p className="text-lg font-bold text-blue-600 mt-0.5">{upcomingBookings.length}</p>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
-              <p className="text-gray-600 text-xs">Total</p>
-              <p className="text-xl font-bold text-gray-900 mt-1">{bookings?.length || 0}</p>
+            <div className="bg-white border border-gray-200 rounded-xl p-2 shadow-sm">
+              <p className="text-gray-600 text-[10px]">Total</p>
+              <p className="text-lg font-bold text-gray-900 mt-0.5">{bookings?.length || 0}</p>
+            </div>
+            <div className="bg-white border border-green-200 rounded-xl p-2 shadow-sm">
+              <p className="text-gray-600 text-[10px] flex items-center gap-1">
+                <Wallet className="w-3 h-3" />
+                Credits
+              </p>
+              <p className="text-lg font-bold text-green-600 mt-0.5">${rideCredits?.balance || '0.00'}</p>
             </div>
           </div>
         </div>

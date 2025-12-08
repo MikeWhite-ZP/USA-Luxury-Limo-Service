@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CreditCard, Plus, Trash2, Clock, Banknote, Info } from 'lucide-react';
+import { ArrowLeft, CreditCard, Plus, Trash2, Clock, Banknote, Info, Wallet, ChevronDown, ChevronUp } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Button } from '@/components/ui/button';
@@ -49,6 +49,19 @@ interface PaymentMethod {
 interface PaymentMethodsResponse {
   paymentMethods: PaymentMethod[];
   defaultPaymentMethodId: string | null;
+}
+
+interface RideCreditsResponse {
+  balance: string;
+  hasCredits: boolean;
+}
+
+interface RideCreditTransaction {
+  id: string;
+  type: string;
+  amount: string;
+  description: string | null;
+  createdAt: string;
 }
 
 function AddPaymentMethodForm({ onSuccess }: { onSuccess: () => void }) {
@@ -144,6 +157,7 @@ export default function MobilePaymentMethods() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [addPaymentOpen, setAddPaymentOpen] = useState(false);
+  const [showTransactions, setShowTransactions] = useState(false);
 
   // Fetch payment options (admin-controlled availability)
   const { data: paymentOptionsData, isLoading: paymentOptionsLoading } = useQuery<PaymentOptionsResponse>({
@@ -156,6 +170,19 @@ export default function MobilePaymentMethods() {
     queryKey: ['/api/payment-methods'],
     retry: false,
     enabled: !!paymentOptionsData?.options?.find(o => o.optionType === 'credit_card' && o.isEnabled),
+  });
+
+  // Fetch ride credits balance
+  const { data: rideCredits } = useQuery<RideCreditsResponse>({
+    queryKey: ['/api/ride-credits'],
+    retry: false,
+  });
+
+  // Fetch ride credit transactions (lazy load when expanded)
+  const { data: creditTransactions, isLoading: transactionsLoading } = useQuery<RideCreditTransaction[]>({
+    queryKey: ['/api/ride-credits/transactions'],
+    retry: false,
+    enabled: showTransactions,
   });
   
   const isLoading = paymentOptionsLoading || paymentMethodsLoading;
@@ -465,6 +492,95 @@ export default function MobilePaymentMethods() {
             );
           })
         )}
+      </div>
+
+      {/* Ride Credits Section */}
+      <div className="px-6 pb-4 space-y-3">
+        <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-2">
+          <span className="bg-emerald-100 p-1.5 rounded-lg">
+            <Wallet className="w-4 h-4 text-emerald-600" />
+          </span>
+          Ride Credits
+        </h2>
+        <Card className="border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 shadow-sm overflow-hidden">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="bg-emerald-100 p-3 rounded-lg">
+                  <Wallet className="w-6 h-6 text-emerald-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-900">Available Balance</h3>
+                  <p className="text-sm text-slate-600">Use for future bookings</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-emerald-600">
+                  ${rideCredits?.balance || '0.00'}
+                </p>
+              </div>
+            </div>
+            
+            {rideCredits?.hasCredits && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowTransactions(!showTransactions)}
+                className="w-full text-emerald-700 hover:bg-emerald-100 mt-2"
+                data-testid="button-toggle-transactions"
+              >
+                {showTransactions ? (
+                  <>
+                    <ChevronUp className="w-4 h-4 mr-2" />
+                    Hide Transaction History
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-4 h-4 mr-2" />
+                    View Transaction History
+                  </>
+                )}
+              </Button>
+            )}
+            
+            {showTransactions && (
+              <div className="mt-3 pt-3 border-t border-emerald-200 space-y-2">
+                {transactionsLoading ? (
+                  <div className="text-center py-3 text-slate-500 text-sm">Loading...</div>
+                ) : creditTransactions && creditTransactions.length > 0 ? (
+                  creditTransactions.slice(0, 5).map((tx) => (
+                    <div key={tx.id} className="flex justify-between items-center py-2 border-b border-emerald-100 last:border-0">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-800">
+                          {tx.type === 'credit' ? 'Credit Added' : 'Credit Used'}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {tx.description || 'No description'}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          {new Date(tx.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <span className={`text-sm font-semibold ${
+                        tx.type === 'credit' ? 'text-emerald-600' : 'text-red-600'
+                      }`}>
+                        {tx.type === 'credit' ? '+' : '-'}${tx.amount}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center py-3 text-slate-500 text-sm">No transactions yet</p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        
+        <div className="bg-emerald-50 rounded-lg p-3 text-sm text-emerald-700">
+          <p>
+            <strong>How credits work:</strong> Ride credits are earned when you cancel a booking more than 2 hours before pickup. They can be used for future bookings.
+          </p>
+        </div>
       </div>
 
       {/* Other Payment Options Section */}
