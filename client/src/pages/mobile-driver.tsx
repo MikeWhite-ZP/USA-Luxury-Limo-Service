@@ -253,6 +253,30 @@ export default function MobileDriver() {
     return ['on_the_way', 'arrived', 'on_board', 'in_progress'].includes(status);
   };
 
+  // Open navigation with specific app - supports Google Maps, Apple Maps, and Waze
+  const openNavigationApp = (address: string, app: 'google' | 'apple' | 'waze') => {
+    const encodedAddress = encodeURIComponent(address);
+    
+    const urls = {
+      google: `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`,
+      apple: `http://maps.apple.com/?daddr=${encodedAddress}`,
+      waze: `https://waze.com/ul?q=${encodedAddress}&navigate=yes`
+    };
+    
+    switch (app) {
+      case 'google':
+        window.open(urls.google, '_blank');
+        break;
+      case 'apple':
+        // Apple Maps URL works on iOS and redirects to maps app
+        window.open(urls.apple, '_blank');
+        break;
+      case 'waze':
+        window.open(urls.waze, '_blank');
+        break;
+    }
+  };
+
   // Filter bookings - include all active driver workflow statuses
   const upcomingBookings = bookings?.filter(b => 
     ['pending_driver_acceptance', 'confirmed', 'on_the_way', 'arrived', 'on_board', 'in_progress'].includes(b.status)
@@ -589,6 +613,31 @@ export default function MobileDriver() {
                             <p className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-0.5">Pickup</p>
                             <p className="text-sm font-medium text-gray-900 line-clamp-2">{booking.pickupAddress}</p>
                           </div>
+                          {isTripActive(booking.status) && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-colors border border-emerald-200"
+                                  aria-label="Navigate to pickup"
+                                  title="Navigate to pickup"
+                                  data-testid={`button-nav-pickup-${booking.id}`}
+                                >
+                                  <Navigation2 className="w-4 h-4" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenuItem onClick={() => openNavigationApp(booking.pickupAddress, 'google')}>
+                                  <MapPin className="w-4 h-4 mr-2" /> Google Maps
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => openNavigationApp(booking.pickupAddress, 'apple')}>
+                                  <MapPin className="w-4 h-4 mr-2" /> Apple Maps
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => openNavigationApp(booking.pickupAddress, 'waze')}>
+                                  <Navigation2 className="w-4 h-4 mr-2" /> Waze
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                         </div>
 
                         {booking.viaAddress && (
@@ -598,6 +647,31 @@ export default function MobileDriver() {
                               <p className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-0.5">Via</p>
                               <p className="text-sm font-medium text-gray-900 line-clamp-2">{booking.viaAddress}</p>
                             </div>
+                            {isTripActive(booking.status) && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                  <button
+                                    className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors border border-blue-200"
+                                    aria-label="Navigate to via point"
+                                    title="Navigate to via point"
+                                    data-testid={`button-nav-via-${booking.id}`}
+                                  >
+                                    <Navigation2 className="w-4 h-4" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                                  <DropdownMenuItem onClick={() => openNavigationApp(booking.viaAddress!, 'google')}>
+                                    <MapPin className="w-4 h-4 mr-2" /> Google Maps
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => openNavigationApp(booking.viaAddress!, 'apple')}>
+                                    <MapPin className="w-4 h-4 mr-2" /> Apple Maps
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => openNavigationApp(booking.viaAddress!, 'waze')}>
+                                    <Navigation2 className="w-4 h-4 mr-2" /> Waze
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
                           </div>
                         )}
 
@@ -607,6 +681,31 @@ export default function MobileDriver() {
                             <p className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-0.5">Dropoff</p>
                             <p className="text-sm font-medium text-gray-900 line-clamp-2">{booking.destinationAddress}</p>
                           </div>
+                          {isTripActive(booking.status) && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors border border-red-200"
+                                  aria-label="Navigate to dropoff"
+                                  title="Navigate to dropoff"
+                                  data-testid={`button-nav-dropoff-${booking.id}`}
+                                >
+                                  <Navigation2 className="w-4 h-4" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenuItem onClick={() => openNavigationApp(booking.destinationAddress, 'google')}>
+                                  <MapPin className="w-4 h-4 mr-2" /> Google Maps
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => openNavigationApp(booking.destinationAddress, 'apple')}>
+                                  <MapPin className="w-4 h-4 mr-2" /> Apple Maps
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => openNavigationApp(booking.destinationAddress, 'waze')}>
+                                  <Navigation2 className="w-4 h-4 mr-2" /> Waze
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                         </div>
                       </div>
 
