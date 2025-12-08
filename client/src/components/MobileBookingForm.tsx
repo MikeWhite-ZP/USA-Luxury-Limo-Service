@@ -24,7 +24,10 @@ import {
   X,
   Plus,
   Trash2,
-  Check
+  Check,
+  CreditCard,
+  Banknote,
+  Wallet
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
@@ -110,12 +113,21 @@ export default function MobileBookingForm() {
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
   const [createdBooking, setCreatedBooking] = useState<any>(null);
   
+  // Payment method selection
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'pay_now' | 'pay_later' | 'cash' | 'ride_credit'>('pay_later');
+  
   const suggestionTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // Fetch user's payment methods to check if they have saved cards
   const { data: paymentData } = useQuery<PaymentMethodsResponse>({
     queryKey: ['/api/payment-methods'],
     enabled: isAuthenticated && showPaymentOptions,
+  });
+
+  // Fetch user's ride credits balance
+  const { data: rideCredits } = useQuery<{ balance: string; hasCredits: boolean }>({
+    queryKey: ['/api/ride-credits'],
+    enabled: isAuthenticated,
   });
 
   const paymentMethods = paymentData?.paymentMethods || [];
@@ -452,6 +464,7 @@ export default function MobileBookingForm() {
         luggageCount,
         babySeat,
         specialInstructions: specialInstructions || undefined,
+        paymentMethod: selectedPaymentMethod,
         ...(selectedFlight && {
           flightNumber: selectedFlight.flightNumber,
           flightAirline: selectedFlight.airline,
@@ -1563,6 +1576,77 @@ export default function MobileBookingForm() {
                   </Button>
                 </div>
               )}
+            </div>
+
+            {/* Payment Method Selection */}
+            <div className="bg-white rounded-2xl p-4 shadow-md">
+              <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-blue-600" />
+                Payment Method
+              </h3>
+              <div className="space-y-2">
+                <button
+                  onClick={() => setSelectedPaymentMethod('pay_later')}
+                  className={`w-full p-3 rounded-xl border-2 transition-all flex items-center gap-3 ${
+                    selectedPaymentMethod === 'pay_later'
+                      ? 'border-blue-600 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  data-testid="payment-option-pay-later"
+                >
+                  <Clock className="w-5 h-5 text-blue-600" />
+                  <div className="text-left flex-1">
+                    <p className="font-semibold text-gray-900">Pay Later</p>
+                    <p className="text-xs text-gray-500">Pay after your ride is completed</p>
+                  </div>
+                  {selectedPaymentMethod === 'pay_later' && (
+                    <Check className="w-5 h-5 text-blue-600" />
+                  )}
+                </button>
+
+                <button
+                  onClick={() => setSelectedPaymentMethod('cash')}
+                  className={`w-full p-3 rounded-xl border-2 transition-all flex items-center gap-3 ${
+                    selectedPaymentMethod === 'cash'
+                      ? 'border-green-600 bg-green-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  data-testid="payment-option-cash"
+                >
+                  <Banknote className="w-5 h-5 text-green-600" />
+                  <div className="text-left flex-1">
+                    <p className="font-semibold text-gray-900">Cash</p>
+                    <p className="text-xs text-gray-500">Pay with cash to your driver</p>
+                  </div>
+                  {selectedPaymentMethod === 'cash' && (
+                    <Check className="w-5 h-5 text-green-600" />
+                  )}
+                </button>
+
+                {/* Ride Credits Option - only show if user has credits */}
+                {rideCredits?.hasCredits && (
+                  <button
+                    onClick={() => setSelectedPaymentMethod('ride_credit')}
+                    className={`w-full p-3 rounded-xl border-2 transition-all flex items-center gap-3 ${
+                      selectedPaymentMethod === 'ride_credit'
+                        ? 'border-emerald-600 bg-emerald-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    data-testid="payment-option-ride-credit"
+                  >
+                    <Wallet className="w-5 h-5 text-emerald-600" />
+                    <div className="text-left flex-1">
+                      <p className="font-semibold text-gray-900">Ride Credits</p>
+                      <p className="text-xs text-emerald-600 font-medium">
+                        ${rideCredits.balance} available
+                      </p>
+                    </div>
+                    {selectedPaymentMethod === 'ride_credit' && (
+                      <Check className="w-5 h-5 text-emerald-600" />
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Confirm Button */}

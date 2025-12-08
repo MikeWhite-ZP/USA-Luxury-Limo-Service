@@ -71,6 +71,7 @@ import {
   Palette,
   CreditCard,
   Banknote,
+  Wallet,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { AdminNav } from "@/components/AdminNav";
@@ -3496,10 +3497,13 @@ export default function AdminDashboard() {
     flightDepartureAirport: "",
     flightArrivalAirport: "",
     // Payment method
-    paymentMethod: "pay_now" as "pay_now" | "pay_later" | "cash",
+    paymentMethod: "pay_now" as "pay_now" | "pay_later" | "cash" | "ride_credit",
   });
   const [calculatedPrice, setCalculatedPrice] = useState<string>("");
   const [calculatingPrice, setCalculatingPrice] = useState(false);
+
+  // Selected passenger's ride credits
+  const [selectedPassengerCredits, setSelectedPassengerCredits] = useState<{ balance: string; hasCredits: boolean } | null>(null);
 
   // Flight search state
   const [flightSearchInput, setFlightSearchInput] = useState("");
@@ -7676,12 +7680,26 @@ export default function AdminDashboard() {
                             key={passenger.id}
                             type="button"
                             className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
-                            onClick={() => {
+                            onClick={async () => {
                               setBookingFormData({
                                 ...bookingFormData,
                                 passengerId: passenger.id,
                               });
                               setUserSearchQuery("");
+                              // Fetch passenger's ride credits
+                              try {
+                                const response = await fetch(`/api/admin/users/${passenger.id}/ride-credits`, {
+                                  credentials: 'include'
+                                });
+                                if (response.ok) {
+                                  const data = await response.json();
+                                  setSelectedPassengerCredits(data);
+                                } else {
+                                  setSelectedPassengerCredits(null);
+                                }
+                              } catch {
+                                setSelectedPassengerCredits(null);
+                              }
                             }}
                             data-testid={`passenger-option-${passenger.id}`}
                           >
@@ -7890,6 +7908,47 @@ export default function AdminDashboard() {
                     </p>
                   )}
                 </div>
+              </div>
+
+              {/* Payment Method Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="payment-method">Payment Method</Label>
+                <Select
+                  value={bookingFormData.paymentMethod}
+                  onValueChange={(value: "pay_now" | "pay_later" | "cash" | "ride_credit") =>
+                    setBookingFormData({
+                      ...bookingFormData,
+                      paymentMethod: value,
+                    })
+                  }
+                >
+                  <SelectTrigger
+                    id="payment-method"
+                    className="bg-white"
+                    data-testid="select-payment-method"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pay_now">Pay Now (Credit Card)</SelectItem>
+                    <SelectItem value="pay_later">Pay Later</SelectItem>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="ride_credit" disabled={!selectedPassengerCredits?.hasCredits}>
+                      Ride Credits {selectedPassengerCredits?.hasCredits ? `($${selectedPassengerCredits.balance} available)` : '(No credits)'}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                {selectedPassengerCredits?.hasCredits && (
+                  <div className="flex items-center gap-2 text-sm bg-emerald-50 p-2 rounded-md border border-emerald-200">
+                    <Wallet className="w-4 h-4 text-emerald-600" />
+                    <span className="text-emerald-700">
+                      Passenger has <strong>${selectedPassengerCredits.balance}</strong> in ride credits
+                    </span>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Select how the passenger will pay for this booking
+                </p>
               </div>
 
               {/* Passenger Details Section */}

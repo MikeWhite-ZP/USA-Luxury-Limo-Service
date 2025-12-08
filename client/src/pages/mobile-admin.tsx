@@ -108,7 +108,7 @@ interface BookingFormData {
   flightArrivalAirport: string;
   specialInstructions: string;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
-  paymentMethod: 'pay_now' | 'pay_later' | 'cash';
+  paymentMethod: 'pay_now' | 'pay_later' | 'cash' | 'ride_credit';
 }
 
 const defaultFormData: BookingFormData = {

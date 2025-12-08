@@ -1286,6 +1286,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const booking = await storage.createBooking(bookingData);
+
+      // If payment method is ride_credit, verify and deduct the credits
+      // Use bookingData.totalAmount from request (not booking.totalAmount which may be null)
+      if (bookingData.paymentMethod === 'ride_credit') {
+        const requestTotalAmount = bookingData.totalAmount || booking.totalAmount;
+        // Clean the amount string - remove currency symbols and commas
+        const cleanAmount = String(requestTotalAmount || '0').replace(/[$,]/g, '');
+        const totalAmount = parseFloat(cleanAmount);
+        
+        // Validate that we have a valid positive number
+        if (isNaN(totalAmount) || totalAmount <= 0) {
+          await storage.deleteBooking(booking.id);
+          return res.status(400).json({ 
+            message: 'Cannot process ride credit payment without a valid booking amount.'
+          });
+        }
+        
+        // Verify passenger has sufficient credits first
+        const userCredits = await storage.getRideCredits(userId);
+        const availableBalance = parseFloat(userCredits?.balance || '0');
+        
+        if (availableBalance < totalAmount) {
+          // Insufficient credits - delete the booking and return error
+          await storage.deleteBooking(booking.id);
+          return res.status(400).json({ 
+            message: `Insufficient ride credits. You have $${availableBalance.toFixed(2)} but the booking costs $${totalAmount.toFixed(2)}. Please choose a different payment method.`
+          });
+        }
+        
+        const result = await storage.spendRideCredits(
+          userId,
+          totalAmount.toString(),
+          booking.id,
+          `Used for booking #${booking.id}`
+        );
+        if (result) {
+          console.log(`[RIDE-CREDITS] Deducted $${totalAmount} for booking ${booking.id} from passenger ${userId}`);
+        } else {
+          // This shouldn't happen if we verified balance above, but handle it
+          await storage.deleteBooking(booking.id);
+          return res.status(400).json({ 
+            message: 'Failed to deduct ride credits. Please try again or choose a different payment method.'
+          });
+        }
+      }
       
       // Send notifications (fire-and-forget)
       (async () => {
@@ -2358,6 +2403,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const booking = await storage.createBooking(bookingWithTracking);
+
+      // If payment method is ride_credit, verify and deduct the credits
+      // Use bookingData.totalAmount from request (not booking.totalAmount which may be null)
+      if (bookingData.paymentMethod === 'ride_credit' && booking.passengerId) {
+        const requestTotalAmount = bookingData.totalAmount || booking.totalAmount;
+        // Clean the amount string - remove currency symbols and commas
+        const cleanAmount = String(requestTotalAmount || '0').replace(/[$,]/g, '');
+        const totalAmount = parseFloat(cleanAmount);
+        
+        // Validate that we have a valid positive number
+        if (isNaN(totalAmount) || totalAmount <= 0) {
+          await storage.deleteBooking(booking.id);
+          return res.status(400).json({ 
+            message: 'Cannot process ride credit payment without a valid booking amount.'
+          });
+        }
+        
+        // Verify passenger has sufficient credits first
+        const userCredits = await storage.getRideCredits(booking.passengerId);
+        const availableBalance = parseFloat(userCredits?.balance || '0');
+        
+        if (availableBalance < totalAmount) {
+          // Insufficient credits - delete the booking and return error
+          await storage.deleteBooking(booking.id);
+          return res.status(400).json({ 
+            message: `Insufficient ride credits. Passenger has $${availableBalance.toFixed(2)} but the booking costs $${totalAmount.toFixed(2)}. Please choose a different payment method.`
+          });
+        }
+        
+        const result = await storage.spendRideCredits(
+          booking.passengerId,
+          totalAmount.toString(),
+          booking.id,
+          `Used for booking #${booking.id}`
+        );
+        if (result) {
+          console.log(`[RIDE-CREDITS] Deducted $${totalAmount} for booking ${booking.id} from passenger ${booking.passengerId}`);
+        } else {
+          // This shouldn't happen if we verified balance above, but handle it
+          await storage.deleteBooking(booking.id);
+          return res.status(400).json({ 
+            message: 'Failed to deduct ride credits. Please try again or choose a different payment method.'
+          });
+        }
+      }
       
       // Send booking confirmation email to passenger
       if (booking.passengerId) {
