@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
@@ -112,6 +112,7 @@ interface BookingFormData {
   specialInstructions: string;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
   paymentMethod: 'pay_now' | 'pay_later' | 'cash' | 'ride_credit';
+  creditAmountApplied?: string;
 }
 
 interface BookingDetailsDialogProps {
@@ -192,10 +193,80 @@ export function BookingDetailsDialog({
   const [chargeDescription, setChargeDescription] = useState('');
   const [chargeAmount, setChargeAmount] = useState('');
   
+  // State for account credits
+  const [useCredits, setUseCredits] = useState(false);
+  const [creditAmount, setCreditAmount] = useState('0.00');
+  
   // Get current user for role checking
   const { user } = useAuth();
   const { toast } = useToast();
   const canManageCharges = user?.role === 'admin' || user?.role === 'dispatcher';
+  
+  // Query to fetch selected passenger's ride credits
+  const { data: passengerCreditsData } = useQuery<{ balance: string; hasCredits: boolean }>({
+    queryKey: ['/api/admin/users', formData.passengerId, 'ride-credits'],
+    queryFn: async () => {
+      if (!formData.passengerId) return { balance: '0.00', hasCredits: false };
+      const response = await apiRequest('GET', `/api/admin/users/${formData.passengerId}/ride-credits`);
+      return response.json();
+    },
+    enabled: !!formData.passengerId && canManageCharges,
+  });
+  
+  const passengerCreditsBalance = parseFloat(passengerCreditsData?.balance || '0') || 0;
+  const hasPassengerCredits = passengerCreditsData?.hasCredits === true && passengerCreditsBalance > 0;
+  
+  // Calculate max usable credits (min of balance and total amount)
+  const parsedTotalAmount = parseFloat(formData.totalAmount || '0');
+  const safeTotalAmount = isNaN(parsedTotalAmount) ? 0 : parsedTotalAmount;
+  const maxUsableCredits = safeTotalAmount > 0 ? Math.min(passengerCreditsBalance, safeTotalAmount) : 0;
+  const parsedCreditAmount = parseFloat(creditAmount) || 0;
+  const creditsApplied = useCredits && maxUsableCredits > 0 ? Math.min(parsedCreditAmount, maxUsableCredits) : 0;
+  const remainingAmount = safeTotalAmount - creditsApplied;
+  
+  // Reset credits when passenger changes
+  useEffect(() => {
+    setUseCredits(false);
+    setCreditAmount('0.00');
+  }, [formData.passengerId]);
+  
+  // Update credit amount when max usable changes
+  useEffect(() => {
+    if (useCredits && maxUsableCredits > 0) {
+      setCreditAmount(maxUsableCredits.toFixed(2));
+    }
+  }, [maxUsableCredits, useCredits]);
+  
+  // Handle credits toggle
+  const handleUseCreditsToggle = (checked: boolean) => {
+    setUseCredits(checked);
+    if (checked && maxUsableCredits > 0) {
+      setCreditAmount(maxUsableCredits.toFixed(2));
+    } else {
+      setCreditAmount('0.00');
+    }
+  };
+  
+  // Handle credit amount change
+  const handleCreditAmountChange = (value: string) => {
+    const numValue = parseFloat(value);
+    if (isNaN(numValue) || numValue < 0) {
+      setCreditAmount('0.00');
+    } else if (numValue > maxUsableCredits) {
+      setCreditAmount(maxUsableCredits.toFixed(2));
+    } else {
+      setCreditAmount(value);
+    }
+  };
+  
+  // Sync creditAmountApplied to formData when credits change
+  useEffect(() => {
+    if (useCredits && creditsApplied > 0) {
+      setFormData(prev => ({ ...prev, creditAmountApplied: creditsApplied.toFixed(2) }));
+    } else {
+      setFormData(prev => ({ ...prev, creditAmountApplied: undefined }));
+    }
+  }, [useCredits, creditsApplied, setFormData]);
   
   // Mutation for adding additional charges
   const addChargeMutation = useMutation({
@@ -1353,6 +1424,85 @@ export function BookingDetailsDialog({
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* Account Credits Section - Show when passenger is selected */}
+                  {formData.passengerId && (
+                    <div className={`p-4 rounded-lg border ${hasPassengerCredits ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' : 'bg-gray-50 border-gray-200'}`} data-testid="admin-use-credits-section">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            id="admin-use-credits"
+                            checked={useCredits}
+                            onChange={(e) => handleUseCreditsToggle(e.target.checked)}
+                            disabled={!hasPassengerCredits}
+                            className={`w-5 h-5 rounded focus:ring-green-500 ${hasPassengerCredits ? 'text-green-600 border-green-300' : 'text-gray-400 border-gray-300 cursor-not-allowed'}`}
+                            data-testid="checkbox-admin-use-credits"
+                          />
+                          <label htmlFor="admin-use-credits" className={`font-semibold cursor-pointer ${hasPassengerCredits ? 'text-green-800' : 'text-gray-500'}`}>
+                            Use Passenger's Account Credits
+                          </label>
+                        </div>
+                        <span className={`text-sm font-medium px-3 py-1 rounded-full ${hasPassengerCredits ? 'text-green-700 bg-green-100' : 'text-gray-600 bg-gray-200'}`}>
+                          Balance: ${passengerCreditsBalance.toFixed(2)}
+                        </span>
+                      </div>
+                      
+                      {!hasPassengerCredits && (
+                        <p className="text-sm text-gray-500">
+                          This passenger doesn't have any account credits available.
+                        </p>
+                      )}
+                      
+                      {useCredits && hasPassengerCredits && (
+                        <div className="mt-3 space-y-2">
+                          <label htmlFor="admin-credit-amount" className="text-sm font-medium text-gray-700">
+                            Amount to use (max ${maxUsableCredits.toFixed(2)}):
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-gray-600">$</span>
+                            <input
+                              type="number"
+                              id="admin-credit-amount"
+                              value={creditAmount}
+                              onChange={(e) => handleCreditAmountChange(e.target.value)}
+                              onBlur={() => {
+                                const numValue = parseFloat(creditAmount);
+                                if (!isNaN(numValue)) {
+                                  setCreditAmount(Math.min(numValue, maxUsableCredits).toFixed(2));
+                                }
+                              }}
+                              min="0"
+                              max={maxUsableCredits}
+                              step="0.01"
+                              className="flex-1 p-3 border-2 border-green-300 rounded-lg focus:border-green-500 focus:ring-green-500 text-lg font-semibold"
+                              data-testid="input-admin-credit-amount"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setCreditAmount(maxUsableCredits.toFixed(2))}
+                              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                              data-testid="button-admin-use-max-credits"
+                            >
+                              Use Max
+                            </button>
+                          </div>
+                          {creditsApplied > 0 && (
+                            <div className="mt-2 p-2 bg-green-100 rounded-lg border border-green-200">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-green-800">Credits to Apply:</span>
+                                <span className="font-semibold text-green-700">-${creditsApplied.toFixed(2)}</span>
+                              </div>
+                              <div className="flex justify-between text-sm mt-1">
+                                <span className="text-green-800 font-medium">Remaining to Pay:</span>
+                                <span className="font-bold text-green-700">${remainingAmount.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Journey Fare */}
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

@@ -6650,6 +6650,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Get any passenger's ride credit balance
+  app.get('/api/admin/users/:passengerId/ride-credits', isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user.id;
+      const { passengerId } = req.params;
+      
+      // Check admin/dispatcher access
+      const adminUser = await storage.getUser(adminUserId);
+      if (!adminUser || (adminUser.role !== 'admin' && adminUser.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
+      }
+      
+      const credits = await storage.getRideCredits(passengerId);
+      
+      res.json({
+        balance: credits?.balance || '0.00',
+        hasCredits: credits ? parseFloat(credits.balance) > 0 : false
+      });
+    } catch (error) {
+      console.error('Admin get passenger ride credits error:', error);
+      res.status(500).json({ message: 'Failed to fetch passenger ride credits' });
+    }
+  });
+
   // Preview cancellation policy for a booking (for UI to show warning)
   app.get('/api/bookings/:id/cancellation-preview', isAuthenticated, async (req: any, res) => {
     try {
