@@ -2373,11 +2373,12 @@ export class DatabaseStorage implements IStorage {
       userCredits = { ...userCredits, balance: newBalance };
     }
     
-    // Create transaction record
+    // Create transaction record - determine type based on amount sign
+    const transactionType = amountNum >= 0 ? 'earned' : 'adjustment';
     const [transaction] = await db.insert(rideCreditTransactions).values({
       userId,
       bookingId: bookingId || undefined,
-      transactionType: 'earned',
+      transactionType,
       amount: amount,
       balanceAfter: userCredits.balance,
       description,

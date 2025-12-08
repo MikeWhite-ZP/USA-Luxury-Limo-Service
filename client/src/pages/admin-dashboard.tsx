@@ -40,6 +40,7 @@ import {
 import {
   TrendingUp,
   Users,
+  User as UserIcon,
   Car,
   Star,
   Settings,
@@ -50,6 +51,7 @@ import {
   Edit2,
   Trash2,
   Plus,
+  Minus,
   Check,
   X,
   Pencil,
@@ -3403,6 +3405,10 @@ export default function AdminDashboard() {
     temporaryPassword: "", // For setting temp password when editing
   });
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const [userDialogTab, setUserDialogTab] = useState<'profile' | 'credits' | 'transactions'>('profile');
+  const [creditAdjustmentAmount, setCreditAdjustmentAmount] = useState('');
+  const [creditAdjustmentType, setCreditAdjustmentType] = useState<'add' | 'deduct'>('add');
+  const [creditAdjustmentDescription, setCreditAdjustmentDescription] = useState('');
 
   // Payment configuration dialog state
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
@@ -3726,6 +3732,54 @@ export default function AdminDashboard() {
     queryKey: ["/api/admin/users"],
     retry: false,
     enabled: isAuthenticated && user?.role === "admin",
+  });
+
+  // Fetch selected user's ride credits and transactions
+  const { data: userCreditsData, isLoading: userCreditsLoading } = useQuery<{
+    balance: string;
+    transactions: Array<{
+      id: string;
+      type: string;
+      amount: string;
+      description: string;
+      bookingId: string | null;
+      createdAt: string;
+    }>;
+  }>({
+    queryKey: ["/api/admin/users", editingUser?.id, "ride-credits"],
+    queryFn: async () => {
+      if (!editingUser?.id) return { balance: '0.00', transactions: [] };
+      const response = await apiRequest('GET', `/api/admin/users/${editingUser.id}/ride-credits`);
+      return response.json();
+    },
+    enabled: !!editingUser?.id && userDialogOpen && editingUser?.role === 'passenger',
+  });
+
+  // Mutation for adjusting user ride credits
+  const adjustCreditsMutation = useMutation({
+    mutationFn: async ({ userId, amount, description }: { userId: string; amount: number; description: string }) => {
+      const response = await apiRequest('POST', `/api/admin/users/${userId}/ride-credits`, {
+        amount,
+        description
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users", editingUser?.id, "ride-credits"] });
+      setCreditAdjustmentAmount('');
+      setCreditAdjustmentDescription('');
+      toast({
+        title: "Credits Updated",
+        description: "Account credits have been adjusted successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to adjust credits",
+        variant: "destructive",
+      });
+    },
   });
 
   // Fetch all driver documents
@@ -9100,350 +9154,709 @@ export default function AdminDashboard() {
         </DialogContent>
       </Dialog>
       {/* Add/Edit User Dialog */}
-      <Dialog open={userDialogOpen} onOpenChange={setUserDialogOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white">
+      <Dialog open={userDialogOpen} onOpenChange={(open) => {
+        setUserDialogOpen(open);
+        if (!open) {
+          setUserDialogTab('profile');
+          setCreditAdjustmentAmount('');
+          setCreditAdjustmentDescription('');
+          setCreditAdjustmentType('add');
+        }
+      }}>
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle>
-              {editingUser ? "Edit User" : "Add New User"}
+            <DialogTitle className="flex items-center gap-2">
+              <UserIcon className="w-5 h-5" />
+              {editingUser ? `${editingUser.firstName} ${editingUser.lastName || ''}` : "Add New User"}
             </DialogTitle>
             <DialogDescription>
               {editingUser
-                ? "Update user information and settings."
+                ? "Manage user profile, account credits, and view transaction history."
                 : "Create a new user account with role and permissions."}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="user-first-name">First Name *</Label>
-                <Input
-                  id="user-first-name"
-                  placeholder="John"
-                  value={userFormData.firstName}
-                  onChange={(e) =>
-                    setUserFormData({
-                      ...userFormData,
-                      firstName: e.target.value,
-                    })
-                  }
-                  data-testid="input-user-first-name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="user-last-name">Last Name</Label>
-                <Input
-                  id="user-last-name"
-                  placeholder="Doe"
-                  value={userFormData.lastName}
-                  onChange={(e) =>
-                    setUserFormData({
-                      ...userFormData,
-                      lastName: e.target.value,
-                    })
-                  }
-                  data-testid="input-user-last-name"
-                />
-              </div>
-            </div>
+          {editingUser && editingUser.role === 'passenger' ? (
+            <Tabs value={userDialogTab} onValueChange={(v) => setUserDialogTab(v as 'profile' | 'credits' | 'transactions')} className="flex-1 flex flex-col min-h-0">
+              <TabsList className="grid w-full grid-cols-3 mb-4">
+                <TabsTrigger value="profile" className="flex items-center gap-2">
+                  <UserIcon className="w-4 h-4" />
+                  Profile
+                </TabsTrigger>
+                <TabsTrigger value="credits" className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4" />
+                  Credits
+                </TabsTrigger>
+                <TabsTrigger value="transactions" className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Transactions
+                </TabsTrigger>
+              </TabsList>
 
-            <div className="space-y-2">
-              <Label htmlFor="user-email">Email *</Label>
-              <Input
-                id="user-email"
-                type="email"
-                placeholder="user@example.com"
-                value={userFormData.email}
-                onChange={(e) =>
-                  setUserFormData({ ...userFormData, email: e.target.value })
-                }
-                data-testid="input-user-email"
-              />
-            </div>
+              <TabsContent value="profile" className="flex-1 overflow-y-auto pr-2 mt-0">
+                <div className="space-y-4 py-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="user-first-name">First Name *</Label>
+                      <Input
+                        id="user-first-name"
+                        placeholder="John"
+                        value={userFormData.firstName}
+                        onChange={(e) =>
+                          setUserFormData({
+                            ...userFormData,
+                            firstName: e.target.value,
+                          })
+                        }
+                        data-testid="input-user-first-name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="user-last-name">Last Name</Label>
+                      <Input
+                        id="user-last-name"
+                        placeholder="Doe"
+                        value={userFormData.lastName}
+                        onChange={(e) =>
+                          setUserFormData({
+                            ...userFormData,
+                            lastName: e.target.value,
+                          })
+                        }
+                        data-testid="input-user-last-name"
+                      />
+                    </div>
+                  </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="user-phone">Phone Number</Label>
-              <Input
-                id="user-phone"
-                placeholder="+1 234 567 8900"
-                value={userFormData.phone}
-                onChange={(e) =>
-                  setUserFormData({ ...userFormData, phone: e.target.value })
-                }
-                data-testid="input-user-phone"
-              />
-            </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="user-email">Email *</Label>
+                      <Input
+                        id="user-email"
+                        type="email"
+                        placeholder="user@example.com"
+                        value={userFormData.email}
+                        onChange={(e) =>
+                          setUserFormData({ ...userFormData, email: e.target.value })
+                        }
+                        data-testid="input-user-email"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="user-phone">Phone Number</Label>
+                      <Input
+                        id="user-phone"
+                        placeholder="+1 234 567 8900"
+                        value={userFormData.phone}
+                        onChange={(e) =>
+                          setUserFormData({ ...userFormData, phone: e.target.value })
+                        }
+                        data-testid="input-user-phone"
+                      />
+                    </div>
+                  </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="user-username">Username</Label>
-              <Input
-                id="user-username"
-                placeholder="johndoe123"
-                value={userFormData.username}
-                onChange={(e) =>
-                  setUserFormData({ ...userFormData, username: e.target.value })
-                }
-                data-testid="input-user-username"
-              />
-              {userFormData.username && userFormData.username !== editingUser?.username && (
-                <p className={`text-xs ${
-                  usernameStatus === 'checking' ? 'text-slate-500' :
-                  usernameStatus === 'available' ? 'text-green-600' :
-                  usernameStatus === 'taken' ? 'text-red-600' :
-                  'text-muted-foreground'
-                }`}>
-                  {usernameStatus === 'checking' && '⏳ Checking availability...'}
-                  {usernameStatus === 'available' && '✓ Username is available'}
-                  {usernameStatus === 'taken' && '✗ Username is already taken'}
-                  {usernameStatus === 'idle' && 'Username must be 3-30 characters (letters, numbers, -, _)'}
-                </p>
-              )}
-              {(!userFormData.username || userFormData.username === editingUser?.username) && (
-                <p className="text-xs text-muted-foreground">
-                  Optional username (3-30 characters, letters, numbers, -, _)
-                </p>
-              )}
-            </div>
-
-            {userFormData.role === "driver" && (
-              <div className="space-y-2">
-                <Label htmlFor="user-vehicle-plate">Vehicle Plate Number</Label>
-                <Input
-                  id="user-vehicle-plate"
-                  placeholder="ABC123"
-                  value={userFormData.vehiclePlate}
-                  onChange={(e) =>
-                    setUserFormData({
-                      ...userFormData,
-                      vehiclePlate: e.target.value,
-                    })
-                  }
-                  data-testid="input-user-vehicle-plate"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Vehicle license plate number assigned to this driver
-                </p>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="user-role">Role *</Label>
-              <Select
-                value={userFormData.role}
-                onValueChange={(value) =>
-                  setUserFormData({
-                    ...userFormData,
-                    role: value as typeof userFormData.role,
-                  })
-                }
-              >
-                <SelectTrigger id="user-role" data-testid="select-user-role">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="passenger">Passenger</SelectItem>
-                  <SelectItem value="driver">Driver</SelectItem>
-                  <SelectItem value="dispatcher">Dispatcher</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="user-status">Status</Label>
-              <Select
-                value={userFormData.isActive ? "active" : "inactive"}
-                onValueChange={(value) =>
-                  setUserFormData({
-                    ...userFormData,
-                    isActive: value === "active",
-                  })
-                }
-              >
-                <SelectTrigger
-                  id="user-status"
-                  data-testid="select-user-status"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {userFormData.role === "passenger" && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="user-paylater">Pay Later Ability</Label>
-                  <Select
-                    value={
-                      userFormData.payLaterEnabled ? "enabled" : "disabled"
-                    }
-                    onValueChange={(value) =>
-                      setUserFormData({
-                        ...userFormData,
-                        payLaterEnabled: value === "enabled",
-                      })
-                    }
-                  >
-                    <SelectTrigger
-                      id="user-paylater"
-                      data-testid="select-user-paylater"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="enabled">Enabled</SelectItem>
-                      <SelectItem value="disabled">Disabled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Allow passenger to complete trips and pay afterwards
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="user-cashpayment">Cash Payment Ability</Label>
-                  <Select
-                    value={
-                      userFormData.cashPaymentEnabled ? "enabled" : "disabled"
-                    }
-                    onValueChange={(value) =>
-                      setUserFormData({
-                        ...userFormData,
-                        cashPaymentEnabled: value === "enabled",
-                      })
-                    }
-                  >
-                    <SelectTrigger
-                      id="user-cashpayment"
-                      data-testid="select-user-cashpayment"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="enabled">Enabled</SelectItem>
-                      <SelectItem value="disabled">Disabled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Allow passenger to pay with cash at the end of the trip
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="user-discount-type">Discount Type</Label>
-                  <Select
-                    value={userFormData.discountType || "none"}
-                    onValueChange={(value) =>
-                      setUserFormData({
-                        ...userFormData,
-                        discountType:
-                          value === "none"
-                            ? null
-                            : (value as "percentage" | "fixed"),
-                        discountValue:
-                          value === "none" ? "0" : userFormData.discountValue,
-                      })
-                    }
-                  >
-                    <SelectTrigger
-                      id="user-discount-type"
-                      data-testid="select-user-discount-type"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">No Discount</SelectItem>
-                      <SelectItem value="percentage">Percentage (%)</SelectItem>
-                      <SelectItem value="fixed">Fixed Amount ($)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Select how the discount should be applied
-                  </p>
-                </div>
-
-                {userFormData.discountType && (
                   <div className="space-y-2">
-                    <Label htmlFor="user-discount-value">
-                      Discount Value{" "}
-                      {userFormData.discountType === "percentage"
-                        ? "(%)"
-                        : "($)"}
-                    </Label>
+                    <Label htmlFor="user-username">Username</Label>
                     <Input
-                      id="user-discount-value"
-                      type="number"
-                      min="0"
-                      max={
-                        userFormData.discountType === "percentage"
-                          ? "100"
-                          : undefined
-                      }
-                      step={
-                        userFormData.discountType === "percentage"
-                          ? "1"
-                          : "0.01"
-                      }
-                      placeholder={
-                        userFormData.discountType === "percentage"
-                          ? "10"
-                          : "5.00"
-                      }
-                      value={userFormData.discountValue}
+                      id="user-username"
+                      placeholder="johndoe123"
+                      value={userFormData.username}
                       onChange={(e) =>
+                        setUserFormData({ ...userFormData, username: e.target.value })
+                      }
+                      data-testid="input-user-username"
+                    />
+                    {userFormData.username && userFormData.username !== editingUser?.username && (
+                      <p className={`text-xs ${
+                        usernameStatus === 'checking' ? 'text-slate-500' :
+                        usernameStatus === 'available' ? 'text-green-600' :
+                        usernameStatus === 'taken' ? 'text-red-600' :
+                        'text-muted-foreground'
+                      }`}>
+                        {usernameStatus === 'checking' && 'Checking availability...'}
+                        {usernameStatus === 'available' && 'Username is available'}
+                        {usernameStatus === 'taken' && 'Username is already taken'}
+                        {usernameStatus === 'idle' && 'Username must be 3-30 characters'}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="user-role">Role *</Label>
+                      <Select
+                        value={userFormData.role}
+                        onValueChange={(value) =>
+                          setUserFormData({
+                            ...userFormData,
+                            role: value as typeof userFormData.role,
+                          })
+                        }
+                      >
+                        <SelectTrigger id="user-role" data-testid="select-user-role">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="passenger">Passenger</SelectItem>
+                          <SelectItem value="driver">Driver</SelectItem>
+                          <SelectItem value="dispatcher">Dispatcher</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="user-status">Status</Label>
+                      <Select
+                        value={userFormData.isActive ? "active" : "inactive"}
+                        onValueChange={(value) =>
+                          setUserFormData({
+                            ...userFormData,
+                            isActive: value === "active",
+                          })
+                        }
+                      >
+                        <SelectTrigger id="user-status" data-testid="select-user-status">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="user-paylater">Pay Later</Label>
+                      <Select
+                        value={userFormData.payLaterEnabled ? "enabled" : "disabled"}
+                        onValueChange={(value) =>
+                          setUserFormData({
+                            ...userFormData,
+                            payLaterEnabled: value === "enabled",
+                          })
+                        }
+                      >
+                        <SelectTrigger id="user-paylater" data-testid="select-user-paylater">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="enabled">Enabled</SelectItem>
+                          <SelectItem value="disabled">Disabled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="user-cashpayment">Cash Payment</Label>
+                      <Select
+                        value={userFormData.cashPaymentEnabled ? "enabled" : "disabled"}
+                        onValueChange={(value) =>
+                          setUserFormData({
+                            ...userFormData,
+                            cashPaymentEnabled: value === "enabled",
+                          })
+                        }
+                      >
+                        <SelectTrigger id="user-cashpayment" data-testid="select-user-cashpayment">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="enabled">Enabled</SelectItem>
+                          <SelectItem value="disabled">Disabled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="user-discount-type">Discount Type</Label>
+                      <Select
+                        value={userFormData.discountType || "none"}
+                        onValueChange={(value) =>
+                          setUserFormData({
+                            ...userFormData,
+                            discountType:
+                              value === "none" ? null : (value as "percentage" | "fixed"),
+                            discountValue: value === "none" ? "0" : userFormData.discountValue,
+                          })
+                        }
+                      >
+                        <SelectTrigger id="user-discount-type" data-testid="select-user-discount-type">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No Discount</SelectItem>
+                          <SelectItem value="percentage">Percentage (%)</SelectItem>
+                          <SelectItem value="fixed">Fixed Amount ($)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {userFormData.discountType && (
+                      <div className="space-y-2">
+                        <Label htmlFor="user-discount-value">
+                          Discount {userFormData.discountType === "percentage" ? "(%)" : "($)"}
+                        </Label>
+                        <Input
+                          id="user-discount-value"
+                          type="number"
+                          min="0"
+                          max={userFormData.discountType === "percentage" ? "100" : undefined}
+                          step={userFormData.discountType === "percentage" ? "1" : "0.01"}
+                          placeholder={userFormData.discountType === "percentage" ? "10" : "5.00"}
+                          value={userFormData.discountValue}
+                          onChange={(e) =>
+                            setUserFormData({
+                              ...userFormData,
+                              discountValue: e.target.value,
+                            })
+                          }
+                          data-testid="input-user-discount-value"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {editingUser && editingUser.id !== user?.id && (
+                    <div className="space-y-2 pt-4 border-t border-slate-200">
+                      <Label htmlFor="user-temp-password">Set Temporary Password</Label>
+                      <Input
+                        id="user-temp-password"
+                        type="password"
+                        placeholder="Leave blank to keep current"
+                        value={userFormData.temporaryPassword}
+                        onChange={(e) =>
+                          setUserFormData({
+                            ...userFormData,
+                            temporaryPassword: e.target.value,
+                          })
+                        }
+                        data-testid="input-temp-password"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        If set, user will receive this password via email/SMS.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="credits" className="flex-1 overflow-y-auto pr-2 mt-0">
+                <div className="space-y-6 py-2">
+                  <Card className="border-2 border-emerald-100 bg-gradient-to-br from-emerald-50 to-white">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-slate-600">Current Balance</p>
+                          <p className="text-3xl font-bold text-emerald-600">
+                            ${userCreditsLoading ? '...' : parseFloat(userCreditsData?.balance || '0').toFixed(2)}
+                          </p>
+                        </div>
+                        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center">
+                          <DollarSign className="w-8 h-8 text-emerald-600" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Plus className="w-4 h-4" />
+                        Adjust Credits
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant={creditAdjustmentType === 'add' ? 'default' : 'outline'}
+                          size="sm"
+                          className={creditAdjustmentType === 'add' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                          onClick={() => setCreditAdjustmentType('add')}
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Add Credits
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={creditAdjustmentType === 'deduct' ? 'default' : 'outline'}
+                          size="sm"
+                          className={creditAdjustmentType === 'deduct' ? 'bg-red-600 hover:bg-red-700' : ''}
+                          onClick={() => setCreditAdjustmentType('deduct')}
+                        >
+                          <Minus className="w-4 h-4 mr-1" />
+                          Deduct Credits
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Amount ($)</Label>
+                          <Input
+                            type="number"
+                            min="0.01"
+                            step="0.01"
+                            placeholder="0.00"
+                            value={creditAdjustmentAmount}
+                            onChange={(e) => setCreditAdjustmentAmount(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Description</Label>
+                          <Input
+                            placeholder="Reason for adjustment"
+                            value={creditAdjustmentDescription}
+                            onChange={(e) => setCreditAdjustmentDescription(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          const amount = parseFloat(creditAdjustmentAmount);
+                          if (isNaN(amount) || amount <= 0) {
+                            toast({ title: "Invalid Amount", description: "Please enter a valid amount.", variant: "destructive" });
+                            return;
+                          }
+                          const finalAmount = creditAdjustmentType === 'deduct' ? -amount : amount;
+                          adjustCreditsMutation.mutate({
+                            userId: editingUser.id,
+                            amount: finalAmount,
+                            description: creditAdjustmentDescription || `Admin ${creditAdjustmentType === 'add' ? 'credit' : 'deduction'}`
+                          });
+                        }}
+                        disabled={adjustCreditsMutation.isPending || !creditAdjustmentAmount}
+                        className={creditAdjustmentType === 'add' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}
+                      >
+                        {adjustCreditsMutation.isPending ? 'Processing...' : `${creditAdjustmentType === 'add' ? 'Add' : 'Deduct'} $${creditAdjustmentAmount || '0.00'}`}
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg">
+                    <p className="font-medium mb-1">About Account Credits</p>
+                    <p>Credits can be used by passengers to pay for rides. They can apply partial or full credit amounts during checkout.</p>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="transactions" className="flex-1 overflow-y-auto pr-2 mt-0">
+                <div className="space-y-4 py-2">
+                  {userCreditsLoading ? (
+                    <div className="text-center py-8 text-slate-500">Loading transactions...</div>
+                  ) : !userCreditsData?.transactions?.length ? (
+                    <div className="text-center py-8">
+                      <FileText className="w-12 h-12 mx-auto text-slate-300 mb-2" />
+                      <p className="text-slate-500">No transactions yet</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {userCreditsData.transactions.map((tx) => (
+                        <div key={tx.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                              parseFloat(tx.amount) >= 0 ? 'bg-emerald-100' : 'bg-red-100'
+                            }`}>
+                              {parseFloat(tx.amount) >= 0 ? (
+                                <Plus className="w-4 h-4 text-emerald-600" />
+                              ) : (
+                                <Minus className="w-4 h-4 text-red-600" />
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">{tx.description || tx.type}</p>
+                              <p className="text-xs text-slate-500">
+                                {new Date(tx.createdAt).toLocaleDateString()} at {new Date(tx.createdAt).toLocaleTimeString()}
+                              </p>
+                            </div>
+                          </div>
+                          <span className={`font-semibold ${parseFloat(tx.amount) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                            {parseFloat(tx.amount) >= 0 ? '+' : ''}${parseFloat(tx.amount).toFixed(2)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+          ) : (
+            <div className="space-y-4 py-4 overflow-y-auto max-h-[60vh]">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="user-first-name">First Name *</Label>
+                  <Input
+                    id="user-first-name"
+                    placeholder="John"
+                    value={userFormData.firstName}
+                    onChange={(e) =>
+                      setUserFormData({
+                        ...userFormData,
+                        firstName: e.target.value,
+                      })
+                    }
+                    data-testid="input-user-first-name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="user-last-name">Last Name</Label>
+                  <Input
+                    id="user-last-name"
+                    placeholder="Doe"
+                    value={userFormData.lastName}
+                    onChange={(e) =>
+                      setUserFormData({
+                        ...userFormData,
+                        lastName: e.target.value,
+                      })
+                    }
+                    data-testid="input-user-last-name"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="user-email">Email *</Label>
+                <Input
+                  id="user-email"
+                  type="email"
+                  placeholder="user@example.com"
+                  value={userFormData.email}
+                  onChange={(e) =>
+                    setUserFormData({ ...userFormData, email: e.target.value })
+                  }
+                  data-testid="input-user-email"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="user-phone">Phone Number</Label>
+                <Input
+                  id="user-phone"
+                  placeholder="+1 234 567 8900"
+                  value={userFormData.phone}
+                  onChange={(e) =>
+                    setUserFormData({ ...userFormData, phone: e.target.value })
+                  }
+                  data-testid="input-user-phone"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="user-username">Username</Label>
+                <Input
+                  id="user-username"
+                  placeholder="johndoe123"
+                  value={userFormData.username}
+                  onChange={(e) =>
+                    setUserFormData({ ...userFormData, username: e.target.value })
+                  }
+                  data-testid="input-user-username"
+                />
+                {userFormData.username && userFormData.username !== editingUser?.username && (
+                  <p className={`text-xs ${
+                    usernameStatus === 'checking' ? 'text-slate-500' :
+                    usernameStatus === 'available' ? 'text-green-600' :
+                    usernameStatus === 'taken' ? 'text-red-600' :
+                    'text-muted-foreground'
+                  }`}>
+                    {usernameStatus === 'checking' && 'Checking availability...'}
+                    {usernameStatus === 'available' && 'Username is available'}
+                    {usernameStatus === 'taken' && 'Username is already taken'}
+                    {usernameStatus === 'idle' && 'Username must be 3-30 characters (letters, numbers, -, _)'}
+                  </p>
+                )}
+              </div>
+
+              {userFormData.role === "driver" && (
+                <div className="space-y-2">
+                  <Label htmlFor="user-vehicle-plate">Vehicle Plate Number</Label>
+                  <Input
+                    id="user-vehicle-plate"
+                    placeholder="ABC123"
+                    value={userFormData.vehiclePlate}
+                    onChange={(e) =>
+                      setUserFormData({
+                        ...userFormData,
+                        vehiclePlate: e.target.value,
+                      })
+                    }
+                    data-testid="input-user-vehicle-plate"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="user-role">Role *</Label>
+                <Select
+                  value={userFormData.role}
+                  onValueChange={(value) =>
+                    setUserFormData({
+                      ...userFormData,
+                      role: value as typeof userFormData.role,
+                    })
+                  }
+                >
+                  <SelectTrigger id="user-role" data-testid="select-user-role">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="passenger">Passenger</SelectItem>
+                    <SelectItem value="driver">Driver</SelectItem>
+                    <SelectItem value="dispatcher">Dispatcher</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="user-status">Status</Label>
+                <Select
+                  value={userFormData.isActive ? "active" : "inactive"}
+                  onValueChange={(value) =>
+                    setUserFormData({
+                      ...userFormData,
+                      isActive: value === "active",
+                    })
+                  }
+                >
+                  <SelectTrigger id="user-status" data-testid="select-user-status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {userFormData.role === "passenger" && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="user-paylater">Pay Later Ability</Label>
+                    <Select
+                      value={userFormData.payLaterEnabled ? "enabled" : "disabled"}
+                      onValueChange={(value) =>
                         setUserFormData({
                           ...userFormData,
-                          discountValue: e.target.value,
+                          payLaterEnabled: value === "enabled",
                         })
                       }
-                      data-testid="input-user-discount-value"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      {userFormData.discountType === "percentage"
-                        ? "Enter percentage discount (0-100)"
-                        : "Enter fixed discount amount in dollars"}
-                    </p>
+                    >
+                      <SelectTrigger id="user-paylater" data-testid="select-user-paylater">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="enabled">Enabled</SelectItem>
+                        <SelectItem value="disabled">Disabled</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                )}
-              </>
-            )}
 
-            {editingUser && editingUser.id !== user?.id && (
-              <div className="space-y-2 pt-4 border-t border-slate-200">
-                <Label htmlFor="user-temp-password">
-                  Set Temporary Password (Optional)
-                </Label>
-                <Input
-                  id="user-temp-password"
-                  type="password"
-                  placeholder="Leave blank to keep current password"
-                  value={userFormData.temporaryPassword}
-                  onChange={(e) =>
-                    setUserFormData({
-                      ...userFormData,
-                      temporaryPassword: e.target.value,
-                    })
-                  }
-                  data-testid="input-temp-password"
-                />
-                <p className="text-xs text-muted-foreground">
-                  If set, user will receive this password via email/SMS. Minimum 6 characters.
-                </p>
-              </div>
-            )}
-          </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="user-cashpayment">Cash Payment Ability</Label>
+                    <Select
+                      value={userFormData.cashPaymentEnabled ? "enabled" : "disabled"}
+                      onValueChange={(value) =>
+                        setUserFormData({
+                          ...userFormData,
+                          cashPaymentEnabled: value === "enabled",
+                        })
+                      }
+                    >
+                      <SelectTrigger id="user-cashpayment" data-testid="select-user-cashpayment">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="enabled">Enabled</SelectItem>
+                        <SelectItem value="disabled">Disabled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-          <DialogFooter>
+                  <div className="space-y-2">
+                    <Label htmlFor="user-discount-type">Discount Type</Label>
+                    <Select
+                      value={userFormData.discountType || "none"}
+                      onValueChange={(value) =>
+                        setUserFormData({
+                          ...userFormData,
+                          discountType:
+                            value === "none" ? null : (value as "percentage" | "fixed"),
+                          discountValue: value === "none" ? "0" : userFormData.discountValue,
+                        })
+                      }
+                    >
+                      <SelectTrigger id="user-discount-type" data-testid="select-user-discount-type">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No Discount</SelectItem>
+                        <SelectItem value="percentage">Percentage (%)</SelectItem>
+                        <SelectItem value="fixed">Fixed Amount ($)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {userFormData.discountType && (
+                    <div className="space-y-2">
+                      <Label htmlFor="user-discount-value">
+                        Discount Value {userFormData.discountType === "percentage" ? "(%)" : "($)"}
+                      </Label>
+                      <Input
+                        id="user-discount-value"
+                        type="number"
+                        min="0"
+                        max={userFormData.discountType === "percentage" ? "100" : undefined}
+                        step={userFormData.discountType === "percentage" ? "1" : "0.01"}
+                        placeholder={userFormData.discountType === "percentage" ? "10" : "5.00"}
+                        value={userFormData.discountValue}
+                        onChange={(e) =>
+                          setUserFormData({
+                            ...userFormData,
+                            discountValue: e.target.value,
+                          })
+                        }
+                        data-testid="input-user-discount-value"
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+
+              {editingUser && editingUser.id !== user?.id && (
+                <div className="space-y-2 pt-4 border-t border-slate-200">
+                  <Label htmlFor="user-temp-password">Set Temporary Password (Optional)</Label>
+                  <Input
+                    id="user-temp-password"
+                    type="password"
+                    placeholder="Leave blank to keep current password"
+                    value={userFormData.temporaryPassword}
+                    onChange={(e) =>
+                      setUserFormData({
+                        ...userFormData,
+                        temporaryPassword: e.target.value,
+                      })
+                    }
+                    data-testid="input-temp-password"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    If set, user will receive this password via email/SMS. Minimum 6 characters.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter className="border-t pt-4">
             <Button
               variant="outline"
               onClick={() => {
                 setUserDialogOpen(false);
                 setEditingUser(null);
                 setUsernameStatus('idle');
+                setUserDialogTab('profile');
                 setUserFormData({
                   firstName: "",
                   lastName: "",
