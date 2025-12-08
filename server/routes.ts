@@ -5307,9 +5307,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Valid latitude and longitude required' });
       }
 
-      // Store location as JSON string
+      // Store location as JSON string in drivers table
       const location = JSON.stringify({ lat, lng, timestamp: new Date().toISOString() });
       const updatedDriver = await storage.updateDriverLocation(driver.id, location);
+      
+      // Also update user table for admin dashboard map visibility
+      await storage.updateUserLocation(userId, lat, lng);
       
       res.json({ success: true });
     } catch (error) {
