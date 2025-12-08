@@ -1,0 +1,106 @@
+Logs
+Server: localhost
+ew0wkcsk08cww448c84wcckg-213920513773
+Only Show Number of Lines *
+Stream Logs
+Include Timestamps
+9:40:39 PM [express] POST /api/calculate-price 200 in 11ms :: {"vehicleType":"business_suv","service…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+[ADMIN-BOOKING] Creating booking, request body: {
+  "passengerId": "8b5d9b07-e17f-4ef9-8404-8f7ef7e12743",
+  "pickupAddress": "2800 North Terminal Road, Houston, TX 77032",
+  "destinationAddress": "24 Cummins Green, Houston, TX 77046",
+  "scheduledDateTime": "2025-12-08T16:25",
+  "totalAmount": "175",
+  "regularPrice": "140.83",
+  "discountAmount": "0.00",
+  "baseFare": "130.40",
+  "gratuityAmount": "0.00",
+  "airportFeeAmount": "0.00",
+  "surgePricingMultiplier": "1.08",
+  "surgePricingAmount": "10.43",
+  "vehicleTypeId": "58c13235-e85b-4df9-820f-f57fa8b138ee",
+  "bookingType": "transfer",
+  "status": "pending",
+  "pickupCoords": {
+    "lat": 29.987934,
+    "lon": -95.342186
+  },
+  "destinationCoords": {
+    "lat": 29.730269,
+    "lon": -95.440531
+  },
+  "viaPoints": [],
+  "requestedHours": 2,
+  "bookingFor": "self",
+  "passengerName": "",
+  "passengerPhone": "",
+  "passengerEmail": "",
+  "passengerCount": 1,
+  "luggageCount": 0,
+  "babySeat": false,
+  "specialInstructions": "",
+  "flightNumber": "",
+  "flightAirline": "",
+  "flightDepartureAirport": "",
+  "flightArrivalAirport": "",
+  "paymentMethod": "pay_now"
+}
+[ADMIN-BOOKING] Parsed booking data: {
+  "passengerId": "8b5d9b07-e17f-4ef9-8404-8f7ef7e12743",
+  "vehicleTypeId": "58c13235-e85b-4df9-820f-f57fa8b138ee",
+  "bookingType": "transfer",
+  "status": "pending",
+  "pickupAddress": "2800 North Terminal Road, Houston, TX 77032",
+  "destinationAddress": "24 Cummins Green, Houston, TX 77046",
+  "viaPoints": [],
+  "scheduledDateTime": "2025-12-08T16:25:00.000Z",
+  "requestedHours": 2,
+  "baseFare": "130.40",
+  "gratuityAmount": "0.00",
+  "airportFeeAmount": "0.00",
+  "surgePricingMultiplier": "1.08",
+  "surgePricingAmount": "10.43",
+  "regularPrice": "140.83",
+  "discountAmount": "0.00",
+  "totalAmount": "175",
+  "paymentMethod": "pay_now",
+  "specialInstructions": "",
+  "passengerCount": 1,
+  "luggageCount": 0,
+  "babySeat": false,
+  "bookingFor": "self",
+  "passengerName": "",
+  "passengerPhone": "",
+  "passengerEmail": "",
+  "flightNumber": "",
+  "flightAirline": "",
+  "flightDepartureAirport": "",
+  "flightArrivalAirport": ""
+}
+9:40:45 PM [express] POST /api/admin/bookings 500 in 43ms :: {"message":"Failed to create booking"}
+Admin create booking error: error: column "driver_payment_paid" of relation "bookings" does not exist
+    at /app/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+    at async DatabaseStorage.createBooking (file:///app/dist/index.js:1480:23)
+    at async file:///app/dist/index.js:9550:23 {
+  length: 141,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '569',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_target.c',
+  line: '1065',
+  routine: 'checkInsertTargets'
+}

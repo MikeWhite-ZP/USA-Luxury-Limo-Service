@@ -2424,7 +2424,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/bookings', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      console.log('[ADMIN-BOOKING] Creating booking, request body:', JSON.stringify(req.body, null, 2));
       
       const user = await storage.getUser(userId);
       if (!user || user.role !== 'admin') {
@@ -2433,7 +2432,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Validate and parse the booking data, allowing passengerId to be specified
       const bookingData = insertBookingSchema.parse(req.body);
-      console.log('[ADMIN-BOOKING] Parsed booking data:', JSON.stringify(bookingData, null, 2));
 
       // Set journey tracking fields for admin-created bookings
       const bookingWithTracking = {
