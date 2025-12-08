@@ -95,6 +95,10 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   // Payment method required dialog state
   const [showPaymentMethodRequired, setShowPaymentMethodRequired] = useState(false);
   
+  // Partial credit payment state
+  const [useCredits, setUseCredits] = useState(false);
+  const [creditAmount, setCreditAmount] = useState('0');
+  
   const suggestionTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // Fetch user's payment methods to check if they have saved cards
@@ -104,6 +108,15 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   });
 
   const paymentMethods = paymentData?.paymentMethods || [];
+
+  // Fetch user's ride credits for partial payment
+  const { data: rideCreditsData } = useQuery<{ balance: string; hasCredits: boolean }>({
+    queryKey: ['/api/ride-credits'],
+    enabled: isAuthenticated && step === 4,
+  });
+
+  const rideCreditsBalance = parseFloat(rideCreditsData?.balance || '0');
+  const hasRideCredits = rideCreditsData?.hasCredits === true && rideCreditsBalance > 0;
 
   // Sync time state from hour, minute, and period
   useEffect(() => {
@@ -544,11 +557,21 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       const selectedVehicleSlug = getVehicleSlug(selectedVehicleName);
       const totalPrice = calculatedPrices[selectedVehicleSlug] || '0';
 
+      // Calculate credit amount to apply based on current state
+      const totalPriceNum = parseFloat(totalPrice) || 0;
+      const currentCreditBalance = parseFloat(rideCreditsData?.balance || '0');
+      const maxCredits = Math.min(currentCreditBalance, totalPriceNum);
+      const creditToApply = useCredits ? Math.min(Math.max(0, parseFloat(creditAmount) || 0), maxCredits) : 0;
+
       const bookingData = {
         vehicleTypeId: selectedVehicle,
         bookingType: activeTab,
         scheduledDateTime: new Date(`${date}T${time}`),
         totalAmount: totalPrice,
+        // Include partial credit amount if using credits
+        ...(creditToApply > 0 && {
+          creditAmountApplied: creditToApply.toFixed(2),
+        }),
         ...(activeTab === 'transfer' ? {
           pickupAddress: fromAddress,
           pickupLat: fromCoords?.lat.toString(),
@@ -1584,6 +1607,41 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
     const selectedVehicleName = vehicleTypes?.find(v => v.id === selectedVehicle)?.name || '';
     const selectedVehicleSlug = getVehicleSlug(selectedVehicleName);
     const totalPrice = calculatedPrices[selectedVehicleSlug] || '0';
+    const totalPriceNum = parseFloat(totalPrice) || 0;
+    
+    // Calculate max usable credits (minimum of balance and total price)
+    const maxUsableCredits = Math.min(rideCreditsBalance, totalPriceNum);
+    
+    // Calculate actual credit amount to apply (clamped within valid range)
+    const parsedCreditAmount = parseFloat(creditAmount) || 0;
+    const creditsApplied = useCredits ? Math.min(Math.max(0, parsedCreditAmount), maxUsableCredits) : 0;
+    
+    // Calculate remaining amount to pay
+    const remainingAmount = Math.max(0, totalPriceNum - creditsApplied);
+    
+    // Handler for credit amount input changes with validation
+    const handleCreditAmountChange = (value: string) => {
+      const numValue = parseFloat(value) || 0;
+      // Clamp to valid range
+      if (numValue < 0) {
+        setCreditAmount('0');
+      } else if (numValue > maxUsableCredits) {
+        setCreditAmount(maxUsableCredits.toFixed(2));
+      } else {
+        setCreditAmount(value);
+      }
+    };
+    
+    // Handler for toggling use credits checkbox
+    const handleUseCreditsToggle = (checked: boolean) => {
+      setUseCredits(checked);
+      if (checked) {
+        // Pre-fill with max usable amount
+        setCreditAmount(maxUsableCredits.toFixed(2));
+      } else {
+        setCreditAmount('0');
+      }
+    };
 
     return (
       <div className="space-y-6">
@@ -1641,12 +1699,98 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               <span>Passenger:</span>
               <span className="font-semibold">{passengerName}</span>
             </div>
-            <div className="border-t pt-2 mt-2 flex justify-between items-center">
-              <span className="text-lg font-bold">Total Amount:</span>
-              <span className="text-2xl font-bold text-primary">${totalPrice}</span>
+            <div className="border-t pt-2 mt-2 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-bold">Total Price:</span>
+                <span className="text-xl font-bold text-gray-800">${totalPrice}</span>
+              </div>
+              {useCredits && creditsApplied > 0 && (
+                <>
+                  <div className="flex justify-between items-center text-green-600">
+                    <span className="font-medium">Less: Credits Applied</span>
+                    <span className="font-semibold">-${creditsApplied.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-t pt-2">
+                    <span className="text-lg font-bold">Remaining to Pay:</span>
+                    <span className="text-2xl font-bold text-primary">${remainingAmount.toFixed(2)}</span>
+                  </div>
+                </>
+              )}
+              {(!useCredits || creditsApplied === 0) && (
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold">Amount to Pay:</span>
+                  <span className="text-2xl font-bold text-primary">${totalPrice}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
+
+        {/* Use Account Credits Section */}
+        {hasRideCredits && (
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200" data-testid="use-credits-section">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="use-credits"
+                  checked={useCredits}
+                  onChange={(e) => handleUseCreditsToggle(e.target.checked)}
+                  className="w-5 h-5 text-green-600 border-green-300 rounded focus:ring-green-500"
+                  data-testid="checkbox-use-credits"
+                />
+                <label htmlFor="use-credits" className="font-semibold text-green-800 cursor-pointer">
+                  Use Account Credits
+                </label>
+              </div>
+              <span className="text-sm font-medium text-green-700 bg-green-100 px-3 py-1 rounded-full">
+                Balance: ${rideCreditsBalance.toFixed(2)}
+              </span>
+            </div>
+            
+            {useCredits && (
+              <div className="mt-3 space-y-2">
+                <label htmlFor="credit-amount" className="text-sm font-medium text-gray-700">
+                  Amount to use (max ${maxUsableCredits.toFixed(2)}):
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold text-gray-600">$</span>
+                  <input
+                    type="number"
+                    id="credit-amount"
+                    value={creditAmount}
+                    onChange={(e) => handleCreditAmountChange(e.target.value)}
+                    onBlur={() => {
+                      // On blur, format to 2 decimal places if valid
+                      const numValue = parseFloat(creditAmount);
+                      if (!isNaN(numValue)) {
+                        setCreditAmount(Math.min(numValue, maxUsableCredits).toFixed(2));
+                      }
+                    }}
+                    min="0"
+                    max={maxUsableCredits}
+                    step="0.01"
+                    className="flex-1 p-3 border-2 border-green-300 rounded-lg focus:border-green-500 focus:ring-green-500 text-lg font-semibold"
+                    data-testid="input-credit-amount"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setCreditAmount(maxUsableCredits.toFixed(2))}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                    data-testid="button-use-max-credits"
+                  >
+                    Use Max
+                  </button>
+                </div>
+                {creditsApplied > 0 && (
+                  <p className="text-sm text-green-700">
+                    You'll pay ${remainingAmount.toFixed(2)} {remainingAmount > 0 ? 'with your selected payment method' : '- fully covered by credits!'}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Payment Options */}
         <div className="space-y-4">
@@ -1661,6 +1805,10 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 bookingType: activeTab,
                 scheduledDateTime: new Date(`${date}T${time}`).toISOString(),
                 totalAmount: totalPrice,
+                // Include partial credit info
+                ...(useCredits && creditsApplied > 0 && {
+                  creditAmountApplied: creditsApplied.toFixed(2),
+                }),
                 ...(activeTab === 'transfer' ? {
                   pickupAddress: fromAddress,
                   pickupLat: fromCoords?.lat.toString(),
@@ -1699,8 +1847,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               // Store in localStorage for checkout page
               localStorage.setItem('pendingBookingForPayment', JSON.stringify(bookingDataForCheckout));
               
-              // Redirect to checkout page in "create mode"
-              setLocation(`/checkout?mode=create&amount=${totalPrice}`);
+              // Redirect to checkout page in "create mode" with remaining amount to charge
+              const amountToCharge = useCredits && creditsApplied > 0 ? remainingAmount.toFixed(2) : totalPrice;
+              setLocation(`/checkout?mode=create&amount=${amountToCharge}`);
             }}
             className="w-full p-6 border-2 border-primary rounded-lg hover:bg-primary/5 transition-all group"
             data-testid="button-pay-now-step4"

@@ -1287,15 +1287,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const booking = await storage.createBooking(bookingData);
 
-      // If payment method is ride_credit, verify and deduct the credits
-      // Use bookingData.totalAmount from request (not booking.totalAmount which may be null)
+      // Handle ride credits - either full payment (ride_credit method) or partial credit usage
+      const creditAmountApplied = bookingData.creditAmountApplied 
+        ? parseFloat(String(bookingData.creditAmountApplied).replace(/[$,]/g, ''))
+        : 0;
+      
+      // Full credit payment (payment method is ride_credit)
       if (bookingData.paymentMethod === 'ride_credit') {
         const requestTotalAmount = bookingData.totalAmount || booking.totalAmount;
-        // Clean the amount string - remove currency symbols and commas
         const cleanAmount = String(requestTotalAmount || '0').replace(/[$,]/g, '');
         const totalAmount = parseFloat(cleanAmount);
         
-        // Validate that we have a valid positive number
         if (isNaN(totalAmount) || totalAmount <= 0) {
           await storage.deleteBooking(booking.id);
           return res.status(400).json({ 
@@ -1303,12 +1305,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
         
-        // Verify passenger has sufficient credits first
         const userCredits = await storage.getRideCredits(userId);
         const availableBalance = parseFloat(userCredits?.balance || '0');
         
         if (availableBalance < totalAmount) {
-          // Insufficient credits - delete the booking and return error
           await storage.deleteBooking(booking.id);
           return res.status(400).json({ 
             message: `Insufficient ride credits. You have $${availableBalance.toFixed(2)} but the booking costs $${totalAmount.toFixed(2)}. Please choose a different payment method.`
@@ -1324,10 +1324,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (result) {
           console.log(`[RIDE-CREDITS] Deducted $${totalAmount} for booking ${booking.id} from passenger ${userId}`);
         } else {
-          // This shouldn't happen if we verified balance above, but handle it
           await storage.deleteBooking(booking.id);
           return res.status(400).json({ 
             message: 'Failed to deduct ride credits. Please try again or choose a different payment method.'
+          });
+        }
+      }
+      // Partial credit payment (creditAmountApplied specified but not full ride_credit method)
+      else if (creditAmountApplied > 0) {
+        const requestTotalAmount = bookingData.totalAmount || booking.totalAmount;
+        const cleanTotal = String(requestTotalAmount || '0').replace(/[$,]/g, '');
+        const totalAmount = parseFloat(cleanTotal);
+        
+        // Validate credit amount doesn't exceed total
+        if (creditAmountApplied > totalAmount) {
+          await storage.deleteBooking(booking.id);
+          return res.status(400).json({ 
+            message: `Credit amount ($${creditAmountApplied.toFixed(2)}) cannot exceed booking total ($${totalAmount.toFixed(2)}).`
+          });
+        }
+        
+        const userCredits = await storage.getRideCredits(userId);
+        const availableBalance = parseFloat(userCredits?.balance || '0');
+        
+        if (availableBalance < creditAmountApplied) {
+          await storage.deleteBooking(booking.id);
+          return res.status(400).json({ 
+            message: `Insufficient ride credits. You have $${availableBalance.toFixed(2)} but tried to use $${creditAmountApplied.toFixed(2)}.`
+          });
+        }
+        
+        const result = await storage.spendRideCredits(
+          userId,
+          creditAmountApplied.toString(),
+          booking.id,
+          `Partial payment for booking #${booking.id}`
+        );
+        if (result) {
+          console.log(`[RIDE-CREDITS] Deducted $${creditAmountApplied} (partial) for booking ${booking.id} from passenger ${userId}`);
+        } else {
+          await storage.deleteBooking(booking.id);
+          return res.status(400).json({ 
+            message: 'Failed to deduct ride credits. Please try again.'
           });
         }
       }
@@ -2404,15 +2442,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const booking = await storage.createBooking(bookingWithTracking);
 
-      // If payment method is ride_credit, verify and deduct the credits
-      // Use bookingData.totalAmount from request (not booking.totalAmount which may be null)
+      // Handle ride credits - either full payment (ride_credit method) or partial credit usage
+      const creditAmountApplied = bookingData.creditAmountApplied 
+        ? parseFloat(String(bookingData.creditAmountApplied).replace(/[$,]/g, ''))
+        : 0;
+      
+      // Full credit payment (payment method is ride_credit)
       if (bookingData.paymentMethod === 'ride_credit' && booking.passengerId) {
         const requestTotalAmount = bookingData.totalAmount || booking.totalAmount;
-        // Clean the amount string - remove currency symbols and commas
         const cleanAmount = String(requestTotalAmount || '0').replace(/[$,]/g, '');
         const totalAmount = parseFloat(cleanAmount);
         
-        // Validate that we have a valid positive number
         if (isNaN(totalAmount) || totalAmount <= 0) {
           await storage.deleteBooking(booking.id);
           return res.status(400).json({ 
@@ -2420,12 +2460,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
         
-        // Verify passenger has sufficient credits first
         const userCredits = await storage.getRideCredits(booking.passengerId);
         const availableBalance = parseFloat(userCredits?.balance || '0');
         
         if (availableBalance < totalAmount) {
-          // Insufficient credits - delete the booking and return error
           await storage.deleteBooking(booking.id);
           return res.status(400).json({ 
             message: `Insufficient ride credits. Passenger has $${availableBalance.toFixed(2)} but the booking costs $${totalAmount.toFixed(2)}. Please choose a different payment method.`
@@ -2441,10 +2479,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (result) {
           console.log(`[RIDE-CREDITS] Deducted $${totalAmount} for booking ${booking.id} from passenger ${booking.passengerId}`);
         } else {
-          // This shouldn't happen if we verified balance above, but handle it
           await storage.deleteBooking(booking.id);
           return res.status(400).json({ 
             message: 'Failed to deduct ride credits. Please try again or choose a different payment method.'
+          });
+        }
+      }
+      // Partial credit payment (creditAmountApplied specified but not full ride_credit method)
+      else if (creditAmountApplied > 0 && booking.passengerId) {
+        const requestTotalAmount = bookingData.totalAmount || booking.totalAmount;
+        const cleanTotal = String(requestTotalAmount || '0').replace(/[$,]/g, '');
+        const totalAmount = parseFloat(cleanTotal);
+        
+        // Validate credit amount doesn't exceed total
+        if (creditAmountApplied > totalAmount) {
+          await storage.deleteBooking(booking.id);
+          return res.status(400).json({ 
+            message: `Credit amount ($${creditAmountApplied.toFixed(2)}) cannot exceed booking total ($${totalAmount.toFixed(2)}).`
+          });
+        }
+        
+        const userCredits = await storage.getRideCredits(booking.passengerId);
+        const availableBalance = parseFloat(userCredits?.balance || '0');
+        
+        if (availableBalance < creditAmountApplied) {
+          await storage.deleteBooking(booking.id);
+          return res.status(400).json({ 
+            message: `Insufficient ride credits. Passenger has $${availableBalance.toFixed(2)} but tried to use $${creditAmountApplied.toFixed(2)}.`
+          });
+        }
+        
+        const result = await storage.spendRideCredits(
+          booking.passengerId,
+          creditAmountApplied.toString(),
+          booking.id,
+          `Partial payment for booking #${booking.id}`
+        );
+        if (result) {
+          console.log(`[RIDE-CREDITS] Deducted $${creditAmountApplied} (partial) for booking ${booking.id} from passenger ${booking.passengerId}`);
+        } else {
+          await storage.deleteBooking(booking.id);
+          return res.status(400).json({ 
+            message: 'Failed to deduct ride credits. Please try again.'
           });
         }
       }
