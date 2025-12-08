@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
+import { generateInvoiceHTML } from '@/lib/invoiceTemplate';
+import { useBranding } from '@/hooks/useBranding';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -16,6 +18,7 @@ export default function MobileInvoices() {
   const { toast } = useToast();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { companyName, logoUrl } = useBranding();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -105,335 +108,59 @@ export default function MobileInvoices() {
   };
 
   const handlePrint = async (invoice: any) => {
-    let booking = invoice.booking;
+    const booking = invoice.booking;
     
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
-    let pricingRows = '';
+    const passengerName = booking?.passengerFirstName && booking?.passengerLastName 
+      ? `${booking.passengerFirstName} ${booking.passengerLastName}`
+      : booking?.passengerName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Guest';
     
-    if (booking?.baseFare) {
-      pricingRows += `
-        <div class="pricing-row">
-          <span class="pricing-label">Base Fare</span>
-          <span class="pricing-value">$${parseFloat(booking.baseFare).toFixed(2)}</span>
-        </div>
-      `;
-    }
-    
-    if (booking?.surgePricingAmount && parseFloat(booking.surgePricingAmount) > 0) {
-      const multiplier = booking.surgePricingMultiplier ? ` (${booking.surgePricingMultiplier}x)` : '';
-      pricingRows += `
-        <div class="pricing-row">
-          <span class="pricing-label">Surge Pricing${multiplier}</span>
-          <span class="pricing-value pricing-surge">+$${parseFloat(booking.surgePricingAmount).toFixed(2)}</span>
-        </div>
-      `;
-    }
-    
-    if (booking?.gratuityAmount && parseFloat(booking.gratuityAmount) > 0) {
-      pricingRows += `
-        <div class="pricing-row">
-          <span class="pricing-label">Gratuity (Tip)</span>
-          <span class="pricing-value">+$${parseFloat(booking.gratuityAmount).toFixed(2)}</span>
-        </div>
-      `;
-    }
-    
-    if (booking?.airportFeeAmount && parseFloat(booking.airportFeeAmount) > 0) {
-      pricingRows += `
-        <div class="pricing-row">
-          <span class="pricing-label">Airport Fee</span>
-          <span class="pricing-value">+$${parseFloat(booking.airportFeeAmount).toFixed(2)}</span>
-        </div>
-      `;
-    }
-    
-    if (booking?.discountAmount && parseFloat(booking.discountAmount) > 0) {
-      const percentage = booking.discountPercentage ? ` (${booking.discountPercentage}%)` : '';
-      pricingRows += `
-        <div class="pricing-row">
-          <span class="pricing-label">Discount${percentage}</span>
-          <span class="pricing-value pricing-discount">-$${parseFloat(booking.discountAmount).toFixed(2)}</span>
-        </div>
-      `;
-    }
-
-    const printContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Invoice #${invoice.invoiceNumber}</title>
-        <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            padding: 48px; 
-            max-width: 850px; 
-            margin: 0 auto;
-            background: #ffffff;
-            color: #0f172a;
-            line-height: 1.6;
-          }
-          .header { 
-            text-align: center; 
-            border-bottom: 3px solid #4f46e5;
-            padding-bottom: 24px; 
-            margin-bottom: 40px;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            padding: 32px;
-            border-radius: 12px;
-          }
-          .header h1 { 
-            font-size: 36px;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-          }
-          .header .invoice-number { 
-            font-size: 18px;
-            color: #4f46e5;
-            font-weight: 600;
-            margin-top: 12px;
-          }
-          .info-section {
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 32px;
-          }
-          .info-section h2 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #334155;
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-          }
-          .info-item {
-            display: flex;
-            flex-direction: column;
-          }
-          .info-label {
-            font-size: 13px;
-            color: #64748b;
-            font-weight: 500;
-            margin-bottom: 4px;
-          }
-          .info-value {
-            font-size: 15px;
-            color: #0f172a;
-            font-weight: 600;
-          }
-          .booking-id {
-            font-family: 'Courier New', monospace;
-            background: #cbd5e1;
-            padding: 4px 12px;
-            border-radius: 6px;
-            display: inline-block;
-          }
-          .pricing-section {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 32px;
-          }
-          .pricing-section h2 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #334155;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          .pricing-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 0;
-            border-bottom: 1px solid #f1f5f9;
-          }
-          .pricing-row:last-child {
-            border-bottom: none;
-          }
-          .pricing-label {
-            font-size: 15px;
-            color: #0f172a;
-            font-weight: 500;
-          }
-          .pricing-value {
-            font-size: 15px;
-            color: #0f172a;
-            font-weight: 600;
-          }
-          .pricing-surge {
-            color: #ea580c;
-          }
-          .pricing-discount {
-            color: #16a34a;
-          }
-          .total-section {
-            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-            border: 3px solid #3b82f6;
-            border-radius: 12px;
-            padding: 24px;
-            margin-top: 24px;
-          }
-          .total-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-          .total-label {
-            font-size: 20px;
-            color: #0f172a;
-            font-weight: 700;
-          }
-          .total-value {
-            font-size: 28px;
-            color: #1d4ed8;
-            font-weight: 800;
-          }
-          .payment-status {
-            text-align: center;
-            margin-top: 32px;
-            padding: 20px;
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            border: 3px solid #10b981;
-            border-radius: 12px;
-          }
-          .payment-status-text {
-            color: #065f46;
-            font-weight: 800;
-            font-size: 20px;
-            letter-spacing: 2px;
-          }
-          .footer {
-            margin-top: 48px;
-            padding-top: 24px;
-            border-top: 2px solid #e2e8f0;
-            text-align: center;
-          }
-          .footer p {
-            color: #64748b;
-            font-size: 13px;
-            font-weight: 500;
-          }
-          .footer .thank-you {
-            font-size: 16px;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 8px;
-          }
-          @media print {
-            body { 
-              padding: 24px;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>USA Luxury Limo</h1>
-          <div class="invoice-number">Invoice #${invoice.invoiceNumber}</div>
-        </div>
-        
-        <div class="info-section">
-          <h2>Invoice Information</h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Invoice Date</span>
-              <span class="info-value">${new Date(invoice.createdAt).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Booking ID</span>
-              <span class="info-value booking-id">#${invoice.bookingId.toUpperCase().substring(0, 8)}</span>
-            </div>
-            ${invoice.paidAt ? `
-              <div class="info-item">
-                <span class="info-label">Payment Date</span>
-                <span class="info-value">${new Date(invoice.paidAt).toLocaleDateString('en-US', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}</span>
-              </div>
-            ` : ''}
-          </div>
-        </div>
-        
-        ${booking ? `
-        <div class="info-section">
-          <h2>🚗 Journey Information</h2>
-          <div class="info-grid">
-            <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">From :</span>
-              <span class="info-value">${booking.pickupAddress}</span>
-            </div>
-            ${booking.bookingType === 'hourly' && booking.requestedHours ? `
-            <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">Duration:</span>
-              <span class="info-value">${booking.requestedHours} ${booking.requestedHours === 1 ? 'Hour' : 'Hours'}</span>
-            </div>
-            ` : booking.destinationAddress ? `
-            <div class="info-item" style="grid-column: span 2;">
-              <span class="info-label">Destination:</span>
-              <span class="info-value">${booking.destinationAddress}</span>
-            </div>
-            ` : ''}
-          </div>
-        </div>
-        ` : ''}
-        
-        <div class="pricing-section">
-          <h2>📋 Detailed Pricing Breakdown</h2>
-          ${pricingRows || `
-            <div class="pricing-row">
-              <span class="pricing-label">Journey Fare</span>
-              <span class="pricing-value">$${parseFloat(invoice.subtotal).toFixed(2)}</span>
-            </div>
-          `}
-          
-          <div class="total-section">
-            <div class="total-row">
-              <span class="total-label">Total Amount</span>
-              <span class="total-value">$${parseFloat(invoice.totalAmount).toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
-        
-        ${invoice.paidAt ? `
-          <div class="payment-status">
-            <div class="payment-status-text">✓ PAYMENT RECEIVED</div>
-          </div>
-        ` : ''}
-        
-        <div class="footer">
-          <p class="thank-you">Thank you for choosing USA Luxury Limo!</p>
-          <p>All prices include statutory taxes and transportation expenses</p>
-        </div>
-        
-        <script>
-          window.onload = () => {
-            window.print();
-            window.onafterprint = () => window.close();
-          };
-        </script>
-      </body>
-      </html>
-    `;
+    const printContent = generateInvoiceHTML({
+      logoUrl,
+      companyName,
+      invoiceNumber: invoice.invoiceNumber,
+      booking: {
+        confirmationNumber: booking?.confirmationNumber || invoice.invoiceNumber,
+        scheduledDateTime: booking?.scheduledDateTime || invoice.createdAt,
+        createdAt: invoice.createdAt,
+        passengerCount: booking?.passengerCount || 1,
+        vehicleType: booking?.vehicleTypeName || booking?.vehicleType,
+        vehicleName: booking?.vehicleName,
+        driverName: booking?.driverName,
+        driverPhone: booking?.driverPhone,
+        passengerName,
+        passengerFirstName: booking?.passengerFirstName,
+        passengerLastName: booking?.passengerLastName,
+        passengerPhone: booking?.passengerPhone || user?.phone,
+        passengerEmail: booking?.passengerEmail || user?.email,
+        passengerAddress: booking?.passengerAddress,
+        pickupAddress: booking?.pickupAddress || 'N/A',
+        destinationAddress: booking?.destinationAddress,
+        bookingType: booking?.bookingType,
+        requestedHours: booking?.requestedHours,
+        paymentMethod: booking?.paymentMethod,
+        status: booking?.status,
+        notes: booking?.notes,
+        specialRequests: booking?.specialInstructions,
+        baseFare: booking?.baseFare,
+        totalFare: invoice.totalAmount || booking?.totalFare,
+        gratuityAmount: booking?.gratuityAmount,
+        surgePricingAmount: booking?.surgePricingAmount,
+        surgePricingMultiplier: booking?.surgePricingMultiplier,
+        airportFeeAmount: booking?.airportFeeAmount,
+        discountAmount: booking?.discountAmount,
+        discountPercentage: booking?.discountPercentage,
+        tollFees: booking?.tollFees,
+        parkingFees: booking?.parkingFees,
+        extraStopFees: booking?.extraStopFees,
+        waitTimeFees: booking?.waitTimeFees,
+        creditAmountApplied: booking?.creditAmountApplied,
+        paidAmount: invoice.paidAt ? invoice.totalAmount : '0',
+        taxAmount: booking?.taxAmount,
+      }
+    });
 
     printWindow.document.write(printContent);
     printWindow.document.close();
