@@ -13,6 +13,9 @@ import {
   paymentOptions,
   passwordResetTokens,
   services,
+  rideCredits,
+  rideCreditTransactions,
+  bookingCancellations,
   type User,
   type UpsertUser,
   type Driver,
@@ -65,6 +68,11 @@ import {
   emergencyIncidents,
   type EmergencyIncident,
   type InsertEmergencyIncident,
+  type RideCredit,
+  type RideCreditTransaction,
+  type InsertRideCreditTransaction,
+  type BookingCancellation,
+  type InsertBookingCancellation,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -280,6 +288,16 @@ export interface IStorage {
   getEmergencyIncidents(status?: string): Promise<EmergencyIncident[]>;
   getEmergencyIncident(id: string): Promise<EmergencyIncident | undefined>;
   updateEmergencyIncident(id: string, updates: Partial<EmergencyIncident>): Promise<EmergencyIncident | undefined>;
+  
+  // Ride Credits
+  getRideCredits(userId: string): Promise<RideCredit | undefined>;
+  addRideCredits(userId: string, amount: string, bookingId: string | null, description: string): Promise<RideCreditTransaction>;
+  spendRideCredits(userId: string, amount: string, bookingId: string, description: string): Promise<RideCreditTransaction | null>;
+  getRideCreditTransactions(userId: string): Promise<RideCreditTransaction[]>;
+  
+  // Booking Cancellations
+  createBookingCancellation(cancellation: InsertBookingCancellation): Promise<BookingCancellation>;
+  getBookingCancellation(bookingId: string): Promise<BookingCancellation | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2318,6 +2336,110 @@ export class DatabaseStorage implements IStorage {
       .where(eq(emergencyIncidents.id, id))
       .returning();
     return result;
+  }
+  
+  // Ride Credits Methods
+  async getRideCredits(userId: string): Promise<RideCredit | undefined> {
+    const [credit] = await db.select().from(rideCredits).where(eq(rideCredits.userId, userId));
+    return credit;
+  }
+  
+  async addRideCredits(userId: string, amount: string, bookingId: string | null, description: string): Promise<RideCreditTransaction> {
+    // Get or create user's ride credits record
+    let userCredits = await this.getRideCredits(userId);
+    const amountNum = parseFloat(amount);
+    
+    if (!userCredits) {
+      // Create new ride credits record for user
+      const [newCredits] = await db.insert(rideCredits).values({
+        userId,
+        balance: amount,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }).returning();
+      userCredits = newCredits;
+    } else {
+      // Update existing balance
+      const currentBalance = parseFloat(userCredits.balance || '0');
+      const newBalance = (currentBalance + amountNum).toFixed(2);
+      
+      await db.update(rideCredits)
+        .set({ 
+          balance: newBalance,
+          updatedAt: new Date() 
+        })
+        .where(eq(rideCredits.userId, userId));
+      
+      userCredits = { ...userCredits, balance: newBalance };
+    }
+    
+    // Create transaction record
+    const [transaction] = await db.insert(rideCreditTransactions).values({
+      userId,
+      bookingId: bookingId || undefined,
+      transactionType: 'earned',
+      amount: amount,
+      balanceAfter: userCredits.balance,
+      description,
+      createdAt: new Date(),
+    }).returning();
+    
+    return transaction;
+  }
+  
+  async spendRideCredits(userId: string, amount: string, bookingId: string, description: string): Promise<RideCreditTransaction | null> {
+    const userCredits = await this.getRideCredits(userId);
+    if (!userCredits) return null;
+    
+    const currentBalance = parseFloat(userCredits.balance || '0');
+    const amountNum = parseFloat(amount);
+    
+    // Check if user has sufficient balance
+    if (currentBalance < amountNum) return null;
+    
+    const newBalance = (currentBalance - amountNum).toFixed(2);
+    
+    // Update balance
+    await db.update(rideCredits)
+      .set({ 
+        balance: newBalance,
+        updatedAt: new Date() 
+      })
+      .where(eq(rideCredits.userId, userId));
+    
+    // Create transaction record (negative amount for spending)
+    const [transaction] = await db.insert(rideCreditTransactions).values({
+      userId,
+      bookingId,
+      transactionType: 'spent',
+      amount: `-${amount}`,
+      balanceAfter: newBalance,
+      description,
+      createdAt: new Date(),
+    }).returning();
+    
+    return transaction;
+  }
+  
+  async getRideCreditTransactions(userId: string): Promise<RideCreditTransaction[]> {
+    return await db.select().from(rideCreditTransactions)
+      .where(eq(rideCreditTransactions.userId, userId))
+      .orderBy(desc(rideCreditTransactions.createdAt));
+  }
+  
+  // Booking Cancellations Methods
+  async createBookingCancellation(cancellation: InsertBookingCancellation): Promise<BookingCancellation> {
+    const [result] = await db.insert(bookingCancellations).values({
+      ...cancellation,
+      createdAt: new Date(),
+    }).returning();
+    return result;
+  }
+  
+  async getBookingCancellation(bookingId: string): Promise<BookingCancellation | undefined> {
+    const [cancellation] = await db.select().from(bookingCancellations)
+      .where(eq(bookingCancellations.bookingId, bookingId));
+    return cancellation;
   }
 }
 
