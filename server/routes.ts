@@ -4903,7 +4903,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      const allBookings = await storage.getBookings() as Booking[];
+      const allBookings = await storage.getAllBookings() as Booking[];
       
       // Get driver's completed bookings with payment (using the driver table's ID)
       const driverBookings = allBookings.filter((b: Booking) => 
