@@ -3405,7 +3405,7 @@ export default function AdminDashboard() {
     temporaryPassword: "", // For setting temp password when editing
   });
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
-  const [userDialogTab, setUserDialogTab] = useState<'profile' | 'credits' | 'transactions'>('profile');
+  const [userDialogTab, setUserDialogTab] = useState<'profile' | 'credits' | 'transactions' | 'earnings' | 'documents'>('profile');
   const [creditAdjustmentAmount, setCreditAdjustmentAmount] = useState('');
   const [creditAdjustmentType, setCreditAdjustmentType] = useState<'add' | 'deduct'>('add');
   const [creditAdjustmentDescription, setCreditAdjustmentDescription] = useState('');
@@ -3777,6 +3777,55 @@ export default function AdminDashboard() {
       toast({
         title: "Error",
         description: error.message || "Failed to adjust credits",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Fetch driver earnings
+  const { data: driverEarningsData, isLoading: driverEarningsLoading } = useQuery<{
+    totalEarnings: string;
+    paidEarnings: string;
+    unpaidEarnings: string;
+    completedJobs: number;
+    earnings: Array<{
+      bookingId: string;
+      confirmationNumber: string;
+      pickupAddress: string;
+      destinationAddress: string;
+      scheduledDateTime: string;
+      driverPayment: string;
+      paid: boolean;
+      paidAt: string | null;
+      paidBy: string | null;
+    }>;
+  }>({
+    queryKey: ["/api/admin/drivers", editingUser?.id, "earnings"],
+    queryFn: async () => {
+      if (!editingUser?.id) return { totalEarnings: '0.00', paidEarnings: '0.00', unpaidEarnings: '0.00', completedJobs: 0, earnings: [] };
+      const response = await apiRequest('GET', `/api/admin/drivers/${editingUser.id}/earnings`);
+      return response.json();
+    },
+    enabled: !!editingUser?.id && userDialogOpen && editingUser?.role === 'driver',
+  });
+
+  // Mutation for marking driver payment as paid
+  const markDriverPaymentPaidMutation = useMutation({
+    mutationFn: async ({ bookingId, paid }: { bookingId: string; paid: boolean }) => {
+      const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/driver-payment-paid`, { paid });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/drivers", editingUser?.id, "earnings"] });
+      toast({
+        title: "Payment Updated",
+        description: "Driver payment status has been updated.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update payment status",
         variant: "destructive",
       });
     },
@@ -9578,6 +9627,285 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   )}
+                </div>
+              </TabsContent>
+            </Tabs>
+          ) : editingUser && editingUser.role === 'driver' ? (
+            <Tabs value={userDialogTab} onValueChange={(v) => setUserDialogTab(v as 'profile' | 'earnings' | 'documents')} className="flex-1 flex flex-col min-h-0">
+              <TabsList className="grid w-full grid-cols-3 mb-4">
+                <TabsTrigger value="profile" className="flex items-center gap-2">
+                  <UserIcon className="w-4 h-4" />
+                  Profile
+                </TabsTrigger>
+                <TabsTrigger value="earnings" className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4" />
+                  Earnings
+                </TabsTrigger>
+                <TabsTrigger value="documents" className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Documents
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="profile" className="flex-1 overflow-y-auto pr-2 mt-0">
+                <div className="space-y-4 py-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="user-first-name">First Name *</Label>
+                      <Input
+                        id="user-first-name"
+                        placeholder="John"
+                        value={userFormData.firstName}
+                        onChange={(e) =>
+                          setUserFormData({
+                            ...userFormData,
+                            firstName: e.target.value,
+                          })
+                        }
+                        data-testid="input-user-first-name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="user-last-name">Last Name</Label>
+                      <Input
+                        id="user-last-name"
+                        placeholder="Doe"
+                        value={userFormData.lastName}
+                        onChange={(e) =>
+                          setUserFormData({
+                            ...userFormData,
+                            lastName: e.target.value,
+                          })
+                        }
+                        data-testid="input-user-last-name"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="user-email">Email *</Label>
+                      <Input
+                        id="user-email"
+                        type="email"
+                        placeholder="user@example.com"
+                        value={userFormData.email}
+                        onChange={(e) =>
+                          setUserFormData({ ...userFormData, email: e.target.value })
+                        }
+                        data-testid="input-user-email"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="user-phone">Phone Number</Label>
+                      <Input
+                        id="user-phone"
+                        placeholder="+1 234 567 8900"
+                        value={userFormData.phone}
+                        onChange={(e) =>
+                          setUserFormData({ ...userFormData, phone: e.target.value })
+                        }
+                        data-testid="input-user-phone"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="user-username">Username</Label>
+                      <Input
+                        id="user-username"
+                        placeholder="johndoe123"
+                        value={userFormData.username}
+                        onChange={(e) =>
+                          setUserFormData({ ...userFormData, username: e.target.value })
+                        }
+                        data-testid="input-user-username"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="user-vehicle-plate">Vehicle Plate</Label>
+                      <Input
+                        id="user-vehicle-plate"
+                        placeholder="ABC123"
+                        value={userFormData.vehiclePlate}
+                        onChange={(e) =>
+                          setUserFormData({
+                            ...userFormData,
+                            vehiclePlate: e.target.value,
+                          })
+                        }
+                        data-testid="input-user-vehicle-plate"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="user-role">Role *</Label>
+                      <Select
+                        value={userFormData.role}
+                        onValueChange={(value) =>
+                          setUserFormData({
+                            ...userFormData,
+                            role: value as typeof userFormData.role,
+                          })
+                        }
+                      >
+                        <SelectTrigger id="user-role" data-testid="select-user-role">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="passenger">Passenger</SelectItem>
+                          <SelectItem value="driver">Driver</SelectItem>
+                          <SelectItem value="dispatcher">Dispatcher</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="user-status">Status</Label>
+                      <Select
+                        value={userFormData.isActive ? "active" : "inactive"}
+                        onValueChange={(value) =>
+                          setUserFormData({
+                            ...userFormData,
+                            isActive: value === "active",
+                          })
+                        }
+                      >
+                        <SelectTrigger id="user-status" data-testid="select-user-status">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {editingUser && editingUser.id !== user?.id && (
+                    <div className="space-y-2 pt-4 border-t border-slate-200">
+                      <Label htmlFor="user-temp-password">Set Temporary Password</Label>
+                      <Input
+                        id="user-temp-password"
+                        type="password"
+                        placeholder="Leave blank to keep current"
+                        value={userFormData.temporaryPassword}
+                        onChange={(e) =>
+                          setUserFormData({
+                            ...userFormData,
+                            temporaryPassword: e.target.value,
+                          })
+                        }
+                        data-testid="input-temp-password"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        If set, driver will receive this password via email/SMS.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="earnings" className="flex-1 overflow-y-auto pr-2 mt-0">
+                <div className="space-y-6 py-2">
+                  <div className="grid grid-cols-3 gap-4">
+                    <Card className="border-2 border-blue-100 bg-gradient-to-br from-blue-50 to-white">
+                      <CardContent className="pt-4 pb-3">
+                        <p className="text-xs font-medium text-slate-600">Total Earnings</p>
+                        <p className="text-2xl font-bold text-blue-600">
+                          ${driverEarningsLoading ? '...' : parseFloat(driverEarningsData?.totalEarnings || '0').toFixed(2)}
+                        </p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-2 border-emerald-100 bg-gradient-to-br from-emerald-50 to-white">
+                      <CardContent className="pt-4 pb-3">
+                        <p className="text-xs font-medium text-slate-600">Paid</p>
+                        <p className="text-2xl font-bold text-emerald-600">
+                          ${driverEarningsLoading ? '...' : parseFloat(driverEarningsData?.paidEarnings || '0').toFixed(2)}
+                        </p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-2 border-amber-100 bg-gradient-to-br from-amber-50 to-white">
+                      <CardContent className="pt-4 pb-3">
+                        <p className="text-xs font-medium text-slate-600">Unpaid</p>
+                        <p className="text-2xl font-bold text-amber-600">
+                          ${driverEarningsLoading ? '...' : parseFloat(driverEarningsData?.unpaidEarnings || '0').toFixed(2)}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold text-slate-700">Earnings History</h4>
+                    {driverEarningsLoading ? (
+                      <div className="text-center py-8 text-slate-500">Loading earnings...</div>
+                    ) : !driverEarningsData?.earnings?.length ? (
+                      <div className="text-center py-8">
+                        <DollarSign className="w-12 h-12 mx-auto text-slate-300 mb-2" />
+                        <p className="text-slate-500">No completed jobs yet</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                        {driverEarningsData.earnings.map((earning) => (
+                          <div key={earning.bookingId} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border">
+                            <div className="flex-1 min-w-0 mr-3">
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-medium truncate">{earning.confirmationNumber}</p>
+                                {earning.paid ? (
+                                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">Paid</Badge>
+                                ) : (
+                                  <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">Unpaid</Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-slate-500 truncate">{earning.pickupAddress}</p>
+                              <p className="text-xs text-slate-400">
+                                {new Date(earning.scheduledDateTime).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="font-semibold text-slate-800">
+                                ${parseFloat(earning.driverPayment || '0').toFixed(2)}
+                              </span>
+                              <Button
+                                size="sm"
+                                variant={earning.paid ? "outline" : "default"}
+                                className={earning.paid ? "" : "bg-emerald-600 hover:bg-emerald-700"}
+                                onClick={() => markDriverPaymentPaidMutation.mutate({
+                                  bookingId: earning.bookingId,
+                                  paid: !earning.paid
+                                })}
+                                disabled={markDriverPaymentPaidMutation.isPending}
+                              >
+                                {earning.paid ? 'Unmark' : 'Mark Paid'}
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="documents" className="flex-1 overflow-y-auto pr-2 mt-0">
+                <div className="space-y-4 py-2">
+                  <div className="text-center py-8">
+                    <FileText className="w-12 h-12 mx-auto text-slate-300 mb-2" />
+                    <p className="text-slate-500 mb-4">View and manage driver documents</p>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedDriverForDocs(editingUser);
+                        setDocumentsDialogOpen(true);
+                      }}
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      Open Documents Manager
+                    </Button>
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>

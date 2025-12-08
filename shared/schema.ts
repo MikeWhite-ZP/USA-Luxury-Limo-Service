@@ -252,6 +252,9 @@ export const bookings = pgTable("bookings", {
   discountAmount: decimal("discount_amount", { precision: 10, scale: 2 }), // Calculated discount
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }), // Final price after discount
   driverPayment: decimal("driver_payment", { precision: 10, scale: 2 }), // Amount driver gets paid (editable by admin/dispatcher)
+  driverPaymentPaid: boolean("driver_payment_paid").default(false), // Whether driver has been paid
+  driverPaymentPaidAt: timestamp("driver_payment_paid_at"), // When driver was paid
+  driverPaymentPaidBy: varchar("driver_payment_paid_by"), // Admin who marked as paid
   
   // Payment
   paymentStatus: varchar("payment_status", { 

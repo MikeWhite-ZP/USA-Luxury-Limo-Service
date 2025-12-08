@@ -4839,6 +4839,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Mark driver payment as paid
+  app.patch('/api/admin/bookings/:id/driver-payment-paid', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const { paid } = req.body;
+      
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+
+      // Update driver payment status
+      const updatedBooking = await storage.updateBooking(id, {
+        driverPaymentPaid: paid === true,
+        driverPaymentPaidAt: paid === true ? new Date() : null,
+        driverPaymentPaidBy: paid === true ? `${user.firstName} ${user.lastName}` : null,
+      });
+      
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Mark driver payment paid error:', error);
+      res.status(500).json({ error: 'Failed to update driver payment status' });
+    }
+  });
+
+  // Get driver earnings summary (accepts userId, looks up corresponding driver record)
+  app.get('/api/admin/drivers/:driverId/earnings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { driverId } = req.params;
+      
+      // driverId param could be either a driver's table ID or a user's ID
+      // First try to get driver by userId (most common case from frontend)
+      let driverRecord = await storage.getDriverByUserId(driverId);
+      
+      // If not found, try as a direct driver ID
+      if (!driverRecord) {
+        const allDrivers = await storage.getDrivers();
+        driverRecord = allDrivers.find((d: any) => d.id === driverId);
+      }
+      
+      if (!driverRecord) {
+        return res.json({
+          totalEarnings: '0.00',
+          paidEarnings: '0.00',
+          unpaidEarnings: '0.00',
+          completedJobs: 0,
+          earnings: [],
+        });
+      }
+      
+      const allBookings = await storage.getBookings() as Booking[];
+      
+      // Get driver's completed bookings with payment (using the driver table's ID)
+      const driverBookings = allBookings.filter((b: Booking) => 
+        b.assignedDriverId === driverRecord.id && 
+        b.status === 'completed' && 
+        b.driverPayment
+      );
+
+      // Calculate totals
+      const totalEarnings = driverBookings.reduce((sum: number, b: Booking) => 
+        sum + parseFloat(b.driverPayment || '0'), 0);
+      
+      const paidEarnings = driverBookings
+        .filter((b: Booking) => b.driverPaymentPaid === true)
+        .reduce((sum: number, b: Booking) => sum + parseFloat(b.driverPayment || '0'), 0);
+      
+      const unpaidEarnings = totalEarnings - paidEarnings;
+
+      // Get detailed earnings with booking info
+      const earnings = driverBookings.map((b: Booking) => ({
+        bookingId: b.id,
+        confirmationNumber: b.confirmationNumber,
+        pickupAddress: b.pickupAddress,
+        destinationAddress: b.destinationAddress,
+        scheduledDateTime: b.scheduledDateTime,
+        driverPayment: b.driverPayment,
+        paid: b.driverPaymentPaid || false,
+        paidAt: b.driverPaymentPaidAt,
+        paidBy: b.driverPaymentPaidBy,
+      }));
+
+      res.json({
+        totalEarnings: totalEarnings.toFixed(2),
+        paidEarnings: paidEarnings.toFixed(2),
+        unpaidEarnings: unpaidEarnings.toFixed(2),
+        completedJobs: driverBookings.length,
+        earnings: earnings.sort((a, b) => 
+          new Date(b.scheduledDateTime).getTime() - new Date(a.scheduledDateTime).getTime()
+        ),
+      });
+    } catch (error) {
+      console.error('Get driver earnings error:', error);
+      res.status(500).json({ error: 'Failed to fetch driver earnings' });
+    }
+  });
+
   // Admin journey tracking endpoints
   app.patch('/api/admin/bookings/:id/no-show', isAuthenticated, async (req: any, res) => {
     try {
