@@ -1726,9 +1726,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </div>
         </div>
 
-        {/* Use Account Credits Section */}
-        {hasRideCredits && (
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200" data-testid="use-credits-section">
+        {/* Use Account Credits Section - Always visible for authenticated users */}
+        {isAuthenticated && (
+          <div className={`p-4 rounded-lg border ${hasRideCredits ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' : 'bg-gray-50 border-gray-200'}`} data-testid="use-credits-section">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <input
@@ -1736,19 +1736,26 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   id="use-credits"
                   checked={useCredits}
                   onChange={(e) => handleUseCreditsToggle(e.target.checked)}
-                  className="w-5 h-5 text-green-600 border-green-300 rounded focus:ring-green-500"
+                  disabled={!hasRideCredits}
+                  className={`w-5 h-5 rounded focus:ring-green-500 ${hasRideCredits ? 'text-green-600 border-green-300' : 'text-gray-400 border-gray-300 cursor-not-allowed'}`}
                   data-testid="checkbox-use-credits"
                 />
-                <label htmlFor="use-credits" className="font-semibold text-green-800 cursor-pointer">
+                <label htmlFor="use-credits" className={`font-semibold cursor-pointer ${hasRideCredits ? 'text-green-800' : 'text-gray-500'}`}>
                   Use Account Credits
                 </label>
               </div>
-              <span className="text-sm font-medium text-green-700 bg-green-100 px-3 py-1 rounded-full">
+              <span className={`text-sm font-medium px-3 py-1 rounded-full ${hasRideCredits ? 'text-green-700 bg-green-100' : 'text-gray-600 bg-gray-200'}`}>
                 Balance: ${rideCreditsBalance.toFixed(2)}
               </span>
             </div>
             
-            {useCredits && (
+            {!hasRideCredits && (
+              <p className="text-sm text-gray-500">
+                You don't have any account credits. Credits can be added by an administrator or earned through promotions.
+              </p>
+            )}
+            
+            {useCredits && hasRideCredits && (
               <div className="mt-3 space-y-2">
                 <label htmlFor="credit-amount" className="text-sm font-medium text-gray-700">
                   Amount to use (max ${maxUsableCredits.toFixed(2)}):
