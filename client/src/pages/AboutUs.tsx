@@ -26,34 +26,34 @@ export default function AboutUs() {
       <Header />
       
       <main className="pt-20">
-        {/* Hero Section - Modern with Overlay */}
-        <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-24 overflow-hidden">
+        {/* Hero Section - Modern with Primary Brand Color */}
+        <section className="relative bg-primary text-primary-foreground py-24 overflow-hidden">
           {/* Decorative Elements */}
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary/20 to-transparent" />
-          <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-primary/10 to-transparent" />
+          <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-accent/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-accent/10 to-transparent" />
           
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
               <Button 
                 variant="ghost" 
                 onClick={() => setLocation('/')}
-                className="text-white/80 hover:text-white hover:bg-white/10 mb-8 border border-white/20"
+                className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 mb-8 border border-primary-foreground/20"
                 data-testid="button-back-home"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Home
               </Button>
               
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6">
-                <Sparkles className="w-4 h-4 text-yellow-400" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 mb-6">
+                <Sparkles className="w-4 h-4 text-accent" />
                 <span className="text-sm font-medium">Luxury Transportation Excellence Since 2018</span>
               </div>
               
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80" data-testid="about-page-title">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6" data-testid="about-page-title">
                 About USA Luxury Limo
               </h1>
-              <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed" data-testid="about-page-description">
+              <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto leading-relaxed" data-testid="about-page-description">
                 Your trusted partner for premier luxury chauffeur services. We deliver a seamless blend of elegance, comfort, and reliability, making every journey a memorable experience tailored to your unique needs.
               </p>
             </div>
@@ -64,23 +64,23 @@ export default function AboutUs() {
         <section className="py-16 bg-gradient-to-b from-background to-muted/30">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 text-center shadow-lg border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all hover:-translate-y-1" data-testid="stat-experience">
-                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-2">6+</div>
+              <div className="bg-card rounded-2xl p-6 text-center shadow-lg border border-border hover:shadow-xl transition-all hover:-translate-y-1" data-testid="stat-experience">
+                <div className="text-4xl md:text-5xl font-bold text-accent mb-2">6+</div>
                 <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Years Experience</div>
               </div>
               
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 text-center shadow-lg border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all hover:-translate-y-1" data-testid="stat-availability">
-                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-2">24/7</div>
+              <div className="bg-card rounded-2xl p-6 text-center shadow-lg border border-border hover:shadow-xl transition-all hover:-translate-y-1" data-testid="stat-availability">
+                <div className="text-4xl md:text-5xl font-bold text-accent mb-2">24/7</div>
                 <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Service Available</div>
               </div>
               
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 text-center shadow-lg border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all hover:-translate-y-1">
-                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-2">500+</div>
+              <div className="bg-card rounded-2xl p-6 text-center shadow-lg border border-border hover:shadow-xl transition-all hover:-translate-y-1">
+                <div className="text-4xl md:text-5xl font-bold text-accent mb-2">500+</div>
                 <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Happy Clients</div>
               </div>
               
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 text-center shadow-lg border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all hover:-translate-y-1">
-                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-2">100%</div>
+              <div className="bg-card rounded-2xl p-6 text-center shadow-lg border border-border hover:shadow-xl transition-all hover:-translate-y-1">
+                <div className="text-4xl md:text-5xl font-bold text-accent mb-2">100%</div>
                 <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Satisfaction Rate</div>
               </div>
             </div>
@@ -102,9 +102,9 @@ export default function AboutUs() {
 
               <div className="grid md:grid-cols-2 gap-8">
                 {/* Mission Card */}
-                <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-8 shadow-xl border border-slate-200 dark:border-slate-700 hover:shadow-2xl transition-all">
-                  <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/70 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                    <Target className="w-7 h-7 text-white" />
+                <div className="bg-card rounded-2xl p-8 shadow-xl border border-border hover:shadow-2xl transition-all">
+                  <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+                    <Target className="w-7 h-7 text-primary-foreground" />
                   </div>
                   <h3 className="text-2xl font-bold mb-4">Our Mission</h3>
                   <p className="text-muted-foreground leading-relaxed" data-testid="about-mission">
@@ -113,9 +113,9 @@ export default function AboutUs() {
                 </div>
 
                 {/* Vision Card */}
-                <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-8 shadow-xl border border-slate-200 dark:border-slate-700 hover:shadow-2xl transition-all">
-                  <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/70 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                    <TrendingUp className="w-7 h-7 text-white" />
+                <div className="bg-card rounded-2xl p-8 shadow-xl border border-border hover:shadow-2xl transition-all">
+                  <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+                    <TrendingUp className="w-7 h-7 text-primary-foreground" />
                   </div>
                   <h3 className="text-2xl font-bold mb-4">Our Vision</h3>
                   <p className="text-muted-foreground leading-relaxed">
@@ -142,9 +142,9 @@ export default function AboutUs() {
 
               <div className="grid md:grid-cols-3 gap-8">
                 {/* Impeccable Fleet */}
-                <div className="group bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-lg border border-slate-200 dark:border-slate-700 hover:shadow-2xl hover:border-primary/50 transition-all" data-testid="feature-fleet">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center mb-6 group-hover:from-primary/20 group-hover:to-primary/10 transition-all">
-                    <Star className="w-8 h-8 text-primary" />
+                <div className="group bg-card rounded-2xl p-8 shadow-lg border border-border hover:shadow-2xl hover:border-accent/50 transition-all" data-testid="feature-fleet">
+                  <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-accent/20 transition-all">
+                    <Star className="w-8 h-8 text-accent" />
                   </div>
                   <h3 className="text-xl font-bold mb-3">Impeccable Fleet</h3>
                   <p className="text-muted-foreground leading-relaxed">
@@ -153,9 +153,9 @@ export default function AboutUs() {
                 </div>
 
                 {/* Expert Chauffeurs */}
-                <div className="group bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-lg border border-slate-200 dark:border-slate-700 hover:shadow-2xl hover:border-primary/50 transition-all" data-testid="feature-chauffeurs">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center mb-6 group-hover:from-primary/20 group-hover:to-primary/10 transition-all">
-                    <Users className="w-8 h-8 text-primary" />
+                <div className="group bg-card rounded-2xl p-8 shadow-lg border border-border hover:shadow-2xl hover:border-accent/50 transition-all" data-testid="feature-chauffeurs">
+                  <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-accent/20 transition-all">
+                    <Users className="w-8 h-8 text-accent" />
                   </div>
                   <h3 className="text-xl font-bold mb-3">Expert Chauffeurs</h3>
                   <p className="text-muted-foreground leading-relaxed">
@@ -164,9 +164,9 @@ export default function AboutUs() {
                 </div>
 
                 {/* Commitment to Excellence */}
-                <div className="group bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-lg border border-slate-200 dark:border-slate-700 hover:shadow-2xl hover:border-primary/50 transition-all" data-testid="feature-excellence">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center mb-6 group-hover:from-primary/20 group-hover:to-primary/10 transition-all">
-                    <Award className="w-8 h-8 text-primary" />
+                <div className="group bg-card rounded-2xl p-8 shadow-lg border border-border hover:shadow-2xl hover:border-accent/50 transition-all" data-testid="feature-excellence">
+                  <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-accent/20 transition-all">
+                    <Award className="w-8 h-8 text-accent" />
                   </div>
                   <h3 className="text-xl font-bold mb-3">Commitment to Excellence</h3>
                   <p className="text-muted-foreground leading-relaxed">
@@ -193,9 +193,9 @@ export default function AboutUs() {
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Professional Service */}
-                <div className="group relative bg-white dark:bg-slate-800 rounded-2xl p-6 text-center shadow-md border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-primary/50 transition-all" data-testid="highlight-professional">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                    <Shield className="w-8 h-8 text-white" />
+                <div className="group relative bg-card rounded-2xl p-6 text-center shadow-md border border-border hover:shadow-xl hover:border-accent/50 transition-all" data-testid="highlight-professional">
+                  <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                    <Shield className="w-8 h-8 text-accent-foreground" />
                   </div>
                   <h3 className="text-lg font-bold mb-2">Professional Service</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -204,9 +204,9 @@ export default function AboutUs() {
                 </div>
 
                 {/* 24/7 Availability */}
-                <div className="group relative bg-white dark:bg-slate-800 rounded-2xl p-6 text-center shadow-md border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-primary/50 transition-all" data-testid="highlight-availability">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                    <Clock className="w-8 h-8 text-white" />
+                <div className="group relative bg-card rounded-2xl p-6 text-center shadow-md border border-border hover:shadow-xl hover:border-accent/50 transition-all" data-testid="highlight-availability">
+                  <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                    <Clock className="w-8 h-8 text-accent-foreground" />
                   </div>
                   <h3 className="text-lg font-bold mb-2">24/7 Availability</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -215,9 +215,9 @@ export default function AboutUs() {
                 </div>
 
                 {/* Luxury Fleet */}
-                <div className="group relative bg-white dark:bg-slate-800 rounded-2xl p-6 text-center shadow-md border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-primary/50 transition-all" data-testid="highlight-luxury">
-                  <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                    <Star className="w-8 h-8 text-white" />
+                <div className="group relative bg-card rounded-2xl p-6 text-center shadow-md border border-border hover:shadow-xl hover:border-accent/50 transition-all" data-testid="highlight-luxury">
+                  <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                    <Star className="w-8 h-8 text-accent-foreground" />
                   </div>
                   <h3 className="text-lg font-bold mb-2">Luxury Fleet</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -226,9 +226,9 @@ export default function AboutUs() {
                 </div>
 
                 {/* Reliable Service */}
-                <div className="group relative bg-white dark:bg-slate-800 rounded-2xl p-6 text-center shadow-md border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-primary/50 transition-all" data-testid="highlight-reliable">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                    <CheckCircle className="w-8 h-8 text-white" />
+                <div className="group relative bg-card rounded-2xl p-6 text-center shadow-md border border-border hover:shadow-xl hover:border-accent/50 transition-all" data-testid="highlight-reliable">
+                  <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                    <CheckCircle className="w-8 h-8 text-accent-foreground" />
                   </div>
                   <h3 className="text-lg font-bold mb-2">Reliable Service</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -252,24 +252,24 @@ export default function AboutUs() {
               </div>
 
               <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 rounded-2xl p-8 border border-primary/20">
-                  <Heart className="w-12 h-12 text-primary mb-4" />
+                <div className="bg-accent/5 rounded-2xl p-8 border border-accent/20">
+                  <Heart className="w-12 h-12 text-accent mb-4" />
                   <h3 className="text-xl font-bold mb-3">Customer First</h3>
                   <p className="text-muted-foreground leading-relaxed">
                     Your satisfaction is our top priority. We listen, adapt, and deliver services that exceed your expectations every single time.
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 rounded-2xl p-8 border border-primary/20">
-                  <Shield className="w-12 h-12 text-primary mb-4" />
+                <div className="bg-accent/5 rounded-2xl p-8 border border-accent/20">
+                  <Shield className="w-12 h-12 text-accent mb-4" />
                   <h3 className="text-xl font-bold mb-3">Safety & Security</h3>
                   <p className="text-muted-foreground leading-relaxed">
                     Your safety is non-negotiable. Our vehicles are meticulously maintained and our drivers are thoroughly vetted and trained.
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 rounded-2xl p-8 border border-primary/20">
-                  <Sparkles className="w-12 h-12 text-primary mb-4" />
+                <div className="bg-accent/5 rounded-2xl p-8 border border-accent/20">
+                  <Sparkles className="w-12 h-12 text-accent mb-4" />
                   <h3 className="text-xl font-bold mb-3">Excellence in Service</h3>
                   <p className="text-muted-foreground leading-relaxed">
                     We are committed to maintaining the highest standards of service quality, professionalism, and attention to detail.
@@ -284,11 +284,11 @@ export default function AboutUs() {
         <section className="py-16 bg-gradient-to-b from-muted/30 to-background">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 md:p-12 shadow-xl border border-slate-200 dark:border-slate-700">
+              <div className="bg-card rounded-2xl p-8 md:p-12 shadow-xl border border-border">
                 <div className="text-center">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 mb-6">
-                    <Award className="w-5 h-5 text-primary" />
-                    <span className="text-sm font-semibold text-primary">Industry Recognition</span>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 mb-6">
+                    <Award className="w-5 h-5 text-accent" />
+                    <span className="text-sm font-semibold text-accent">Industry Recognition</span>
                   </div>
                   
                   <h3 className="text-2xl font-bold mb-4" data-testid="memberships-text">
@@ -299,12 +299,12 @@ export default function AboutUs() {
                   </p>
                   
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="flex items-center justify-center gap-3 p-4 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20" data-testid="membership-worldwide">
-                      <Award className="w-6 h-6 text-primary flex-shrink-0" />
+                    <div className="flex items-center justify-center gap-3 p-4 rounded-xl bg-accent/5 border border-accent/20" data-testid="membership-worldwide">
+                      <Award className="w-6 h-6 text-accent flex-shrink-0" />
                       <span className="font-medium">Limousine Worldwide Directory</span>
                     </div>
-                    <div className="flex items-center justify-center gap-3 p-4 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20" data-testid="membership-international">
-                      <Award className="w-6 h-6 text-primary flex-shrink-0" />
+                    <div className="flex items-center justify-center gap-3 p-4 rounded-xl bg-accent/5 border border-accent/20" data-testid="membership-international">
+                      <Award className="w-6 h-6 text-accent flex-shrink-0" />
                       <span className="font-medium">Limousine Association International</span>
                     </div>
                   </div>
@@ -315,21 +315,22 @@ export default function AboutUs() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden">
+        <section className="py-20 bg-primary text-primary-foreground relative overflow-hidden">
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
+          <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-accent/20 to-transparent" />
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
                 Ready to Experience Luxury?
               </h2>
-              <p className="text-xl text-white/80 mb-8">
+              <p className="text-xl text-primary-foreground/80 mb-8">
                 Book your premium transportation today and discover the USA Luxury Limo difference
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
                   size="lg"
                   onClick={() => setLocation('/booking')}
-                  className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/50"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg"
                   data-testid="button-book-now"
                 >
                   Book Now
@@ -338,7 +339,7 @@ export default function AboutUs() {
                   size="lg"
                   variant="outline"
                   onClick={() => setLocation('/contact')}
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
                   data-testid="button-contact"
                 >
                   <Phone className="w-4 h-4 mr-2" />
