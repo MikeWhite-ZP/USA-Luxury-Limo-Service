@@ -2288,71 +2288,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Record cancellation details
-      await storage.createBookingCancellation({
-        bookingId: id,
-        cancelledBy: user?.role === 'admin' ? 'admin' : 'passenger',
-        cancellationReason: req.body.reason || 'Cancelled by user',
-        hoursBeforePickup: hoursBeforePickup.toFixed(2),
-        wasDriverOnTheWay: driverOnTheWay,
-        ...cancellationDetails
-      });
+      try {
+        await storage.createBookingCancellation({
+          bookingId: id,
+          cancelledBy: user?.role === 'admin' ? 'admin' : 'passenger',
+          cancellationReason: req.body.reason || 'Cancelled by user',
+          hoursBeforePickup: hoursBeforePickup.toFixed(2),
+          wasDriverOnTheWay: driverOnTheWay,
+          ...cancellationDetails
+        });
+      } catch (cancellationRecordError) {
+        console.error('[CANCELLATION] Failed to create cancellation record:', cancellationRecordError);
+        // Continue anyway - booking is already cancelled
+      }
       
-      // Send cancellation notifications (fire-and-forget)
-      (async () => {
-        try {
-          const passenger = await storage.getUser(booking.passengerId);
-          const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
-          if (passenger && vehicleType) {
-            // 1. Send system admin report
-            await sendCancelledBookingReport(
-              updatedBooking,
-              passenger,
-              vehicleType.name || 'Unknown Vehicle',
-              'passenger',
-              req.body.reason || 'No reason provided'
-            );
-            
-            // 2. Send passenger cancellation email
-            const scheduledDateTime = new Date(updatedBooking.scheduledDateTime).toLocaleString('en-US', {
-              dateStyle: 'full',
-              timeStyle: 'short'
-            });
-            
-            // Include cancellation policy info in email
-            let policyMessage = '';
-            if (cancellationDetails.creditIssued) {
-              policyMessage = `<p><strong>Ride Credit Issued:</strong> $${cancellationDetails.creditAmount} has been added to your account as ride credits for future bookings.</p>`;
-            } else if (cancellationDetails.chargeApplied) {
-              policyMessage = `<p><strong>Cancellation Fee:</strong> Because the driver was already on the way and the cancellation was less than 2 hours before pickup, the full fare of $${cancellationDetails.chargeAmount} applies.</p>`;
-            }
-            
-            await sendEmail({
-              to: passenger.email,
-              subject: `Booking Cancelled - USA Luxury Limo #${updatedBooking.id.slice(0, 8)}`,
-              html: getBookingCancelledEmailHTML({
-                passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
-                bookingId: updatedBooking.id.slice(0, 8),
-                pickupAddress: updatedBooking.pickupAddress,
-                destinationAddress: updatedBooking.destinationAddress || undefined,
-                scheduledDateTime,
-                cancelReason: updatedBooking.cancelReason || undefined
-              }) + policyMessage
-            });
-            
-            // 3. Send passenger cancellation SMS with policy info
-            if (passenger.phone) {
-              let smsMessage = `Your booking #${updatedBooking.id.slice(0, 8)} has been cancelled.`;
-              if (cancellationDetails.creditIssued) {
-                smsMessage += ` $${cancellationDetails.creditAmount} ride credits added to your account.`;
-              }
-              await sendSMS(passenger.phone, smsMessage);
-            }
-          }
-        } catch (error) {
-          console.error('[NOTIFICATIONS] Failed to send cancellation notifications:', error);
-        }
-      })();
-      
+      // Send success response FIRST before attempting notifications
       res.json({
         ...updatedBooking,
         cancellationPolicy: {
@@ -2361,6 +2311,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ...cancellationDetails
         }
       });
+      
+      // Send cancellation notifications AFTER response (fire-and-forget)
+      // This ensures user gets success even if notifications fail
+      setImmediate(async () => {
+        try {
+          const passenger = await storage.getUser(booking.passengerId);
+          const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+          if (passenger && vehicleType && updatedBooking) {
+            // 1. Send system admin report
+            try {
+              await sendCancelledBookingReport(
+                updatedBooking,
+                passenger,
+                vehicleType.name || 'Unknown Vehicle',
+                'passenger',
+                req.body.reason || 'No reason provided'
+              );
+            } catch (reportError) {
+              console.error('[NOTIFICATIONS] Failed to send admin cancellation report:', reportError);
+            }
+            
+            // 2. Send passenger cancellation email
+            try {
+              const scheduledDateTime = new Date(updatedBooking.scheduledDateTime).toLocaleString('en-US', {
+                dateStyle: 'full',
+                timeStyle: 'short'
+              });
+              
+              // Include cancellation policy info in email
+              let policyMessage = '';
+              if (cancellationDetails.creditIssued) {
+                policyMessage = `<p><strong>Ride Credit Issued:</strong> $${cancellationDetails.creditAmount} has been added to your account as ride credits for future bookings.</p>`;
+              } else if (cancellationDetails.chargeApplied) {
+                policyMessage = `<p><strong>Cancellation Fee:</strong> Because the driver was already on the way and the cancellation was less than 2 hours before pickup, the full fare of $${cancellationDetails.chargeAmount} applies.</p>`;
+              }
+              
+              await sendEmail({
+                to: passenger.email,
+                subject: `Booking Cancelled - USA Luxury Limo #${updatedBooking.id.slice(0, 8)}`,
+                html: getBookingCancelledEmailHTML({
+                  passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
+                  bookingId: updatedBooking.id.slice(0, 8),
+                  pickupAddress: updatedBooking.pickupAddress,
+                  destinationAddress: updatedBooking.destinationAddress || undefined,
+                  scheduledDateTime,
+                  cancelReason: updatedBooking.cancelReason || undefined
+                }) + policyMessage
+              });
+            } catch (emailError) {
+              console.error('[NOTIFICATIONS] Failed to send cancellation email:', emailError);
+            }
+            
+            // 3. Send passenger cancellation SMS with policy info
+            if (passenger.phone) {
+              try {
+                let smsMessage = `Your booking #${updatedBooking.id.slice(0, 8)} has been cancelled.`;
+                if (cancellationDetails.creditIssued) {
+                  smsMessage += ` $${cancellationDetails.creditAmount} ride credits added to your account.`;
+                }
+                await sendSMS(passenger.phone, smsMessage);
+              } catch (smsError) {
+                console.error('[NOTIFICATIONS] Failed to send cancellation SMS:', smsError);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('[NOTIFICATIONS] Failed to send cancellation notifications:', error);
+        }
+      });
+      
+      // Response already sent above, just return
+      return;
     } catch (error) {
       console.error('Cancel booking error:', error);
       res.status(500).json({ message: 'Failed to cancel booking' });
