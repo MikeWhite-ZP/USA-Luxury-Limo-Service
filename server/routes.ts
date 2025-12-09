@@ -2238,11 +2238,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if driver is on the way (trip has started moving)
       const driverOnTheWay = ['on_the_way', 'arrived', 'on_board', 'in_progress'].includes(booking.status);
       
+      // Check if booking was actually paid (card payment OR ride credits applied)
+      const paidAmount = parseFloat(booking.paidAmount || '0');
+      const creditsApplied = parseFloat(booking.creditAmountApplied || '0');
+      const totalPaidValue = paidAmount + creditsApplied; // Total value paid (card + credits)
+      const isPaid = booking.paymentStatus === 'paid' || paidAmount > 0 || creditsApplied > 0;
+      
       // Cancellation policy: 
       // - If driver is on the way AND less than 2 hours before pickup = charge customer
-      // - If more than 2 hours before pickup = refund as ride credits
+      // - If more than 2 hours before pickup AND booking was PAID = refund as ride credits
+      // - Unpaid bookings (pay later unpaid, cash unpaid) do NOT get ride credits
       const shouldCharge = driverOnTheWay && hoursBeforePickup < 2;
-      const shouldIssueCredit = hoursBeforePickup >= 2 && booking.totalAmount && parseFloat(booking.totalAmount) > 0;
+      const shouldIssueCredit = hoursBeforePickup >= 2 && isPaid && totalPaidValue > 0;
       
       let cancellationDetails: any = {
         chargeApplied: false,
@@ -2270,8 +2277,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           refundStatus: 'charged'
         };
       } else if (shouldIssueCredit) {
-        // Issue ride credits to the passenger
-        const creditAmount = booking.totalAmount || '0';
+        // Issue ride credits to the passenger - refund total paid value (card + credits applied)
+        const creditAmount = totalPaidValue.toFixed(2);
         await storage.addRideCredits(
           booking.passengerId, 
           creditAmount, 
@@ -2284,6 +2291,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           chargeAmount: null,
           creditAmount: creditAmount,
           refundStatus: 'credit_issued'
+        };
+      } else if (!isPaid && hoursBeforePickup >= 2) {
+        // Unpaid booking cancelled - no credits issued
+        cancellationDetails = {
+          chargeApplied: false,
+          creditIssued: false,
+          chargeAmount: null,
+          creditAmount: null,
+          refundStatus: 'none_unpaid'
         };
       }
 
