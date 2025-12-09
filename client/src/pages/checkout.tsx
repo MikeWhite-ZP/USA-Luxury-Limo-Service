@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
@@ -38,8 +39,16 @@ const CheckoutForm = ({ bookingId, amount, mode }: { bookingId?: string; amount:
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [bookingData, setBookingData] = useState<any>(null);
+  
+  // Handle back navigation - go to payment selection step (step 4) on booking page
+  const handleBackToPaymentSelection = () => {
+    // Navigate back to booking page - the form state is preserved in localStorage
+    // The booking form will restore state and show step 4 (payment selection)
+    setLocation('/booking?returnToPayment=true');
+  };
 
   // For existing bookings (old flow)
   const { data: booking } = useQuery<BookingDetails>({
@@ -147,7 +156,7 @@ const CheckoutForm = ({ bookingId, amount, mode }: { bookingId?: string; amount:
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => window.history.back()}
+          onClick={handleBackToPaymentSelection}
           data-testid="button-back"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />

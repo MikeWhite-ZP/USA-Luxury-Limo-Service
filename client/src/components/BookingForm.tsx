@@ -139,6 +139,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
     const urlParams = new URLSearchParams(window.location.search);
     const fromParam = urlParams.get('from');
     const toParam = urlParams.get('to');
+    const returnToPayment = urlParams.get('returnToPayment');
     
     if (fromParam) {
       setFromAddress(fromParam);
@@ -149,8 +150,68 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
     }
     
     // Clear URL parameters after setting the addresses
-    if (fromParam || toParam) {
+    if (fromParam || toParam || returnToPayment) {
       window.history.replaceState({}, '', window.location.pathname);
+    }
+    
+    // Check if returning from checkout page - restore payment step (step 4)
+    if (returnToPayment === 'true') {
+      const paymentBookingData = localStorage.getItem('pendingBookingForPayment');
+      if (paymentBookingData) {
+        try {
+          const data = JSON.parse(paymentBookingData);
+          
+          // Restore all form state from pendingBookingForPayment
+          setActiveTab(data.bookingType || 'transfer');
+          setFromAddress(data.pickupAddress || '');
+          setToAddress(data.destinationAddress || '');
+          setPickupAddress(data.pickupAddress || '');
+          
+          // Parse scheduled date time
+          if (data.scheduledDateTime) {
+            const scheduledDate = new Date(data.scheduledDateTime);
+            setDate(scheduledDate.toISOString().split('T')[0]);
+            const hours24 = scheduledDate.getHours();
+            const mins = scheduledDate.getMinutes();
+            const isPM = hours24 >= 12;
+            const hours12 = hours24 === 0 ? 12 : hours24 > 12 ? hours24 - 12 : hours24;
+            setHour(hours12.toString());
+            setMinute(mins.toString().padStart(2, '0'));
+            setPeriod(isPM ? 'PM' : 'AM');
+            setTime(`${hours24.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`);
+          }
+          
+          setDuration(data.requestedHours?.toString() || '');
+          setSelectedVehicle(data.vehicleTypeId || '');
+          setPassengerName(data.passengerName || '');
+          setPassengerPhone(data.passengerPhone || '');
+          setPassengerEmail(data.passengerEmail || '');
+          setPassengerCount(data.passengerCount?.toString() || '1');
+          setLuggageCount(data.luggageCount || 0);
+          setBabySeat(data.babySeat || 0);
+          setSpecialInstructions(data.specialInstructions || '');
+          if (data.bookingFor) setBookingFor(data.bookingFor);
+          
+          // Restore quote data and calculated prices
+          if (data.quoteData) setQuoteData(data.quoteData);
+          if (data.calculatedPrices) setCalculatedPrices(data.calculatedPrices);
+          if (data.fromCoords) setFromCoords(data.fromCoords);
+          if (data.toCoords) setToCoords(data.toCoords);
+          if (data.pickupCoords) setPickupCoords(data.pickupCoords);
+          
+          // Set step to 4 (payment selection)
+          setStep(4);
+          
+          toast({
+            title: "Returned to Payment",
+            description: "Please select your preferred payment method.",
+          });
+          
+          return; // Don't process other saved data
+        } catch (error) {
+          console.error('Error restoring payment booking data:', error);
+        }
+      }
     }
     
     // Check for saved booking data from localStorage
