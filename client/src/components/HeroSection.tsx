@@ -39,7 +39,7 @@ export default function HeroSection() {
           <div className="text-white">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight" data-testid="hero-title">
               Premium 
-              <span className="text-primary"> Luxury</span>
+              <span className="text-accent"> Luxury</span>
               <br />Transportation
             </h1>
             <p className="text-xl mb-8 text-gray-200 max-w-lg" data-testid="hero-description">
