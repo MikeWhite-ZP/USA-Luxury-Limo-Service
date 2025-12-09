@@ -173,7 +173,7 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
   if (booking.creditAmountApplied && parseFloat(booking.creditAmountApplied) > 0) {
     chargesHtml += `
       <tr>
-        <td class="charge-label">Ride Credits Applied</td>
+        <td class="charge-label">Ride Credits</td>
         <td class="charge-value">-${parseFloat(booking.creditAmountApplied).toFixed(2)}</td>
       </tr>
     `;
@@ -185,15 +185,19 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
     <head>
       <title>Invoice - ${invoiceNumber}</title>
       <style>
+        @page {
+          size: letter;
+          margin: 0.4in;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
           font-family: Arial, Helvetica, sans-serif;
-          font-size: 12px;
-          line-height: 1.4;
+          font-size: 10px;
+          line-height: 1.3;
           color: #000;
           background: #fff;
-          padding: 20px;
-          max-width: 850px;
+          padding: 12px;
+          max-width: 8.5in;
           margin: 0 auto;
         }
         
@@ -201,19 +205,25 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
-          margin-bottom: 20px;
-          padding-bottom: 15px;
-          border-bottom: 3px solid #000;
+          margin-bottom: 12px;
+          padding-bottom: 10px;
+          border-bottom: 2px solid #000;
         }
         
         .logo-section {
-          max-width: 150px;
+          max-width: 140px;
         }
         
         .logo-img {
-          max-width: 120px;
-          max-height: 80px;
+          max-width: 110px;
+          max-height: 70px;
           object-fit: contain;
+        }
+        
+        .company-name {
+          font-weight: bold;
+          font-size: 16px;
+          color: #000;
         }
         
         .header-info {
@@ -225,26 +235,27 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         }
         
         .header-info td {
-          padding: 2px 0;
+          padding: 1px 0;
         }
         
         .header-info .label {
           font-weight: bold;
           text-align: right;
-          padding-right: 15px;
+          padding-right: 10px;
+          font-size: 11px;
         }
         
         .header-info .value {
           font-weight: bold;
-          font-size: 14px;
+          font-size: 12px;
           text-align: left;
         }
         
         .billing-section {
           display: flex;
           justify-content: space-between;
-          margin-bottom: 20px;
-          gap: 20px;
+          margin-bottom: 10px;
+          gap: 15px;
         }
         
         .bill-to {
@@ -253,13 +264,14 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         
         .bill-to h3 {
           font-weight: bold;
-          font-size: 11px;
-          margin-bottom: 5px;
+          font-size: 10px;
+          margin-bottom: 3px;
+          text-decoration: underline;
         }
         
         .bill-to p {
-          margin: 2px 0;
-          font-size: 11px;
+          margin: 1px 0;
+          font-size: 10px;
         }
         
         .primary-passenger {
@@ -268,12 +280,19 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         
         .primary-passenger h3 {
           font-weight: bold;
-          font-size: 11px;
-          margin-bottom: 5px;
+          font-size: 10px;
+          margin-bottom: 3px;
+          text-decoration: underline;
+        }
+        
+        .primary-passenger p {
+          margin: 1px 0;
+          font-size: 10px;
         }
         
         .booking-meta {
           border: 1px solid #000;
+          min-width: 180px;
         }
         
         .booking-meta table {
@@ -282,9 +301,9 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         }
         
         .booking-meta td {
-          padding: 4px 8px;
+          padding: 2px 6px;
           border-bottom: 1px solid #000;
-          font-size: 11px;
+          font-size: 10px;
         }
         
         .booking-meta tr:last-child td {
@@ -293,11 +312,11 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         
         .booking-meta .label {
           font-weight: bold;
-          width: 80px;
+          width: 70px;
         }
         
         .trip-details {
-          margin-bottom: 15px;
+          margin-bottom: 8px;
         }
         
         .trip-details table {
@@ -309,23 +328,23 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         .trip-details th {
           background: #f5f5dc;
           border: 1px solid #000;
-          padding: 8px;
+          padding: 5px;
           font-weight: bold;
           text-align: center;
-          font-size: 11px;
+          font-size: 10px;
         }
         
         .trip-details td {
           border: 1px solid #000;
-          padding: 8px;
+          padding: 5px;
           text-align: center;
-          font-size: 11px;
+          font-size: 10px;
         }
         
         .routing-payment {
           display: flex;
-          gap: 15px;
-          margin-bottom: 15px;
+          gap: 10px;
+          margin-bottom: 8px;
         }
         
         .routing-info {
@@ -335,19 +354,19 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         
         .routing-info h4 {
           background: #f5f5dc;
-          padding: 6px 10px;
+          padding: 4px 8px;
           font-weight: bold;
-          font-size: 11px;
+          font-size: 10px;
           border-bottom: 1px solid #000;
         }
         
         .routing-content {
-          padding: 10px;
+          padding: 6px 8px;
         }
         
         .routing-content p {
-          margin: 4px 0;
-          font-size: 11px;
+          margin: 2px 0;
+          font-size: 10px;
         }
         
         .routing-content .label {
@@ -360,8 +379,8 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         
         .payment-grid {
           display: flex;
-          gap: 10px;
-          margin-bottom: 10px;
+          gap: 6px;
+          margin-bottom: 6px;
         }
         
         .payment-box {
@@ -372,15 +391,15 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         
         .payment-box h5 {
           background: #f5f5dc;
-          padding: 4px;
-          font-size: 10px;
+          padding: 3px;
+          font-size: 9px;
           font-weight: bold;
           border-bottom: 1px solid #000;
         }
         
         .payment-box .value {
-          padding: 6px;
-          font-size: 11px;
+          padding: 4px;
+          font-size: 10px;
         }
         
         .charges-box {
@@ -389,8 +408,8 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         
         .charges-box h5 {
           background: #f5f5dc;
-          padding: 4px 8px;
-          font-size: 10px;
+          padding: 3px 6px;
+          font-size: 9px;
           font-weight: bold;
           border-bottom: 1px solid #000;
           text-align: center;
@@ -402,8 +421,8 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         }
         
         .charges-box td {
-          padding: 3px 8px;
-          font-size: 11px;
+          padding: 2px 6px;
+          font-size: 10px;
         }
         
         .charge-label {
@@ -421,50 +440,53 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         }
         
         .notes-section {
-          margin-bottom: 15px;
+          margin-bottom: 8px;
         }
         
         .notes-box {
           border: 2px solid #000;
-          min-height: 80px;
         }
         
         .notes-box h4 {
           background: #f5f5dc;
-          padding: 6px 10px;
+          padding: 3px 8px;
           font-weight: bold;
-          font-size: 11px;
+          font-size: 10px;
           border-bottom: 1px solid #000;
         }
         
         .notes-content {
-          padding: 10px;
-          min-height: 60px;
+          padding: 4px 8px;
+          min-height: 20px;
         }
         
         .notes-content p {
-          font-size: 11px;
-          margin: 3px 0;
+          font-size: 10px;
+          margin: 1px 0;
+        }
+        
+        .special-requests {
+          border-top: 1px solid #000;
         }
         
         .agreement-section {
           border: 2px solid #000;
-          margin-bottom: 20px;
+          margin-bottom: 12px;
         }
         
         .agreement-section h4 {
           background: #f5f5dc;
-          padding: 6px 10px;
+          padding: 3px 8px;
           font-weight: bold;
-          font-size: 11px;
+          font-size: 10px;
           border-bottom: 1px solid #000;
           text-align: center;
         }
         
         .agreement-content {
-          padding: 10px;
-          font-size: 9px;
-          line-height: 1.3;
+          padding: 6px 8px;
+          font-size: 8px;
+          line-height: 1.25;
           text-align: justify;
         }
         
@@ -472,41 +494,41 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
           display: flex;
           justify-content: space-between;
           align-items: flex-end;
-          margin-top: 30px;
+          margin-top: 15px;
+          padding-top: 8px;
         }
         
         .footer-field {
           display: flex;
           align-items: center;
-          gap: 5px;
+          gap: 4px;
         }
         
         .footer-field .label {
           font-weight: bold;
-          font-size: 11px;
+          font-size: 10px;
         }
         
         .footer-field .line {
           border-bottom: 1px solid #000;
-          min-width: 100px;
-          height: 20px;
+          min-width: 70px;
+          height: 16px;
         }
         
         .footer-field.signature .line {
-          min-width: 200px;
+          min-width: 140px;
         }
         
-        /* Cancelled watermark */
         .cancelled-watermark {
           position: fixed;
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%) rotate(-45deg);
-          font-size: 120px;
+          font-size: 100px;
           font-weight: bold;
-          color: rgba(220, 38, 38, 0.25);
+          color: rgba(220, 38, 38, 0.20);
           text-transform: uppercase;
-          letter-spacing: 10px;
+          letter-spacing: 8px;
           pointer-events: none;
           z-index: 1000;
           white-space: nowrap;
@@ -515,7 +537,7 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         
         @media print {
           body { 
-            padding: 10px;
+            padding: 0;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
@@ -524,12 +546,6 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
           }
           .cancelled-watermark {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 120px;
-            font-weight: bold;
-            color: rgba(220, 38, 38, 0.25);
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
@@ -540,7 +556,7 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
       ${booking.status === 'cancelled' ? '<div class="cancelled-watermark">CANCELLED</div>' : ''}
       <div class="header">
         <div class="logo-section">
-          ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="logo-img" />` : `<div style="font-weight: bold; font-size: 18px;">${companyName}</div>`}
+          ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="logo-img" />` : `<div class="company-name">${companyName}</div>`}
         </div>
         <div class="header-info">
           <table>
@@ -566,7 +582,6 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
           <p><strong>${booking.passengerName}</strong></p>
           ${booking.passengerAddress ? `<p>${booking.passengerAddress}</p>` : ''}
           ${booking.passengerPhone ? `<p>Mb: ${booking.passengerPhone}</p>` : ''}
-          ${booking.passengerEmail ? `<p>${booking.passengerEmail}</p>` : ''}
         </div>
         
         <div class="primary-passenger">
@@ -620,7 +635,7 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
           <div class="routing-content">
             <p><span class="label">Passenger:</span> ${booking.passengerName}</p>
             ${booking.passengerPhone ? `<p><span class="label">Phone:</span> ${booking.passengerPhone}</p>` : ''}
-            <p style="margin-top: 10px;"><span class="label">PU:</span> -- : ${booking.pickupAddress}</p>
+            <p style="margin-top: 6px;"><span class="label">PU:</span> -- : ${booking.pickupAddress}</p>
             ${booking.bookingType === 'hourly' && booking.requestedHours ? 
               `<p><span class="label">Duration:</span> ${booking.requestedHours} ${booking.requestedHours === 1 ? 'Hour' : 'Hours'}</p>` :
               booking.destinationAddress ? `<p><span class="label">DO:</span> -- : ${booking.destinationAddress}</p>` : ''
@@ -672,9 +687,11 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
           <div class="notes-content">
             ${booking.notes ? `<p>${booking.notes}</p>` : '<p>&nbsp;</p>'}
           </div>
-          <h4 style="border-top: 1px solid #000;">Special Requests:</h4>
-          <div class="notes-content">
-            ${booking.specialRequests ? `<p>${booking.specialRequests}</p>` : '<p>&nbsp;</p>'}
+          <div class="special-requests">
+            <h4>Special Requests:</h4>
+            <div class="notes-content">
+              ${booking.specialRequests ? `<p>${booking.specialRequests}</p>` : '<p>&nbsp;</p>'}
+            </div>
           </div>
         </div>
       </div>
