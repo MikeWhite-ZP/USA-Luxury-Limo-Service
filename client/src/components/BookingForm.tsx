@@ -1934,41 +1934,62 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </button>
 
           {/* Pay Later Option - Only show if user has pay later enabled */}
-          {user?.payLaterEnabled && user.role === 'passenger' && (
-            <button
-              onClick={() => {
-                // Check if user has saved payment methods
-                const hasSavedCards = paymentMethods && paymentMethods.length > 0;
-                
-                if (!hasSavedCards) {
-                  // Show dialog to prompt adding payment method
-                  setShowPaymentMethodRequired(true);
-                } else {
-                  // Create booking with status "confirmed" (unpaid)
-                  bookingMutation.mutate();
-                }
-              }}
-              className="w-full p-6 border-2 border-gray-300 rounded-lg hover:border-primary hover:bg-primary/5 transition-all group"
-              data-testid="button-pay-later-step4"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gray-100 group-hover:bg-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-all">
-                  <Clock className="w-6 h-6 text-gray-600 group-hover:text-primary" />
+          {user?.payLaterEnabled && user.role === 'passenger' && (() => {
+            const hasSavedCards = paymentMethods && paymentMethods.length > 0;
+            return (
+              <button
+                onClick={() => {
+                  if (!hasSavedCards) {
+                    // Show dialog to prompt adding payment method
+                    setShowPaymentMethodRequired(true);
+                  } else {
+                    // Create booking with status "confirmed" (unpaid)
+                    bookingMutation.mutate();
+                  }
+                }}
+                className={`w-full p-6 border-2 rounded-lg transition-all group relative ${
+                  hasSavedCards 
+                    ? 'border-gray-300 hover:border-primary hover:bg-primary/5 cursor-pointer' 
+                    : 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-70'
+                }`}
+                data-testid="button-pay-later-step4"
+              >
+                {/* Warning badge for no payment method */}
+                {!hasSavedCards && (
+                  <div className="absolute -top-3 left-4 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                    Payment Card Required
+                  </div>
+                )}
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                    hasSavedCards 
+                      ? 'bg-gray-100 group-hover:bg-primary/10 group-hover:scale-110' 
+                      : 'bg-gray-200'
+                  }`}>
+                    <Clock className={`w-6 h-6 ${hasSavedCards ? 'text-gray-600 group-hover:text-primary' : 'text-gray-400'}`} />
+                  </div>
+                  <div className="text-left flex-1">
+                    <h3 className={`text-lg font-bold ${hasSavedCards ? 'text-gray-800 group-hover:text-primary' : 'text-gray-500'}`}>
+                      Pay Later
+                    </h3>
+                    <p className={`text-sm ${hasSavedCards ? 'text-gray-600' : 'text-gray-400'}`}>
+                      {hasSavedCards 
+                        ? "Pay after your trip is completed" 
+                        : "You must add a payment card first"}
+                    </p>
+                    {!hasSavedCards && (
+                      <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-md">
+                        <p className="text-xs text-amber-700 font-medium flex items-center gap-1">
+                          <CreditCard className="w-3 h-3" />
+                          Click here to add a payment card to enable Pay Later
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="text-left flex-1">
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-primary">Pay Later</h3>
-                  <p className="text-sm text-gray-600">
-                    {paymentMethods && paymentMethods.length > 0 
-                      ? "Pay after your trip is completed" 
-                      : "Requires payment method on file"}
-                  </p>
-                  {paymentMethods && paymentMethods.length === 0 && (
-                    <p className="text-xs text-amber-600 mt-1">⚠️ Add a payment method in Account Settings</p>
-                  )}
-                </div>
-              </div>
-            </button>
-          )}
+              </button>
+            );
+          })()}
 
           {/* Pay with Cash Option - Only show if user has cash payment enabled */}
           {user?.cashPaymentEnabled && user.role === 'passenger' && (
