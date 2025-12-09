@@ -40,6 +40,44 @@ let cachedTransporter: Transporter | null = null;
 let lastSettingsCheck = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+interface BrandingInfo {
+  companyName: string;
+  logoUrl: string | null;
+}
+
+let cachedBranding: BrandingInfo | null = null;
+let lastBrandingCheck = 0;
+const BRANDING_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+export async function getBrandingInfo(): Promise<BrandingInfo> {
+  const now = Date.now();
+  
+  if (cachedBranding && (now - lastBrandingCheck) < BRANDING_CACHE_DURATION) {
+    return cachedBranding;
+  }
+  
+  try {
+    const [brandName, logoUrl] = await Promise.all([
+      storage.getCmsSetting('BRAND_NAME'),
+      storage.getCmsSetting('BRAND_LOGO_URL'),
+    ]);
+    
+    cachedBranding = {
+      companyName: brandName?.value || 'USA Luxury Limo',
+      logoUrl: logoUrl?.value || null,
+    };
+    
+    lastBrandingCheck = now;
+    return cachedBranding;
+  } catch (error) {
+    console.error('Error fetching branding info:', error);
+    return {
+      companyName: 'USA Luxury Limo',
+      logoUrl: null,
+    };
+  }
+}
+
 async function getSMTPSettings(): Promise<SMTPSettings | null> {
   try {
     const [host, port, secure, user, password, fromEmail, fromName] = await Promise.all([
@@ -56,6 +94,8 @@ async function getSMTPSettings(): Promise<SMTPSettings | null> {
       return null;
     }
 
+    const branding = await getBrandingInfo();
+
     return {
       host: host.value,
       port: parseInt(port.value),
@@ -63,7 +103,7 @@ async function getSMTPSettings(): Promise<SMTPSettings | null> {
       user: user.value,
       password: password.value,
       fromEmail: fromEmail.value,
-      fromName: fromName?.value || 'USA Luxury Limo',
+      fromName: fromName?.value || branding.companyName,
     };
   } catch (error) {
     console.error('Error fetching SMTP settings:', error);
@@ -179,7 +219,9 @@ export function getContactFormEmailHTML(data: {
   serviceType: string | null | undefined;
   message: string;
   submittedAt: string;
+  companyName?: string;
 }): string {
+  const company = data.companyName || 'USA Luxury Limo';
   return `
     <!DOCTYPE html>
     <html>
@@ -199,7 +241,7 @@ export function getContactFormEmailHTML(data: {
         <div class="container">
           <div class="header">
             <h1 style="margin: 0;">🚗 New Contact Form Submission</h1>
-            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+            <p style="margin: 10px 0 0 0;">${company}</p>
           </div>
           <div class="content">
             <div class="field">
@@ -232,7 +274,7 @@ export function getContactFormEmailHTML(data: {
             </div>
           </div>
           <div class="footer">
-            <p>This email was sent from the USA Luxury Limo contact form.</p>
+            <p>This email was sent from the ${company} contact form.</p>
             <p>Please respond to the customer at <a href="mailto:${data.email}">${data.email}</a></p>
           </div>
         </div>
@@ -250,7 +292,9 @@ export function getBookingConfirmationEmailHTML(data: {
   vehicleType: string;
   totalAmount: string;
   status: string;
+  companyName?: string;
 }): string {
+  const company = data.companyName || 'USA Luxury Limo';
   return `
     <!DOCTYPE html>
     <html>
@@ -272,11 +316,11 @@ export function getBookingConfirmationEmailHTML(data: {
         <div class="container">
           <div class="header">
             <h1 style="margin: 0;">✅ Booking Confirmation</h1>
-            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+            <p style="margin: 10px 0 0 0;">${company}</p>
           </div>
           <div class="content">
             <p>Dear ${data.passengerName},</p>
-            <p>Thank you for choosing USA Luxury Limo! Your booking has been confirmed.</p>
+            <p>Thank you for choosing ${company}! Your booking has been confirmed.</p>
             
             <div class="booking-details">
               <div class="detail-row">
@@ -317,7 +361,7 @@ export function getBookingConfirmationEmailHTML(data: {
             </ul>
           </div>
           <div class="footer">
-            <p><strong>USA Luxury Limo</strong></p>
+            <p><strong>${company}</strong></p>
             <p>Your journey, our passion.</p>
             <p>For support, please contact us through our website.</p>
           </div>
@@ -334,7 +378,9 @@ export function getBookingStatusUpdateEmailHTML(data: {
   newStatus: string;
   pickupAddress: string;
   scheduledDateTime: string;
+  companyName?: string;
 }): string {
+  const company = data.companyName || 'USA Luxury Limo';
   const statusEmoji = {
     pending: '⏳',
     confirmed: '✅',
@@ -361,7 +407,7 @@ export function getBookingStatusUpdateEmailHTML(data: {
         <div class="container">
           <div class="header">
             <h1 style="margin: 0;">📋 Booking Status Update</h1>
-            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+            <p style="margin: 10px 0 0 0;">${company}</p>
           </div>
           <div class="content">
             <p>Dear ${data.passengerName},</p>
@@ -379,7 +425,7 @@ export function getBookingStatusUpdateEmailHTML(data: {
             </div>
           </div>
           <div class="footer">
-            <p><strong>USA Luxury Limo</strong></p>
+            <p><strong>${company}</strong></p>
             <p>For questions or support, please contact us through our website.</p>
           </div>
         </div>
@@ -398,7 +444,9 @@ export function getDriverAssignmentEmailHTML(data: {
   scheduledDateTime: string;
   vehicleType: string;
   driverPayment?: string;
+  companyName?: string;
 }): string {
+  const company = data.companyName || 'USA Luxury Limo';
   return `
     <!DOCTYPE html>
     <html>
@@ -419,7 +467,7 @@ export function getDriverAssignmentEmailHTML(data: {
         <div class="container">
           <div class="header">
             <h1 style="margin: 0;">🚗 New Ride Assignment</h1>
-            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+            <p style="margin: 10px 0 0 0;">${company}</p>
           </div>
           <div class="content">
             <p>Dear ${data.driverName},</p>
@@ -471,7 +519,7 @@ export function getDriverAssignmentEmailHTML(data: {
             </ul>
           </div>
           <div class="footer">
-            <p><strong>USA Luxury Limo</strong></p>
+            <p><strong>${company}</strong></p>
             <p>Drive safely and provide excellent service!</p>
           </div>
         </div>
@@ -484,7 +532,9 @@ export function getPasswordResetEmailHTML(data: {
   name: string;
   resetLink: string;
   expiresIn: string;
+  companyName?: string;
 }): string {
+  const company = data.companyName || 'USA Luxury Limo';
   return `
     <!DOCTYPE html>
     <html>
@@ -503,7 +553,7 @@ export function getPasswordResetEmailHTML(data: {
         <div class="container">
           <div class="header">
             <h1 style="margin: 0;">🔐 Password Reset Request</h1>
-            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+            <p style="margin: 10px 0 0 0;">${company}</p>
           </div>
           <div class="content">
             <p>Hello ${data.name},</p>
@@ -528,7 +578,7 @@ export function getPasswordResetEmailHTML(data: {
             </div>
           </div>
           <div class="footer">
-            <p><strong>USA Luxury Limo</strong></p>
+            <p><strong>${company}</strong></p>
             <p>If you have any questions, please contact our support team.</p>
           </div>
         </div>
@@ -548,7 +598,10 @@ export function getPaymentConfirmationEmailHTML(data: {
   scheduledDateTime: string;
   paymentIntentId: string;
   logoDataUri?: string;
+  companyName?: string;
 }): string {
+  const company = data.companyName || 'USA Luxury Limo';
+  const companyUpper = company.toUpperCase();
   return `
     <!DOCTYPE html>
     <html>
@@ -861,11 +914,11 @@ export function getPaymentConfirmationEmailHTML(data: {
             <div class="header">
               ${data.logoDataUri ? `
                 <div class="logo-container">
-                  <img src="${data.logoDataUri}" alt="USA Luxury Limo" class="logo-img" />
+                  <img src="${data.logoDataUri}" alt="${company}" class="logo-img" />
                 </div>
               ` : `
                 <div class="logo-container">
-                  <h1 class="company-name">USA LUXURY LIMO</h1>
+                  <h1 class="company-name">${companyUpper}</h1>
                 </div>
               `}
               <p class="tagline">Ride in Style, Always on Time</p>
@@ -875,7 +928,7 @@ export function getPaymentConfirmationEmailHTML(data: {
             <div class="success-banner">
               <div class="success-icon">✓</div>
               <h2 class="success-title">Payment Successful!</h2>
-              <p class="success-subtitle">Thank you for choosing USA Luxury Limo</p>
+              <p class="success-subtitle">Thank you for choosing ${company}</p>
             </div>
 
             <!-- Content -->
@@ -966,7 +1019,7 @@ export function getPaymentConfirmationEmailHTML(data: {
 
             <!-- Footer -->
             <div class="footer">
-              <p class="footer-logo">USA LUXURY LIMO</p>
+              <p class="footer-logo">${companyUpper}</p>
               <p class="footer-tagline">Your Journey, Our Passion</p>
               <p class="footer-note">
                 This is an automated confirmation email. Please do not reply directly to this message.<br>
@@ -980,7 +1033,9 @@ export function getPaymentConfirmationEmailHTML(data: {
   `;
 }
 
-export function getTestEmailHTML(): string {
+export async function getTestEmailHTML(): Promise<string> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   return `
     <!DOCTYPE html>
     <html>
@@ -998,7 +1053,7 @@ export function getTestEmailHTML(): string {
         <div class="container">
           <div class="header">
             <h1 style="margin: 0;">✅ SMTP Test Email</h1>
-            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+            <p style="margin: 10px 0 0 0;">${company}</p>
           </div>
           <div class="content">
             <div class="success-badge">
@@ -1011,7 +1066,7 @@ export function getTestEmailHTML(): string {
               <li>Email server connection is successful</li>
               <li>You can now send automated emails to your customers</li>
             </ul>
-            <p>Your USA Luxury Limo system is now ready to send:</p>
+            <p>Your ${company} system is now ready to send:</p>
             <ul>
               <li>Contact form notifications</li>
               <li>Booking confirmations</li>
@@ -1020,7 +1075,7 @@ export function getTestEmailHTML(): string {
             </ul>
           </div>
           <div class="footer">
-            <p><strong>USA Luxury Limo Email System</strong></p>
+            <p><strong>${company} Email System</strong></p>
             <p>Sent at: ${new Date().toLocaleString()}</p>
           </div>
         </div>
@@ -1038,7 +1093,9 @@ export function getDriverOnTheWayEmailHTML(data: {
   pickupAddress: string;
   scheduledDateTime: string;
   estimatedArrival?: string;
+  companyName?: string;
 }): string {
+  const company = data.companyName || 'USA Luxury Limo';
   return `
     <!DOCTYPE html>
     <html>
@@ -1060,7 +1117,7 @@ export function getDriverOnTheWayEmailHTML(data: {
         <div class="container">
           <div class="header">
             <h1 style="margin: 0;">🚗 Driver On The Way!</h1>
-            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+            <p style="margin: 10px 0 0 0;">${company}</p>
           </div>
           <div class="content">
             <p>Dear ${data.passengerName},</p>
@@ -1110,7 +1167,7 @@ export function getDriverOnTheWayEmailHTML(data: {
             </ul>
           </div>
           <div class="footer">
-            <p><strong>USA Luxury Limo</strong></p>
+            <p><strong>${company}</strong></p>
             <p>Your journey, our passion.</p>
           </div>
         </div>
@@ -1126,7 +1183,9 @@ export function getDriverArrivedEmailHTML(data: {
   driverPhone: string;
   vehicleType: string;
   pickupAddress: string;
+  companyName?: string;
 }): string {
+  const company = data.companyName || 'USA Luxury Limo';
   return `
     <!DOCTYPE html>
     <html>
@@ -1148,7 +1207,7 @@ export function getDriverArrivedEmailHTML(data: {
         <div class="container">
           <div class="header">
             <h1 style="margin: 0;">📍 Driver Has Arrived!</h1>
-            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+            <p style="margin: 10px 0 0 0;">${company}</p>
           </div>
           <div class="content">
             <p>Dear ${data.passengerName},</p>
@@ -1190,7 +1249,7 @@ export function getDriverArrivedEmailHTML(data: {
             </ul>
           </div>
           <div class="footer">
-            <p><strong>USA Luxury Limo</strong></p>
+            <p><strong>${company}</strong></p>
             <p>Enjoy your ride!</p>
           </div>
         </div>
@@ -1206,7 +1265,9 @@ export function getBookingCancelledEmailHTML(data: {
   destinationAddress?: string;
   scheduledDateTime: string;
   cancelReason?: string;
+  companyName?: string;
 }): string {
+  const company = data.companyName || 'USA Luxury Limo';
   return `
     <!DOCTYPE html>
     <html>
@@ -1228,7 +1289,7 @@ export function getBookingCancelledEmailHTML(data: {
         <div class="container">
           <div class="header">
             <h1 style="margin: 0;">❌ Booking Cancelled</h1>
-            <p style="margin: 10px 0 0 0;">USA Luxury Limo</p>
+            <p style="margin: 10px 0 0 0;">${company}</p>
           </div>
           <div class="content">
             <p>Dear ${data.passengerName},</p>
@@ -1270,7 +1331,7 @@ export function getBookingCancelledEmailHTML(data: {
             <p>If you believe this cancellation was made in error, please contact our support team immediately.</p>
           </div>
           <div class="footer">
-            <p><strong>USA Luxury Limo</strong></p>
+            <p><strong>${company}</strong></p>
             <p>We hope to serve you again in the future.</p>
           </div>
         </div>
@@ -1286,6 +1347,8 @@ export async function sendPasswordResetEmail(
   resetToken: string,
   username: string
 ): Promise<boolean> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   const resetUrl = `${getAppBaseUrl()}/reset-password?token=${resetToken}`;
   
   const html = `
@@ -1308,7 +1371,7 @@ export async function sendPasswordResetEmail(
           </div>
           <div class="content">
             <p>Hello ${username},</p>
-            <p>We received a request to reset your password for your USA Luxury Limo account.</p>
+            <p>We received a request to reset your password for your ${company} account.</p>
             <p>Click the button below to reset your password:</p>
             <p style="text-align: center;">
               <a href="${resetUrl}" class="button">Reset Password</a>
@@ -1319,7 +1382,7 @@ export async function sendPasswordResetEmail(
             <p>If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} USA Luxury Limo. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} ${company}. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -1328,7 +1391,7 @@ export async function sendPasswordResetEmail(
 
   return await sendEmail({
     to: email,
-    subject: 'Password Reset Request - USA Luxury Limo',
+    subject: `Password Reset Request - ${company}`,
     html,
   });
 }
@@ -1338,6 +1401,8 @@ export async function sendTemporaryPasswordEmail(
   tempPassword: string,
   username: string
 ): Promise<boolean> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   const loginUrl = `${getAppBaseUrl()}/login`;
   
   const html = `
@@ -1361,7 +1426,7 @@ export async function sendTemporaryPasswordEmail(
           </div>
           <div class="content">
             <p>Hello ${username},</p>
-            <p>An administrator has set a temporary password for your USA Luxury Limo account.</p>
+            <p>An administrator has set a temporary password for your ${company} account.</p>
             <p>Your temporary password is:</p>
             <div class="password-box">${tempPassword}</div>
             <p><strong>Please change this password immediately after logging in.</strong></p>
@@ -1371,7 +1436,7 @@ export async function sendTemporaryPasswordEmail(
             <p>For security reasons, we recommend changing your password as soon as possible.</p>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} USA Luxury Limo. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} ${company}. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -1380,7 +1445,7 @@ export async function sendTemporaryPasswordEmail(
 
   return await sendEmail({
     to: email,
-    subject: 'Temporary Password Set - USA Luxury Limo',
+    subject: `Temporary Password Set - ${company}`,
     html,
   });
 }
@@ -1389,6 +1454,8 @@ export async function sendUsernameReminderEmail(
   email: string,
   username: string
 ): Promise<boolean> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   const loginUrl = `${getAppBaseUrl()}/login`;
   
   const html = `
@@ -1412,7 +1479,7 @@ export async function sendUsernameReminderEmail(
           </div>
           <div class="content">
             <p>Hello,</p>
-            <p>We received a request for your username at USA Luxury Limo.</p>
+            <p>We received a request for your username at ${company}.</p>
             <p>Your username is:</p>
             <div class="username-box">${username}</div>
             <p style="text-align: center;">
@@ -1421,7 +1488,7 @@ export async function sendUsernameReminderEmail(
             <p>If you did not request this information, please contact our support team.</p>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} USA Luxury Limo. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} ${company}. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -1430,7 +1497,7 @@ export async function sendUsernameReminderEmail(
 
   return await sendEmail({
     to: email,
-    subject: 'Username Reminder - USA Luxury Limo',
+    subject: `Username Reminder - ${company}`,
     html,
   });
 }

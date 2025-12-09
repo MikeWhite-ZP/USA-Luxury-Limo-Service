@@ -7878,11 +7878,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Send test email
+      // Send test email with dynamic branding
+      const testEmailHtml = await getTestEmailHTML();
       const emailSent = await sendEmail({
         to: testEmail,
-        subject: 'USA Luxury Limo - SMTP Test Email',
-        html: getTestEmailHTML(),
+        subject: 'SMTP Test Email',
+        html: testEmailHtml,
       });
 
       if (emailSent) {
