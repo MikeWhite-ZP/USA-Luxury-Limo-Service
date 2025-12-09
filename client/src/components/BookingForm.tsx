@@ -2249,7 +2249,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           <Button
             onClick={handleGetQuote}
             disabled={quoteMutation.isPending}
-            className="w-full py-3 px-6 text-lg font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 text-white rounded-xl transition-all duration-300 hover:shadow-lg active:transform active:scale-95 border-2 border-red-600 hover:border-red-700 shadow-md mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
+            className="w-full py-3 px-6 text-lg font-bold bg-accent hover:bg-accent/90 active:bg-accent/80 text-accent-foreground rounded-xl transition-all duration-300 hover:shadow-lg active:transform active:scale-95 shadow-md mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
             data-testid="button-get-quote"
           >
             {quoteMutation.isPending ? 'Calculating Quote...' : 'Get a Quote'}
@@ -2372,7 +2372,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           <Button
             onClick={handleGetQuote}
             disabled={quoteMutation.isPending}
-            className="w-full py-3 px-6 text-lg font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 text-white rounded-xl transition-all duration-300 hover:shadow-lg active:transform active:scale-95 border-2 border-red-600 hover:border-red-700 shadow-md mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
+            className="w-full py-3 px-6 text-lg font-bold bg-accent hover:bg-accent/90 active:bg-accent/80 text-accent-foreground rounded-xl transition-all duration-300 hover:shadow-lg active:transform active:scale-95 shadow-md mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
             data-testid="button-get-quote"
           >
             {quoteMutation.isPending ? 'Calculating Quote...' : 'Get a Quote'}
