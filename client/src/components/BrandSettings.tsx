@@ -559,9 +559,7 @@ export default function BrandSettings() {
                     <RotateCcw className="w-4 h-4" />
                     Reset to Defaults
                   </Button>
-                  <p className="text-xs text-muted-foreground">
-                    Restore USA Luxury Limo default colors
-                  </p>
+                  <p className="text-xs text-muted-foreground">Restore to default colors</p>
                 </div>
                 <Button
                   onClick={handleApplyColors}
@@ -726,7 +724,6 @@ export default function BrandSettings() {
           </Card>
         </TabsContent>
       </Tabs>
-
       {saveSetting.isPending && (
         <div className="fixed bottom-4 right-4 bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-lg flex items-center gap-2">
           <Loader2 className="w-4 h-4 animate-spin" />

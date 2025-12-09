@@ -51,6 +51,20 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        brand: {
+          primary: {
+            DEFAULT: "hsl(var(--brand-primary))",
+            foreground: "hsl(var(--brand-primary-foreground))",
+          },
+          secondary: {
+            DEFAULT: "hsl(var(--brand-secondary))",
+            foreground: "hsl(var(--brand-secondary-foreground))",
+          },
+          accent: {
+            DEFAULT: "hsl(var(--brand-accent))",
+            foreground: "hsl(var(--brand-accent-foreground))",
+          },
+        },
       },
       fontFamily: {
         sans: ["Montserrat", "sans-serif"],

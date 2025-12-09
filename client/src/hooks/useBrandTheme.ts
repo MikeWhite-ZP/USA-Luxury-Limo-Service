@@ -77,6 +77,28 @@ export function useBrandTheme() {
       root.style.setProperty('--brand-primary-hex', branding.colors.primary);
       root.style.setProperty('--brand-secondary-hex', branding.colors.secondary);
       root.style.setProperty('--brand-accent-hex', branding.colors.accent);
+      
+      // CRITICAL: Sync brand colors with core Shadcn theme variables
+      // This makes all Shadcn/UI components automatically use brand colors
+      
+      // Primary color - used by primary buttons, links, and key UI elements
+      root.style.setProperty('--primary', primaryHSL);
+      root.style.setProperty('--primary-foreground', getContrastColor(branding.colors.primary));
+      
+      // Accent color - used for highlights, CTAs, and emphasis
+      root.style.setProperty('--accent', accentHSL);
+      root.style.setProperty('--accent-foreground', getContrastColor(branding.colors.accent));
+      
+      // Ring color - focus states should match accent for consistency
+      root.style.setProperty('--ring', accentHSL);
+      
+      // Destructive actions can stay red for UX clarity, but we sync with accent if it's red-toned
+      const accentHSLObj = hexToHSL(branding.colors.accent);
+      if (accentHSLObj.h >= 350 || accentHSLObj.h <= 15) {
+        // Accent is red-toned, sync destructive with it
+        root.style.setProperty('--destructive', accentHSL);
+        root.style.setProperty('--destructive-foreground', getContrastColor(branding.colors.accent));
+      }
     }
   }, [branding.isLoading, branding.colors]);
   

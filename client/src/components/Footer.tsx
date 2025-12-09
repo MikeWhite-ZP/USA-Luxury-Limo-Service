@@ -30,7 +30,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="py-16 bg-[#0b0b0b] text-[#ffffff]">
+    <footer className="py-16 bg-primary text-primary-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Company Info */}
@@ -43,17 +43,17 @@ export default function Footer() {
                 data-testid="footer-logo"
               />
             </div>
-            <p className="text-gray-300 mb-4 max-w-md" data-testid="footer-description">
+            <p className="text-primary-foreground/80 mb-4 max-w-md" data-testid="footer-description">
               {description || 'Premium luxury transportation services across the United States. Experience comfort, reliability, and professionalism with every ride.'}
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-primary transition-colors" data-testid="social-twitter">
+              <a href="#" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors" data-testid="social-twitter">
                 <Twitter className="w-6 h-6" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-primary transition-colors" data-testid="social-facebook">
+              <a href="#" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors" data-testid="social-facebook">
                 <Facebook className="w-6 h-6" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-primary transition-colors" data-testid="social-linkedin">
+              <a href="#" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors" data-testid="social-linkedin">
                 <Linkedin className="w-6 h-6" />
               </a>
             </div>
@@ -62,11 +62,11 @@ export default function Footer() {
           {/* Quick Links */}
           <div>
             <h4 className="text-lg font-semibold mb-4" data-testid="footer-quick-links-title">Quick Links</h4>
-            <ul className="space-y-2 text-gray-300">
+            <ul className="space-y-2 text-primary-foreground/80">
               <li>
                 <button 
                   onClick={() => handleNavClick('#home')} 
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-home"
                 >
                   Home
@@ -75,7 +75,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => setLocation('/about-us')} 
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-about"
                 >
                   About
@@ -84,7 +84,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => handleNavClick('#services')} 
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-services"
                 >
                   Services
@@ -93,7 +93,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => handleNavClick('#fleet')} 
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-fleet"
                 >
                   Fleet
@@ -102,7 +102,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => handleNavClick('#contact')} 
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-contact"
                 >
                   Contact
@@ -114,11 +114,11 @@ export default function Footer() {
           {/* Support */}
           <div>
             <h4 className="text-lg font-semibold mb-4" data-testid="footer-support-title">Support</h4>
-            <ul className="space-y-2 text-gray-300">
+            <ul className="space-y-2 text-primary-foreground/80">
               <li>
                 <button 
                   onClick={() => setLocation('/help-center')}
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-help"
                 >
                   Help Center
@@ -127,7 +127,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => setLocation('/privacy-policy')}
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-privacy"
                 >
                   Privacy Policy
@@ -136,7 +136,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => setLocation('/terms-of-service')}
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-terms"
                 >
                   Terms of Service
@@ -145,7 +145,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => setLocation('/safety')}
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-safety"
                 >
                   Safety
@@ -155,15 +155,15 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-700 pt-8">
+        <div className="border-t border-primary-foreground/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-            <p className="text-gray-300 text-sm" data-testid="footer-copyright">
+            <p className="text-primary-foreground/80 text-sm" data-testid="footer-copyright">
               © {new Date().getFullYear()} {companyName}. All rights reserved.
             </p>
             <div className="flex items-center space-x-4 mt-4 md:mt-0">
-              <span className="text-gray-300 text-sm" data-testid="footer-powered-stripe">Powered by Stripe</span>
-              <span className="text-gray-300 text-sm">•</span>
-              <span className="text-gray-300 text-sm" data-testid="footer-powered-tomtom">TomTom Navigation</span>
+              <span className="text-primary-foreground/80 text-sm" data-testid="footer-powered-stripe">Powered by Stripe</span>
+              <span className="text-primary-foreground/80 text-sm">•</span>
+              <span className="text-primary-foreground/80 text-sm" data-testid="footer-powered-tomtom">TomTom Navigation</span>
             </div>
           </div>
           
@@ -173,7 +173,7 @@ export default function Footer() {
                 setDevicePreference('mobile');
                 setLocation('/mobile');
               }}
-              className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-primary transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors"
               data-testid="footer-mobile-version"
             >
               <Smartphone className="w-4 h-4" />
