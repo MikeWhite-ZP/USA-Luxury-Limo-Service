@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Upload, Settings, Palette, Share2, Mail, Globe, Pencil, Trash2 } from 'lucide-react';
+import { Loader2, Upload, Settings, Palette, Share2, Mail, Globe, Pencil, Trash2, RotateCcw, Check } from 'lucide-react';
 
 type CmsSetting = {
   id: string;
@@ -33,9 +33,18 @@ export default function BrandSettings() {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
 
-  const [primaryColor, setPrimaryColor] = useState('#1a1a1a');
-  const [secondaryColor, setSecondaryColor] = useState('#666666');
-  const [accentColor, setAccentColor] = useState('#d4af37');
+  // Default USA Luxury Limo brand colors
+  const DEFAULT_COLORS = {
+    primary: '#1a1a1a',     // Deep black - main brand color
+    secondary: '#666666',   // Elegant gray
+    accent: '#dc2626',      // Luxury red for highlights/CTAs
+  };
+
+  const [primaryColor, setPrimaryColor] = useState(DEFAULT_COLORS.primary);
+  const [secondaryColor, setSecondaryColor] = useState(DEFAULT_COLORS.secondary);
+  const [accentColor, setAccentColor] = useState(DEFAULT_COLORS.accent);
+  const [colorsSaving, setColorsSaving] = useState(false);
+  const [hasColorChanges, setHasColorChanges] = useState(false);
 
   const { data: settings, isLoading } = useQuery<CmsSetting[]>({
     queryKey: ['/api/admin/cms/settings'],
@@ -55,11 +64,76 @@ export default function BrandSettings() {
       const secondary = settings.find(s => s.key === 'BRAND_SECONDARY_COLOR')?.value;
       const accent = settings.find(s => s.key === 'BRAND_ACCENT_COLOR')?.value;
 
-      if (primary) setPrimaryColor(primary);
-      if (secondary) setSecondaryColor(secondary);
-      if (accent) setAccentColor(accent);
+      setPrimaryColor(primary || DEFAULT_COLORS.primary);
+      setSecondaryColor(secondary || DEFAULT_COLORS.secondary);
+      setAccentColor(accent || DEFAULT_COLORS.accent);
+      setHasColorChanges(false);
     }
   }, [settings]);
+
+  // Track color changes
+  const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent', value: string) => {
+    if (colorType === 'primary') setPrimaryColor(value);
+    else if (colorType === 'secondary') setSecondaryColor(value);
+    else if (colorType === 'accent') setAccentColor(value);
+    setHasColorChanges(true);
+  };
+
+  // Reset colors to default
+  const handleResetColors = () => {
+    setPrimaryColor(DEFAULT_COLORS.primary);
+    setSecondaryColor(DEFAULT_COLORS.secondary);
+    setAccentColor(DEFAULT_COLORS.accent);
+    setHasColorChanges(true);
+    toast({
+      title: 'Colors Reset',
+      description: 'Colors have been reset to defaults. Click "Apply Colors" to save.',
+    });
+  };
+
+  // Save all colors at once
+  const handleApplyColors = async () => {
+    setColorsSaving(true);
+    try {
+      await Promise.all([
+        apiRequest('PUT', '/api/admin/cms/settings', { 
+          key: 'BRAND_PRIMARY_COLOR',
+          value: primaryColor, 
+          category: 'colors', 
+          description: 'Primary brand color' 
+        }),
+        apiRequest('PUT', '/api/admin/cms/settings', { 
+          key: 'BRAND_SECONDARY_COLOR',
+          value: secondaryColor, 
+          category: 'colors', 
+          description: 'Secondary brand color' 
+        }),
+        apiRequest('PUT', '/api/admin/cms/settings', { 
+          key: 'BRAND_ACCENT_COLOR',
+          value: accentColor, 
+          category: 'colors', 
+          description: 'Accent brand color' 
+        }),
+      ]);
+      
+      await queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/settings'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/branding'] });
+      
+      setHasColorChanges(false);
+      toast({
+        title: 'Success',
+        description: 'Brand colors saved successfully. Theme updated.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to save brand colors',
+        variant: 'destructive',
+      });
+    } finally {
+      setColorsSaving(false);
+    }
+  };
 
   const saveSetting = useMutation({
     mutationFn: async (data: { key: string; value: string; category: string; description?: string }) => {
@@ -409,9 +483,9 @@ export default function BrandSettings() {
           <Card>
             <CardHeader>
               <CardTitle>Brand Colors</CardTitle>
-              <CardDescription>Customize your website's color scheme</CardDescription>
+              <CardDescription>Customize your website's color scheme. These colors affect the entire application theme.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="primary-color">Primary Color</Label>
@@ -420,18 +494,17 @@ export default function BrandSettings() {
                       type="color"
                       id="primary-color"
                       value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      onBlur={(e) => handleSettingChange('BRAND_PRIMARY_COLOR', e.target.value, 'colors', 'Primary brand color')}
+                      onChange={(e) => handleColorChange('primary', e.target.value)}
                       className="w-20 h-10 cursor-pointer"
                     />
                     <Input
                       type="text"
                       value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      onBlur={(e) => handleSettingChange('BRAND_PRIMARY_COLOR', e.target.value, 'colors', 'Primary brand color')}
+                      onChange={(e) => handleColorChange('primary', e.target.value)}
                       placeholder="#1a1a1a"
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground">Default: {DEFAULT_COLORS.primary}</p>
                 </div>
 
                 <div className="space-y-2">
@@ -441,18 +514,17 @@ export default function BrandSettings() {
                       type="color"
                       id="secondary-color"
                       value={secondaryColor}
-                      onChange={(e) => setSecondaryColor(e.target.value)}
-                      onBlur={(e) => handleSettingChange('BRAND_SECONDARY_COLOR', e.target.value, 'colors', 'Secondary brand color')}
+                      onChange={(e) => handleColorChange('secondary', e.target.value)}
                       className="w-20 h-10 cursor-pointer"
                     />
                     <Input
                       type="text"
                       value={secondaryColor}
-                      onChange={(e) => setSecondaryColor(e.target.value)}
-                      onBlur={(e) => handleSettingChange('BRAND_SECONDARY_COLOR', e.target.value, 'colors', 'Secondary brand color')}
+                      onChange={(e) => handleColorChange('secondary', e.target.value)}
                       placeholder="#666666"
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground">Default: {DEFAULT_COLORS.secondary}</p>
                 </div>
 
                 <div className="space-y-2">
@@ -462,20 +534,54 @@ export default function BrandSettings() {
                       type="color"
                       id="accent-color"
                       value={accentColor}
-                      onChange={(e) => setAccentColor(e.target.value)}
-                      onBlur={(e) => handleSettingChange('BRAND_ACCENT_COLOR', e.target.value, 'colors', 'Accent brand color')}
+                      onChange={(e) => handleColorChange('accent', e.target.value)}
                       className="w-20 h-10 cursor-pointer"
                     />
                     <Input
                       type="text"
                       value={accentColor}
-                      onChange={(e) => setAccentColor(e.target.value)}
-                      onBlur={(e) => handleSettingChange('BRAND_ACCENT_COLOR', e.target.value, 'colors', 'Accent brand color')}
-                      placeholder="#d4af37"
+                      onChange={(e) => handleColorChange('accent', e.target.value)}
+                      placeholder="#dc2626"
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground">Default: {DEFAULT_COLORS.accent}</p>
                 </div>
               </div>
+
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleResetColors}
+                    disabled={colorsSaving}
+                    className="flex items-center gap-2"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Reset to Defaults
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Restore USA Luxury Limo default colors
+                  </p>
+                </div>
+                <Button
+                  onClick={handleApplyColors}
+                  disabled={colorsSaving || !hasColorChanges}
+                  className="flex items-center gap-2"
+                >
+                  {colorsSaving ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )}
+                  {colorsSaving ? 'Saving...' : 'Apply Colors'}
+                </Button>
+              </div>
+
+              {hasColorChanges && (
+                <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-sm text-amber-800">
+                  You have unsaved color changes. Click "Apply Colors" to save your changes.
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
