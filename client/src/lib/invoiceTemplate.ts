@@ -496,6 +496,23 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
           min-width: 200px;
         }
         
+        /* Cancelled watermark */
+        .cancelled-watermark {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) rotate(-45deg);
+          font-size: 120px;
+          font-weight: bold;
+          color: rgba(220, 38, 38, 0.25);
+          text-transform: uppercase;
+          letter-spacing: 10px;
+          pointer-events: none;
+          z-index: 1000;
+          white-space: nowrap;
+          user-select: none;
+        }
+        
         @media print {
           body { 
             padding: 10px;
@@ -505,10 +522,22 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
           .header {
             page-break-after: avoid;
           }
+          .cancelled-watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 120px;
+            font-weight: bold;
+            color: rgba(220, 38, 38, 0.25);
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
         }
       </style>
     </head>
     <body>
+      ${booking.status === 'cancelled' ? '<div class="cancelled-watermark">CANCELLED</div>' : ''}
       <div class="header">
         <div class="logo-section">
           ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="logo-img" />` : `<div style="font-weight: bold; font-size: 18px;">${companyName}</div>`}
