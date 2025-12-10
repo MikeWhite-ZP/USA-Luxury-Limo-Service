@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useBranding } from "@/hooks/useBranding";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -281,10 +282,24 @@ function PaymentMethodsList() {
 
 function InvoicesList() {
   const { toast } = useToast();
+  const { companyName, logoUrl, isFetched: isBrandingFetched } = useBranding();
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [isLoadingEmail, setIsLoadingEmail] = useState(false);
   const [printInvoice, setPrintInvoice] = useState<any>(null);
+  const [pendingPrintInvoice, setPendingPrintInvoice] = useState<any>(null);
+
+  // Effect to handle printing when branding is ready
+  useEffect(() => {
+    if (pendingPrintInvoice && isBrandingFetched) {
+      setPrintInvoice(pendingPrintInvoice);
+      setPendingPrintInvoice(null);
+      setTimeout(() => {
+        window.print();
+        setPrintInvoice(null);
+      }, 100);
+    }
+  }, [pendingPrintInvoice, isBrandingFetched]);
 
   // Fetch passenger invoices
   const { data: invoices, isLoading } = useQuery<any[]>({
@@ -342,11 +357,17 @@ function InvoicesList() {
   };
 
   const handlePrint = async (invoice: any) => {
-    setPrintInvoice(invoice);
-    setTimeout(() => {
-      window.print();
-      setPrintInvoice(null);
-    }, 100);
+    // If branding is already fetched, print immediately
+    if (isBrandingFetched) {
+      setPrintInvoice(invoice);
+      setTimeout(() => {
+        window.print();
+        setPrintInvoice(null);
+      }, 100);
+    } else {
+      // Otherwise, store the pending invoice and wait for branding to load
+      setPendingPrintInvoice(invoice);
+    }
   };
 
   const renderPrintableInvoice = (invoice: any) => {
@@ -391,7 +412,9 @@ function InvoicesList() {
               font-size: 10pt;
             }
             .print-header {
-              text-align: center;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
               border-bottom: 2px solid #f59e0b;
               padding: 12px;
               margin-bottom: 12px;
@@ -399,11 +422,24 @@ function InvoicesList() {
               border-radius: 6px;
               page-break-inside: avoid;
             }
+            .print-header-left {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+            }
+            .print-header-logo {
+              max-width: 100px;
+              max-height: 60px;
+              object-fit: contain;
+            }
             .print-header h1 {
               font-size: 20pt;
               font-weight: 800;
               color: #1e293b;
               margin-bottom: 2px;
+            }
+            .print-header-right {
+              text-align: right;
             }
             .print-invoice-number {
               font-size: 11pt;
@@ -541,8 +577,13 @@ function InvoicesList() {
           }
         `}</style>
         <div className="print-header">
-          <h1>USA Luxury Limo</h1>
-          <div className="print-invoice-number">Invoice #{invoice.invoiceNumber}</div>
+          <div className="print-header-left">
+            {logoUrl && <img src={logoUrl} alt={companyName} className="print-header-logo" />}
+            <h1>{companyName}</h1>
+          </div>
+          <div className="print-header-right">
+            <div className="print-invoice-number">Invoice #{invoice.invoiceNumber}</div>
+          </div>
         </div>
         
         <div className="print-info-section">
@@ -691,7 +732,7 @@ function InvoicesList() {
         )}
         
         <div className="print-footer">
-          <p className="thank-you">Thank you for choosing USA Luxury Limo!</p>
+          <p className="thank-you">Thank you for choosing {companyName}!</p>
           <p>All prices include statutory taxes and transportation expenses</p>
         </div>
       </div>

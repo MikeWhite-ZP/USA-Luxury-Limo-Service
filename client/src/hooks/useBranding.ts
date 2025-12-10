@@ -14,7 +14,7 @@ export interface BrandingData {
 }
 
 export function useBranding() {
-  const { data, isLoading, error } = useQuery<BrandingData>({
+  const { data, isLoading, isFetched, error } = useQuery<BrandingData>({
     queryKey: ['/api/branding'],
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     retry: 1,
@@ -33,6 +33,7 @@ export function useBranding() {
       accent: '#d4af37'
     },
     isLoading,
+    isFetched,
     error
   };
 }

@@ -2110,6 +2110,22 @@ function InvoiceManagement() {
       console.error('Error fetching booking details:', error);
     }
 
+    // Fetch branding data for tenant logo and company name
+    let companyName = 'USA Luxury Limo';
+    let logoUrl = '';
+    try {
+      const brandingResponse = await fetch('/api/branding', {
+        credentials: 'include'
+      });
+      if (brandingResponse.ok) {
+        const branding = await brandingResponse.json();
+        companyName = branding.companyName || companyName;
+        logoUrl = branding.logoUrl || '';
+      }
+    } catch (error) {
+      console.error('Error fetching branding data:', error);
+    }
+
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
@@ -2226,12 +2242,24 @@ function InvoiceManagement() {
           }
           
           .header { 
-            text-align: center; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             border-bottom: 2px solid #4f46e5;
             padding: 12px;
             margin-bottom: 12px;
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             border-radius: 6px;
+          }
+          .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          .header-logo {
+            max-width: 100px;
+            max-height: 60px;
+            object-fit: contain;
           }
           .header h1 { 
             font-size: 20pt;
@@ -2239,6 +2267,9 @@ function InvoiceManagement() {
             color: #1e293b;
             margin-bottom: 2px;
             letter-spacing: -0.5px;
+          }
+          .header-right {
+            text-align: right;
           }
           .header .invoice-number { 
             font-size: 11pt;
@@ -2426,8 +2457,13 @@ function InvoiceManagement() {
         </div>
         
         <div class="header">
-          <h1>USA Luxury Limo</h1>
-          <div class="invoice-number">Invoice #${invoice.invoiceNumber}</div>
+          <div class="header-left">
+            ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="header-logo" />` : ''}
+            <h1>${companyName}</h1>
+          </div>
+          <div class="header-right">
+            <div class="invoice-number">Invoice #${invoice.invoiceNumber}</div>
+          </div>
         </div>
         
         <div class="info-section">
