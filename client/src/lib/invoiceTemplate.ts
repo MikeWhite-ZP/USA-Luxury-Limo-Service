@@ -27,6 +27,12 @@ export interface InvoiceTemplateData {
     specialRequests?: string;
     arrBy?: string;
     poClientNumber?: string;
+    billReference?: string;
+    bookingFor?: string;
+    bookingForPassengerName?: string;
+    bookingForPassengerPhone?: string;
+    actualPickupTime?: string;
+    actualDropoffTime?: string;
     baseFare?: string;
     totalFare?: string;
     gratuityAmount?: string;
@@ -572,6 +578,12 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
               <td class="label">Reservation#</td>
               <td class="value">${booking.confirmationNumber || invoiceNumber}</td>
             </tr>
+            ${booking.billReference ? `
+            <tr>
+              <td class="label">Bill Reference:</td>
+              <td class="value">${booking.billReference}</td>
+            </tr>
+            ` : ''}
           </table>
         </div>
       </div>
@@ -633,11 +645,19 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
         <div class="routing-info">
           <h4>Passenger & Routing Information</h4>
           <div class="routing-content">
+            ${booking.bookingFor === 'someone_else' && booking.bookingForPassengerName ? `
+            <p><span class="label">Booked By:</span> ${booking.passengerName}</p>
+            <p><span class="label">Passenger:</span> ${booking.bookingForPassengerName}</p>
+            ${booking.bookingForPassengerPhone ? `<p><span class="label">Passenger Phone:</span> ${booking.bookingForPassengerPhone}</p>` : ''}
+            ` : `
             <p><span class="label">Passenger:</span> ${booking.passengerName}</p>
             ${booking.passengerPhone ? `<p><span class="label">Phone:</span> ${booking.passengerPhone}</p>` : ''}
+            `}
             <p style="margin-top: 6px;"><span class="label">PU:</span> -- : ${booking.pickupAddress}</p>
             ${booking.bookingType === 'hourly' && booking.requestedHours ? 
-              `<p><span class="label">Duration:</span> ${booking.requestedHours} ${booking.requestedHours === 1 ? 'Hour' : 'Hours'}</p>` :
+              `<p><span class="label">Duration:</span> ${booking.requestedHours} ${booking.requestedHours === 1 ? 'Hour' : 'Hours'}</p>
+               ${booking.actualPickupTime ? `<p><span class="label">Actual Start:</span> ${new Date(booking.actualPickupTime).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</p>` : ''}
+               ${booking.actualDropoffTime ? `<p><span class="label">Actual End:</span> ${new Date(booking.actualDropoffTime).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</p>` : ''}` :
               booking.destinationAddress ? `<p><span class="label">DO:</span> -- : ${booking.destinationAddress}</p>` : ''
             }
           </div>

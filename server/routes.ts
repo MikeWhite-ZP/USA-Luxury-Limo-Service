@@ -5948,11 +5948,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Booking ID and GPS coordinates required' });
       }
 
-      const location = { lat, lng, timestamp: new Date().toISOString() };
-      const updatedBooking = await storage.updateBooking(bookingId, {
-        pobAt: new Date(),
+      // Get booking to check if hourly for actual pickup time
+      const booking = await storage.getBooking(bookingId);
+      const now = new Date();
+      const location = { lat, lng, timestamp: now.toISOString() };
+      
+      // For hourly bookings, capture actual pickup time when passenger boards
+      const updateData: any = {
+        pobAt: now,
         pobLocation: location,
-      });
+      };
+      
+      if (booking?.bookingType === 'hourly') {
+        updateData.actualPickupTime = now;
+      }
+      
+      const updatedBooking = await storage.updateBooking(bookingId, updateData);
 
       res.json(updatedBooking);
     } catch (error) {
@@ -5975,12 +5986,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Booking ID and GPS coordinates required' });
       }
 
-      const location = { lat, lng, timestamp: new Date().toISOString() };
-      const updatedBooking = await storage.updateBooking(bookingId, {
-        endedAt: new Date(),
+      // Get booking to check if hourly for actual dropoff time
+      const booking = await storage.getBooking(bookingId);
+      const now = new Date();
+      const location = { lat, lng, timestamp: now.toISOString() };
+      
+      // For hourly bookings, capture actual dropoff time when job ends
+      const updateData: any = {
+        endedAt: now,
         endedLocation: location,
         status: 'completed',
-      });
+      };
+      
+      if (booking?.bookingType === 'hourly') {
+        updateData.actualDropoffTime = now;
+      }
+      
+      const updatedBooking = await storage.updateBooking(bookingId, updateData);
 
       res.json(updatedBooking);
     } catch (error) {

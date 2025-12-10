@@ -4691,7 +4691,8 @@ export default function AdminDashboard() {
         booking.passengerName?.toLowerCase().includes(searchLower) ||
         booking.driverName?.toLowerCase().includes(searchLower) ||
         booking.pickupAddress?.toLowerCase().includes(searchLower) ||
-        booking.destinationAddress?.toLowerCase().includes(searchLower);
+        booking.destinationAddress?.toLowerCase().includes(searchLower) ||
+        booking.billReference?.toLowerCase().includes(searchLower);
 
       if (!matchesSearch) return false;
     }

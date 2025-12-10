@@ -84,6 +84,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   const [luggageCount, setLuggageCount] = useState(0);
   const [babySeat, setBabySeat] = useState(false);
   const [specialInstructions, setSpecialInstructions] = useState('');
+  const [billReference, setBillReference] = useState(''); // Customer reference for invoicing
   
   // Flight search state
   const [flightSearchInput, setFlightSearchInput] = useState('');
@@ -660,6 +661,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         luggageCount,
         babySeat,
         specialInstructions: specialInstructions || undefined,
+        billReference: billReference || undefined,
         // Flight information if selected
         ...(selectedFlight && {
           flightNumber: selectedFlight.flightNumber,
@@ -1628,6 +1630,20 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </div>
         </div>
 
+        {/* Bill Reference (Optional) */}
+        <div data-testid="bill-reference-section">
+          <h4 className="font-semibold mb-2">Bill Reference (Optional)</h4>
+          <input
+            type="text"
+            placeholder="Your reference number for invoicing (e.g., PO#, Job#)"
+            value={billReference}
+            onChange={(e) => setBillReference(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg"
+            maxLength={100}
+            data-testid="input-bill-reference"
+          />
+        </div>
+
         {/* Special Instructions */}
         <div data-testid="special-instructions-section">
           <h4 className="font-semibold mb-2">Special Instructions</h4>
@@ -1902,6 +1918,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 luggageCount,
                 babySeat,
                 specialInstructions: specialInstructions || undefined,
+                billReference: billReference || undefined,
                 ...(selectedFlight && {
                   flightNumber: selectedFlight.flightNumber,
                   flightAirline: selectedFlight.airline,

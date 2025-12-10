@@ -101,6 +101,7 @@ export default function MobileBookingForm() {
   const [luggageCount, setLuggageCount] = useState(0);
   const [babySeat, setBabySeat] = useState(false);
   const [specialInstructions, setSpecialInstructions] = useState('');
+  const [billReference, setBillReference] = useState(''); // Customer reference for invoicing
   
   // Flight search state
   const [flightSearchInput, setFlightSearchInput] = useState('');
@@ -464,6 +465,7 @@ export default function MobileBookingForm() {
         luggageCount,
         babySeat,
         specialInstructions: specialInstructions || undefined,
+        billReference: billReference || undefined,
         paymentMethod: selectedPaymentMethod,
         ...(selectedFlight && {
           flightNumber: selectedFlight.flightNumber,
@@ -1438,6 +1440,22 @@ export default function MobileBookingForm() {
                   <Baby className="w-4 h-4 text-blue-600" />
                   Baby Seat Required
                 </Label>
+              </div>
+
+              <div>
+                <Label htmlFor="bill-reference" className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                  Bill Reference (Optional)
+                </Label>
+                <Input
+                  id="bill-reference"
+                  placeholder="Your reference number (e.g., PO#, Job#)"
+                  value={billReference}
+                  onChange={(e) => setBillReference(e.target.value)}
+                  maxLength={100}
+                  className="text-base"
+                  data-testid="input-bill-reference"
+                />
               </div>
 
               <div>

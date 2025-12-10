@@ -315,6 +315,11 @@ export const bookings = pgTable("bookings", {
   refundInvoiceSent: boolean("refund_invoice_sent").default(false),
   markedCompletedAt: timestamp("marked_completed_at"),
   
+  // Invoice and billing fields
+  billReference: varchar("bill_reference", { length: 100 }), // Customer/admin reference for invoicing
+  actualPickupTime: timestamp("actual_pickup_time"), // Actual time driver started with passenger (for hourly billing)
+  actualDropoffTime: timestamp("actual_dropoff_time"), // Actual time driver completed the job (for hourly billing)
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

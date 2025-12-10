@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Car, DollarSign, MapPin, Star, Calendar, User, FileText, Settings, CheckCircle2, Navigation2, Phone, MessageSquare, MoreVertical } from 'lucide-react';
+import { ArrowLeft, Car, DollarSign, MapPin, Star, Calendar, User, FileText, Settings, CheckCircle2, Navigation2, Phone, MessageSquare, MoreVertical, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,11 +59,45 @@ export default function MobileDriver() {
     retry: false,
   });
 
-  // Fetch driver bookings
+  // Track previous pending jobs count for new job notifications
+  const prevPendingCountRef = useRef<number | null>(null);
+  const [newJobAlert, setNewJobAlert] = useState(false);
+
+  // Fetch driver bookings with 30-second auto-refresh
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
     queryKey: ['/api/bookings'],
     retry: false,
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
+    refetchIntervalInBackground: false, // Only refresh when tab is visible
   });
+
+  // Detect new job assignments and show notification
+  useEffect(() => {
+    if (!bookings) return;
+    
+    const pendingJobs = bookings.filter(b => b.status === 'pending_driver_acceptance');
+    const currentPendingCount = pendingJobs.length;
+    
+    // Check if new jobs arrived (compare with previous count)
+    if (prevPendingCountRef.current !== null && currentPendingCount > prevPendingCountRef.current) {
+      const newJobsCount = currentPendingCount - prevPendingCountRef.current;
+      
+      // Show visual notification
+      setNewJobAlert(true);
+      
+      // Show toast notification
+      toast({
+        title: `${newJobsCount} New Job${newJobsCount > 1 ? 's' : ''} Available!`,
+        description: "You have new job assignments waiting for acceptance.",
+      });
+      
+      // Clear alert after 5 seconds
+      setTimeout(() => setNewJobAlert(false), 5000);
+    }
+    
+    // Update ref with current count
+    prevPendingCountRef.current = currentPendingCount;
+  }, [bookings, toast]);
 
   // Toggle availability mutation
   const toggleAvailabilityMutation = useMutation({
@@ -501,9 +535,15 @@ export default function MobileDriver() {
             <TabsTrigger 
               value="upcoming" 
               data-testid="tab-upcoming"
-              className="data-[state=active]:bg-red-600 data-[state=active]:text-white rounded-md font-medium transition-all text-gray-700"
+              className="data-[state=active]:bg-red-600 data-[state=active]:text-white rounded-md font-medium transition-all text-gray-700 relative"
             >
               Upcoming ({upcomingBookings.length})
+              {newJobAlert && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+              )}
             </TabsTrigger>
             <TabsTrigger 
               value="completed" 
