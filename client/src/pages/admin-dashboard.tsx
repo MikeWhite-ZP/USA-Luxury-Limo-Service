@@ -2445,6 +2445,12 @@ function InvoiceManagement() {
               <span class="info-label">Booking ID</span>
               <span class="info-value booking-id">#${invoice.bookingId.toUpperCase().substring(0, 8)}</span>
             </div>
+            ${booking?.billReference ? `
+            <div class="info-item">
+              <span class="info-label">Bill Reference</span>
+              <span class="info-value">${booking.billReference}</span>
+            </div>
+            ` : ''}
             ${invoice.paidAt ? `
               <div class="info-item">
                 <span class="info-label">Payment Date</span>
