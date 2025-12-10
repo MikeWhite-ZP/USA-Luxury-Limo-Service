@@ -3497,6 +3497,7 @@ export default function AdminDashboard() {
     luggageCount: 0,
     babySeat: false,
     specialInstructions: "",
+    billReference: "",
     // Flight information
     flightNumber: "",
     flightAirline: "",
@@ -4574,6 +4575,7 @@ export default function AdminDashboard() {
         luggageCount: 0,
         babySeat: false,
         specialInstructions: "",
+        billReference: "",
         flightNumber: "",
         flightAirline: "",
         flightDepartureAirport: "",
@@ -5060,6 +5062,7 @@ export default function AdminDashboard() {
       luggageCount: 0,
       babySeat: false,
       specialInstructions: "",
+      billReference: "",
       flightNumber: "",
       flightAirline: "",
       flightDepartureAirport: "",
@@ -5131,6 +5134,7 @@ export default function AdminDashboard() {
       babySeat: booking.babySeat || booking.baby_seat || false,
       specialInstructions:
         booking.specialInstructions || booking.special_instructions || "",
+      billReference: booking.billReference || booking.bill_reference || "",
       flightNumber: booking.flightNumber || booking.flight_number || "",
       flightAirline: booking.flightAirline || booking.flight_airline || "",
       flightDepartureAirport:
@@ -8499,6 +8503,26 @@ export default function AdminDashboard() {
                     data-testid="textarea-special-instructions"
                   />
                 </div>
+                <div className="mt-4">
+                  <h3 className="text-[#d82527] text-[16px] mt-[5px] mb-[5px] font-bold">
+                    Bill Reference (Optional)
+                  </h3>
+                  <input
+                    type="text"
+                    id="bill-reference"
+                    value={bookingFormData.billReference}
+                    onChange={(e) =>
+                      setBookingFormData({
+                        ...bookingFormData,
+                        billReference: e.target.value,
+                      })
+                    }
+                    placeholder="Your reference number for invoicing (e.g., PO#, Job#)"
+                    className="w-full p-2 border rounded-md"
+                    maxLength={100}
+                    data-testid="input-bill-reference"
+                  />
+                </div>
               </div>
 
               <div className="border-t pt-4 mt-4 space-y-2 bg-[#e1faaf] text-[12px]">
@@ -8564,6 +8588,8 @@ export default function AdminDashboard() {
                     babySeat: bookingFormData.babySeat,
                     specialInstructions:
                       bookingFormData.specialInstructions || undefined,
+                    billReference:
+                      bookingFormData.billReference || undefined,
                     flightNumber: bookingFormData.flightNumber || undefined,
                     flightAirline: bookingFormData.flightAirline || undefined,
                     flightDepartureAirport:
