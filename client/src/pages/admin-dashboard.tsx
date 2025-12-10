@@ -2173,17 +2173,18 @@ function InvoiceManagement() {
           
           @page {
             size: letter;
-            margin: 0.5in;
+            margin: 0.4in;
           }
           
           body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            padding: 20px; 
+            padding: 0; 
             max-width: 100%;
             margin: 0 auto;
             background: #ffffff;
             color: #0f172a;
-            line-height: 1.4;
+            line-height: 1.3;
+            font-size: 10pt;
           }
           
           .print-button {
@@ -2193,9 +2194,9 @@ function InvoiceManagement() {
             background: #4f46e5;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -2206,102 +2207,101 @@ function InvoiceManagement() {
           }
           .print-instructions {
             position: fixed;
-            top: 70px;
+            top: 65px;
             right: 20px;
             background: #fffbeb;
             border: 2px solid #fbbf24;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 11px;
             color: #92400e;
             z-index: 1000;
-            max-width: 300px;
+            max-width: 280px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           }
           .print-instructions strong {
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             color: #78350f;
           }
           
           .header { 
             text-align: center; 
             border-bottom: 2px solid #4f46e5;
-            padding-bottom: 12px; 
-            margin-bottom: 20px;
+            padding: 12px;
+            margin-bottom: 12px;
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            padding: 20px;
-            border-radius: 8px;
+            border-radius: 6px;
           }
           .header h1 { 
-            font-size: 28px;
+            font-size: 20pt;
             font-weight: 800;
             color: #1e293b;
-            margin-bottom: 6px;
+            margin-bottom: 2px;
             letter-spacing: -0.5px;
           }
           .header .invoice-number { 
-            font-size: 16px;
+            font-size: 11pt;
             color: #4f46e5;
             font-weight: 600;
-            margin-top: 8px;
+            margin-top: 4px;
           }
           
           .info-section {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 14px;
-            margin-bottom: 16px;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
           }
           .info-section h2 {
-            font-size: 14px;
+            font-size: 10pt;
             font-weight: 700;
             color: #334155;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
           }
           .info-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 6px 12px;
           }
           .info-item {
             display: flex;
             flex-direction: column;
           }
           .info-label {
-            font-size: 11px;
+            font-size: 8pt;
             color: #64748b;
             font-weight: 500;
-            margin-bottom: 3px;
+            margin-bottom: 1px;
           }
           .info-value {
-            font-size: 13px;
+            font-size: 9pt;
             color: #0f172a;
             font-weight: 600;
           }
           .booking-id {
             font-family: 'Courier New', monospace;
             background: #cbd5e1;
-            padding: 3px 10px;
-            border-radius: 4px;
+            padding: 2px 8px;
+            border-radius: 3px;
             display: inline-block;
           }
           
           .pricing-section {
             background: white;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 14px;
-            margin-bottom: 16px;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
           }
           .pricing-section h2 {
-            font-size: 14px;
+            font-size: 10pt;
             font-weight: 700;
             color: #334155;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
           }
@@ -2309,19 +2309,19 @@ function InvoiceManagement() {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 5px 0;
             border-bottom: 1px solid #f1f5f9;
           }
           .pricing-row:last-child {
             border-bottom: none;
           }
           .pricing-label {
-            font-size: 13px;
+            font-size: 9pt;
             color: #0f172a;
             font-weight: 500;
           }
           .pricing-value {
-            font-size: 13px;
+            font-size: 9pt;
             color: #0f172a;
             font-weight: 600;
           }
@@ -2335,9 +2335,9 @@ function InvoiceManagement() {
           .total-section {
             background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
             border: 2px solid #3b82f6;
-            border-radius: 8px;
-            padding: 16px;
-            margin-top: 14px;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 8px;
           }
           .total-row {
             display: flex;
@@ -2345,47 +2345,47 @@ function InvoiceManagement() {
             align-items: center;
           }
           .total-label {
-            font-size: 18px;
+            font-size: 12pt;
             color: #0f172a;
             font-weight: 700;
           }
           .total-value {
-            font-size: 24px;
+            font-size: 16pt;
             color: #1d4ed8;
             font-weight: 800;
           }
           
           .payment-status {
             text-align: center;
-            margin-top: 16px;
-            padding: 14px;
+            margin-top: 10px;
+            padding: 8px;
             background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
             border: 2px solid #10b981;
-            border-radius: 8px;
+            border-radius: 5px;
           }
           .payment-status-text {
             color: #065f46;
             font-weight: 800;
-            font-size: 16px;
-            letter-spacing: 1.5px;
+            font-size: 11pt;
+            letter-spacing: 1px;
           }
           
           .footer {
-            margin-top: 20px;
-            padding-top: 14px;
+            margin-top: 12px;
+            padding-top: 8px;
             border-top: 1px solid #e2e8f0;
             text-align: center;
           }
           .footer p {
             color: #64748b;
-            font-size: 11px;
+            font-size: 8pt;
             font-weight: 500;
           }
           .footer .thank-you {
-            font-size: 14px;
+            font-size: 10pt;
             font-weight: 600;
             color: #334155;
-            margin-bottom: 6px;
+            margin-bottom: 2px;
           }
           
           @media print {
@@ -2398,20 +2398,20 @@ function InvoiceManagement() {
               display: none !important;
             }
             .header {
-              padding: 16px;
-              margin-bottom: 16px;
+              padding: 10px;
+              margin-bottom: 10px;
             }
             .info-section {
-              padding: 12px;
-              margin-bottom: 14px;
+              padding: 8px;
+              margin-bottom: 8px;
             }
             .pricing-section {
-              padding: 12px;
-              margin-bottom: 14px;
+              padding: 8px;
+              margin-bottom: 8px;
             }
             .footer {
-              margin-top: 16px;
-              padding-top: 12px;
+              margin-top: 10px;
+              padding-top: 8px;
             }
           }
         </style>

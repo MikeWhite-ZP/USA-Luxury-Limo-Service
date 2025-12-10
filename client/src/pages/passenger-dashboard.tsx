@@ -375,104 +375,108 @@ function InvoicesList() {
             display: none;
           }
           @media print {
+            @page {
+              size: letter;
+              margin: 0.4in;
+            }
             .print-only-content {
               display: block !important;
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-              padding: 20px;
+              padding: 0;
               max-width: 100%;
               margin: 0 auto;
               background: #ffffff;
               color: #0f172a;
-              line-height: 1.4;
-              font-size: 11pt;
+              line-height: 1.3;
+              font-size: 10pt;
             }
             .print-header {
               text-align: center;
               border-bottom: 2px solid #f59e0b;
-              padding: 18px;
-              margin-bottom: 20px;
+              padding: 12px;
+              margin-bottom: 12px;
               background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-              border-radius: 8px;
+              border-radius: 6px;
               page-break-inside: avoid;
             }
             .print-header h1 {
-              font-size: 24pt;
+              font-size: 20pt;
               font-weight: 800;
               color: #1e293b;
-              margin-bottom: 4px;
+              margin-bottom: 2px;
             }
             .print-invoice-number {
-              font-size: 12pt;
+              font-size: 11pt;
               color: #f59e0b;
               font-weight: 600;
-              margin-top: 6px;
+              margin-top: 4px;
             }
             .print-info-section {
               background: #f8fafc;
               border: 1px solid #e2e8f0;
-              border-radius: 6px;
-              padding: 14px;
-              margin-bottom: 16px;
+              border-radius: 5px;
+              padding: 10px;
+              margin-bottom: 10px;
               page-break-inside: avoid;
             }
             .print-info-section h2 {
-              font-size: 11pt;
+              font-size: 10pt;
               font-weight: 700;
               color: #334155;
-              margin-bottom: 10px;
+              margin-bottom: 8px;
               text-transform: uppercase;
             }
             .print-info-grid {
               display: grid;
               grid-template-columns: repeat(2, 1fr);
-              gap: 10px;
+              gap: 6px 12px;
             }
             .print-info-item {
               display: flex;
               flex-direction: column;
             }
             .print-info-label {
-              font-size: 9pt;
+              font-size: 8pt;
               color: #64748b;
               font-weight: 500;
-              margin-bottom: 2px;
+              margin-bottom: 1px;
             }
             .print-info-value {
-              font-size: 10pt;
+              font-size: 9pt;
               color: #0f172a;
               font-weight: 600;
             }
             .print-pricing-section {
               background: white;
               border: 1px solid #e2e8f0;
-              border-radius: 6px;
-              padding: 14px;
-              margin-bottom: 16px;
+              border-radius: 5px;
+              padding: 10px;
+              margin-bottom: 10px;
               page-break-inside: avoid;
             }
             .print-pricing-section h2 {
-              font-size: 11pt;
+              font-size: 10pt;
               font-weight: 700;
               color: #334155;
-              margin-bottom: 12px;
+              margin-bottom: 8px;
               text-transform: uppercase;
             }
             .print-pricing-row {
               display: flex;
               justify-content: space-between;
-              padding: 8px 0;
+              padding: 5px 0;
               border-bottom: 1px solid #f1f5f9;
             }
             .print-pricing-row:last-child {
               border-bottom: none;
             }
             .print-pricing-label {
-              font-size: 10pt;
+              font-size: 9pt;
               color: #0f172a;
               font-weight: 500;
             }
             .print-pricing-value {
-              font-size: 10pt;
+              font-size: 9pt;
               color: #0f172a;
               font-weight: 600;
             }
@@ -485,9 +489,9 @@ function InvoicesList() {
             .print-total-section {
               background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
               border: 2px solid #f59e0b;
-              border-radius: 6px;
-              padding: 14px;
-              margin-top: 12px;
+              border-radius: 5px;
+              padding: 10px;
+              margin-top: 8px;
             }
             .print-total-row {
               display: flex;
@@ -495,44 +499,44 @@ function InvoicesList() {
               align-items: center;
             }
             .print-total-label {
-              font-size: 14pt;
+              font-size: 12pt;
               color: #0f172a;
               font-weight: 700;
             }
             .print-total-value {
-              font-size: 20pt;
+              font-size: 16pt;
               color: #f59e0b;
               font-weight: 800;
             }
             .print-payment-status {
               text-align: center;
-              margin-top: 16px;
-              padding: 12px;
+              margin-top: 10px;
+              padding: 8px;
               background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
               border: 2px solid #10b981;
-              border-radius: 6px;
+              border-radius: 5px;
             }
             .print-payment-status-text {
               color: #065f46;
               font-weight: 800;
-              font-size: 13pt;
+              font-size: 11pt;
             }
             .print-footer {
-              margin-top: 20px;
-              padding-top: 12px;
+              margin-top: 12px;
+              padding-top: 8px;
               border-top: 1px solid #e2e8f0;
               text-align: center;
             }
             .print-footer p {
               color: #64748b;
-              font-size: 9pt;
+              font-size: 8pt;
               font-weight: 500;
             }
             .print-footer .thank-you {
-              font-size: 11pt;
+              font-size: 10pt;
               font-weight: 600;
               color: #334155;
-              margin-bottom: 4px;
+              margin-bottom: 2px;
             }
           }
         `}</style>
@@ -558,6 +562,33 @@ function InvoicesList() {
               <span className="print-info-label">Booking ID</span>
               <span className="print-info-value">#{invoice.bookingId.toUpperCase().substring(0, 8)}</span>
             </div>
+            {booking?.billReference && (
+              <div className="print-info-item">
+                <span className="print-info-label">Bill Reference</span>
+                <span className="print-info-value">{booking.billReference}</span>
+              </div>
+            )}
+            {booking?.bookingFor === 'someone_else' ? (
+              <>
+                <div className="print-info-item">
+                  <span className="print-info-label">Booked By</span>
+                  <span className="print-info-value">
+                    {(booking.passengerFirstName || '') + ' ' + (booking.passengerLastName || '') || 'N/A'}
+                  </span>
+                </div>
+                <div className="print-info-item">
+                  <span className="print-info-label">Passenger</span>
+                  <span className="print-info-value">{booking.passengerName || 'N/A'}</span>
+                </div>
+              </>
+            ) : booking ? (
+              <div className="print-info-item">
+                <span className="print-info-label">Passenger</span>
+                <span className="print-info-value">
+                  {booking.passengerName || ((booking.passengerFirstName || '') + ' ' + (booking.passengerLastName || '')) || 'N/A'}
+                </span>
+              </div>
+            ) : null}
             {invoice.paidAt && (
               <div className="print-info-item">
                 <span className="print-info-label">Payment Date</span>
