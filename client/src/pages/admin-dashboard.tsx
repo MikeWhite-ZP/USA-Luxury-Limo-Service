@@ -2451,6 +2451,18 @@ function InvoiceManagement() {
               <span class="info-value">${booking.billReference}</span>
             </div>
             ` : ''}
+            ${booking ? `
+            <div class="info-item">
+              <span class="info-label">${booking.bookingFor === 'someone_else' ? 'Booked By' : 'Passenger'}</span>
+              <span class="info-value">${booking.passengerFirstName || ''} ${booking.passengerLastName || ''}</span>
+            </div>
+            ${booking.bookingFor === 'someone_else' && booking.passengerName ? `
+            <div class="info-item">
+              <span class="info-label">Passenger</span>
+              <span class="info-value">${booking.passengerName}</span>
+            </div>
+            ` : ''}
+            ` : ''}
             ${invoice.paidAt ? `
               <div class="info-item">
                 <span class="info-label">Payment Date</span>
