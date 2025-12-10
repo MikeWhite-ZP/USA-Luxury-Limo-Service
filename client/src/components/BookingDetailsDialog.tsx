@@ -110,6 +110,7 @@ interface BookingFormData {
   flightDepartureAirport: string;
   flightArrivalAirport: string;
   specialInstructions: string;
+  billReference: string;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
   paymentMethod: 'pay_now' | 'pay_later' | 'cash' | 'ride_credit';
   creditAmountApplied?: string;
@@ -1362,6 +1363,46 @@ export function BookingDetailsDialog({
                 </Card>
               </div>
             )}
+
+            {/* Special Instructions & Bill Reference Section */}
+            <div className="mb-6">
+              <Card className="border-amber-200 shadow-sm">
+                <CardHeader className="bg-gradient-to-r from-amber-100 to-yellow-100 border-b border-amber-200">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-amber-600 p-2 rounded-lg">
+                      <FileText className="w-4 h-4 text-white" />
+                    </div>
+                    <CardTitle className="text-lg font-semibold text-amber-900">Additional Information</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Special Instructions */}
+                  <div>
+                    <Label className="text-sm font-medium text-slate-700">Special Instructions / Notes</Label>
+                    <Textarea
+                      value={formData.specialInstructions}
+                      onChange={(e) => setFormData({ ...formData, specialInstructions: e.target.value })}
+                      placeholder="Any special requests, dietary requirements, or accessibility needs..."
+                      className="mt-1.5 min-h-[80px] border-amber-300 focus:border-amber-500 focus:ring-amber-500"
+                      data-testid="textarea-special-instructions"
+                    />
+                  </div>
+                  
+                  {/* Bill Reference */}
+                  <div>
+                    <Label className="text-sm font-medium text-slate-700">Bill Reference (Optional)</Label>
+                    <Input
+                      value={formData.billReference}
+                      onChange={(e) => setFormData({ ...formData, billReference: e.target.value })}
+                      placeholder="Your reference number for invoicing (e.g., PO#, Job#)"
+                      className="mt-1.5 border-amber-300 focus:border-amber-500 focus:ring-amber-500"
+                      maxLength={100}
+                      data-testid="input-bill-reference"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
           {/* RIGHT PANEL - Dispatch & Invoice */}
