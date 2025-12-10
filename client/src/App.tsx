@@ -144,28 +144,32 @@ const LoadingFallback = () => (
   </div>
 );
 
-// Component to dynamically load and update favicon from CMS
+// Component to dynamically update favicon with cache-busting when CMS changes
 function FaviconLoader() {
   const { data: faviconData } = useQuery<{ favicon: { id: string; url: string; } | null }>({
     queryKey: ['/api/site-favicon'],
     refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
   });
 
   useEffect(() => {
-    if (faviconData?.favicon?.url) {
-      // Add cache-busting timestamp to ensure fresh favicon loads
-      const faviconUrl = `${faviconData.favicon.url}?t=${Date.now()}`;
+    if (faviconData?.favicon?.id) {
+      // Use stable endpoint with cache-busting based on media ID
+      const cacheBuster = faviconData.favicon.id;
+      const faviconUrl = `/api/favicon/icon.png?v=${cacheBuster}`;
+      const appleTouchUrl = `/api/favicon/apple-touch-icon.png?v=${cacheBuster}`;
       
-      // Update or create favicon link element
+      // Update main favicon link
       let faviconLink = document.querySelector("link[rel='icon']") as HTMLLinkElement;
-      
-      if (!faviconLink) {
-        faviconLink = document.createElement('link');
-        faviconLink.rel = 'icon';
-        document.head.appendChild(faviconLink);
+      if (faviconLink) {
+        faviconLink.href = faviconUrl;
       }
       
-      faviconLink.href = faviconUrl;
+      // Update apple touch icon
+      let appleTouchLink = document.querySelector("link[rel='apple-touch-icon']") as HTMLLinkElement;
+      if (appleTouchLink) {
+        appleTouchLink.href = appleTouchUrl;
+      }
     }
   }, [faviconData]);
 

@@ -8623,7 +8623,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public endpoint to get site favicon
+  // Public endpoint to get site favicon metadata
   app.get('/api/site-favicon', async (req, res) => {
     try {
       const faviconSetting = await storage.getCmsSetting('site_favicon');
@@ -8650,6 +8650,187 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Get site favicon error:', error);
       res.status(500).json({ message: 'Failed to fetch site favicon' });
+    }
+  });
+
+  // Stable favicon proxy endpoint - streams actual image bytes from storage
+  // This proxies the image directly so URLs never expire
+  app.get('/api/favicon/icon.png', async (req, res) => {
+    try {
+      const faviconSetting = await storage.getCmsSetting('site_favicon');
+      
+      if (faviconSetting?.value) {
+        const media = await storage.getCmsMediaById(faviconSetting.value);
+        if (media) {
+          // Check for conditional request (ETag based on media ID)
+          const etag = `"${media.id}"`;
+          const clientETag = req.headers['if-none-match'];
+          if (clientETag === etag) {
+            return res.status(304).end();
+          }
+          
+          // Get presigned URL and fetch the image
+          const presignedUrl = await getPresignedUrl(media.fileUrl);
+          
+          // Handle remote storage (presigned URL)
+          if (presignedUrl && presignedUrl.startsWith('http')) {
+            try {
+              const imageResponse = await fetch(presignedUrl);
+              if (imageResponse.ok) {
+                const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+                
+                res.setHeader('Content-Type', media.fileType || 'image/png');
+                res.setHeader('Content-Length', imageBuffer.length);
+                res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
+                res.setHeader('ETag', etag);
+                return res.send(imageBuffer);
+              }
+            } catch (fetchError) {
+              console.error('Failed to fetch favicon from storage:', fetchError);
+            }
+          }
+          
+          // Handle local storage - read file directly and stream bytes
+          if (presignedUrl && presignedUrl.startsWith('/api/uploads/')) {
+            try {
+              const fs = await import('fs/promises');
+              const path = await import('path');
+              // Extract file path from /api/uploads/xxx
+              const relativePath = presignedUrl.replace('/api/uploads/', '');
+              const filePath = path.join(process.cwd(), 'uploads', relativePath);
+              
+              const fileBuffer = await fs.readFile(filePath);
+              res.setHeader('Content-Type', media.fileType || 'image/png');
+              res.setHeader('Content-Length', fileBuffer.length);
+              res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
+              res.setHeader('ETag', etag);
+              return res.send(fileBuffer);
+            } catch (fsError) {
+              console.error('Failed to read local favicon file:', fsError);
+            }
+          }
+        }
+      }
+      
+      // Fallback to static favicon if no CMS favicon is set - stream bytes from static file
+      try {
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const staticIconPath = path.join(process.cwd(), 'client', 'public', 'icon-192x192.png');
+        const fileBuffer = await fs.readFile(staticIconPath);
+        
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Content-Length', fileBuffer.length);
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+        res.setHeader('ETag', '"static-favicon"');
+        return res.send(fileBuffer);
+      } catch {
+        // Last resort - redirect (should rarely happen)
+        res.redirect(302, '/icon-192x192.png');
+      }
+    } catch (error) {
+      console.error('Favicon proxy error:', error);
+      try {
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const staticIconPath = path.join(process.cwd(), 'client', 'public', 'icon-192x192.png');
+        const fileBuffer = await fs.readFile(staticIconPath);
+        
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Content-Length', fileBuffer.length);
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+        return res.send(fileBuffer);
+      } catch {
+        res.redirect(302, '/icon-192x192.png');
+      }
+    }
+  });
+
+  // Apple touch icon proxy endpoint - streams actual image bytes
+  app.get('/api/favicon/apple-touch-icon.png', async (req, res) => {
+    try {
+      const faviconSetting = await storage.getCmsSetting('site_favicon');
+      
+      if (faviconSetting?.value) {
+        const media = await storage.getCmsMediaById(faviconSetting.value);
+        if (media) {
+          const etag = `"apple-${media.id}"`;
+          const clientETag = req.headers['if-none-match'];
+          if (clientETag === etag) {
+            return res.status(304).end();
+          }
+          
+          const presignedUrl = await getPresignedUrl(media.fileUrl);
+          
+          // Handle remote storage (presigned URL)
+          if (presignedUrl && presignedUrl.startsWith('http')) {
+            try {
+              const imageResponse = await fetch(presignedUrl);
+              if (imageResponse.ok) {
+                const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+                
+                res.setHeader('Content-Type', media.fileType || 'image/png');
+                res.setHeader('Content-Length', imageBuffer.length);
+                res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
+                res.setHeader('ETag', etag);
+                return res.send(imageBuffer);
+              }
+            } catch (fetchError) {
+              console.error('Failed to fetch apple touch icon from storage:', fetchError);
+            }
+          }
+          
+          // Handle local storage - read file directly and stream bytes
+          if (presignedUrl && presignedUrl.startsWith('/api/uploads/')) {
+            try {
+              const fs = await import('fs/promises');
+              const path = await import('path');
+              const relativePath = presignedUrl.replace('/api/uploads/', '');
+              const filePath = path.join(process.cwd(), 'uploads', relativePath);
+              
+              const fileBuffer = await fs.readFile(filePath);
+              res.setHeader('Content-Type', media.fileType || 'image/png');
+              res.setHeader('Content-Length', fileBuffer.length);
+              res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
+              res.setHeader('ETag', etag);
+              return res.send(fileBuffer);
+            } catch (fsError) {
+              console.error('Failed to read local apple touch icon file:', fsError);
+            }
+          }
+        }
+      }
+      
+      // Fallback to static icon - stream bytes from static file
+      try {
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const staticIconPath = path.join(process.cwd(), 'client', 'public', 'icon-192x192.png');
+        const fileBuffer = await fs.readFile(staticIconPath);
+        
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Content-Length', fileBuffer.length);
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+        res.setHeader('ETag', '"static-apple-icon"');
+        return res.send(fileBuffer);
+      } catch {
+        res.redirect(302, '/icon-192x192.png');
+      }
+    } catch (error) {
+      console.error('Apple touch icon proxy error:', error);
+      try {
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const staticIconPath = path.join(process.cwd(), 'client', 'public', 'icon-192x192.png');
+        const fileBuffer = await fs.readFile(staticIconPath);
+        
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Content-Length', fileBuffer.length);
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+        return res.send(fileBuffer);
+      } catch {
+        res.redirect(302, '/icon-192x192.png');
+      }
     }
   });
 
@@ -8732,12 +8913,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Get favicon URL from unified site_favicon setting (same as MediaLibrary uses)
+      // Get favicon URL from unified site_favicon setting - use stable proxy endpoint
       let resolvedFaviconUrl = '/images/favicon_1759253989963.png';
       if (faviconSetting?.value) {
         const faviconMedia = await storage.getCmsMediaById(faviconSetting.value);
         if (faviconMedia) {
-          resolvedFaviconUrl = await getPresignedUrl(faviconMedia.fileUrl);
+          // Use stable proxy endpoint instead of presigned URL (never expires)
+          resolvedFaviconUrl = `/api/favicon/icon.png?v=${faviconMedia.id}`;
         }
       }
 
@@ -8770,27 +8952,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Fetch active favicon from CMS
       const faviconSetting = await storage.getCmsSetting('site_favicon');
-      let faviconUrl: string | null = null;
+      let faviconMediaId: string | null = null;
       let faviconMimeType: string | null = null;
       let etag = isAdminSubdomain ? '"admin-static"' : '"static"'; // Quoted ETag
       
       if (faviconSetting?.value) {
         const media = await storage.getCmsMediaById(faviconSetting.value);
         if (media) {
-          faviconUrl = await getPresignedUrl(media.fileUrl);
+          faviconMediaId = media.id;
           faviconMimeType = media.fileType;
           etag = isAdminSubdomain ? `"admin-${media.id}"` : `"${media.id}"`;
         }
       }
       
-      // Generate manifest with dynamic or fallback icons
+      // Generate manifest icons - use static sized icons as they're required for PWA
+      // The favicon proxy endpoint is used for browser tab icons, not PWA install icons
       const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
       const icons = iconSizes.map(size => ({
-        src: faviconUrl || `/icon-${size}x${size}.png`,
+        src: `/icon-${size}x${size}.png`,
         sizes: `${size}x${size}`,
-        type: faviconUrl && faviconMimeType ? faviconMimeType : "image/png",
+        type: "image/png",
         purpose: "any maskable"
       }));
+      
+      // Add the dynamic favicon as an additional icon option (for browsers that support it)
+      if (faviconMediaId) {
+        icons.push({
+          src: `/api/favicon/icon.png?v=${faviconMediaId}`,
+          sizes: "any",
+          type: faviconMimeType || "image/png",
+          purpose: "any"
+        });
+      }
       
       // Generate different manifest based on subdomain
       const manifest = isAdminSubdomain ? {
