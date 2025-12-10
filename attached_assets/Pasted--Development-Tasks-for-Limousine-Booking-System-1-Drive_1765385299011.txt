@@ -1,0 +1,151 @@
+# Development Tasks for Limousine Booking System
+
+## 1. Driver PWA App - Auto-refresh for New Job Assignments
+
+**Requirement:** The driver's main page needs to automatically refresh every 30 seconds to check for newly assigned jobs.
+
+**Implementation Details:**
+- Add automatic polling mechanism in the driver PWA app
+- Check for new job assignments every 30 seconds
+- Refresh the main page/job list automatically when new jobs are detected
+- Show a notification or visual indicator when new jobs arrive
+- Ensure the auto-refresh doesn't interrupt if the driver is actively viewing job details
+
+**Technical Approach:**
+- Use `setInterval` to poll the API every 30 seconds
+- Call the jobs/bookings endpoint to check for new assignments
+- Compare with current state to detect changes
+- Update UI smoothly without full page reload if possible
+- Consider using WebSocket or Server-Sent Events for real-time updates as an alternative
+
+**Files to Modify:**
+- Driver PWA main dashboard component
+- Job assignment service/API calls
+- State management for active jobs
+
+---
+
+## 2. Invoice - Add Bill Reference Field
+
+**Requirement:** Add a "Bill Reference" field to invoices that can be entered by admin or customer, and display it on the invoice.
+
+**Implementation Details:**
+- Add `bill_reference` field to bookings/invoices table in database
+- Create UI input field in booking creation form (admin panel)
+- Allow customers to add bill reference when booking (optional)
+- Display the bill reference prominently on the invoice/receipt
+- Make it searchable in the admin panel
+
+**Database Changes:**
+```sql
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS bill_reference VARCHAR(100);
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS bill_reference VARCHAR(100);
+```
+
+**Files to Modify:**
+- Database schema (bookings and invoices tables)
+- Admin booking creation form
+- Customer booking form
+- Invoice template/PDF generation
+- Booking search/filter functionality
+
+---
+
+## 3. Invoice - Show Actual Pickup/Dropoff Times for Hourly Jobs
+
+**Requirement:** For hourly/charter jobs, display the actual pickup and dropoff times on the invoice (not just scheduled times).
+
+**Implementation Details:**
+- Capture actual pickup time when driver starts the job
+- Capture actual dropoff time when driver completes the job
+- Display both scheduled and actual times on invoice for hourly services
+- Calculate actual duration based on real times
+- Show any time differences for billing purposes
+
+**Fields Needed:**
+- `actual_pickup_time` (timestamp when driver arrives/starts)
+- `actual_dropoff_time` (timestamp when job is completed)
+- Display format: "Scheduled: 2:00 PM | Actual: 2:15 PM"
+
+**Files to Modify:**
+- Bookings table schema (add actual time fields)
+- Driver app - add "Start Job" and "Complete Job" buttons with timestamp capture
+- Invoice template to show actual vs scheduled times
+- Billing calculation logic for hourly rates
+
+---
+
+## 4. Invoice - Display Booking-For Name (When Booked for Someone Else)
+
+**Requirement:** When a customer books a ride for someone else, show the passenger's name (booking-for name) on the invoice, not just the customer who paid.
+
+**Implementation Details:**
+- If `booking_for_name` exists, display it prominently on invoice
+- Show format: "Booked by: [Customer Name] | Passenger: [Booking-For Name]"
+- Ensure both names are visible for accounting purposes
+- Include passenger contact info if different from customer
+
+**Display Logic:**
+- If `booking_for_name` is filled: Show both customer and passenger names
+- If `booking_for_name` is empty: Show only customer name
+- On invoice header or passenger details section
+
+**Files to Modify:**
+- Invoice template/PDF generation
+- Invoice display component
+- Email invoice template
+
+---
+
+## Implementation Priority
+
+1. **Driver Auto-refresh** (High Priority - improves driver experience)
+2. **Bill Reference** (Medium Priority - customer feature request)
+3. **Actual Times on Invoice** (Medium Priority - billing accuracy)
+4. **Booking-For Name on Invoice** (Low Priority - nice-to-have for clarity)
+
+---
+
+## Testing Checklist
+
+### Driver Auto-refresh:
+- [ ] Verify polling starts when driver logs in
+- [ ] New jobs appear automatically within 30 seconds
+- [ ] No performance issues with continuous polling
+- [ ] Works on mobile devices (PWA)
+
+### Bill Reference:
+- [ ] Can add reference during booking creation (admin)
+- [ ] Can add reference during customer booking
+- [ ] Reference appears on invoice/receipt
+- [ ] Can search by reference number
+
+### Actual Times:
+- [ ] Driver can mark "arrived" and "completed"
+- [ ] Actual times are captured correctly
+- [ ] Invoice shows both scheduled and actual times
+- [ ] Works for hourly/charter services
+
+### Booking-For Name:
+- [ ] Passenger name displays when present
+- [ ] Customer name still visible
+- [ ] Both names appear in email invoices
+- [ ] Clear distinction between booker and passenger
+
+---
+
+## Database Migration Commands
+
+Run these on both production databases (usa_luxury_limo_db and hope_limo_db):
+
+```sql
+-- Add bill reference
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS bill_reference VARCHAR(100);
+
+-- Add actual pickup/dropoff times
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS actual_pickup_time TIMESTAMP;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS actual_dropoff_time TIMESTAMP;
+
+-- Create index for searching by reference
+CREATE INDEX IF NOT EXISTS idx_bookings_bill_reference ON bookings(bill_reference);
+```
