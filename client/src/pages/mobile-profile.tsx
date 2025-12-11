@@ -11,6 +11,14 @@ import { useAuth } from '@/hooks/useAuth';
 
 const defaultUserImage = '/images/default-user_1762118764894.png';
 
+function formatImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith('data:') || url.startsWith('http') || url.startsWith('/')) {
+    return url;
+  }
+  return `/api/uploads/${url}`;
+}
+
 interface DriverDocument {
   id: string;
   driverId: string;
@@ -39,7 +47,9 @@ export default function MobileProfile() {
   const profilePhotoDoc = documents?.find(doc => doc.documentType === 'profile_photo');
   
   // Show profile picture if it exists (pending or approved)
-  const displayUrl = localPreviewUrl || profilePhotoDoc?.documentUrl || user?.profileImageUrl || null;
+  // Format URLs - raw storage paths need /api/uploads/ prefix
+  const rawUrl = localPreviewUrl || profilePhotoDoc?.documentUrl || user?.profileImageUrl || null;
+  const displayUrl = formatImageUrl(rawUrl);
   const isPending = profilePhotoDoc?.status === 'pending';
   const isApproved = profilePhotoDoc?.status === 'approved';
   const isRejected = profilePhotoDoc?.status === 'rejected';

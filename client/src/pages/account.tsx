@@ -11,6 +11,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { User, Mail, Phone, ArrowLeft, Save, Lock, Eye, EyeOff, Shield, Calendar, CheckCircle2, Camera, Upload } from "lucide-react";
 import Header from "@/components/Header";
+import { isMobileDevice } from "@/lib/utils";
 
 export default function AccountPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -326,7 +327,22 @@ export default function AccountPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Button
           variant="ghost"
-          onClick={() => setLocation('/')}
+          onClick={() => {
+            if (isMobileDevice() && user?.role) {
+              const role = user.role;
+              if (role === 'driver') {
+                setLocation('/mobile-driver');
+              } else if (role === 'dispatcher') {
+                setLocation('/mobile-dispatcher');
+              } else if (role === 'passenger') {
+                setLocation('/mobile-passenger');
+              } else {
+                setLocation('/');
+              }
+            } else {
+              setLocation('/');
+            }
+          }}
           className="mb-6 hover:bg-slate-100"
           data-testid="button-back"
         >
@@ -606,7 +622,22 @@ export default function AccountPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setLocation('/')}
+                    onClick={() => {
+                      if (isMobileDevice() && user?.role) {
+                        const role = user.role;
+                        if (role === 'driver') {
+                          setLocation('/mobile-driver');
+                        } else if (role === 'dispatcher') {
+                          setLocation('/mobile-dispatcher');
+                        } else if (role === 'passenger') {
+                          setLocation('/mobile-passenger');
+                        } else {
+                          setLocation('/');
+                        }
+                      } else {
+                        setLocation('/');
+                      }
+                    }}
                     className="flex-1 border-slate-300 hover:bg-slate-100"
                     data-testid="button-cancel"
                   >
