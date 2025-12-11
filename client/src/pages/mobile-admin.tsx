@@ -69,6 +69,8 @@ import {
   Image,
   Palette,
   Menu,
+  Navigation,
+  UserCheck,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { BookingDetailsDialog } from '@/components/BookingDetailsDialog';
@@ -107,6 +109,7 @@ interface BookingFormData {
   flightDepartureAirport: string;
   flightArrivalAirport: string;
   specialInstructions: string;
+  billReference: string;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
   paymentMethod: 'pay_now' | 'pay_later' | 'cash' | 'ride_credit';
 }
@@ -143,6 +146,7 @@ const defaultFormData: BookingFormData = {
   flightDepartureAirport: '',
   flightArrivalAirport: '',
   specialInstructions: '',
+  billReference: '',
   status: 'pending',
   paymentMethod: 'pay_now',
 };
@@ -157,16 +161,54 @@ interface DashboardStats {
   awaitingDriverApproval: number;
 }
 
+interface ViaPoint {
+  address: string;
+  lat: number;
+  lon: number;
+}
+
 interface Booking {
   id: string;
   status: string;
   pickupAddress: string;
-  dropoffAddress: string;
-  pickupDate: string;
+  dropoffAddress?: string;
+  destinationAddress?: string;
+  pickupDate?: string;
+  scheduledDateTime?: string;
   totalAmount: string;
   passengerName?: string;
   driverName?: string;
+  driverId?: string;
   vehicleType?: string;
+  vehicleTypeId?: string;
+  viaPoints?: ViaPoint[];
+  pickupLat?: string;
+  pickupLon?: string;
+  destinationLat?: string;
+  destinationLon?: string;
+  passengerCount?: number;
+  luggageCount?: number;
+  babySeat?: boolean;
+  specialInstructions?: string;
+  bookingType?: 'transfer' | 'hourly';
+  passengerId?: string;
+  passengerEmail?: string;
+  passengerPhone?: string;
+  flightNumber?: string;
+  flightAirline?: string;
+  flightDepartureAirport?: string;
+  flightArrivalAirport?: string;
+  paymentMethod?: string;
+  regularPrice?: string;
+  discountPercentage?: string;
+  discountAmount?: string;
+  baseFare?: string;
+  gratuityAmount?: string;
+  airportFeeAmount?: string;
+  surgePricingMultiplier?: string;
+  surgePricingAmount?: string;
+  requestedHours?: string;
+  billReference?: string;
 }
 
 interface User {
@@ -408,6 +450,42 @@ export default function MobileAdmin() {
     }
   };
 
+  // Delete booking mutation
+  const deleteBookingMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest('DELETE', `/api/admin/bookings/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard-stats'] });
+      setDeleteConfirmOpen(false);
+      setItemToDelete(null);
+      toast({ title: 'Success', description: 'Booking deleted successfully' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  // Assign driver mutation
+  const assignDriverMutation = useMutation({
+    mutationFn: async ({ bookingId, driverId, driverPayment }: { bookingId: string; driverId: string; driverPayment: string }) => {
+      const response = await apiRequest('POST', `/api/admin/bookings/${bookingId}/assign-driver`, {
+        driverId,
+        driverPayment: parseFloat(driverPayment) || 0,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      toast({ title: 'Success', description: 'Driver assigned successfully' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
   // Open new booking dialog
   const handleOpenNewBooking = () => {
     setEditingBooking(null);
@@ -418,6 +496,66 @@ export default function MobileAdmin() {
     setSelectedFlight(null);
     setFlightSearchInput('');
     setBookingDialogOpen(true);
+  };
+
+  // Handle edit booking - pre-fill form with booking data
+  const handleEditBooking = (booking: Booking) => {
+    setEditingBooking(booking);
+    setBookingFormData({
+      passengerId: booking.passengerId || '',
+      bookingType: booking.bookingType || 'transfer',
+      vehicleTypeId: booking.vehicleTypeId || '',
+      pickupAddress: booking.pickupAddress || '',
+      pickupCoords: booking.pickupLat && booking.pickupLon 
+        ? { lat: parseFloat(booking.pickupLat), lon: parseFloat(booking.pickupLon) } 
+        : null,
+      destinationAddress: booking.destinationAddress || booking.dropoffAddress || '',
+      destinationCoords: booking.destinationLat && booking.destinationLon
+        ? { lat: parseFloat(booking.destinationLat), lon: parseFloat(booking.destinationLon) }
+        : null,
+      viaPoints: booking.viaPoints || [],
+      scheduledDateTime: booking.scheduledDateTime || '',
+      totalAmount: booking.totalAmount || '',
+      regularPrice: booking.regularPrice || '',
+      discountPercentage: booking.discountPercentage || '',
+      discountAmount: booking.discountAmount || '',
+      baseFare: booking.baseFare || '',
+      gratuityAmount: booking.gratuityAmount || '',
+      airportFeeAmount: booking.airportFeeAmount || '',
+      surgePricingMultiplier: booking.surgePricingMultiplier || '1',
+      surgePricingAmount: booking.surgePricingAmount || '0',
+      requestedHours: booking.requestedHours || '',
+      passengerCount: booking.passengerCount || 1,
+      luggageCount: booking.luggageCount || 0,
+      babySeat: booking.babySeat || false,
+      bookingFor: 'self',
+      passengerName: booking.passengerName || '',
+      passengerEmail: booking.passengerEmail || '',
+      passengerPhone: booking.passengerPhone || '',
+      flightNumber: booking.flightNumber || '',
+      flightAirline: booking.flightAirline || '',
+      flightDepartureAirport: booking.flightDepartureAirport || '',
+      flightArrivalAirport: booking.flightArrivalAirport || '',
+      specialInstructions: booking.specialInstructions || '',
+      billReference: booking.billReference || '',
+      status: (booking.status as any) || 'pending',
+      paymentMethod: (booking.paymentMethod as any) || 'pay_now',
+    });
+    setSelectedDriverId(booking.driverId || '');
+    setCalculatedPrice(booking.totalAmount || '');
+    setBookingDialogOpen(true);
+  };
+
+  // Handle delete confirmation
+  const handleDeleteBooking = (booking: Booking) => {
+    setItemToDelete({ type: 'booking', id: booking.id, name: booking.passengerName || 'Booking' });
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (itemToDelete && itemToDelete.type === 'booking') {
+      deleteBookingMutation.mutate(itemToDelete.id);
+    }
   };
 
   const handleLogout = async () => {
@@ -441,6 +579,7 @@ export default function MobileAdmin() {
     const matchesSearch = searchQuery === '' || 
       booking.pickupAddress?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.dropoffAddress?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.destinationAddress?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.passengerName?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -762,51 +901,127 @@ export default function MobileAdmin() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold">{booking.passengerName || 'Guest'}</p>
-                        <p className="text-sm text-slate-500">{booking.vehicleType || 'Standard'}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm text-slate-500">{booking.vehicleType || 'Standard'}</p>
+                          {booking.driverName && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                              Driver: {booking.driverName}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       {getStatusBadge(booking.status)}
                     </div>
                     
                     <div className="space-y-2 text-sm mb-3">
+                      {/* Pickup Address */}
                       <div className="flex items-start gap-2">
                         <MapPin className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                         <span className="text-slate-600">{booking.pickupAddress}</span>
                       </div>
+                      
+                      {/* Via Points */}
+                      {booking.viaPoints && booking.viaPoints.length > 0 && (
+                        booking.viaPoints.map((via, index) => (
+                          <div key={index} className="flex items-start gap-2 pl-2 border-l-2 border-orange-300 ml-1.5">
+                            <Navigation className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-slate-500 text-xs">{via.address}</span>
+                          </div>
+                        ))
+                      )}
+                      
+                      {/* Destination Address */}
                       <div className="flex items-start gap-2">
                         <MapPin className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-slate-600">{booking.dropoffAddress}</span>
+                        <span className="text-slate-600">
+                          {booking.destinationAddress || booking.dropoffAddress || 'No destination'}
+                        </span>
                       </div>
                     </div>
 
+                    {/* Date/Time and Price */}
                     <div className="flex items-center justify-between pt-3 border-t">
                       <div className="flex items-center gap-2 text-sm text-slate-500">
                         <Clock className="w-4 h-4" />
-                        {booking.pickupDate ? format(new Date(booking.pickupDate), 'MMM d, yyyy h:mm a') : 'No date'}
+                        {booking.scheduledDateTime 
+                          ? format(new Date(booking.scheduledDateTime), 'MMM d, yyyy h:mm a')
+                          : booking.pickupDate 
+                            ? format(new Date(booking.pickupDate), 'MMM d, yyyy h:mm a')
+                            : 'No date'}
                       </div>
                       <span className="font-bold text-lg">${booking.totalAmount}</span>
                     </div>
 
-                    {booking.status === 'pending' && (
-                      <div className="flex gap-2 mt-3 pt-3 border-t">
-                        <Button
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => updateBookingMutation.mutate({ id: booking.id, status: 'confirmed' })}
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 mt-3 pt-3 border-t">
+                      {/* Edit Button */}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditBooking(booking)}
+                      >
+                        <Edit2 className="w-4 h-4 mr-1" />
+                        Edit
+                      </Button>
+                      
+                      {/* Assign Driver (only if no driver assigned and not cancelled/completed) */}
+                      {!booking.driverId && !['cancelled', 'completed'].includes(booking.status) && (
+                        <Select
+                          value=""
+                          onValueChange={(driverId) => {
+                            if (driverId) {
+                              assignDriverMutation.mutate({
+                                bookingId: booking.id,
+                                driverId,
+                                driverPayment: (parseFloat(booking.totalAmount) * 0.7).toFixed(2),
+                              });
+                            }
+                          }}
                         >
-                          <Check className="w-4 h-4 mr-1" />
-                          Confirm
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600 border-red-200"
-                          onClick={() => updateBookingMutation.mutate({ id: booking.id, status: 'cancelled' })}
-                        >
-                          <X className="w-4 h-4 mr-1" />
-                          Cancel
-                        </Button>
-                      </div>
-                    )}
+                          <SelectTrigger className="h-8 text-sm flex-1">
+                            <SelectValue placeholder="Assign Driver" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {activeDrivers?.filter(driver => driver.id).map((driver) => (
+                              <SelectItem key={driver.id} value={driver.id}>
+                                {driver.firstName} {driver.lastName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                      
+                      {/* Status Actions */}
+                      {booking.status === 'pending' && (
+                        <>
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={() => updateBookingMutation.mutate({ id: booking.id, status: 'confirmed' })}
+                          >
+                            <Check className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-orange-600 border-orange-200"
+                            onClick={() => updateBookingMutation.mutate({ id: booking.id, status: 'cancelled' })}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </>
+                      )}
+                      
+                      {/* Delete Button */}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-red-600 border-red-200"
+                        onClick={() => handleDeleteBooking(booking)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -1212,6 +1427,37 @@ export default function MobileAdmin() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the booking
+              {itemToDelete?.name && ` for "${itemToDelete.name}"`}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteConfirmOpen(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteBookingMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
