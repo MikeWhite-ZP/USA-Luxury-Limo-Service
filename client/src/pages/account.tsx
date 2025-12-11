@@ -11,7 +11,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { User, Mail, Phone, ArrowLeft, Save, Lock, Eye, EyeOff, Shield, Calendar, CheckCircle2, Camera, Upload } from "lucide-react";
 import Header from "@/components/Header";
-import { isMobileDevice } from "@/lib/utils";
+import { isMobileDevice } from "@/lib/deviceDetection";
 
 export default function AccountPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
