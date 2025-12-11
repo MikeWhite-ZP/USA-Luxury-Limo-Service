@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2, MapPin, Phone, Mail, Star, Clock, Navigation } from 'lucide-react';
 import { AdminNav } from '@/components/AdminNav';
+import { useLocation } from 'wouter';
 
 // Custom Car Marker Component
 const CarIcon = ({ color }: { color: string }) => {
@@ -84,12 +85,33 @@ export default function AdminDriversMap() {
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
   const [mapZoom, setMapZoom] = useState(12);
   const [refreshInterval, setRefreshInterval] = useState(60000); // 60 seconds default
+  const [initialDriverLoaded, setInitialDriverLoaded] = useState(false);
+  const [location] = useLocation();
+
+  // Get driverId from URL query params
+  const urlParams = new URLSearchParams(window.location.search);
+  const preSelectedDriverId = urlParams.get('driverId');
 
   // Fetch driver locations
   const { data: drivers = [], isLoading, refetch } = useQuery<DriverLocation[]>({
     queryKey: ['/api/drivers/locations'],
     refetchInterval: refreshInterval,
   });
+
+  // Auto-select driver from URL param
+  useEffect(() => {
+    if (preSelectedDriverId && drivers.length > 0 && !initialDriverLoaded) {
+      const driver = drivers.find(d => d.userId === preSelectedDriverId || d.driverId === preSelectedDriverId);
+      if (driver) {
+        setSelectedDriver(driver);
+        if (driver.latitude && driver.longitude) {
+          setMapCenter([parseFloat(driver.latitude), parseFloat(driver.longitude)]);
+          setMapZoom(15);
+        }
+        setInitialDriverLoaded(true);
+      }
+    }
+  }, [preSelectedDriverId, drivers, initialDriverLoaded]);
 
   // Determine if any driver is on duty
   useEffect(() => {

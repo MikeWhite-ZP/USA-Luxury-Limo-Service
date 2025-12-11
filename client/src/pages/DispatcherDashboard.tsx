@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -41,6 +42,7 @@ export default function DispatcherDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [fleetMonitorOpen, setFleetMonitorOpen] = useState(false);
   const [communicationDialogOpen, setCommunicationDialogOpen] = useState(false);
@@ -1197,14 +1199,27 @@ export default function DispatcherDashboard() {
                             </div>
                           </div>
 
-                          {/* Vehicle Info */}
-                          <div className="text-right">
-                            <Badge variant="outline" className="mb-2">
+                          {/* Vehicle Info & Actions */}
+                          <div className="text-right flex flex-col items-end gap-2">
+                            <Badge variant="outline" className="mb-1">
                               {driver.vehicleType || 'Vehicle Plate'}
                             </Badge>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-muted-foreground mb-2">
                               {driver.vehiclePlate || 'N/A'}
                             </p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-xs flex items-center gap-1 border-blue-300 text-blue-600 hover:bg-blue-50"
+                              onClick={() => {
+                                setFleetMonitorOpen(false);
+                                setLocation(`/admin/drivers-map?driverId=${driver.userId}`);
+                              }}
+                              data-testid={`button-view-location-${driver.id}`}
+                            >
+                              <MapPin className="w-3 h-3" />
+                              View Location
+                            </Button>
                           </div>
                         </div>
                       </CardContent>
