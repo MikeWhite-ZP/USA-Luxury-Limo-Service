@@ -67,6 +67,57 @@
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
+/* Dark theme overrides */
+.dark {
+  --background: 222 47% 11%;
+  --foreground: 210 40% 98%;
+  
+  --card: 222 47% 14%;
+  --card-foreground: 210 40% 98%;
+  
+  --popover: 222 47% 14%;
+  --popover-foreground: 210 40% 98%;
+  
+  /* Primary - Lighter for dark mode visibility */
+  --primary: 210 40% 98%;
+  --primary-foreground: 222 47% 11%;
+  
+  /* Secondary - Dark gray */
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 40% 98%;
+  
+  /* Muted backgrounds */
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  
+  /* Accent - Luxury red (slightly brighter for dark mode) */
+  --accent: 0 84% 60%;
+  --accent-foreground: 0 0% 100%;
+  
+  /* Status colors */
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --success: 142 76% 40%;
+  --success-foreground: 0 0% 100%;
+  
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 10%;
+  
+  /* Borders and inputs */
+  --border: 217 33% 25%;
+  --input: 217 33% 25%;
+  --ring: 0 84% 60%;
+  
+  /* Brand colors for dark mode */
+  --brand-primary: 210 40% 98%;
+  --brand-primary-foreground: 222 47% 11%;
+  --brand-secondary: 215 20% 65%;
+  --brand-secondary-foreground: 222 47% 11%;
+  --brand-accent: 0 84% 60%;
+  --brand-accent-foreground: 0 0% 100%;
+}
+
 @layer base {
   * {
     @apply border-border;
