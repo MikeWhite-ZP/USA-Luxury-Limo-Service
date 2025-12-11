@@ -525,20 +525,27 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
           min-width: 140px;
         }
         
+        .invoice-container {
+          position: relative;
+          min-height: 100%;
+        }
+        
         .cancelled-watermark {
-          position: fixed;
-          top: 50%;
+          position: absolute;
+          top: 40%;
           left: 50%;
           transform: translate(-50%, -50%) rotate(-45deg);
-          font-size: 100px;
+          font-size: 80px;
           font-weight: bold;
-          color: rgba(220, 38, 38, 0.20);
+          color: rgba(220, 38, 38, 0.25);
           text-transform: uppercase;
           letter-spacing: 8px;
           pointer-events: none;
           z-index: 1000;
           white-space: nowrap;
           user-select: none;
+          width: 100%;
+          text-align: center;
         }
         
         @media print {
@@ -547,20 +554,36 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
+          .invoice-container {
+            position: relative;
+            min-height: 100vh;
+          }
           .header {
             page-break-after: avoid;
           }
           .cancelled-watermark {
-            position: fixed;
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+            color: rgba(220, 38, 38, 0.25) !important;
+          }
+        }
+        
+        @media screen and (max-width: 768px) {
+          .cancelled-watermark {
+            font-size: 50px;
+            letter-spacing: 4px;
           }
         }
       </style>
     </head>
     <body>
-      ${booking.status === 'cancelled' ? '<div class="cancelled-watermark">CANCELLED</div>' : ''}
-      <div class="header">
+      <div class="invoice-container">
+        ${booking.status === 'cancelled' ? '<div class="cancelled-watermark">CANCELLED</div>' : ''}
+        <div class="header">
         <div class="logo-section">
           ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="logo-img" />` : `<div class="company-name">${companyName}</div>`}
         </div>
@@ -740,6 +763,7 @@ export function generateInvoiceHTML(data: InvoiceTemplateData): string {
           <span class="label">Date:</span>
           <div class="line"></div>
         </div>
+      </div>
       </div>
       
       <script>
