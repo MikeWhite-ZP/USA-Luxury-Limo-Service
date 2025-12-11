@@ -8,13 +8,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Upload, Settings, Palette, Share2, Mail, Globe, Pencil, Trash2, RotateCcw, Check } from 'lucide-react';
+import { Loader2, Upload, Settings, Palette, Share2, Mail, Globe, Pencil, Trash2, RotateCcw, Check, Building2 } from 'lucide-react';
+import TenantTaxSettings from './TenantTaxSettings';
 
 type CmsSetting = {
   id: string;
   key: string;
   value: string;
-  category: 'branding' | 'colors' | 'social' | 'contact' | 'seo';
+  category: 'branding' | 'colors' | 'social' | 'contact' | 'seo' | 'tax';
   description: string | null;
   updatedAt: string;
 };
@@ -301,7 +302,7 @@ export default function BrandSettings() {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="branding" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
             <span>Branding</span>
@@ -321,6 +322,10 @@ export default function BrandSettings() {
           <TabsTrigger value="seo" className="flex items-center gap-2">
             <Globe className="w-4 h-4" />
             <span>SEO</span>
+          </TabsTrigger>
+          <TabsTrigger value="tax" className="flex items-center gap-2">
+            <Building2 className="w-4 h-4" />
+            <span>Tax</span>
           </TabsTrigger>
         </TabsList>
 
@@ -722,6 +727,10 @@ export default function BrandSettings() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="tax" className="space-y-4">
+          <TenantTaxSettings />
         </TabsContent>
       </Tabs>
       {saveSetting.isPending && (

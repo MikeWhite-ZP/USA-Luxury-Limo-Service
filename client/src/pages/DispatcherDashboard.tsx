@@ -1200,7 +1200,7 @@ export default function DispatcherDashboard() {
                           {/* Vehicle Info */}
                           <div className="text-right">
                             <Badge variant="outline" className="mb-2">
-                              {driver.vehicleType || 'No Vehicle'}
+                              {driver.vehicleType || 'Vehicle Plate'}
                             </Badge>
                             <p className="text-xs text-muted-foreground">
                               {driver.vehiclePlate || 'N/A'}

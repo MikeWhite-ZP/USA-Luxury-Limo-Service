@@ -164,6 +164,7 @@ const MobilePaymentMethods = lazy(() => import("@/pages/mobile-payment-methods")
 const MobileDriver = lazy(() => import("@/pages/mobile-driver"));
 const MobileDriverRideDetails = lazy(() => import("@/pages/mobile-driver-ride-details"));
 const MobileDriverDocuments = lazy(() => import("@/pages/mobile-driver-documents"));
+const DriverEarnings = lazy(() => import("@/pages/driver-earnings"));
 const MobileProfile = lazy(() => import("@/pages/mobile-profile"));
 const MobileDispatcher = lazy(() => import("@/pages/mobile-dispatcher"));
 const MobileAdminLogin = lazy(() => import("@/pages/mobile-admin-login"));
@@ -294,6 +295,8 @@ function Router() {
             <>
               <Route path="/driver" component={DriverDashboard} />
               <Route path="/driver/documents" component={DriverDocuments} />
+              <Route path="/driver/earnings" component={DriverEarnings} />
+              <Route path="/driver-dashboard" component={DriverDashboard} />
             </>
           )}
           {(user?.role === 'dispatcher') && (

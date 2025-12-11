@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ObjectUploader } from "../components/ObjectUploader";
+import DriverTaxInfoSection from "@/components/DriverTaxInfoSection";
 
 const defaultUserImage = '/images/default-user_1762118764894.png';
 
@@ -1913,6 +1914,37 @@ export default function DriverDashboard() {
               </div>
             </CardContent>
           </Card>
+          
+          {/* Tax Information Section */}
+          <div className="mt-6">
+            <DriverTaxInfoSection />
+          </div>
+          
+          {/* Earnings Link */}
+          <div className="mt-6">
+            <Card className="bg-white border-gray-200 shadow-lg">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center shadow-md">
+                      <DollarSign className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">My Earnings</h3>
+                      <p className="text-sm text-gray-500">View yearly earnings and download 1099 forms</p>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => window.location.href = '/driver/earnings'}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    View Earnings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
           </div>
         )}
       </div>

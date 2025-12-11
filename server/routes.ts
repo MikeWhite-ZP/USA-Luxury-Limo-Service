@@ -7,7 +7,7 @@ import { z } from "zod";
 import Stripe from "stripe";
 import multer from "multer";
 import crypto from "crypto";
-import { hasEncryptionKey } from "./crypto";
+import { hasEncryptionKey, encrypt, decrypt } from "./crypto";
 import { getStorageAdapter, type StorageAdapter, type StorageCredentials } from "./objectStorageAdapter";
 import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML, getPaymentConfirmationEmailHTML, getDriverOnTheWayEmailHTML, getDriverArrivedEmailHTML, getBookingCancelledEmailHTML, sendPasswordResetEmail, sendTemporaryPasswordEmail, sendUsernameReminderEmail } from "./email";
 import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS, sendDriverOnTheWaySMS, sendDriverArrivedSMS, sendBookingCancelledSMS, sendAdminNewBookingAlertSMS, sendPasswordResetSMS, sendTemporaryPasswordSMS, sendUsernameReminderSMS } from "./sms";
@@ -5776,6 +5776,229 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Driver Tax Information Management
+  app.get('/api/driver/tax-info', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      // Return tax info with SSN masked (only last 4 shown)
+      res.json({
+        taxLegalFirstName: driver.taxLegalFirstName || '',
+        taxLegalLastName: driver.taxLegalLastName || '',
+        taxSsnLast4: driver.taxSsnLast4 || '',
+        hasSsn: !!driver.taxSsnEncrypted,
+        taxDateOfBirth: driver.taxDateOfBirth || null,
+        taxAddressStreet: driver.taxAddressStreet || '',
+        taxAddressCity: driver.taxAddressCity || '',
+        taxAddressState: driver.taxAddressState || '',
+        taxAddressZip: driver.taxAddressZip || '',
+        taxClassification: driver.taxClassification || 'individual',
+        taxInfoComplete: !!driver.taxInfoCompletedAt,
+        taxInfoCompletedAt: driver.taxInfoCompletedAt || null,
+      });
+    } catch (error) {
+      console.error('Get driver tax info error:', error);
+      res.status(500).json({ message: 'Failed to fetch tax information' });
+    }
+  });
+
+  app.patch('/api/driver/tax-info', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      const {
+        taxLegalFirstName,
+        taxLegalLastName,
+        ssn,
+        taxDateOfBirth,
+        taxAddressStreet,
+        taxAddressCity,
+        taxAddressState,
+        taxAddressZip,
+        taxClassification,
+      } = req.body;
+
+      // Validation
+      const updateData: any = {};
+
+      if (taxLegalFirstName !== undefined) {
+        if (!taxLegalFirstName || taxLegalFirstName.trim().length < 1) {
+          return res.status(400).json({ message: 'Legal first name is required' });
+        }
+        updateData.taxLegalFirstName = taxLegalFirstName.trim();
+      }
+
+      if (taxLegalLastName !== undefined) {
+        if (!taxLegalLastName || taxLegalLastName.trim().length < 1) {
+          return res.status(400).json({ message: 'Legal last name is required' });
+        }
+        updateData.taxLegalLastName = taxLegalLastName.trim();
+      }
+
+      // Handle SSN encryption (only process if provided)
+      if (ssn !== undefined && ssn !== null && ssn !== '') {
+        // Validate SSN format (9 digits, no dashes)
+        const ssnClean = ssn.replace(/[^0-9]/g, '');
+        if (ssnClean.length !== 9) {
+          return res.status(400).json({ message: 'SSN must be 9 digits' });
+        }
+        
+        // Check if encryption key is available
+        if (!hasEncryptionKey()) {
+          return res.status(500).json({ message: 'Encryption not configured. Please contact administrator.' });
+        }
+        
+        // Encrypt SSN and store last 4
+        updateData.taxSsnEncrypted = encrypt(ssnClean);
+        updateData.taxSsnLast4 = ssnClean.slice(-4);
+      }
+
+      if (taxDateOfBirth !== undefined) {
+        updateData.taxDateOfBirth = taxDateOfBirth ? new Date(taxDateOfBirth) : null;
+      }
+
+      if (taxAddressStreet !== undefined) {
+        updateData.taxAddressStreet = taxAddressStreet?.trim() || null;
+      }
+
+      if (taxAddressCity !== undefined) {
+        updateData.taxAddressCity = taxAddressCity?.trim() || null;
+      }
+
+      if (taxAddressState !== undefined) {
+        if (taxAddressState && taxAddressState.length !== 2) {
+          return res.status(400).json({ message: 'State must be 2-letter abbreviation' });
+        }
+        updateData.taxAddressState = taxAddressState?.toUpperCase() || null;
+      }
+
+      if (taxAddressZip !== undefined) {
+        if (taxAddressZip && !/^\d{5}(-\d{4})?$/.test(taxAddressZip)) {
+          return res.status(400).json({ message: 'Invalid ZIP code format' });
+        }
+        updateData.taxAddressZip = taxAddressZip || null;
+      }
+
+      if (taxClassification !== undefined) {
+        const validClassifications = ['individual', 'sole_proprietor', 'llc', 'corporation', 'partnership'];
+        if (!validClassifications.includes(taxClassification)) {
+          return res.status(400).json({ message: 'Invalid tax classification' });
+        }
+        updateData.taxClassification = taxClassification;
+      }
+
+      // Check if all required fields are complete
+      const updatedDriver = await storage.updateDriver(driver.id, updateData);
+      
+      // Check if tax info is now complete
+      const isComplete = !!(
+        updatedDriver.taxLegalFirstName &&
+        updatedDriver.taxLegalLastName &&
+        updatedDriver.taxSsnEncrypted &&
+        updatedDriver.taxDateOfBirth &&
+        updatedDriver.taxAddressStreet &&
+        updatedDriver.taxAddressCity &&
+        updatedDriver.taxAddressState &&
+        updatedDriver.taxAddressZip
+      );
+
+      // Update completion timestamp if all required fields are filled
+      if (isComplete && !updatedDriver.taxInfoCompletedAt) {
+        await storage.updateDriver(driver.id, { taxInfoCompletedAt: new Date() });
+      }
+
+      res.json({
+        message: 'Tax information updated successfully',
+        taxInfoComplete: isComplete,
+      });
+    } catch (error) {
+      console.error('Update driver tax info error:', error);
+      res.status(500).json({ message: 'Failed to update tax information' });
+    }
+  });
+
+  // Driver Earnings by Year (for 1099 purposes)
+  app.get('/api/driver/earnings/yearly', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      // Get all completed bookings for this driver
+      const allBookings = await storage.getBookingsByDriver(driver.id);
+      const completedBookings = allBookings.filter((b: Booking) => b.status === 'completed' && b.driverPayment);
+
+      // Group earnings by year
+      const earningsByYear: { [year: string]: { total: number; rides: number; eligible1099: boolean } } = {};
+      const currentYear = new Date().getFullYear();
+
+      completedBookings.forEach((booking: Booking) => {
+        const completedDate = booking.markedCompletedAt || booking.updatedAt;
+        if (completedDate) {
+          const year = new Date(completedDate).getFullYear().toString();
+          if (!earningsByYear[year]) {
+            earningsByYear[year] = { total: 0, rides: 0, eligible1099: false };
+          }
+          earningsByYear[year].total += parseFloat(booking.driverPayment || '0');
+          earningsByYear[year].rides += 1;
+        }
+      });
+
+      // Mark years eligible for 1099 (earnings >= $600)
+      Object.keys(earningsByYear).forEach(year => {
+        earningsByYear[year].eligible1099 = earningsByYear[year].total >= 600;
+      });
+
+      // Convert to array sorted by year descending
+      const yearlySummary = Object.entries(earningsByYear)
+        .map(([year, data]) => ({
+          year: parseInt(year),
+          total: data.total,
+          rides: data.rides,
+          eligible1099: data.eligible1099,
+          canDownload1099: data.eligible1099 && parseInt(year) < currentYear, // Can only download for past years
+        }))
+        .sort((a, b) => b.year - a.year);
+
+      res.json({
+        yearlySummary,
+        currentYear,
+        taxInfoComplete: !!driver.taxInfoCompletedAt,
+      });
+    } catch (error) {
+      console.error('Get driver yearly earnings error:', error);
+      res.status(500).json({ message: 'Failed to fetch yearly earnings' });
+    }
+  });
+
   // Get driver earnings breakdown by time period
   app.get('/api/driver/earnings', isAuthenticated, async (req: any, res) => {
     try {
@@ -8327,6 +8550,255 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false, 
         message: 'SMS test failed. Please check your Twilio configuration.' 
       });
+    }
+  });
+
+  // ========================================
+  // Tenant Tax Information Settings (Admin)
+  // ========================================
+  
+  // Get tenant tax settings (for invoices and 1099 forms)
+  app.get('/api/admin/tenant-tax-settings', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      // Get all tax-related settings
+      const [
+        businessLegalName,
+        businessEin,
+        businessAddressStreet,
+        businessAddressCity,
+        businessAddressState,
+        businessAddressZip,
+        businessPhone,
+        businessTaxEmail,
+        taxSetupComplete
+      ] = await Promise.all([
+        storage.getCmsSetting('TAX_BUSINESS_LEGAL_NAME'),
+        storage.getCmsSetting('TAX_BUSINESS_EIN'),
+        storage.getCmsSetting('TAX_BUSINESS_ADDRESS_STREET'),
+        storage.getCmsSetting('TAX_BUSINESS_ADDRESS_CITY'),
+        storage.getCmsSetting('TAX_BUSINESS_ADDRESS_STATE'),
+        storage.getCmsSetting('TAX_BUSINESS_ADDRESS_ZIP'),
+        storage.getCmsSetting('TAX_BUSINESS_PHONE'),
+        storage.getCmsSetting('TAX_BUSINESS_EMAIL'),
+        storage.getCmsSetting('TAX_SETUP_COMPLETE'),
+      ]);
+
+      res.json({
+        businessLegalName: businessLegalName?.value || '',
+        businessEin: businessEin?.value || '',
+        businessAddressStreet: businessAddressStreet?.value || '',
+        businessAddressCity: businessAddressCity?.value || '',
+        businessAddressState: businessAddressState?.value || '',
+        businessAddressZip: businessAddressZip?.value || '',
+        businessPhone: businessPhone?.value || '',
+        businessTaxEmail: businessTaxEmail?.value || '',
+        taxSetupComplete: taxSetupComplete?.value === 'true',
+      });
+    } catch (error) {
+      console.error('Get tenant tax settings error:', error);
+      res.status(500).json({ message: 'Failed to fetch tax settings' });
+    }
+  });
+
+  // Update tenant tax settings
+  app.put('/api/admin/tenant-tax-settings', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const userId = req.adminUser.id;
+      const {
+        businessLegalName,
+        businessEin,
+        businessAddressStreet,
+        businessAddressCity,
+        businessAddressState,
+        businessAddressZip,
+        businessPhone,
+        businessTaxEmail,
+      } = req.body;
+
+      // Validate required fields
+      if (!businessLegalName || businessLegalName.trim().length < 1) {
+        return res.status(400).json({ message: 'Business legal name is required' });
+      }
+
+      if (!businessEin || !/^\d{2}-?\d{7}$/.test(businessEin.replace(/[^0-9-]/g, ''))) {
+        return res.status(400).json({ message: 'Valid EIN is required (format: XX-XXXXXXX)' });
+      }
+
+      if (!businessAddressStreet || businessAddressStreet.trim().length < 1) {
+        return res.status(400).json({ message: 'Business address is required' });
+      }
+
+      if (!businessAddressCity || businessAddressCity.trim().length < 1) {
+        return res.status(400).json({ message: 'City is required' });
+      }
+
+      if (!businessAddressState || businessAddressState.length !== 2) {
+        return res.status(400).json({ message: 'State must be 2-letter abbreviation' });
+      }
+
+      if (!businessAddressZip || !/^\d{5}(-\d{4})?$/.test(businessAddressZip)) {
+        return res.status(400).json({ message: 'Valid ZIP code is required' });
+      }
+
+      // Save all settings
+      const settingsToSave = [
+        { key: 'TAX_BUSINESS_LEGAL_NAME', value: businessLegalName.trim(), description: 'Business legal name for tax documents' },
+        { key: 'TAX_BUSINESS_EIN', value: businessEin.replace(/[^0-9-]/g, ''), description: 'Employer Identification Number' },
+        { key: 'TAX_BUSINESS_ADDRESS_STREET', value: businessAddressStreet.trim(), description: 'Business street address' },
+        { key: 'TAX_BUSINESS_ADDRESS_CITY', value: businessAddressCity.trim(), description: 'Business city' },
+        { key: 'TAX_BUSINESS_ADDRESS_STATE', value: businessAddressState.toUpperCase(), description: 'Business state' },
+        { key: 'TAX_BUSINESS_ADDRESS_ZIP', value: businessAddressZip, description: 'Business ZIP code' },
+        { key: 'TAX_BUSINESS_PHONE', value: businessPhone?.trim() || '', description: 'Business phone number' },
+        { key: 'TAX_BUSINESS_EMAIL', value: businessTaxEmail?.trim() || '', description: 'Business tax contact email' },
+        { key: 'TAX_SETUP_COMPLETE', value: 'true', description: 'Tax setup completed flag' },
+      ];
+
+      await Promise.all(
+        settingsToSave.map(setting =>
+          storage.upsertCmsSetting({
+            key: setting.key,
+            value: setting.value,
+            category: 'tax',
+            description: setting.description,
+            updatedBy: userId,
+          })
+        )
+      );
+
+      res.json({ 
+        message: 'Tax settings saved successfully',
+        taxSetupComplete: true,
+      });
+    } catch (error) {
+      console.error('Update tenant tax settings error:', error);
+      res.status(500).json({ message: 'Failed to save tax settings' });
+    }
+  });
+
+  // Check if tenant tax setup is complete (public endpoint for admin dashboard warning)
+  app.get('/api/admin/tenant-tax-setup-status', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const taxSetupComplete = await storage.getCmsSetting('TAX_SETUP_COMPLETE');
+      res.json({
+        taxSetupComplete: taxSetupComplete?.value === 'true',
+      });
+    } catch (error) {
+      console.error('Get tax setup status error:', error);
+      res.status(500).json({ message: 'Failed to fetch tax setup status' });
+    }
+  });
+
+  // Generate 1099-NEC form for a driver for a specific year
+  app.get('/api/driver/1099/:year', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      const { year } = req.params;
+      const yearNum = parseInt(year);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      // Check if driver has completed tax info
+      if (!driver.taxInfoCompletedAt) {
+        return res.status(400).json({ message: 'Please complete your tax information first' });
+      }
+
+      // Validate year
+      const currentYear = new Date().getFullYear();
+      if (yearNum >= currentYear) {
+        return res.status(400).json({ message: '1099 forms are only available for previous years' });
+      }
+
+      // Get all completed bookings for this driver for the specified year
+      const allBookings = await storage.getBookingsByDriver(driver.id);
+      const yearStart = new Date(yearNum, 0, 1);
+      const yearEnd = new Date(yearNum + 1, 0, 1);
+      
+      const yearBookings = allBookings.filter((b: Booking) => {
+        if (b.status !== 'completed' || !b.driverPayment) return false;
+        const completedDate = b.markedCompletedAt || b.updatedAt;
+        if (!completedDate) return false;
+        const date = new Date(completedDate);
+        return date >= yearStart && date < yearEnd;
+      });
+
+      const totalEarnings = yearBookings.reduce(
+        (sum: number, b: Booking) => sum + parseFloat(b.driverPayment || '0'),
+        0
+      );
+
+      // Check if earnings meet 1099 threshold
+      if (totalEarnings < 600) {
+        return res.status(400).json({ 
+          message: `Earnings for ${yearNum} ($${totalEarnings.toFixed(2)}) are below the $600 threshold for 1099 filing` 
+        });
+      }
+
+      // Get tenant tax settings
+      const [
+        businessLegalName,
+        businessEin,
+        businessAddressStreet,
+        businessAddressCity,
+        businessAddressState,
+        businessAddressZip,
+        businessPhone,
+        taxSetupComplete
+      ] = await Promise.all([
+        storage.getCmsSetting('TAX_BUSINESS_LEGAL_NAME'),
+        storage.getCmsSetting('TAX_BUSINESS_EIN'),
+        storage.getCmsSetting('TAX_BUSINESS_ADDRESS_STREET'),
+        storage.getCmsSetting('TAX_BUSINESS_ADDRESS_CITY'),
+        storage.getCmsSetting('TAX_BUSINESS_ADDRESS_STATE'),
+        storage.getCmsSetting('TAX_BUSINESS_ADDRESS_ZIP'),
+        storage.getCmsSetting('TAX_BUSINESS_PHONE'),
+        storage.getCmsSetting('TAX_SETUP_COMPLETE'),
+      ]);
+
+      if (taxSetupComplete?.value !== 'true') {
+        return res.status(400).json({ message: 'Company tax information has not been configured. Please contact administrator.' });
+      }
+
+      // Return 1099 data (in production, this would generate a PDF)
+      res.json({
+        formType: '1099-NEC',
+        taxYear: yearNum,
+        payer: {
+          name: businessLegalName?.value || '',
+          ein: businessEin?.value || '',
+          address: {
+            street: businessAddressStreet?.value || '',
+            city: businessAddressCity?.value || '',
+            state: businessAddressState?.value || '',
+            zip: businessAddressZip?.value || '',
+          },
+          phone: businessPhone?.value || '',
+        },
+        recipient: {
+          name: `${driver.taxLegalFirstName || ''} ${driver.taxLegalLastName || ''}`.trim(),
+          ssnLast4: driver.taxSsnLast4 || 'XXXX',
+          address: {
+            street: driver.taxAddressStreet || '',
+            city: driver.taxAddressCity || '',
+            state: driver.taxAddressState || '',
+            zip: driver.taxAddressZip || '',
+          },
+        },
+        nonemployeeCompensation: totalEarnings.toFixed(2),
+        federalIncomeTaxWithheld: '0.00',
+        stateIncomeTaxWithheld: '0.00',
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Generate 1099 error:', error);
+      res.status(500).json({ message: 'Failed to generate 1099 form' });
     }
   });
 

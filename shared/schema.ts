@@ -84,6 +84,20 @@ export const drivers = pgTable("drivers", {
   totalRides: integer("total_rides").default(0),
   isAvailable: boolean("is_available").default(false),
   currentLocation: text("current_location"),
+  // 1099 Tax Information (encrypted SSN stored separately)
+  taxLegalFirstName: varchar("tax_legal_first_name"),
+  taxLegalLastName: varchar("tax_legal_last_name"),
+  taxSsnEncrypted: text("tax_ssn_encrypted"), // Encrypted SSN for 1099
+  taxSsnLast4: varchar("tax_ssn_last4", { length: 4 }), // Last 4 digits for display
+  taxDateOfBirth: timestamp("tax_date_of_birth"),
+  taxAddressStreet: varchar("tax_address_street"),
+  taxAddressCity: varchar("tax_address_city"),
+  taxAddressState: varchar("tax_address_state", { length: 2 }),
+  taxAddressZip: varchar("tax_address_zip", { length: 10 }),
+  taxClassification: varchar("tax_classification", {
+    enum: ["individual", "sole_proprietor", "llc", "corporation", "partnership"]
+  }).default("individual"),
+  taxInfoCompletedAt: timestamp("tax_info_completed_at"), // When all required tax info was provided
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -654,7 +668,7 @@ export const insertDriverRatingSchema = createInsertSchema(driverRatings).omit({
 });
 
 // CMS Settings - Brand settings (logos, colors, social media, etc.)
-export const cmsSettingCategoryEnum = ["branding", "colors", "social", "contact", "seo"] as const;
+export const cmsSettingCategoryEnum = ["branding", "colors", "social", "contact", "seo", "tax"] as const;
 export type CmsSettingCategory = typeof cmsSettingCategoryEnum[number];
 
 export const cmsSettings = pgTable("cms_settings", {
