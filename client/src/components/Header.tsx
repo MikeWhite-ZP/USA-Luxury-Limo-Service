@@ -12,6 +12,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, ChevronDown, LayoutDashboard } from "lucide-react";
 
+function formatImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith('data:') || url.startsWith('http') || url.startsWith('/')) {
+    return url;
+  }
+  return `/api/uploads/${url}`;
+}
+
 export default function Header() {
   const { user, isAuthenticated } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
@@ -118,7 +126,7 @@ export default function Header() {
                     {user.profileImageUrl ? (
                       <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
                         <img
-                          src={user.profileImageUrl}
+                          src={formatImageUrl(user.profileImageUrl) || ''}
                           alt="Profile"
                           className="w-full h-full object-cover"
                           data-testid="img-header-profile"
