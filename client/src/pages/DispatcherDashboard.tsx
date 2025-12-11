@@ -1553,7 +1553,7 @@ export default function DispatcherDashboard() {
                             <SelectValue placeholder="Select driver if applicable" />
                           </SelectTrigger>
                           <SelectContent className="bg-white border-slate-200">
-                            <SelectItem value="">No driver selected</SelectItem>
+                            <SelectItem value="none">No driver selected</SelectItem>
                             {activeDrivers?.map((driver: any) => (
                               <SelectItem key={driver.userId} value={driver.userId}>
                                 {driver.firstName} {driver.lastName} - {driver.vehicleModel}
