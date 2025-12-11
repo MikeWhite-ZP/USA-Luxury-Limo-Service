@@ -91,6 +91,40 @@ function AdminSubdomainRedirect() {
   return null;
 }
 
+// Component to redirect authenticated mobile users to their role-specific mobile dashboard
+function AuthenticatedMobileRedirect() {
+  const [location, setLocation] = useLocation();
+  const { isAuthenticated, user } = useAuth();
+  const isMobile = isMobileDevice();
+  const isAdminHost = isAdminSubdomain();
+  
+  useEffect(() => {
+    // Only redirect authenticated mobile users on the root path (not on admin subdomain)
+    if (isAuthenticated && isMobile && location === '/' && !isAdminHost && user) {
+      // Redirect to role-specific mobile dashboard
+      switch (user.role) {
+        case 'passenger':
+          setLocation('/mobile-passenger');
+          break;
+        case 'driver':
+          setLocation('/mobile-driver');
+          break;
+        case 'dispatcher':
+          setLocation('/mobile-dispatcher');
+          break;
+        case 'admin':
+          // Admin on mobile stays on desktop view or goes to mobile admin if on admin subdomain
+          // (admin subdomain redirect is handled by AdminSubdomainRedirect)
+          break;
+        default:
+          setLocation('/mobile');
+      }
+    }
+  }, [isAuthenticated, isMobile, location, user, setLocation, isAdminHost]);
+  
+  return null;
+}
+
 const Landing = lazy(() => import("@/pages/landing"));
 const Home = lazy(() => import("@/pages/home"));
 const Booking = lazy(() => import("@/pages/booking"));
@@ -192,6 +226,7 @@ function Router() {
   return (
     <Suspense fallback={<LoadingFallback />}>
       <AdminSubdomainRedirect />
+      <AuthenticatedMobileRedirect />
       <Switch>
       {/* Mobile PWA Routes */}
       <Route path="/mobile" component={MobileSplash} />
