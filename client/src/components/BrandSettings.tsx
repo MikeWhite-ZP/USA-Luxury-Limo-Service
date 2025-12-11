@@ -302,7 +302,7 @@ export default function BrandSettings() {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="branding" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
             <span>Branding</span>
@@ -318,10 +318,6 @@ export default function BrandSettings() {
           <TabsTrigger value="contact" className="flex items-center gap-2">
             <Mail className="w-4 h-4" />
             <span>Contact</span>
-          </TabsTrigger>
-          <TabsTrigger value="seo" className="flex items-center gap-2">
-            <Globe className="w-4 h-4" />
-            <span>SEO</span>
           </TabsTrigger>
           <TabsTrigger value="tax" className="flex items-center gap-2">
             <Building2 className="w-4 h-4" />
@@ -681,49 +677,6 @@ export default function BrandSettings() {
                   placeholder="123 Main St, New York, NY 10001"
                   rows={3}
                 />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="seo" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>SEO Settings</CardTitle>
-              <CardDescription>Optimize your website for search engines</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="seo-title">Site Title</Label>
-                <Input
-                  id="seo-title"
-                  defaultValue={getSetting('SEO_SITE_TITLE')}
-                  onBlur={(e) => handleSettingChange('SEO_SITE_TITLE', e.target.value, 'seo', 'Default page title for SEO')}
-                  placeholder="USA Luxury Limo - Premium Transportation"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="seo-description">Meta Description</Label>
-                <Textarea
-                  id="seo-description"
-                  defaultValue={getSetting('SEO_META_DESCRIPTION')}
-                  onBlur={(e) => handleSettingChange('SEO_META_DESCRIPTION', e.target.value, 'seo', 'Default meta description for SEO')}
-                  placeholder="Book premium limousine services for weddings, corporate events, and special occasions..."
-                  rows={3}
-                />
-                <p className="text-xs text-muted-foreground">Recommended: 150-160 characters</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="seo-keywords">Keywords</Label>
-                <Input
-                  id="seo-keywords"
-                  defaultValue={getSetting('SEO_KEYWORDS')}
-                  onBlur={(e) => handleSettingChange('SEO_KEYWORDS', e.target.value, 'seo', 'SEO keywords (comma-separated)')}
-                  placeholder="limousine service, luxury transportation, chauffeur"
-                />
-                <p className="text-xs text-muted-foreground">Separate keywords with commas</p>
               </div>
             </CardContent>
           </Card>
