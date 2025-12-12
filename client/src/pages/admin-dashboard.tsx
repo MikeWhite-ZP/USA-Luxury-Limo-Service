@@ -4656,10 +4656,10 @@ export default function AdminDashboard() {
     },
   });
 
-  // Delete booking mutation
+  // Delete booking mutation - uses admin endpoint with smart deletion rules
   const deleteBookingMutation = useMutation({
     mutationFn: async (bookingId: string) => {
-      const response = await apiRequest("DELETE", `/api/bookings/${bookingId}`);
+      const response = await apiRequest("DELETE", `/api/admin/bookings/${bookingId}`);
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || "Failed to delete booking");
@@ -4669,16 +4669,20 @@ export default function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/dashboard"] });
+      setDeleteConfirmDialogOpen(false);
+      setBookingToDelete(null);
       toast({
         title: "Booking Deleted",
         description: "Booking has been deleted successfully.",
       });
     },
     onError: (error: Error) => {
+      setDeleteConfirmDialogOpen(false);
       toast({
-        title: "Error",
+        title: "Cannot Delete Booking",
         description: error.message,
         variant: "destructive",
+        duration: 6000,
       });
     },
   });
