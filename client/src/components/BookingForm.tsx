@@ -2052,7 +2052,11 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       <div className="flex mb-6 border-b-2 border-border">
         <button
           onClick={() => setActiveTab('transfer')}
-          className="flex-1 py-4 px-6 text-lg transition-all border-b-4 border-primary font-bold text-[#fa0202]"
+          className={`flex-1 py-4 px-6 text-lg font-semibold transition-all border-b-4 ${
+            activeTab === 'transfer'
+              ? 'text-[#fa0202] border-[#fa0202] font-bold'
+              : 'text-gray-400 border-transparent hover:text-gray-500'
+          }`}
           data-testid="tab-transfer"
         >
           Transfer Only
@@ -2061,8 +2065,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           onClick={() => setActiveTab('hourly')}
           className={`flex-1 py-4 px-6 text-lg font-semibold transition-all border-b-4 ${
             activeTab === 'hourly'
-              ? 'text-primary border-primary font-bold'
-              : 'text-gray-300 border-transparent hover:text-muted-foreground'
+              ? 'text-[#fa0202] border-[#fa0202] font-bold'
+              : 'text-gray-400 border-transparent hover:text-gray-500'
           }`}
           data-testid="tab-hourly"
         >
