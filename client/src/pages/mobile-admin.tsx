@@ -471,7 +471,7 @@ export default function MobileAdmin() {
   // Assign driver mutation
   const assignDriverMutation = useMutation({
     mutationFn: async ({ bookingId, driverId, driverPayment }: { bookingId: string; driverId: string; driverPayment: string }) => {
-      const response = await apiRequest('POST', `/api/admin/bookings/${bookingId}/assign-driver`, {
+      const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/assign-driver`, {
         driverId,
         driverPayment: parseFloat(driverPayment) || 0,
       });
