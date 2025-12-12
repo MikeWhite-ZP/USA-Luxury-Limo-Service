@@ -179,6 +179,7 @@ interface Booking {
   passengerName?: string;
   driverName?: string;
   driverId?: string;
+  driverPayment?: string;
   vehicleType?: string;
   vehicleTypeId?: string;
   viaPoints?: ViaPoint[];
@@ -501,7 +502,13 @@ export default function MobileAdmin() {
     setAssigningBooking(booking);
     setAssignDialogDriverId(booking.driverId || '');
     setAssignDialogTotalPrice(booking.totalAmount || '0');
-    setAssignDialogDriverPayment((parseFloat(booking.totalAmount || '0') * 0.7).toFixed(2));
+    // Use existing driver payment if available, otherwise calculate 70% of total
+    const existingDriverPayment = booking.driverPayment;
+    if (existingDriverPayment && parseFloat(existingDriverPayment) > 0) {
+      setAssignDialogDriverPayment(existingDriverPayment);
+    } else {
+      setAssignDialogDriverPayment((parseFloat(booking.totalAmount || '0') * 0.7).toFixed(2));
+    }
     setAssignDriverDialogOpen(true);
   };
 
