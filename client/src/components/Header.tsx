@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, ChevronDown, LayoutDashboard } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 function formatImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -115,6 +116,7 @@ export default function Header() {
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
+            <ThemeToggle variant="ghost" className="text-muted-foreground hover:text-foreground" />
             {isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

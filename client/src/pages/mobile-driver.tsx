@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { format } from 'date-fns';
+import { ThemeToggleMobile } from '@/components/ThemeToggle';
 
 interface DriverData {
   id: number;
@@ -379,7 +380,9 @@ export default function MobileDriver() {
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-2xl font-bold text-foreground" data-testid="header-title">Driver Dashboard</h1>
-          <DropdownMenu>
+          <div className="flex items-center gap-2">
+            <ThemeToggleMobile />
+            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
@@ -417,6 +420,7 @@ export default function MobileDriver() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </div>
 
         {/* Availability Toggle */}

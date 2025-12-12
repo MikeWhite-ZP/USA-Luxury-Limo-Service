@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface AdminNavProps {
   onCredentialsClick?: (section: 'api' | 'payment' | 'minio') => void;
@@ -75,17 +76,20 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
             </div>
           </div>
           
-          <Button 
-            variant="outline"
-            size="sm"
-            className="text-muted-foreground hover:text-foreground hover:bg-muted border-border transition-all duration-200"
-            onClick={handleLogout}
-            disabled={logoutMutation.isPending}
-            data-testid="nav-logout"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle variant="outline" className="text-muted-foreground hover:text-foreground hover:bg-muted border-border" />
+            <Button 
+              variant="outline"
+              size="sm"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted border-border transition-all duration-200"
+              onClick={handleLogout}
+              disabled={logoutMutation.isPending}
+              data-testid="nav-logout"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
+            </Button>
+          </div>
         </div>
 
         <div className="px-6 pb-2">

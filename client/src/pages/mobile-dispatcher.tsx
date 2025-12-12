@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { ThemeToggleMobile } from '@/components/ThemeToggle';
 
 interface DashboardStats {
   activeDrivers: number;
@@ -191,15 +192,18 @@ export default function MobileDispatcher() {
               <p className="text-xs text-muted-foreground">Fleet Management</p>
             </div>
           </div>
-          <Button
-            onClick={() => setFleetDialogOpen(true)}
-            className="bg-red-600 hover:bg-red-700 text-white"
-            size="sm"
-            data-testid="button-fleet-monitor"
-          >
-            <MapPin className="w-4 h-4 mr-1" />
-            Fleet
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggleMobile />
+            <Button
+              onClick={() => setFleetDialogOpen(true)}
+              className="bg-red-600 hover:bg-red-700 text-white"
+              size="sm"
+              data-testid="button-fleet-monitor"
+            >
+              <MapPin className="w-4 h-4 mr-1" />
+              Fleet
+            </Button>
+          </div>
         </div>
       </div>
 

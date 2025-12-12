@@ -49,6 +49,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Booking } from '@shared/schema';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { ThemeToggleMobile } from '@/components/ThemeToggle';
 
 type Section = 'home' | 'new-booking' | 'saved-locations' | 'invoices' | 'payment' | 'account';
 
@@ -421,7 +422,8 @@ export default function MobilePassenger() {
               <h1 className="text-2xl font-bold text-foreground">Welcome Back</h1>
               <p className="text-muted-foreground mt-1 text-sm">{user.firstName || ''} {user.lastName || ''}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              <ThemeToggleMobile />
               <Button
                 variant="ghost"
                 size="icon"

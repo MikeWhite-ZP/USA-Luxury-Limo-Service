@@ -74,6 +74,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { BookingDetailsDialog } from '@/components/BookingDetailsDialog';
+import { ThemeToggleMobile } from '@/components/ThemeToggle';
 
 type AdminSection = 'dashboard' | 'bookings' | 'users' | 'vehicles' | 'settings';
 
@@ -702,6 +703,7 @@ export default function MobileAdmin() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <ThemeToggleMobile className="bg-white/10 hover:bg-white/20" />
             <Button
               variant="ghost"
               size="icon"
