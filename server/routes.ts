@@ -4733,10 +4733,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id } = req.params;
-      const { driverId, driverPayment } = req.body;
+      const { driverId, driverPayment, totalAmount } = req.body;
 
       if (!driverId) {
         return res.status(400).json({ error: 'Driver ID is required' });
+      }
+
+      // First update the total amount if provided
+      if (totalAmount !== undefined && totalAmount !== null) {
+        await storage.updateBooking(id, { 
+          totalAmount: totalAmount.toString(),
+          regularPrice: totalAmount.toString()
+        });
       }
 
       const updatedBooking = await storage.assignDriverToBooking(id, driverId, driverPayment);

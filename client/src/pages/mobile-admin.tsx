@@ -262,6 +262,13 @@ export default function MobileAdmin() {
   const [selectedFlight, setSelectedFlight] = useState<any | null>(null);
   const [flightSearchInput, setFlightSearchInput] = useState('');
   const [isSearchingFlight, setIsSearchingFlight] = useState(false);
+  
+  // Driver assignment dialog states
+  const [assignDriverDialogOpen, setAssignDriverDialogOpen] = useState(false);
+  const [assigningBooking, setAssigningBooking] = useState<Booking | null>(null);
+  const [assignDialogDriverId, setAssignDialogDriverId] = useState('');
+  const [assignDialogTotalPrice, setAssignDialogTotalPrice] = useState('');
+  const [assignDialogDriverPayment, setAssignDialogDriverPayment] = useState('');
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'admin')) {
@@ -470,21 +477,47 @@ export default function MobileAdmin() {
 
   // Assign driver mutation
   const assignDriverMutation = useMutation({
-    mutationFn: async ({ bookingId, driverId, driverPayment }: { bookingId: string; driverId: string; driverPayment: string }) => {
+    mutationFn: async ({ bookingId, driverId, driverPayment, totalAmount }: { bookingId: string; driverId: string; driverPayment: string; totalAmount?: string }) => {
       const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/assign-driver`, {
         driverId,
         driverPayment: parseFloat(driverPayment) || 0,
+        totalAmount: totalAmount ? parseFloat(totalAmount) : undefined,
       });
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      setAssignDriverDialogOpen(false);
+      setAssigningBooking(null);
       toast({ title: 'Success', description: 'Driver assigned successfully' });
     },
     onError: (error: Error) => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
+
+  // Open assign driver dialog
+  const handleOpenAssignDriver = (booking: Booking) => {
+    setAssigningBooking(booking);
+    setAssignDialogDriverId(booking.driverId || '');
+    setAssignDialogTotalPrice(booking.totalAmount || '0');
+    setAssignDialogDriverPayment((parseFloat(booking.totalAmount || '0') * 0.7).toFixed(2));
+    setAssignDriverDialogOpen(true);
+  };
+
+  // Confirm driver assignment from dialog
+  const handleConfirmAssignDriver = () => {
+    if (!assigningBooking || !assignDialogDriverId) {
+      toast({ title: 'Error', description: 'Please select a driver', variant: 'destructive' });
+      return;
+    }
+    assignDriverMutation.mutate({
+      bookingId: assigningBooking.id,
+      driverId: assignDialogDriverId,
+      driverPayment: assignDialogDriverPayment,
+      totalAmount: assignDialogTotalPrice,
+    });
+  };
 
   // Open new booking dialog
   const handleOpenNewBooking = () => {
@@ -964,31 +997,17 @@ export default function MobileAdmin() {
                         Edit
                       </Button>
                       
-                      {/* Assign Driver (only if no driver assigned and not cancelled/completed) */}
-                      {!booking.driverId && !['cancelled', 'completed'].includes(booking.status) && (
-                        <Select
-                          value=""
-                          onValueChange={(driverId) => {
-                            if (driverId) {
-                              assignDriverMutation.mutate({
-                                bookingId: booking.id,
-                                driverId,
-                                driverPayment: (parseFloat(booking.totalAmount) * 0.7).toFixed(2),
-                              });
-                            }
-                          }}
+                      {/* Assign/Reassign Driver Button (for all non-cancelled/completed bookings) */}
+                      {!['cancelled', 'completed'].includes(booking.status) && (
+                        <Button
+                          size="sm"
+                          variant={booking.driverId ? "outline" : "default"}
+                          className={booking.driverId ? "text-blue-600 border-blue-200" : "bg-blue-600 hover:bg-blue-700"}
+                          onClick={() => handleOpenAssignDriver(booking)}
                         >
-                          <SelectTrigger className="h-8 text-sm flex-1">
-                            <SelectValue placeholder="Assign Driver" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {activeDrivers?.filter(driver => driver.id).map((driver) => (
-                              <SelectItem key={driver.id} value={driver.id}>
-                                {driver.firstName} {driver.lastName}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          <UserCheck className="w-4 h-4 mr-1" />
+                          {booking.driverId ? 'Reassign' : 'Assign'}
+                        </Button>
                       )}
                       
                       {/* Status Actions */}
@@ -1458,6 +1477,122 @@ export default function MobileAdmin() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Assign Driver Dialog */}
+      <Dialog open={assignDriverDialogOpen} onOpenChange={setAssignDriverDialogOpen}>
+        <DialogContent className="max-w-sm mx-4">
+          <DialogHeader>
+            <DialogTitle>
+              {assigningBooking?.driverId ? 'Reassign Driver' : 'Assign Driver'}
+            </DialogTitle>
+            <DialogDescription>
+              Select a driver and adjust pricing if needed
+            </DialogDescription>
+          </DialogHeader>
+          
+          {assigningBooking && (
+            <div className="space-y-4 py-4">
+              {/* Booking Info */}
+              <div className="bg-slate-50 p-3 rounded-lg text-sm">
+                <p className="font-medium">{assigningBooking.passengerName || 'Guest'}</p>
+                <p className="text-slate-500 truncate">{assigningBooking.pickupAddress}</p>
+                <p className="text-slate-500 truncate">→ {assigningBooking.destinationAddress || 'No destination'}</p>
+              </div>
+
+              {/* Current Driver (if reassigning) */}
+              {assigningBooking.driverName && (
+                <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg">
+                  <UserCheck className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm">Current: <strong>{assigningBooking.driverName}</strong></span>
+                </div>
+              )}
+
+              {/* Select Driver */}
+              <div>
+                <Label>Select Driver</Label>
+                <Select 
+                  value={assignDialogDriverId} 
+                  onValueChange={setAssignDialogDriverId}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a driver" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeDrivers?.filter(driver => driver.id).map((driver) => (
+                      <SelectItem key={driver.id} value={driver.id}>
+                        {driver.firstName} {driver.lastName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Total Price (Editable) */}
+              <div>
+                <Label>Total Price ($)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={assignDialogTotalPrice}
+                  onChange={(e) => {
+                    setAssignDialogTotalPrice(e.target.value);
+                    // Auto-calculate driver payment at 70%
+                    const total = parseFloat(e.target.value) || 0;
+                    setAssignDialogDriverPayment((total * 0.7).toFixed(2));
+                  }}
+                  placeholder="Enter total price"
+                />
+              </div>
+
+              {/* Driver Payment (Editable) */}
+              <div>
+                <Label>Driver Payment ($)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={assignDialogDriverPayment}
+                  onChange={(e) => setAssignDialogDriverPayment(e.target.value)}
+                  placeholder="Enter driver payment"
+                />
+                <p className="text-xs text-slate-500 mt-1">
+                  {assignDialogTotalPrice && assignDialogDriverPayment ? 
+                    `${((parseFloat(assignDialogDriverPayment) / parseFloat(assignDialogTotalPrice)) * 100).toFixed(0)}% of total` : 
+                    'Default: 70% of total'
+                  }
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setAssignDriverDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleConfirmAssignDriver}
+              disabled={assignDriverMutation.isPending || !assignDialogDriverId}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {assignDriverMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Assigning...
+                </>
+              ) : (
+                <>
+                  <UserCheck className="w-4 h-4 mr-2" />
+                  {assigningBooking?.driverId ? 'Reassign Driver' : 'Assign Driver'}
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
