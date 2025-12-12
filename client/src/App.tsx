@@ -9,6 +9,7 @@ import { useBrandTheme } from "@/hooks/useBrandTheme";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import DeviceRedirect from "@/components/DeviceRedirect";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { DynamicTitle } from "@/components/DynamicTitle";
 
 // Utility to check if accessing via admin subdomain
 function isAdminSubdomain(): boolean {
@@ -321,6 +322,7 @@ function App() {
         <TooltipProvider>
           <BrandThemeLoader />
           <FaviconLoader />
+          <DynamicTitle />
           <Toaster />
           <Router />
           <PWAInstallPrompt />
