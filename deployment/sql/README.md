@@ -20,10 +20,50 @@ Migration updates for existing tenant databases. This script uses `IF NOT EXISTS
 psql -h <host> -U <user> -d <database> -f 002_schema_updates.sql
 ```
 
+### 003_seed_default_data.sql
+Seeds default data like vehicle types and payment options. Run this if your database is missing default configuration.
+
+**Usage:**
+```bash
+psql -h <host> -U <user> -d <database> -f 003_seed_default_data.sql
+```
+
+### 004_latest_updates.sql
+Latest schema updates (December 2024). This comprehensive migration script ensures all tables, columns, and indexes are up to date. Safe to run multiple times.
+
+**Usage for existing tenants:**
+```bash
+psql -h <host> -U <user> -d <database> -f 004_latest_updates.sql
+```
+
 ## Deployment Order
 
-1. **New Tenant:** Run `001_init_schema.sql` only
-2. **Existing Tenant:** Run `002_schema_updates.sql` to update to latest schema
+### New Tenant
+Run only `001_init_schema.sql` - it includes everything needed:
+```bash
+psql -h <host> -U <user> -d <database> -f 001_init_schema.sql
+```
+
+### Existing Tenant (Updating to Latest)
+Run migration files in order based on your current version:
+
+**If on version 1.0.0 (original schema):**
+```bash
+psql -h <host> -U <user> -d <database> -f 002_schema_updates.sql
+psql -h <host> -U <user> -d <database> -f 004_latest_updates.sql
+```
+
+**If on version 1.0.1+ (already ran 002):**
+```bash
+psql -h <host> -U <user> -d <database> -f 004_latest_updates.sql
+```
+
+**Quick Update (run all migrations safely):**
+All scripts are idempotent - safe to run multiple times:
+```bash
+psql -h <host> -U <user> -d <database> -f 002_schema_updates.sql
+psql -h <host> -U <user> -d <database> -f 004_latest_updates.sql
+```
 
 ## Environment Variables
 
@@ -37,7 +77,7 @@ export PGDATABASE=your-db-name
 export PGPORT=5432
 
 # Then run:
-psql -f 001_init_schema.sql
+psql -f 004_latest_updates.sql
 ```
 
 ## Tables Overview
@@ -70,6 +110,27 @@ psql -f 001_init_schema.sql
 | `password_reset_tokens` | Password recovery tokens |
 | `driver_messages` | Communication messages to drivers |
 | `emergency_incidents` | Emergency incident reports |
+
+## Key Schema Features (v1.0.4)
+
+### Bookings Table
+- Complete journey tracking (booked, confirmed, on_the_way, arrived, in_progress, completed, cancelled)
+- GPS location tracking at key milestones (accepted, started, DOD, POB, ended)
+- Detailed pricing breakdown (base fare, gratuity, airport fees, surge pricing, discounts)
+- Driver payment tracking (amount, paid status, payment date)
+- Surcharges array for additional charges
+
+### Payment System
+- Invoices linked to bookings with full pricing breakdown
+- Secure payment tokens for payment links
+- Ride credits with transaction history
+- Multiple payment methods (credit card, pay later, cash, ride credit)
+
+### Cancellation Tracking
+- Tracks who cancelled (passenger, driver, admin, system)
+- Hours before pickup
+- Charge and credit amounts
+- Refund status
 
 ## Default Data
 
@@ -134,4 +195,20 @@ WHERE table_schema = 'public';
 SELECT column_name, data_type 
 FROM information_schema.columns 
 WHERE table_name = 'bookings';
+```
+
+### Verify Schema Version
+After running `004_latest_updates.sql`, check for success:
+```sql
+-- Should show "All required tables exist."
+-- If any tables are missing, they will be listed in warnings
+```
+
+### Reset Constraints
+If you encounter constraint issues:
+```sql
+-- Drop and recreate booking status constraint
+ALTER TABLE bookings DROP CONSTRAINT IF EXISTS bookings_status_check;
+ALTER TABLE bookings ADD CONSTRAINT bookings_status_check 
+    CHECK (status IN ('pending', 'pending_driver_acceptance', 'confirmed', 'on_the_way', 'arrived', 'on_board', 'in_progress', 'completed', 'cancelled'));
 ```
