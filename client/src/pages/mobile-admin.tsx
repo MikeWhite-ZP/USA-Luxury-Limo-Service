@@ -461,8 +461,15 @@ export default function MobileAdmin() {
   // Delete booking mutation
   const deleteBookingMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiRequest('DELETE', `/api/admin/bookings/${id}`);
-      return response.json();
+      const response = await fetch(`/api/admin/bookings/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to delete booking');
+      }
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
@@ -472,7 +479,13 @@ export default function MobileAdmin() {
       toast({ title: 'Success', description: 'Booking deleted successfully' });
     },
     onError: (error: Error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      setDeleteConfirmOpen(false);
+      toast({ 
+        title: 'Cannot Delete Booking', 
+        description: error.message, 
+        variant: 'destructive',
+        duration: 6000,
+      });
     },
   });
 

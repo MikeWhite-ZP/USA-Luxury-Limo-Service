@@ -5064,6 +5064,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin delete booking endpoint with smart deletion rules
+  app.delete('/api/admin/bookings/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
+      }
+
+      const { id } = req.params;
+      
+      // Get the booking
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      // Check deletion rules based on payment status and booking status
+      const paymentStatus = booking.paymentStatus || 'pending';
+      const bookingStatus = booking.status;
+
+      // Rule 1: Cannot delete paid bookings - keep for financial records
+      if (paymentStatus === 'paid') {
+        return res.status(400).json({ 
+          message: 'Cannot delete this booking because payment has been received. Paid bookings must be kept for financial records.',
+          reason: 'paid'
+        });
+      }
+
+      // Rule 2: Cannot delete refunded bookings - keep for financial records
+      if (paymentStatus === 'refunded') {
+        return res.status(400).json({ 
+          message: 'Cannot delete this booking because it has been refunded. Refunded bookings must be kept for financial records.',
+          reason: 'refunded'
+        });
+      }
+
+      // Rule 3: For cancelled bookings, check if cancelled by passenger
+      if (bookingStatus === 'cancelled') {
+        // Check cancellation record
+        const cancellation = await storage.getBookingCancellation(id);
+        
+        if (cancellation?.cancelledBy === 'passenger') {
+          return res.status(400).json({ 
+            message: 'Cannot delete this booking because it was cancelled by the passenger. These records are kept for dispute resolution.',
+            reason: 'passenger_cancelled'
+          });
+        }
+      }
+
+      // Rule 4: Only allow deletion of cancelled or pending bookings that are unpaid
+      if (bookingStatus !== 'cancelled' && bookingStatus !== 'pending') {
+        return res.status(400).json({ 
+          message: `Cannot delete this booking because it is currently "${bookingStatus}". Only cancelled or pending unpaid bookings can be deleted.`,
+          reason: 'active_booking'
+        });
+      }
+
+      // All checks passed - delete the booking
+      await storage.deleteBooking(id);
+      res.json({ success: true, message: 'Booking deleted successfully' });
+    } catch (error) {
+      console.error('Admin delete booking error:', error);
+      res.status(500).json({ message: 'Failed to delete booking' });
+    }
+  });
+
   app.get('/api/admin/settings', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
