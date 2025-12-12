@@ -29,7 +29,13 @@ psql -h <host> -U <user> -d <database> -f 003_seed_default_data.sql
 ```
 
 ### 004_latest_updates.sql
-Latest schema updates (December 2024). This comprehensive migration script ensures all tables, columns, and indexes are up to date. Safe to run multiple times.
+Comprehensive schema migration (December 2024). This script brings existing tenant databases to parity with shared/schema.ts by:
+- Adding any missing columns to core tables (users, drivers, bookings, invoices, etc.)
+- Creating auxiliary tables if they don't exist (CMS, ride credits, cancellations, etc.)
+- Creating all performance indexes
+- Verifying schema completeness
+
+**Note:** All column additions are nullable to safely run on databases with existing data. Safe to run multiple times (idempotent).
 
 **Usage for existing tenants:**
 ```bash
