@@ -141,7 +141,7 @@ export default function MobileProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-background dark:from-background">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 shadow-lg sticky top-0 z-10">
         <div className="flex items-center gap-4">
@@ -160,16 +160,16 @@ export default function MobileProfile() {
       </div>
       {/* Profile Picture Card */}
       <div className="p-4">
-        <Card className="bg-white border-green-200 shadow-md" data-testid="card-profile-picture">
+        <Card className="bg-card border-green-200 dark:border-green-800 shadow-md" data-testid="card-profile-picture">
           <CardContent className="p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                   <Camera className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">Profile Picture</h3>
-                  <p className="text-xs text-gray-500">Update your photo</p>
+                  <h3 className="font-bold text-foreground">Profile Picture</h3>
+                  <p className="text-xs text-muted-foreground">Update your photo</p>
                 </div>
               </div>
             </div>
@@ -177,8 +177,8 @@ export default function MobileProfile() {
             {/* Avatar Preview */}
             <div className="flex justify-center py-4">
               <div className="relative">
-                <div className={`w-32 h-32 rounded-full overflow-hidden border-4 shadow-lg bg-white ${
-                  isPending ? 'border-yellow-300' : isRejected ? 'border-red-300' : 'border-green-100'
+                <div className={`w-32 h-32 rounded-full overflow-hidden border-4 shadow-lg bg-card ${
+                  isPending ? 'border-yellow-300' : isRejected ? 'border-red-300' : 'border-green-100 dark:border-green-800'
                 }`}>
                   <img
                     src={displayUrl || defaultUserImage}
@@ -218,7 +218,7 @@ export default function MobileProfile() {
             {/* Upload Controls */}
             <div className="space-y-3">
               <div>
-                <Label htmlFor="profile-picture-file" className="text-gray-700 font-medium mb-2 block">
+                <Label htmlFor="profile-picture-file" className="text-muted-foreground font-medium mb-2 block">
                   {displayUrl ? 'Replace Photo' : 'Upload Photo'}
                 </Label>
                 <Input
@@ -227,10 +227,10 @@ export default function MobileProfile() {
                   accept="image/*"
                   capture="user"
                   onChange={handleFileChange}
-                  className="bg-white border-gray-300"
+                  className="bg-card border-border"
                   data-testid="input-profile-picture-file"
                 />
-                <p className="text-xs mt-1 text-gray-500">Image only, max 2MB. Photo will be visible immediately but requires admin approval.</p>
+                <p className="text-xs mt-1 text-muted-foreground">Image only, max 2MB. Photo will be visible immediately but requires admin approval.</p>
               </div>
               
               <Button

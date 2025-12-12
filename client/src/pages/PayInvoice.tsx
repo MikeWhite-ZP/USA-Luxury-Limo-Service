@@ -308,7 +308,7 @@ export default function PayInvoice() {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white" data-testid="page-title">
+          <h1 className="text-3xl font-bold text-foreground" data-testid="page-title">
             Pay Invoice
           </h1>
           <p className="text-muted-foreground">

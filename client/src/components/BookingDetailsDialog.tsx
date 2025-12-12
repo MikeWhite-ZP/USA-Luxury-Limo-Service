@@ -444,15 +444,15 @@ export function BookingDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] w-[1400px] max-h-[95vh] overflow-hidden p-0 bg-white">
+      <DialogContent className="max-w-[95vw] w-[1400px] max-h-[95vh] overflow-hidden p-0 bg-background">
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] h-[95vh] overflow-hidden">
           
           {/* LEFT PANEL - Journey Visualization */}
-          <div className="overflow-y-auto p-6 bg-slate-50 border-r">
+          <div className="overflow-y-auto p-6 bg-muted border-r">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-4 mb-6 shadow-md">
               <div className="flex items-center gap-3">
-                <div className="bg-white/20 p-2.5 rounded-lg">
+                <div className="bg-background/20 p-2.5 rounded-lg">
                   <MapPin className="w-6 h-6 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-white">
@@ -463,19 +463,19 @@ export function BookingDetailsDialog({
 
             {/* Address Input Section with Saved Addresses */}
             <div className="space-y-4 mb-6">
-              <Card className="border-blue-200 shadow-sm">
-                <CardHeader className="bg-gradient-to-r from-blue-100 to-indigo-100 border-b border-blue-200">
+              <Card className="border-blue-200 dark:border-blue-700 shadow-sm">
+                <CardHeader className="bg-gradient-to-r from-blue-100 dark:from-blue-900/40 to-indigo-100 dark:to-indigo-900/40 border-b border-blue-200 dark:border-blue-700">
                   <div className="flex items-center gap-2">
                     <div className="bg-blue-600 p-2 rounded-lg">
                       <MapPin className="w-4 h-4 text-white" />
                     </div>
-                    <CardTitle className="text-lg font-semibold text-blue-900">Journey Details</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-blue-900 dark:text-blue-200">Journey Details</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="p-6 space-y-6">
                   {/* Passenger Selection */}
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                       <User className="w-4 h-4 text-blue-600" />
                       Passenger *
                     </Label>
@@ -502,11 +502,11 @@ export function BookingDetailsDialog({
                             setUserSearchQuery(' ');
                           }
                         }}
-                        className="bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                        className="bg-background border-border focus:border-blue-500 focus:ring-blue-500"
                         data-testid="input-passenger-search"
                       />
                       {userSearchQuery && allUsers && allUsers.length > 0 && (
-                        <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                        <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-lg shadow-xl max-h-60 overflow-y-auto">
                           {allUsers
                             .filter(u => u.role === 'passenger')
                             .filter(u => {
@@ -525,15 +525,15 @@ export function BookingDetailsDialog({
                               <button
                                 key={passenger.id}
                                 type="button"
-                                className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-slate-100 last:border-0 text-sm transition-colors"
+                                className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:bg-blue-900/20 border-b border-border last:border-0 text-sm transition-colors"
                                 onClick={() => {
                                   setFormData({ ...formData, passengerId: passenger.id });
                                   setUserSearchQuery('');
                                 }}
                                 data-testid={`passenger-option-${passenger.id}`}
                               >
-                                <div className="font-medium text-slate-900">{passenger.firstName} {passenger.lastName}</div>
-                                <div className="text-xs text-slate-500">{passenger.email} • {passenger.phone || 'N/A'}</div>
+                                <div className="font-medium text-foreground">{passenger.firstName} {passenger.lastName}</div>
+                                <div className="text-xs text-muted-foreground">{passenger.email} • {passenger.phone || 'N/A'}</div>
                               </button>
                             ))}
                         </div>
@@ -542,9 +542,9 @@ export function BookingDetailsDialog({
                   </div>
 
                   {/* Booking Type & Vehicle */}
-                  <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                  <div className="grid grid-cols-2 gap-4 bg-muted p-4 rounded-lg border border-border">
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                         <Car className="w-4 h-4 text-blue-600" />
                         Booking Type *
                       </Label>
@@ -552,7 +552,7 @@ export function BookingDetailsDialog({
                         value={formData.bookingType}
                         onValueChange={(value) => setFormData({ ...formData, bookingType: value as 'transfer' | 'hourly' })}
                       >
-                        <SelectTrigger data-testid="select-booking-type" className="bg-white border-slate-300">
+                        <SelectTrigger data-testid="select-booking-type" className="bg-background border-border">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -563,7 +563,7 @@ export function BookingDetailsDialog({
                     </div>
                     
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                         <Car className="w-4 h-4 text-blue-600" />
                         Vehicle Type *
                       </Label>
@@ -571,7 +571,7 @@ export function BookingDetailsDialog({
                         value={formData.vehicleTypeId}
                         onValueChange={(value) => setFormData({ ...formData, vehicleTypeId: value })}
                       >
-                        <SelectTrigger data-testid="select-vehicle-type" className="bg-white border-slate-300">
+                        <SelectTrigger data-testid="select-vehicle-type" className="bg-background border-border">
                           <SelectValue placeholder="Select vehicle" />
                         </SelectTrigger>
                         <SelectContent>
@@ -588,7 +588,7 @@ export function BookingDetailsDialog({
                   {/* Addresses Section */}
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-green-600" />
                         Pickup Address *
                       </Label>
@@ -608,9 +608,9 @@ export function BookingDetailsDialog({
 
                     {/* Via Points Section - Hidden for Hourly Service */}
                     {formData.bookingType !== 'hourly' && (
-                      <div className="space-y-3 bg-amber-50 p-4 rounded-lg border border-amber-200">
+                      <div className="space-y-3 bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700">
                         <div className="flex items-center justify-between">
-                          <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                          <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                             <Navigation className="w-4 h-4 text-amber-600" />
                             Via Points (Optional)
                           </Label>
@@ -623,7 +623,7 @@ export function BookingDetailsDialog({
                               setFormData({ ...formData, viaPoints: newViaPoints });
                             }}
                             data-testid="button-add-via-point"
-                            className="border-amber-400 bg-white text-amber-700 hover:bg-amber-100 hover:border-amber-500 shadow-sm"
+                            className="border-amber-400 bg-background text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 dark:bg-amber-900/30 hover:border-amber-500 shadow-sm"
                           >
                             <Plus className="w-3 h-3 mr-1" />
                             Add Via Point
@@ -633,7 +633,7 @@ export function BookingDetailsDialog({
                         {formData.viaPoints && formData.viaPoints.length > 0 && (
                           <div className="space-y-3">
                             {formData.viaPoints.map((viaPoint, index) => (
-                              <div key={index} className="relative bg-white p-3 rounded-md border border-amber-200">
+                              <div key={index} className="relative bg-background p-3 rounded-md border border-amber-200 dark:border-amber-700">
                                 <AddressAutocomplete
                                   id={`via-point-${index}`}
                                   label={`Stop ${index + 1}`}
@@ -660,7 +660,7 @@ export function BookingDetailsDialog({
                                     const newViaPoints = (formData.viaPoints || []).filter((_, i) => i !== index);
                                     setFormData({ ...formData, viaPoints: newViaPoints });
                                   }}
-                                  className="absolute top-1 right-1 text-red-600 hover:text-red-800 hover:bg-red-50"
+                                  className="absolute top-1 right-1 text-red-600 dark:text-red-400 hover:text-red-800 hover:bg-red-50 dark:bg-red-900/20"
                                   data-testid={`button-remove-via-point-${index}`}
                                 >
                                   <XCircle className="w-4 h-4" />
@@ -675,8 +675,8 @@ export function BookingDetailsDialog({
                     {/* Destination Address - Hidden for Hourly Service */}
                     {formData.bookingType !== 'hourly' && (
                       <div className="space-y-2">
-                        <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-red-600" />
+                        <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-red-600 dark:text-red-400" />
                           Destination Address *
                         </Label>
                         <AddressAutocomplete
@@ -697,7 +697,7 @@ export function BookingDetailsDialog({
                     {/* Duration for Hourly */}
                     {formData.bookingType === 'hourly' && (
                       <div className="space-y-2">
-                        <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                           <Clock className="w-4 h-4 text-blue-600" />
                           Duration (Hours) *
                         </Label>
@@ -705,7 +705,7 @@ export function BookingDetailsDialog({
                           value={formData.requestedHours}
                           onValueChange={(value) => setFormData({ ...formData, requestedHours: value })}
                         >
-                          <SelectTrigger data-testid="select-requested-hours" className="bg-white border-slate-300">
+                          <SelectTrigger data-testid="select-requested-hours" className="bg-background border-border">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -726,7 +726,7 @@ export function BookingDetailsDialog({
                   {/* Schedule Section */}
                   <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 space-y-4">
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                         <Clock className="w-4 h-4 text-indigo-600" />
                         Scheduled Date *
                       </Label>
@@ -761,7 +761,7 @@ export function BookingDetailsDialog({
                         }}
                         dateFormat="MMMM d, yyyy"
                         minDate={new Date()}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-md bg-white text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
+                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
                         placeholderText="Select date"
                         wrapperClassName="w-full"
                         data-testid="input-scheduled-date"
@@ -770,7 +770,7 @@ export function BookingDetailsDialog({
 
                     {/* Time Selection */}
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                         <Clock className="w-4 h-4 text-indigo-600" />
                         Scheduled Time *
                       </Label>
@@ -801,7 +801,7 @@ export function BookingDetailsDialog({
                               setFormData({ ...formData, scheduledDateTime: formattedDateTime });
                             }}
                           >
-                            <SelectTrigger data-testid="select-hour" className="bg-white border-slate-300">
+                            <SelectTrigger data-testid="select-hour" className="bg-background border-border">
                               <SelectValue placeholder="Hour" />
                             </SelectTrigger>
                             <SelectContent>
@@ -810,7 +810,7 @@ export function BookingDetailsDialog({
                               ))}
                             </SelectContent>
                           </Select>
-                          <p className="text-xs text-slate-500 mt-1 text-center">Hour</p>
+                          <p className="text-xs text-muted-foreground mt-1 text-center">Hour</p>
                         </div>
 
                         {/* Minute */}
@@ -832,7 +832,7 @@ export function BookingDetailsDialog({
                               setFormData({ ...formData, scheduledDateTime: formattedDateTime });
                             }}
                           >
-                            <SelectTrigger data-testid="select-minute" className="bg-white border-slate-300">
+                            <SelectTrigger data-testid="select-minute" className="bg-background border-border">
                               <SelectValue placeholder="Min" />
                             </SelectTrigger>
                             <SelectContent>
@@ -841,7 +841,7 @@ export function BookingDetailsDialog({
                               ))}
                             </SelectContent>
                           </Select>
-                          <p className="text-xs text-slate-500 mt-1 text-center">Minute</p>
+                          <p className="text-xs text-muted-foreground mt-1 text-center">Minute</p>
                         </div>
 
                         {/* AM/PM */}
@@ -872,7 +872,7 @@ export function BookingDetailsDialog({
                               setFormData({ ...formData, scheduledDateTime: formattedDateTime });
                             }}
                           >
-                            <SelectTrigger data-testid="select-period" className="bg-white border-slate-300">
+                            <SelectTrigger data-testid="select-period" className="bg-background border-border">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -880,7 +880,7 @@ export function BookingDetailsDialog({
                               <SelectItem value="PM">PM</SelectItem>
                             </SelectContent>
                           </Select>
-                          <p className="text-xs text-slate-500 mt-1 text-center">Period</p>
+                          <p className="text-xs text-muted-foreground mt-1 text-center">Period</p>
                         </div>
                       </div>
                     </div>
@@ -997,7 +997,7 @@ export function BookingDetailsDialog({
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Search for a flight to automatically populate details.
                   </p>
                   <div className="flex gap-2">
@@ -1085,8 +1085,8 @@ export function BookingDetailsDialog({
             {/* Journey Log Timeline */}
             {editingBooking && (
               <div className="mb-6">
-                <Card className="border-amber-200 shadow-sm">
-                  <CardHeader className="bg-gradient-to-r from-amber-100 to-orange-100 border-b border-amber-200">
+                <Card className="border-amber-200 dark:border-amber-700 shadow-sm">
+                  <CardHeader className="bg-gradient-to-r from-amber-100 dark:from-amber-900/40 to-orange-100 dark:to-orange-900/40 border-b border-amber-200 dark:border-amber-700">
                     <div className="flex items-center gap-2">
                       <div className="bg-amber-600 p-2 rounded-lg">
                         <Clock className="w-4 h-4 text-white" />
@@ -1210,7 +1210,7 @@ export function BookingDetailsDialog({
 
                       {/* No Show */}
                       {editingBooking.noShow && (
-                        <div className="text-red-600 font-semibold">
+                        <div className="text-red-600 dark:text-red-400 font-semibold">
                           No Show-up
                         </div>
                       )}
@@ -1272,7 +1272,7 @@ export function BookingDetailsDialog({
 
                       {/* Cancelled */}
                       {editingBooking.status === 'cancelled' && (
-                        <div className="text-red-600 font-semibold">
+                        <div className="text-red-600 dark:text-red-400 font-semibold">
                           Cancelled
                         </div>
                       )}
@@ -1366,8 +1366,8 @@ export function BookingDetailsDialog({
 
             {/* Special Instructions & Bill Reference Section */}
             <div className="mb-6">
-              <Card className="border-amber-200 shadow-sm">
-                <CardHeader className="bg-gradient-to-r from-amber-100 to-yellow-100 border-b border-amber-200">
+              <Card className="border-amber-200 dark:border-amber-700 shadow-sm">
+                <CardHeader className="bg-gradient-to-r from-amber-100 dark:from-amber-900/40 to-yellow-100 dark:to-yellow-900/40 border-b border-amber-200 dark:border-amber-700">
                   <div className="flex items-center gap-2">
                     <div className="bg-amber-600 p-2 rounded-lg">
                       <FileText className="w-4 h-4 text-white" />
@@ -1378,7 +1378,7 @@ export function BookingDetailsDialog({
                 <CardContent className="space-y-4">
                   {/* Special Instructions */}
                   <div>
-                    <Label className="text-sm font-medium text-slate-700">Special Instructions / Notes</Label>
+                    <Label className="text-sm font-medium text-muted-foreground">Special Instructions / Notes</Label>
                     <Textarea
                       value={formData.specialInstructions}
                       onChange={(e) => setFormData({ ...formData, specialInstructions: e.target.value })}
@@ -1390,7 +1390,7 @@ export function BookingDetailsDialog({
                   
                   {/* Bill Reference */}
                   <div>
-                    <Label className="text-sm font-medium text-slate-700">Bill Reference (Optional)</Label>
+                    <Label className="text-sm font-medium text-muted-foreground">Bill Reference (Optional)</Label>
                     <Input
                       value={formData.billReference}
                       onChange={(e) => setFormData({ ...formData, billReference: e.target.value })}
@@ -1406,19 +1406,19 @@ export function BookingDetailsDialog({
           </div>
 
           {/* RIGHT PANEL - Dispatch & Invoice */}
-          <div className="overflow-y-auto p-6 bg-white">
+          <div className="overflow-y-auto p-6 bg-background">
             
 
             {/* Invoice Section (Bottom) */}
             <div>
-              <Card className="border-blue-200 shadow-sm">
-                <CardHeader className="bg-gradient-to-r from-blue-100 to-cyan-100 border-b border-blue-200">
+              <Card className="border-blue-200 dark:border-blue-700 shadow-sm">
+                <CardHeader className="bg-gradient-to-r from-blue-100 dark:from-blue-900/40 to-cyan-100 dark:to-cyan-900/40 border-b border-blue-200 dark:border-blue-700">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2">
                       <div className="bg-blue-600 p-2 rounded-lg">
                         <FileText className="w-4 h-4 text-white" />
                       </div>
-                      <CardTitle className="text-lg font-semibold text-blue-900">Invoice</CardTitle>
+                      <CardTitle className="text-lg font-semibold text-blue-900 dark:text-blue-200">Invoice</CardTitle>
                     </div>
                     {editingBooking && (
                       <Badge variant={editingBooking.status === 'completed' ? 'default' : 'secondary'}>
@@ -1432,21 +1432,21 @@ export function BookingDetailsDialog({
                   {/* Invoice Number */}
                   {editingBooking && (
                     <div className="pb-3 border-b">
-                      <p className="text-sm text-gray-600">Invoice Number</p>
+                      <p className="text-sm text-muted-foreground">Invoice Number</p>
                       <p className="text-lg font-mono font-bold">#{editingBooking.id.substring(0, 8).toUpperCase()}</p>
                     </div>
                   )}
 
                   {/* Payment Method */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold text-blue-900 mb-3">Payment Method</h4>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                    <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">Payment Method</h4>
                     <Select
                       value={formData.paymentMethod}
                       onValueChange={(value: 'pay_now' | 'pay_later' | 'cash') => setFormData({ ...formData, paymentMethod: value })}
                     >
-                      <SelectTrigger className="bg-white border-blue-200" data-testid="select-payment-method">
+                      <SelectTrigger className="bg-background border-blue-200 dark:border-blue-700" data-testid="select-payment-method">
                         <div className="flex items-center gap-3">
-                          <div className="bg-blue-100 p-1.5 rounded-full">
+                          <div className="bg-blue-100 dark:bg-blue-900/30 p-1.5 rounded-full">
                             <DollarSign className="w-3.5 h-3.5 text-blue-600" />
                           </div>
                           <SelectValue placeholder="Select payment method" />
@@ -1468,7 +1468,7 @@ export function BookingDetailsDialog({
 
                   {/* Account Credits Section - Show when passenger is selected */}
                   {formData.passengerId && (
-                    <div className={`p-4 rounded-lg border ${hasPassengerCredits ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' : 'bg-gray-50 border-gray-200'}`} data-testid="admin-use-credits-section">
+                    <div className={`p-4 rounded-lg border ${hasPassengerCredits ? 'bg-gradient-to-r from-green-50 dark:from-green-900/30 to-emerald-50 dark:to-emerald-900/30 border-green-200 dark:border-green-700' : 'bg-muted border-border'}`} data-testid="admin-use-credits-section">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <input
@@ -1477,31 +1477,31 @@ export function BookingDetailsDialog({
                             checked={useCredits}
                             onChange={(e) => handleUseCreditsToggle(e.target.checked)}
                             disabled={!hasPassengerCredits}
-                            className={`w-5 h-5 rounded focus:ring-green-500 ${hasPassengerCredits ? 'text-green-600 border-green-300' : 'text-gray-400 border-gray-300 cursor-not-allowed'}`}
+                            className={`w-5 h-5 rounded focus:ring-green-500 ${hasPassengerCredits ? 'text-green-600 border-green-300' : 'text-muted-foreground border-border cursor-not-allowed'}`}
                             data-testid="checkbox-admin-use-credits"
                           />
-                          <label htmlFor="admin-use-credits" className={`font-semibold cursor-pointer ${hasPassengerCredits ? 'text-green-800' : 'text-gray-500'}`}>
+                          <label htmlFor="admin-use-credits" className={`font-semibold cursor-pointer ${hasPassengerCredits ? 'text-green-800' : 'text-muted-foreground'}`}>
                             Use Passenger's Account Credits
                           </label>
                         </div>
-                        <span className={`text-sm font-medium px-3 py-1 rounded-full ${hasPassengerCredits ? 'text-green-700 bg-green-100' : 'text-gray-600 bg-gray-200'}`}>
+                        <span className={`text-sm font-medium px-3 py-1 rounded-full ${hasPassengerCredits ? 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30' : 'text-muted-foreground bg-muted-foreground/20'}`}>
                           Balance: ${passengerCreditsBalance.toFixed(2)}
                         </span>
                       </div>
                       
                       {!hasPassengerCredits && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                           This passenger doesn't have any account credits available.
                         </p>
                       )}
                       
                       {useCredits && hasPassengerCredits && (
                         <div className="mt-3 space-y-2">
-                          <label htmlFor="admin-credit-amount" className="text-sm font-medium text-gray-700">
+                          <label htmlFor="admin-credit-amount" className="text-sm font-medium text-muted-foreground">
                             Amount to use (max ${maxUsableCredits.toFixed(2)}):
                           </label>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-gray-600">$</span>
+                            <span className="text-lg font-bold text-muted-foreground">$</span>
                             <input
                               type="number"
                               id="admin-credit-amount"
@@ -1529,14 +1529,14 @@ export function BookingDetailsDialog({
                             </button>
                           </div>
                           {creditsApplied > 0 && (
-                            <div className="mt-2 p-2 bg-green-100 rounded-lg border border-green-200">
+                            <div className="mt-2 p-2 bg-green-100 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-700">
                               <div className="flex justify-between text-sm">
                                 <span className="text-green-800">Credits to Apply:</span>
-                                <span className="font-semibold text-green-700">-${creditsApplied.toFixed(2)}</span>
+                                <span className="font-semibold text-green-700 dark:text-green-300">-${creditsApplied.toFixed(2)}</span>
                               </div>
                               <div className="flex justify-between text-sm mt-1">
                                 <span className="text-green-800 font-medium">Remaining to Pay:</span>
-                                <span className="font-bold text-green-700">${remainingAmount.toFixed(2)}</span>
+                                <span className="font-bold text-green-700 dark:text-green-300">${remainingAmount.toFixed(2)}</span>
                               </div>
                             </div>
                           )}
@@ -1546,8 +1546,8 @@ export function BookingDetailsDialog({
                   )}
 
                   {/* Journey Fare */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold text-blue-900 mb-3">Journey Fare</h4>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                    <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">Journey Fare</h4>
                     <div className="space-y-3">
                       <div className="flex gap-2">
                         <div className="relative flex-1">
@@ -1558,7 +1558,7 @@ export function BookingDetailsDialog({
                             value={formData.totalAmount}
                             onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
                             placeholder="0.00"
-                            className="pl-9 border-blue-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
+                            className="pl-9 border-blue-300 focus:border-blue-500 focus:ring-blue-500 bg-background"
                             data-testid="input-total-amount"
                           />
                         </div>
@@ -1578,9 +1578,9 @@ export function BookingDetailsDialog({
                         </Button>
                       </div>
                       {calculatedPrice && (
-                        <div className="flex items-center gap-2 p-2 bg-blue-100 rounded-lg border border-blue-200">
+                        <div className="flex items-center gap-2 p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700">
                           <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
-                          <p className="text-xs text-blue-900 font-medium">
+                          <p className="text-xs text-blue-900 dark:text-blue-200 font-medium">
                             Calculated: ${calculatedPrice} (editable)
                           </p>
                         </div>
@@ -1590,21 +1590,21 @@ export function BookingDetailsDialog({
 
                   {/* Detailed Pricing Breakdown - Show when calculation has pricing details OR editing booking has pricing details */}
                   {((formData.baseFare && calculatedPrice) || (editingBooking && editingBooking.baseFare)) && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold text-blue-900 mb-3">Fare Breakdown</h4>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">Fare Breakdown</h4>
                       
                       <div className="space-y-2.5">
                         {/* Base Fare */}
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-slate-700">Base Fare:</span>
-                          <span className="text-sm font-semibold text-slate-900">${formData.baseFare || editingBooking?.baseFare}</span>
+                          <span className="text-sm text-muted-foreground">Base Fare:</span>
+                          <span className="text-sm font-semibold text-foreground">${formData.baseFare || editingBooking?.baseFare}</span>
                         </div>
 
                         {/* Surge Pricing */}
                         {((formData.surgePricingMultiplier && parseFloat(formData.surgePricingMultiplier) > 1) || 
                           (editingBooking?.surgePricingMultiplier && parseFloat(editingBooking.surgePricingMultiplier) > 1)) && (
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-slate-700">
+                            <span className="text-sm text-muted-foreground">
                               Surge Pricing ({formData.surgePricingMultiplier || editingBooking?.surgePricingMultiplier}x):
                             </span>
                             <span className="text-sm font-semibold text-orange-600">+${formData.surgePricingAmount || editingBooking?.surgePricingAmount}</span>
@@ -1615,8 +1615,8 @@ export function BookingDetailsDialog({
                         {((formData.gratuityAmount && parseFloat(formData.gratuityAmount) > 0) ||
                           (editingBooking?.gratuityAmount && parseFloat(editingBooking.gratuityAmount) > 0)) && (
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-slate-700">Gratuity:</span>
-                            <span className="text-sm font-semibold text-slate-900">+${formData.gratuityAmount || editingBooking?.gratuityAmount}</span>
+                            <span className="text-sm text-muted-foreground">Gratuity:</span>
+                            <span className="text-sm font-semibold text-foreground">+${formData.gratuityAmount || editingBooking?.gratuityAmount}</span>
                           </div>
                         )}
 
@@ -1624,38 +1624,38 @@ export function BookingDetailsDialog({
                         {((formData.airportFeeAmount && parseFloat(formData.airportFeeAmount) > 0) ||
                           (editingBooking?.airportFeeAmount && parseFloat(editingBooking.airportFeeAmount) > 0)) && (
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-slate-700">Airport Fee:</span>
-                            <span className="text-sm font-semibold text-slate-900">+${formData.airportFeeAmount || editingBooking?.airportFeeAmount}</span>
+                            <span className="text-sm text-muted-foreground">Airport Fee:</span>
+                            <span className="text-sm font-semibold text-foreground">+${formData.airportFeeAmount || editingBooking?.airportFeeAmount}</span>
                           </div>
                         )}
 
                         {/* Subtotal before discount */}
-                        <div className="flex justify-between items-center pt-2 border-t border-blue-200">
-                          <span className="text-sm font-semibold text-slate-900">Subtotal:</span>
-                          <span className="text-sm font-bold text-slate-900">${formData.regularPrice || editingBooking?.regularPrice || formData.totalAmount || editingBooking?.totalAmount}</span>
+                        <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-blue-700">
+                          <span className="text-sm font-semibold text-foreground">Subtotal:</span>
+                          <span className="text-sm font-bold text-foreground">${formData.regularPrice || editingBooking?.regularPrice || formData.totalAmount || editingBooking?.totalAmount}</span>
                         </div>
 
                         {/* Discount if applicable */}
                         {(parseFloat(formData.discountAmount || editingBooking?.discountAmount || '0') > 0) && (
                           <>
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-semibold text-green-700">
+                              <span className="text-sm font-semibold text-green-700 dark:text-green-300">
                                 Discount ({formData.discountPercentage || editingBooking?.discountPercentage}%):
                               </span>
                               <span className="text-sm font-bold text-green-600">-${formData.discountAmount || editingBooking?.discountAmount}</span>
                             </div>
-                            <div className="flex justify-between items-center pt-2 border-t border-blue-200">
-                              <span className="font-bold text-blue-900">Total Amount:</span>
-                              <span className="font-bold text-blue-700 text-xl">${formData.totalAmount || editingBooking?.totalAmount}</span>
+                            <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-blue-700">
+                              <span className="font-bold text-blue-900 dark:text-blue-200">Total Amount:</span>
+                              <span className="font-bold text-blue-700 dark:text-blue-300 text-xl">${formData.totalAmount || editingBooking?.totalAmount}</span>
                             </div>
                           </>
                         )}
 
                         {/* If no discount, show total directly */}
                         {parseFloat(formData.discountAmount || editingBooking?.discountAmount || '0') === 0 && (
-                          <div className="flex justify-between items-center pt-2 border-t border-blue-200">
-                            <span className="font-bold text-blue-900">Total Amount:</span>
-                            <span className="font-bold text-blue-700 text-xl">${formData.totalAmount || editingBooking?.totalAmount}</span>
+                          <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-blue-700">
+                            <span className="font-bold text-blue-900 dark:text-blue-200">Total Amount:</span>
+                            <span className="font-bold text-blue-700 dark:text-blue-300 text-xl">${formData.totalAmount || editingBooking?.totalAmount}</span>
                           </div>
                         )}
                       </div>
@@ -1664,22 +1664,22 @@ export function BookingDetailsDialog({
 
                   {/* Legacy Discount Breakdown - Show when discount exists but no detailed breakdown */}
                   {editingBooking && !editingBooking.baseFare && (editingBooking.discountPercentage || editingBooking.regularPrice) && parseFloat(editingBooking.discountAmount || '0') > 0 && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold text-blue-900 mb-3">Pricing Details</h4>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">Pricing Details</h4>
                       <div className="space-y-2.5">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-slate-700">Regular Price:</span>
-                          <span className="text-sm font-semibold text-slate-900">${editingBooking.regularPrice || editingBooking.totalAmount}</span>
+                          <span className="text-sm text-muted-foreground">Regular Price:</span>
+                          <span className="text-sm font-semibold text-foreground">${editingBooking.regularPrice || editingBooking.totalAmount}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-semibold text-green-700">
+                          <span className="text-sm font-semibold text-green-700 dark:text-green-300">
                             Discount ({editingBooking.discountPercentage}%):
                           </span>
                           <span className="text-sm font-bold text-green-600">-${editingBooking.discountAmount}</span>
                         </div>
-                        <div className="flex justify-between items-center pt-2 border-t border-blue-200">
-                          <span className="font-bold text-blue-900">Discounted Price:</span>
-                          <span className="font-bold text-blue-700 text-xl">${editingBooking.totalAmount}</span>
+                        <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-blue-700">
+                          <span className="font-bold text-blue-900 dark:text-blue-200">Discounted Price:</span>
+                          <span className="font-bold text-blue-700 dark:text-blue-300 text-xl">${editingBooking.totalAmount}</span>
                         </div>
                       </div>
                     </div>
@@ -1687,13 +1687,13 @@ export function BookingDetailsDialog({
 
                   {/* Additional Charges Section */}
                   {editingBooking && editingBooking.surcharges && (editingBooking.surcharges as any[]).length > 0 && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold text-blue-900 mb-3">Additional Charges</h4>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">Additional Charges</h4>
                       <div className="space-y-2">
                         {((editingBooking.surcharges as any[]) || []).map((charge: any, index: number) => (
-                          <div key={index} className="flex justify-between items-center text-sm p-3 bg-white rounded-lg border border-blue-100">
-                            <span className="text-slate-700 font-medium">{charge.description}</span>
-                            <span className="font-semibold text-slate-900">+${charge.amount.toFixed(2)}</span>
+                          <div key={index} className="flex justify-between items-center text-sm p-3 bg-background rounded-lg border border-blue-100">
+                            <span className="text-muted-foreground font-medium">{charge.description}</span>
+                            <span className="font-semibold text-foreground">+${charge.amount.toFixed(2)}</span>
                           </div>
                         ))}
                       </div>
@@ -1708,29 +1708,29 @@ export function BookingDetailsDialog({
                           type="button"
                           variant="outline"
                           onClick={() => setShowAdditionalChargeForm(true)}
-                          className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 font-medium py-3"
+                          className="w-full border-blue-300 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:bg-blue-900/20 hover:border-blue-400 font-medium py-3"
                           data-testid="button-show-additional-charge-form"
                         >
                           <Plus className="w-4 h-4 mr-2" />
                           Add Additional Charge
                         </Button>
                       ) : (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                          <h4 className="text-sm font-semibold text-blue-900 mb-3">Add Additional Charge</h4>
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                          <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">Add Additional Charge</h4>
                           <div className="space-y-3">
                             <div>
-                              <Label className="text-sm font-medium text-slate-700">Description</Label>
+                              <Label className="text-sm font-medium text-muted-foreground">Description</Label>
                               <Input
                                 type="text"
                                 value={chargeDescription}
                                 onChange={(e) => setChargeDescription(e.target.value)}
                                 placeholder="e.g., Airport fee, Wait time, etc."
-                                className="mt-1.5 border-blue-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
+                                className="mt-1.5 border-blue-300 focus:border-blue-500 focus:ring-blue-500 bg-background"
                                 data-testid="input-charge-description"
                               />
                             </div>
                             <div>
-                              <Label className="text-sm font-medium text-slate-700">Amount</Label>
+                              <Label className="text-sm font-medium text-muted-foreground">Amount</Label>
                               <div className="relative mt-1.5">
                                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600" />
                                 <Input
@@ -1740,7 +1740,7 @@ export function BookingDetailsDialog({
                                   value={chargeAmount}
                                   onChange={(e) => setChargeAmount(e.target.value)}
                                   placeholder="0.00"
-                                  className="pl-9 border-blue-300 focus:border-blue-500 focus:ring-blue-500 bg-white"
+                                  className="pl-9 border-blue-300 focus:border-blue-500 focus:ring-blue-500 bg-background"
                                   data-testid="input-charge-amount"
                                 />
                               </div>
@@ -1754,7 +1754,7 @@ export function BookingDetailsDialog({
                                   setChargeDescription('');
                                   setChargeAmount('');
                                 }}
-                                className="flex-1 border-slate-300 hover:bg-slate-100"
+                                className="flex-1 border-border hover:bg-muted"
                                 data-testid="button-cancel-charge"
                               >
                                 Cancel
@@ -1776,10 +1776,10 @@ export function BookingDetailsDialog({
                   )}
 
                   {/* Total Fare */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-lg p-5">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:to-indigo-900/30 border-2 border-blue-300 rounded-lg p-5">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-blue-900">Total Fare</span>
-                      <span className="text-3xl font-bold text-blue-700">
+                      <span className="text-lg font-bold text-blue-900 dark:text-blue-200">Total Fare</span>
+                      <span className="text-3xl font-bold text-blue-700 dark:text-blue-300">
                         ${formData.totalAmount || '0.00'}
                       </span>
                     </div>
@@ -1808,7 +1808,7 @@ export function BookingDetailsDialog({
                       </Button>
                       <Button 
                         variant="outline" 
-                        className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 font-semibold py-3"
+                        className="w-full border-blue-300 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:bg-blue-900/20 hover:border-blue-400 font-semibold py-3"
                         data-testid="button-send-proforma"
                       >
                         Send Proforma Invoice

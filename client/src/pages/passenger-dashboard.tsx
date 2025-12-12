@@ -750,9 +750,9 @@ function InvoicesList() {
   if (!invoices || invoices.length === 0) {
     return (
       <div className="text-center p-12" data-testid="no-invoices">
-        <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-        <p className="text-gray-600 text-lg font-medium">No invoices found</p>
-        <p className="text-gray-500 text-sm mt-2">Invoices will appear here once your rides are complete</p>
+        <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+        <p className="text-muted-foreground text-lg font-medium">No invoices found</p>
+        <p className="text-muted-foreground text-sm mt-2">Invoices will appear here once your rides are complete</p>
       </div>
     );
   }
@@ -764,15 +764,15 @@ function InvoicesList() {
         {invoices.map((invoice) => (
           <div
             key={invoice.id}
-            className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-amber-300 hover:shadow-md transition-all"
+            className="bg-gradient-to-r from-muted to-background dark:from-muted dark:to-background rounded-xl p-5 border border-border hover:border-amber-300 hover:shadow-md transition-all"
             data-testid={`invoice-${invoice.id}`}
           >
             <div className="flex justify-between items-start mb-4">
               <div>
-                <p className="font-bold text-gray-900 text-lg" data-testid={`invoice-number-${invoice.id}`}>
+                <p className="font-bold text-foreground text-lg" data-testid={`invoice-number-${invoice.id}`}>
                   {invoice.invoiceNumber}
                 </p>
-                <p className="text-sm text-gray-600" data-testid={`invoice-date-${invoice.id}`}>
+                <p className="text-sm text-muted-foreground" data-testid={`invoice-date-${invoice.id}`}>
                   {new Date(invoice.createdAt).toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: 'short', 
@@ -799,23 +799,23 @@ function InvoicesList() {
 
             {invoice.booking && (
               <div className="text-sm space-y-1 mb-4">
-                <p className="text-gray-600">
-                  <span className="font-medium text-gray-900">From:</span> {invoice.booking.pickupAddress}
+                <p className="text-muted-foreground">
+                  <span className="font-medium text-foreground">From:</span> {invoice.booking.pickupAddress}
                 </p>
                 {invoice.booking.destinationAddress && (
-                  <p className="text-gray-600">
-                    <span className="font-medium text-gray-900">To:</span> {invoice.booking.destinationAddress}
+                  <p className="text-muted-foreground">
+                    <span className="font-medium text-foreground">To:</span> {invoice.booking.destinationAddress}
                   </p>
                 )}
               </div>
             )}
 
-            <div className="flex gap-2 pt-3 border-t border-gray-100">
+            <div className="flex gap-2 pt-3 border-t border-border">
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handlePrint(invoice)}
-                className="flex-1 bg-white text-red-700 border-red-200 hover:bg-red-50"
+                className="flex-1 bg-card text-red-700 border-red-200 hover:bg-red-50"
                 data-testid={`button-print-${invoice.id}`}
               >
                 <Printer className="w-4 h-4 mr-1.5" />
@@ -839,31 +839,31 @@ function InvoicesList() {
 
       {/* View Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-white max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="border-b border-gray-200 pb-4">
-            <DialogTitle className="text-xl font-bold text-gray-900">Invoice Details</DialogTitle>
+        <DialogContent className="sm:max-w-[500px] bg-card max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="border-b border-border pb-4">
+            <DialogTitle className="text-xl font-bold text-foreground">Invoice Details</DialogTitle>
             <DialogDescription>Complete pricing breakdown</DialogDescription>
           </DialogHeader>
           {selectedInvoice && (
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 p-5 rounded-xl border border-gray-200">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 p-5 rounded-xl border border-border">
                 <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
                   <div>
-                    <p className="text-gray-600 mb-1.5 font-medium">Invoice Number</p>
-                    <p className="font-bold text-gray-900" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
+                    <p className="text-muted-foreground mb-1.5 font-medium">Invoice Number</p>
+                    <p className="font-bold text-foreground" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1.5 font-medium">Date</p>
-                    <p className="text-gray-900" data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
+                    <p className="text-muted-foreground mb-1.5 font-medium">Date</p>
+                    <p className="text-foreground" data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-gray-600 mb-1.5 font-medium">Total Amount</p>
+                    <p className="text-muted-foreground mb-1.5 font-medium">Total Amount</p>
                     <p className="text-3xl font-bold text-amber-600" data-testid="view-total-amount">
                       ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}
                     </p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-gray-600 mb-1.5 font-medium">Status</p>
+                    <p className="text-muted-foreground mb-1.5 font-medium">Status</p>
                     <Badge className={selectedInvoice.paidAt ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}>
                       {selectedInvoice.paidAt ? 'Paid' : 'Unpaid'}
                     </Badge>
@@ -1702,7 +1702,7 @@ export default function PassengerDashboard() {
   ) || [];
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
+    <div className="min-h-screen bg-card relative overflow-hidden">
       {/* Subtle Light Background Pattern */}
       <div className="fixed inset-0 pointer-events-none opacity-30">
         <div className="absolute inset-0 bg-gradient-to-br from-red-50 via-white to-gray-50" />
@@ -1710,7 +1710,7 @@ export default function PassengerDashboard() {
       </div>
 
       {/* Modern Header */}
-      <header className="relative z-10 border-b border-gray-200 backdrop-blur-xl bg-white shadow-md">
+      <header className="relative z-10 border-b border-border backdrop-blur-xl bg-card shadow-md">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-5">
@@ -1723,15 +1723,15 @@ export default function PassengerDashboard() {
                   data-testid="dashboard-logo"
                 />
               ) : (
-                <div className="w-16 h-16 bg-white border border-gray-200 rounded-lg flex items-center justify-center">
-                  <User className="w-8 h-8 text-gray-600" data-testid="" />
+                <div className="w-16 h-16 bg-card border border-border rounded-lg flex items-center justify-center">
+                  <User className="w-8 h-8 text-muted-foreground" data-testid="" />
                 </div>
               )}
               <div>
                 <h1 className="text-3xl font-bold text-black" data-testid="passenger-title">
                   Passenger Dashboard
                 </h1>
-                <p className="text-gray-600 text-lg mt-1" data-testid="passenger-subtitle">
+                <p className="text-muted-foreground text-lg mt-1" data-testid="passenger-subtitle">
                   Welcome back, <span className="text-red-600 font-medium">{user?.firstName || user?.email}</span>
                 </p>
               </div>
@@ -1751,7 +1751,7 @@ export default function PassengerDashboard() {
       </header>
 
       {/* Modern Navigation Menu - Mobile Optimized */}
-      <div className="relative z-10 border-b border-gray-200 backdrop-blur-xl bg-white">
+      <div className="relative z-10 border-b border-border backdrop-blur-xl bg-card">
         <div className="max-w-7xl mx-auto px-2 sm:px-6">
           <nav className="flex space-x-1 sm:space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent pb-px" style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}>
             <button
@@ -1759,7 +1759,7 @@ export default function PassengerDashboard() {
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'home'
                   ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
-                  : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               data-testid="nav-home"
             >
@@ -1775,7 +1775,7 @@ export default function PassengerDashboard() {
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'saved-locations'
                   ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
-                  : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               data-testid="nav-saved-locations"
             >
@@ -1792,7 +1792,7 @@ export default function PassengerDashboard() {
                   className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                     activeSection === 'future-bookings' || activeSection === 'past-bookings'
                       ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
-                      : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                   data-testid="nav-bookings"
                 >
@@ -1807,7 +1807,7 @@ export default function PassengerDashboard() {
               </DropdownMenuTrigger>
               <DropdownMenuContent 
                 align="start" 
-                className="bg-white border-gray-200 text-black min-w-[180px]"
+                className="bg-card border-border text-black min-w-[180px]"
                 data-testid="bookings-dropdown"
               >
                 <DropdownMenuItem
@@ -1833,7 +1833,7 @@ export default function PassengerDashboard() {
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'invoices'
                   ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
-                  : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               data-testid="nav-invoices"
             >
@@ -1849,7 +1849,7 @@ export default function PassengerDashboard() {
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'payment-methods'
                   ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
-                  : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               data-testid="nav-payment-methods"
             >
@@ -1865,7 +1865,7 @@ export default function PassengerDashboard() {
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'account-details'
                   ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
-                  : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               data-testid="nav-account-details"
             >
@@ -1881,7 +1881,7 @@ export default function PassengerDashboard() {
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'support'
                   ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
-                  : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               data-testid="nav-support"
             >
@@ -1903,7 +1903,7 @@ export default function PassengerDashboard() {
             {/* Quick Actions */}
             <div className="relative group" data-testid="quick-actions">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-              <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
+              <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-black flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
@@ -1930,7 +1930,7 @@ export default function PassengerDashboard() {
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-black to-gray-800 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
                       <Button
                         onClick={() => setActiveSection('past-bookings')}
-                        className="relative h-20 w-full flex flex-col space-y-2 bg-white hover:bg-gray-50 text-black border-2 border-gray-300 hover:border-red-600 shadow-lg group-hover/btn:scale-[1.02] transition-all duration-300"
+                        className="relative h-20 w-full flex flex-col space-y-2 bg-card hover:bg-muted text-black border-2 border-gray-300 hover:border-red-600 shadow-lg group-hover/btn:scale-[1.02] transition-all duration-300"
                         data-testid="button-view-history"
                       >
                         <History className="w-6 h-6" />
@@ -1945,7 +1945,7 @@ export default function PassengerDashboard() {
             {/* Recent Bookings */}
             <div className="relative group" data-testid="recent-bookings">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-              <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
+              <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-black flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
@@ -1964,15 +1964,15 @@ export default function PassengerDashboard() {
                 {recentBookings.map((booking) => (
                   <div
                     key={booking.id}
-                    className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-red-300 hover:shadow-md transition-all"
+                    className="bg-gradient-to-r from-muted to-background dark:from-muted dark:to-background rounded-xl p-5 border border-border hover:border-red-300 hover:shadow-md transition-all"
                     data-testid={`booking-${booking.id}`}
                   >
                     <div className="flex justify-between items-start">
                       <div className="space-y-1 flex-1">
-                        <p className="font-semibold text-gray-900" data-testid={`booking-route-${booking.id}`}>
+                        <p className="font-semibold text-foreground" data-testid={`booking-route-${booking.id}`}>
                           {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
                         </p>
-                        <div className="flex items-center space-x-4 text-sm text-gray-600">
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                           <span data-testid={`booking-date-${booking.id}`}>
                             {new Date(booking.scheduledDateTime).toLocaleDateString()} • {new Date(booking.scheduledDateTime).toLocaleTimeString()}
                           </span>
@@ -2054,9 +2054,9 @@ export default function PassengerDashboard() {
               </div>
             ) : (
               <div className="text-center p-12" data-testid="no-bookings">
-                <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <p className="text-gray-600 text-lg font-medium">No bookings yet</p>
-                <p className="text-gray-500 text-sm mt-2">Start your first ride with us!</p>
+                <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground text-lg font-medium">No bookings yet</p>
+                <p className="text-muted-foreground text-sm mt-2">Start your first ride with us!</p>
               </div>
             )}
           </CardContent>
@@ -2069,10 +2069,10 @@ export default function PassengerDashboard() {
         {activeSection === 'booking' && (
           <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
+            <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-red-600 to-red-800 text-white border-b-0">
                 <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-md">
+                  <div className="w-12 h-12 rounded-xl bg-card/20 backdrop-blur-sm flex items-center justify-center shadow-md">
                     <MapPin className="w-6 h-6 text-white" />
                   </div>
                   Book Your Luxury Transportation
@@ -2094,10 +2094,10 @@ export default function PassengerDashboard() {
         {activeSection === 'saved-locations' && (
           <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="saved-addresses">
+            <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="saved-addresses">
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                   <MapPin className="w-5 h-5 text-white" />
                 </div>
@@ -2146,23 +2146,23 @@ export default function PassengerDashboard() {
                         </div>
                       )}
                       {showSuggestions && addressSuggestions.length > 0 && (
-                        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        <div className="absolute z-50 w-full mt-1 bg-card dark:bg-gray-800 border border-border dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                           {addressSuggestions.map((suggestion, index) => (
                             <button
                               key={index}
                               type="button"
-                              className="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-0 transition-colors"
+                              className="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-border dark:border-gray-700 last:border-0 transition-colors"
                               onClick={() => handleAddressSelect(suggestion)}
                               data-testid={`suggestion-${index}`}
                             >
                               <div className="flex items-start space-x-2">
                                 <MapPin className="w-4 h-4 mt-1 text-primary flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                                  <p className="text-sm font-medium text-foreground dark:text-gray-100 truncate">
                                     {suggestion.address.freeformAddress}
                                   </p>
                                   {suggestion.address.country && (
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                    <p className="text-xs text-muted-foreground dark:text-gray-400 truncate">
                                       {suggestion.address.countrySubdivision}, {suggestion.address.country}
                                     </p>
                                   )}
@@ -2198,16 +2198,16 @@ export default function PassengerDashboard() {
                   return (
                     <div
                       key={address.id}
-                      className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-4 border border-gray-200 group flex items-center justify-between gap-4 hover:border-red-400 hover:shadow-md transition-all"
+                      className="bg-gradient-to-r from-muted to-background dark:from-muted dark:to-background rounded-xl p-4 border border-border group flex items-center justify-between gap-4 hover:border-red-400 hover:shadow-md transition-all"
                       data-testid={`address-${address.id}`}
                     >
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
                         <IconComponent className="w-5 h-5 text-red-600 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <span className="font-semibold text-gray-900 block" data-testid={`address-label-${address.id}`}>
+                          <span className="font-semibold text-foreground block" data-testid={`address-label-${address.id}`}>
                             {address.label}
                           </span>
-                          <p className="text-sm text-gray-600 truncate" data-testid={`address-text-${address.id}`}>
+                          <p className="text-sm text-muted-foreground truncate" data-testid={`address-text-${address.id}`}>
                             {address.address}
                           </p>
                         </div>
@@ -2220,7 +2220,7 @@ export default function PassengerDashboard() {
                               size="sm"
                               variant="outline"
                               onClick={() => window.location.href = `/?from=${encodeURIComponent(address.address)}`}
-                              className="bg-white border-red-300 text-red-700 hover:bg-red-600 hover:text-white hover:border-red-600"
+                              className="bg-card border-red-300 text-red-700 hover:bg-red-600 hover:text-white hover:border-red-600"
                               data-testid={`button-from-${address.id}`}
                             >
                               From
@@ -2229,7 +2229,7 @@ export default function PassengerDashboard() {
                               size="sm"
                               variant="outline"
                               onClick={() => window.location.href = `/?to=${encodeURIComponent(address.address)}`}
-                              className="bg-white border-red-300 text-red-700 hover:bg-red-600 hover:text-white hover:border-red-600"
+                              className="bg-card border-red-300 text-red-700 hover:bg-red-600 hover:text-white hover:border-red-600"
                               data-testid={`button-to-${address.id}`}
                             >
                               To
@@ -2253,9 +2253,9 @@ export default function PassengerDashboard() {
               </div>
             ) : (
               <div className="text-center p-12" data-testid="no-addresses">
-                <MapPin className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <p className="text-gray-600 text-lg font-medium">No saved locations yet</p>
-                <p className="text-gray-500 text-sm mt-2">Add your frequently used locations for quick booking</p>
+                <MapPin className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground text-lg font-medium">No saved locations yet</p>
+                <p className="text-muted-foreground text-sm mt-2">Add your frequently used locations for quick booking</p>
               </div>
             )}
           </CardContent>
@@ -2267,9 +2267,9 @@ export default function PassengerDashboard() {
         {activeSection === 'future-bookings' && (
           <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="future-bookings-section">
+            <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="future-bookings-section">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center shadow-md">
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
@@ -2286,7 +2286,7 @@ export default function PassengerDashboard() {
                   {futureBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all"
+                      className="bg-gradient-to-r from-muted to-background dark:from-muted dark:to-background rounded-xl p-5 border border-border hover:border-orange-300 hover:shadow-md transition-all"
                       data-testid={`future-booking-${booking.id}`}
                     >
                       <div className="flex justify-between items-start">
@@ -2354,9 +2354,9 @@ export default function PassengerDashboard() {
                 </div>
               ) : (
                 <div className="text-center p-12" data-testid="no-future-bookings">
-                  <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-gray-600 text-lg font-medium">No upcoming bookings</p>
-                  <p className="text-gray-500 text-sm mt-2">Book your next ride with us!</p>
+                  <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground text-lg font-medium">No upcoming bookings</p>
+                  <p className="text-muted-foreground text-sm mt-2">Book your next ride with us!</p>
                 </div>
               )}
             </CardContent>
@@ -2368,9 +2368,9 @@ export default function PassengerDashboard() {
         {activeSection === 'past-bookings' && (
           <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-400 to-gray-600 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="past-bookings-section">
+            <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="past-bookings-section">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center shadow-md">
                   <History className="w-5 h-5 text-white" />
                 </div>
@@ -2387,7 +2387,7 @@ export default function PassengerDashboard() {
                   {pastBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:shadow-md transition-all"
+                      className="bg-gradient-to-r from-muted to-background dark:from-muted dark:to-background rounded-xl p-5 border border-border hover:shadow-md transition-all"
                       data-testid={`past-booking-${booking.id}`}
                     >
                       <div className="flex justify-between items-start">
@@ -2456,9 +2456,9 @@ export default function PassengerDashboard() {
                 </div>
               ) : (
                 <div className="text-center p-12" data-testid="no-past-bookings">
-                  <History className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-gray-600 text-lg font-medium">No past bookings found</p>
-                  <p className="text-gray-500 text-sm mt-2">Your completed rides will appear here</p>
+                  <History className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground text-lg font-medium">No past bookings found</p>
+                  <p className="text-muted-foreground text-sm mt-2">Your completed rides will appear here</p>
                 </div>
               )}
             </CardContent>
@@ -2470,15 +2470,15 @@ export default function PassengerDashboard() {
         {activeSection === 'invoices' && (
           <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="invoices-section">
+            <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="invoices-section">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center shadow-md">
                     <FileText className="w-5 h-5 text-white" />
                   </div>
                   My Invoices
                 </CardTitle>
-                <p className="text-sm text-gray-600">View and manage your ride invoices</p>
+                <p className="text-sm text-muted-foreground">View and manage your ride invoices</p>
               </CardHeader>
               <CardContent>
                 <InvoicesList />
@@ -2491,9 +2491,9 @@ export default function PassengerDashboard() {
         {activeSection === 'payment-methods' && (
           <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="payment-methods-section">
+            <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="payment-methods-section">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                   <CreditCard className="w-5 h-5 text-white" />
                 </div>
@@ -2513,15 +2513,15 @@ export default function PassengerDashboard() {
             {/* Editable Profile Information Card */}
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-              <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="profile-card">
+              <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="profile-card">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                  <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                       <User className="w-5 h-5 text-white" />
                     </div>
                     Account Information
                   </CardTitle>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Update your personal information and contact details
                   </p>
                 </CardHeader>
@@ -2616,15 +2616,15 @@ export default function PassengerDashboard() {
             {/* Password Update Card */}
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-              <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="password-card">
+              <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="password-card">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                  <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                       <Save className="w-5 h-5 text-white" />
                     </div>
                     Change Password
                   </CardTitle>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Update your password to keep your account secure
                   </p>
                 </CardHeader>
@@ -2658,7 +2658,7 @@ export default function PassengerDashboard() {
                         className="mt-2"
                         data-testid="input-new-password"
                       />
-                      <p className="text-xs text-gray-600 mt-2 flex items-start gap-2">
+                      <p className="text-xs text-muted-foreground mt-2 flex items-start gap-2">
                         <span className="text-red-600 mt-0.5">ℹ️</span>
                         Password must be at least 8 characters with uppercase, lowercase, and numbers
                       </p>
@@ -2707,28 +2707,28 @@ export default function PassengerDashboard() {
             {/* Account Details Card */}
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-              <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="account-details-card">
+              <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="account-details-card">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                  <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
                       <User className="w-5 h-5 text-white" />
                     </div>
                     Account Details
                   </CardTitle>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     View your account information and privileges
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-200">
-                      <p className="text-sm text-gray-600 mb-2">Account Type</p>
-                      <p className="font-bold text-lg text-gray-900 capitalize" data-testid="text-role">
+                    <div className="bg-gradient-to-br from-muted to-background dark:from-muted dark:to-background rounded-xl p-4 border border-border">
+                      <p className="text-sm text-muted-foreground mb-2">Account Type</p>
+                      <p className="font-bold text-lg text-foreground capitalize" data-testid="text-role">
                         {user?.role || 'N/A'}
                       </p>
                     </div>
                     <div className="bg-gradient-to-br from-green-50 to-white rounded-xl p-4 border border-green-200">
-                      <p className="text-sm text-gray-600 mb-2">Account Status</p>
+                      <p className="text-sm text-muted-foreground mb-2">Account Status</p>
                       <p className="font-bold text-lg" data-testid="text-status">
                         {user?.isActive ? (
                           <span className="text-green-600 flex items-center gap-2">
@@ -2743,8 +2743,8 @@ export default function PassengerDashboard() {
                         )}
                       </p>
                     </div>
-                    <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-200">
-                      <p className="text-sm text-gray-600 mb-2">Payment Card</p>
+                    <div className="bg-gradient-to-br from-muted to-background dark:from-muted dark:to-background rounded-xl p-4 border border-border">
+                      <p className="text-sm text-muted-foreground mb-2">Payment Card</p>
                       <p className={`font-bold text-lg ${paymentCardStatus.color}`} data-testid="text-payment-status">
                         {paymentCardStatus.status}
                       </p>
@@ -2974,7 +2974,7 @@ export default function PassengerDashboard() {
                       className={`w-10 h-10 ${
                         star <= rating
                           ? 'text-yellow-400 fill-current'
-                          : 'text-gray-300'
+                          : 'text-muted-foreground'
                       }`}
                     />
                   </button>

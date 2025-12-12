@@ -135,10 +135,10 @@ export default function MobileRegister() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute w-96 h-96 bg-red-50 rounded-full blur-3xl -top-48 -left-24 animate-pulse" />
-        <div className="absolute w-96 h-96 bg-gray-50 rounded-full blur-3xl -bottom-48 -right-24 animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute w-96 h-96 bg-muted rounded-full blur-3xl -bottom-48 -right-24 animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute w-80 h-80 bg-red-50 rounded-full blur-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
@@ -148,7 +148,7 @@ export default function MobileRegister() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md relative z-10"
       >
-        <div className="bg-white border-b border-gray-200 rounded-t-2xl p-6 text-center shadow-lg">
+        <div className="bg-background border-b border-border rounded-t-2xl p-6 text-center shadow-lg">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -157,21 +157,21 @@ export default function MobileRegister() {
           >
             {getRoleIcon()}
           </motion.div>
-          <h1 className="text-2xl font-bold capitalize text-gray-900">{selectedRole} Registration</h1>
-          <p className="text-sm text-gray-600 mt-1">{getRoleDescription()}</p>
+          <h1 className="text-2xl font-bold capitalize text-foreground">{selectedRole} Registration</h1>
+          <p className="text-sm text-muted-foreground mt-1">{getRoleDescription()}</p>
         </div>
 
-        <div className="bg-white rounded-b-2xl p-6 shadow-2xl border-x border-b border-gray-200 max-h-[70vh] overflow-y-auto">
+        <div className="bg-background rounded-b-2xl p-6 shadow-2xl border-x border-b border-border max-h-[70vh] overflow-y-auto">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="firstName" className="text-gray-900 text-sm">First Name</Label>
+                <Label htmlFor="firstName" className="text-foreground text-sm">First Name</Label>
                 <Input
                   id="firstName"
                   type="text"
                   placeholder="John"
                   {...register('firstName')}
-                  className="h-11 text-base bg-white border-gray-300 focus:border-red-600 focus:ring-red-600 touch-manipulation"
+                  className="h-11 text-base bg-background border-border focus:border-red-600 focus:ring-red-600 touch-manipulation"
                   data-testid="input-mobile-firstname"
                 />
                 {errors.firstName && (
@@ -180,13 +180,13 @@ export default function MobileRegister() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="lastName" className="text-gray-900 text-sm">Last Name</Label>
+                <Label htmlFor="lastName" className="text-foreground text-sm">Last Name</Label>
                 <Input
                   id="lastName"
                   type="text"
                   placeholder="Doe"
                   {...register('lastName')}
-                  className="h-11 text-base bg-white border-gray-300 focus:border-red-600 focus:ring-red-600 touch-manipulation"
+                  className="h-11 text-base bg-background border-border focus:border-red-600 focus:ring-red-600 touch-manipulation"
                   data-testid="input-mobile-lastname"
                 />
                 {errors.lastName && (
@@ -196,13 +196,13 @@ export default function MobileRegister() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="username" className="text-gray-900 text-sm">Username</Label>
+              <Label htmlFor="username" className="text-foreground text-sm">Username</Label>
               <Input
                 id="username"
                 type="text"
                 placeholder="Choose a username"
                 {...register('username')}
-                className="h-11 text-base bg-white border-gray-300 focus:border-red-600 focus:ring-red-600 touch-manipulation"
+                className="h-11 text-base bg-background border-border focus:border-red-600 focus:ring-red-600 touch-manipulation"
                 data-testid="input-mobile-register-username"
               />
               {errors.username && (
@@ -211,13 +211,13 @@ export default function MobileRegister() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-gray-900 text-sm">Email</Label>
+              <Label htmlFor="email" className="text-foreground text-sm">Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="your@email.com"
                 {...register('email')}
-                className="h-11 text-base bg-white border-gray-300 focus:border-red-600 focus:ring-red-600 touch-manipulation"
+                className="h-11 text-base bg-background border-border focus:border-red-600 focus:ring-red-600 touch-manipulation"
                 data-testid="input-mobile-register-email"
               />
               {errors.email && (
@@ -226,20 +226,20 @@ export default function MobileRegister() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-gray-900 text-sm">Password</Label>
+              <Label htmlFor="password" className="text-foreground text-sm">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Create a password"
                   {...register('password')}
-                  className="h-11 text-base pr-12 bg-white border-gray-300 focus:border-red-600 focus:ring-red-600 touch-manipulation"
+                  className="h-11 text-base pr-12 bg-background border-border focus:border-red-600 focus:ring-red-600 touch-manipulation"
                   data-testid="input-mobile-register-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-900 transition-colors touch-manipulation p-2"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors touch-manipulation p-2"
                   data-testid="button-toggle-password"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -251,20 +251,20 @@ export default function MobileRegister() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="confirmPassword" className="text-gray-900 text-sm">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-foreground text-sm">Confirm Password</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Confirm your password"
                   {...register('confirmPassword')}
-                  className="h-11 text-base pr-12 bg-white border-gray-300 focus:border-red-600 focus:ring-red-600 touch-manipulation"
+                  className="h-11 text-base pr-12 bg-background border-border focus:border-red-600 focus:ring-red-600 touch-manipulation"
                   data-testid="input-mobile-register-confirm-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-900 transition-colors touch-manipulation p-2"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors touch-manipulation p-2"
                   data-testid="button-toggle-confirm-password"
                 >
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -296,7 +296,7 @@ export default function MobileRegister() {
           </form>
 
           <div className="mt-5 text-center space-y-3">
-            <p className="text-gray-600 text-sm">
+            <p className="text-muted-foreground text-sm">
               Already have an account?{' '}
               <button
                 onClick={() => navigate(`/mobile-login?role=${selectedRole}`)}
@@ -308,7 +308,7 @@ export default function MobileRegister() {
             </p>
             <button
               onClick={() => navigate('/mobile-splash')}
-              className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors touch-manipulation py-2 px-4"
+              className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors touch-manipulation py-2 px-4"
               data-testid="button-change-role"
             >
               ← Change role
@@ -316,7 +316,7 @@ export default function MobileRegister() {
             <div>
               <button
                 onClick={() => navigate('/')}
-                className="text-gray-500 hover:text-gray-900 text-xs transition-colors touch-manipulation py-2 px-4"
+                className="text-muted-foreground hover:text-foreground text-xs transition-colors touch-manipulation py-2 px-4"
                 data-testid="button-back-to-website"
               >
                 Back to website

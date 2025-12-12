@@ -122,7 +122,7 @@ export default function DriverEarningsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       {!isMobile && <Header />}
       
       <div className={`${isMobile ? 'p-4 pb-20' : 'container mx-auto px-4 py-8'}`}>
@@ -143,8 +143,8 @@ export default function DriverEarningsPage() {
             <DollarSign className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">My Earnings</h1>
-            <p className="text-sm text-gray-600">View your earnings and download 1099 forms</p>
+            <h1 className="text-2xl font-bold text-foreground">My Earnings</h1>
+            <p className="text-sm text-muted-foreground">View your earnings and download 1099 forms</p>
           </div>
         </div>
 
@@ -244,7 +244,7 @@ export default function DriverEarningsPage() {
                 {yearlyData.yearlySummary.map((yearData) => (
                   <div 
                     key={yearData.year}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-lg border"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-muted rounded-lg border border-border"
                   >
                     <div className="flex-1 mb-3 sm:mb-0">
                       <div className="flex items-center gap-3 mb-2">
@@ -259,7 +259,7 @@ export default function DriverEarningsPage() {
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <DollarSign className="w-4 h-4" />
-                          Total: <span className="font-medium text-gray-900">${yearData.total.toFixed(2)}</span>
+                          Total: <span className="font-medium text-foreground">${yearData.total.toFixed(2)}</span>
                         </span>
                         <span className="flex items-center gap-1">
                           <Car className="w-4 h-4" />
@@ -304,10 +304,10 @@ export default function DriverEarningsPage() {
 
         {yearlyData?.taxInfoComplete && (
           <div className="mt-6">
-            <Alert className="border-blue-200 bg-blue-50">
+            <Alert className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
               <CheckCircle2 className="h-4 w-4 text-blue-600" />
-              <AlertTitle className="text-blue-800">Tax Information on File</AlertTitle>
-              <AlertDescription className="text-blue-700">
+              <AlertTitle className="text-blue-800 dark:text-blue-200">Tax Information on File</AlertTitle>
+              <AlertDescription className="text-blue-700 dark:text-blue-300">
                 Your tax information is complete. You can download 1099 forms for any year where your earnings exceeded $600.
               </AlertDescription>
             </Alert>

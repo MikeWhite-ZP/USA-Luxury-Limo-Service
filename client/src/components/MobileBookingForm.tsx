@@ -803,7 +803,7 @@ export default function MobileBookingForm() {
               variant="ghost"
               size="icon"
               onClick={handleBackButton}
-              className="text-white hover:bg-white/20 flex-shrink-0"
+              className="text-white hover:bg-background/20 flex-shrink-0"
               data-testid="button-back"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -820,7 +820,7 @@ export default function MobileBookingForm() {
               <div
                 key={s}
                 className={`h-1 flex-1 rounded-full transition-all ${
-                  s <= step ? 'bg-white' : 'bg-white/30'
+                  s <= step ? 'bg-background' : 'bg-background/30'
                 }`}
                 data-testid={`progress-${s}`}
               />
@@ -835,15 +835,15 @@ export default function MobileBookingForm() {
         {step === 1 && (
           <div className="space-y-4">
             {/* Service Type Selection */}
-            <div className="bg-white rounded-2xl p-4 shadow-md">
-              <Label className="text-sm font-semibold text-gray-700 mb-3 block">Service Type</Label>
+            <div className="bg-background rounded-2xl p-4 shadow-md">
+              <Label className="text-sm font-semibold text-muted-foreground mb-3 block">Service Type</Label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setActiveTab('transfer')}
                   className={`p-4 rounded-xl border-2 transition-all min-h-[60px] ${
                     activeTab === 'transfer'
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-blue-300'
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                      : 'border-border hover:border-blue-300'
                   }`}
                   data-testid="service-type-transfer"
                 >
@@ -854,8 +854,8 @@ export default function MobileBookingForm() {
                   onClick={() => setActiveTab('hourly')}
                   className={`p-4 rounded-xl border-2 transition-all min-h-[60px] ${
                     activeTab === 'hourly'
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-blue-300'
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                      : 'border-border hover:border-blue-300'
                   }`}
                   data-testid="service-type-hourly"
                 >
@@ -869,8 +869,8 @@ export default function MobileBookingForm() {
             {activeTab === 'transfer' ? (
               <div className="space-y-3">
                 {/* From Address */}
-                <div className="bg-white rounded-2xl p-4 shadow-md">
-                  <Label htmlFor="from-address" className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <div className="bg-background rounded-2xl p-4 shadow-md">
+                  <Label htmlFor="from-address" className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-blue-600" />
                     Pickup Location
                   </Label>
@@ -887,12 +887,12 @@ export default function MobileBookingForm() {
                       data-testid="input-from-address"
                     />
                     {showSuggestions['from'] && suggestions['from']?.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-auto z-20">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg max-h-60 overflow-auto z-20">
                         {suggestions['from'].map((suggestion, idx) => (
                           <button
                             key={idx}
                             onClick={() => selectSuggestion('from', suggestion)}
-                            className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-b-0 text-sm min-h-[48px]"
+                            className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:bg-blue-900/20 border-b last:border-b-0 text-sm min-h-[48px]"
                             data-testid={`suggestion-from-${idx}`}
                           >
                             <div className="font-medium">{suggestion.display_name}</div>
@@ -905,9 +905,9 @@ export default function MobileBookingForm() {
 
                 {/* Via Points */}
                 {viaPoints.map((viaPoint, index) => (
-                  <div key={index} className="bg-white rounded-2xl p-4 shadow-md">
+                  <div key={index} className="bg-background rounded-2xl p-4 shadow-md">
                     <div className="flex items-center justify-between mb-2">
-                      <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-orange-600" />
                         Stop {index + 1}
                       </Label>
@@ -916,7 +916,7 @@ export default function MobileBookingForm() {
                         variant="ghost"
                         size="sm"
                         onClick={() => removeViaPoint(index)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:bg-red-900/20"
                         data-testid={`button-remove-via-${index}`}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -931,12 +931,12 @@ export default function MobileBookingForm() {
                         data-testid={`input-via-${index}`}
                       />
                       {showSuggestions[`via-${index}`] && suggestions[`via-${index}`]?.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-auto z-20">
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg max-h-60 overflow-auto z-20">
                           {suggestions[`via-${index}`].map((suggestion, idx) => (
                             <button
                               key={idx}
                               onClick={() => selectSuggestion(`via-${index}`, suggestion)}
-                              className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-b-0 text-sm min-h-[48px]"
+                              className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:bg-blue-900/20 border-b last:border-b-0 text-sm min-h-[48px]"
                               data-testid={`suggestion-via-${index}-${idx}`}
                             >
                               <div className="font-medium">{suggestion.display_name}</div>
@@ -953,7 +953,7 @@ export default function MobileBookingForm() {
                     type="button"
                     variant="outline"
                     onClick={addViaPoint}
-                    className="w-full min-h-[48px] border-2 border-dashed border-blue-300 text-blue-600 hover:bg-blue-50"
+                    className="w-full min-h-[48px] border-2 border-dashed border-blue-300 text-blue-600 hover:bg-blue-50 dark:bg-blue-900/20"
                     data-testid="button-add-via-point"
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -962,8 +962,8 @@ export default function MobileBookingForm() {
                 )}
 
                 {/* To Address */}
-                <div className="bg-white rounded-2xl p-4 shadow-md">
-                  <Label htmlFor="to-address" className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <div className="bg-background rounded-2xl p-4 shadow-md">
+                  <Label htmlFor="to-address" className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-green-600" />
                     Dropoff Location
                   </Label>
@@ -980,12 +980,12 @@ export default function MobileBookingForm() {
                       data-testid="input-to-address"
                     />
                     {showSuggestions['to'] && suggestions['to']?.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-auto z-20">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg max-h-60 overflow-auto z-20">
                         {suggestions['to'].map((suggestion, idx) => (
                           <button
                             key={idx}
                             onClick={() => selectSuggestion('to', suggestion)}
-                            className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-b-0 text-sm min-h-[48px]"
+                            className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:bg-blue-900/20 border-b last:border-b-0 text-sm min-h-[48px]"
                             data-testid={`suggestion-to-${idx}`}
                           >
                             <div className="font-medium">{suggestion.display_name}</div>
@@ -999,8 +999,8 @@ export default function MobileBookingForm() {
             ) : (
               <div className="space-y-3">
                 {/* Pickup Address for Hourly */}
-                <div className="bg-white rounded-2xl p-4 shadow-md">
-                  <Label htmlFor="pickup-address" className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <div className="bg-background rounded-2xl p-4 shadow-md">
+                  <Label htmlFor="pickup-address" className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-blue-600" />
                     Pickup Location
                   </Label>
@@ -1017,12 +1017,12 @@ export default function MobileBookingForm() {
                       data-testid="input-pickup-address"
                     />
                     {showSuggestions['pickup'] && suggestions['pickup']?.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-auto z-20">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg max-h-60 overflow-auto z-20">
                         {suggestions['pickup'].map((suggestion, idx) => (
                           <button
                             key={idx}
                             onClick={() => selectSuggestion('pickup', suggestion)}
-                            className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-b-0 text-sm min-h-[48px]"
+                            className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:bg-blue-900/20 border-b last:border-b-0 text-sm min-h-[48px]"
                             data-testid={`suggestion-pickup-${idx}`}
                           >
                             <div className="font-medium">{suggestion.display_name}</div>
@@ -1034,8 +1034,8 @@ export default function MobileBookingForm() {
                 </div>
 
                 {/* Duration */}
-                <div className="bg-white rounded-2xl p-4 shadow-md">
-                  <Label htmlFor="duration" className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <div className="bg-background rounded-2xl p-4 shadow-md">
+                  <Label htmlFor="duration" className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                     <Clock className="w-4 h-4 text-blue-600" />
                     Duration (Hours)
                   </Label>
@@ -1056,8 +1056,8 @@ export default function MobileBookingForm() {
             )}
 
             {/* Date and Time */}
-            <div className="bg-white rounded-2xl p-4 shadow-md">
-              <Label className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <div className="bg-background rounded-2xl p-4 shadow-md">
+              <Label className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-blue-600" />
                 Date & Time
               </Label>
@@ -1131,36 +1131,36 @@ export default function MobileBookingForm() {
         {step === 2 && quoteData && (
           <div className="space-y-4">
             {/* Trip Summary */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-4 shadow-md">
-              <h3 className="text-sm font-bold text-blue-900 mb-3">Trip Summary</h3>
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-700 rounded-2xl p-4 shadow-md">
+              <h3 className="text-sm font-bold text-blue-900 dark:text-blue-200 mb-3">Trip Summary</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-700">Date & Time:</span>
-                  <span className="font-semibold text-gray-900" data-testid="summary-datetime">
+                  <span className="text-muted-foreground">Date & Time:</span>
+                  <span className="font-semibold text-foreground" data-testid="summary-datetime">
                     {date} at {time}
                   </span>
                 </div>
                 {activeTab === 'transfer' ? (
                   <>
                     <div className="flex justify-between items-start">
-                      <span className="text-gray-700 flex-shrink-0">From:</span>
-                      <span className="font-semibold text-gray-900 text-right ml-2" data-testid="summary-from">
+                      <span className="text-muted-foreground flex-shrink-0">From:</span>
+                      <span className="font-semibold text-foreground text-right ml-2" data-testid="summary-from">
                         {fromAddress}
                       </span>
                     </div>
                     {viaPoints.length > 0 && viaPoints.map((viaPoint, index) => 
                       viaPoint && (
                         <div key={index} className="flex justify-between items-start">
-                          <span className="text-gray-700 flex-shrink-0">Stop {index + 1}:</span>
-                          <span className="font-semibold text-gray-900 text-right ml-2" data-testid={`summary-via-${index}`}>
+                          <span className="text-muted-foreground flex-shrink-0">Stop {index + 1}:</span>
+                          <span className="font-semibold text-foreground text-right ml-2" data-testid={`summary-via-${index}`}>
                             {viaPoint}
                           </span>
                         </div>
                       )
                     )}
                     <div className="flex justify-between items-start">
-                      <span className="text-gray-700 flex-shrink-0">To:</span>
-                      <span className="font-semibold text-gray-900 text-right ml-2" data-testid="summary-to">
+                      <span className="text-muted-foreground flex-shrink-0">To:</span>
+                      <span className="font-semibold text-foreground text-right ml-2" data-testid="summary-to">
                         {toAddress}
                       </span>
                     </div>
@@ -1168,14 +1168,14 @@ export default function MobileBookingForm() {
                 ) : (
                   <>
                     <div className="flex justify-between items-start">
-                      <span className="text-gray-700 flex-shrink-0">Pickup:</span>
-                      <span className="font-semibold text-gray-900 text-right ml-2" data-testid="summary-pickup">
+                      <span className="text-muted-foreground flex-shrink-0">Pickup:</span>
+                      <span className="font-semibold text-foreground text-right ml-2" data-testid="summary-pickup">
                         {pickupAddress}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-700">Duration:</span>
-                      <span className="font-semibold text-gray-900" data-testid="summary-duration">
+                      <span className="text-muted-foreground">Duration:</span>
+                      <span className="font-semibold text-foreground" data-testid="summary-duration">
                         {duration} {parseInt(duration) === 1 ? 'hour' : 'hours'}
                       </span>
                     </div>
@@ -1211,10 +1211,10 @@ export default function MobileBookingForm() {
                     <button
                       key={vehicle.id}
                       onClick={() => setSelectedVehicle(vehicle.id)}
-                      className={`w-full bg-white rounded-2xl p-4 shadow-md border-2 transition-all text-left ${
+                      className={`w-full bg-background rounded-2xl p-4 shadow-md border-2 transition-all text-left ${
                         isSelected
-                          ? 'border-blue-600 bg-blue-50'
-                          : 'border-gray-200 hover:border-blue-300'
+                          ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+                          : 'border-border hover:border-blue-300'
                       }`}
                       data-testid={`vehicle-card-${vehicle.id}`}
                     >
@@ -1234,13 +1234,13 @@ export default function MobileBookingForm() {
                         <div className="flex-1">
                           <div className="flex items-start justify-between">
                             <div>
-                              <h4 className="font-bold text-gray-900 text-base mb-1">
+                              <h4 className="font-bold text-foreground text-base mb-1">
                                 {vehicle.name}
                               </h4>
-                              <p className="text-xs text-gray-600">
+                              <p className="text-xs text-muted-foreground">
                                 Up to {vehicle.passengerCapacity} passengers
                               </p>
-                              <p className="text-xs text-gray-600">
+                              <p className="text-xs text-muted-foreground">
                                 {vehicle.luggageCapacity}
                               </p>
                             </div>
@@ -1255,7 +1255,7 @@ export default function MobileBookingForm() {
                           <div className="mt-3">
                             {hasDiscount ? (
                               <div className="space-y-0.5">
-                                <p className="text-xs text-gray-500 line-through">
+                                <p className="text-xs text-muted-foreground line-through">
                                   ${breakdown.regularPrice}
                                 </p>
                                 <p className="text-xs text-green-600 font-semibold">
@@ -1280,23 +1280,23 @@ export default function MobileBookingForm() {
 
             {/* Includes Info */}
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-4 shadow-md">
-              <h4 className="text-sm font-bold text-gray-900 mb-3">All Rides Include:</h4>
+              <h4 className="text-sm font-bold text-foreground mb-3">All Rides Include:</h4>
               <div className="grid grid-cols-1 gap-2 text-xs">
                 <div className="flex items-center">
                   <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                  <span className="text-gray-700">Free cancellation (2hr before)</span>
+                  <span className="text-muted-foreground">Free cancellation (2hr before)</span>
                 </div>
                 <div className="flex items-center">
                   <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                  <span className="text-gray-700">Meet & Greet service</span>
+                  <span className="text-muted-foreground">Meet & Greet service</span>
                 </div>
                 <div className="flex items-center">
                   <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                  <span className="text-gray-700">Complimentary WiFi & water</span>
+                  <span className="text-muted-foreground">Complimentary WiFi & water</span>
                 </div>
                 <div className="flex items-center">
                   <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                  <span className="text-gray-700">Free wait time (15min city, 1hr airport)</span>
+                  <span className="text-muted-foreground">Free wait time (15min city, 1hr airport)</span>
                 </div>
               </div>
             </div>
@@ -1317,15 +1317,15 @@ export default function MobileBookingForm() {
         {step === 3 && (
           <div className="space-y-4">
             {/* Booking For */}
-            <div className="bg-white rounded-2xl p-4 shadow-md">
-              <Label className="text-sm font-semibold text-gray-700 mb-3 block">Booking For</Label>
+            <div className="bg-background rounded-2xl p-4 shadow-md">
+              <Label className="text-sm font-semibold text-muted-foreground mb-3 block">Booking For</Label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setBookingFor('self')}
                   className={`p-3 rounded-xl border-2 transition-all min-h-[48px] ${
                     bookingFor === 'self'
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-blue-300'
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                      : 'border-border hover:border-blue-300'
                   }`}
                   data-testid="booking-for-self"
                 >
@@ -1335,8 +1335,8 @@ export default function MobileBookingForm() {
                   onClick={() => setBookingFor('someone_else')}
                   className={`p-3 rounded-xl border-2 transition-all min-h-[48px] ${
                     bookingFor === 'someone_else'
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-blue-300'
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                      : 'border-border hover:border-blue-300'
                   }`}
                   data-testid="booking-for-someone-else"
                 >
@@ -1346,8 +1346,8 @@ export default function MobileBookingForm() {
             </div>
 
             {/* Passenger Details */}
-            <div className="bg-white rounded-2xl p-4 shadow-md space-y-3">
-              <Label htmlFor="passenger-name" className="text-sm font-semibold text-gray-700">
+            <div className="bg-background rounded-2xl p-4 shadow-md space-y-3">
+              <Label htmlFor="passenger-name" className="text-sm font-semibold text-muted-foreground">
                 Passenger Name *
               </Label>
               <Input
@@ -1359,7 +1359,7 @@ export default function MobileBookingForm() {
                 data-testid="input-passenger-name"
               />
 
-              <Label htmlFor="passenger-phone" className="text-sm font-semibold text-gray-700">
+              <Label htmlFor="passenger-phone" className="text-sm font-semibold text-muted-foreground">
                 Phone Number *
               </Label>
               <Input
@@ -1372,7 +1372,7 @@ export default function MobileBookingForm() {
                 data-testid="input-passenger-phone"
               />
 
-              <Label htmlFor="passenger-email" className="text-sm font-semibold text-gray-700">
+              <Label htmlFor="passenger-email" className="text-sm font-semibold text-muted-foreground">
                 Email Address *
               </Label>
               <Input
@@ -1387,11 +1387,11 @@ export default function MobileBookingForm() {
             </div>
 
             {/* Additional Details */}
-            <div className="bg-white rounded-2xl p-4 shadow-md space-y-4">
-              <h3 className="text-sm font-bold text-gray-900">Additional Details</h3>
+            <div className="bg-background rounded-2xl p-4 shadow-md space-y-4">
+              <h3 className="text-sm font-bold text-foreground">Additional Details</h3>
               
               <div>
-                <Label htmlFor="passenger-count" className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <Label htmlFor="passenger-count" className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                   <Users className="w-4 h-4 text-blue-600" />
                   Number of Passengers
                 </Label>
@@ -1410,7 +1410,7 @@ export default function MobileBookingForm() {
               </div>
 
               <div>
-                <Label htmlFor="luggage-count" className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <Label htmlFor="luggage-count" className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                   <Briefcase className="w-4 h-4 text-blue-600" />
                   Number of Luggage
                 </Label>
@@ -1428,7 +1428,7 @@ export default function MobileBookingForm() {
                 </Select>
               </div>
 
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <div className="flex items-center gap-3 p-3 bg-muted rounded-xl">
                 <Checkbox
                   id="baby-seat"
                   checked={babySeat}
@@ -1443,7 +1443,7 @@ export default function MobileBookingForm() {
               </div>
 
               <div>
-                <Label htmlFor="bill-reference" className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <Label htmlFor="bill-reference" className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                   <FileText className="w-4 h-4 text-blue-600" />
                   Bill Reference (Optional)
                 </Label>
@@ -1459,7 +1459,7 @@ export default function MobileBookingForm() {
               </div>
 
               <div>
-                <Label htmlFor="special-instructions" className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <Label htmlFor="special-instructions" className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                   <FileText className="w-4 h-4 text-blue-600" />
                   Special Instructions (Optional)
                 </Label>
@@ -1475,13 +1475,13 @@ export default function MobileBookingForm() {
             </div>
 
             {/* Flight Search (Optional) */}
-            <div className="bg-white rounded-2xl p-4 shadow-md">
-              <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <div className="bg-background rounded-2xl p-4 shadow-md">
+              <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                 <Plane className="w-4 h-4 text-blue-600" />
                 Flight Information (Optional)
               </h3>
               {selectedFlight ? (
-                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-3">
+                <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-700 rounded-xl p-3">
                   {/* Header with airline and remove button */}
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-2">
@@ -1497,7 +1497,7 @@ export default function MobileBookingForm() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setSelectedFlight(null)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 h-7 w-7 p-0"
+                      className="text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:bg-red-900/20 h-7 w-7 p-0"
                       data-testid="button-remove-flight"
                     >
                       <X className="w-4 h-4" />
@@ -1507,10 +1507,10 @@ export default function MobileBookingForm() {
                   {/* Route Display with Airport Codes */}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex-1">
-                      <h4 className="text-xl font-bold text-gray-900">
+                      <h4 className="text-xl font-bold text-foreground">
                         {selectedFlight.departureIata || 'N/A'}
                       </h4>
-                      <p className="text-xs text-gray-600">{selectedFlight.departureAirport}</p>
+                      <p className="text-xs text-muted-foreground">{selectedFlight.departureAirport}</p>
                     </div>
 
                     <div className="flex-1 flex justify-center px-2">
@@ -1521,18 +1521,18 @@ export default function MobileBookingForm() {
                     </div>
 
                     <div className="flex-1 text-right">
-                      <h4 className="text-xl font-bold text-gray-900">
+                      <h4 className="text-xl font-bold text-foreground">
                         {selectedFlight.arrivalIata || 'N/A'}
                       </h4>
-                      <p className="text-xs text-gray-600">{selectedFlight.arrivalAirport}</p>
+                      <p className="text-xs text-muted-foreground">{selectedFlight.arrivalAirport}</p>
                     </div>
                   </div>
 
                   {/* Time and Terminal Grid */}
-                  <div className="grid grid-cols-2 gap-3 text-xs border-t border-green-200 pt-2">
+                  <div className="grid grid-cols-2 gap-3 text-xs border-t border-green-200 dark:border-green-700 pt-2">
                     <div className="grid grid-cols-2 gap-1">
                       <div>
-                        <p className="text-gray-500">Depart</p>
+                        <p className="text-muted-foreground">Depart</p>
                         <p className="text-base font-bold text-green-600">
                           {selectedFlight.departureTime && selectedFlight.departureTime !== 'N/A' 
                             ? new Date(selectedFlight.departureTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
@@ -1540,15 +1540,15 @@ export default function MobileBookingForm() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-500">Term.</p>
-                        <p className="text-base font-bold text-gray-900">
+                        <p className="text-muted-foreground">Term.</p>
+                        <p className="text-base font-bold text-foreground">
                           {selectedFlight.departureTerminal || '-'}
                         </p>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-1">
                       <div>
-                        <p className="text-gray-500">Arrive</p>
+                        <p className="text-muted-foreground">Arrive</p>
                         <p className="text-base font-bold text-green-600">
                           {selectedFlight.arrivalTime && selectedFlight.arrivalTime !== 'N/A' 
                             ? new Date(selectedFlight.arrivalTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
@@ -1556,8 +1556,8 @@ export default function MobileBookingForm() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-500">Term.</p>
-                        <p className="text-base font-bold text-gray-900">
+                        <p className="text-muted-foreground">Term.</p>
+                        <p className="text-base font-bold text-foreground">
                           {selectedFlight.arrivalTerminal || '-'}
                         </p>
                       </div>
@@ -1597,8 +1597,8 @@ export default function MobileBookingForm() {
             </div>
 
             {/* Payment Method Selection */}
-            <div className="bg-white rounded-2xl p-4 shadow-md">
-              <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <div className="bg-background rounded-2xl p-4 shadow-md">
+              <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                 <CreditCard className="w-4 h-4 text-blue-600" />
                 Payment Method
               </h3>
@@ -1607,15 +1607,15 @@ export default function MobileBookingForm() {
                   onClick={() => setSelectedPaymentMethod('pay_later')}
                   className={`w-full p-3 rounded-xl border-2 transition-all flex items-center gap-3 ${
                     selectedPaymentMethod === 'pay_later'
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+                      : 'border-border hover:border-border'
                   }`}
                   data-testid="payment-option-pay-later"
                 >
                   <Clock className="w-5 h-5 text-blue-600" />
                   <div className="text-left flex-1">
-                    <p className="font-semibold text-gray-900">Pay Later</p>
-                    <p className="text-xs text-gray-500">Pay after your ride is completed</p>
+                    <p className="font-semibold text-foreground">Pay Later</p>
+                    <p className="text-xs text-muted-foreground">Pay after your ride is completed</p>
                   </div>
                   {selectedPaymentMethod === 'pay_later' && (
                     <Check className="w-5 h-5 text-blue-600" />
@@ -1626,15 +1626,15 @@ export default function MobileBookingForm() {
                   onClick={() => setSelectedPaymentMethod('cash')}
                   className={`w-full p-3 rounded-xl border-2 transition-all flex items-center gap-3 ${
                     selectedPaymentMethod === 'cash'
-                      ? 'border-green-600 bg-green-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-green-600 bg-green-50 dark:bg-green-900/20'
+                      : 'border-border hover:border-border'
                   }`}
                   data-testid="payment-option-cash"
                 >
                   <Banknote className="w-5 h-5 text-green-600" />
                   <div className="text-left flex-1">
-                    <p className="font-semibold text-gray-900">Cash</p>
-                    <p className="text-xs text-gray-500">Pay with cash to your driver</p>
+                    <p className="font-semibold text-foreground">Cash</p>
+                    <p className="text-xs text-muted-foreground">Pay with cash to your driver</p>
                   </div>
                   {selectedPaymentMethod === 'cash' && (
                     <Check className="w-5 h-5 text-green-600" />
@@ -1648,13 +1648,13 @@ export default function MobileBookingForm() {
                     className={`w-full p-3 rounded-xl border-2 transition-all flex items-center gap-3 ${
                       selectedPaymentMethod === 'ride_credit'
                         ? 'border-emerald-600 bg-emerald-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        : 'border-border hover:border-border'
                     }`}
                     data-testid="payment-option-ride-credit"
                   >
                     <Wallet className="w-5 h-5 text-emerald-600" />
                     <div className="text-left flex-1">
-                      <p className="font-semibold text-gray-900">Ride Credits</p>
+                      <p className="font-semibold text-foreground">Ride Credits</p>
                       <p className="text-xs text-emerald-600 font-medium">
                         ${rideCredits.balance} available
                       </p>
@@ -1689,7 +1689,7 @@ export default function MobileBookingForm() {
 
       {/* Flight Selection Dialog */}
       <Dialog open={showFlightDialog} onOpenChange={setShowFlightDialog}>
-        <DialogContent className="max-w-[95vw] max-h-[85vh] overflow-auto bg-white">
+        <DialogContent className="max-w-[95vw] max-h-[85vh] overflow-auto bg-background">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Flight Detail</DialogTitle>
             <DialogDescription>
@@ -1737,20 +1737,20 @@ export default function MobileBookingForm() {
                       description: `${flight.airline} ${flight.flightNumber} added to booking`,
                     });
                   }}
-                  className="w-full text-left p-4 bg-white hover:bg-green-50 border-2 border-gray-200 hover:border-green-500 rounded-xl transition-all"
+                  className="w-full text-left p-4 bg-background hover:bg-green-50 dark:hover:bg-green-900/20 dark:bg-green-900/20 border-2 border-border hover:border-green-500 rounded-xl transition-all"
                   data-testid={`flight-option-${flight.id}`}
                 >
                   {/* Route Header with Large Airport Codes */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-3xl font-bold text-gray-900">
+                      <h3 className="text-3xl font-bold text-foreground">
                         {flight.departureIata || 'N/A'}
                       </h3>
-                      <p className="text-gray-600 text-xs">
+                      <p className="text-muted-foreground text-xs">
                         {flight.departureAirport}
                       </p>
                       {formatFlightDate(flight.departureTime) && (
-                        <p className="text-gray-500 text-xs">{formatFlightDate(flight.departureTime)}</p>
+                        <p className="text-muted-foreground text-xs">{formatFlightDate(flight.departureTime)}</p>
                       )}
                     </div>
 
@@ -1762,14 +1762,14 @@ export default function MobileBookingForm() {
                     </div>
 
                     <div className="flex-1 text-right">
-                      <h3 className="text-3xl font-bold text-gray-900">
+                      <h3 className="text-3xl font-bold text-foreground">
                         {flight.arrivalIata || 'N/A'}
                       </h3>
-                      <p className="text-gray-600 text-xs">
+                      <p className="text-muted-foreground text-xs">
                         {flight.arrivalAirport}
                       </p>
                       {formatFlightDate(flight.arrivalTime) && (
-                        <p className="text-gray-500 text-xs">{formatFlightDate(flight.arrivalTime)}</p>
+                        <p className="text-muted-foreground text-xs">{formatFlightDate(flight.arrivalTime)}</p>
                       )}
                     </div>
                   </div>
@@ -1778,28 +1778,28 @@ export default function MobileBookingForm() {
                   <div className="grid grid-cols-2 gap-4 border-t pt-3">
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <p className="text-gray-600 text-xs">Departed</p>
+                        <p className="text-muted-foreground text-xs">Departed</p>
                         <p className="text-xl font-bold text-green-600">
                           {formatFlightTime(flight.departureTime)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-600 text-xs">Terminal</p>
-                        <p className="text-xl font-bold text-gray-900">
+                        <p className="text-muted-foreground text-xs">Terminal</p>
+                        <p className="text-xl font-bold text-foreground">
                           {flight.departureTerminal || '-'}
                         </p>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <p className="text-gray-600 text-xs">Arrival</p>
+                        <p className="text-muted-foreground text-xs">Arrival</p>
                         <p className="text-xl font-bold text-green-600">
                           {formatFlightTime(flight.arrivalTime)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-600 text-xs">Terminal</p>
-                        <p className="text-xl font-bold text-gray-900">
+                        <p className="text-muted-foreground text-xs">Terminal</p>
+                        <p className="text-xl font-bold text-foreground">
                           {flight.arrivalTerminal || '-'}
                         </p>
                       </div>
@@ -1808,13 +1808,13 @@ export default function MobileBookingForm() {
 
                   {/* Flight Info Footer */}
                   <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t">
-                    <span className="bg-gray-100 px-2 py-1 rounded text-xs">
+                    <span className="bg-muted px-2 py-1 rounded text-xs">
                       <strong>{flight.flightNumber}</strong>
                     </span>
-                    <span className="bg-gray-100 px-2 py-1 rounded text-xs">
+                    <span className="bg-muted px-2 py-1 rounded text-xs">
                       {flight.airline}
                     </span>
-                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">
+                    <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-1 rounded text-xs font-medium">
                       {flight.status}
                     </span>
                   </div>

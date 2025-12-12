@@ -122,7 +122,7 @@ function AddPaymentMethodForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="p-4 border rounded-lg bg-[#ffffff]">
+      <div className="p-4 border rounded-lg bg-card">
         <CardElement
           options={{
             style: {
@@ -250,10 +250,10 @@ export default function MobilePaymentMethods() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-background dark:from-background p-6 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading payment methods...</p>
+          <p className="text-muted-foreground">Loading payment methods...</p>
         </div>
       </div>
     );
@@ -296,14 +296,14 @@ export default function MobilePaymentMethods() {
       : "Credit card payments are not currently offered. Please select from the available payment options below.";
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 pb-20">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-background to-blue-50 dark:from-background dark:via-background dark:to-background pb-20">
         {/* Header */}
-        <div className="bg-white border-b-2 border-blue-100 p-6 pb-6 shadow-sm">
+        <div className="bg-card border-b-2 border-blue-100 dark:border-border p-6 pb-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <Button
               variant="ghost"
               onClick={() => navigate('/mobile-passenger')}
-              className="text-blue-700 hover:bg-blue-50"
+              className="text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
               data-testid="button-back"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
@@ -311,29 +311,29 @@ export default function MobilePaymentMethods() {
             </Button>
           </div>
           <div className="flex items-center gap-3">
-            <div className="bg-blue-100 p-2.5 rounded-xl">
+            <div className="bg-blue-100 dark:bg-blue-900/30 p-2.5 rounded-xl">
               <CreditCard className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-blue-900">Payment Options</h1>
-              <p className="text-slate-600 text-sm mt-0.5">Available payment methods</p>
+              <h1 className="text-2xl font-bold text-blue-900 dark:text-blue-100">Payment Options</h1>
+              <p className="text-muted-foreground text-sm mt-0.5">Available payment methods</p>
             </div>
           </div>
         </div>
 
         <div className="p-6 space-y-4">
           {/* Credit Card Unavailable Message */}
-          <Card className={`border-2 shadow-sm ${isStripeSetupIssue ? 'border-blue-100 bg-blue-50' : 'border-amber-100 bg-amber-50'}`}>
+          <Card className={`border-2 shadow-sm ${isStripeSetupIssue ? 'border-blue-100 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20' : 'border-amber-100 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20'}`}>
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg ${isStripeSetupIssue ? 'bg-blue-100' : 'bg-amber-100'}`}>
+                <div className={`p-2 rounded-lg ${isStripeSetupIssue ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-amber-100 dark:bg-amber-900/30'}`}>
                   <Info className={`w-5 h-5 ${isStripeSetupIssue ? 'text-blue-600' : 'text-amber-600'}`} />
                 </div>
                 <div>
-                  <h3 className={`font-semibold ${isStripeSetupIssue ? 'text-blue-900' : 'text-amber-900'}`}>
+                  <h3 className={`font-semibold ${isStripeSetupIssue ? 'text-blue-900 dark:text-blue-100' : 'text-amber-900 dark:text-amber-100'}`}>
                     {creditCardUnavailableTitle}
                   </h3>
-                  <p className={`text-sm mt-1 ${isStripeSetupIssue ? 'text-blue-700' : 'text-amber-700'}`}>
+                  <p className={`text-sm mt-1 ${isStripeSetupIssue ? 'text-blue-700 dark:text-blue-300' : 'text-amber-700 dark:text-amber-300'}`}>
                     {creditCardUnavailableReason}
                   </p>
                 </div>
@@ -344,17 +344,17 @@ export default function MobilePaymentMethods() {
           {/* Available Payment Methods */}
           {enabledOptions.length > 0 ? (
             <>
-              <h2 className="text-lg font-semibold text-slate-700 mt-6 mb-3">Available Payment Methods</h2>
+              <h2 className="text-lg font-semibold text-muted-foreground mt-6 mb-3">Available Payment Methods</h2>
               {enabledOptions.map((option, index) => (
-                <Card key={index} className="border-2 border-green-100 bg-white shadow-sm">
+                <Card key={index} className="border-2 border-green-100 dark:border-green-800 bg-card shadow-sm">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-4">
-                      <div className="bg-green-100 p-3 rounded-lg">
+                      <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg">
                         <option.icon className="w-6 h-6 text-green-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-slate-900">{option.label}</h3>
-                        <p className="text-sm text-slate-600">{option.description}</p>
+                        <h3 className="font-semibold text-foreground">{option.label}</h3>
+                        <p className="text-sm text-muted-foreground">{option.description}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -362,13 +362,13 @@ export default function MobilePaymentMethods() {
               ))}
             </>
           ) : (
-            <Card className="text-center p-8 border-2 border-slate-200 shadow-sm bg-white">
+            <Card className="text-center p-8 border-2 border-border shadow-sm bg-card">
               <CardContent className="pt-6">
-                <div className="bg-slate-100 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                  <CreditCard className="w-10 h-10 text-slate-400" />
+                <div className="bg-muted p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                  <CreditCard className="w-10 h-10 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-700 mb-2">No Payment Methods Available</h3>
-                <p className="text-slate-500">
+                <h3 className="text-lg font-semibold text-muted-foreground mb-2">No Payment Methods Available</h3>
+                <p className="text-muted-foreground">
                   Payment options are currently unavailable. Please contact support for assistance.
                 </p>
               </CardContent>
@@ -380,14 +380,14 @@ export default function MobilePaymentMethods() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-background to-blue-50 dark:from-background dark:via-background dark:to-background pb-20">
       {/* Header */}
-      <div className="bg-white border-b-2 border-blue-100 p-6 pb-6 shadow-sm">
+      <div className="bg-card border-b-2 border-blue-100 dark:border-border p-6 pb-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"
             onClick={() => navigate('/mobile-passenger')}
-            className="text-blue-700 hover:bg-blue-50"
+            className="text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
             data-testid="button-back"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -396,7 +396,7 @@ export default function MobilePaymentMethods() {
           <Button
             variant="ghost"
             onClick={() => setAddPaymentOpen(true)}
-            className="text-blue-700 hover:bg-blue-50"
+            className="text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
             data-testid="button-add-payment-method"
           >
             <Plus className="w-5 h-5 mr-2" />
@@ -404,30 +404,30 @@ export default function MobilePaymentMethods() {
           </Button>
         </div>
         <div className="flex items-center gap-3">
-          <div className="bg-blue-100 p-2.5 rounded-xl">
+          <div className="bg-blue-100 dark:bg-blue-900/30 p-2.5 rounded-xl">
             <CreditCard className="w-6 h-6 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-blue-900">Payment Methods</h1>
-            <p className="text-slate-600 text-sm mt-0.5">Manage your credit cards</p>
+            <h1 className="text-2xl font-bold text-blue-900 dark:text-blue-100">Payment Methods</h1>
+            <p className="text-muted-foreground text-sm mt-0.5">Manage your credit cards</p>
           </div>
         </div>
       </div>
 
       <div className="p-6 space-y-4">
         {!paymentMethods || paymentMethods.length === 0 ? (
-          <Card className="text-center p-8 border-2 border-blue-100 shadow-sm bg-white">
+          <Card className="text-center p-8 border-2 border-blue-100 dark:border-border shadow-sm bg-card">
             <CardContent className="pt-6">
-              <div className="bg-blue-50 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+              <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                 <CreditCard className="w-10 h-10 text-blue-400" />
               </div>
-              <h3 className="text-lg font-semibold text-slate-700 mb-2">No Payment Methods</h3>
-              <p className="text-slate-500 mb-4">
+              <h3 className="text-lg font-semibold text-muted-foreground mb-2">No Payment Methods</h3>
+              <p className="text-muted-foreground mb-4">
                 Add a credit card to make bookings easier and faster.
               </p>
               <Button
                 onClick={() => setAddPaymentOpen(true)}
-                className="bg-white hover:bg-blue-50 text-blue-700 border-2 border-blue-200 hover:border-blue-300 shadow-sm hover:shadow-md transition-all"
+                className="bg-card hover:bg-blue-50 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-300 shadow-sm hover:shadow-md transition-all"
                 data-testid="button-add-first-card"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -440,7 +440,7 @@ export default function MobilePaymentMethods() {
             const isDefault = pm.id === defaultPaymentMethodId;
             
             return (
-              <Card key={pm.id} className={`overflow-hidden border-2 shadow-sm bg-white ${isDefault ? 'border-blue-300' : 'border-slate-200'}`} data-testid={`card-${pm.id}`}>
+              <Card key={pm.id} className={`overflow-hidden border-2 shadow-sm bg-card ${isDefault ? 'border-blue-300 dark:border-blue-600' : 'border-border'}`} data-testid={`card-${pm.id}`}>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-4 flex-1">
@@ -449,16 +449,16 @@ export default function MobilePaymentMethods() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold text-slate-900" data-testid={`card-brand-${pm.id}`}>
+                          <p className="font-semibold text-foreground" data-testid={`card-brand-${pm.id}`}>
                             {getBrandName(pm.card.brand)} •••• {pm.card.last4}
                           </p>
                           {isDefault && (
-                            <Badge className="bg-blue-100 text-blue-800 text-xs border border-blue-200" data-testid={`badge-default-${pm.id}`}>
+                            <Badge className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs border border-blue-200 dark:border-blue-700" data-testid={`badge-default-${pm.id}`}>
                               Default
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-muted-foreground">
                           Expires {pm.card.exp_month.toString().padStart(2, '0')}/{pm.card.exp_year.toString().slice(-2)}
                         </p>
                       </div>
@@ -481,7 +481,7 @@ export default function MobilePaymentMethods() {
                       size="sm"
                       onClick={() => setDefaultMutation.mutate(pm.id)}
                       disabled={setDefaultMutation.isPending}
-                      className="w-full border-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
+                      className="w-full border-2 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-300"
                       data-testid={`button-set-default-${pm.id}`}
                     >
                       Set as Default
@@ -496,22 +496,22 @@ export default function MobilePaymentMethods() {
 
       {/* Ride Credits Section */}
       <div className="px-6 pb-4 space-y-3">
-        <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-2">
-          <span className="bg-emerald-100 p-1.5 rounded-lg">
+        <h2 className="text-lg font-semibold text-muted-foreground flex items-center gap-2">
+          <span className="bg-emerald-100 dark:bg-emerald-900/30 p-1.5 rounded-lg">
             <Wallet className="w-4 h-4 text-emerald-600" />
           </span>
           Ride Credits
         </h2>
-        <Card className="border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 shadow-sm overflow-hidden">
+        <Card className="border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 shadow-sm overflow-hidden">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <div className="bg-emerald-100 p-3 rounded-lg">
+                <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-lg">
                   <Wallet className="w-6 h-6 text-emerald-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-900">Available Balance</h3>
-                  <p className="text-sm text-slate-600">Use for future bookings</p>
+                  <h3 className="font-semibold text-foreground">Available Balance</h3>
+                  <p className="text-sm text-muted-foreground">Use for future bookings</p>
                 </div>
               </div>
               <div className="text-right">
@@ -544,20 +544,20 @@ export default function MobilePaymentMethods() {
             )}
             
             {showTransactions && (
-              <div className="mt-3 pt-3 border-t border-emerald-200 space-y-2">
+              <div className="mt-3 pt-3 border-t border-emerald-200 dark:border-emerald-800 space-y-2">
                 {transactionsLoading ? (
-                  <div className="text-center py-3 text-slate-500 text-sm">Loading...</div>
+                  <div className="text-center py-3 text-muted-foreground text-sm">Loading...</div>
                 ) : creditTransactions && creditTransactions.length > 0 ? (
                   creditTransactions.slice(0, 5).map((tx) => (
-                    <div key={tx.id} className="flex justify-between items-center py-2 border-b border-emerald-100 last:border-0">
+                    <div key={tx.id} className="flex justify-between items-center py-2 border-b border-emerald-100 dark:border-emerald-800 last:border-0">
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-slate-800">
+                        <p className="text-sm font-medium text-foreground">
                           {tx.type === 'credit' ? 'Credit Added' : 'Credit Used'}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-muted-foreground">
                           {tx.description || 'No description'}
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-muted-foreground">
                           {new Date(tx.createdAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -569,7 +569,7 @@ export default function MobilePaymentMethods() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-center py-3 text-slate-500 text-sm">No transactions yet</p>
+                  <p className="text-center py-3 text-muted-foreground text-sm">No transactions yet</p>
                 )}
               </div>
             )}
@@ -601,8 +601,8 @@ export default function MobilePaymentMethods() {
                       <Clock className="w-6 h-6 text-amber-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900">Pay Later</h3>
-                      <p className="text-sm text-slate-600">Pay after your ride is completed</p>
+                      <h3 className="font-semibold text-foreground">Pay Later</h3>
+                      <p className="text-sm text-muted-foreground">Pay after your ride is completed</p>
                     </div>
                   </div>
                 </CardContent>
@@ -616,8 +616,8 @@ export default function MobilePaymentMethods() {
                       <Banknote className="w-6 h-6 text-green-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900">Cash</h3>
-                      <p className="text-sm text-slate-600">Pay with cash to your driver</p>
+                      <h3 className="font-semibold text-foreground">Cash</h3>
+                      <p className="text-sm text-muted-foreground">Pay with cash to your driver</p>
                     </div>
                   </div>
                 </CardContent>

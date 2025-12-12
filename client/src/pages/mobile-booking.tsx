@@ -9,9 +9,9 @@ export default function MobileBooking() {
   const { companyName, logoUrl } = useBranding();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       {/* Mobile Header with Logo and Back Button */}
-      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <div className="bg-card border-b border-border shadow-sm sticky top-0 z-50">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -19,7 +19,7 @@ export default function MobileBooking() {
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate('/mobile-passenger')}
-                className="text-gray-700 hover:bg-gray-100 touch-manipulation -ml-2"
+                className="text-muted-foreground hover:bg-muted touch-manipulation -ml-2"
                 data-testid="button-back"
               >
                 <ArrowLeft className="w-5 h-5" />
@@ -33,7 +33,7 @@ export default function MobileBooking() {
               )}
             </div>
             <div className="text-right">
-              <h1 className="text-lg font-semibold text-gray-900">Book New Ride</h1>
+              <h1 className="text-lg font-semibold text-foreground">Book New Ride</h1>
             </div>
           </div>
         </div>

@@ -142,7 +142,7 @@ export function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-muted via-blue-50/30 to-muted dark:from-background dark:via-blue-950/20 dark:to-background flex flex-col">
       <Header />
       
       <main className="flex-1 pt-24 pb-12">
@@ -153,17 +153,17 @@ export function AdminLogin() {
               <div className="inline-flex items-center justify-center p-4 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl mb-6 shadow-lg border border-blue-200">
                 <Shield className="w-12 h-12 text-blue-700" />
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-slate-900" data-testid="admin-login-title">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground" data-testid="admin-login-title">
                 Administrative Access
               </h1>
-              <p className="text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
+              <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
                 Secure access portal for authorized system administrators
               </p>
             </div>
 
             {/* Admin Login Card */}
-            <Card className="border border-slate-200 bg-white shadow-xl hover:shadow-2xl transition-shadow">
-              <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border-b border-slate-200 p-8">
+            <Card className="border border-border bg-card shadow-xl hover:shadow-2xl transition-shadow">
+              <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b border-border p-8">
                 <div className="flex justify-center gap-3 mb-6">
                   <div className="p-3 bg-blue-100 rounded-xl shadow-md">
                     <Settings className="w-6 h-6 text-blue-600" />
@@ -175,10 +175,10 @@ export function AdminLogin() {
                     <Lock className="w-6 h-6 text-purple-600" />
                   </div>
                 </div>
-                <CardTitle className="text-2xl font-bold mb-3 text-slate-900 text-center" data-testid="admin-card-title">
+                <CardTitle className="text-2xl font-bold mb-3 text-foreground text-center" data-testid="admin-card-title">
                   System Administrator Portal
                 </CardTitle>
-                <CardDescription className="text-base leading-relaxed text-center text-slate-600" data-testid="admin-card-description">
+                <CardDescription className="text-base leading-relaxed text-center text-muted-foreground" data-testid="admin-card-description">
                   Comprehensive access to system settings, user management, and operational controls
                 </CardDescription>
               </CardHeader>
@@ -202,11 +202,11 @@ export function AdminLogin() {
                   {/* Login/Signup Tabs - Only show signup tab if no admin exists */}
                   <Tabs value={hasExistingAdmin ? "login" : activeTab} onValueChange={(v) => setActiveTab(v as "login" | "signup")}>
                     {!hasExistingAdmin && (
-                      <TabsList className="grid w-full grid-cols-2 bg-slate-100">
-                        <TabsTrigger value="login" data-testid="tab-login" className="data-[state=active]:bg-white data-[state=active]:text-blue-700">
+                      <TabsList className="grid w-full grid-cols-2 bg-muted">
+                        <TabsTrigger value="login" data-testid="tab-login" className="data-[state=active]:bg-background data-[state=active]:text-blue-700">
                           Sign In
                         </TabsTrigger>
-                        <TabsTrigger value="signup" data-testid="tab-signup" className="data-[state=active]:bg-white data-[state=active]:text-blue-700">
+                        <TabsTrigger value="signup" data-testid="tab-signup" className="data-[state=active]:bg-background data-[state=active]:text-blue-700">
                           Create Account
                         </TabsTrigger>
                       </TabsList>
@@ -215,7 +215,7 @@ export function AdminLogin() {
                     <TabsContent value="login" className="mt-6">
                       <form onSubmit={handleLogin} className="space-y-5">
                         <div className="space-y-2">
-                          <Label htmlFor="admin-login-username" className="text-sm font-semibold text-slate-700">
+                          <Label htmlFor="admin-login-username" className="text-sm font-semibold text-muted-foreground">
                             Administrator Username *
                           </Label>
                           <Input
@@ -225,13 +225,13 @@ export function AdminLogin() {
                             value={loginForm.username}
                             onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
                             required
-                            className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                            className="border-border bg-background text-foreground focus:border-blue-500 focus:ring-blue-500"
                             data-testid="input-login-username"
                           />
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
-                            <Label htmlFor="admin-login-password" className="text-sm font-semibold text-slate-700">
+                            <Label htmlFor="admin-login-password" className="text-sm font-semibold text-muted-foreground">
                               Password *
                             </Label>
                             <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 hover:underline">
@@ -245,7 +245,7 @@ export function AdminLogin() {
                             value={loginForm.password}
                             onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
                             required
-                            className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                            className="border-border bg-background text-foreground focus:border-blue-500 focus:ring-blue-500"
                             data-testid="input-login-password"
                           />
                         </div>
@@ -266,7 +266,7 @@ export function AdminLogin() {
                         <form onSubmit={handleSignup} className="space-y-5">
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <Label htmlFor="admin-signup-firstname" className="text-sm font-semibold text-slate-700">
+                              <Label htmlFor="admin-signup-firstname" className="text-sm font-semibold text-muted-foreground">
                                 First Name
                               </Label>
                               <Input
@@ -275,12 +275,12 @@ export function AdminLogin() {
                                 placeholder="First name"
                                 value={signupForm.firstName}
                                 onChange={(e) => setSignupForm(prev => ({ ...prev, firstName: e.target.value }))}
-                                className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                                className="border-border bg-background text-foreground focus:border-blue-500 focus:ring-blue-500"
                                 data-testid="input-signup-firstname"
                               />
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="admin-signup-lastname" className="text-sm font-semibold text-slate-700">
+                              <Label htmlFor="admin-signup-lastname" className="text-sm font-semibold text-muted-foreground">
                                 Last Name
                               </Label>
                               <Input
@@ -289,13 +289,13 @@ export function AdminLogin() {
                                 placeholder="Last name"
                                 value={signupForm.lastName}
                                 onChange={(e) => setSignupForm(prev => ({ ...prev, lastName: e.target.value }))}
-                                className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                                className="border-border bg-background text-foreground focus:border-blue-500 focus:ring-blue-500"
                                 data-testid="input-signup-lastname"
                               />
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="admin-signup-email" className="text-sm font-semibold text-slate-700">
+                            <Label htmlFor="admin-signup-email" className="text-sm font-semibold text-muted-foreground">
                               Email Address *
                             </Label>
                             <Input
@@ -305,12 +305,12 @@ export function AdminLogin() {
                               value={signupForm.email}
                               onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
                               required
-                              className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                              className="border-border bg-background text-foreground focus:border-blue-500 focus:ring-blue-500"
                               data-testid="input-signup-email"
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="admin-signup-username" className="text-sm font-semibold text-slate-700">
+                            <Label htmlFor="admin-signup-username" className="text-sm font-semibold text-muted-foreground">
                               Username *
                             </Label>
                             <Input
@@ -320,12 +320,12 @@ export function AdminLogin() {
                               value={signupForm.username}
                               onChange={(e) => setSignupForm(prev => ({ ...prev, username: e.target.value }))}
                               required
-                              className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                              className="border-border bg-background text-foreground focus:border-blue-500 focus:ring-blue-500"
                               data-testid="input-signup-username"
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="admin-signup-password" className="text-sm font-semibold text-slate-700">
+                            <Label htmlFor="admin-signup-password" className="text-sm font-semibold text-muted-foreground">
                               Password *
                             </Label>
                             <Input
@@ -336,7 +336,7 @@ export function AdminLogin() {
                               onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
                               required
                               minLength={6}
-                              className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                              className="border-border bg-background text-foreground focus:border-blue-500 focus:ring-blue-500"
                               data-testid="input-signup-password"
                             />
                           </div>
@@ -354,15 +354,15 @@ export function AdminLogin() {
                     )}
                   </Tabs>
 
-                  <div className="grid grid-cols-2 gap-6 pt-6 border-t border-slate-200">
+                  <div className="grid grid-cols-2 gap-6 pt-6 border-t border-border">
                     <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="bg-blue-100 p-1 rounded">
                           <Settings className="w-4 h-4 text-blue-600" />
                         </div>
-                        <h5 className="font-semibold text-slate-900">Admin Capabilities</h5>
+                        <h5 className="font-semibold text-foreground">Admin Capabilities</h5>
                       </div>
-                      <ul className="space-y-2 text-sm text-slate-700">
+                      <ul className="space-y-2 text-sm text-muted-foreground">
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
                           System Configuration
@@ -382,9 +382,9 @@ export function AdminLogin() {
                         <div className="bg-indigo-100 p-1 rounded">
                           <Shield className="w-4 h-4 text-indigo-600" />
                         </div>
-                        <h5 className="font-semibold text-slate-900">Security Features</h5>
+                        <h5 className="font-semibold text-foreground">Security Features</h5>
                       </div>
-                      <ul className="space-y-2 text-sm text-slate-700">
+                      <ul className="space-y-2 text-sm text-muted-foreground">
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" />
                           Audit Logs
@@ -406,14 +406,14 @@ export function AdminLogin() {
 
             {/* Security Notice */}
             <div className="mt-8">
-              <Card className="bg-slate-50 border-slate-200 shadow-sm">
+              <Card className="bg-muted border-border shadow-sm">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-3">
-                    <div className="bg-slate-200 p-1.5 rounded-lg flex-shrink-0">
-                      <Lock className="w-4 h-4 text-slate-700" />
+                    <div className="bg-muted p-1.5 rounded-lg flex-shrink-0">
+                      <Lock className="w-4 h-4 text-muted-foreground" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm text-slate-700">
+                      <p className="text-sm text-muted-foreground">
                         <strong className="font-semibold">Security Notice:</strong> All administrative actions are logged and monitored. 
                         Unauthorized access attempts will be tracked and reported to system administrators.
                       </p>

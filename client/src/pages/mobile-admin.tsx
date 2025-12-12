@@ -654,7 +654,7 @@ export default function MobileAdmin() {
       completed: { color: 'bg-green-100 text-green-800', label: 'Completed' },
       cancelled: { color: 'bg-red-100 text-red-800', label: 'Cancelled' },
     };
-    const config = statusConfig[status] || { color: 'bg-gray-100 text-gray-800', label: status };
+    const config = statusConfig[status] || { color: 'bg-muted text-foreground', label: status };
     return <Badge className={`${config.color} font-medium`}>{config.label}</Badge>;
   };
 
@@ -665,13 +665,13 @@ export default function MobileAdmin() {
       dispatcher: { color: 'bg-orange-100 text-orange-800', label: 'Dispatcher' },
       passenger: { color: 'bg-green-100 text-green-800', label: 'Passenger' },
     };
-    const config = roleConfig[role] || { color: 'bg-gray-100 text-gray-800', label: role };
+    const config = roleConfig[role] || { color: 'bg-muted text-foreground', label: role };
     return <Badge className={`${config.color} font-medium`}>{config.label}</Badge>;
   };
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-muted flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
@@ -682,7 +682,7 @@ export default function MobileAdmin() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-muted pb-20">
       {/* Header */}
       <header className="bg-gradient-to-r from-slate-900 to-blue-900 text-white px-4 py-4 sticky top-0 z-40">
         <div className="flex items-center justify-between">
@@ -705,7 +705,7 @@ export default function MobileAdmin() {
             <Button
               variant="ghost"
               size="icon"
-              className="text-white hover:bg-white/10"
+              className="text-white hover:bg-background/10"
               onClick={handleRefresh}
             >
               <RefreshCw className="w-5 h-5" />
@@ -713,7 +713,7 @@ export default function MobileAdmin() {
             <Button
               variant="ghost"
               size="icon"
-              className="text-white hover:bg-white/10"
+              className="text-white hover:bg-background/10"
               onClick={() => setMenuOpen(true)}
             >
               <Menu className="w-5 h-5" />
@@ -726,10 +726,10 @@ export default function MobileAdmin() {
       {menuOpen && (
         <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setMenuOpen(false)}>
           <div 
-            className="absolute right-0 top-0 h-full w-64 bg-white shadow-xl"
+            className="absolute right-0 top-0 h-full w-64 bg-background shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-4 border-b bg-slate-50">
+            <div className="p-4 border-b bg-muted">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold">Menu</h2>
                 <Button variant="ghost" size="icon" onClick={() => setMenuOpen(false)}>
@@ -834,24 +834,24 @@ export default function MobileAdmin() {
                 ) : filteredBookings.slice(0, 5).map((booking) => (
                   <div 
                     key={booking.id}
-                    className="p-3 bg-slate-50 rounded-lg"
+                    className="p-3 bg-muted rounded-lg"
                     onClick={() => setSelectedBooking(booking)}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{booking.passengerName || 'Guest'}</p>
-                        <p className="text-xs text-slate-500 truncate">{booking.pickupAddress}</p>
+                        <p className="text-xs text-muted-foreground truncate">{booking.pickupAddress}</p>
                       </div>
                       {getStatusBadge(booking.status)}
                     </div>
-                    <div className="flex items-center justify-between text-xs text-slate-500">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span>{booking.pickupDate ? format(new Date(booking.pickupDate), 'MMM d, h:mm a') : 'No date'}</span>
-                      <span className="font-medium text-slate-900">${booking.totalAmount}</span>
+                      <span className="font-medium text-foreground">${booking.totalAmount}</span>
                     </div>
                   </div>
                 ))}
                 {!bookingsLoading && filteredBookings.length === 0 && (
-                  <p className="text-center text-slate-500 py-4">No bookings found</p>
+                  <p className="text-center text-muted-foreground py-4">No bookings found</p>
                 )}
               </CardContent>
             </Card>
@@ -955,7 +955,7 @@ export default function MobileAdmin() {
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold">{booking.passengerName || 'Guest'}</p>
                         <div className="flex items-center gap-2">
-                          <p className="text-sm text-slate-500">{booking.vehicleType || 'Standard'}</p>
+                          <p className="text-sm text-muted-foreground">{booking.vehicleType || 'Standard'}</p>
                           {booking.driverName && (
                             <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
                               Driver: {booking.driverName}
@@ -970,7 +970,7 @@ export default function MobileAdmin() {
                       {/* Pickup Address */}
                       <div className="flex items-start gap-2">
                         <MapPin className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-slate-600">{booking.pickupAddress}</span>
+                        <span className="text-muted-foreground">{booking.pickupAddress}</span>
                       </div>
                       
                       {/* Via Points */}
@@ -978,7 +978,7 @@ export default function MobileAdmin() {
                         booking.viaPoints.map((via, index) => (
                           <div key={index} className="flex items-start gap-2 pl-2 border-l-2 border-orange-300 ml-1.5">
                             <Navigation className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-slate-500 text-xs">{via.address}</span>
+                            <span className="text-muted-foreground text-xs">{via.address}</span>
                           </div>
                         ))
                       )}
@@ -986,7 +986,7 @@ export default function MobileAdmin() {
                       {/* Destination Address */}
                       <div className="flex items-start gap-2">
                         <MapPin className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-slate-600">
+                        <span className="text-muted-foreground">
                           {booking.destinationAddress || booking.dropoffAddress || 'No destination'}
                         </span>
                       </div>
@@ -994,7 +994,7 @@ export default function MobileAdmin() {
 
                     {/* Date/Time and Price */}
                     <div className="flex items-center justify-between pt-3 border-t">
-                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Clock className="w-4 h-4" />
                         {booking.scheduledDateTime 
                           ? format(new Date(booking.scheduledDateTime), 'MMM d, yyyy h:mm a')
@@ -1066,7 +1066,7 @@ export default function MobileAdmin() {
               ))}
               {!bookingsLoading && filteredBookings.length === 0 && (
                 <Card>
-                  <CardContent className="py-8 text-center text-slate-500">
+                  <CardContent className="py-8 text-center text-muted-foreground">
                     No bookings found
                   </CardContent>
                 </Card>
@@ -1099,19 +1099,19 @@ export default function MobileAdmin() {
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-slate-500" />
+                        <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-muted-foreground" />
                         </div>
                         <div>
                           <p className="font-semibold">{userItem.firstName} {userItem.lastName}</p>
-                          <p className="text-sm text-slate-500">{userItem.email}</p>
+                          <p className="text-sm text-muted-foreground">{userItem.email}</p>
                         </div>
                       </div>
                       {getRoleBadge(userItem.role)}
                     </div>
                     
                     <div className="flex items-center justify-between pt-3 border-t mt-3">
-                      <div className="flex items-center gap-4 text-sm text-slate-500">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         {userItem.phone && (
                           <div className="flex items-center gap-1">
                             <Phone className="w-3.5 h-3.5" />
@@ -1138,7 +1138,7 @@ export default function MobileAdmin() {
               ))}
               {!usersLoading && filteredUsers.length === 0 && (
                 <Card>
-                  <CardContent className="py-8 text-center text-slate-500">
+                  <CardContent className="py-8 text-center text-muted-foreground">
                     No users found
                   </CardContent>
                 </Card>
@@ -1169,7 +1169,7 @@ export default function MobileAdmin() {
                           className="w-20 h-16 object-cover rounded-lg"
                         />
                       ) : (
-                        <div className="w-20 h-16 bg-slate-100 rounded-lg flex items-center justify-center">
+                        <div className="w-20 h-16 bg-muted rounded-lg flex items-center justify-center">
                           <Car className="w-8 h-8 text-slate-400" />
                         </div>
                       )}
@@ -1177,20 +1177,20 @@ export default function MobileAdmin() {
                         <div className="flex items-start justify-between">
                           <div>
                             <p className="font-semibold">{vehicle.name}</p>
-                            <p className="text-sm text-slate-500">{vehicle.type}</p>
+                            <p className="text-sm text-muted-foreground">{vehicle.type}</p>
                           </div>
                           <Badge variant={vehicle.isActive ? 'default' : 'secondary'}>
                             {vehicle.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-4 mt-2 text-sm">
-                          <span className="text-slate-600">
+                          <span className="text-muted-foreground">
                             Base: <span className="font-medium">${vehicle.baseRate}</span>
                           </span>
-                          <span className="text-slate-600">
+                          <span className="text-muted-foreground">
                             Per Mile: <span className="font-medium">${vehicle.perMileRate}</span>
                           </span>
-                          <span className="text-slate-600">
+                          <span className="text-muted-foreground">
                             Seats: <span className="font-medium">{vehicle.capacity}</span>
                           </span>
                         </div>
@@ -1201,7 +1201,7 @@ export default function MobileAdmin() {
               ))}
               {!vehiclesLoading && (!vehicles || vehicles.length === 0) && (
                 <Card>
-                  <CardContent className="py-8 text-center text-slate-500">
+                  <CardContent className="py-8 text-center text-muted-foreground">
                     No vehicle types found
                   </CardContent>
                 </Card>
@@ -1224,7 +1224,7 @@ export default function MobileAdmin() {
                   <DollarSign className="w-5 h-5 mr-3 text-green-600" />
                   <div className="text-left">
                     <p className="font-medium">Pricing Rules</p>
-                    <p className="text-sm text-slate-500">Manage pricing and rates</p>
+                    <p className="text-sm text-muted-foreground">Manage pricing and rates</p>
                   </div>
                   <ChevronRight className="w-5 h-5 ml-auto text-slate-400" />
                 </Button>
@@ -1237,7 +1237,7 @@ export default function MobileAdmin() {
                   <Palette className="w-5 h-5 mr-3 text-purple-600" />
                   <div className="text-left">
                     <p className="font-medium">Branding & CMS</p>
-                    <p className="text-sm text-slate-500">Logo, colors, and content</p>
+                    <p className="text-sm text-muted-foreground">Logo, colors, and content</p>
                   </div>
                   <ChevronRight className="w-5 h-5 ml-auto text-slate-400" />
                 </Button>
@@ -1250,7 +1250,7 @@ export default function MobileAdmin() {
                   <Mail className="w-5 h-5 mr-3 text-blue-600" />
                   <div className="text-left">
                     <p className="font-medium">Email & Notifications</p>
-                    <p className="text-sm text-slate-500">Configure email settings</p>
+                    <p className="text-sm text-muted-foreground">Configure email settings</p>
                   </div>
                   <ChevronRight className="w-5 h-5 ml-auto text-slate-400" />
                 </Button>
@@ -1263,16 +1263,16 @@ export default function MobileAdmin() {
                   <FileText className="w-5 h-5 mr-3 text-orange-600" />
                   <div className="text-left">
                     <p className="font-medium">Payment Systems</p>
-                    <p className="text-sm text-slate-500">Manage payment providers</p>
+                    <p className="text-sm text-muted-foreground">Manage payment providers</p>
                   </div>
                   <ChevronRight className="w-5 h-5 ml-auto text-slate-400" />
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="bg-slate-50">
+            <Card className="bg-muted">
               <CardContent className="p-4">
-                <p className="text-sm text-slate-600 text-center">
+                <p className="text-sm text-muted-foreground text-center">
                   For advanced settings, use the full admin dashboard on desktop.
                 </p>
               </CardContent>
@@ -1282,12 +1282,12 @@ export default function MobileAdmin() {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50">
         <div className="flex items-center justify-around py-2">
           <button
             onClick={() => { setActiveSection('dashboard'); setSearchQuery(''); }}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
-              activeSection === 'dashboard' ? 'text-blue-600' : 'text-slate-500'
+              activeSection === 'dashboard' ? 'text-blue-600' : 'text-muted-foreground'
             }`}
           >
             <LayoutDashboard className="w-6 h-6" />
@@ -1296,7 +1296,7 @@ export default function MobileAdmin() {
           <button
             onClick={() => { setActiveSection('bookings'); setSearchQuery(''); }}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
-              activeSection === 'bookings' ? 'text-blue-600' : 'text-slate-500'
+              activeSection === 'bookings' ? 'text-blue-600' : 'text-muted-foreground'
             }`}
           >
             <Calendar className="w-6 h-6" />
@@ -1305,7 +1305,7 @@ export default function MobileAdmin() {
           <button
             onClick={() => { setActiveSection('users'); setSearchQuery(''); }}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
-              activeSection === 'users' ? 'text-blue-600' : 'text-slate-500'
+              activeSection === 'users' ? 'text-blue-600' : 'text-muted-foreground'
             }`}
           >
             <Users className="w-6 h-6" />
@@ -1314,7 +1314,7 @@ export default function MobileAdmin() {
           <button
             onClick={() => { setActiveSection('vehicles'); setSearchQuery(''); }}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
-              activeSection === 'vehicles' ? 'text-blue-600' : 'text-slate-500'
+              activeSection === 'vehicles' ? 'text-blue-600' : 'text-muted-foreground'
             }`}
           >
             <Car className="w-6 h-6" />
@@ -1323,7 +1323,7 @@ export default function MobileAdmin() {
           <button
             onClick={() => { setActiveSection('settings'); setSearchQuery(''); }}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
-              activeSection === 'settings' ? 'text-blue-600' : 'text-slate-500'
+              activeSection === 'settings' ? 'text-blue-600' : 'text-muted-foreground'
             }`}
           >
             <Settings className="w-6 h-6" />
@@ -1513,10 +1513,10 @@ export default function MobileAdmin() {
           {assigningBooking && (
             <div className="space-y-4 py-4">
               {/* Booking Info */}
-              <div className="bg-slate-50 p-3 rounded-lg text-sm">
+              <div className="bg-muted p-3 rounded-lg text-sm">
                 <p className="font-medium">{assigningBooking.passengerName || 'Guest'}</p>
-                <p className="text-slate-500 truncate">{assigningBooking.pickupAddress}</p>
-                <p className="text-slate-500 truncate">→ {assigningBooking.destinationAddress || 'No destination'}</p>
+                <p className="text-muted-foreground truncate">{assigningBooking.pickupAddress}</p>
+                <p className="text-muted-foreground truncate">→ {assigningBooking.destinationAddress || 'No destination'}</p>
               </div>
 
               {/* Current Driver (if reassigning) */}
@@ -1576,7 +1576,7 @@ export default function MobileAdmin() {
                   onChange={(e) => setAssignDialogDriverPayment(e.target.value)}
                   placeholder="Enter driver payment"
                 />
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   {assignDialogTotalPrice && assignDialogDriverPayment ? 
                     `${((parseFloat(assignDialogDriverPayment) / parseFloat(assignDialogTotalPrice)) * 100).toFixed(0)}% of total` : 
                     'Default: 70% of total'

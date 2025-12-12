@@ -153,14 +153,14 @@ export function DatabaseURLSettings() {
         {/* Current Status */}
         <div className="space-y-2">
           <Label>Current Status</Label>
-          <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-md border">
+          <div className="p-4 bg-muted rounded-md border border-border">
             {dbInfo?.fromDatabase ? (
               <div className="space-y-1">
                 <p className="text-sm font-medium text-green-600 dark:text-green-400">
                   ✓ Database URL configured in settings (encrypted)
                 </p>
                 {dbInfo.updatedAt && (
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-muted-foreground">
                     Last updated: {new Date(dbInfo.updatedAt).toLocaleString()}
                   </p>
                 )}
@@ -170,7 +170,7 @@ export function DatabaseURLSettings() {
                 Using DATABASE_URL from environment variable
               </p>
             ) : (
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 No DATABASE_URL configured
               </p>
             )}
@@ -206,7 +206,7 @@ export function DatabaseURLSettings() {
                 </Button>
               </div>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-400">
+            <p className="text-xs text-muted-foreground">
               Format: postgres://username:password@host:port/database
             </p>
           </div>
@@ -239,7 +239,7 @@ export function DatabaseURLSettings() {
         {/* Info Section */}
         <div className="space-y-2 pt-4 border-t">
           <h4 className="text-sm font-medium">How It Works</h4>
-          <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1 list-disc list-inside">
+          <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
             <li>DATABASE_URL is stored encrypted using AES-256-GCM</li>
             <li>The application uses environment variable by default</li>
             <li>Database override takes precedence when configured</li>

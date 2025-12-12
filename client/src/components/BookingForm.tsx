@@ -1047,7 +1047,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
     return (
       <div className="space-y-6">
         {/* Trip Details */}
-        <div className="bg-gray-50 p-4 rounded-lg" data-testid="trip-details">
+        <div className="bg-muted p-4 rounded-lg" data-testid="trip-details">
           <h4 className="font-semibold mb-3">Trip Details</h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
@@ -1149,7 +1149,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     {/* Vehicle Info */}
                     <div className="flex-1">
                       <h4 className="font-bold text-primary text-lg">{vehicle.name}</h4>
-                      <div className="text-sm text-gray-600 mt-1">
+                      <div className="text-sm text-muted-foreground mt-1">
                         {capacityText} • {luggageText}
                       </div>
                     </div>
@@ -1162,7 +1162,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                         
                         return hasDiscount ? (
                           <div className="space-y-0.5">
-                            <p className="text-xs text-gray-500 line-through">
+                            <p className="text-xs text-muted-foreground line-through">
                               ${breakdown.regularPrice}
                             </p>
                             <p className="text-xs text-green-600 font-semibold">
@@ -1171,14 +1171,14 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                             <p className="text-2xl font-bold text-primary" data-testid={`price-${vehicle.id}`}>
                               ${breakdown.finalPrice}
                             </p>
-                            <p className="text-xs text-gray-500">Your Price</p>
+                            <p className="text-xs text-muted-foreground">Your Price</p>
                           </div>
                         ) : (
                           <div>
                             <p className="text-2xl font-bold text-primary" data-testid={`price-${vehicle.id}`}>
                               ${calculatedPrice}
                             </p>
-                            <p className="text-xs text-gray-500">Total Price</p>
+                            <p className="text-xs text-muted-foreground">Total Price</p>
                           </div>
                         );
                       })()}
@@ -1190,7 +1190,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         </div>
 
         {/* Service Includes Section */}
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
+        <div className="bg-muted border border-border rounded-xl p-6">
           <h4 className="text-lg font-bold text-primary mb-4">All Classes Include:</h4>
           <ul className="space-y-2 text-sm">
             <li className="flex items-center">
@@ -1227,7 +1227,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </li>
           </ul>
           
-          <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <div className="mt-6 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg">
             <p className="text-sm text-orange-800 font-medium mb-2">
               <strong>Guest/luggage capacities must be abided by for safety reasons. If you are unsure, select a larger class as chauffeurs may turn down service when they are exceeded.</strong>
             </p>
@@ -1280,21 +1280,21 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             {/* Service & Vehicle */}
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <p className="text-gray-500 uppercase">Service</p>
-                <p className="font-semibold text-gray-800">{activeTab === 'transfer' ? 'Transfer' : 'Hourly'}</p>
+                <p className="text-muted-foreground uppercase">Service</p>
+                <p className="font-semibold text-foreground">{activeTab === 'transfer' ? 'Transfer' : 'Hourly'}</p>
               </div>
               {selectedVehicle && vehicleTypes && (
                 <div>
-                  <p className="text-gray-500 uppercase">Vehicle</p>
-                  <p className="font-semibold text-gray-800">{selectedVehicleName}</p>
+                  <p className="text-muted-foreground uppercase">Vehicle</p>
+                  <p className="font-semibold text-foreground">{selectedVehicleName}</p>
                 </div>
               )}
             </div>
 
             {/* Date & Time */}
-            <div className="border-t border-gray-200 pt-1">
-              <p className="text-gray-500 uppercase">Date & Time</p>
-              <p className="font-semibold text-gray-800">
+            <div className="border-t border-border pt-1">
+              <p className="text-muted-foreground uppercase">Date & Time</p>
+              <p className="font-semibold text-foreground">
                 {new Date(`${date}T${time}`).toLocaleString('en-US', { 
                   month: 'short', 
                   day: 'numeric',
@@ -1305,47 +1305,47 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </div>
 
             {/* Route Information */}
-            <div className="border-t border-gray-200 pt-1">
+            <div className="border-t border-border pt-1">
               {activeTab === 'transfer' ? (
                 <>
-                  <p className="text-gray-500 uppercase mb-1">Route</p>
+                  <p className="text-muted-foreground uppercase mb-1">Route</p>
                   <div className="space-y-0.5">
                     <div className="flex items-start gap-1">
                       <span className="text-green-600">●</span>
-                      <p className="font-medium text-gray-800 leading-tight">{fromAddress}</p>
+                      <p className="font-medium text-foreground leading-tight">{fromAddress}</p>
                     </div>
                     {viaPoints.filter(point => point.trim()).map((viaPoint, index) => (
                       <div key={index} className="flex items-start gap-1">
                         <span className="text-blue-600">●</span>
-                        <p className="font-medium text-gray-800 leading-tight">{viaPoint}</p>
+                        <p className="font-medium text-foreground leading-tight">{viaPoint}</p>
                       </div>
                     ))}
                     <div className="flex items-start gap-1">
-                      <span className="text-red-600">●</span>
-                      <p className="font-medium text-gray-800 leading-tight">{toAddress}</p>
+                      <span className="text-red-600 dark:text-red-400">●</span>
+                      <p className="font-medium text-foreground leading-tight">{toAddress}</p>
                     </div>
                   </div>
                   {quoteData.distanceKm && (
-                    <p className="text-gray-600 mt-1">
+                    <p className="text-muted-foreground mt-1">
                       {quoteData.distanceKm} km ({(quoteData.distanceKm * 0.621371).toFixed(1)} mi)
                     </p>
                   )}
                 </>
               ) : (
                 <>
-                  <p className="text-gray-500 uppercase">Pickup</p>
-                  <p className="font-medium text-gray-800">{pickupAddress}</p>
-                  <p className="text-gray-600">Duration: {duration} hrs</p>
+                  <p className="text-muted-foreground uppercase">Pickup</p>
+                  <p className="font-medium text-foreground">{pickupAddress}</p>
+                  <p className="text-muted-foreground">Duration: {duration} hrs</p>
                 </>
               )}
             </div>
 
             {/* Trip Details */}
-            <div className="border-t border-gray-200 pt-1">
+            <div className="border-t border-border pt-1">
               <div className="flex gap-3">
-                <span className="text-gray-600">Passengers: <span className="font-semibold text-gray-800">{passengerCount}</span></span>
-                <span className="text-gray-600">Luggage: <span className="font-semibold text-gray-800">{luggageCount}</span></span>
-                {babySeat && <span className="text-gray-600">✓ Baby seat</span>}
+                <span className="text-muted-foreground">Passengers: <span className="font-semibold text-foreground">{passengerCount}</span></span>
+                <span className="text-muted-foreground">Luggage: <span className="font-semibold text-foreground">{luggageCount}</span></span>
+                {babySeat && <span className="text-muted-foreground">✓ Baby seat</span>}
               </div>
             </div>
           </div>
@@ -1367,13 +1367,13 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               className={`p-4 rounded-lg border-2 transition-all ${
                 bookingFor === 'self' 
                   ? 'border-primary bg-primary/5' 
-                  : 'border-gray-200 hover:border-gray-300'
+                  : 'border-border hover:border-border'
               }`}
               data-testid="radio-booking-self"
             >
               <div className="flex items-center gap-2">
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  bookingFor === 'self' ? 'border-primary' : 'border-gray-300'
+                  bookingFor === 'self' ? 'border-primary' : 'border-border'
                 }`}>
                   {bookingFor === 'self' && <div className="w-3 h-3 rounded-full bg-primary" />}
                 </div>
@@ -1390,13 +1390,13 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               className={`p-4 rounded-lg border-2 transition-all ${
                 bookingFor === 'someone_else' 
                   ? 'border-primary bg-primary/5' 
-                  : 'border-gray-200 hover:border-gray-300'
+                  : 'border-border hover:border-border'
               }`}
               data-testid="radio-booking-someone-else"
             >
               <div className="flex items-center gap-2">
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  bookingFor === 'someone_else' ? 'border-primary' : 'border-gray-300'
+                  bookingFor === 'someone_else' ? 'border-primary' : 'border-border'
                 }`}>
                   {bookingFor === 'someone_else' && <div className="w-3 h-3 rounded-full bg-primary" />}
                 </div>
@@ -1467,7 +1467,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </Button>
           </div>
           {selectedFlight && (
-            <div className="mt-3 p-4 bg-green-50 border-2 border-green-200 rounded-xl" data-testid="selected-flight-info">
+            <div className="mt-3 p-4 bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-700 rounded-xl" data-testid="selected-flight-info">
               {/* Header with airline and remove button */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -1496,10 +1496,10 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               {/* Route Display with Airport Codes */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex-1">
-                  <h4 className="text-2xl font-bold text-gray-900">
+                  <h4 className="text-2xl font-bold text-foreground">
                     {selectedFlight.departureIata || 'N/A'}
                   </h4>
-                  <p className="text-xs text-gray-600">{selectedFlight.departureAirport}</p>
+                  <p className="text-xs text-muted-foreground">{selectedFlight.departureAirport}</p>
                 </div>
 
                 <div className="flex-1 flex justify-center px-2">
@@ -1510,18 +1510,18 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 </div>
 
                 <div className="flex-1 text-right">
-                  <h4 className="text-2xl font-bold text-gray-900">
+                  <h4 className="text-2xl font-bold text-foreground">
                     {selectedFlight.arrivalIata || 'N/A'}
                   </h4>
-                  <p className="text-xs text-gray-600">{selectedFlight.arrivalAirport}</p>
+                  <p className="text-xs text-muted-foreground">{selectedFlight.arrivalAirport}</p>
                 </div>
               </div>
 
               {/* Time and Terminal Grid */}
-              <div className="grid grid-cols-2 gap-4 text-sm border-t border-green-200 pt-3">
+              <div className="grid grid-cols-2 gap-4 text-sm border-t border-green-200 dark:border-green-700 pt-3">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <p className="text-xs text-gray-500">Departed</p>
+                    <p className="text-xs text-muted-foreground">Departed</p>
                     <p className="text-lg font-bold text-green-600">
                       {selectedFlight.departureTime && selectedFlight.departureTime !== 'N/A' 
                         ? new Date(selectedFlight.departureTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
@@ -1529,15 +1529,15 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Terminal</p>
-                    <p className="text-lg font-bold text-gray-900">
+                    <p className="text-xs text-muted-foreground">Terminal</p>
+                    <p className="text-lg font-bold text-foreground">
                       {selectedFlight.departureTerminal || '-'}
                     </p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <p className="text-xs text-gray-500">Arrival</p>
+                    <p className="text-xs text-muted-foreground">Arrival</p>
                     <p className="text-lg font-bold text-green-600">
                       {selectedFlight.arrivalTime && selectedFlight.arrivalTime !== 'N/A' 
                         ? new Date(selectedFlight.arrivalTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
@@ -1545,8 +1545,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Terminal</p>
-                    <p className="text-lg font-bold text-gray-900">
+                    <p className="text-xs text-muted-foreground">Terminal</p>
+                    <p className="text-lg font-bold text-foreground">
                       {selectedFlight.arrivalTerminal || '-'}
                     </p>
                   </div>
@@ -1555,9 +1555,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
               {/* Additional Info */}
               {(selectedFlight.aircraft || selectedFlight.baggageClaim) && (
-                <div className="flex gap-4 mt-3 pt-2 border-t border-green-200 text-xs text-gray-600">
-                  {selectedFlight.aircraft && <span>Aircraft: <strong className="text-gray-800">{selectedFlight.aircraft}</strong></span>}
-                  {selectedFlight.baggageClaim && <span>Baggage: <strong className="text-gray-800">{selectedFlight.baggageClaim}</strong></span>}
+                <div className="flex gap-4 mt-3 pt-2 border-t border-green-200 dark:border-green-700 text-xs text-muted-foreground">
+                  {selectedFlight.aircraft && <span>Aircraft: <strong className="text-foreground">{selectedFlight.aircraft}</strong></span>}
+                  {selectedFlight.baggageClaim && <span>Baggage: <strong className="text-foreground">{selectedFlight.baggageClaim}</strong></span>}
                 </div>
               )}
             </div>
@@ -1571,7 +1571,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setPassengerCount(Math.max(1, passengerCount - 1))}
-                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted"
                 data-testid="button-decrease-passengers"
               >
                 −
@@ -1595,7 +1595,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setLuggageCount(Math.max(0, luggageCount - 1))}
-                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted"
                 data-testid="button-decrease-luggage"
               >
                 −
@@ -1625,7 +1625,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 data-testid="toggle-baby-seat"
               />
               <div className="w-12 h-6 bg-gray-300 rounded-full peer peer-checked:bg-primary transition-colors"></div>
-              <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-6"></div>
+              <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-background rounded-full transition-transform peer-checked:translate-x-6"></div>
             </label>
           </div>
         </div>
@@ -1638,7 +1638,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             placeholder="Your reference number for invoicing (e.g., PO#, Job#)"
             value={billReference}
             onChange={(e) => setBillReference(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg"
+            className="w-full p-3 border border-border rounded-lg"
             maxLength={100}
             data-testid="input-bill-reference"
           />
@@ -1651,7 +1651,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             placeholder="Is there anything else we need to know?"
             value={specialInstructions}
             onChange={(e) => setSpecialInstructions(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg resize-none h-24"
+            className="w-full p-3 border border-border rounded-lg resize-none h-24"
             data-testid="textarea-special-instructions"
           />
         </div>
@@ -1723,18 +1723,18 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
     return (
       <div className="space-y-6">
         {/* Step Indicator */}
-        <div className="bg-white p-4 rounded-lg border-2 border-primary/20">
+        <div className="bg-background p-4 rounded-lg border-2 border-primary/20">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600">Step 4 of 4</span>
+            <span className="text-sm font-medium text-muted-foreground">Step 4 of 4</span>
             <span className="text-sm font-bold text-primary">Payment</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-muted-foreground/20 rounded-full h-2">
             <div className="bg-primary h-2 rounded-full" style={{ width: '100%' }}></div>
           </div>
         </div>
 
         {/* Booking Summary */}
-        <div className="bg-gray-50 p-4 rounded-lg" data-testid="payment-booking-summary">
+        <div className="bg-muted p-4 rounded-lg" data-testid="payment-booking-summary">
           <h4 className="font-semibold mb-3">Booking Summary</h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
@@ -1779,7 +1779,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             <div className="border-t pt-2 mt-2 space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-bold">Total Price:</span>
-                <span className="text-xl font-bold text-gray-800">${totalPrice}</span>
+                <span className="text-xl font-bold text-foreground">${totalPrice}</span>
               </div>
               {useCredits && creditsApplied > 0 && (
                 <>
@@ -1805,7 +1805,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
         {/* Use Account Credits Section - Always visible for authenticated users */}
         {isAuthenticated && (
-          <div className={`p-4 rounded-lg border ${hasRideCredits ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' : 'bg-gray-50 border-gray-200'}`} data-testid="use-credits-section">
+          <div className={`p-4 rounded-lg border ${hasRideCredits ? 'bg-gradient-to-r from-green-50 dark:from-green-900/30 to-emerald-50 dark:to-emerald-900/30 border-green-200 dark:border-green-700' : 'bg-muted border-border'}`} data-testid="use-credits-section">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <input
@@ -1814,31 +1814,31 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   checked={useCredits}
                   onChange={(e) => handleUseCreditsToggle(e.target.checked)}
                   disabled={!hasRideCredits}
-                  className={`w-5 h-5 rounded focus:ring-green-500 ${hasRideCredits ? 'text-green-600 border-green-300' : 'text-gray-400 border-gray-300 cursor-not-allowed'}`}
+                  className={`w-5 h-5 rounded focus:ring-green-500 ${hasRideCredits ? 'text-green-600 border-green-300' : 'text-muted-foreground border-border cursor-not-allowed'}`}
                   data-testid="checkbox-use-credits"
                 />
-                <label htmlFor="use-credits" className={`font-semibold cursor-pointer ${hasRideCredits ? 'text-green-800' : 'text-gray-500'}`}>
+                <label htmlFor="use-credits" className={`font-semibold cursor-pointer ${hasRideCredits ? 'text-green-800' : 'text-muted-foreground'}`}>
                   Use Account Credits
                 </label>
               </div>
-              <span className={`text-sm font-medium px-3 py-1 rounded-full ${hasRideCredits ? 'text-green-700 bg-green-100' : 'text-gray-600 bg-gray-200'}`}>
+              <span className={`text-sm font-medium px-3 py-1 rounded-full ${hasRideCredits ? 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30' : 'text-muted-foreground bg-muted-foreground/20'}`}>
                 Balance: ${rideCreditsBalance.toFixed(2)}
               </span>
             </div>
             
             {!hasRideCredits && (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 You don't have any account credits. Credits can be added by an administrator or earned through promotions.
               </p>
             )}
             
             {useCredits && hasRideCredits && (
               <div className="mt-3 space-y-2">
-                <label htmlFor="credit-amount" className="text-sm font-medium text-gray-700">
+                <label htmlFor="credit-amount" className="text-sm font-medium text-muted-foreground">
                   Amount to use (max ${maxUsableCredits.toFixed(2)}):
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-600">$</span>
+                  <span className="text-lg font-bold text-muted-foreground">$</span>
                   <input
                     type="number"
                     id="credit-amount"
@@ -1867,7 +1867,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   </button>
                 </div>
                 {creditsApplied > 0 && (
-                  <p className="text-sm text-green-700">
+                  <p className="text-sm text-green-700 dark:text-green-300">
                     You'll pay ${remainingAmount.toFixed(2)} {remainingAmount > 0 ? 'with your selected payment method' : '- fully covered by credits!'}
                   </p>
                 )}
@@ -1945,7 +1945,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               </div>
               <div className="text-left flex-1">
                 <h3 className="text-lg font-bold text-primary">Pay Now</h3>
-                <p className="text-sm text-gray-600">Complete payment to confirm your booking</p>
+                <p className="text-sm text-muted-foreground">Complete payment to confirm your booking</p>
               </div>
             </div>
           </button>
@@ -1966,37 +1966,37 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 }}
                 className={`w-full p-6 border-2 rounded-lg transition-all group relative ${
                   hasSavedCards 
-                    ? 'border-gray-300 hover:border-primary hover:bg-primary/5 cursor-pointer' 
-                    : 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-70'
+                    ? 'border-border hover:border-primary hover:bg-primary/5 cursor-pointer' 
+                    : 'border-border bg-muted cursor-not-allowed opacity-70'
                 }`}
                 data-testid="button-pay-later-step4"
               >
                 {/* Warning badge for no payment method */}
                 {!hasSavedCards && (
-                  <div className="absolute -top-3 left-4 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                  <div className="absolute -top-3 left-4 bg-amber-50 dark:bg-amber-900/200 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
                     Payment Card Required
                   </div>
                 )}
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
                     hasSavedCards 
-                      ? 'bg-gray-100 group-hover:bg-primary/10 group-hover:scale-110' 
-                      : 'bg-gray-200'
+                      ? 'bg-muted group-hover:bg-primary/10 group-hover:scale-110' 
+                      : 'bg-muted-foreground/20'
                   }`}>
-                    <Clock className={`w-6 h-6 ${hasSavedCards ? 'text-gray-600 group-hover:text-primary' : 'text-gray-400'}`} />
+                    <Clock className={`w-6 h-6 ${hasSavedCards ? 'text-muted-foreground group-hover:text-primary' : 'text-muted-foreground'}`} />
                   </div>
                   <div className="text-left flex-1">
-                    <h3 className={`text-lg font-bold ${hasSavedCards ? 'text-gray-800 group-hover:text-primary' : 'text-gray-500'}`}>
+                    <h3 className={`text-lg font-bold ${hasSavedCards ? 'text-foreground group-hover:text-primary' : 'text-muted-foreground'}`}>
                       Pay Later
                     </h3>
-                    <p className={`text-sm ${hasSavedCards ? 'text-gray-600' : 'text-gray-400'}`}>
+                    <p className={`text-sm ${hasSavedCards ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                       {hasSavedCards 
                         ? "Pay after your trip is completed" 
                         : "You must add a payment card first"}
                     </p>
                     {!hasSavedCards && (
-                      <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-md">
-                        <p className="text-xs text-amber-700 font-medium flex items-center gap-1">
+                      <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-md">
+                        <p className="text-xs text-amber-700 dark:text-amber-300 font-medium flex items-center gap-1">
                           <CreditCard className="w-3 h-3" />
                           Click here to add a payment card to enable Pay Later
                         </p>
@@ -2015,16 +2015,16 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 // Create booking with cash payment (no payment method required)
                 bookingMutation.mutate();
               }}
-              className="w-full p-6 border-2 border-green-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all group"
+              className="w-full p-6 border-2 border-green-300 rounded-lg hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 dark:bg-green-900/20 transition-all group"
               data-testid="button-pay-cash-step4"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-green-100 group-hover:bg-green-200 rounded-full flex items-center justify-center group-hover:scale-110 transition-all">
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 group-hover:bg-green-200 rounded-full flex items-center justify-center group-hover:scale-110 transition-all">
                   <Banknote className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="text-left flex-1">
                   <h3 className="text-lg font-bold text-green-800 group-hover:text-green-900">Pay with Cash</h3>
-                  <p className="text-sm text-gray-600">Pay with cash when your trip is completed</p>
+                  <p className="text-sm text-muted-foreground">Pay with cash when your trip is completed</p>
                 </div>
               </div>
             </button>
@@ -2047,15 +2047,15 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   }
 
   return (
-    <div className="backdrop-blur-sm rounded-2xl shadow-2xl bg-white w-full max-w-full p-4 sm:p-6 lg:p-8">
+    <div className="backdrop-blur-sm rounded-2xl shadow-2xl bg-background w-full max-w-full p-4 sm:p-6 lg:p-8">
       {/* Enhanced Service Type Tabs */}
-      <div className="flex mb-6 border-b-2 border-gray-200">
+      <div className="flex mb-6 border-b-2 border-border">
         <button
           onClick={() => setActiveTab('transfer')}
           className={`flex-1 py-4 px-6 text-lg font-semibold transition-all border-b-4 ${
             activeTab === 'transfer'
               ? 'text-primary border-primary font-bold'
-              : 'text-gray-500 border-transparent hover:text-gray-700'
+              : 'text-muted-foreground border-transparent hover:text-muted-foreground'
           }`}
           data-testid="tab-transfer"
         >
@@ -2066,7 +2066,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           className={`flex-1 py-4 px-6 text-lg font-semibold transition-all border-b-4 ${
             activeTab === 'hourly'
               ? 'text-primary border-primary font-bold'
-              : 'text-gray-300 border-transparent hover:text-gray-500'
+              : 'text-gray-300 border-transparent hover:text-muted-foreground'
           }`}
           data-testid="tab-hourly"
         >
@@ -2080,7 +2080,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           
           {/* From Address */}
           <div className="relative">
-            <Label htmlFor="from" className="text-base font-semibold text-gray-700">From *</Label>
+            <Label htmlFor="from" className="text-base font-semibold text-muted-foreground">From *</Label>
             <Input
               id="from"
               value={fromAddress}
@@ -2090,25 +2090,25 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               }}
               placeholder="Pickup location"
               autoComplete="off"
-              className="mt-2 p-3 text-base border-2 border-gray-300 rounded-lg focus:border-primary"
+              className="mt-2 p-3 text-base border-2 border-border rounded-lg focus:border-primary"
               data-testid="input-from"
             />
             {showSuggestions.from && suggestions.from?.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 border-t-0 rounded-b-lg max-h-48 overflow-y-auto z-50 shadow-lg">
+              <div className="absolute top-full left-0 right-0 bg-background border border-border border-t-0 rounded-b-lg max-h-48 overflow-y-auto z-50 shadow-lg">
                 {suggestions.from.map((suggestion, index) => (
                   <div
                     key={index}
-                    className="p-3 cursor-pointer border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    className="p-3 cursor-pointer border-b border-border hover:bg-muted transition-colors"
                     onClick={() => selectSuggestion('from', suggestion)}
                     data-testid={`suggestion-from-${index}`}
                   >
-                    <div className="font-semibold text-gray-800">{suggestion.display_name}</div>
+                    <div className="font-semibold text-foreground">{suggestion.display_name}</div>
                   </div>
                 ))}
               </div>
             )}
             {fromCoords && (
-              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-[8px] text-green-700 font-mono" data-testid="from-coordinates">
+              <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded text-[8px] text-green-700 dark:text-green-300 font-mono" data-testid="from-coordinates">
                 <span>Lat: {fromCoords.lat.toFixed(6)}, Lng: {fromCoords.lon.toFixed(6)}</span>
               </div>
             )}
@@ -2117,7 +2117,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           {/* Via Points Section */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <Label className="text-base font-semibold text-gray-700">+ Via Point (Optional)</Label>
+              <Label className="text-base font-semibold text-muted-foreground">+ Via Point (Optional)</Label>
               <Button
                 type="button"
                 onClick={addViaPoint}
@@ -2137,25 +2137,25 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     onChange={(e) => updateViaPoint(index, e.target.value)}
                     placeholder={`Via point ${index + 1}`}
                     autoComplete="off"
-                    className="p-3 text-base border-2 border-gray-300 rounded-lg focus:border-primary"
+                    className="p-3 text-base border-2 border-border rounded-lg focus:border-primary"
                     data-testid={`input-via-${index}`}
                   />
                   {showSuggestions[`via-${index}`] && suggestions[`via-${index}`]?.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 border-t-0 rounded-b-lg max-h-48 overflow-y-auto z-50 shadow-lg">
+                    <div className="absolute top-full left-0 right-0 bg-background border border-border border-t-0 rounded-b-lg max-h-48 overflow-y-auto z-50 shadow-lg">
                       {suggestions[`via-${index}`].map((suggestion, sugIndex) => (
                         <div
                           key={sugIndex}
-                          className="p-3 cursor-pointer border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                          className="p-3 cursor-pointer border-b border-border hover:bg-muted transition-colors"
                           onClick={() => selectSuggestion(`via-${index}`, suggestion)}
                           data-testid={`suggestion-via-${index}-${sugIndex}`}
                         >
-                          <div className="font-semibold text-gray-800">{suggestion.display_name}</div>
+                          <div className="font-semibold text-foreground">{suggestion.display_name}</div>
                         </div>
                       ))}
                     </div>
                   )}
                   {viaCoords && viaCoords[index] && (
-                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-[8px] text-green-700 font-mono" data-testid={`via-${index}-coordinates`}>
+                    <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded text-[8px] text-green-700 dark:text-green-300 font-mono" data-testid={`via-${index}-coordinates`}>
                       <span>Lat: {viaCoords[index].lat.toFixed(6)}, Lng: {viaCoords[index].lon.toFixed(6)}</span>
                     </div>
                   )}
@@ -2163,7 +2163,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 <Button
                   type="button"
                   onClick={() => removeViaPoint(index)}
-                  className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  className="px-3 py-2 bg-red-50 dark:bg-red-900/200 text-white rounded-lg hover:bg-red-600"
                   data-testid={`button-remove-via-${index}`}
                 >
                   Remove
@@ -2174,7 +2174,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
           {/* To Address */}
           <div className="relative">
-            <Label htmlFor="to" className="text-base font-semibold text-gray-700">To *</Label>
+            <Label htmlFor="to" className="text-base font-semibold text-muted-foreground">To *</Label>
             <Input
               id="to"
               value={toAddress}
@@ -2184,25 +2184,25 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               }}
               placeholder="Destination"
               autoComplete="off"
-              className="mt-2 p-3 text-base border-2 border-gray-300 rounded-lg focus:border-primary"
+              className="mt-2 p-3 text-base border-2 border-border rounded-lg focus:border-primary"
               data-testid="input-to"
             />
             {showSuggestions.to && suggestions.to?.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 border-t-0 rounded-b-lg max-h-48 overflow-y-auto z-50 shadow-lg">
+              <div className="absolute top-full left-0 right-0 bg-background border border-border border-t-0 rounded-b-lg max-h-48 overflow-y-auto z-50 shadow-lg">
                 {suggestions.to.map((suggestion, index) => (
                   <div
                     key={index}
-                    className="p-3 cursor-pointer border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    className="p-3 cursor-pointer border-b border-border hover:bg-muted transition-colors"
                     onClick={() => selectSuggestion('to', suggestion)}
                     data-testid={`suggestion-to-${index}`}
                   >
-                    <div className="font-semibold text-gray-800">{suggestion.display_name}</div>
+                    <div className="font-semibold text-foreground">{suggestion.display_name}</div>
                   </div>
                 ))}
               </div>
             )}
             {toCoords && (
-              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-[8px] text-green-700 font-mono" data-testid="to-coordinates">
+              <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded text-[8px] text-green-700 dark:text-green-300 font-mono" data-testid="to-coordinates">
                 <span>Lat: {toCoords.lat.toFixed(6)}, Lng: {toCoords.lon.toFixed(6)}</span>
               </div>
             )}
@@ -2211,22 +2211,22 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           {/* Date and Time Row */}
           <div className="grid grid-cols-[2fr_3fr] gap-4">
             <div>
-              <Label htmlFor="date" className="text-base font-semibold text-gray-700">Date *</Label>
+              <Label htmlFor="date" className="text-base font-semibold text-muted-foreground">Date *</Label>
               <Input
                 id="date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
-                className="mt-2 p-3 text-base border-2 border-gray-300 rounded-lg focus:border-primary"
+                className="mt-2 p-3 text-base border-2 border-border rounded-lg focus:border-primary"
                 data-testid="input-date"
               />
             </div>
             <div>
-              <Label className="text-base font-semibold text-gray-700">Time *</Label>
+              <Label className="text-base font-semibold text-muted-foreground">Time *</Label>
               <div className="grid grid-cols-3 gap-2 mt-2">
                 <Select value={hour} onValueChange={setHour}>
-                  <SelectTrigger className="p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-hour">
+                  <SelectTrigger className="p-3 text-base border-2 border-border rounded-lg" data-testid="select-hour">
                     <SelectValue placeholder="Hour" />
                   </SelectTrigger>
                   <SelectContent>
@@ -2238,7 +2238,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   </SelectContent>
                 </Select>
                 <Select value={minute} onValueChange={setMinute}>
-                  <SelectTrigger className="p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-minute">
+                  <SelectTrigger className="p-3 text-base border-2 border-border rounded-lg" data-testid="select-minute">
                     <SelectValue placeholder="Min" />
                   </SelectTrigger>
                   <SelectContent>
@@ -2250,7 +2250,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   </SelectContent>
                 </Select>
                 <Select value={period} onValueChange={(value) => setPeriod(value as 'AM' | 'PM')}>
-                  <SelectTrigger className="p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-period">
+                  <SelectTrigger className="p-3 text-base border-2 border-border rounded-lg" data-testid="select-period">
                     <SelectValue placeholder="AM/PM" />
                   </SelectTrigger>
                   <SelectContent>
@@ -2280,7 +2280,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           
           {/* Pickup Address */}
           <div className="relative">
-            <Label htmlFor="pickup" className="text-base font-semibold text-gray-700">Pickup Address *</Label>
+            <Label htmlFor="pickup" className="text-base font-semibold text-muted-foreground">Pickup Address *</Label>
             <Input
               id="pickup"
               value={pickupAddress}
@@ -2290,25 +2290,25 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               }}
               placeholder="Enter pickup location"
               autoComplete="off"
-              className="mt-2 p-3 text-base border-2 border-gray-300 rounded-lg focus:border-primary"
+              className="mt-2 p-3 text-base border-2 border-border rounded-lg focus:border-primary"
               data-testid="input-pickup"
             />
             {showSuggestions.pickup && suggestions.pickup?.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 border-t-0 rounded-b-lg max-h-48 overflow-y-auto z-50 shadow-lg">
+              <div className="absolute top-full left-0 right-0 bg-background border border-border border-t-0 rounded-b-lg max-h-48 overflow-y-auto z-50 shadow-lg">
                 {suggestions.pickup.map((suggestion, index) => (
                   <div
                     key={index}
-                    className="p-3 cursor-pointer border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    className="p-3 cursor-pointer border-b border-border hover:bg-muted transition-colors"
                     onClick={() => selectSuggestion('pickup', suggestion)}
                     data-testid={`suggestion-pickup-${index}`}
                   >
-                    <div className="font-semibold text-gray-800">{suggestion.display_name}</div>
+                    <div className="font-semibold text-foreground">{suggestion.display_name}</div>
                   </div>
                 ))}
               </div>
             )}
             {pickupCoords && (
-              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-[8px] text-green-700 font-mono" data-testid="pickup-coordinates">
+              <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded text-[8px] text-green-700 dark:text-green-300 font-mono" data-testid="pickup-coordinates">
                 <span>Lat: {pickupCoords.lat.toFixed(6)}, Lng: {pickupCoords.lon.toFixed(6)}</span>
               </div>
             )}
@@ -2316,9 +2316,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
           {/* Duration */}
           <div>
-            <Label htmlFor="duration" className="text-base font-semibold text-gray-700">Duration (2-24 hours) *</Label>
+            <Label htmlFor="duration" className="text-base font-semibold text-muted-foreground">Duration (2-24 hours) *</Label>
             <Select value={duration} onValueChange={setDuration}>
-              <SelectTrigger className="mt-2 p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-duration">
+              <SelectTrigger className="mt-2 p-3 text-base border-2 border-border rounded-lg" data-testid="select-duration">
                 <SelectValue placeholder="Select duration" />
               </SelectTrigger>
               <SelectContent>
@@ -2334,22 +2334,22 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           {/* Date and Time Row */}
           <div className="grid grid-cols-[2fr_3fr] gap-4">
             <div>
-              <Label htmlFor="date" className="text-base font-semibold text-gray-700">Date *</Label>
+              <Label htmlFor="date" className="text-base font-semibold text-muted-foreground">Date *</Label>
               <Input
                 id="date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
-                className="mt-2 p-3 text-base border-2 border-gray-300 rounded-lg focus:border-primary"
+                className="mt-2 p-3 text-base border-2 border-border rounded-lg focus:border-primary"
                 data-testid="input-date"
               />
             </div>
             <div>
-              <Label className="text-base font-semibold text-gray-700">Time *</Label>
+              <Label className="text-base font-semibold text-muted-foreground">Time *</Label>
               <div className="grid grid-cols-3 gap-2 mt-2">
                 <Select value={hour} onValueChange={setHour}>
-                  <SelectTrigger className="p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-hour">
+                  <SelectTrigger className="p-3 text-base border-2 border-border rounded-lg" data-testid="select-hour">
                     <SelectValue placeholder="Hour" />
                   </SelectTrigger>
                   <SelectContent>
@@ -2361,7 +2361,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   </SelectContent>
                 </Select>
                 <Select value={minute} onValueChange={setMinute}>
-                  <SelectTrigger className="p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-minute">
+                  <SelectTrigger className="p-3 text-base border-2 border-border rounded-lg" data-testid="select-minute">
                     <SelectValue placeholder="Min" />
                   </SelectTrigger>
                   <SelectContent>
@@ -2373,7 +2373,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   </SelectContent>
                 </Select>
                 <Select value={period} onValueChange={(value) => setPeriod(value as 'AM' | 'PM')}>
-                  <SelectTrigger className="p-3 text-base border-2 border-gray-300 rounded-lg" data-testid="select-period">
+                  <SelectTrigger className="p-3 text-base border-2 border-border rounded-lg" data-testid="select-period">
                     <SelectValue placeholder="AM/PM" />
                   </SelectTrigger>
                   <SelectContent>
@@ -2398,7 +2398,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       )}
       {/* Flight Selection Dialog */}
       <Dialog open={showFlightDialog} onOpenChange={setShowFlightDialog}>
-        <DialogContent className="sm:max-w-3xl bg-white max-h-[90vh] overflow-y-auto" data-testid="flight-selection-dialog">
+        <DialogContent className="sm:max-w-3xl bg-background max-h-[90vh] overflow-y-auto" data-testid="flight-selection-dialog">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">Flight Detail</DialogTitle>
             <DialogDescription>
@@ -2450,16 +2450,16 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                       description: `${flight.airline} ${flight.flightNumber} has been added to your booking`,
                     });
                   }}
-                  className="w-full p-6 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50/30 transition-all text-left group"
+                  className="w-full p-6 border-2 border-border rounded-xl hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 dark:bg-green-900/20/30 transition-all text-left group"
                   data-testid={`flight-option-${flight.id}`}
                 >
                   {/* Route Header with Large Airport Codes */}
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex-1">
-                      <h3 className="text-4xl md:text-5xl font-bold text-gray-900">
+                      <h3 className="text-4xl md:text-5xl font-bold text-foreground">
                         {flight.departureIata || 'N/A'}
                       </h3>
-                      <p className="text-gray-600 mt-1 text-sm">
+                      <p className="text-muted-foreground mt-1 text-sm">
                         {flight.departureAirport} {formatFlightDate(flight.departureTime) && `- ${formatFlightDate(flight.departureTime)}`}
                       </p>
                     </div>
@@ -2472,10 +2472,10 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     </div>
 
                     <div className="flex-1 text-right">
-                      <h3 className="text-4xl md:text-5xl font-bold text-gray-900">
+                      <h3 className="text-4xl md:text-5xl font-bold text-foreground">
                         {flight.arrivalIata || 'N/A'}
                       </h3>
-                      <p className="text-gray-600 mt-1 text-sm">
+                      <p className="text-muted-foreground mt-1 text-sm">
                         {flight.arrivalAirport} {formatFlightDate(flight.arrivalTime) && `- ${formatFlightDate(flight.arrivalTime)}`}
                       </p>
                     </div>
@@ -2485,28 +2485,28 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   <div className="grid grid-cols-2 gap-6 border-t pt-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-gray-600 text-sm mb-1">Departed</p>
+                        <p className="text-muted-foreground text-sm mb-1">Departed</p>
                         <p className="text-2xl md:text-3xl font-bold text-green-600">
                           {formatFlightTime(flight.departureTime)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-600 text-sm mb-1">Terminal</p>
-                        <p className="text-2xl md:text-3xl font-bold text-gray-900">
+                        <p className="text-muted-foreground text-sm mb-1">Terminal</p>
+                        <p className="text-2xl md:text-3xl font-bold text-foreground">
                           {flight.departureTerminal || '-'}
                         </p>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-gray-600 text-sm mb-1">Arrival</p>
+                        <p className="text-muted-foreground text-sm mb-1">Arrival</p>
                         <p className="text-2xl md:text-3xl font-bold text-green-600">
                           {formatFlightTime(flight.arrivalTime)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-600 text-sm mb-1">Terminal</p>
-                        <p className="text-2xl md:text-3xl font-bold text-gray-900">
+                        <p className="text-muted-foreground text-sm mb-1">Terminal</p>
+                        <p className="text-2xl md:text-3xl font-bold text-foreground">
                           {flight.arrivalTerminal || '-'}
                         </p>
                       </div>
@@ -2515,22 +2515,22 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
                   {/* Flight Info Footer */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t">
-                    <div className="bg-gray-50 p-2 rounded-lg">
-                      <p className="text-xs text-gray-600">Flight Number</p>
-                      <p className="text-sm font-bold text-gray-900">{flight.flightNumber}</p>
+                    <div className="bg-muted p-2 rounded-lg">
+                      <p className="text-xs text-muted-foreground">Flight Number</p>
+                      <p className="text-sm font-bold text-foreground">{flight.flightNumber}</p>
                     </div>
-                    <div className="bg-gray-50 p-2 rounded-lg">
-                      <p className="text-xs text-gray-600">Airline</p>
-                      <p className="text-sm font-bold text-gray-900">{flight.airline}</p>
+                    <div className="bg-muted p-2 rounded-lg">
+                      <p className="text-xs text-muted-foreground">Airline</p>
+                      <p className="text-sm font-bold text-foreground">{flight.airline}</p>
                     </div>
                     {flight.aircraft && (
-                      <div className="bg-gray-50 p-2 rounded-lg">
-                        <p className="text-xs text-gray-600">Aircraft</p>
-                        <p className="text-sm font-bold text-gray-900">{flight.aircraft}</p>
+                      <div className="bg-muted p-2 rounded-lg">
+                        <p className="text-xs text-muted-foreground">Aircraft</p>
+                        <p className="text-sm font-bold text-foreground">{flight.aircraft}</p>
                       </div>
                     )}
-                    <div className="bg-gray-50 p-2 rounded-lg">
-                      <p className="text-xs text-gray-600">Status</p>
+                    <div className="bg-muted p-2 rounded-lg">
+                      <p className="text-xs text-muted-foreground">Status</p>
                       <p className="text-sm font-bold text-green-600">{flight.status}</p>
                     </div>
                   </div>
@@ -2542,7 +2542,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       </Dialog>
       {/* Payment Method Required Dialog */}
       <Dialog open={showPaymentMethodRequired} onOpenChange={setShowPaymentMethodRequired}>
-        <DialogContent className="sm:max-w-md bg-white" data-testid="payment-method-required-dialog">
+        <DialogContent className="sm:max-w-md bg-background" data-testid="payment-method-required-dialog">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-amber-600">Payment Method Required</DialogTitle>
             <DialogDescription>
@@ -2551,11 +2551,11 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </DialogHeader>
           
           <div className="space-y-4 mt-4">
-            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-sm text-gray-700">
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+              <p className="text-sm text-muted-foreground">
                 <strong>Why is this required?</strong>
               </p>
-              <p className="text-sm text-gray-600 mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 Adding a payment method ensures seamless payment processing after your trip is completed. 
                 Your card will be securely stored and charged only after you've enjoyed your luxury transportation service.
               </p>
@@ -2586,7 +2586,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               </Button>
             </div>
             
-            <p className="text-xs text-gray-500 text-center mt-2">
+            <p className="text-xs text-muted-foreground text-center mt-2">
               Alternatively, you can choose "Pay Now" to complete payment immediately.
             </p>
           </div>

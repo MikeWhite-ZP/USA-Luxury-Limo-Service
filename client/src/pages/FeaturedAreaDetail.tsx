@@ -153,7 +153,7 @@ export default function FeaturedAreaDetail() {
         <main className="pt-24 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-4">Area Not Found</h1>
-            <p className="text-xl text-gray-600 mb-8">The requested area could not be found.</p>
+            <p className="text-xl text-muted-foreground mb-8">The requested area could not be found.</p>
             <Button onClick={() => setLocation('/locations')} data-testid="back-to-locations-button">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Locations
@@ -211,14 +211,14 @@ export default function FeaturedAreaDetail() {
               <h2 className="text-3xl md:text-4xl font-bold mb-6" data-testid="highlights-title">
                 Area Highlights
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 Discover the key attractions and destinations that make {currentArea.name} a premier location
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {currentArea.highlights.map((highlight, index) => (
-                <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 border-0 bg-white/95 backdrop-blur-sm hover:-translate-y-1">
+                <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 border-0 bg-card/95 backdrop-blur-sm hover:-translate-y-1">
                   <CardContent className="p-6">
                     <div className="flex justify-center mb-4">
                       <div className="p-3 bg-primary/10 rounded-full">
@@ -236,13 +236,13 @@ export default function FeaturedAreaDetail() {
         </section>
 
         {/* Transportation Services */}
-        <section className="py-20 bg-white dark:bg-gray-950">
+        <section className="py-20 bg-background">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-6" data-testid="services-title">
                 Transportation Services
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 Specialized luxury transportation services tailored for {currentArea.name}
               </p>
             </div>

@@ -429,7 +429,7 @@ function AdminEmailSettings({ user }: { user: any }) {
         <CardTitle className="relative flex items-center gap-4">
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-blue-200/30 rounded-2xl blur-md opacity-60 group-hover:opacity-100 transition-opacity" />
-            <div className="relative bg-white/20 backdrop-blur-sm p-3.5 rounded-2xl border border-white/30 shadow-lg">
+            <div className="relative bg-background/20 backdrop-blur-sm p-3.5 rounded-2xl border border-white/30 shadow-lg">
               <Mail className="w-6 h-6 text-white" />
             </div>
           </div>
@@ -443,7 +443,7 @@ function AdminEmailSettings({ user }: { user: any }) {
         {isLoading ? (
           <div className="flex items-center justify-center p-16">
             <div className="relative">
-              <div className="animate-spin w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full" />
+              <div className="animate-spin w-12 h-12 border-4 border-border border-t-blue-600 rounded-full" />
               <div className="absolute inset-0 animate-ping w-12 h-12 border-4 border-blue-400 rounded-full opacity-20" />
             </div>
           </div>
@@ -453,7 +453,7 @@ function AdminEmailSettings({ user }: { user: any }) {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-slate-100 via-white to-slate-100 p-1.5 rounded-xl border border-slate-200 shadow-sm">
+            <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-slate-100 via-white to-slate-100 p-1.5 rounded-xl border border-border shadow-sm">
               <TabsTrigger value="admin-email" data-testid="tab-admin-email" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold transition-all">
                 Contact Email
               </TabsTrigger>
@@ -474,7 +474,7 @@ function AdminEmailSettings({ user }: { user: any }) {
               <div className="relative bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl p-6 shadow-lg overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2)_0%,transparent_60%)]" />
                 <div className="relative flex items-start gap-4">
-                  <div className="bg-white/20 backdrop-blur-sm p-2.5 rounded-xl border border-white/30">
+                  <div className="bg-background/20 backdrop-blur-sm p-2.5 rounded-xl border border-white/30">
                     <AlertCircle className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -487,15 +487,15 @@ function AdminEmailSettings({ user }: { user: any }) {
               </div>
 
               {/* Current Value Display */}
-              <div className="group bg-white rounded-2xl border-2 border-slate-200 shadow-md hover:shadow-xl hover:border-blue-300 transition-all duration-300 p-6">
+              <div className="group bg-background rounded-2xl border-2 border-border shadow-md hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2.5 rounded-xl shadow-md">
                       <Mail className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Current Contact Email</p>
-                      <p className="text-xl font-bold text-slate-900 mt-0.5">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Current Contact Email</p>
+                      <p className="text-xl font-bold text-foreground mt-0.5">
                         {emailSetting &&
                         typeof emailSetting === "object" &&
                         "value" in emailSetting
@@ -509,17 +509,17 @@ function AdminEmailSettings({ user }: { user: any }) {
               </div>
 
               {/* Update Form */}
-              <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 space-y-6">
-                <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+              <div className="bg-background rounded-2xl border-2 border-border shadow-md p-8 space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-border">
                   <div className="bg-gradient-to-br from-blue-100 to-indigo-100 p-2.5 rounded-xl">
                     <Settings className="w-5 h-5 text-blue-700" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900">Update Contact Email</h3>
+                  <h3 className="text-xl font-bold text-foreground">Update Contact Email</h3>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="admin-email" className="text-slate-700 font-semibold text-sm mb-2 block">
+                    <Label htmlFor="admin-email" className="text-muted-foreground font-semibold text-sm mb-2 block">
                       Admin Email Address
                     </Label>
                     <Input
@@ -528,7 +528,7 @@ function AdminEmailSettings({ user }: { user: any }) {
                       value={adminEmail}
                       onChange={(e) => setAdminEmail(e.target.value)}
                       placeholder="admin@example.com"
-                      className="h-12 border-2 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl text-base"
+                      className="h-12 border-2 border-border focus:border-blue-500 focus:ring-blue-500/20 rounded-xl text-base"
                       data-testid="input-admin-email"
                     />
                   </div>
@@ -555,35 +555,35 @@ function AdminEmailSettings({ user }: { user: any }) {
               </div>
 
               {/* Usage Information */}
-              <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 rounded-2xl border-2 border-slate-200 shadow-md p-8">
+              <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 rounded-2xl border-2 border-border shadow-md p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2.5 rounded-xl shadow-md">
                     <AlertCircle className="w-5 h-5 text-white" />
                   </div>
-                  <h4 className="text-xl font-bold text-slate-900">Usage Information</h4>
+                  <h4 className="text-xl font-bold text-foreground">Usage Information</h4>
                 </div>
                 <div className="grid gap-4">
-                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300">
+                  <div className="group flex items-start gap-4 bg-background rounded-xl p-4 border-2 border-border hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all duration-300">
                     <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-2 shadow-sm flex-shrink-0">
                       <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                    <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                       This email receives all contact form submissions from passengers
                     </p>
                   </div>
-                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all duration-300">
+                  <div className="group flex items-start gap-4 bg-background rounded-xl p-4 border-2 border-border hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all duration-300">
                     <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg p-2 shadow-sm flex-shrink-0">
                       <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                    <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                       Make sure the email address is monitored regularly
                     </p>
                   </div>
-                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-300">
+                  <div className="group flex items-start gap-4 bg-background rounded-xl p-4 border-2 border-border hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md transition-all duration-300">
                     <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg p-2 shadow-sm flex-shrink-0">
                       <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                    <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                       You can update this email at any time
                     </p>
                   </div>
@@ -596,7 +596,7 @@ function AdminEmailSettings({ user }: { user: any }) {
               <div className="relative bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl p-6 shadow-lg overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2)_0%,transparent_60%)]" />
                 <div className="relative flex items-start gap-4">
-                  <div className="bg-white/20 backdrop-blur-sm p-2.5 rounded-xl border border-white/30">
+                  <div className="bg-background/20 backdrop-blur-sm p-2.5 rounded-xl border border-white/30">
                     <AlertCircle className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -609,15 +609,15 @@ function AdminEmailSettings({ user }: { user: any }) {
               </div>
 
               {/* Current Value Display */}
-              <div className="group bg-white rounded-2xl border-2 border-slate-200 shadow-md hover:shadow-xl hover:border-indigo-300 transition-all duration-300 p-6">
+              <div className="group bg-background rounded-2xl border-2 border-border shadow-md hover:shadow-xl hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2.5 rounded-xl shadow-md">
                       <Mail className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Current Report Email</p>
-                      <p className="text-xl font-bold text-slate-900 mt-0.5">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Current Report Email</p>
+                      <p className="text-xl font-bold text-foreground mt-0.5">
                         {systemEmailSetting &&
                         typeof systemEmailSetting === "object" &&
                         "value" in systemEmailSetting
@@ -631,17 +631,17 @@ function AdminEmailSettings({ user }: { user: any }) {
               </div>
 
               {/* Update Form */}
-              <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 space-y-6">
-                <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+              <div className="bg-background rounded-2xl border-2 border-border shadow-md p-8 space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-border">
                   <div className="bg-gradient-to-br from-indigo-100 to-purple-100 p-2.5 rounded-xl">
                     <Settings className="w-5 h-5 text-indigo-700" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900">Update Report Email</h3>
+                  <h3 className="text-xl font-bold text-foreground">Update Report Email</h3>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="system-admin-email" className="text-slate-700 font-semibold text-sm mb-2 block">
+                    <Label htmlFor="system-admin-email" className="text-muted-foreground font-semibold text-sm mb-2 block">
                       System Admin Email Address
                     </Label>
                     <Input
@@ -650,7 +650,7 @@ function AdminEmailSettings({ user }: { user: any }) {
                       value={systemAdminEmail}
                       onChange={(e) => setSystemAdminEmail(e.target.value)}
                       placeholder="reports@example.com"
-                      className="h-12 border-2 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-base"
+                      className="h-12 border-2 border-border focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-base"
                       data-testid="input-system-admin-email"
                     />
                   </div>
@@ -677,43 +677,43 @@ function AdminEmailSettings({ user }: { user: any }) {
               </div>
 
               {/* Report Types */}
-              <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 rounded-2xl border-2 border-slate-200 shadow-md p-8">
+              <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 rounded-2xl border-2 border-border shadow-md p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-2.5 rounded-xl shadow-md">
                     <FileText className="w-5 h-5 text-white" />
                   </div>
-                  <h4 className="text-xl font-bold text-slate-900">Report Types</h4>
+                  <h4 className="text-xl font-bold text-foreground">Report Types</h4>
                 </div>
                 <div className="grid gap-4">
-                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300">
+                  <div className="group flex items-start gap-4 bg-background rounded-xl p-4 border-2 border-border hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all duration-300">
                     <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-2 shadow-sm flex-shrink-0">
                       <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                    <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                       New booking confirmations with full details
                     </p>
                   </div>
-                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all duration-300">
+                  <div className="group flex items-start gap-4 bg-background rounded-xl p-4 border-2 border-border hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all duration-300">
                     <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg p-2 shadow-sm flex-shrink-0">
                       <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                    <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                       Cancellation reports (passenger, driver, or automatic)
                     </p>
                   </div>
-                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-purple-300 hover:shadow-md transition-all duration-300">
+                  <div className="group flex items-start gap-4 bg-background rounded-xl p-4 border-2 border-border hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md transition-all duration-300">
                     <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-2 shadow-sm flex-shrink-0">
                       <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                    <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                       Driver activity updates (acceptance, on the way, arrived, on board)
                     </p>
                   </div>
-                  <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-300">
+                  <div className="group flex items-start gap-4 bg-background rounded-xl p-4 border-2 border-border hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md transition-all duration-300">
                     <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg p-2 shadow-sm flex-shrink-0">
                       <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                    <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                       All reports include booking ID, passenger info, and timestamps
                     </p>
                   </div>
@@ -726,7 +726,7 @@ function AdminEmailSettings({ user }: { user: any }) {
               <div className="relative bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 rounded-2xl p-6 shadow-lg overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2)_0%,transparent_60%)]" />
                 <div className="relative flex items-start gap-4">
-                  <div className="bg-white/20 backdrop-blur-sm p-2.5 rounded-xl border border-white/30">
+                  <div className="bg-background/20 backdrop-blur-sm p-2.5 rounded-xl border border-white/30">
                     <Server className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -741,24 +741,24 @@ function AdminEmailSettings({ user }: { user: any }) {
               {smtpLoading ? (
                 <div className="flex items-center justify-center p-16">
                   <div className="relative">
-                    <div className="animate-spin w-12 h-12 border-4 border-slate-200 border-t-emerald-600 rounded-full" />
+                    <div className="animate-spin w-12 h-12 border-4 border-border border-t-emerald-600 rounded-full" />
                     <div className="absolute inset-0 animate-ping w-12 h-12 border-4 border-emerald-400 rounded-full opacity-20" />
                   </div>
                 </div>
               ) : (
                 <div className="space-y-6">
                   {/* SMTP Configuration Form */}
-                  <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 space-y-6">
-                    <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+                  <div className="bg-background rounded-2xl border-2 border-border shadow-md p-8 space-y-6">
+                    <div className="flex items-center gap-3 pb-4 border-b border-border">
                       <div className="bg-gradient-to-br from-emerald-100 to-teal-100 p-2.5 rounded-xl">
                         <Settings className="w-5 h-5 text-emerald-700" />
                       </div>
-                      <h3 className="text-xl font-bold text-slate-900">SMTP Server Configuration</h3>
+                      <h3 className="text-xl font-bold text-foreground">SMTP Server Configuration</h3>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <Label htmlFor="smtp-host" className="text-slate-700 font-semibold text-sm mb-2 block">SMTP Host *</Label>
+                        <Label htmlFor="smtp-host" className="text-muted-foreground font-semibold text-sm mb-2 block">SMTP Host *</Label>
                         <Input
                           id="smtp-host"
                           value={smtpSettings.host}
@@ -769,12 +769,12 @@ function AdminEmailSettings({ user }: { user: any }) {
                             })
                           }
                           placeholder="smtp.gmail.com"
-                          className="h-12 border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
+                          className="h-12 border-2 border-border focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
                           data-testid="input-smtp-host"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="smtp-port" className="text-slate-700 font-semibold text-sm mb-2 block">Port *</Label>
+                        <Label htmlFor="smtp-port" className="text-muted-foreground font-semibold text-sm mb-2 block">Port *</Label>
                         <Input
                           id="smtp-port"
                           value={smtpSettings.port}
@@ -785,13 +785,13 @@ function AdminEmailSettings({ user }: { user: any }) {
                             })
                           }
                           placeholder="587"
-                          className="h-12 border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
+                          className="h-12 border-2 border-border focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
                           data-testid="input-smtp-port"
                         />
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-emerald-50/30 rounded-xl border-2 border-slate-200">
+                    <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-emerald-50/30 rounded-xl border-2 border-border">
                       <input
                         type="checkbox"
                         id="smtp-secure"
@@ -802,17 +802,17 @@ function AdminEmailSettings({ user }: { user: any }) {
                             secure: e.target.checked,
                           })
                         }
-                        className="w-5 h-5 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                        className="w-5 h-5 text-emerald-600 border-border rounded focus:ring-emerald-500"
                         data-testid="checkbox-smtp-secure"
                       />
-                      <Label htmlFor="smtp-secure" className="cursor-pointer text-slate-700 font-semibold">
+                      <Label htmlFor="smtp-secure" className="cursor-pointer text-muted-foreground font-semibold">
                         Use SSL/TLS (port 465)
                       </Label>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <Label htmlFor="smtp-user" className="text-slate-700 font-semibold text-sm mb-2 block">SMTP Username *</Label>
+                        <Label htmlFor="smtp-user" className="text-muted-foreground font-semibold text-sm mb-2 block">SMTP Username *</Label>
                         <Input
                           id="smtp-user"
                           value={smtpSettings.user}
@@ -823,12 +823,12 @@ function AdminEmailSettings({ user }: { user: any }) {
                             })
                           }
                           placeholder="your-email@gmail.com"
-                          className="h-12 border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
+                          className="h-12 border-2 border-border focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
                           data-testid="input-smtp-user"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="smtp-password" className="text-slate-700 font-semibold text-sm mb-2 block">SMTP Password</Label>
+                        <Label htmlFor="smtp-password" className="text-muted-foreground font-semibold text-sm mb-2 block">SMTP Password</Label>
                         <div className="relative">
                           <Input
                             id="smtp-password"
@@ -843,13 +843,13 @@ function AdminEmailSettings({ user }: { user: any }) {
                             placeholder={
                               smtpData?.hasPassword ? "••••••••" : "Enter password"
                             }
-                            className="h-12 border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base pr-12"
+                            className="h-12 border-2 border-border focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base pr-12"
                             data-testid="input-smtp-password"
                           />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors"
                             data-testid="button-toggle-smtp-password"
                             aria-label={showPassword ? "Hide password" : "Show password"}
                           >
@@ -861,7 +861,7 @@ function AdminEmailSettings({ user }: { user: any }) {
                           </button>
                         </div>
                         {smtpData?.hasPassword && !smtpSettings.password && (
-                          <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5 bg-slate-50 p-2 rounded-lg">
+                          <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5 bg-muted p-2 rounded-lg">
                             <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                             <span>Password is already set. Leave blank to keep current password.</span>
                           </p>
@@ -871,7 +871,7 @@ function AdminEmailSettings({ user }: { user: any }) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <Label htmlFor="smtp-from-email" className="text-slate-700 font-semibold text-sm mb-2 block">
+                        <Label htmlFor="smtp-from-email" className="text-muted-foreground font-semibold text-sm mb-2 block">
                           From Email Address *
                         </Label>
                         <Input
@@ -885,12 +885,12 @@ function AdminEmailSettings({ user }: { user: any }) {
                             })
                           }
                           placeholder="noreply@yourdomain.com"
-                          className="h-12 border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
+                          className="h-12 border-2 border-border focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
                           data-testid="input-smtp-from-email"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="smtp-from-name" className="text-slate-700 font-semibold text-sm mb-2 block">From Name</Label>
+                        <Label htmlFor="smtp-from-name" className="text-muted-foreground font-semibold text-sm mb-2 block">From Name</Label>
                         <Input
                           id="smtp-from-name"
                           value={smtpSettings.fromName}
@@ -901,7 +901,7 @@ function AdminEmailSettings({ user }: { user: any }) {
                             })
                           }
                           placeholder="USA Luxury Limo"
-                          className="h-12 border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
+                          className="h-12 border-2 border-border focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
                           data-testid="input-smtp-from-name"
                         />
                       </div>
@@ -928,14 +928,14 @@ function AdminEmailSettings({ user }: { user: any }) {
                   </div>
 
                   {/* Test Email Configuration */}
-                  <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 space-y-6">
-                    <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+                  <div className="bg-background rounded-2xl border-2 border-border shadow-md p-8 space-y-6">
+                    <div className="flex items-center gap-3 pb-4 border-b border-border">
                       <div className="bg-gradient-to-br from-blue-100 to-indigo-100 p-2.5 rounded-xl">
                         <Mail className="w-5 h-5 text-blue-700" />
                       </div>
-                      <h4 className="text-xl font-bold text-slate-900">Test Email Configuration</h4>
+                      <h4 className="text-xl font-bold text-foreground">Test Email Configuration</h4>
                     </div>
-                    <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                    <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                       Send a test email to verify your SMTP settings are working correctly.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
@@ -944,7 +944,7 @@ function AdminEmailSettings({ user }: { user: any }) {
                         value={testEmail}
                         onChange={(e) => setTestEmail(e.target.value)}
                         placeholder="test@example.com"
-                        className="h-12 border-2 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl text-base"
+                        className="h-12 border-2 border-border focus:border-blue-500 focus:ring-blue-500/20 rounded-xl text-base"
                         data-testid="input-test-email"
                       />
                       <Button
@@ -984,7 +984,7 @@ function AdminEmailSettings({ user }: { user: any }) {
                       </div>
                       <div>
                         <h4 className="text-xl font-bold text-white tracking-tight">Email Server Providers</h4>
-                        <p className="text-sm text-slate-400 mt-0.5">Pre-configured settings for popular email services</p>
+                        <p className="text-sm text-muted-foreground mt-0.5">Pre-configured settings for popular email services</p>
                       </div>
                     </div>
 
@@ -998,8 +998,8 @@ function AdminEmailSettings({ user }: { user: any }) {
                               <Server className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <h5 className="text-lg font-bold text-slate-900">Hostinger</h5>
-                              <p className="text-xs text-slate-600">Complete email server configuration</p>
+                              <h5 className="text-lg font-bold text-foreground">Hostinger</h5>
+                              <p className="text-xs text-muted-foreground">Complete email server configuration</p>
                             </div>
                           </div>
                           <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-md px-3 py-1">
@@ -1009,7 +1009,7 @@ function AdminEmailSettings({ user }: { user: any }) {
 
                         {/* Protocol Tabs */}
                         <Tabs defaultValue="smtp" className="w-full">
-                          <TabsList className="grid w-full grid-cols-3 bg-slate-100/80 p-1">
+                          <TabsList className="grid w-full grid-cols-3 bg-muted/80 p-1">
                             <TabsTrigger value="smtp" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                               SMTP (Outgoing)
                             </TabsTrigger>
@@ -1023,16 +1023,16 @@ function AdminEmailSettings({ user }: { user: any }) {
                           
                           <TabsContent value="smtp" className="mt-4 space-y-3">
                             <div className="grid grid-cols-3 gap-3">
-                              <div className="bg-white rounded-lg p-3 border border-blue-200 shadow-sm">
-                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Hostname</p>
+                              <div className="bg-background rounded-lg p-3 border border-blue-200 shadow-sm">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Hostname</p>
                                 <p className="font-mono text-sm font-bold text-blue-700">smtp.hostinger.com</p>
                               </div>
-                              <div className="bg-white rounded-lg p-3 border border-blue-200 shadow-sm">
-                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Port</p>
+                              <div className="bg-background rounded-lg p-3 border border-blue-200 shadow-sm">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Port</p>
                                 <p className="font-mono text-sm font-bold text-blue-700">465</p>
                               </div>
-                              <div className="bg-white rounded-lg p-3 border border-blue-200 shadow-sm">
-                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">SSL/TLS</p>
+                              <div className="bg-background rounded-lg p-3 border border-blue-200 shadow-sm">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">SSL/TLS</p>
                                 <p className="font-mono text-sm font-bold text-emerald-600">Yes</p>
                               </div>
                             </div>
@@ -1040,16 +1040,16 @@ function AdminEmailSettings({ user }: { user: any }) {
                           
                           <TabsContent value="imap" className="mt-4 space-y-3">
                             <div className="grid grid-cols-3 gap-3">
-                              <div className="bg-white rounded-lg p-3 border border-indigo-200 shadow-sm">
-                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Hostname</p>
+                              <div className="bg-background rounded-lg p-3 border border-indigo-200 shadow-sm">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Hostname</p>
                                 <p className="font-mono text-sm font-bold text-indigo-700">imap.hostinger.com</p>
                               </div>
-                              <div className="bg-white rounded-lg p-3 border border-indigo-200 shadow-sm">
-                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Port</p>
+                              <div className="bg-background rounded-lg p-3 border border-indigo-200 shadow-sm">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Port</p>
                                 <p className="font-mono text-sm font-bold text-indigo-700">993</p>
                               </div>
-                              <div className="bg-white rounded-lg p-3 border border-indigo-200 shadow-sm">
-                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">SSL/TLS</p>
+                              <div className="bg-background rounded-lg p-3 border border-indigo-200 shadow-sm">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">SSL/TLS</p>
                                 <p className="font-mono text-sm font-bold text-emerald-600">Yes</p>
                               </div>
                             </div>
@@ -1057,16 +1057,16 @@ function AdminEmailSettings({ user }: { user: any }) {
                           
                           <TabsContent value="pop" className="mt-4 space-y-3">
                             <div className="grid grid-cols-3 gap-3">
-                              <div className="bg-white rounded-lg p-3 border border-purple-200 shadow-sm">
-                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Hostname</p>
+                              <div className="bg-background rounded-lg p-3 border border-purple-200 shadow-sm">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Hostname</p>
                                 <p className="font-mono text-sm font-bold text-purple-700">pop.hostinger.com</p>
                               </div>
-                              <div className="bg-white rounded-lg p-3 border border-purple-200 shadow-sm">
-                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Port</p>
+                              <div className="bg-background rounded-lg p-3 border border-purple-200 shadow-sm">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Port</p>
                                 <p className="font-mono text-sm font-bold text-purple-700">995</p>
                               </div>
-                              <div className="bg-white rounded-lg p-3 border border-purple-200 shadow-sm">
-                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">SSL/TLS</p>
+                              <div className="bg-background rounded-lg p-3 border border-purple-200 shadow-sm">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">SSL/TLS</p>
                                 <p className="font-mono text-sm font-bold text-emerald-600">Yes</p>
                               </div>
                             </div>
@@ -1075,25 +1075,25 @@ function AdminEmailSettings({ user }: { user: any }) {
                       </div>
 
                       {/* Gmail */}
-                      <div className="group bg-white/95 backdrop-blur-sm rounded-xl p-5 border border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 hover:border-blue-300">
+                      <div className="group bg-background/95 backdrop-blur-sm rounded-xl p-5 border border-border shadow-md hover:shadow-xl transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-700">
                         <div className="flex items-center gap-2 mb-3">
                           <div className="bg-gradient-to-br from-red-500 to-red-600 p-2 rounded-lg shadow-sm">
                             <Mail className="w-4 h-4 text-white" />
                           </div>
-                          <h5 className="font-bold text-slate-900 text-sm">Gmail</h5>
+                          <h5 className="font-bold text-foreground text-sm">Gmail</h5>
                         </div>
                         <div className="grid grid-cols-3 gap-2 mb-3">
-                          <div className="bg-slate-50 rounded-lg p-2">
-                            <p className="text-xs text-slate-500 font-medium mb-0.5">Host</p>
-                            <p className="font-mono text-xs font-bold text-slate-800">smtp.gmail.com</p>
+                          <div className="bg-muted rounded-lg p-2">
+                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Host</p>
+                            <p className="font-mono text-xs font-bold text-foreground">smtp.gmail.com</p>
                           </div>
-                          <div className="bg-slate-50 rounded-lg p-2">
-                            <p className="text-xs text-slate-500 font-medium mb-0.5">Port</p>
-                            <p className="font-mono text-xs font-bold text-slate-800">587</p>
+                          <div className="bg-muted rounded-lg p-2">
+                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Port</p>
+                            <p className="font-mono text-xs font-bold text-foreground">587</p>
                           </div>
-                          <div className="bg-slate-50 rounded-lg p-2">
-                            <p className="text-xs text-slate-500 font-medium mb-0.5">SSL/TLS</p>
-                            <p className="font-mono text-xs font-bold text-slate-800">No</p>
+                          <div className="bg-muted rounded-lg p-2">
+                            <p className="text-xs text-muted-foreground font-medium mb-0.5">SSL/TLS</p>
+                            <p className="font-mono text-xs font-bold text-foreground">No</p>
                           </div>
                         </div>
                         <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5">
@@ -1105,80 +1105,80 @@ function AdminEmailSettings({ user }: { user: any }) {
                       </div>
 
                       {/* Outlook/Office 365 */}
-                      <div className="group bg-white/95 backdrop-blur-sm rounded-xl p-5 border border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 hover:border-blue-300">
+                      <div className="group bg-background/95 backdrop-blur-sm rounded-xl p-5 border border-border shadow-md hover:shadow-xl transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-700">
                         <div className="flex items-center gap-2 mb-3">
                           <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-2 rounded-lg shadow-sm">
                             <Mail className="w-4 h-4 text-white" />
                           </div>
-                          <h5 className="font-bold text-slate-900 text-sm">Outlook/Office 365</h5>
+                          <h5 className="font-bold text-foreground text-sm">Outlook/Office 365</h5>
                         </div>
                         <div className="grid grid-cols-3 gap-2">
-                          <div className="bg-slate-50 rounded-lg p-2">
-                            <p className="text-xs text-slate-500 font-medium mb-0.5">Host</p>
-                            <p className="font-mono text-xs font-bold text-slate-800">smtp.office365.com</p>
+                          <div className="bg-muted rounded-lg p-2">
+                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Host</p>
+                            <p className="font-mono text-xs font-bold text-foreground">smtp.office365.com</p>
                           </div>
-                          <div className="bg-slate-50 rounded-lg p-2">
-                            <p className="text-xs text-slate-500 font-medium mb-0.5">Port</p>
-                            <p className="font-mono text-xs font-bold text-slate-800">587</p>
+                          <div className="bg-muted rounded-lg p-2">
+                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Port</p>
+                            <p className="font-mono text-xs font-bold text-foreground">587</p>
                           </div>
-                          <div className="bg-slate-50 rounded-lg p-2">
-                            <p className="text-xs text-slate-500 font-medium mb-0.5">SSL/TLS</p>
-                            <p className="font-mono text-xs font-bold text-slate-800">No</p>
+                          <div className="bg-muted rounded-lg p-2">
+                            <p className="text-xs text-muted-foreground font-medium mb-0.5">SSL/TLS</p>
+                            <p className="font-mono text-xs font-bold text-foreground">No</p>
                           </div>
                         </div>
                       </div>
 
                       {/* Yahoo */}
-                      <div className="group bg-white/95 backdrop-blur-sm rounded-xl p-5 border border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 hover:border-purple-300">
+                      <div className="group bg-background/95 backdrop-blur-sm rounded-xl p-5 border border-border shadow-md hover:shadow-xl transition-all duration-300 hover:border-purple-300 dark:hover:border-purple-700">
                         <div className="flex items-center gap-2 mb-3">
                           <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-2 rounded-lg shadow-sm">
                             <Mail className="w-4 h-4 text-white" />
                           </div>
-                          <h5 className="font-bold text-slate-900 text-sm">Yahoo</h5>
+                          <h5 className="font-bold text-foreground text-sm">Yahoo</h5>
                         </div>
                         <div className="grid grid-cols-3 gap-2">
-                          <div className="bg-slate-50 rounded-lg p-2">
-                            <p className="text-xs text-slate-500 font-medium mb-0.5">Host</p>
-                            <p className="font-mono text-xs font-bold text-slate-800">smtp.mail.yahoo.com</p>
+                          <div className="bg-muted rounded-lg p-2">
+                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Host</p>
+                            <p className="font-mono text-xs font-bold text-foreground">smtp.mail.yahoo.com</p>
                           </div>
-                          <div className="bg-slate-50 rounded-lg p-2">
-                            <p className="text-xs text-slate-500 font-medium mb-0.5">Port</p>
-                            <p className="font-mono text-xs font-bold text-slate-800">587</p>
+                          <div className="bg-muted rounded-lg p-2">
+                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Port</p>
+                            <p className="font-mono text-xs font-bold text-foreground">587</p>
                           </div>
-                          <div className="bg-slate-50 rounded-lg p-2">
-                            <p className="text-xs text-slate-500 font-medium mb-0.5">SSL/TLS</p>
-                            <p className="font-mono text-xs font-bold text-slate-800">No</p>
+                          <div className="bg-muted rounded-lg p-2">
+                            <p className="text-xs text-muted-foreground font-medium mb-0.5">SSL/TLS</p>
+                            <p className="font-mono text-xs font-bold text-foreground">No</p>
                           </div>
                         </div>
                       </div>
 
                       {/* SendGrid */}
-                      <div className="group bg-white/95 backdrop-blur-sm rounded-xl p-5 border border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 hover:border-teal-300">
+                      <div className="group bg-background/95 backdrop-blur-sm rounded-xl p-5 border border-border shadow-md hover:shadow-xl transition-all duration-300 hover:border-teal-300 dark:hover:border-teal-700">
                         <div className="flex items-center gap-2 mb-3">
                           <div className="bg-gradient-to-br from-teal-600 to-teal-700 p-2 rounded-lg shadow-sm">
                             <Mail className="w-4 h-4 text-white" />
                           </div>
-                          <h5 className="font-bold text-slate-900 text-sm">SendGrid</h5>
+                          <h5 className="font-bold text-foreground text-sm">SendGrid</h5>
                         </div>
                         <div className="grid grid-cols-3 gap-2">
-                          <div className="bg-slate-50 rounded-lg p-2">
-                            <p className="text-xs text-slate-500 font-medium mb-0.5">Host</p>
-                            <p className="font-mono text-xs font-bold text-slate-800">smtp.sendgrid.net</p>
+                          <div className="bg-muted rounded-lg p-2">
+                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Host</p>
+                            <p className="font-mono text-xs font-bold text-foreground">smtp.sendgrid.net</p>
                           </div>
-                          <div className="bg-slate-50 rounded-lg p-2">
-                            <p className="text-xs text-slate-500 font-medium mb-0.5">Port</p>
-                            <p className="font-mono text-xs font-bold text-slate-800">587</p>
+                          <div className="bg-muted rounded-lg p-2">
+                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Port</p>
+                            <p className="font-mono text-xs font-bold text-foreground">587</p>
                           </div>
-                          <div className="bg-slate-50 rounded-lg p-2">
-                            <p className="text-xs text-slate-500 font-medium mb-0.5">SSL/TLS</p>
-                            <p className="font-mono text-xs font-bold text-slate-800">No</p>
+                          <div className="bg-muted rounded-lg p-2">
+                            <p className="text-xs text-muted-foreground font-medium mb-0.5">SSL/TLS</p>
+                            <p className="font-mono text-xs font-bold text-foreground">No</p>
                           </div>
                         </div>
                       </div>
                     </div>
 
                     {/* Configuration Notes */}
-                    <div className="relative bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-300 rounded-xl p-5 shadow-lg">
+                    <div className="relative bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 dark:from-amber-950 dark:via-orange-950 dark:to-amber-950 border-2 border-amber-300 rounded-xl p-5 shadow-lg">
                       <div className="flex items-start gap-3">
                         <div className="bg-amber-500 p-2 rounded-lg shadow-md flex-shrink-0">
                           <AlertCircle className="w-5 h-5 text-white" />
@@ -1500,7 +1500,7 @@ function VehicleTypeManagement() {
             </div>
             <div>
               <h2 className="text-2xl font-bold text-white tracking-tight">Fleet Management</h2>
-              <p className="text-sm text-slate-300 mt-0.5 font-light">Manage your luxury vehicle collection</p>
+              <p className="text-sm text-muted-foreground mt-0.5 font-light">Manage your luxury vehicle collection</p>
             </div>
           </div>
           <Button
@@ -1518,12 +1518,12 @@ function VehicleTypeManagement() {
         {/* Premium Search Bar */}
         <div className="mb-8">
           <div className="relative max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               placeholder="Search by name or description..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-4 py-6 border-slate-200 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm focus:border-blue-400 focus:ring-blue-400/20 focus:shadow-md transition-all text-base"
+              className="pl-12 pr-4 py-6 border-border bg-background/80 backdrop-blur-sm rounded-xl shadow-sm focus:border-blue-400 focus:ring-blue-400/20 focus:shadow-md transition-all text-base"
               data-testid="input-search-vehicle-types"
             />
           </div>
@@ -1532,7 +1532,7 @@ function VehicleTypeManagement() {
         {isLoading ? (
           <div className="flex items-center justify-center p-16">
             <div className="relative">
-              <div className="animate-spin w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full" />
+              <div className="animate-spin w-12 h-12 border-4 border-border border-t-blue-600 rounded-full" />
               <div className="absolute inset-0 animate-ping w-12 h-12 border-4 border-blue-400 rounded-full opacity-20" />
             </div>
           </div>
@@ -1541,7 +1541,7 @@ function VehicleTypeManagement() {
             {filteredVehicleTypes.map((vt) => (
               <div
                 key={vt.id}
-                className="group relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-slate-100 hover:border-slate-200 hover:-translate-y-1"
+                className="group relative bg-background rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-border hover:border-border hover:-translate-y-1"
                 data-testid={`vehicle-type-row-${vt.id}`}
               >
                 {/* Vehicle Image */}
@@ -1557,7 +1557,7 @@ function VehicleTypeManagement() {
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
-                      <Car className="w-20 h-20 text-slate-300" />
+                      <Car className="w-20 h-20 text-muted-foreground" />
                     </div>
                   )}
                   
@@ -1566,7 +1566,7 @@ function VehicleTypeManagement() {
                     <Badge 
                       className={vt.isActive 
                         ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white border-0 shadow-lg px-3 py-1.5 font-semibold" 
-                        : "bg-slate-500/90 text-white border-0 shadow-lg px-3 py-1.5 backdrop-blur-sm"}
+                        : "bg-muted0/90 text-white border-0 shadow-lg px-3 py-1.5 backdrop-blur-sm"}
                       data-testid={`vehicle-status-${vt.id}`}
                     >
                       <CheckCircle2 className={`w-3 h-3 mr-1 ${vt.isActive ? '' : 'opacity-50'}`} />
@@ -1579,23 +1579,23 @@ function VehicleTypeManagement() {
                 <div className="p-6">
                   {/* Vehicle Name & Description */}
                   <div className="mb-4">
-                    <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors" data-testid={`vehicle-name-${vt.id}`}>
+                    <h3 className="text-xl font-bold text-foreground mb-1 group-hover:text-blue-600 transition-colors" data-testid={`vehicle-name-${vt.id}`}>
                       {vt.name}
                     </h3>
                     {vt.description && (
-                      <p className="text-sm text-slate-500 line-clamp-2">{vt.description}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{vt.description}</p>
                     )}
                   </div>
 
                   {/* Capacity Info */}
-                  <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100" data-testid={`vehicle-capacity-${vt.id}`}>
-                    <div className="flex items-center gap-2 text-slate-600">
+                  <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border" data-testid={`vehicle-capacity-${vt.id}`}>
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <Users className="w-4 h-4 text-blue-500" />
                       <span className="text-sm font-medium">{vt.passengerCapacity}</span>
                     </div>
-                    <div className="h-4 w-px bg-slate-200" />
+                    <div className="h-4 w-px bg-muted" />
                     <div className="flex-1">
-                      <p className="text-xs text-slate-500 font-medium">{vt.luggageCapacity}</p>
+                      <p className="text-xs text-muted-foreground font-medium">{vt.luggageCapacity}</p>
                     </div>
                   </div>
 
@@ -1612,7 +1612,7 @@ function VehicleTypeManagement() {
                     <Button
                       onClick={() => handleDelete(vt)}
                       variant="outline"
-                      className="px-4 border-slate-200 text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-300 rounded-xl"
+                      className="px-4 border-border text-muted-foreground hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-300 rounded-xl"
                       data-testid={`button-delete-${vt.id}`}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -1623,17 +1623,17 @@ function VehicleTypeManagement() {
             ))}
           </div>
         ) : (
-          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 border-2 border-dashed border-slate-200">
+          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 border-2 border-dashed border-border">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05)_0%,transparent_70%)]" />
             <div className="relative text-center py-20 px-6">
               <div className="relative inline-block mb-6">
                 <div className="absolute inset-0 bg-blue-100 rounded-full blur-2xl opacity-50" />
                 <div className="relative bg-gradient-to-br from-slate-100 to-blue-100 p-6 rounded-full">
-                  <Car className="w-16 h-16 text-slate-400" />
+                  <Car className="w-16 h-16 text-muted-foreground" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-slate-700 mb-2">No Vehicles Yet</h3>
-              <p className="text-slate-500 mb-6 max-w-sm mx-auto">Start building your luxury fleet by adding your first vehicle type.</p>
+              <h3 className="text-xl font-bold text-muted-foreground mb-2">No Vehicles Yet</h3>
+              <p className="text-muted-foreground mb-6 max-w-sm mx-auto">Start building your luxury fleet by adding your first vehicle type.</p>
               <Button
                 onClick={handleAdd}
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-8 py-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
@@ -1648,7 +1648,7 @@ function VehicleTypeManagement() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-background">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-blue-700">
               <Car className="w-5 h-5" />
@@ -1749,14 +1749,14 @@ function VehicleTypeManagement() {
                     )}
                   </Button>
                 </div>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                   Upload an image file (JPEG, PNG, WebP, GIF, or HEIC, max 2MB) or enter a URL manually
                 </p>
                 
                 {/* Image Preview */}
                 {formData.imageUrl && (
-                  <div className="border border-slate-200 rounded-lg p-3 bg-slate-50">
-                    <p className="text-xs font-medium text-slate-700 mb-2">Preview:</p>
+                  <div className="border border-border rounded-lg p-3 bg-muted">
+                    <p className="text-xs font-medium text-muted-foreground mb-2">Preview:</p>
                     <img
                       src={formData.imageUrl}
                       alt="Vehicle preview"
@@ -1777,7 +1777,7 @@ function VehicleTypeManagement() {
                 id="isActive"
                 checked={formData.isActive}
                 onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-border rounded focus:ring-blue-500"
                 data-testid="checkbox-is-active"
               />
               <Label htmlFor="isActive" className="cursor-pointer">Active (visible to customers)</Label>
@@ -1820,7 +1820,7 @@ function VehicleTypeManagement() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="bg-white">
+        <AlertDialogContent className="bg-background">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-red-600">
               <AlertCircle className="w-5 h-5" />
@@ -2609,12 +2609,12 @@ function InvoiceManagement() {
 
           {/* Search Bar */}
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search invoices..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
+              className="pl-9 border-border focus:border-indigo-500 focus:ring-indigo-500"
               data-testid="input-invoice-search"
             />
           </div>
@@ -2624,7 +2624,7 @@ function InvoiceManagement() {
       {/* Invoices Grid */}
       <div className="space-y-3">
         {/* Table Header - Hidden on mobile */}
-        <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-gradient-to-r from-slate-100 to-slate-50 rounded-lg text-sm font-semibold text-slate-900 border border-slate-200">
+        <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-gradient-to-r from-slate-100 to-slate-50 rounded-lg text-sm font-semibold text-foreground border border-border">
           <div className="col-span-2">Invoice</div>
           <div className="col-span-2">Date</div>
           <div className="col-span-2">Booking ID</div>
@@ -2636,7 +2636,7 @@ function InvoiceManagement() {
         {/* Invoice Cards */}
         {filteredInvoices && filteredInvoices.length > 0 ? (
           filteredInvoices.map((invoice) => (
-            <Card key={invoice.id} className="border-slate-200 bg-white hover:shadow-md transition-all hover:border-indigo-200" data-testid={`invoice-row-${invoice.id}`}>
+            <Card key={invoice.id} className="border-border bg-background hover:shadow-md transition-all hover:border-indigo-200" data-testid={`invoice-row-${invoice.id}`}>
               <CardContent className="p-6">
                 <div className="grid md:grid-cols-12 gap-4 items-center">
                   {/* Invoice Number */}
@@ -2646,30 +2646,30 @@ function InvoiceManagement() {
                         <FileText className="w-3.5 h-3.5 text-indigo-700" />
                       </div>
                       <div>
-                        <p className="text-xs text-slate-600 md:hidden">Invoice</p>
-                        <p className="font-semibold text-slate-900">{invoice.invoiceNumber}</p>
+                        <p className="text-xs text-muted-foreground md:hidden">Invoice</p>
+                        <p className="font-semibold text-foreground">{invoice.invoiceNumber}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Date */}
                   <div className="col-span-6 md:col-span-2">
-                    <p className="text-xs text-slate-600 md:hidden">Date</p>
-                    <p className="text-sm text-slate-700">{new Date(invoice.createdAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-muted-foreground md:hidden">Date</p>
+                    <p className="text-sm text-muted-foreground">{new Date(invoice.createdAt).toLocaleDateString()}</p>
                   </div>
 
                   {/* Booking ID */}
                   <div className="col-span-6 md:col-span-2">
-                    <p className="text-xs text-slate-600 md:hidden">Booking</p>
-                    <p className="font-mono text-sm text-slate-600 bg-slate-100 px-2 py-1 rounded inline-block" data-testid={`booking-id-${invoice.id}`}>
+                    <p className="text-xs text-muted-foreground md:hidden">Booking</p>
+                    <p className="font-mono text-sm text-muted-foreground bg-muted px-2 py-1 rounded inline-block" data-testid={`booking-id-${invoice.id}`}>
                       #{invoice.bookingId.toUpperCase().substring(0, 8)}
                     </p>
                   </div>
 
                   {/* Amount */}
                   <div className="col-span-6 md:col-span-2 md:text-right">
-                    <p className="text-xs text-slate-600 md:hidden">Amount</p>
-                    <p className="text-lg font-bold text-slate-900">${parseFloat(invoice.totalAmount).toFixed(2)}</p>
+                    <p className="text-xs text-muted-foreground md:hidden">Amount</p>
+                    <p className="text-lg font-bold text-foreground">${parseFloat(invoice.totalAmount).toFixed(2)}</p>
                   </div>
 
                   {/* Status */}
@@ -2699,7 +2699,7 @@ function InvoiceManagement() {
                         size="sm"
                         variant="ghost"
                         onClick={() => handlePrint(invoice)}
-                        className="h-8 text-slate-700 hover:bg-slate-100"
+                        className="h-8 text-muted-foreground hover:bg-muted dark:hover:bg-slate-800"
                         data-testid={`button-print-${invoice.id}`}
                       >
                         <Printer className="w-3.5 h-3.5 mr-1.5" />
@@ -2743,14 +2743,14 @@ function InvoiceManagement() {
             </Card>
           ))
         ) : (
-          <Card className="border-slate-200 bg-gradient-to-br from-slate-50 to-white">
+          <Card className="border-border bg-gradient-to-br from-slate-50 to-white">
             <CardContent className="p-12">
               <div className="text-center" data-testid="no-invoices">
                 <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FileText className="w-8 h-8 text-indigo-600" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2 text-slate-900">No invoices found</h3>
-                <p className="text-sm text-slate-600">
+                <h3 className="text-lg font-semibold mb-2 text-foreground">No invoices found</h3>
+                <p className="text-sm text-muted-foreground">
                   {searchQuery ? "Try adjusting your search terms" : "Invoices will appear here once created"}
                 </p>
               </div>
@@ -2761,47 +2761,47 @@ function InvoiceManagement() {
 
       {/* View Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="sm:max-w-[700px] bg-white">
-          <DialogHeader className="border-b border-slate-200 pb-4">
+        <DialogContent className="sm:max-w-[700px] bg-background">
+          <DialogHeader className="border-b border-border pb-4">
             <div className="flex items-center gap-3">
               <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-lg">
                 <FileText className="w-5 h-5 text-white" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold text-slate-900">Invoice Details</DialogTitle>
-                <p className="text-sm text-slate-600 mt-0.5">Complete pricing breakdown and payment information</p>
+                <DialogTitle className="text-xl font-bold text-foreground">Invoice Details</DialogTitle>
+                <p className="text-sm text-muted-foreground mt-0.5">Complete pricing breakdown and payment information</p>
               </div>
             </div>
           </DialogHeader>
           {selectedInvoice && (
             <div className="space-y-6">
               {/* Invoice Header Section */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 p-5 rounded-xl border border-slate-200">
+              <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 p-5 rounded-xl border border-border">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="bg-indigo-100 p-1.5 rounded-lg">
                     <FileText className="w-4 h-4 text-indigo-700" />
                   </div>
-                  <h3 className="font-bold text-lg text-slate-900">Invoice Information</h3>
+                  <h3 className="font-bold text-lg text-foreground">Invoice Information</h3>
                 </div>
                 <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
                   <div>
-                    <p className="text-slate-600 mb-1.5 font-medium">Invoice Number</p>
-                    <p className="font-bold text-slate-900" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
+                    <p className="text-muted-foreground mb-1.5 font-medium">Invoice Number</p>
+                    <p className="font-bold text-foreground" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
                   </div>
                   <div>
-                    <p className="text-slate-600 mb-1.5 font-medium">Date</p>
-                    <p className="text-slate-900" data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
+                    <p className="text-muted-foreground mb-1.5 font-medium">Date</p>
+                    <p className="text-foreground" data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-slate-600 mb-1.5 font-medium">Booking ID</p>
-                    <p className="font-mono text-sm bg-slate-200 text-slate-900 px-3 py-1.5 rounded-lg inline-block" data-testid="view-booking-id">
+                    <p className="text-muted-foreground mb-1.5 font-medium">Booking ID</p>
+                    <p className="font-mono text-sm bg-muted text-foreground px-3 py-1.5 rounded-lg inline-block" data-testid="view-booking-id">
                       #{selectedInvoice.bookingId.toUpperCase().substring(0, 8)}
                     </p>
                   </div>
                   {selectedInvoice.paidAt && (
                     <div className="col-span-2">
-                      <p className="text-slate-600 mb-1.5 font-medium">Payment Date</p>
-                      <p className="text-slate-900" data-testid="view-payment-date">{new Date(selectedInvoice.paidAt).toLocaleDateString()}</p>
+                      <p className="text-muted-foreground mb-1.5 font-medium">Payment Date</p>
+                      <p className="text-foreground" data-testid="view-payment-date">{new Date(selectedInvoice.paidAt).toLocaleDateString()}</p>
                     </div>
                   )}
                 </div>
@@ -2816,26 +2816,26 @@ function InvoiceManagement() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                       </svg>
                     </div>
-                    <h3 className="font-bold text-lg text-slate-900">Journey Information</h3>
+                    <h3 className="font-bold text-lg text-foreground">Journey Information</h3>
                   </div>
                   <div className="space-y-3">
                     <div>
                       <p className="text-blue-900 font-semibold mb-1.5">From :</p>
-                      <p className="text-slate-900 leading-relaxed" data-testid="view-pickup-address">
+                      <p className="text-foreground leading-relaxed" data-testid="view-pickup-address">
                         {selectedInvoice.booking.pickupAddress}
                       </p>
                     </div>
                     {selectedInvoice.booking.bookingType === 'hourly' && selectedInvoice.booking.requestedHours ? (
                       <div>
                         <p className="text-blue-900 font-semibold mb-1.5">Duration:</p>
-                        <p className="text-slate-900 font-bold text-lg" data-testid="view-booking-hours">
+                        <p className="text-foreground font-bold text-lg" data-testid="view-booking-hours">
                           {selectedInvoice.booking.requestedHours} {selectedInvoice.booking.requestedHours === 1 ? 'Hour' : 'Hours'}
                         </p>
                       </div>
                     ) : selectedInvoice.booking.destinationAddress ? (
                       <div>
                         <p className="text-blue-900 font-semibold mb-1.5">Destination:</p>
-                        <p className="text-slate-900 leading-relaxed" data-testid="view-destination-address">
+                        <p className="text-foreground leading-relaxed" data-testid="view-destination-address">
                           {selectedInvoice.booking.destinationAddress}
                         </p>
                       </div>
@@ -2845,19 +2845,19 @@ function InvoiceManagement() {
               )}
 
               {/* Detailed Pricing Breakdown */}
-              <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <div className="bg-background border border-border rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="bg-blue-100 p-1.5 rounded-lg">
                     <Receipt className="w-4 h-4 text-blue-700" />
                   </div>
-                  <h3 className="font-bold text-lg text-slate-900">Detailed Pricing Breakdown</h3>
+                  <h3 className="font-bold text-lg text-foreground">Detailed Pricing Breakdown</h3>
                 </div>
                 <div className="space-y-3">
                   {/* Base Fare */}
                   {selectedInvoice.booking?.baseFare && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
-                      <span className="text-slate-900 font-medium">Base Fare</span>
-                      <span className="font-semibold text-slate-900" data-testid="view-base-fare">
+                    <div className="flex justify-between items-center py-2.5 border-b border-border">
+                      <span className="text-foreground font-medium">Base Fare</span>
+                      <span className="font-semibold text-foreground" data-testid="view-base-fare">
                         ${parseFloat(selectedInvoice.booking.baseFare).toFixed(2)}
                       </span>
                     </div>
@@ -2865,9 +2865,9 @@ function InvoiceManagement() {
                   
                   {/* Surge Pricing */}
                   {selectedInvoice.booking?.surgePricingAmount && parseFloat(selectedInvoice.booking.surgePricingAmount) > 0 && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
+                    <div className="flex justify-between items-center py-2.5 border-b border-border">
                       <div className="flex items-center gap-2">
-                        <span className="text-slate-900 font-medium">Surge Pricing</span>
+                        <span className="text-foreground font-medium">Surge Pricing</span>
                         {selectedInvoice.booking?.surgePricingMultiplier && (
                           <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
                             {selectedInvoice.booking.surgePricingMultiplier}x
@@ -2882,9 +2882,9 @@ function InvoiceManagement() {
                   
                   {/* Gratuity */}
                   {selectedInvoice.booking?.gratuityAmount && parseFloat(selectedInvoice.booking.gratuityAmount) > 0 && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
-                      <span className="text-slate-900 font-medium">Gratuity (Tip)</span>
-                      <span className="font-semibold text-slate-900" data-testid="view-gratuity">
+                    <div className="flex justify-between items-center py-2.5 border-b border-border">
+                      <span className="text-foreground font-medium">Gratuity (Tip)</span>
+                      <span className="font-semibold text-foreground" data-testid="view-gratuity">
                         +${parseFloat(selectedInvoice.booking.gratuityAmount).toFixed(2)}
                       </span>
                     </div>
@@ -2892,9 +2892,9 @@ function InvoiceManagement() {
                   
                   {/* Airport Fee */}
                   {selectedInvoice.booking?.airportFeeAmount && parseFloat(selectedInvoice.booking.airportFeeAmount) > 0 && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
-                      <span className="text-slate-900 font-medium">Airport Fee</span>
-                      <span className="font-semibold text-slate-900" data-testid="view-airport-fee">
+                    <div className="flex justify-between items-center py-2.5 border-b border-border">
+                      <span className="text-foreground font-medium">Airport Fee</span>
+                      <span className="font-semibold text-foreground" data-testid="view-airport-fee">
                         +${parseFloat(selectedInvoice.booking.airportFeeAmount).toFixed(2)}
                       </span>
                     </div>
@@ -2902,9 +2902,9 @@ function InvoiceManagement() {
                   
                   {/* Discount */}
                   {selectedInvoice.booking?.discountAmount && parseFloat(selectedInvoice.booking.discountAmount) > 0 && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
+                    <div className="flex justify-between items-center py-2.5 border-b border-border">
                       <div className="flex items-center gap-2">
-                        <span className="text-slate-900 font-medium">Discount</span>
+                        <span className="text-foreground font-medium">Discount</span>
                         {selectedInvoice.booking?.discountPercentage && (
                           <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
                             {selectedInvoice.booking.discountPercentage}%
@@ -2918,8 +2918,8 @@ function InvoiceManagement() {
                   )}
                   
                   {/* Total */}
-                  <div className="flex justify-between items-center py-4 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 -mx-4 rounded-lg mt-3 border-t-2 border-blue-200">
-                    <span className="font-bold text-lg text-slate-900">Total Amount</span>
+                  <div className="flex justify-between items-center py-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 px-4 -mx-4 rounded-lg mt-3 border-t-2 border-blue-200">
+                    <span className="font-bold text-lg text-foreground">Total Amount</span>
                     <span className="font-bold text-xl text-blue-700" data-testid="view-total">
                       ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}
                     </span>
@@ -2942,16 +2942,16 @@ function InvoiceManagement() {
               )}
 
               {/* Footer Note */}
-              <div className="text-xs text-slate-500 text-center pt-2 bg-slate-50 py-3 rounded-lg border border-slate-200">
+              <div className="text-xs text-muted-foreground text-center pt-2 bg-muted py-3 rounded-lg border border-border">
                 <p className="font-medium">💡 All prices include statutory taxes and transportation expenses</p>
               </div>
             </div>
           )}
-          <DialogFooter className="border-t border-slate-200 pt-4">
+          <DialogFooter className="border-t border-border pt-4">
             <Button 
               variant="outline" 
               onClick={() => setViewDialogOpen(false)} 
-              className="border-slate-300 text-slate-700 hover:bg-slate-50"
+              className="border-border text-muted-foreground hover:bg-muted dark:hover:bg-slate-800"
               data-testid="button-close-view"
             >
               Close
@@ -2962,36 +2962,36 @@ function InvoiceManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-white max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="border-b border-slate-200 pb-4">
+        <DialogContent className="sm:max-w-[600px] bg-background max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="border-b border-border pb-4">
             <div className="flex items-center gap-3">
               <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-2 rounded-lg shadow-md">
                 <Edit2 className="w-5 h-5 text-white" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold text-slate-900">Edit Invoice</DialogTitle>
-                <p className="text-sm text-slate-600 mt-0.5">Update pricing details and amounts</p>
+                <DialogTitle className="text-xl font-bold text-foreground">Edit Invoice</DialogTitle>
+                <p className="text-sm text-muted-foreground mt-0.5">Update pricing details and amounts</p>
               </div>
             </div>
           </DialogHeader>
           {selectedInvoice && (
             <div className="space-y-6">
               {/* Invoice Information */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 p-5 rounded-xl border border-slate-200">
+              <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 p-5 rounded-xl border border-border">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="bg-slate-100 p-1.5 rounded-lg">
-                    <FileText className="w-4 h-4 text-slate-700" />
+                  <div className="bg-muted p-1.5 rounded-lg">
+                    <FileText className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <h3 className="font-bold text-base text-slate-900">Invoice Information</h3>
+                  <h3 className="font-bold text-base text-foreground">Invoice Information</h3>
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-slate-600 mb-1 font-medium">Invoice Number</p>
-                    <p className="font-bold text-slate-900">{selectedInvoice.invoiceNumber}</p>
+                    <p className="text-muted-foreground mb-1 font-medium">Invoice Number</p>
+                    <p className="font-bold text-foreground">{selectedInvoice.invoiceNumber}</p>
                   </div>
                   <div>
-                    <p className="text-slate-600 mb-1 font-medium">Booking ID</p>
-                    <p className="font-mono text-xs bg-slate-200 text-slate-900 px-2 py-1 rounded inline-block">
+                    <p className="text-muted-foreground mb-1 font-medium">Booking ID</p>
+                    <p className="font-mono text-xs bg-muted text-foreground px-2 py-1 rounded inline-block">
                       #{selectedInvoice.bookingId.toUpperCase().substring(0, 8)}
                     </p>
                   </div>
@@ -2999,22 +2999,22 @@ function InvoiceManagement() {
               </div>
 
               {/* Detailed Pricing Breakdown */}
-              <div className="bg-white border-2 border-slate-200 rounded-xl p-5">
+              <div className="bg-background border-2 border-border rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-5">
                   <div className="bg-blue-100 p-1.5 rounded-lg">
                     <Receipt className="w-4 h-4 text-blue-700" />
                   </div>
-                  <h3 className="font-bold text-base text-slate-900">Detailed Pricing Breakdown</h3>
+                  <h3 className="font-bold text-base text-foreground">Detailed Pricing Breakdown</h3>
                 </div>
                 
                 <div className="space-y-4">
                   {/* Base Fare */}
-                  <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                    <Label htmlFor="edit-base-fare" className="text-slate-900 font-semibold mb-2 block">
+                  <div className="p-4 bg-muted rounded-lg border border-border">
+                    <Label htmlFor="edit-base-fare" className="text-foreground font-semibold mb-2 block">
                       Base Fare
                     </Label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-900 font-semibold">$</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground font-semibold">$</span>
                       <Input
                         id="edit-base-fare"
                         type="number"
@@ -3022,7 +3022,7 @@ function InvoiceManagement() {
                         min="0"
                         value={editFormData.subtotal}
                         onChange={(e) => setEditFormData({ ...editFormData, subtotal: e.target.value })}
-                        className="pl-7 h-11 border-slate-300 focus:border-slate-500 focus:ring-slate-500 bg-white text-slate-900 font-semibold"
+                        className="pl-7 h-11 border-border focus:border-primary focus:ring-primary bg-background text-foreground font-semibold"
                         data-testid="input-edit-base-fare"
                       />
                     </div>
@@ -3030,7 +3030,7 @@ function InvoiceManagement() {
 
                   {/* Surge Pricing */}
                   <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-                    <Label className="text-slate-900 font-semibold mb-3 block flex items-center gap-2">
+                    <Label className="text-foreground font-semibold mb-3 block flex items-center gap-2">
                       <span>Surge Pricing</span>
                       <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
                         Optional
@@ -3038,7 +3038,7 @@ function InvoiceManagement() {
                     </Label>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="edit-surge-multiplier" className="text-xs text-slate-700 mb-1.5 block">
+                        <Label htmlFor="edit-surge-multiplier" className="text-xs text-muted-foreground mb-1.5 block">
                           Multiplier (e.g., 1.5x)
                         </Label>
                         <Input
@@ -3047,12 +3047,12 @@ function InvoiceManagement() {
                           step="0.1"
                           min="1"
                           placeholder="1.0"
-                          className="h-10 border-orange-300 focus:border-orange-500 focus:ring-orange-500 bg-white"
+                          className="h-10 border-orange-300 focus:border-orange-500 focus:ring-orange-500 bg-background"
                           data-testid="input-edit-surge-multiplier"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="edit-surge-amount" className="text-xs text-slate-700 mb-1.5 block">
+                        <Label htmlFor="edit-surge-amount" className="text-xs text-muted-foreground mb-1.5 block">
                           Amount
                         </Label>
                         <div className="relative">
@@ -3063,7 +3063,7 @@ function InvoiceManagement() {
                             step="0.01"
                             min="0"
                             placeholder="0.00"
-                            className="pl-7 h-10 border-orange-300 focus:border-orange-500 focus:ring-orange-500 bg-white text-orange-600 font-semibold"
+                            className="pl-7 h-10 border-orange-300 focus:border-orange-500 focus:ring-orange-500 bg-background text-orange-600 font-semibold"
                             data-testid="input-edit-surge-amount"
                           />
                         </div>
@@ -3072,44 +3072,44 @@ function InvoiceManagement() {
                   </div>
 
                   {/* Gratuity */}
-                  <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                    <Label htmlFor="edit-gratuity" className="text-slate-900 font-semibold mb-2 block flex items-center gap-2">
+                  <div className="p-4 bg-muted rounded-lg border border-border">
+                    <Label htmlFor="edit-gratuity" className="text-foreground font-semibold mb-2 block flex items-center gap-2">
                       <span>Gratuity (Tip)</span>
-                      <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-semibold">
+                      <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-semibold">
                         Optional
                       </span>
                     </Label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-900 font-semibold">$</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground font-semibold">$</span>
                       <Input
                         id="edit-gratuity"
                         type="number"
                         step="0.01"
                         min="0"
                         placeholder="0.00"
-                        className="pl-7 h-11 border-slate-300 focus:border-slate-500 focus:ring-slate-500 bg-white text-slate-900 font-semibold"
+                        className="pl-7 h-11 border-border focus:border-primary focus:ring-primary bg-background text-foreground font-semibold"
                         data-testid="input-edit-gratuity"
                       />
                     </div>
                   </div>
 
                   {/* Airport Fee */}
-                  <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                    <Label htmlFor="edit-airport-fee" className="text-slate-900 font-semibold mb-2 block flex items-center gap-2">
+                  <div className="p-4 bg-muted rounded-lg border border-border">
+                    <Label htmlFor="edit-airport-fee" className="text-foreground font-semibold mb-2 block flex items-center gap-2">
                       <span>Airport Fee</span>
-                      <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-semibold">
+                      <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-semibold">
                         Optional
                       </span>
                     </Label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-900 font-semibold">$</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground font-semibold">$</span>
                       <Input
                         id="edit-airport-fee"
                         type="number"
                         step="0.01"
                         min="0"
                         placeholder="0.00"
-                        className="pl-7 h-11 border-slate-300 focus:border-slate-500 focus:ring-slate-500 bg-white text-slate-900 font-semibold"
+                        className="pl-7 h-11 border-border focus:border-primary focus:ring-primary bg-background text-foreground font-semibold"
                         data-testid="input-edit-airport-fee"
                       />
                     </div>
@@ -3117,7 +3117,7 @@ function InvoiceManagement() {
 
                   {/* Discount */}
                   <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                    <Label className="text-slate-900 font-semibold mb-3 block flex items-center gap-2">
+                    <Label className="text-foreground font-semibold mb-3 block flex items-center gap-2">
                       <span>Discount</span>
                       <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
                         Optional
@@ -3125,7 +3125,7 @@ function InvoiceManagement() {
                     </Label>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="edit-discount-percentage" className="text-xs text-slate-700 mb-1.5 block">
+                        <Label htmlFor="edit-discount-percentage" className="text-xs text-muted-foreground mb-1.5 block">
                           Percentage (%)
                         </Label>
                         <Input
@@ -3135,12 +3135,12 @@ function InvoiceManagement() {
                           min="0"
                           max="100"
                           placeholder="0"
-                          className="h-10 border-green-300 focus:border-green-500 focus:ring-green-500 bg-white"
+                          className="h-10 border-green-300 focus:border-green-500 focus:ring-green-500 bg-background"
                           data-testid="input-edit-discount-percentage"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="edit-discount-amount" className="text-xs text-slate-700 mb-1.5 block">
+                        <Label htmlFor="edit-discount-amount" className="text-xs text-muted-foreground mb-1.5 block">
                           Amount
                         </Label>
                         <div className="relative">
@@ -3151,7 +3151,7 @@ function InvoiceManagement() {
                             step="0.01"
                             min="0"
                             placeholder="0.00"
-                            className="pl-7 h-10 border-green-300 focus:border-green-500 focus:ring-green-500 bg-white text-green-600 font-semibold"
+                            className="pl-7 h-10 border-green-300 focus:border-green-500 focus:ring-green-500 bg-background text-green-600 font-semibold"
                             data-testid="input-edit-discount-amount"
                           />
                         </div>
@@ -3160,8 +3160,8 @@ function InvoiceManagement() {
                   </div>
 
                   {/* Total Amount */}
-                  <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-300 shadow-sm">
-                    <Label htmlFor="edit-total" className="text-slate-900 font-bold mb-3 block text-base">
+                  <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-xl border-2 border-blue-300 shadow-sm">
+                    <Label htmlFor="edit-total" className="text-foreground font-bold mb-3 block text-base">
                       Total Amount
                     </Label>
                     <div className="relative">
@@ -3173,7 +3173,7 @@ function InvoiceManagement() {
                         min="0"
                         value={editFormData.totalAmount}
                         onChange={(e) => setEditFormData({ ...editFormData, totalAmount: e.target.value })}
-                        className="pl-9 h-14 border-blue-400 focus:border-blue-600 focus:ring-blue-600 bg-white text-blue-700 font-bold text-xl"
+                        className="pl-9 h-14 border-blue-400 focus:border-blue-600 focus:ring-blue-600 bg-background text-blue-700 font-bold text-xl"
                         data-testid="input-edit-total"
                       />
                     </div>
@@ -3197,11 +3197,11 @@ function InvoiceManagement() {
               </div>
             </div>
           )}
-          <DialogFooter className="border-t border-slate-200 pt-4 gap-2">
+          <DialogFooter className="border-t border-border pt-4 gap-2">
             <Button 
               variant="outline" 
               onClick={() => setEditDialogOpen(false)} 
-              className="border-slate-300 text-slate-700 hover:bg-slate-50"
+              className="border-border text-muted-foreground hover:bg-muted dark:hover:bg-slate-800"
               data-testid="button-cancel-edit"
             >
               Cancel
@@ -3225,15 +3225,15 @@ function InvoiceManagement() {
 
       {/* Email Dialog */}
       <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-white">
-          <DialogHeader className="border-b border-slate-200 pb-4">
+        <DialogContent className="sm:max-w-[500px] bg-background">
+          <DialogHeader className="border-b border-border pb-4">
             <div className="flex items-center gap-3">
               <div className="bg-gradient-to-br from-blue-500 to-cyan-600 p-2 rounded-lg">
                 <Mail className="w-5 h-5 text-white" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold text-slate-900">Email Invoice</DialogTitle>
-                <DialogDescription className="text-slate-600 mt-0.5">Send this invoice to a customer via email</DialogDescription>
+                <DialogTitle className="text-xl font-bold text-foreground">Email Invoice</DialogTitle>
+                <DialogDescription className="text-muted-foreground mt-0.5">Send this invoice to a customer via email</DialogDescription>
               </div>
             </div>
           </DialogHeader>
@@ -3274,15 +3274,15 @@ function InvoiceManagement() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-white">
+        <DialogContent className="sm:max-w-[500px] bg-background">
           <DialogHeader className="border-b border-red-200 pb-4">
             <div className="flex items-center gap-3">
               <div className="bg-gradient-to-br from-red-500 to-rose-600 p-2 rounded-lg">
                 <Trash2 className="w-5 h-5 text-white" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold text-slate-900">Delete Invoice</DialogTitle>
-                <DialogDescription className="text-slate-600 mt-0.5">
+                <DialogTitle className="text-xl font-bold text-foreground">Delete Invoice</DialogTitle>
+                <DialogDescription className="text-muted-foreground mt-0.5">
                   This action cannot be undone. The invoice will be permanently removed.
                 </DialogDescription>
               </div>
@@ -3291,8 +3291,8 @@ function InvoiceManagement() {
           {selectedInvoice && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
               <div className="space-y-2 text-sm">
-                <p className="text-slate-900"><strong className="font-semibold">Invoice #:</strong> {selectedInvoice.invoiceNumber}</p>
-                <p className="text-slate-900"><strong className="font-semibold">Amount:</strong> ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}</p>
+                <p className="text-foreground"><strong className="font-semibold">Invoice #:</strong> {selectedInvoice.invoiceNumber}</p>
+                <p className="text-foreground"><strong className="font-semibold">Amount:</strong> ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}</p>
               </div>
             </div>
           )}
@@ -3318,15 +3318,15 @@ function InvoiceManagement() {
 
       {/* Backfill Invoices Dialog */}
       <Dialog open={backfillDialogOpen} onOpenChange={setBackfillDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-white">
-          <DialogHeader className="border-b border-slate-200 pb-4">
+        <DialogContent className="sm:max-w-[600px] bg-background">
+          <DialogHeader className="border-b border-border pb-4">
             <div className="flex items-center gap-3">
               <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-lg">
                 <FileText className="w-5 h-5 text-white" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold text-slate-900">Backfill Missing Invoices</DialogTitle>
-                <DialogDescription className="text-slate-600 mt-0.5">
+                <DialogTitle className="text-xl font-bold text-foreground">Backfill Missing Invoices</DialogTitle>
+                <DialogDescription className="text-muted-foreground mt-0.5">
                   Automatically create invoices for bookings that don't have one
                 </DialogDescription>
               </div>
@@ -3364,7 +3364,7 @@ function InvoiceManagement() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+              <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border border-blue-200 rounded-lg">
                 <div className="flex items-start gap-3">
                   <div className="bg-blue-100 p-1.5 rounded-lg mt-0.5">
                     <AlertCircle className="w-4 h-4 text-blue-700" />
@@ -5938,7 +5938,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {/* Revenue Card */}
           <Card
-            className="group relative overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
+            className="group relative overflow-hidden bg-background border border-border/60 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 hover:-translate-y-1"
             data-testid="stat-revenue"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500/5 to-transparent rounded-full -mr-16 -mt-16" />
@@ -5949,28 +5949,28 @@ export default function AdminDashboard() {
                     <DollarSign className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Revenue</p>
+                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Revenue</p>
                   </div>
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wide">This Month</p>
-                  <p className="text-3xl font-bold text-slate-900 tracking-tight" data-testid="monthly-revenue">
+                  <p className="text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">This Month</p>
+                  <p className="text-3xl font-bold text-foreground tracking-tight" data-testid="monthly-revenue">
                     ${statsLoading ? "..." : parseFloat(stats?.monthlyRevenue || "0").toFixed(2)}
                   </p>
                 </div>
-                <div className="pt-3 border-t border-slate-100">
-                  <p className="text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wide">All Time</p>
-                  <p className="text-xl font-semibold text-slate-700 tracking-tight" data-testid="total-revenue">
+                <div className="pt-3 border-t border-border">
+                  <p className="text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">All Time</p>
+                  <p className="text-xl font-semibold text-muted-foreground tracking-tight" data-testid="total-revenue">
                     ${statsLoading ? "..." : parseFloat(stats?.totalRevenue || "0").toFixed(2)}
                   </p>
                 </div>
               </div>
               {!statsLoading && stats && parseFloat(stats.revenueGrowth) !== 0 && (
-                <div className="mt-4 pt-4 border-t border-slate-100">
+                <div className="mt-4 pt-4 border-t border-border">
                   <p className={`text-sm font-semibold ${parseFloat(stats.revenueGrowth) > 0 ? "text-emerald-600" : "text-rose-600"}`} data-testid="revenue-growth">
-                    {parseFloat(stats.revenueGrowth) > 0 ? "↑" : "↓"} {Math.abs(parseFloat(stats.revenueGrowth)).toFixed(2)}% <span className="text-slate-500 font-normal">from last month</span>
+                    {parseFloat(stats.revenueGrowth) > 0 ? "↑" : "↓"} {Math.abs(parseFloat(stats.revenueGrowth)).toFixed(2)}% <span className="text-muted-foreground font-normal">from last month</span>
                   </p>
                 </div>
               )}
@@ -5979,7 +5979,7 @@ export default function AdminDashboard() {
 
           {/* Commission Card */}
           <Card
-            className="group relative overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
+            className="group relative overflow-hidden bg-background border border-border/60 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 hover:-translate-y-1"
             data-testid="stat-commission"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/5 to-transparent rounded-full -mr-16 -mt-16" />
@@ -5990,20 +5990,20 @@ export default function AdminDashboard() {
                     <DollarSign className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Commission</p>
+                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Commission</p>
                   </div>
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wide">This Month</p>
-                  <p className="text-3xl font-bold text-slate-900 tracking-tight" data-testid="monthly-commission">
+                  <p className="text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">This Month</p>
+                  <p className="text-3xl font-bold text-foreground tracking-tight" data-testid="monthly-commission">
                     ${statsLoading ? "..." : parseFloat(stats?.monthlyCommission || "0").toFixed(2)}
                   </p>
                 </div>
-                <div className="pt-3 border-t border-slate-100">
-                  <p className="text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wide">All Time</p>
-                  <p className="text-xl font-semibold text-slate-700 tracking-tight" data-testid="total-commission">
+                <div className="pt-3 border-t border-border">
+                  <p className="text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">All Time</p>
+                  <p className="text-xl font-semibold text-muted-foreground tracking-tight" data-testid="total-commission">
                     ${statsLoading ? "..." : parseFloat(stats?.totalCommission || "0").toFixed(2)}
                   </p>
                 </div>
@@ -6013,7 +6013,7 @@ export default function AdminDashboard() {
 
           {/* Active Bookings Card */}
           <Card
-            className="group relative overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
+            className="group relative overflow-hidden bg-background border border-border/60 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 hover:-translate-y-1"
             data-testid="stat-bookings"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-transparent rounded-full -mr-16 -mt-16" />
@@ -6024,12 +6024,12 @@ export default function AdminDashboard() {
                     <TrendingUp className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Active Bookings</p>
+                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Active Bookings</p>
                   </div>
                 </div>
               </div>
               <div>
-                <p className="text-5xl font-bold text-slate-900 tracking-tight mb-2" data-testid="active-bookings">
+                <p className="text-5xl font-bold text-foreground tracking-tight mb-2" data-testid="active-bookings">
                   {statsLoading ? "..." : stats?.activeBookings || 0}
                 </p>
                 {!statsLoading && stats && stats.pendingBookings > 0 && (
@@ -6046,7 +6046,7 @@ export default function AdminDashboard() {
 
           {/* Drivers Card */}
           <Card
-            className="group relative overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
+            className="group relative overflow-hidden bg-background border border-border/60 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 hover:-translate-y-1"
             data-testid="stat-drivers"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-full -mr-16 -mt-16" />
@@ -6057,15 +6057,15 @@ export default function AdminDashboard() {
                     <Car className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Drivers</p>
+                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Drivers</p>
                   </div>
                 </div>
               </div>
               <div>
-                <p className="text-5xl font-bold text-slate-900 tracking-tight mb-2" data-testid="active-drivers">
+                <p className="text-5xl font-bold text-foreground tracking-tight mb-2" data-testid="active-drivers">
                   {statsLoading ? "..." : `${stats?.activeDrivers || 0}/${stats?.totalDrivers || 0}`}
                 </p>
-                <p className="text-sm text-slate-500 font-medium mb-3">Active / Total</p>
+                <p className="text-sm text-muted-foreground font-medium mb-3">Active / Total</p>
                 {!statsLoading && stats && stats.pendingDrivers > 0 && (
                   <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg">
                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
@@ -6080,7 +6080,7 @@ export default function AdminDashboard() {
 
           {/* Customer Satisfaction Card */}
           <Card
-            className="group relative overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
+            className="group relative overflow-hidden bg-background border border-border/60 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 hover:-translate-y-1"
             data-testid="stat-satisfaction"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/5 to-transparent rounded-full -mr-16 -mt-16" />
@@ -6091,18 +6091,18 @@ export default function AdminDashboard() {
                     <Star className="h-5 w-5 text-white fill-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Satisfaction</p>
+                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Satisfaction</p>
                   </div>
                 </div>
               </div>
               <div>
-                <p className="text-5xl font-bold text-slate-900 tracking-tight mb-2" data-testid="customer-satisfaction">
+                <p className="text-5xl font-bold text-foreground tracking-tight mb-2" data-testid="customer-satisfaction">
                   {statsLoading ? "..." : parseFloat(stats?.averageRating || "0").toFixed(2)}
-                  <span className="text-2xl text-slate-400 ml-1">/5</span>
+                  <span className="text-2xl text-muted-foreground ml-1">/5</span>
                 </p>
                 {!statsLoading && stats && parseFloat(stats.ratingImprovement) !== 0 && (
                   <p className={`text-sm font-semibold ${parseFloat(stats.ratingImprovement) > 0 ? "text-emerald-600" : "text-rose-600"}`} data-testid="rating-improvement">
-                    {parseFloat(stats.ratingImprovement) > 0 ? "↑" : "↓"} {Math.abs(parseFloat(stats.ratingImprovement)).toFixed(2)} <span className="text-slate-500 font-normal">this month</span>
+                    {parseFloat(stats.ratingImprovement) > 0 ? "↑" : "↓"} {Math.abs(parseFloat(stats.ratingImprovement)).toFixed(2)} <span className="text-muted-foreground font-normal">this month</span>
                   </p>
                 )}
               </div>
@@ -6111,7 +6111,7 @@ export default function AdminDashboard() {
 
           {/* Awaiting Driver Approval Card */}
           <Card
-            className="group relative overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
+            className="group relative overflow-hidden bg-background border border-border/60 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 hover:-translate-y-1"
             data-testid="stat-awaiting-approval"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-rose-500/5 to-transparent rounded-full -mr-16 -mt-16" />
@@ -6122,15 +6122,15 @@ export default function AdminDashboard() {
                     <Clock className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Awaiting Approval</p>
+                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Awaiting Approval</p>
                   </div>
                 </div>
               </div>
               <div>
-                <p className="text-5xl font-bold text-slate-900 tracking-tight mb-2" data-testid="awaiting-driver-approval">
+                <p className="text-5xl font-bold text-foreground tracking-tight mb-2" data-testid="awaiting-driver-approval">
                   {statsLoading ? "..." : stats?.awaitingDriverApproval || 0}
                 </p>
-                <p className="text-sm text-slate-500 font-medium mb-3">Jobs waiting for drivers</p>
+                <p className="text-sm text-muted-foreground font-medium mb-3">Jobs waiting for drivers</p>
                 {!statsLoading && stats && stats.awaitingDriverApproval > 0 && (
                   <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 border border-rose-200 rounded-lg">
                     <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
@@ -6146,10 +6146,10 @@ export default function AdminDashboard() {
 
         {/* API Credentials Management */}
         {visibleCredentialsSection === "api" && (
-          <Card id="credentials-section" data-testid="credentials-management" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50/30 border-b border-slate-200">
+          <Card id="credentials-section" data-testid="credentials-management" className="border-border shadow-sm hover:shadow-md transition-shadow bg-background">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50/30 border-b border-border">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-3 text-slate-900">
+                <CardTitle className="flex items-center gap-3 text-foreground">
                   <div className="bg-indigo-600 p-2 rounded-lg">
                     <Key className="w-5 h-5 text-white" />
                   </div>
@@ -6167,7 +6167,7 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
-              <p className="text-sm text-slate-600 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 Manage API keys and external service credentials for your application.
               </p>
 
@@ -6184,14 +6184,14 @@ export default function AdminDashboard() {
                   .map((credential) => (
                     <div
                       key={credential.key}
-                      className="border border-slate-200 rounded-xl p-5 bg-white hover:border-slate-300 transition-all shadow-sm hover:shadow"
+                      className="border border-border rounded-xl p-5 bg-background hover:border-border transition-all shadow-sm hover:shadow"
                       data-testid={`credential-${credential.key.toLowerCase()}`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <h4
-                              className="font-semibold text-lg text-slate-900"
+                              className="font-semibold text-lg text-foreground"
                               data-testid={`credential-label-${credential.key.toLowerCase()}`}
                             >
                               {credential.label}
@@ -6212,20 +6212,20 @@ export default function AdminDashboard() {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-slate-600 mb-2">
+                          <p className="text-sm text-muted-foreground mb-2">
                             {credential.description}
                           </p>
 
                           {editingKey === credential.key ? (
                             <div className="mt-3 space-y-3 bg-indigo-50 p-4 rounded-lg border border-indigo-200">
                               {loadingValue ? (
-                                <div className="flex items-center gap-2 text-sm text-slate-600">
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                   <div className="animate-spin w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full" />
                                   Loading current value...
                                 </div>
                               ) : (
                                 <div>
-                                  <Label className="text-xs text-slate-700 mb-1">New Value</Label>
+                                  <Label className="text-xs text-muted-foreground mb-1">New Value</Label>
                                   <Input
                                     type="text"
                                     placeholder="Enter new value"
@@ -6233,7 +6233,7 @@ export default function AdminDashboard() {
                                     onChange={(e) =>
                                       setNewKeyValue(e.target.value)
                                     }
-                                    className="border-slate-300"
+                                    className="border-border"
                                     data-testid={`input-edit-${credential.key.toLowerCase()}`}
                                   />
                                 </div>
@@ -6257,7 +6257,7 @@ export default function AdminDashboard() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="border-slate-300 hover:bg-slate-100"
+                                  className="border-border hover:bg-muted dark:hover:bg-slate-800"
                                   onClick={() => {
                                     setEditingKey(null);
                                     setNewKeyValue("");
@@ -6277,7 +6277,7 @@ export default function AdminDashboard() {
                                   <span>Configured {credential.usesEnv ? "(from environment)" : "(from database)"}</span>
                                 </div>
                               ) : (
-                                <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 bg-slate-100 text-slate-600 rounded-md border border-slate-200">
+                                <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 bg-muted text-muted-foreground rounded-md border border-border">
                                   <AlertCircle className="w-3.5 h-3.5" />
                                   <span>Not configured</span>
                                 </div>
@@ -6291,7 +6291,7 @@ export default function AdminDashboard() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300"
+                              className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 dark:hover:border-indigo-700"
                               onClick={() =>
                                 handleEditCredential(credential.key)
                               }
@@ -6330,29 +6330,29 @@ export default function AdminDashboard() {
                     <div className="bg-indigo-600 p-1.5 rounded-lg">
                       <Plus className="w-4 h-4 text-white" />
                     </div>
-                    <h4 className="font-semibold text-lg text-slate-900">Add New Credential</h4>
+                    <h4 className="font-semibold text-lg text-foreground">Add New Credential</h4>
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <Label htmlFor="new-key-name" className="text-sm text-slate-700 font-medium">Credential Name</Label>
+                      <Label htmlFor="new-key-name" className="text-sm text-muted-foreground font-medium">Credential Name</Label>
                       <Input
                         id="new-key-name"
                         placeholder="e.g., MAILGUN_API_KEY"
                         value={newKeyName}
                         onChange={(e) => setNewKeyName(e.target.value)}
-                        className="mt-1.5 border-slate-300"
+                        className="mt-1.5 border-border"
                         data-testid="input-new-credential-name"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="new-key-value" className="text-sm text-slate-700 font-medium">Credential Value</Label>
+                      <Label htmlFor="new-key-value" className="text-sm text-muted-foreground font-medium">Credential Value</Label>
                       <Input
                         id="new-key-value"
                         type="password"
                         placeholder="Enter credential value"
                         value={newKeyValue}
                         onChange={(e) => setNewKeyValue(e.target.value)}
-                        className="mt-1.5 border-slate-300"
+                        className="mt-1.5 border-border"
                         data-testid="input-new-credential-value"
                       />
                     </div>
@@ -6371,7 +6371,7 @@ export default function AdminDashboard() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-slate-300 hover:bg-slate-100"
+                      className="border-border hover:bg-muted dark:hover:bg-slate-800"
                       onClick={() => {
                         setIsAddingNew(false);
                         setNewKeyName("");
@@ -6391,10 +6391,10 @@ export default function AdminDashboard() {
 
         {/* MinIO Object Storage Configuration */}
         {visibleCredentialsSection === "minio" && (
-          <Card id="minio-section" data-testid="minio-credentials" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50/30 border-b border-slate-200">
+          <Card id="minio-section" data-testid="minio-credentials" className="border-border shadow-sm hover:shadow-md transition-shadow bg-background">
+            <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50/30 border-b border-border">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-3 text-slate-900">
+                <CardTitle className="flex items-center gap-3 text-foreground">
                   <div className="bg-cyan-600 p-2 rounded-lg">
                     <Key className="w-5 h-5 text-white" />
                   </div>
@@ -6434,7 +6434,7 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
-              <p className="text-sm text-slate-600 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 Configure MinIO or S3-compatible object storage for storing driver documents, invoices, and CMS media files.
               </p>
 
@@ -6447,14 +6447,14 @@ export default function AdminDashboard() {
                   return (
                     <div
                       key={key}
-                      className={`border border-slate-200 rounded-xl p-5 bg-white hover:border-slate-300 transition-all shadow-sm hover:shadow ${key === 'MINIO_SERVICE_NAME' || key === 'MINIO_CONSOLE_URL' ? 'md:col-span-1' : ''}`}
+                      className={`border border-border rounded-xl p-5 bg-background hover:border-border transition-all shadow-sm hover:shadow ${key === 'MINIO_SERVICE_NAME' || key === 'MINIO_CONSOLE_URL' ? 'md:col-span-1' : ''}`}
                       data-testid={`credential-${key.toLowerCase()}`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <h4
-                              className="font-semibold text-base text-slate-900"
+                              className="font-semibold text-base text-foreground"
                               data-testid={`credential-label-${key.toLowerCase()}`}
                             >
                               {credential.label}
@@ -6472,26 +6472,26 @@ export default function AdminDashboard() {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-slate-600 mb-3">
+                          <p className="text-xs text-muted-foreground mb-3">
                             {credential.description}
                           </p>
 
                           {editingKey === key ? (
                             <div className="mt-3 space-y-3 bg-cyan-50 p-4 rounded-lg border border-cyan-200">
                               {loadingValue ? (
-                                <div className="flex items-center gap-2 text-sm text-slate-600">
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                   <div className="animate-spin w-4 h-4 border-2 border-cyan-600 border-t-transparent rounded-full" />
                                   Loading current value...
                                 </div>
                               ) : (
                                 <div>
-                                  <Label className="text-xs text-slate-700 mb-1">New Value</Label>
+                                  <Label className="text-xs text-muted-foreground mb-1">New Value</Label>
                                   <Input
                                     type="text"
                                     placeholder="Enter new value"
                                     value={newKeyValue}
                                     onChange={(e) => setNewKeyValue(e.target.value)}
-                                    className="border-slate-300 text-sm"
+                                    className="border-border text-sm"
                                     data-testid={`input-edit-${key.toLowerCase()}`}
                                   />
                                 </div>
@@ -6510,7 +6510,7 @@ export default function AdminDashboard() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="border-slate-300 hover:bg-slate-100"
+                                  className="border-border hover:bg-muted dark:hover:bg-slate-800"
                                   onClick={() => {
                                     setEditingKey(null);
                                     setNewKeyValue("");
@@ -6531,7 +6531,7 @@ export default function AdminDashboard() {
                                     <span>Configured</span>
                                   </div>
                                 ) : (
-                                  <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 bg-slate-100 text-slate-600 rounded-md border border-slate-200">
+                                  <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 bg-muted text-muted-foreground rounded-md border border-border">
                                     <AlertCircle className="w-3.5 h-3.5" />
                                     <span>Not set</span>
                                   </div>
@@ -6556,11 +6556,11 @@ export default function AdminDashboard() {
               </div>
 
               <div className="mt-6 p-4 bg-cyan-50 border border-cyan-200 rounded-lg">
-                <h4 className="text-sm font-semibold text-slate-900 mb-2">Connection Test</h4>
-                <p className="text-xs text-slate-600 mb-3">
+                <h4 className="text-sm font-semibold text-foreground mb-2">Connection Test</h4>
+                <p className="text-xs text-muted-foreground mb-3">
                   After configuring your MinIO credentials, click the "Test Connection" button above to verify:
                 </p>
-                <ul className="text-xs text-slate-600 space-y-1 ml-4 list-disc">
+                <ul className="text-xs text-muted-foreground space-y-1 ml-4 list-disc">
                   <li>MinIO endpoint is reachable</li>
                   <li>Access credentials are valid</li>
                   <li>Bucket exists and is accessible (or can be created)</li>
@@ -6572,9 +6572,9 @@ export default function AdminDashboard() {
 
         {/* Payment Systems Configuration */}
         {visibleCredentialsSection === "payment" && (
-          <Card id="payment-section" data-testid="payment-systems" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50/30 border-b border-slate-200">
-              <CardTitle className="flex items-center gap-3 text-slate-900">
+          <Card id="payment-section" data-testid="payment-systems" className="border-border shadow-sm hover:shadow-md transition-shadow bg-background">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50/30 border-b border-border">
+              <CardTitle className="flex items-center gap-3 text-foreground">
                 <div className="bg-green-600 p-2 rounded-lg">
                   <DollarSign className="w-5 h-5 text-white" />
                 </div>
@@ -6612,14 +6612,14 @@ export default function AdminDashboard() {
                           className={`border rounded-xl p-5 transition-all ${
                             isActive
                               ? "border-green-300 bg-green-50 shadow-md"
-                              : "border-slate-200 bg-white hover:border-slate-300"
+                              : "border-border bg-background hover:border-border"
                           }`}
                           data-testid={`payment-system-${provider}`}
                         >
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
                               <h4
-                                className="font-semibold text-lg text-slate-900"
+                                className="font-semibold text-lg text-foreground"
                                 data-testid={`payment-provider-${provider}`}
                               >
                                 {providerLabels[provider]}
@@ -6662,28 +6662,28 @@ export default function AdminDashboard() {
                           </div>
 
                           {system ? (
-                            <div className="space-y-2.5 text-sm bg-slate-50 rounded-lg p-3 border border-slate-200">
+                            <div className="space-y-2.5 text-sm bg-muted rounded-lg p-3 border border-border">
                               <div className="flex items-center justify-between">
-                                <span className="text-slate-600 font-medium">
+                                <span className="text-muted-foreground font-medium">
                                   Public Key:
                                 </span>
-                                <span className="font-mono text-xs text-slate-900 bg-white px-2 py-1 rounded border border-slate-200">
+                                <span className="font-mono text-xs text-foreground bg-background px-2 py-1 rounded border border-border">
                                   {system.publicKey ? "••••••••" : "Not set"}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between">
-                                <span className="text-slate-600 font-medium">
+                                <span className="text-muted-foreground font-medium">
                                   Secret Key:
                                 </span>
-                                <span className="font-mono text-xs text-slate-900 bg-white px-2 py-1 rounded border border-slate-200">
+                                <span className="font-mono text-xs text-foreground bg-background px-2 py-1 rounded border border-border">
                                   {system.secretKey ? "••••••••" : "Not set"}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between">
-                                <span className="text-slate-600 font-medium">
+                                <span className="text-muted-foreground font-medium">
                                   Webhook Secret:
                                 </span>
-                                <span className="font-mono text-xs text-slate-900 bg-white px-2 py-1 rounded border border-slate-200">
+                                <span className="font-mono text-xs text-foreground bg-background px-2 py-1 rounded border border-border">
                                   {system.webhookSecret
                                     ? "••••••••"
                                     : "Not set"}
@@ -6691,7 +6691,7 @@ export default function AdminDashboard() {
                               </div>
                             </div>
                           ) : (
-                            <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                            <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg border border-border">
                               Not configured. Add credentials to enable this
                               payment provider.
                             </div>
@@ -6700,7 +6700,7 @@ export default function AdminDashboard() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="mt-4 border-slate-300 hover:bg-slate-100"
+                            className="mt-4 border-border hover:bg-muted dark:hover:bg-slate-800"
                             onClick={() =>
                               openConfigDialog(
                                 provider as "stripe" | "paypal" | "square",
@@ -6726,7 +6726,7 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Help Text */}
-                  <div className="text-sm text-slate-700 mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  <div className="text-sm text-muted-foreground mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
                     <div className="flex items-start gap-2">
                       <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                       <div>
@@ -6737,14 +6737,14 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Payment Options Section */}
-                  <div className="mt-8 pt-6 border-t border-slate-200">
+                  <div className="mt-8 pt-6 border-t border-border">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="bg-purple-600 p-2 rounded-lg">
                         <CreditCard className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg text-slate-900">Payment Method Controls</h3>
-                        <p className="text-sm text-slate-600">Enable or disable payment methods available to passengers</p>
+                        <h3 className="font-semibold text-lg text-foreground">Payment Method Controls</h3>
+                        <p className="text-sm text-muted-foreground">Enable or disable payment methods available to passengers</p>
                       </div>
                     </div>
 
@@ -6777,18 +6777,18 @@ export default function AdminDashboard() {
                               className={`border rounded-xl p-5 transition-all ${
                                 option.isEnabled
                                   ? `${colorScheme.border} ${colorScheme.bg}`
-                                  : 'border-slate-200 bg-white'
+                                  : 'border-border bg-background'
                               }`}
                               data-testid={`payment-option-${option.optionType}`}
                             >
                               <div className="flex items-start justify-between">
                                 <div className="flex items-start gap-3">
-                                  <div className={`p-2 rounded-lg ${option.isEnabled ? colorScheme.bg : 'bg-slate-100'} ${option.isEnabled ? colorScheme.text : 'text-slate-400'}`}>
+                                  <div className={`p-2 rounded-lg ${option.isEnabled ? colorScheme.bg : 'bg-muted'} ${option.isEnabled ? colorScheme.text : 'text-muted-foreground'}`}>
                                     {icons[option.optionType]}
                                   </div>
                                   <div>
-                                    <h4 className="font-semibold text-slate-900">{option.displayName}</h4>
-                                    <p className="text-sm text-slate-600 mt-0.5">{option.description}</p>
+                                    <h4 className="font-semibold text-foreground">{option.displayName}</h4>
+                                    <p className="text-sm text-muted-foreground mt-0.5">{option.description}</p>
                                     {isDisabledDueToProvider && (
                                       <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
                                         <AlertCircle className="w-3 h-3" />
@@ -6820,7 +6820,7 @@ export default function AdminDashboard() {
                     <div className="mt-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
                       <div className="flex items-start gap-2">
                         <AlertCircle className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                        <div className="text-sm text-slate-700">
+                        <div className="text-sm text-muted-foreground">
                           <strong className="font-semibold text-purple-900">Payment Methods:</strong>{" "}
                           <span>Enable the payment methods you want passengers to see during booking. Credit card and Pay Later options require a configured payment provider above.</span>
                         </div>
@@ -6835,9 +6835,9 @@ export default function AdminDashboard() {
 
         {/* System Settings */}
         {visibleSettingsSection === "commission" && (
-          <Card id="settings-section" data-testid="system-settings" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50/30 border-b border-slate-200">
-              <CardTitle className="flex items-center gap-3 text-slate-900">
+          <Card id="settings-section" data-testid="system-settings" className="border-border shadow-sm hover:shadow-md transition-shadow bg-background">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50/30 border-b border-border">
+              <CardTitle className="flex items-center gap-3 text-foreground">
                 <div className="bg-indigo-600 p-2 rounded-lg">
                   <Settings className="w-5 h-5 text-white" />
                 </div>
@@ -6853,7 +6853,7 @@ export default function AdminDashboard() {
                 <div className="space-y-6">
                   {/* Description */}
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                    <p className="text-sm text-slate-700 leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       {systemCommission?.description ||
                         "Configure the commission percentage applied to ride total costs for driver payments when prices are not manually updated during dispatching."}
                     </p>
@@ -6863,7 +6863,7 @@ export default function AdminDashboard() {
                   <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200 rounded-xl p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-slate-600 mb-1">Current Commission Rate</p>
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Current Commission Rate</p>
                         <div className="flex items-baseline gap-2">
                           <span className="text-4xl font-bold text-indigo-700">
                             {systemCommission?.percentage || 0}
@@ -6871,24 +6871,24 @@ export default function AdminDashboard() {
                           <span className="text-2xl font-semibold text-indigo-600">%</span>
                         </div>
                       </div>
-                      <div className="bg-white rounded-full p-4 shadow-sm">
+                      <div className="bg-background rounded-full p-4 shadow-sm">
                         <Settings className="w-8 h-8 text-indigo-600" />
                       </div>
                     </div>
                   </div>
 
                   {/* Update Form */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+                  <div className="bg-background border border-border rounded-xl p-6 space-y-4">
                     <div className="flex items-center gap-2 mb-4">
                       <div className="bg-blue-100 p-1.5 rounded-lg">
                         <Settings className="w-4 h-4 text-blue-700" />
                       </div>
-                      <h3 className="font-semibold text-slate-900">Update Commission</h3>
+                      <h3 className="font-semibold text-foreground">Update Commission</h3>
                     </div>
 
                     <div className="space-y-3">
                       <div>
-                        <Label htmlFor="commission-percentage" className="text-slate-700 font-medium flex items-center gap-2">
+                        <Label htmlFor="commission-percentage" className="text-muted-foreground font-medium flex items-center gap-2">
                           <span>Commission Percentage (%)</span>
                         </Label>
                         <Input
@@ -6902,11 +6902,11 @@ export default function AdminDashboard() {
                             setCommissionPercentage(e.target.value)
                           }
                           placeholder="Enter percentage (0-100)"
-                          className="mt-2 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
+                          className="mt-2 border-border focus:border-indigo-500 focus:ring-indigo-500"
                           data-testid="input-commission-percentage"
                         />
-                        <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground"></span>
                           Enter a value between 0% and 100%
                         </p>
                       </div>
@@ -6933,53 +6933,53 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* How it Works */}
-                  <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 border border-slate-200 rounded-xl p-6">
+                  <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 border border-border rounded-xl p-6">
                     <div className="flex items-center gap-2 mb-4">
                       <div className="bg-blue-600 p-1.5 rounded-lg">
                         <AlertCircle className="w-4 h-4 text-white" />
                       </div>
-                      <h4 className="font-semibold text-slate-900">How Commission Works</h4>
+                      <h4 className="font-semibold text-foreground">How Commission Works</h4>
                     </div>
                     <div className="space-y-3">
-                      <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                      <div className="flex items-start gap-3 bg-background rounded-lg p-3 border border-border">
                         <div className="bg-blue-100 rounded-full p-1 mt-0.5">
                           <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm text-slate-700 leading-relaxed">
+                          <p className="text-sm text-muted-foreground leading-relaxed">
                             When a booking is created, the system calculates the total ride cost based on distance, time, and vehicle type
                           </p>
                         </div>
                       </div>
                       
-                      <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                      <div className="flex items-start gap-3 bg-background rounded-lg p-3 border border-border">
                         <div className="bg-indigo-100 rounded-full p-1 mt-0.5">
                           <div className="w-1.5 h-1.5 rounded-full bg-indigo-600"></div>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm text-slate-700 leading-relaxed">
+                          <p className="text-sm text-muted-foreground leading-relaxed">
                             The commission percentage is applied to determine the driver's payment (e.g., 25% commission means driver receives 75% of ride cost)
                           </p>
                         </div>
                       </div>
                       
-                      <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                      <div className="flex items-start gap-3 bg-background rounded-lg p-3 border border-border">
                         <div className="bg-green-100 rounded-full p-1 mt-0.5">
                           <div className="w-1.5 h-1.5 rounded-full bg-green-600"></div>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm text-slate-700 leading-relaxed">
+                          <p className="text-sm text-muted-foreground leading-relaxed">
                             Admins and dispatchers can manually override the driver payment during dispatching for special circumstances
                           </p>
                         </div>
                       </div>
                       
-                      <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                      <div className="flex items-start gap-3 bg-background rounded-lg p-3 border border-border">
                         <div className="bg-amber-100 rounded-full p-1 mt-0.5">
                           <div className="w-1.5 h-1.5 rounded-full bg-amber-600"></div>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm text-slate-700 leading-relaxed">
+                          <p className="text-sm text-muted-foreground leading-relaxed">
                             This setting provides a consistent default commission rate when manual updates aren't made
                           </p>
                         </div>
@@ -7005,13 +7005,13 @@ export default function AdminDashboard() {
 
         {/* Branding Settings */}
         {visibleSettingsSection === "branding" && (
-          <Card id="settings-section" className="border-slate-200 shadow-md">
-            <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
-              <CardTitle className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+          <Card id="settings-section" className="border-border shadow-md">
+            <CardHeader className="border-b border-border bg-gradient-to-r from-slate-50 to-white">
+              <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
                 <Palette className="w-6 h-6 text-indigo-600" />
                 Branding Settings
               </CardTitle>
-              <CardDescription className="text-slate-600">
+              <CardDescription className="text-muted-foreground">
                 Customize your company branding, logos, colors, and social media links
               </CardDescription>
             </CardHeader>
@@ -7026,10 +7026,10 @@ export default function AdminDashboard() {
           <Card
             id="cms-section"
             data-testid="cms-pages-management"
-            className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white"
+            className="border-border shadow-sm hover:shadow-md transition-shadow bg-background"
           >
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50/30 border-b border-slate-200">
-              <CardTitle className="flex items-center gap-3 text-slate-900">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950/30 border-b border-border">
+              <CardTitle className="flex items-center gap-3 text-foreground">
                 <div className="bg-blue-600 p-2 rounded-lg">
                   <FileText className="w-5 h-5 text-white" />
                 </div>
@@ -7047,10 +7047,10 @@ export default function AdminDashboard() {
           <Card
             id="cms-section"
             data-testid="cms-media-management"
-            className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white"
+            className="border-border shadow-sm hover:shadow-md transition-shadow bg-background"
           >
-            <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50/30 border-b border-slate-200">
-              <CardTitle className="flex items-center gap-3 text-slate-900">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50/30 border-b border-border">
+              <CardTitle className="flex items-center gap-3 text-foreground">
                 <div className="bg-indigo-600 p-2 rounded-lg">
                   <Image className="w-5 h-5 text-white" />
                 </div>
@@ -7068,10 +7068,10 @@ export default function AdminDashboard() {
           <Card
             id="cms-section"
             data-testid="cms-services-management"
-            className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white"
+            className="border-border shadow-sm hover:shadow-md transition-shadow bg-background"
           >
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50/30 border-b border-slate-200">
-              <CardTitle className="flex items-center gap-3 text-slate-900">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50/30 border-b border-border">
+              <CardTitle className="flex items-center gap-3 text-foreground">
                 <div className="bg-purple-600 p-2 rounded-lg">
                   <Plane className="w-5 h-5 text-white" />
                 </div>
@@ -7089,11 +7089,11 @@ export default function AdminDashboard() {
           <Card
             id="bookings-section"
             data-testid="bookings-management"
-            className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white"
+            className="border-border shadow-sm hover:shadow-md transition-shadow bg-background"
           >
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50/30 border-b border-slate-200">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50/30 border-b border-border">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-3 text-slate-900">
+                <CardTitle className="flex items-center gap-3 text-foreground">
                   <div className="bg-purple-600 p-2 rounded-lg">
                     <MessageSquare className="w-5 h-5 text-white" />
                   </div>
@@ -7118,7 +7118,7 @@ export default function AdminDashboard() {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     bookingSegmentFilter === "all"
                       ? "bg-blue-600 text-white shadow-md"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      : "bg-muted text-muted-foreground hover:bg-muted dark:hover:bg-slate-700"
                   }`}
                   data-testid="segment-all"
                 >
@@ -7129,7 +7129,7 @@ export default function AdminDashboard() {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     bookingSegmentFilter === "pending"
                       ? "bg-blue-600 text-white shadow-md"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      : "bg-muted text-muted-foreground hover:bg-muted dark:hover:bg-slate-700"
                   }`}
                   data-testid="segment-pending"
                 >
@@ -7140,7 +7140,7 @@ export default function AdminDashboard() {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     bookingSegmentFilter === "confirmed"
                       ? "bg-blue-600 text-white shadow-md"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      : "bg-muted text-muted-foreground hover:bg-muted dark:hover:bg-slate-700"
                   }`}
                   data-testid="segment-confirmed"
                 >
@@ -7151,7 +7151,7 @@ export default function AdminDashboard() {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     bookingSegmentFilter === "in_progress"
                       ? "bg-blue-600 text-white shadow-md"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      : "bg-muted text-muted-foreground hover:bg-muted dark:hover:bg-slate-700"
                   }`}
                   data-testid="segment-in-progress"
                 >
@@ -7162,7 +7162,7 @@ export default function AdminDashboard() {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     bookingSegmentFilter === "completed"
                       ? "bg-blue-600 text-white shadow-md"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      : "bg-muted text-muted-foreground hover:bg-muted dark:hover:bg-slate-700"
                   }`}
                   data-testid="segment-completed"
                 >
@@ -7173,7 +7173,7 @@ export default function AdminDashboard() {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     bookingSegmentFilter === "cancelled"
                       ? "bg-blue-600 text-white shadow-md"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      : "bg-muted text-muted-foreground hover:bg-muted dark:hover:bg-slate-700"
                   }`}
                   data-testid="segment-cancelled"
                 >
@@ -7184,9 +7184,9 @@ export default function AdminDashboard() {
               {/* Filters */}
               <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label className="text-slate-700 font-medium">Date From</Label>
+                  <Label className="text-muted-foreground font-medium">Date From</Label>
                   <Input
-                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500 mt-2"
+                    className="border-border focus:border-blue-500 focus:ring-blue-500 mt-2"
                     type="date"
                     value={bookingDateFrom}
                     onChange={(e) => setBookingDateFrom(e.target.value)}
@@ -7195,9 +7195,9 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <Label className="text-slate-700 font-medium">Date To</Label>
+                  <Label className="text-muted-foreground font-medium">Date To</Label>
                   <Input
-                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500 mt-2"
+                    className="border-border focus:border-blue-500 focus:ring-blue-500 mt-2"
                     type="date"
                     value={bookingDateTo}
                     onChange={(e) => setBookingDateTo(e.target.value)}
@@ -7206,9 +7206,9 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <Label className="text-slate-700 font-medium">Search</Label>
+                  <Label className="text-muted-foreground font-medium">Search</Label>
                   <Input
-                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500 mt-2"
+                    className="border-border focus:border-blue-500 focus:ring-blue-500 mt-2"
                     placeholder="Passenger, Driver, ID..."
                     value={bookingSearch}
                     onChange={(e) => setBookingSearch(e.target.value)}
@@ -7226,7 +7226,7 @@ export default function AdminDashboard() {
                   {filteredBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="border-2 border-slate-200 rounded-xl p-6 space-y-5 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:border-slate-300 transition-all"
+                      className="border-2 border-border rounded-xl p-6 space-y-5 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:border-border transition-all"
                       data-testid={`booking-${booking.id}`}
                     >
                       <div className="flex justify-between items-start gap-6">
@@ -7234,7 +7234,7 @@ export default function AdminDashboard() {
                           {/* Header Row */}
                           <div className="flex items-center gap-2 flex-wrap">
                             <h4
-                              className="font-bold text-slate-900 text-base"
+                              className="font-bold text-foreground text-base"
                               data-testid={`booking-id-${booking.id}`}
                             >
                               #{booking.id.substring(0, 8).toUpperCase()}
@@ -7256,7 +7256,7 @@ export default function AdminDashboard() {
                               {booking.status.replace('_', ' ').toUpperCase()}
                             </Badge>
                             <Badge
-                              className="bg-slate-100 text-slate-800 border-slate-300 font-semibold"
+                              className="bg-muted text-foreground border-border font-semibold"
                               data-testid={`booking-type-${booking.id}`}
                             >
                               {booking.bookingType.toUpperCase()}
@@ -7266,9 +7266,9 @@ export default function AdminDashboard() {
                           {/* Booking Details Grid */}
                           <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-1">
-                              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wide">Passenger</p>
+                              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">Passenger</p>
                               <p
-                                className="font-bold text-slate-900"
+                                className="font-bold text-foreground"
                                 data-testid={`booking-passenger-${booking.id}`}
                               >
                                 {booking.passengerName || "Not assigned"}
@@ -7276,9 +7276,9 @@ export default function AdminDashboard() {
                             </div>
 
                             <div className="space-y-1">
-                              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wide">Pickup</p>
+                              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">Pickup</p>
                               <p
-                                className="font-semibold text-slate-900 leading-tight"
+                                className="font-semibold text-foreground leading-tight"
                                 data-testid={`booking-pickup-${booking.id}`}
                               >
                                 {booking.pickupAddress}
@@ -7286,11 +7286,11 @@ export default function AdminDashboard() {
                             </div>
 
                             <div className="space-y-1">
-                              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wide">
+                              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
                                 Scheduled Time
                               </p>
                               <p
-                                className="font-semibold text-slate-900"
+                                className="font-semibold text-foreground"
                                 data-testid={`booking-schedule-${booking.id}`}
                               >
                                 {new Date(
@@ -7300,11 +7300,11 @@ export default function AdminDashboard() {
                             </div>
 
                             <div className="space-y-1">
-                              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wide">
+                              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
                                 Destination
                               </p>
                               <p
-                                className="font-semibold text-slate-900 leading-tight"
+                                className="font-semibold text-foreground leading-tight"
                                 data-testid={`booking-destination-${booking.id}`}
                               >
                                 {booking.destinationAddress || "Hourly Service"}
@@ -7320,7 +7320,7 @@ export default function AdminDashboard() {
                                   Special Instructions
                                 </p>
                                 <p
-                                  className="text-slate-700 leading-relaxed"
+                                  className="text-muted-foreground leading-relaxed"
                                   data-testid={`booking-instructions-${booking.id}`}
                                 >
                                   {booking.specialInstructions}
@@ -7328,8 +7328,8 @@ export default function AdminDashboard() {
                               </div>
                             )}
 
-                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">
-                              <p className="text-slate-700 text-xs font-semibold mb-1">
+                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 p-3 rounded-lg border border-blue-200">
+                              <p className="text-muted-foreground text-xs font-semibold mb-1">
                                 Total Amount
                               </p>
                               <p
@@ -7342,7 +7342,7 @@ export default function AdminDashboard() {
 
                             {booking.driverId && (
                               <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-3 rounded-lg border border-green-200">
-                                <p className="text-slate-700 text-xs font-semibold mb-1">
+                                <p className="text-muted-foreground text-xs font-semibold mb-1">
                                   Driver Payment
                                 </p>
                                 <p
@@ -7369,7 +7369,7 @@ export default function AdminDashboard() {
                             disabled={updateBookingStatusMutation.isPending}
                           >
                             <SelectTrigger
-                              className="w-full bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                              className="w-full bg-background border-border focus:border-blue-500 focus:ring-blue-500"
                               data-testid={`select-status-${booking.id}`}
                             >
                               <SelectValue />
@@ -7397,7 +7397,7 @@ export default function AdminDashboard() {
                           </Select>
 
                           {/* Driver Information */}
-                          <div className="bg-white border-2 border-slate-200 rounded-lg p-3">
+                          <div className="bg-background border-2 border-border rounded-lg p-3">
                             {booking.driverId ? (
                               <div
                                 className="flex items-start gap-2"
@@ -7407,33 +7407,33 @@ export default function AdminDashboard() {
                                   <img
                                     src={booking.driverProfileImageUrl}
                                     alt="Driver"
-                                    className="w-10 h-10 rounded-full object-cover border-2 border-slate-200"
+                                    className="w-10 h-10 rounded-full object-cover border-2 border-border"
                                   />
                                 ) : (
-                                  <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-700 font-bold text-sm">
+                                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-bold text-sm">
                                     {booking.driverFirstName?.[0]}
                                     {booking.driverLastName?.[0]}
                                   </div>
                                 )}
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-semibold text-slate-900 text-sm leading-tight">
+                                  <p className="font-semibold text-foreground text-sm leading-tight">
                                     {booking.driverFirstName}{" "}
                                     {booking.driverLastName}
                                   </p>
                                   {booking.driverPhone && (
-                                    <p className="text-xs text-slate-600 mt-0.5">
+                                    <p className="text-xs text-muted-foreground mt-0.5">
                                       {booking.driverPhone}
                                     </p>
                                   )}
                                   {booking.driverVehiclePlate && (
-                                    <p className="text-xs font-mono bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded inline-block mt-1">
+                                    <p className="text-xs font-mono bg-muted text-foreground px-1.5 py-0.5 rounded inline-block mt-1">
                                       {booking.driverVehiclePlate}
                                     </p>
                                   )}
                                 </div>
                               </div>
                             ) : (
-                              <p className="text-sm text-slate-600 text-center py-1">
+                              <p className="text-sm text-muted-foreground text-center py-1">
                                 No driver assigned
                               </p>
                             )}
@@ -7508,14 +7508,14 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <div
-                  className="text-center p-12 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-xl"
+                  className="text-center p-12 bg-gradient-to-br from-slate-50 to-white border-2 border-border rounded-xl"
                   data-testid="no-bookings"
                 >
-                  <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MessageSquare className="w-8 h-8 text-slate-600" />
+                  <div className="bg-muted w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MessageSquare className="w-8 h-8 text-muted-foreground" />
                   </div>
-                  <p className="text-slate-900 font-semibold text-lg mb-1">No bookings found</p>
-                  <p className="text-slate-600">Bookings matching your filters will appear here</p>
+                  <p className="text-foreground font-semibold text-lg mb-1">No bookings found</p>
+                  <p className="text-muted-foreground">Bookings matching your filters will appear here</p>
                 </div>
               )}
             </CardContent>
@@ -7536,7 +7536,7 @@ export default function AdminDashboard() {
             }
           }}
         >
-          <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white">
+          <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-background">
             <DialogHeader>
               <DialogTitle>
                 {assigningBookingId && bookings?.find(b => b.id === assigningBookingId)?.driverId 
@@ -7678,7 +7678,7 @@ export default function AdminDashboard() {
           open={editDriverPaymentDialogOpen}
           onOpenChange={setEditDriverPaymentDialogOpen}
         >
-          <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white">
+          <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-background">
             <DialogHeader>
               <DialogTitle>Edit Driver Payment</DialogTitle>
             </DialogHeader>
@@ -7824,11 +7824,11 @@ export default function AdminDashboard() {
                         setUserSearchQuery(" ");
                       }
                     }}
-                    className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
+                    className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-background"
                     data-testid="input-passenger-search"
                   />
                   {userSearchQuery && allUsers && allUsers.length > 0 && (
-                    <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
                       {allUsers
                         .filter((u) => u.role === "passenger")
                         .filter((u) => {
@@ -7848,7 +7848,7 @@ export default function AdminDashboard() {
                           <button
                             key={passenger.id}
                             type="button"
-                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                            className="w-full text-left px-4 py-2 hover:bg-muted dark:hover:bg-slate-800 text-sm"
                             onClick={async () => {
                               setBookingFormData({
                                 ...bookingFormData,
@@ -7902,7 +7902,7 @@ export default function AdminDashboard() {
                   >
                     <SelectTrigger
                       id="booking-type"
-                      className="bg-white text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
+                      className="bg-background text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
                       data-testid="select-booking-type"
                     >
                       <SelectValue />
@@ -7927,7 +7927,7 @@ export default function AdminDashboard() {
                   >
                     <SelectTrigger
                       id="vehicle-type"
-                      className="bg-white text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
+                      className="bg-background text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
                       data-testid="select-vehicle-type"
                     >
                       <SelectValue placeholder="Select vehicle" />
@@ -7996,7 +7996,7 @@ export default function AdminDashboard() {
                   >
                     <SelectTrigger
                       id="requested-hours"
-                      className="bg-white text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
+                      className="bg-background text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
                       data-testid="select-requested-hours"
                     >
                       <SelectValue />
@@ -8032,7 +8032,7 @@ export default function AdminDashboard() {
                       })
                     }
                     data-testid="input-scheduled-datetime"
-                    className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
+                    className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-background"
                   />
                 </div>
 
@@ -8052,7 +8052,7 @@ export default function AdminDashboard() {
                       }
                       placeholder="0.00"
                       data-testid="input-total-amount"
-                      className="flex-1 pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
+                      className="flex-1 pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-background"
                     />
                     <Button
                       type="button"
@@ -8093,7 +8093,7 @@ export default function AdminDashboard() {
                 >
                   <SelectTrigger
                     id="payment-method"
-                    className="bg-white"
+                    className="bg-background"
                     data-testid="select-payment-method"
                   >
                     <SelectValue />
@@ -8141,7 +8141,7 @@ export default function AdminDashboard() {
                         })
                       }
                       data-testid="input-passenger-count"
-                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
+                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-background"
                     />
                   </div>
 
@@ -8159,7 +8159,7 @@ export default function AdminDashboard() {
                         })
                       }
                       data-testid="input-luggage-count"
-                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
+                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-background"
                     />
                   </div>
 
@@ -8226,7 +8226,7 @@ export default function AdminDashboard() {
                         }
                         placeholder="Full name"
                         data-testid="input-passenger-name"
-                        className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
+                        className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-background"
                       />
                     </div>
 
@@ -8247,7 +8247,7 @@ export default function AdminDashboard() {
                           }
                           placeholder="email@example.com"
                           data-testid="input-passenger-email"
-                          className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
+                          className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-background"
                         />
                       </div>
 
@@ -8267,7 +8267,7 @@ export default function AdminDashboard() {
                           }
                           placeholder="+1234567890"
                           data-testid="input-passenger-phone"
-                          className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
+                          className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-background"
                         />
                       </div>
                     </div>
@@ -8352,7 +8352,7 @@ export default function AdminDashboard() {
                         }
                       }}
                       data-testid="input-flight-search"
-                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-white"
+                      className="pl-[5px] pr-[5px] pt-[5px] pb-[5px] mt-[5px] mb-[5px] bg-background"
                     />
                   </div>
                   <Button
@@ -8394,11 +8394,11 @@ export default function AdminDashboard() {
                     bookingFormData.flightNumber &&
                     !selectedFlight && (
                       <div
-                        className="p-4 bg-white border border-gray-300 rounded-lg"
+                        className="p-4 bg-background border border-border rounded-lg"
                         data-testid="recorded-flight-display"
                       >
                         <div className="flex items-center gap-2 mb-3">
-                          <Plane className="w-5 h-5 text-gray-700" />
+                          <Plane className="w-5 h-5 text-muted-foreground" />
                           <div>
                             <p className="font-bold text-black">
                               Recorded Flight Information
@@ -8412,7 +8412,7 @@ export default function AdminDashboard() {
                         <div className="grid grid-cols-2 gap-3 text-sm">
                           {bookingFormData.flightDepartureAirport && (
                             <div>
-                              <p className="text-xs text-gray-600 font-medium">
+                              <p className="text-xs text-muted-foreground font-medium">
                                 Departure
                               </p>
                               <p className="text-black">
@@ -8422,7 +8422,7 @@ export default function AdminDashboard() {
                           )}
                           {bookingFormData.flightArrivalAirport && (
                             <div>
-                              <p className="text-xs text-gray-600 font-medium">
+                              <p className="text-xs text-muted-foreground font-medium">
                                 Arrival
                               </p>
                               <p className="text-black">
@@ -8601,7 +8601,7 @@ export default function AdminDashboard() {
                 >
                   <SelectTrigger
                     id="booking-status"
-                    className="bg-white text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
+                    className="bg-background text-[12px] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px] text-[#000000]"
                     data-testid="select-booking-status"
                   >
                     <SelectValue />
@@ -8685,10 +8685,10 @@ export default function AdminDashboard() {
 
         {/* User Accounts Management */}
         {showUserManager && (
-          <Card id="user-manager-section" data-testid="user-accounts" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50/30 border-b border-slate-200">
+          <Card id="user-manager-section" data-testid="user-accounts" className="border-border shadow-sm hover:shadow-md transition-shadow bg-background">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50/30 border-b border-border">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-3 text-slate-900">
+                <CardTitle className="flex items-center gap-3 text-foreground">
                   <div className="bg-purple-600 p-2 rounded-lg">
                     <Users className="w-5 h-5 text-white" />
                   </div>
@@ -8739,45 +8739,45 @@ export default function AdminDashboard() {
                 </div>
               ) : allUsers && allUsers.length > 0 ? (
                 <div className="space-y-4">
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-muted-foreground">
                     Manage user accounts, roles, and permissions across your platform.
                   </p>
 
                   {/* Search Input */}
                   <div className="flex items-center gap-2">
                     <div className="relative flex-1 max-w-md">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         type="text"
                         placeholder="Search by name, email, or phone..."
                         value={userSearchQuery}
                         onChange={(e) => setUserSearchQuery(e.target.value)}
-                        className="pl-10 border-slate-300 focus:border-purple-500 focus:ring-purple-500"
+                        className="pl-10 border-border focus:border-purple-500 focus:ring-purple-500"
                         data-testid="input-search-users"
                       />
                     </div>
                   </div>
 
-                  <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white">
+                  <div className="border border-border rounded-xl overflow-hidden shadow-sm bg-background">
                     <table className="w-full">
-                      <thead className="bg-gradient-to-r from-slate-50 to-purple-50/20 border-b border-slate-200">
+                      <thead className="bg-gradient-to-r from-slate-50 to-purple-50/20 border-b border-border">
                         <tr>
-                          <th className="text-left p-4 text-sm font-semibold text-slate-700">
+                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
                             User
                           </th>
-                          <th className="text-left p-4 text-sm font-semibold text-slate-700">
+                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
                             Email
                           </th>
-                          <th className="text-left p-4 text-sm font-semibold text-slate-700">
+                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
                             Role
                           </th>
-                          <th className="text-left p-4 text-sm font-semibold text-slate-700">
+                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
                             Status
                           </th>
-                          <th className="text-left p-4 text-sm font-semibold text-slate-700">
+                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
                             Star Rating
                           </th>
-                          <th className="text-left p-4 text-sm font-semibold text-slate-700">
+                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
                             Actions
                           </th>
                         </tr>
@@ -8805,18 +8805,18 @@ export default function AdminDashboard() {
                           .map((u) => (
                             <tr
                               key={u.id}
-                              className="border-t border-slate-200 hover:bg-purple-50/20 transition-colors"
+                              className="border-t border-border hover:bg-purple-50/20 transition-colors"
                               data-testid={`user-row-${u.id}`}
                             >
                               <td className="p-4">
                                 <div>
                                   <p
-                                    className="font-semibold text-slate-900"
+                                    className="font-semibold text-foreground"
                                     data-testid={`user-name-${u.id}`}
                                   >
                                     {u.firstName} {u.lastName}
                                   </p>
-                                  <p className="text-xs text-slate-500 mt-0.5">
+                                  <p className="text-xs text-muted-foreground mt-0.5">
                                     Joined{" "}
                                     {new Date(u.createdAt).toLocaleDateString()}
                                   </p>
@@ -8824,13 +8824,13 @@ export default function AdminDashboard() {
                               </td>
                               <td className="p-4">
                                 <p
-                                  className="text-sm text-slate-700 font-medium"
+                                  className="text-sm text-muted-foreground font-medium"
                                   data-testid={`user-email-${u.id}`}
                                 >
                                   {u.email}
                                 </p>
                                 {u.phone && (
-                                  <p className="text-xs text-slate-500 mt-0.5">
+                                  <p className="text-xs text-muted-foreground mt-0.5">
                                     {u.phone}
                                   </p>
                                 )}
@@ -8853,12 +8853,12 @@ export default function AdminDashboard() {
                                   disabled={updateUserMutation.isPending}
                                 >
                                   <SelectTrigger
-                                    className="w-32 border-slate-300"
+                                    className="w-32 border-border"
                                     data-testid={`select-role-${u.id}`}
                                   >
                                     <SelectValue />
                                   </SelectTrigger>
-                                  <SelectContent className="bg-white">
+                                  <SelectContent className="bg-background">
                                     <SelectItem value="passenger">
                                       Passenger
                                     </SelectItem>
@@ -8884,12 +8884,12 @@ export default function AdminDashboard() {
                                   disabled={updateUserMutation.isPending}
                                 >
                                   <SelectTrigger
-                                    className="w-28 border-slate-300"
+                                    className="w-28 border-border"
                                     data-testid={`select-status-${u.id}`}
                                   >
                                     <SelectValue />
                                   </SelectTrigger>
-                                  <SelectContent className="bg-white">
+                                  <SelectContent className="bg-background">
                                     <SelectItem value="active">
                                       Active
                                     </SelectItem>
@@ -8906,7 +8906,7 @@ export default function AdminDashboard() {
                                     className="flex items-center gap-1"
                                     data-testid={`driver-rating-${u.id}`}
                                   >
-                                    <span className="text-sm font-medium text-slate-900">
+                                    <span className="text-sm font-medium text-foreground">
                                       {parseFloat(
                                         (u as any).driverInfo.rating || "0",
                                       ).toFixed(1)}
@@ -8924,7 +8924,7 @@ export default function AdminDashboard() {
                                               ),
                                             )
                                               ? "text-amber-400 fill-current"
-                                              : "text-slate-300"
+                                              : "text-muted-foreground"
                                           }`}
                                           fill="none"
                                           strokeLinecap="round"
@@ -8939,7 +8939,7 @@ export default function AdminDashboard() {
                                     </div>
                                   </div>
                                 ) : (
-                                  <span className="text-sm text-slate-500">
+                                  <span className="text-sm text-muted-foreground">
                                     N/A
                                   </span>
                                 )}
@@ -8950,7 +8950,7 @@ export default function AdminDashboard() {
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
+                                      className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 dark:hover:border-blue-700"
                                       onClick={() => {
                                         setSelectedDriverForDocs(u);
                                         setDocumentsDialogOpen(true);
@@ -8964,7 +8964,7 @@ export default function AdminDashboard() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
+                                    className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300 dark:hover:border-purple-700"
                                     onClick={() => openEditUserDialog(u)}
                                     data-testid={`button-edit-user-${u.id}`}
                                   >
@@ -8992,7 +8992,7 @@ export default function AdminDashboard() {
                       </tbody>
                     </table>
                   </div>
-                  <div className="text-sm text-slate-700 p-4 bg-purple-50 rounded-xl border border-purple-200">
+                  <div className="text-sm text-muted-foreground p-4 bg-purple-50 rounded-xl border border-purple-200">
                     <div className="flex items-start gap-2">
                       <Star className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
                       <div>
@@ -9004,7 +9004,7 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <div
-                  className="text-center p-8 text-slate-500"
+                  className="text-center p-8 text-muted-foreground"
                   data-testid="no-users"
                 >
                   No users found.
@@ -9025,15 +9025,15 @@ export default function AdminDashboard() {
         {showInvoices && (
           <div id="invoices-section" className="space-y-6">
             {/* Modern Header */}
-            <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-              <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50/30 border-b border-slate-200">
+            <Card className="border-border shadow-sm hover:shadow-md transition-shadow bg-background">
+              <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50/30 border-b border-border">
                 <div className="flex items-center gap-3">
                   <div className="bg-indigo-600 p-2 rounded-lg">
                     <Receipt className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-slate-900">Invoice Management</CardTitle>
-                    <p className="text-sm text-slate-600 mt-1">Create, manage, and track all customer invoices</p>
+                    <CardTitle className="text-foreground">Invoice Management</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">Create, manage, and track all customer invoices</p>
                   </div>
                 </div>
               </CardHeader>
@@ -9046,7 +9046,7 @@ export default function AdminDashboard() {
       </div>
       {/* Payment Configuration Dialog */}
       <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-background">
           <DialogHeader>
             <DialogTitle>
               Configure{" "}
@@ -9300,7 +9300,7 @@ export default function AdminDashboard() {
           setCreditAdjustmentType('add');
         }
       }}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-background max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <UserIcon className="w-5 h-5" />
@@ -9406,7 +9406,7 @@ export default function AdminDashboard() {
                     />
                     {userFormData.username && userFormData.username !== editingUser?.username && (
                       <p className={`text-xs ${
-                        usernameStatus === 'checking' ? 'text-slate-500' :
+                        usernameStatus === 'checking' ? 'text-muted-foreground' :
                         usernameStatus === 'available' ? 'text-green-600' :
                         usernameStatus === 'taken' ? 'text-red-600' :
                         'text-muted-foreground'
@@ -9557,7 +9557,7 @@ export default function AdminDashboard() {
                   </div>
 
                   {editingUser && editingUser.id !== user?.id && (
-                    <div className="space-y-2 pt-4 border-t border-slate-200">
+                    <div className="space-y-2 pt-4 border-t border-border">
                       <Label htmlFor="user-temp-password">Set Temporary Password</Label>
                       <Input
                         id="user-temp-password"
@@ -9586,7 +9586,7 @@ export default function AdminDashboard() {
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-slate-600">Current Balance</p>
+                          <p className="text-sm font-medium text-muted-foreground">Current Balance</p>
                           <p className="text-3xl font-bold text-emerald-600">
                             ${userCreditsLoading ? '...' : parseFloat(userCreditsData?.balance || '0').toFixed(2)}
                           </p>
@@ -9671,7 +9671,7 @@ export default function AdminDashboard() {
                     </CardContent>
                   </Card>
 
-                  <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg">
+                  <div className="text-xs text-muted-foreground bg-muted p-3 rounded-lg">
                     <p className="font-medium mb-1">About Account Credits</p>
                     <p>Credits can be used by passengers to pay for rides. They can apply partial or full credit amounts during checkout.</p>
                   </div>
@@ -9681,16 +9681,16 @@ export default function AdminDashboard() {
               <TabsContent value="transactions" className="flex-1 overflow-y-auto pr-2 mt-0">
                 <div className="space-y-4 py-2">
                   {userCreditsLoading ? (
-                    <div className="text-center py-8 text-slate-500">Loading transactions...</div>
+                    <div className="text-center py-8 text-muted-foreground">Loading transactions...</div>
                   ) : !userCreditsData?.transactions?.length ? (
                     <div className="text-center py-8">
-                      <FileText className="w-12 h-12 mx-auto text-slate-300 mb-2" />
-                      <p className="text-slate-500">No transactions yet</p>
+                      <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-muted-foreground">No transactions yet</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
                       {userCreditsData.transactions.map((tx) => (
-                        <div key={tx.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border">
+                        <div key={tx.id} className="flex items-center justify-between p-3 bg-muted rounded-lg border">
                           <div className="flex items-center gap-3">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                               parseFloat(tx.amount) >= 0 ? 'bg-emerald-100' : 'bg-red-100'
@@ -9703,7 +9703,7 @@ export default function AdminDashboard() {
                             </div>
                             <div>
                               <p className="text-sm font-medium">{tx.description || tx.type}</p>
-                              <p className="text-xs text-slate-500">
+                              <p className="text-xs text-muted-foreground">
                                 {new Date(tx.createdAt).toLocaleDateString()} at {new Date(tx.createdAt).toLocaleTimeString()}
                               </p>
                             </div>
@@ -9874,7 +9874,7 @@ export default function AdminDashboard() {
                   </div>
 
                   {editingUser && editingUser.id !== user?.id && (
-                    <div className="space-y-2 pt-4 border-t border-slate-200">
+                    <div className="space-y-2 pt-4 border-t border-border">
                       <Label htmlFor="user-temp-password">Set Temporary Password</Label>
                       <Input
                         id="user-temp-password"
@@ -9902,7 +9902,7 @@ export default function AdminDashboard() {
                   <div className="grid grid-cols-3 gap-4">
                     <Card className="border-2 border-blue-100 bg-gradient-to-br from-blue-50 to-white">
                       <CardContent className="pt-4 pb-3">
-                        <p className="text-xs font-medium text-slate-600">Total Earnings</p>
+                        <p className="text-xs font-medium text-muted-foreground">Total Earnings</p>
                         <p className="text-2xl font-bold text-blue-600">
                           ${driverEarningsLoading ? '...' : parseFloat(driverEarningsData?.totalEarnings || '0').toFixed(2)}
                         </p>
@@ -9910,7 +9910,7 @@ export default function AdminDashboard() {
                     </Card>
                     <Card className="border-2 border-emerald-100 bg-gradient-to-br from-emerald-50 to-white">
                       <CardContent className="pt-4 pb-3">
-                        <p className="text-xs font-medium text-slate-600">Paid</p>
+                        <p className="text-xs font-medium text-muted-foreground">Paid</p>
                         <p className="text-2xl font-bold text-emerald-600">
                           ${driverEarningsLoading ? '...' : parseFloat(driverEarningsData?.paidEarnings || '0').toFixed(2)}
                         </p>
@@ -9918,7 +9918,7 @@ export default function AdminDashboard() {
                     </Card>
                     <Card className="border-2 border-amber-100 bg-gradient-to-br from-amber-50 to-white">
                       <CardContent className="pt-4 pb-3">
-                        <p className="text-xs font-medium text-slate-600">Unpaid</p>
+                        <p className="text-xs font-medium text-muted-foreground">Unpaid</p>
                         <p className="text-2xl font-bold text-amber-600">
                           ${driverEarningsLoading ? '...' : parseFloat(driverEarningsData?.unpaidEarnings || '0').toFixed(2)}
                         </p>
@@ -9927,18 +9927,18 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-slate-700">Earnings History</h4>
+                    <h4 className="text-sm font-semibold text-muted-foreground">Earnings History</h4>
                     {driverEarningsLoading ? (
-                      <div className="text-center py-8 text-slate-500">Loading earnings...</div>
+                      <div className="text-center py-8 text-muted-foreground">Loading earnings...</div>
                     ) : !driverEarningsData?.earnings?.length ? (
                       <div className="text-center py-8">
-                        <DollarSign className="w-12 h-12 mx-auto text-slate-300 mb-2" />
-                        <p className="text-slate-500">No completed jobs yet</p>
+                        <DollarSign className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
+                        <p className="text-muted-foreground">No completed jobs yet</p>
                       </div>
                     ) : (
                       <div className="space-y-2 max-h-[300px] overflow-y-auto">
                         {driverEarningsData.earnings.map((earning) => (
-                          <div key={earning.bookingId} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border">
+                          <div key={earning.bookingId} className="flex items-center justify-between p-3 bg-muted rounded-lg border">
                             <div className="flex-1 min-w-0 mr-3">
                               <div className="flex items-center gap-2">
                                 <p className="text-sm font-medium truncate">{earning.confirmationNumber}</p>
@@ -9948,13 +9948,13 @@ export default function AdminDashboard() {
                                   <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">Unpaid</Badge>
                                 )}
                               </div>
-                              <p className="text-xs text-slate-500 truncate">{earning.pickupAddress}</p>
-                              <p className="text-xs text-slate-400">
+                              <p className="text-xs text-muted-foreground truncate">{earning.pickupAddress}</p>
+                              <p className="text-xs text-muted-foreground">
                                 {new Date(earning.scheduledDateTime).toLocaleDateString()}
                               </p>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className="font-semibold text-slate-800">
+                              <span className="font-semibold text-foreground">
                                 ${parseFloat(earning.driverPayment || '0').toFixed(2)}
                               </span>
                               <Button
@@ -9981,8 +9981,8 @@ export default function AdminDashboard() {
               <TabsContent value="documents" className="flex-1 overflow-y-auto pr-2 mt-0">
                 <div className="space-y-4 py-2">
                   <div className="text-center py-8">
-                    <FileText className="w-12 h-12 mx-auto text-slate-300 mb-2" />
-                    <p className="text-slate-500 mb-4">View and manage driver documents</p>
+                    <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-muted-foreground mb-4">View and manage driver documents</p>
                     <Button
                       variant="outline"
                       onClick={() => {
@@ -10072,7 +10072,7 @@ export default function AdminDashboard() {
                 />
                 {userFormData.username && userFormData.username !== editingUser?.username && (
                   <p className={`text-xs ${
-                    usernameStatus === 'checking' ? 'text-slate-500' :
+                    usernameStatus === 'checking' ? 'text-muted-foreground' :
                     usernameStatus === 'available' ? 'text-green-600' :
                     usernameStatus === 'taken' ? 'text-red-600' :
                     'text-muted-foreground'
@@ -10242,7 +10242,7 @@ export default function AdminDashboard() {
               )}
 
               {editingUser && editingUser.id !== user?.id && (
-                <div className="space-y-2 pt-4 border-t border-slate-200">
+                <div className="space-y-2 pt-4 border-t border-border">
                   <Label htmlFor="user-temp-password">Set Temporary Password (Optional)</Label>
                   <Input
                     id="user-temp-password"
@@ -10311,7 +10311,7 @@ export default function AdminDashboard() {
       </Dialog>
       {/* Driver Documents Dialog */}
       <Dialog open={documentsDialogOpen} onOpenChange={setDocumentsDialogOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-background sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               Driver Documents - {selectedDriverForDocs?.firstName}{" "}
@@ -10578,7 +10578,7 @@ export default function AdminDashboard() {
 
       {/* Cancel Booking Dialog */}
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-background">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-orange-600">
               <X className="w-5 h-5" />
@@ -10639,7 +10639,7 @@ export default function AdminDashboard() {
 
       {/* Delete Booking Confirmation Dialog */}
       <Dialog open={deleteConfirmDialogOpen} onOpenChange={setDeleteConfirmDialogOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-white">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-background">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-600">
               <AlertCircle className="w-5 h-5" />
@@ -10691,7 +10691,7 @@ export default function AdminDashboard() {
             <AlertDialogDescription className="space-y-2">
               <p>
                 Are you sure you want to delete{" "}
-                <span className="font-semibold text-slate-900">
+                <span className="font-semibold text-foreground">
                   {userToDelete?.firstName} {userToDelete?.lastName}
                 </span>
                 {" "}({userToDelete?.email})?

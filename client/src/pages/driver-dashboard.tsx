@@ -527,7 +527,7 @@ export default function DriverDashboard() {
       case "rejected":
         return <AlertCircle className="w-4 h-4 text-red-600" />;
       default:
-        return <Clock className="w-4 h-4 text-gray-400" />;
+        return <Clock className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -680,15 +680,15 @@ export default function DriverDashboard() {
     ) || [];
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
+    <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Subtle Light Background Pattern */}
       <div className="fixed inset-0 pointer-events-none opacity-40">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-50 via-white to-gray-50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-red-50 via-background to-muted dark:from-red-950/20 dark:via-background dark:to-muted" />
         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(220 38 38 / 0.05) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
       </div>
 
       {/* Modern Header */}
-      <header className="relative z-10 border-b border-gray-200 backdrop-blur-xl bg-white shadow-md">
+      <header className="relative z-10 border-b border-border backdrop-blur-xl bg-background shadow-md">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-5">
@@ -701,22 +701,22 @@ export default function DriverDashboard() {
                   data-testid="dashboard-logo"
                 />
               ) : (
-                <div className="w-16 h-16 bg-white border border-gray-200 rounded-lg flex items-center justify-center">
-                  <User className="w-8 h-8 text-gray-600" />
+                <div className="w-16 h-16 bg-background border border-border rounded-lg flex items-center justify-center">
+                  <User className="w-8 h-8 text-muted-foreground" />
                 </div>
               )}
               <div>
-                <h1 className="text-3xl font-bold text-black" data-testid="driver-title">
+                <h1 className="text-3xl font-bold text-foreground" data-testid="driver-title">
                   Driver Portal
                 </h1>
-                <p className="text-gray-600 text-lg mt-1" data-testid="driver-subtitle">
+                <p className="text-muted-foreground text-lg mt-1" data-testid="driver-subtitle">
                   Welcome, <span className="text-red-600 font-medium">{user?.firstName || user?.email}</span>
                 </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               {/* Driver Profile Picture */}
-              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-red-100 shadow-md bg-white">
+              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-red-100 shadow-md bg-background">
                 <img
                   src={
                     getDocumentByType('profile_photo')?.status === 'approved' && getDocumentByType('profile_photo')?.documentUrl 
@@ -730,7 +730,7 @@ export default function DriverDashboard() {
               </div>
               <Badge
                 variant={driver?.isAvailable ? "secondary" : "outline"}
-                className={driver?.isAvailable ? "bg-red-600 text-white px-4 py-2 text-sm font-medium" : "border-gray-300 text-gray-600 px-4 py-2 text-sm"}
+                className={driver?.isAvailable ? "bg-red-600 text-white px-4 py-2 text-sm font-medium" : "border-border text-muted-foreground px-4 py-2 text-sm"}
                 data-testid="driver-status"
               >
                 {driver?.isAvailable ? "Available" : "Offline"}
@@ -750,15 +750,15 @@ export default function DriverDashboard() {
         </div>
 
         {/* Modern Navigation Menu */}
-        <div className="relative z-10 border-b border-gray-200 backdrop-blur-xl bg-white">
+        <div className="relative z-10 border-b border-border backdrop-blur-xl bg-background">
           <div className="max-w-7xl mx-auto px-6">
             <nav className="flex space-x-2 overflow-x-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}>
               <button
                 onClick={() => setActiveTab("home")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                   activeTab === "home"
-                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
-                    : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 dark:from-red-900/30 to-transparent'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
                 data-testid="nav-home"
               >
@@ -772,8 +772,8 @@ export default function DriverDashboard() {
                 onClick={() => setActiveTab("documents")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                   activeTab === "documents"
-                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
-                    : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 dark:from-red-900/30 to-transparent'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
                 data-testid="nav-documents"
               >
@@ -787,8 +787,8 @@ export default function DriverDashboard() {
                 onClick={() => setActiveTab("assigned-jobs")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                   activeTab === "assigned-jobs"
-                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
-                    : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 dark:from-red-900/30 to-transparent'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
                 data-testid="nav-assigned-jobs"
               >
@@ -802,8 +802,8 @@ export default function DriverDashboard() {
                 onClick={() => setActiveTab("settings")}
                 className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
                   activeTab === "settings"
-                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
-                    : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 dark:from-red-900/30 to-transparent'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
                 data-testid="nav-settings"
               >
@@ -826,7 +826,7 @@ export default function DriverDashboard() {
             <div className="grid md:grid-cols-3 gap-6">
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-                <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="stat-earnings">
+                <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="stat-earnings">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
@@ -834,7 +834,7 @@ export default function DriverDashboard() {
                           <DollarSign className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600 flex items-center gap-2 font-medium">
+                          <p className="text-sm text-muted-foreground flex items-center gap-2 font-medium">
                             <Calendar className="w-3 h-3" />
                             {earnings?.currentDate 
                               ? new Date(earnings.currentDate).toLocaleDateString('en-US', { 
@@ -849,7 +849,7 @@ export default function DriverDashboard() {
                             data-testid="today-earnings"
                           >
                             {earningsLoading ? (
-                              <span className="text-gray-400">Loading...</span>
+                              <span className="text-muted-foreground">Loading...</span>
                             ) : (
                               `$${earnings?.today?.toFixed(2) || '0.00'}`
                             )}
@@ -919,18 +919,18 @@ export default function DriverDashboard() {
 
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-                <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="stat-rides">
+                <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="stat-rides">
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-md">
                         <MapPin className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600 font-medium">
+                        <p className="text-sm text-muted-foreground font-medium">
                           Completed Rides
                         </p>
                         <p
-                          className="text-2xl font-bold text-gray-900"
+                          className="text-2xl font-bold text-foreground"
                           data-testid="completed-rides"
                         >
                           {completedRides}
@@ -943,16 +943,16 @@ export default function DriverDashboard() {
 
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-                <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="stat-rating">
+                <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="stat-rating">
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-500 flex items-center justify-center shadow-md">
                         <Star className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600 font-medium">Rating</p>
+                        <p className="text-sm text-muted-foreground font-medium">Rating</p>
                         <p
-                          className="text-2xl font-bold text-gray-900"
+                          className="text-2xl font-bold text-foreground"
                           data-testid="driver-rating"
                         >
                           {driver?.rating || "0"}/5
@@ -967,9 +967,9 @@ export default function DriverDashboard() {
             {/* Accepted/Assigned Jobs */}
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-              <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="accepted-jobs">
+              <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="accepted-jobs">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                  <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-md">
                       <Briefcase className="w-5 h-5 text-white" />
                     </div>
@@ -989,16 +989,16 @@ export default function DriverDashboard() {
                           <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 via-red-600 to-red-700 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-300" />
                           
                           {/* Main card */}
-                          <div className="relative bg-white rounded-2xl p-6 border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
+                          <div className="relative bg-card rounded-2xl p-6 border border-border shadow-lg hover:shadow-xl transition-all duration-300">
                             {/* Header with status badge */}
-                            <div className="flex items-start justify-between mb-5 pb-4 border-b border-gray-100">
+                            <div className="flex items-start justify-between mb-5 pb-4 border-b border-border">
                               <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-md">
                                   <Car className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
-                                  <h3 className="font-bold text-gray-900 text-lg">Booking #{booking.id.slice(0, 8)}</h3>
-                                  <p className="text-sm text-gray-500">
+                                  <h3 className="font-bold text-foreground text-lg">Booking #{booking.id.slice(0, 8)}</h3>
+                                  <p className="text-sm text-muted-foreground">
                                     {booking.bookingType === 'hourly' ? 'Hourly Service' : 'Transfer Service'}
                                   </p>
                                   {booking.passengerName && (
@@ -1029,7 +1029,7 @@ export default function DriverDashboard() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs font-semibold text-blue-700 mb-1">PICKUP LOCATION</p>
-                                  <p className="text-sm text-gray-900 font-medium" data-testid={`accepted-pickup-${booking.id}`}>
+                                  <p className="text-sm text-foreground font-medium" data-testid={`accepted-pickup-${booking.id}`}>
                                     {booking.pickupAddress}
                                   </p>
                                 </div>
@@ -1043,7 +1043,7 @@ export default function DriverDashboard() {
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <p className="text-xs font-semibold text-purple-700 mb-1">DESTINATION</p>
-                                    <p className="text-sm text-gray-900 font-medium" data-testid={`accepted-destination-${booking.id}`}>
+                                    <p className="text-sm text-foreground font-medium" data-testid={`accepted-destination-${booking.id}`}>
                                       {booking.destinationAddress}
                                     </p>
                                   </div>
@@ -1057,7 +1057,7 @@ export default function DriverDashboard() {
                                   <Clock className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                                   <div className="flex-1 min-w-0">
                                     <p className="text-xs font-semibold text-orange-700 mb-1">SCHEDULED</p>
-                                    <p className="text-sm text-gray-900 font-medium" data-testid={`accepted-time-${booking.id}`}>
+                                    <p className="text-sm text-foreground font-medium" data-testid={`accepted-time-${booking.id}`}>
                                       {new Date(booking.scheduledDateTime).toLocaleString('en-US', {
                                         month: 'short',
                                         day: 'numeric',
@@ -1083,7 +1083,7 @@ export default function DriverDashboard() {
 
                             {/* Action buttons */}
                             {booking.status === "pending_driver_acceptance" && (
-                              <div className="flex gap-3 pt-4 border-t border-gray-100">
+                              <div className="flex gap-3 pt-4 border-t border-border">
                                 <Button
                                   onClick={() => handleAcceptRide(booking.id)}
                                   disabled={
@@ -1116,7 +1116,7 @@ export default function DriverDashboard() {
                             )}
                             
                             {booking.status === "in_progress" && (
-                              <div className="pt-4 border-t border-gray-100">
+                              <div className="pt-4 border-t border-border">
                                 <Button
                                   onClick={() => handleCompleteRide(booking.id)}
                                   disabled={updateBookingMutation.isPending}
@@ -1137,9 +1137,9 @@ export default function DriverDashboard() {
                       className="text-center p-12"
                       data-testid="no-accepted-jobs"
                     >
-                      <Briefcase className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                      <p className="text-gray-600 text-lg font-medium">No accepted jobs yet</p>
-                      <p className="text-gray-500 text-sm mt-2">New job assignments will appear here</p>
+                      <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-muted-foreground text-lg font-medium">No accepted jobs yet</p>
+                      <p className="text-muted-foreground text-sm mt-2">New job assignments will appear here</p>
                     </div>
                   )}
                 </CardContent>
@@ -1152,7 +1152,7 @@ export default function DriverDashboard() {
         {activeTab === "documents" && (
           <div className="p-4 space-y-4">
             {/* Driver License */}
-            <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="card-driver-license">
+            <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="card-driver-license">
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -1160,8 +1160,8 @@ export default function DriverDashboard() {
                       <FileText className="w-5 h-5 text-red-600" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900">Driver License</h3>
-                      <p className="text-xs text-gray-500">Required document</p>
+                      <h3 className="font-bold text-foreground">Driver License</h3>
+                      <p className="text-xs text-muted-foreground">Required document</p>
                     </div>
                   </div>
                   {getDocumentByType('driver_license') && getStatusBadge(getDocumentByType('driver_license')!.status)}
@@ -1171,8 +1171,8 @@ export default function DriverDashboard() {
                   <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
                     {getDocumentByType('driver_license')!.expirationDate && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Expires:</span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-muted-foreground">Expires:</span>
+                        <span className="font-medium text-foreground">
                           {new Date(getDocumentByType('driver_license')!.expirationDate!).toLocaleDateString()}
                         </span>
                       </div>
@@ -1189,7 +1189,7 @@ export default function DriverDashboard() {
 
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="driver-license-file" className="text-gray-700 font-medium mb-2 block">
+                    <Label htmlFor="driver-license-file" className="text-muted-foreground font-medium mb-2 block">
                       {getDocumentByType('driver_license') ? 'Replace Document' : 'Upload Document'}
                     </Label>
                     <Input
@@ -1201,13 +1201,13 @@ export default function DriverDashboard() {
                         ...prev,
                         driverLicense: { ...prev.driverLicense, file: e.target.files?.[0] || null }
                       }))}
-                      className="bg-white border-gray-300"
+                      className="bg-background border-border"
                       data-testid="input-driver-license-file"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Image or PDF, max 2MB</p>
+                    <p className="text-xs text-muted-foreground mt-1">Image or PDF, max 2MB</p>
                   </div>
                   <div>
-                    <Label htmlFor="driver-license-expiry" className="text-gray-700 font-medium mb-2 block">
+                    <Label htmlFor="driver-license-expiry" className="text-muted-foreground font-medium mb-2 block">
                       Expiration Date
                     </Label>
                     <Input
@@ -1218,7 +1218,7 @@ export default function DriverDashboard() {
                         ...prev,
                         driverLicense: { ...prev.driverLicense, expirationDate: e.target.value }
                       }))}
-                      className="bg-white border-gray-300"
+                      className="bg-background border-border"
                       data-testid="input-driver-license-expiry"
                     />
                   </div>
@@ -1236,7 +1236,7 @@ export default function DriverDashboard() {
             </Card>
 
             {/* Limo License */}
-            <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="card-limo-license">
+            <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="card-limo-license">
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -1244,8 +1244,8 @@ export default function DriverDashboard() {
                       <FileText className="w-5 h-5 text-red-600" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900">Limo License</h3>
-                      <p className="text-xs text-gray-500">Required document</p>
+                      <h3 className="font-bold text-foreground">Limo License</h3>
+                      <p className="text-xs text-muted-foreground">Required document</p>
                     </div>
                   </div>
                   {getDocumentByType('limo_license') && getStatusBadge(getDocumentByType('limo_license')!.status)}
@@ -1255,8 +1255,8 @@ export default function DriverDashboard() {
                   <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
                     {getDocumentByType('limo_license')!.expirationDate && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Expires:</span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-muted-foreground">Expires:</span>
+                        <span className="font-medium text-foreground">
                           {new Date(getDocumentByType('limo_license')!.expirationDate!).toLocaleDateString()}
                         </span>
                       </div>
@@ -1273,7 +1273,7 @@ export default function DriverDashboard() {
 
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="limo-license-file" className="text-gray-700 font-medium mb-2 block">
+                    <Label htmlFor="limo-license-file" className="text-muted-foreground font-medium mb-2 block">
                       {getDocumentByType('limo_license') ? 'Replace Document' : 'Upload Document'}
                     </Label>
                     <Input
@@ -1285,13 +1285,13 @@ export default function DriverDashboard() {
                         ...prev,
                         limoLicense: { ...prev.limoLicense, file: e.target.files?.[0] || null }
                       }))}
-                      className="bg-white border-gray-300"
+                      className="bg-background border-border"
                       data-testid="input-limo-license-file"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Image or PDF, max 2MB</p>
+                    <p className="text-xs text-muted-foreground mt-1">Image or PDF, max 2MB</p>
                   </div>
                   <div>
-                    <Label htmlFor="limo-license-expiry" className="text-gray-700 font-medium mb-2 block">
+                    <Label htmlFor="limo-license-expiry" className="text-muted-foreground font-medium mb-2 block">
                       Expiration Date
                     </Label>
                     <Input
@@ -1302,7 +1302,7 @@ export default function DriverDashboard() {
                         ...prev,
                         limoLicense: { ...prev.limoLicense, expirationDate: e.target.value }
                       }))}
-                      className="bg-white border-gray-300"
+                      className="bg-background border-border"
                       data-testid="input-limo-license-expiry"
                     />
                   </div>
@@ -1320,7 +1320,7 @@ export default function DriverDashboard() {
             </Card>
 
             {/* Insurance Certificate */}
-            <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="card-insurance-certificate">
+            <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="card-insurance-certificate">
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -1328,8 +1328,8 @@ export default function DriverDashboard() {
                       <FileText className="w-5 h-5 text-red-600" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900">Insurance Certificate</h3>
-                      <p className="text-xs text-gray-500">Required document</p>
+                      <h3 className="font-bold text-foreground">Insurance Certificate</h3>
+                      <p className="text-xs text-muted-foreground">Required document</p>
                     </div>
                   </div>
                   {getDocumentByType('insurance_certificate') && getStatusBadge(getDocumentByType('insurance_certificate')!.status)}
@@ -1339,8 +1339,8 @@ export default function DriverDashboard() {
                   <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
                     {getDocumentByType('insurance_certificate')!.expirationDate && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Expires:</span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-muted-foreground">Expires:</span>
+                        <span className="font-medium text-foreground">
                           {new Date(getDocumentByType('insurance_certificate')!.expirationDate!).toLocaleDateString()}
                         </span>
                       </div>
@@ -1357,7 +1357,7 @@ export default function DriverDashboard() {
 
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="insurance-certificate-file" className="text-gray-700 font-medium mb-2 block">
+                    <Label htmlFor="insurance-certificate-file" className="text-muted-foreground font-medium mb-2 block">
                       {getDocumentByType('insurance_certificate') ? 'Replace Document' : 'Upload Document'}
                     </Label>
                     <Input
@@ -1369,13 +1369,13 @@ export default function DriverDashboard() {
                         ...prev,
                         insuranceCertificate: { ...prev.insuranceCertificate, file: e.target.files?.[0] || null }
                       }))}
-                      className="bg-white border-gray-300"
+                      className="bg-background border-border"
                       data-testid="input-insurance-certificate-file"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Image or PDF, max 2MB</p>
+                    <p className="text-xs text-muted-foreground mt-1">Image or PDF, max 2MB</p>
                   </div>
                   <div>
-                    <Label htmlFor="insurance-certificate-expiry" className="text-gray-700 font-medium mb-2 block">
+                    <Label htmlFor="insurance-certificate-expiry" className="text-muted-foreground font-medium mb-2 block">
                       Expiration Date
                     </Label>
                     <Input
@@ -1386,7 +1386,7 @@ export default function DriverDashboard() {
                         ...prev,
                         insuranceCertificate: { ...prev.insuranceCertificate, expirationDate: e.target.value }
                       }))}
-                      className="bg-white border-gray-300"
+                      className="bg-background border-border"
                       data-testid="input-insurance-certificate-expiry"
                     />
                   </div>
@@ -1404,7 +1404,7 @@ export default function DriverDashboard() {
             </Card>
 
             {/* Vehicle Image */}
-            <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="card-vehicle-image">
+            <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="card-vehicle-image">
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -1412,8 +1412,8 @@ export default function DriverDashboard() {
                       <Car className="w-5 h-5 text-red-600" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900">Vehicle Image</h3>
-                      <p className="text-xs text-gray-500">Optional document</p>
+                      <h3 className="font-bold text-foreground">Vehicle Image</h3>
+                      <p className="text-xs text-muted-foreground">Optional document</p>
                     </div>
                   </div>
                   {getDocumentByType('vehicle_image') && getStatusBadge(getDocumentByType('vehicle_image')!.status)}
@@ -1423,8 +1423,8 @@ export default function DriverDashboard() {
                   <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
                     {getDocumentByType('vehicle_image')!.vehiclePlate && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Vehicle Plate:</span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-muted-foreground">Vehicle Plate:</span>
+                        <span className="font-medium text-foreground">
                           {getDocumentByType('vehicle_image')!.vehiclePlate}
                         </span>
                       </div>
@@ -1441,7 +1441,7 @@ export default function DriverDashboard() {
 
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="vehicle-image-file" className="text-gray-700 font-medium mb-2 block">
+                    <Label htmlFor="vehicle-image-file" className="text-muted-foreground font-medium mb-2 block">
                       {getDocumentByType('vehicle_image') ? 'Replace Image' : 'Upload Image'}
                     </Label>
                     <Input
@@ -1453,13 +1453,13 @@ export default function DriverDashboard() {
                         ...prev,
                         vehicleImage: { ...prev.vehicleImage, file: e.target.files?.[0] || null }
                       }))}
-                      className="bg-white border-gray-300"
+                      className="bg-background border-border"
                       data-testid="input-vehicle-image-file"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Image only, max 2MB</p>
+                    <p className="text-xs text-muted-foreground mt-1">Image only, max 2MB</p>
                   </div>
                   <div>
-                    <Label htmlFor="vehicle-plate" className="text-gray-700 font-medium mb-2 block">
+                    <Label htmlFor="vehicle-plate" className="text-muted-foreground font-medium mb-2 block">
                       Vehicle Plate Number
                     </Label>
                     <Input
@@ -1471,7 +1471,7 @@ export default function DriverDashboard() {
                         ...prev,
                         vehicleImage: { ...prev.vehicleImage, vehiclePlate: e.target.value }
                       }))}
-                      className="bg-white border-gray-300"
+                      className="bg-background border-border"
                       data-testid="input-vehicle-plate"
                     />
                   </div>
@@ -1489,7 +1489,7 @@ export default function DriverDashboard() {
             </Card>
 
             {/* Profile Photo */}
-            <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="card-profile-photo">
+            <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="card-profile-photo">
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -1497,8 +1497,8 @@ export default function DriverDashboard() {
                       <Camera className="w-5 h-5 text-red-600" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900">Profile Photo</h3>
-                      <p className="text-xs text-gray-500">Optional</p>
+                      <h3 className="font-bold text-foreground">Profile Photo</h3>
+                      <p className="text-xs text-muted-foreground">Optional</p>
                     </div>
                   </div>
                   {getDocumentByType('profile_photo') && getStatusBadge(getDocumentByType('profile_photo')!.status)}
@@ -1507,7 +1507,7 @@ export default function DriverDashboard() {
                 {/* Avatar Preview */}
                 <div className="flex justify-center py-4">
                   <div className="relative">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-red-100 shadow-lg bg-white">
+                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-red-100 shadow-lg bg-background">
                       <img
                         src={
                           getDocumentByType('profile_photo')?.status === 'approved' && getDocumentByType('profile_photo')?.documentUrl 
@@ -1529,8 +1529,8 @@ export default function DriverDashboard() {
                   <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
                     {getDocumentByType('profile_photo')!.whatsappNumber && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">WhatsApp:</span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-muted-foreground">WhatsApp:</span>
+                        <span className="font-medium text-foreground">
                           {getDocumentByType('profile_photo')!.whatsappNumber}
                         </span>
                       </div>
@@ -1547,7 +1547,7 @@ export default function DriverDashboard() {
 
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="profile-photo-file" className="text-gray-700 font-medium mb-2 block">
+                    <Label htmlFor="profile-photo-file" className="text-muted-foreground font-medium mb-2 block">
                       {getDocumentByType('profile_photo') ? 'Replace Photo' : 'Upload Photo'}
                     </Label>
                     <Input
@@ -1559,13 +1559,13 @@ export default function DriverDashboard() {
                         ...prev,
                         profilePhoto: { file: e.target.files?.[0] || null }
                       }))}
-                      className="bg-white border-gray-300"
+                      className="bg-background border-border"
                       data-testid="input-profile-photo-file"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Image only, max 2MB</p>
+                    <p className="text-xs text-muted-foreground mt-1">Image only, max 2MB</p>
                   </div>
                   <div>
-                    <Label htmlFor="whatsapp-number" className="text-gray-700 font-medium mb-2 block">
+                    <Label htmlFor="whatsapp-number" className="text-muted-foreground font-medium mb-2 block">
                       WhatsApp Number (Optional)
                     </Label>
                     <Input
@@ -1574,7 +1574,7 @@ export default function DriverDashboard() {
                       placeholder="+1 234 567 8900"
                       value={formData.whatsappNumber}
                       onChange={(e) => setFormData(prev => ({ ...prev, whatsappNumber: e.target.value }))}
-                      className="bg-white border-gray-300"
+                      className="bg-background border-border"
                       data-testid="input-whatsapp-number"
                     />
                   </div>
@@ -1597,9 +1597,9 @@ export default function DriverDashboard() {
         {activeTab === "assigned-jobs" && (
           <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="assigned-jobs-tab">
+            <Card className="relative bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="assigned-jobs-tab">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center shadow-md">
                     <Briefcase className="w-5 h-5 text-white" />
                   </div>
@@ -1612,31 +1612,31 @@ export default function DriverDashboard() {
                   {assignedBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all space-y-3"
+                      className="bg-gradient-to-r from-muted to-background dark:from-muted dark:to-background rounded-xl p-5 border border-border hover:border-orange-300 hover:shadow-md transition-all space-y-3"
                       data-testid={`assigned-booking-${booking.id}`}
                     >
                       <div className="flex justify-between items-start">
                         <div className="space-y-2 text-sm flex-1">
-                          <div className="text-gray-900" data-testid={`assigned-pickup-${booking.id}`}>
-                            <strong className="text-gray-700">Pickup:</strong> {booking.pickupAddress}
+                          <div className="text-foreground" data-testid={`assigned-pickup-${booking.id}`}>
+                            <strong className="text-muted-foreground">Pickup:</strong> {booking.pickupAddress}
                           </div>
                           {booking.destinationAddress && (
                             <div
-                              className="text-gray-900"
+                              className="text-foreground"
                               data-testid={`assigned-destination-${booking.id}`}
                             >
-                              <strong className="text-gray-700">Destination:</strong>{" "}
+                              <strong className="text-muted-foreground">Destination:</strong>{" "}
                               {booking.destinationAddress}
                             </div>
                           )}
-                          <div className="text-gray-900" data-testid={`assigned-time-${booking.id}`}>
-                            <strong className="text-gray-700">Scheduled:</strong>{" "}
+                          <div className="text-foreground" data-testid={`assigned-time-${booking.id}`}>
+                            <strong className="text-muted-foreground">Scheduled:</strong>{" "}
                             {new Date(
                               booking.scheduledDateTime,
                             ).toLocaleString()}
                           </div>
-                          <div className="text-gray-900" data-testid={`assigned-amount-${booking.id}`}>
-                            <strong className="text-gray-700">Your Payment:</strong>{" "}
+                          <div className="text-foreground" data-testid={`assigned-amount-${booking.id}`}>
+                            <strong className="text-muted-foreground">Your Payment:</strong>{" "}
                             <span className="text-red-600 font-bold">
                               ${booking.driverPayment || "Not set"}
                             </span>
@@ -1659,7 +1659,7 @@ export default function DriverDashboard() {
 
                       {/* Accept/Decline buttons for pending acceptance */}
                       {booking.status === "pending_driver_acceptance" && (
-                        <div className="flex space-x-2 pt-3 border-t border-gray-200">
+                        <div className="flex space-x-2 pt-3 border-t border-border">
                           <Button
                             onClick={() => handleAcceptRide(booking.id)}
                             disabled={
@@ -1691,7 +1691,7 @@ export default function DriverDashboard() {
 
                       {/* Complete button for in-progress rides */}
                       {booking.status === "in_progress" && (
-                        <div className="flex space-x-2 pt-3 border-t border-gray-200">
+                        <div className="flex space-x-2 pt-3 border-t border-border">
                           <Button
                             onClick={() => handleCompleteRide(booking.id)}
                             disabled={updateBookingMutation.isPending}
@@ -1710,9 +1710,9 @@ export default function DriverDashboard() {
                   className="text-center p-12"
                   data-testid="no-assigned-jobs-tab"
                 >
-                  <Briefcase className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-gray-600 text-lg font-medium">No assigned jobs</p>
-                  <p className="text-gray-500 text-sm mt-2">New job assignments will appear here</p>
+                  <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground text-lg font-medium">No assigned jobs</p>
+                  <p className="text-muted-foreground text-sm mt-2">New job assignments will appear here</p>
                 </div>
               )}
             </CardContent>
@@ -1724,9 +1724,9 @@ export default function DriverDashboard() {
         {activeTab === "settings" && (
           <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow" data-testid="menu-account">
+            <Card className="relative bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="menu-account">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
                     <Settings className="w-5 h-5 text-white" />
                   </div>
@@ -1922,7 +1922,7 @@ export default function DriverDashboard() {
           
           {/* Earnings Link */}
           <div className="mt-6">
-            <Card className="bg-white border-gray-200 shadow-lg">
+            <Card className="bg-background border-border shadow-lg">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -1930,8 +1930,8 @@ export default function DriverDashboard() {
                       <DollarSign className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">My Earnings</h3>
-                      <p className="text-sm text-gray-500">View yearly earnings and download 1099 forms</p>
+                      <h3 className="text-lg font-semibold text-foreground">My Earnings</h3>
+                      <p className="text-sm text-muted-foreground">View yearly earnings and download 1099 forms</p>
                     </div>
                   </div>
                   <Button 

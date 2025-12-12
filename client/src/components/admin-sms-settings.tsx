@@ -214,7 +214,7 @@ export function AdminSMSSettings() {
   };
 
   return (
-    <Card id="settings-section" data-testid="sms-settings" className="border-0 shadow-xl bg-gradient-to-br from-white via-slate-50/30 to-white backdrop-blur-sm overflow-hidden">
+    <Card id="settings-section" data-testid="sms-settings" className="border-0 shadow-xl bg-gradient-to-br from-card via-muted/30 to-card backdrop-blur-sm overflow-hidden">
       {/* Premium Header with layered design */}
       <CardHeader className="relative bg-gradient-to-br from-purple-600 via-pink-600 to-purple-700 border-b-0 pb-8">
         {/* Subtle pattern overlay */}
@@ -234,7 +234,7 @@ export function AdminSMSSettings() {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-8 bg-gradient-to-b from-white to-slate-50/30">
+      <CardContent className="p-8 bg-gradient-to-b from-card to-muted/30">
         {loading ? (
           <div className="flex items-center justify-center p-16">
             <div className="relative">
@@ -245,22 +245,22 @@ export function AdminSMSSettings() {
         ) : (
           <div className="space-y-6">
             {/* Enable/Disable Toggle */}
-            <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8">
-              <div className="flex items-center gap-3 pb-4 mb-6 border-b border-slate-100">
-                <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-2.5 rounded-xl">
-                  <Settings className="w-5 h-5 text-purple-700" />
+            <div className="bg-card rounded-2xl border-2 border-border shadow-md p-8">
+              <div className="flex items-center gap-3 pb-4 mb-6 border-b border-border">
+                <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 p-2.5 rounded-xl">
+                  <Settings className="w-5 h-5 text-purple-700 dark:text-purple-300" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">SMS Notifications Control</h3>
+                <h3 className="text-xl font-bold text-foreground">SMS Notifications Control</h3>
               </div>
-              <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-purple-50/30 rounded-xl p-6 border-2 border-slate-200 hover:border-purple-300 transition-all duration-300">
+              <div className="flex items-center justify-between bg-gradient-to-r from-muted to-purple-50/30 dark:to-purple-900/30 rounded-xl p-6 border-2 border-border hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300">
                 <div>
-                  <h4 className="font-bold text-slate-900 text-lg mb-1">SMS Notifications</h4>
-                  <p className="text-sm text-slate-600 font-medium">
+                  <h4 className="font-bold text-foreground text-lg mb-1">SMS Notifications</h4>
+                  <p className="text-sm text-muted-foreground font-medium">
                     {credentials.enabled ? 'SMS notifications are active' : 'SMS notifications are disabled'}
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <Badge className={`px-4 py-2 text-sm font-bold ${credentials.enabled ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                  <Badge className={`px-4 py-2 text-sm font-bold ${credentials.enabled ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'bg-muted text-muted-foreground'}`}>
                     {credentials.enabled ? 'ON' : 'OFF'}
                   </Badge>
                   <Switch
@@ -274,13 +274,13 @@ export function AdminSMSSettings() {
             </div>
 
             {/* Connection Status */}
-            <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8">
-              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+            <div className="bg-card rounded-2xl border-2 border-border shadow-md p-8">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-blue-100 to-indigo-100 p-2.5 rounded-xl">
-                    <Server className="w-5 h-5 text-blue-700" />
+                  <div className="bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 p-2.5 rounded-xl">
+                    <Server className="w-5 h-5 text-blue-700 dark:text-blue-300" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900">Connection Status</h3>
+                  <h3 className="text-xl font-bold text-foreground">Connection Status</h3>
                 </div>
                 {status?.connected ? (
                   <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 px-4 py-2 text-sm font-bold shadow-md" data-testid="badge-sms-connected">
@@ -307,13 +307,13 @@ export function AdminSMSSettings() {
             </div>
 
             {/* Twilio Credentials */}
-            <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 space-y-6">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div className="bg-card rounded-2xl border-2 border-border shadow-md p-8 space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-2.5 rounded-xl">
-                    <Phone className="w-5 h-5 text-purple-700" />
+                  <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 p-2.5 rounded-xl">
+                    <Phone className="w-5 h-5 text-purple-700 dark:text-purple-300" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900">Twilio Credentials</h3>
+                  <h3 className="text-xl font-bold text-foreground">Twilio Credentials</h3>
                 </div>
                 {!editing && (
                   <Button
@@ -330,23 +330,23 @@ export function AdminSMSSettings() {
               {editing ? (
                 <div className="space-y-5">
                   <div className="space-y-3">
-                    <Label htmlFor="account-sid" className="text-slate-700 font-semibold text-sm">Account SID</Label>
+                    <Label htmlFor="account-sid" className="text-muted-foreground font-semibold text-sm">Account SID</Label>
                     <Input
                       id="account-sid"
                       type="text"
                       placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                       value={credentials.accountSid}
                       onChange={(e) => setCredentials(prev => ({ ...prev, accountSid: e.target.value }))}
-                      className="h-12 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20 rounded-xl text-base"
+                      className="h-12 border-2 border-border focus:border-purple-500 focus:ring-purple-500/20 rounded-xl text-base"
                       data-testid="input-account-sid"
                     />
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="auth-token" className="text-slate-700 font-semibold text-sm">
+                    <Label htmlFor="auth-token" className="text-muted-foreground font-semibold text-sm">
                       Auth Token
                       {status?.hasAuthToken && (
-                        <span className="text-xs text-slate-500 ml-2 font-normal">(optional - leave empty to keep existing)</span>
+                        <span className="text-xs text-muted-foreground ml-2 font-normal">(optional - leave empty to keep existing)</span>
                       )}
                     </Label>
                     <div className="relative">
@@ -357,12 +357,12 @@ export function AdminSMSSettings() {
                         value={credentials.authToken}
                         onChange={(e) => setCredentials(prev => ({ ...prev, authToken: e.target.value }))}
                         data-testid="input-auth-token"
-                        className="h-12 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20 rounded-xl text-base pr-12"
+                        className="h-12 border-2 border-border focus:border-purple-500 focus:ring-purple-500/20 rounded-xl text-base pr-12"
                       />
                       <button
                         type="button"
                         onClick={() => setShowAuthToken(!showAuthToken)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                         data-testid="button-toggle-auth-token"
                       >
                         {showAuthToken ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -371,17 +371,17 @@ export function AdminSMSSettings() {
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="phone-number" className="text-slate-700 font-semibold text-sm">Phone Number</Label>
+                    <Label htmlFor="phone-number" className="text-muted-foreground font-semibold text-sm">Phone Number</Label>
                     <Input
                       id="phone-number"
                       type="tel"
                       placeholder="+1234567890"
                       value={credentials.phoneNumber}
                       onChange={(e) => setCredentials(prev => ({ ...prev, phoneNumber: e.target.value }))}
-                      className="h-12 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20 rounded-xl text-base"
+                      className="h-12 border-2 border-border focus:border-purple-500 focus:ring-purple-500/20 rounded-xl text-base"
                       data-testid="input-twilio-phone"
                     />
-                    <p className="text-xs text-slate-500 flex items-center gap-1.5 bg-slate-50 p-2 rounded-lg">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 bg-muted p-2 rounded-lg">
                       <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                       <span>Your Twilio phone number (include country code)</span>
                     </p>
@@ -412,7 +412,7 @@ export function AdminSMSSettings() {
                         setShowAuthToken(false);
                         checkStatus();
                       }}
-                      className="h-12 bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-300 font-bold rounded-xl transition-all"
+                      className="h-12 bg-card hover:bg-muted text-foreground border-2 border-border font-bold rounded-xl transition-all"
                       data-testid="button-cancel-edit"
                     >
                       Cancel
@@ -421,21 +421,21 @@ export function AdminSMSSettings() {
                 </div>
               ) : (
                 <div className="grid gap-4">
-                  <div className="group flex items-center justify-between bg-gradient-to-r from-slate-50 to-purple-50/20 rounded-xl p-5 border-2 border-slate-200 hover:border-purple-300 hover:shadow-md transition-all duration-300">
-                    <span className="text-sm font-bold text-slate-700">Account SID:</span>
-                    <span className="font-mono text-sm text-slate-900 bg-white px-3 py-1.5 rounded-lg border border-slate-200" data-testid="text-account-sid">
+                  <div className="group flex items-center justify-between bg-gradient-to-r from-muted to-purple-50/20 dark:to-purple-900/20 rounded-xl p-5 border-2 border-border hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md transition-all duration-300">
+                    <span className="text-sm font-bold text-muted-foreground">Account SID:</span>
+                    <span className="font-mono text-sm text-foreground bg-card px-3 py-1.5 rounded-lg border border-border" data-testid="text-account-sid">
                       {credentials.accountSid ? `${credentials.accountSid.substring(0, 12)}...` : 'Not configured'}
                     </span>
                   </div>
-                  <div className="group flex items-center justify-between bg-gradient-to-r from-slate-50 to-purple-50/20 rounded-xl p-5 border-2 border-slate-200 hover:border-purple-300 hover:shadow-md transition-all duration-300">
-                    <span className="text-sm font-bold text-slate-700">Auth Token:</span>
-                    <span className="font-mono text-sm text-slate-900 bg-white px-3 py-1.5 rounded-lg border border-slate-200" data-testid="text-auth-token">
+                  <div className="group flex items-center justify-between bg-gradient-to-r from-muted to-purple-50/20 dark:to-purple-900/20 rounded-xl p-5 border-2 border-border hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md transition-all duration-300">
+                    <span className="text-sm font-bold text-muted-foreground">Auth Token:</span>
+                    <span className="font-mono text-sm text-foreground bg-card px-3 py-1.5 rounded-lg border border-border" data-testid="text-auth-token">
                       {status?.hasAuthToken ? '••••••••••••••••' : 'Not configured'}
                     </span>
                   </div>
-                  <div className="group flex items-center justify-between bg-gradient-to-r from-slate-50 to-purple-50/20 rounded-xl p-5 border-2 border-slate-200 hover:border-purple-300 hover:shadow-md transition-all duration-300">
-                    <span className="text-sm font-bold text-slate-700">Phone Number:</span>
-                    <span className="font-mono text-sm text-slate-900 bg-white px-3 py-1.5 rounded-lg border border-slate-200" data-testid="text-phone-number">
+                  <div className="group flex items-center justify-between bg-gradient-to-r from-muted to-purple-50/20 dark:to-purple-900/20 rounded-xl p-5 border-2 border-border hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md transition-all duration-300">
+                    <span className="text-sm font-bold text-muted-foreground">Phone Number:</span>
+                    <span className="font-mono text-sm text-foreground bg-card px-3 py-1.5 rounded-lg border border-border" data-testid="text-phone-number">
                       {credentials.phoneNumber || 'Not configured'}
                     </span>
                   </div>
@@ -445,30 +445,30 @@ export function AdminSMSSettings() {
 
             {/* Test SMS */}
             {credentials.enabled && status?.connected && (
-              <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 space-y-6">
-                <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-                  <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-2.5 rounded-xl">
-                    <Send className="w-5 h-5 text-green-700" />
+              <div className="bg-card rounded-2xl border-2 border-border shadow-md p-8 space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-border">
+                  <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 p-2.5 rounded-xl">
+                    <Send className="w-5 h-5 text-green-700 dark:text-green-300" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900">Test SMS Notification</h3>
+                  <h3 className="text-xl font-bold text-foreground">Test SMS Notification</h3>
                 </div>
-                <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                   Send a test SMS to verify your Twilio configuration is working correctly.
                 </p>
 
                 <div className="space-y-4">
                   <div className="space-y-3">
-                    <Label htmlFor="test-phone" className="text-slate-700 font-semibold text-sm">Phone Number</Label>
+                    <Label htmlFor="test-phone" className="text-muted-foreground font-semibold text-sm">Phone Number</Label>
                     <Input
                       id="test-phone"
                       type="tel"
                       placeholder="+1234567890"
                       value={testPhoneNumber}
                       onChange={(e) => setTestPhoneNumber(e.target.value)}
-                      className="h-12 border-2 border-slate-200 focus:border-green-500 focus:ring-green-500/20 rounded-xl text-base"
+                      className="h-12 border-2 border-border focus:border-green-500 focus:ring-green-500/20 rounded-xl text-base"
                       data-testid="input-test-phone"
                     />
-                    <p className="text-xs text-slate-500 flex items-center gap-1.5 bg-slate-50 p-2 rounded-lg">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 bg-muted p-2 rounded-lg">
                       <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                       <span>Include country code (e.g., +1 for US)</span>
                     </p>
@@ -497,18 +497,18 @@ export function AdminSMSSettings() {
             )}
 
             {/* SMS Notification Settings Info */}
-            <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 rounded-2xl border-2 border-slate-200 shadow-md p-8">
-              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-                <div className="bg-gradient-to-br from-amber-100 to-orange-100 p-2.5 rounded-xl">
-                  <AlertCircle className="w-5 h-5 text-amber-700" />
+            <div className="bg-gradient-to-br from-muted via-card to-muted rounded-2xl border-2 border-border shadow-md p-8">
+              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border">
+                <div className="bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900 dark:to-orange-900 p-2.5 rounded-xl">
+                  <AlertCircle className="w-5 h-5 text-amber-700 dark:text-amber-300" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">Automated SMS Notifications</h3>
+                <h3 className="text-xl font-bold text-foreground">Automated SMS Notifications</h3>
               </div>
-              <p className="text-sm text-slate-700 mb-6 leading-relaxed font-medium">
+              <p className="text-sm text-muted-foreground mb-6 leading-relaxed font-medium">
                 When enabled, SMS notifications will be automatically sent for:
               </p>
               <div className="grid gap-4 mb-6">
-                <div className="group flex items-start gap-4 bg-white rounded-xl p-4 border-2 border-slate-200 hover:border-green-300 hover:shadow-md transition-all duration-300">
+                <div className="group flex items-start gap-4 bg-card rounded-xl p-4 border-2 border-border hover:border-green-300 dark:hover:border-green-700 hover:shadow-md transition-all duration-300">
                   <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg p-2 shadow-sm flex-shrink-0">
                     <CheckCircle2 className="w-4 h-4 text-white" />
                   </div>

@@ -529,7 +529,7 @@ export default function DispatcherDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
       
       {/* Dark Header Section - Dispatcher Control */}
@@ -576,13 +576,13 @@ export default function DispatcherDashboard() {
             {statsCards.map((stat, index) => (
               <div 
                 key={index} 
-                className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:shadow-2xl hover:scale-105"
+                className="bg-background/10 backdrop-blur-md rounded-xl p-4 border border-white/20 hover:bg-background/15 transition-all duration-300 hover:shadow-2xl hover:scale-105"
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-slate-200 line-clamp-1">
                     {stat.title}
                   </span>
-                  <div className="bg-white/20 p-1.5 rounded-lg flex-shrink-0">
+                  <div className="bg-background/20 p-1.5 rounded-lg flex-shrink-0">
                     <div className="text-cyan-300">
                       {stat.icon}
                     </div>
@@ -605,24 +605,24 @@ export default function DispatcherDashboard() {
         <div className="container mx-auto px-4">
           {/* Quick Actions */}
           <div className="my-10">
-            <h2 className="text-2xl font-bold mb-6 text-slate-800" data-testid="quick-actions-title">
+            <h2 className="text-2xl font-bold mb-6 text-foreground" data-testid="quick-actions-title">
               Quick Actions
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {quickActions.map((action, index) => (
                 <Card 
                   key={index} 
-                  className="group hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border-slate-200 bg-white"
+                  className="group hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border-border bg-card"
                   onClick={action.action}
                 >
                   <CardHeader className="text-center p-6">
                     <div className={`inline-flex items-center justify-center p-4 ${action.color} text-white rounded-2xl mb-4 mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                       {action.icon}
                     </div>
-                    <CardTitle className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors duration-300" data-testid={`action-${index}-title`}>
+                    <CardTitle className="text-lg font-bold text-foreground group-hover:text-blue-600 transition-colors duration-300" data-testid={`action-${index}-title`}>
                       {action.title}
                     </CardTitle>
-                    <CardDescription className="text-sm text-slate-600" data-testid={`action-${index}-description`}>
+                    <CardDescription className="text-sm text-muted-foreground" data-testid={`action-${index}-description`}>
                       {action.description}
                     </CardDescription>
                   </CardHeader>
@@ -634,39 +634,39 @@ export default function DispatcherDashboard() {
           {/* Recent Activity and Alerts */}
           <div className="grid lg:grid-cols-2 gap-8 mb-8">
             {/* Recent Activity */}
-            <Card className="shadow-lg border-slate-200 bg-white">
-              <CardHeader className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
-                <CardTitle className="flex items-center space-x-2 text-slate-800">
-                  <div className="bg-blue-100 p-2 rounded-lg">
+            <Card className="shadow-lg border-border bg-card">
+              <CardHeader className="bg-gradient-to-r from-muted to-card border-b border-border">
+                <CardTitle className="flex items-center space-x-2 text-foreground">
+                  <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
                     <Activity className="w-5 h-5 text-blue-600" />
                   </div>
                   <span>Recent Activity</span>
                 </CardTitle>
-                <CardDescription className="text-slate-600">
+                <CardDescription className="text-muted-foreground">
                   Latest fleet operations and ride assignments
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800">
                     <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-slate-800">Ride #R-2024-1205 assigned to Driver John D.</p>
-                      <p className="text-xs text-slate-500 mt-1">2 minutes ago</p>
+                      <p className="text-sm font-semibold text-foreground">Ride #R-2024-1205 assigned to Driver John D.</p>
+                      <p className="text-xs text-muted-foreground mt-1">2 minutes ago</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
                     <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-slate-800">Driver Maria S. went online at Downtown</p>
-                      <p className="text-xs text-slate-500 mt-1">5 minutes ago</p>
+                      <p className="text-sm font-semibold text-foreground">Driver Maria S. went online at Downtown</p>
+                      <p className="text-xs text-muted-foreground mt-1">5 minutes ago</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200">
+                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl border border-orange-200 dark:border-orange-800">
                     <div className="w-2.5 h-2.5 bg-orange-500 rounded-full"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-slate-800">New ride request from Houston Airport</p>
-                      <p className="text-xs text-slate-500 mt-1">8 minutes ago</p>
+                      <p className="text-sm font-semibold text-foreground">New ride request from Houston Airport</p>
+                      <p className="text-xs text-muted-foreground mt-1">8 minutes ago</p>
                     </div>
                   </div>
                 </div>
@@ -674,15 +674,15 @@ export default function DispatcherDashboard() {
             </Card>
 
             {/* System Alerts */}
-            <Card className="shadow-lg border-slate-200 bg-white">
-              <CardHeader className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
-                <CardTitle className="flex items-center space-x-2 text-slate-800">
-                  <div className="bg-orange-100 p-2 rounded-lg">
+            <Card className="shadow-lg border-border bg-card">
+              <CardHeader className="bg-gradient-to-r from-muted to-card border-b border-border">
+                <CardTitle className="flex items-center space-x-2 text-foreground">
+                  <div className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg">
                     <AlertTriangle className="w-5 h-5 text-orange-600" />
                   </div>
                   <span>System Alerts</span>
                 </CardTitle>
-                <CardDescription className="text-slate-600">
+                <CardDescription className="text-muted-foreground">
                   Important notifications and warnings
                 </CardDescription>
               </CardHeader>
@@ -691,22 +691,22 @@ export default function DispatcherDashboard() {
                   <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-yellow-50 to-amber-50 border-l-4 border-yellow-500 rounded-lg shadow-sm">
                     <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-slate-800">High demand detected in Galleria area</p>
-                      <p className="text-xs text-slate-600 mt-1">Consider deploying additional drivers</p>
+                      <p className="text-sm font-semibold text-foreground">High demand detected in Galleria area</p>
+                      <p className="text-xs text-muted-foreground mt-1">Consider deploying additional drivers</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-500 rounded-lg shadow-sm">
                     <Activity className="w-5 h-5 text-blue-600 flex-shrink-0" />
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-slate-800">Vehicle #V-101 due for maintenance</p>
-                      <p className="text-xs text-slate-600 mt-1">Schedule maintenance appointment</p>
+                      <p className="text-sm font-semibold text-foreground">Vehicle #V-101 due for maintenance</p>
+                      <p className="text-xs text-muted-foreground mt-1">Schedule maintenance appointment</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg shadow-sm">
                     <Users className="w-5 h-5 text-green-600 flex-shrink-0" />
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-slate-800">All systems operational</p>
-                      <p className="text-xs text-slate-600 mt-1">Fleet performance is optimal</p>
+                      <p className="text-sm font-semibold text-foreground">All systems operational</p>
+                      <p className="text-xs text-muted-foreground mt-1">Fleet performance is optimal</p>
                     </div>
                   </div>
                 </div>
@@ -720,17 +720,17 @@ export default function DispatcherDashboard() {
 
       {/* Assign Ride Dialog */}
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-0 border border-slate-200 p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl max-w-4xl max-h-[90vh] overflow-hidden bg-white">
-          <DialogHeader className="bg-white px-6 py-5 border-b border-slate-200">
-            <DialogTitle className="text-2xl font-semibold text-slate-900 flex items-center gap-3">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-0 border border-border p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl max-w-4xl max-h-[90vh] overflow-hidden bg-background">
+          <DialogHeader className="bg-background px-6 py-5 border-b border-border">
+            <DialogTitle className="text-2xl font-semibold text-foreground flex items-center gap-3">
               <UserCheck className="w-6 h-6 text-blue-600" />
               Assign/Reassign Ride to Driver
             </DialogTitle>
-            <DialogDescription className="text-slate-600 text-sm mt-2">
+            <DialogDescription className="text-muted-foreground text-sm mt-2">
               Select a pending ride to assign or an assigned ride to change the driver
             </DialogDescription>
           </DialogHeader>
-          <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-slate-50">
+          <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-muted">
 
           {/* Search and Filter Controls */}
           <div className="flex flex-wrap gap-3 mb-4">
@@ -772,7 +772,7 @@ export default function DispatcherDashboard() {
             {/* Pending & Assigned Bookings Combined Section */}
             <div className="md:col-span-2">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-bold text-lg flex items-center gap-2 text-slate-700">
+                <h3 className="font-bold text-lg flex items-center gap-2 text-muted-foreground">
                   <div className="bg-blue-100 p-1.5 rounded-lg">
                     <Clock className="w-4 h-4 text-blue-600" />
                   </div>
@@ -880,7 +880,7 @@ export default function DispatcherDashboard() {
 
             {/* Smart-Ranked Drivers Section */}
             <div>
-              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-slate-700">
+              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-muted-foreground">
                 <div className="bg-green-100 p-1.5 rounded-lg">
                   <Car className="w-4 h-4 text-green-600" />
                 </div>
@@ -991,7 +991,7 @@ export default function DispatcherDashboard() {
                               {driver.vehiclePlate && (
                                 <div className="flex items-center justify-between">
                                   <span>Vehicle:</span>
-                                  <span className="font-mono font-medium bg-gray-100 px-2 py-0.5 rounded">{driver.vehiclePlate}</span>
+                                  <span className="font-mono font-medium bg-muted px-2 py-0.5 rounded">{driver.vehiclePlate}</span>
                                 </div>
                               )}
                             </div>
@@ -1005,7 +1005,7 @@ export default function DispatcherDashboard() {
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-slate-200 bg-white px-6 py-4">
+          <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-border bg-background px-6 py-4">
             <Button
               variant="outline"
               onClick={() => {
@@ -1013,7 +1013,7 @@ export default function DispatcherDashboard() {
                 setSelectedBookingId(null);
                 setSelectedDriverId("");
               }}
-              className="px-6 border-slate-300 hover:bg-slate-100 text-slate-700"
+              className="px-6 border-border hover:bg-muted text-muted-foreground"
               data-testid="button-cancel-assign"
             >
               Cancel
@@ -1033,17 +1033,17 @@ export default function DispatcherDashboard() {
 
       {/* Fleet Monitor Dialog */}
       <Dialog open={fleetMonitorOpen} onOpenChange={setFleetMonitorOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-0 border border-slate-200 p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl max-w-6xl max-h-[90vh] overflow-hidden bg-white">
-          <DialogHeader className="bg-white px-6 py-5 border-b border-slate-200">
-            <DialogTitle className="text-2xl font-semibold text-slate-900 flex items-center gap-3">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-0 border border-border p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl max-w-6xl max-h-[90vh] overflow-hidden bg-background">
+          <DialogHeader className="bg-background px-6 py-5 border-b border-border">
+            <DialogTitle className="text-2xl font-semibold text-foreground flex items-center gap-3">
               <MapPin className="w-6 h-6 text-green-600" />
               Fleet Monitor - Live Status
             </DialogTitle>
-            <DialogDescription className="text-slate-600 text-sm mt-2">
+            <DialogDescription className="text-muted-foreground text-sm mt-2">
               Real-time overview of all drivers and vehicles in the fleet
             </DialogDescription>
           </DialogHeader>
-          <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-slate-50">
+          <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-muted">
             {/* Summary Stats */}
             <div className="grid grid-cols-4 gap-4 mb-6">
               <Card className="bg-green-50">
@@ -1229,11 +1229,11 @@ export default function DispatcherDashboard() {
               )}
             </div>
 
-          <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-slate-200 bg-white px-6 py-4">
+          <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-border bg-background px-6 py-4">
             <Button
               variant="outline"
               onClick={() => setFleetMonitorOpen(false)}
-              className="px-6 border-slate-300 hover:bg-slate-100 text-slate-700"
+              className="px-6 border-border hover:bg-muted text-muted-foreground"
               data-testid="button-close-fleet-monitor"
             >
               Close
@@ -1245,23 +1245,23 @@ export default function DispatcherDashboard() {
 
       {/* Driver Communication Dialog */}
       <Dialog open={communicationDialogOpen} onOpenChange={setCommunicationDialogOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-0 border border-slate-200 p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl max-w-2xl max-h-[90vh] overflow-hidden bg-white">
-          <DialogHeader className="bg-white px-6 py-5 border-b border-slate-200">
-            <DialogTitle className="text-2xl font-semibold text-slate-900 flex items-center gap-3">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-0 border border-border p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl max-w-2xl max-h-[90vh] overflow-hidden bg-background">
+          <DialogHeader className="bg-background px-6 py-5 border-b border-border">
+            <DialogTitle className="text-2xl font-semibold text-foreground flex items-center gap-3">
               <MessageSquare className="w-6 h-6 text-purple-600" />
               Driver Communication
             </DialogTitle>
-            <DialogDescription className="text-slate-600 text-sm mt-2">
+            <DialogDescription className="text-muted-foreground text-sm mt-2">
               Send messages or alerts to your driver team
             </DialogDescription>
           </DialogHeader>
-          <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-slate-50">
+          <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-muted">
             <div className="space-y-5">
               {/* Message Type */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-slate-700">Message Type</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Message Type</Label>
                 <Select value={messageType} onValueChange={(v) => setMessageType(v as "individual" | "broadcast")}>
-                  <SelectTrigger className="w-full bg-white" data-testid="select-message-type">
+                  <SelectTrigger className="w-full bg-background" data-testid="select-message-type">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1274,9 +1274,9 @@ export default function DispatcherDashboard() {
               {/* Driver Selection (only for individual messages) */}
               {messageType === 'individual' && (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-slate-700">Select Driver</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">Select Driver</Label>
                   <Select value={selectedDriverForMessage} onValueChange={setSelectedDriverForMessage}>
-                    <SelectTrigger className="w-full bg-white" data-testid="select-driver">
+                    <SelectTrigger className="w-full bg-background" data-testid="select-driver">
                       <SelectValue placeholder="Choose a driver..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -1292,33 +1292,33 @@ export default function DispatcherDashboard() {
 
               {/* Subject */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-slate-700">Subject (optional)</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Subject (optional)</Label>
                 <Input
                   placeholder="Message subject..."
                   value={messageSubject}
                   onChange={(e) => setMessageSubject(e.target.value)}
-                  className="bg-white"
+                  className="bg-background"
                   data-testid="input-subject"
                 />
               </div>
 
               {/* Message */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-slate-700">Message *</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Message *</Label>
                 <Textarea
                   placeholder="Type your message here..."
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
-                  className="min-h-[120px] bg-white"
+                  className="min-h-[120px] bg-background"
                   data-testid="textarea-message"
                 />
               </div>
 
               {/* Priority */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-slate-700">Priority</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
                 <Select value={messagePriority} onValueChange={(v) => setMessagePriority(v as "normal" | "high" | "urgent")}>
-                  <SelectTrigger className="w-full bg-white" data-testid="select-priority">
+                  <SelectTrigger className="w-full bg-background" data-testid="select-priority">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1331,9 +1331,9 @@ export default function DispatcherDashboard() {
 
               {/* Delivery Method */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-slate-700">Delivery Method</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Delivery Method</Label>
                 <Select value={deliveryMethod} onValueChange={(v) => setDeliveryMethod(v as "sms" | "email" | "both")}>
-                  <SelectTrigger className="w-full bg-white" data-testid="select-delivery-method">
+                  <SelectTrigger className="w-full bg-background" data-testid="select-delivery-method">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1379,17 +1379,17 @@ export default function DispatcherDashboard() {
               </div>
 
               {/* Message History */}
-              <div className="mt-8 pt-6 border-t border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent Messages</h3>
+              <div className="mt-8 pt-6 border-t border-border">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Recent Messages</h3>
                 <div className="space-y-3 max-h-[300px] overflow-y-auto">
                   {!driverMessages || driverMessages.length === 0 ? (
-                    <div className="text-center p-8 border rounded-lg bg-white">
-                      <MessageSquare className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-                      <p className="text-sm text-slate-500">No messages sent yet</p>
+                    <div className="text-center p-8 border rounded-lg bg-background">
+                      <MessageSquare className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">No messages sent yet</p>
                     </div>
                   ) : (
                     driverMessages.map((msg: any) => (
-                      <Card key={msg.id} className="bg-white">
+                      <Card key={msg.id} className="bg-background">
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
@@ -1402,28 +1402,28 @@ export default function DispatcherDashboard() {
                                   className={`text-xs ${
                                     msg.priority === 'urgent' ? 'border-red-500 text-red-700' :
                                     msg.priority === 'high' ? 'border-orange-500 text-orange-700' :
-                                    'border-slate-300 text-slate-600'
+                                    'border-border text-muted-foreground'
                                   }`}
                                 >
                                   {msg.priority}
                                 </Badge>
                               </div>
                               {msg.subject && (
-                                <p className="font-medium text-sm text-slate-900 mb-1">{msg.subject}</p>
+                                <p className="font-medium text-sm text-foreground mb-1">{msg.subject}</p>
                               )}
-                              <p className="text-sm text-slate-600 line-clamp-2">{msg.message}</p>
+                              <p className="text-sm text-muted-foreground line-clamp-2">{msg.message}</p>
                             </div>
                             <Badge 
                               className={`ml-3 ${
                                 msg.status === 'sent' || msg.status === 'delivered' ? 'bg-green-100 text-green-700' :
                                 msg.status === 'failed' ? 'bg-red-100 text-red-700' :
-                                'bg-slate-100 text-slate-700'
+                                'bg-muted text-muted-foreground'
                               }`}
                             >
                               {msg.status}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-4 text-xs text-slate-500 mt-2">
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
                             <div className="flex items-center gap-1">
                               {msg.deliveryMethod === 'both' ? (
                                 <>
@@ -1449,11 +1449,11 @@ export default function DispatcherDashboard() {
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 mt-4 pt-6 border-t border-slate-200 bg-white px-6 py-4">
+          <div className="flex justify-end gap-3 mt-4 pt-6 border-t border-border bg-background px-6 py-4">
             <Button
               variant="outline"
               onClick={() => setCommunicationDialogOpen(false)}
-              className="px-6 border-slate-300 hover:bg-slate-100 text-slate-700"
+              className="px-6 border-border hover:bg-muted text-muted-foreground"
               data-testid="button-cancel-communication"
             >
               Cancel
@@ -1473,24 +1473,24 @@ export default function DispatcherDashboard() {
 
       {/* Emergency Support Dialog */}
       <Dialog open={emergencySupportOpen} onOpenChange={setEmergencySupportOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-0 border border-slate-200 p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl max-w-4xl max-h-[90vh] overflow-hidden bg-white">
-          <DialogHeader className="bg-white px-6 py-5 border-b border-slate-200">
-            <DialogTitle className="text-2xl font-semibold text-slate-900 flex items-center gap-3">
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-0 border border-border p-0 shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl max-w-4xl max-h-[90vh] overflow-hidden bg-background">
+          <DialogHeader className="bg-background px-6 py-5 border-b border-border">
+            <DialogTitle className="text-2xl font-semibold text-foreground flex items-center gap-3">
               <AlertTriangle className="w-6 h-6 text-red-600" />
               Emergency Support
             </DialogTitle>
-            <DialogDescription className="text-slate-600 text-sm mt-2">
+            <DialogDescription className="text-muted-foreground text-sm mt-2">
               Report and manage emergency incidents and urgent situations
             </DialogDescription>
           </DialogHeader>
 
-          <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-slate-50">
+          <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-muted">
             {/* Tabs */}
             <div className="flex gap-2 mb-6">
               <Button
                 variant={activeTab === 'create' ? 'default' : 'outline'}
                 onClick={() => setActiveTab('create')}
-                className={activeTab === 'create' ? 'bg-red-600 hover:bg-red-700 text-white' : 'border-slate-300 hover:bg-slate-100 text-slate-700'}
+                className={activeTab === 'create' ? 'bg-red-600 hover:bg-red-700 text-white' : 'border-border hover:bg-muted text-muted-foreground'}
                 data-testid="button-tab-create"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -1499,7 +1499,7 @@ export default function DispatcherDashboard() {
               <Button
                 variant={activeTab === 'active' ? 'default' : 'outline'}
                 onClick={() => setActiveTab('active')}
-                className={activeTab === 'active' ? 'bg-red-600 hover:bg-red-700 text-white' : 'border-slate-300 hover:bg-slate-100 text-slate-700'}
+                className={activeTab === 'active' ? 'bg-red-600 hover:bg-red-700 text-white' : 'border-border hover:bg-muted text-muted-foreground'}
                 data-testid="button-tab-active"
               >
                 <Activity className="w-4 h-4 mr-2" />
@@ -1510,17 +1510,17 @@ export default function DispatcherDashboard() {
             {/* Create Incident Tab */}
             {activeTab === 'create' && (
               <div className="space-y-6">
-                <Card className="bg-white border-slate-200">
+                <Card className="bg-background border-border">
                   <CardContent className="p-6">
                     <div className="grid gap-6">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label className="text-slate-700 font-medium mb-2 block">Incident Type</Label>
+                          <Label className="text-muted-foreground font-medium mb-2 block">Incident Type</Label>
                           <Select value={incidentType} onValueChange={(value: any) => setIncidentType(value)}>
-                            <SelectTrigger className="bg-white border-slate-300" data-testid="select-incident-type">
+                            <SelectTrigger className="bg-background border-border" data-testid="select-incident-type">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-white border-slate-200">
+                            <SelectContent className="bg-background border-border">
                               <SelectItem value="accident">Accident</SelectItem>
                               <SelectItem value="breakdown">Vehicle Breakdown</SelectItem>
                               <SelectItem value="medical">Medical Emergency</SelectItem>
@@ -1531,12 +1531,12 @@ export default function DispatcherDashboard() {
                         </div>
 
                         <div>
-                          <Label className="text-slate-700 font-medium mb-2 block">Severity Level</Label>
+                          <Label className="text-muted-foreground font-medium mb-2 block">Severity Level</Label>
                           <Select value={incidentSeverity} onValueChange={(value: any) => setIncidentSeverity(value)}>
-                            <SelectTrigger className="bg-white border-slate-300" data-testid="select-severity">
+                            <SelectTrigger className="bg-background border-border" data-testid="select-severity">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-white border-slate-200">
+                            <SelectContent className="bg-background border-border">
                               <SelectItem value="low">Low</SelectItem>
                               <SelectItem value="medium">Medium</SelectItem>
                               <SelectItem value="high">High</SelectItem>
@@ -1547,12 +1547,12 @@ export default function DispatcherDashboard() {
                       </div>
 
                       <div>
-                        <Label className="text-slate-700 font-medium mb-2 block">Driver (Optional)</Label>
+                        <Label className="text-muted-foreground font-medium mb-2 block">Driver (Optional)</Label>
                         <Select value={incidentDriverId} onValueChange={setIncidentDriverId}>
-                          <SelectTrigger className="bg-white border-slate-300" data-testid="select-driver">
+                          <SelectTrigger className="bg-background border-border" data-testid="select-driver">
                             <SelectValue placeholder="Select driver if applicable" />
                           </SelectTrigger>
-                          <SelectContent className="bg-white border-slate-200">
+                          <SelectContent className="bg-background border-border">
                             <SelectItem value="none">No driver selected</SelectItem>
                             {activeDrivers?.map((driver: any) => (
                               <SelectItem key={driver.userId} value={driver.userId}>
@@ -1564,24 +1564,24 @@ export default function DispatcherDashboard() {
                       </div>
 
                       <div>
-                        <Label className="text-slate-700 font-medium mb-2 block">Location</Label>
+                        <Label className="text-muted-foreground font-medium mb-2 block">Location</Label>
                         <Input
                           value={incidentLocation}
                           onChange={(e) => setIncidentLocation(e.target.value)}
                           placeholder="Enter incident location"
-                          className="bg-white border-slate-300"
+                          className="bg-background border-border"
                           data-testid="input-location"
                         />
                       </div>
 
                       <div>
-                        <Label className="text-slate-700 font-medium mb-2 block">Description</Label>
+                        <Label className="text-muted-foreground font-medium mb-2 block">Description</Label>
                         <Textarea
                           value={incidentDescription}
                           onChange={(e) => setIncidentDescription(e.target.value)}
                           placeholder="Provide detailed description of the incident"
                           rows={4}
-                          className="bg-white border-slate-300"
+                          className="bg-background border-border"
                           data-testid="textarea-description"
                         />
                       </div>
@@ -1595,15 +1595,15 @@ export default function DispatcherDashboard() {
             {activeTab === 'active' && (
               <div className="space-y-4">
                 {!emergencyIncidents || emergencyIncidents.length === 0 ? (
-                  <Card className="bg-white border-slate-200">
+                  <Card className="bg-background border-border">
                     <CardContent className="p-8 text-center">
-                      <AlertTriangle className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                      <p className="text-slate-600">No emergency incidents reported</p>
+                      <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                      <p className="text-muted-foreground">No emergency incidents reported</p>
                     </CardContent>
                   </Card>
                 ) : (
                   emergencyIncidents.map((incident: any) => (
-                    <Card key={incident.id} className="bg-white border-slate-200">
+                    <Card key={incident.id} className="bg-background border-border">
                       <CardContent className="p-5">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -1613,7 +1613,7 @@ export default function DispatcherDashboard() {
                                   incident.incidentType === 'medical' ? 'bg-red-100 text-red-700' :
                                   incident.incidentType === 'accident' ? 'bg-orange-100 text-orange-700' :
                                   incident.incidentType === 'breakdown' ? 'bg-yellow-100 text-yellow-700' :
-                                  'bg-slate-100 text-slate-700'
+                                  'bg-muted text-muted-foreground'
                                 }`}
                               >
                                 {incident.incidentType}
@@ -1632,7 +1632,7 @@ export default function DispatcherDashboard() {
                                 className={`${
                                   incident.status === 'open' || incident.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
                                   incident.status === 'resolved' ? 'bg-green-100 text-green-700' :
-                                  'bg-slate-100 text-slate-700'
+                                  'bg-muted text-muted-foreground'
                                 }`}
                               >
                                 {incident.status.replace('_', ' ')}
@@ -1640,18 +1640,18 @@ export default function DispatcherDashboard() {
                             </div>
                             <div className="grid grid-cols-2 gap-3 text-sm mb-3">
                               <div>
-                                <span className="text-slate-500">Location:</span>
-                                <p className="text-slate-900 font-medium">{incident.location}</p>
+                                <span className="text-muted-foreground">Location:</span>
+                                <p className="text-foreground font-medium">{incident.location}</p>
                               </div>
                               {incident.driverName && (
                                 <div>
-                                  <span className="text-slate-500">Driver:</span>
-                                  <p className="text-slate-900 font-medium">{incident.driverName}</p>
+                                  <span className="text-muted-foreground">Driver:</span>
+                                  <p className="text-foreground font-medium">{incident.driverName}</p>
                                 </div>
                               )}
                             </div>
-                            <p className="text-sm text-slate-700">{incident.description}</p>
-                            <div className="flex items-center gap-4 text-xs text-slate-500 mt-3">
+                            <p className="text-sm text-muted-foreground">{incident.description}</p>
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground mt-3">
                               <span>Reported by: {incident.reporterName}</span>
                               <span>•</span>
                               <span>{new Date(incident.createdAt).toLocaleString()}</span>
@@ -1694,11 +1694,11 @@ export default function DispatcherDashboard() {
             )}
           </div>
 
-          <div className="flex justify-end gap-3 mt-4 pt-6 border-t border-slate-200 bg-white px-6 py-4">
+          <div className="flex justify-end gap-3 mt-4 pt-6 border-t border-border bg-background px-6 py-4">
             <Button
               variant="outline"
               onClick={() => setEmergencySupportOpen(false)}
-              className="px-6 border-slate-300 hover:bg-slate-100 text-slate-700"
+              className="px-6 border-border hover:bg-muted text-muted-foreground"
               data-testid="button-cancel-emergency"
             >
               Close

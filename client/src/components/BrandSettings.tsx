@@ -367,14 +367,14 @@ export default function BrandSettings() {
                 <Label className="text-base font-semibold">Main Logo</Label>
                 {siteLogoData?.logo?.url ? (
                   <div className="space-y-3">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50 flex items-center justify-center">
+                    <div className="border-2 border-dashed border-border rounded-lg p-6 bg-muted flex items-center justify-center">
                       <img 
                         src={siteLogoData.logo.url} 
                         alt={siteLogoData.logo.altText || "Current Logo"} 
                         className="max-h-32 max-w-full object-contain"
                       />
                     </div>
-                    <p className="text-xs text-gray-500">File: {siteLogoData.logo.fileName}</p>
+                    <p className="text-xs text-muted-foreground">File: {siteLogoData.logo.fileName}</p>
                     <div className="flex items-center gap-2">
                       <Button 
                         variant="outline" 
@@ -396,9 +396,9 @@ export default function BrandSettings() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 bg-gray-50 flex flex-col items-center justify-center gap-3">
-                      <Upload className="w-12 h-12 text-gray-400" />
-                      <p className="text-sm text-gray-600">No logo set. Upload a new one or select from Media Library.</p>
+                    <div className="border-2 border-dashed border-border rounded-lg p-8 bg-muted flex flex-col items-center justify-center gap-3">
+                      <Upload className="w-12 h-12 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">No logo set. Upload a new one or select from Media Library.</p>
                       <Button 
                         variant="outline" 
                         onClick={() => logoInputRef.current?.click()}
@@ -424,14 +424,14 @@ export default function BrandSettings() {
                 <Label className="text-base font-semibold">Favicon</Label>
                 {siteFaviconData?.favicon?.url ? (
                   <div className="space-y-3">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50 flex items-center justify-center">
+                    <div className="border-2 border-dashed border-border rounded-lg p-6 bg-muted flex items-center justify-center">
                       <img 
                         src={siteFaviconData.favicon.url} 
                         alt={siteFaviconData.favicon.altText || "Current Favicon"} 
                         className="max-h-16 max-w-full object-contain"
                       />
                     </div>
-                    <p className="text-xs text-gray-500">File: {siteFaviconData.favicon.fileName}</p>
+                    <p className="text-xs text-muted-foreground">File: {siteFaviconData.favicon.fileName}</p>
                     <div className="flex items-center gap-2">
                       <Button 
                         variant="outline" 
@@ -453,9 +453,9 @@ export default function BrandSettings() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 bg-gray-50 flex flex-col items-center justify-center gap-3">
-                      <Upload className="w-12 h-12 text-gray-400" />
-                      <p className="text-sm text-gray-600">No favicon set. Upload a new one or select from Media Library.</p>
+                    <div className="border-2 border-dashed border-border rounded-lg p-8 bg-muted flex flex-col items-center justify-center gap-3">
+                      <Upload className="w-12 h-12 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">No favicon set. Upload a new one or select from Media Library.</p>
                       <Button 
                         variant="outline" 
                         onClick={() => faviconInputRef.current?.click()}
@@ -577,7 +577,7 @@ export default function BrandSettings() {
               </div>
 
               {hasColorChanges && (
-                <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-sm text-amber-800">
+                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md p-3 text-sm text-amber-800 dark:text-amber-200">
                   You have unsaved color changes. Click "Apply Colors" to save your changes.
                 </div>
               )}

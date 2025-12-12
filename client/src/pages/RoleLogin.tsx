@@ -207,7 +207,7 @@ export function RoleLogin() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Light Background with Subtle Pattern */}
-      <div className="fixed inset-0 bg-gradient-to-br from-red-50 via-white to-gray-50 -z-10" />
+      <div className="fixed inset-0 bg-gradient-to-br from-red-50 via-background to-muted -z-10 dark:from-red-950/20 dark:via-background dark:to-muted" />
       <div className="fixed inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(220 38 38 / 0.03) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
       {/* Floating orbs for visual interest */}
       <div className="fixed top-0 left-1/4 w-96 h-96 bg-red-200/20 rounded-full blur-3xl -z-10 animate-pulse" />
@@ -218,13 +218,13 @@ export function RoleLogin() {
           <div className="max-w-7xl mx-auto">
             {/* Header Section */}
             <div className="text-center mb-16">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white border-2 border-red-600 shadow-xl mb-6">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-background border-2 border-red-600 shadow-xl mb-6">
                 <Shield className="w-10 h-10 text-red-600" />
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 text-black" data-testid="page-title">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 text-foreground" data-testid="page-title">
                 {selectedRole ? `${currentRole?.title} Portal` : 'Welcome Back'}
               </h1>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed" data-testid="page-subtitle">
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed" data-testid="page-subtitle">
                 {selectedRole 
                   ? 'Access your account to continue' 
                   : 'Select your role to access your personalized dashboard'}
@@ -245,24 +245,24 @@ export function RoleLogin() {
                     {/* Glow effect on hover */}
                     <div className={`absolute -inset-0.5 bg-gradient-to-r ${role.color} rounded-2xl opacity-10 group-hover:opacity-30 blur transition-all duration-500`} />
                     
-                    <Card className="relative h-full bg-white border-gray-200 hover:border-gray-300 transition-all duration-300 cursor-pointer overflow-hidden group-hover:scale-[1.02] shadow-lg group-hover:shadow-2xl">
+                    <Card className="relative h-full bg-card border-border hover:border-border transition-all duration-300 cursor-pointer overflow-hidden group-hover:scale-[1.02] shadow-lg group-hover:shadow-2xl">
                       {/* Subtle gradient background */}
                       <div className={`absolute inset-0 bg-gradient-to-br ${role.bgGradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
                       
                       <CardHeader className="relative text-center p-10 pb-6">
                         {/* Icon Container */}
                         <div className="relative mb-8">
-                          <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-white border-2 border-red-600 shadow-xl group-hover:scale-110 transition-transform duration-500">
+                          <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-background border-2 border-red-600 shadow-xl group-hover:scale-110 transition-transform duration-500">
                             {role.icon}
                           </div>
                           {/* Glow ring */}
                           <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${role.color} blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500`} style={{ transform: 'scale(0.9)' }} />
                         </div>
                         
-                        <CardTitle className="text-2xl font-bold text-gray-900 mb-4" data-testid={`role-title-${role.id}`}>
+                        <CardTitle className="text-2xl font-bold text-foreground mb-4" data-testid={`role-title-${role.id}`}>
                           {role.title}
                         </CardTitle>
-                        <CardDescription className="text-base text-gray-600 leading-relaxed" data-testid={`role-description-${role.id}`}>
+                        <CardDescription className="text-base text-muted-foreground leading-relaxed" data-testid={`role-description-${role.id}`}>
                           {role.description}
                         </CardDescription>
                       </CardHeader>
@@ -288,7 +288,7 @@ export function RoleLogin() {
                 <Button 
                   variant="ghost" 
                   onClick={handleBack}
-                  className="mb-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
+                  className="mb-8 text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
                   data-testid="button-back"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
@@ -299,37 +299,37 @@ export function RoleLogin() {
                 <div className="relative group">
                   <div className={`absolute -inset-1 bg-gradient-to-r ${currentRole?.color} rounded-3xl opacity-10 group-hover:opacity-20 blur-xl transition-opacity duration-500`} />
                   
-                  <Card className="relative bg-white border-gray-200 shadow-xl" data-testid="auth-card">
+                  <Card className="relative bg-card border-border shadow-xl" data-testid="auth-card">
                     <CardHeader className="text-center pb-6 pt-12 px-10">
                       {/* Role Icon */}
                       <div className="relative inline-flex items-center justify-center mx-auto mb-6">
-                        <div className="w-20 h-20 rounded-2xl bg-white border-2 border-red-600 shadow-xl flex items-center justify-center">
+                        <div className="w-20 h-20 rounded-2xl bg-background border-2 border-red-600 shadow-xl flex items-center justify-center">
                           {currentRole?.icon}
                         </div>
                         <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${currentRole?.color} blur-2xl opacity-30`} />
                       </div>
                       
-                      <CardTitle className="text-3xl font-bold text-gray-900 mb-3" data-testid="auth-title">
+                      <CardTitle className="text-3xl font-bold text-foreground mb-3" data-testid="auth-title">
                         {currentRole?.title} Account
                       </CardTitle>
-                      <CardDescription className="text-gray-600 text-base" data-testid="auth-description">
+                      <CardDescription className="text-muted-foreground text-base" data-testid="auth-description">
                         Sign in or create a new account to continue
                       </CardDescription>
                     </CardHeader>
                     
                     <CardContent className="px-10 pb-12">
                       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "login" | "signup")} data-testid="auth-tabs">
-                        <TabsList className="grid w-full grid-cols-2 mb-8 bg-gray-100 p-1.5 rounded-xl border border-gray-200">
+                        <TabsList className="grid w-full grid-cols-2 mb-8 bg-muted p-1.5 rounded-xl border border-border">
                           <TabsTrigger 
                             value="login" 
-                            className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm text-gray-600 font-medium transition-all duration-200"
+                            className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground font-medium transition-all duration-200"
                             data-testid="tab-login"
                           >
                             Sign In
                           </TabsTrigger>
                           <TabsTrigger 
                             value="signup" 
-                            className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm text-gray-600 font-medium transition-all duration-200"
+                            className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground font-medium transition-all duration-200"
                             data-testid="tab-signup"
                           >
                             Sign Up
@@ -340,7 +340,7 @@ export function RoleLogin() {
                         <TabsContent value="login">
                           <form onSubmit={handleLogin} className="space-y-6" data-testid="login-form">
                             <div className="space-y-2">
-                              <Label htmlFor="login-username" className="text-gray-700 font-medium">Username</Label>
+                              <Label htmlFor="login-username" className="text-muted-foreground font-medium">Username</Label>
                               <div className="relative">
                                 <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
@@ -350,14 +350,14 @@ export function RoleLogin() {
                                   value={loginForm.username}
                                   onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
                                   required
-                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
+                                  className="pl-12 h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-login-username"
                                 />
                               </div>
                             </div>
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
-                                <Label htmlFor="login-password" className="text-gray-700 font-medium">Password</Label>
+                                <Label htmlFor="login-password" className="text-muted-foreground font-medium">Password</Label>
                                 <Link to="/forgot-password" className="text-sm text-red-600 hover:text-red-500 transition-colors duration-200">
                                   Forgot Password?
                                 </Link>
@@ -371,7 +371,7 @@ export function RoleLogin() {
                                   value={loginForm.password}
                                   onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
                                   required
-                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
+                                  className="pl-12 h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-login-password"
                                 />
                               </div>
@@ -399,32 +399,32 @@ export function RoleLogin() {
                           <form onSubmit={handleSignup} className="space-y-5" data-testid="signup-form">
                             <div className="grid grid-cols-2 gap-4">
                               <div className="space-y-2">
-                                <Label htmlFor="signup-firstname" className="text-gray-700 font-medium">First Name</Label>
+                                <Label htmlFor="signup-firstname" className="text-muted-foreground font-medium">First Name</Label>
                                 <Input
                                   id="signup-firstname"
                                   type="text"
                                   placeholder="John"
                                   value={signupForm.firstName}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, firstName: e.target.value }))}
-                                  className="h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
+                                  className="h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-signup-firstname"
                                 />
                               </div>
                               <div className="space-y-2">
-                                <Label htmlFor="signup-lastname" className="text-gray-700 font-medium">Last Name</Label>
+                                <Label htmlFor="signup-lastname" className="text-muted-foreground font-medium">Last Name</Label>
                                 <Input
                                   id="signup-lastname"
                                   type="text"
                                   placeholder="Doe"
                                   value={signupForm.lastName}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, lastName: e.target.value }))}
-                                  className="h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
+                                  className="h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-signup-lastname"
                                 />
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="signup-email" className="text-gray-700 font-medium">Email *</Label>
+                              <Label htmlFor="signup-email" className="text-muted-foreground font-medium">Email *</Label>
                               <div className="relative">
                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
@@ -434,13 +434,13 @@ export function RoleLogin() {
                                   value={signupForm.email}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
                                   required
-                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
+                                  className="pl-12 h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-signup-email"
                                 />
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="signup-username" className="text-gray-700 font-medium">Username *</Label>
+                              <Label htmlFor="signup-username" className="text-muted-foreground font-medium">Username *</Label>
                               <div className="relative">
                                 <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
@@ -450,13 +450,13 @@ export function RoleLogin() {
                                   value={signupForm.username}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, username: e.target.value }))}
                                   required
-                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
+                                  className="pl-12 h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-signup-username"
                                 />
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="signup-password" className="text-gray-700 font-medium">Password *</Label>
+                              <Label htmlFor="signup-password" className="text-muted-foreground font-medium">Password *</Label>
                               <div className="relative">
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
@@ -467,7 +467,7 @@ export function RoleLogin() {
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
                                   required
                                   minLength={6}
-                                  className="pl-12 h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500 rounded-xl"
+                                  className="pl-12 h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-red-500 focus:ring-red-500 rounded-xl"
                                   data-testid="input-signup-password"
                                 />
                               </div>

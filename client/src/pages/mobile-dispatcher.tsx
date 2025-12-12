@@ -162,8 +162,8 @@ export default function MobileDispatcher() {
 
   if (statsLoading || bookingsLoading || driversLoading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-gray-900 text-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground text-center">
           <Activity className="w-12 h-12 animate-spin mx-auto mb-4 text-red-600" />
           <p>Loading dispatcher dashboard...</p>
         </div>
@@ -172,23 +172,23 @@ export default function MobileDispatcher() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+      <div className="bg-background border-b border-border sticky top-0 z-10 shadow-sm">
         <div className="p-3 sm:p-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setLocation('/')}
-              className="text-gray-700 hover:bg-gray-100"
+              className="text-muted-foreground hover:bg-muted"
               data-testid="button-back"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Dispatch Center</h1>
-              <p className="text-xs text-gray-600">Fleet Management</p>
+              <h1 className="text-xl font-bold text-foreground">Dispatch Center</h1>
+              <p className="text-xs text-muted-foreground">Fleet Management</p>
             </div>
           </div>
           <Button
@@ -205,32 +205,32 @@ export default function MobileDispatcher() {
 
       {/* Stats Grid */}
       <div className="p-3 grid grid-cols-2 gap-2 sm:gap-3 sm:p-4">
-        <Card className="bg-white border-green-200 shadow-sm">
+        <Card className="bg-background border-green-200 shadow-sm">
           <CardContent className="p-3 sm:p-4 text-center">
             <Car className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 mx-auto mb-1 sm:mb-2" />
-            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="stat-active-drivers">{stats?.activeDrivers || 0}</p>
-            <p className="text-xs text-gray-600">Active Drivers</p>
+            <p className="text-xl sm:text-2xl font-bold text-foreground" data-testid="stat-active-drivers">{stats?.activeDrivers || 0}</p>
+            <p className="text-xs text-muted-foreground">Active Drivers</p>
           </CardContent>
         </Card>
-        <Card className="bg-white border-blue-200 shadow-sm">
+        <Card className="bg-background border-blue-200 shadow-sm">
           <CardContent className="p-3 sm:p-4 text-center">
             <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mx-auto mb-1 sm:mb-2" />
-            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="stat-active-rides">{stats?.activeRides || 0}</p>
-            <p className="text-xs text-gray-600">Active Rides</p>
+            <p className="text-xl sm:text-2xl font-bold text-foreground" data-testid="stat-active-rides">{stats?.activeRides || 0}</p>
+            <p className="text-xs text-muted-foreground">Active Rides</p>
           </CardContent>
         </Card>
-        <Card className="bg-white border-orange-200 shadow-sm">
+        <Card className="bg-background border-orange-200 shadow-sm">
           <CardContent className="p-3 sm:p-4 text-center">
             <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 mx-auto mb-1 sm:mb-2" />
-            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="stat-pending-requests">{stats?.pendingRequests || 0}</p>
-            <p className="text-xs text-gray-600">Pending</p>
+            <p className="text-xl sm:text-2xl font-bold text-foreground" data-testid="stat-pending-requests">{stats?.pendingRequests || 0}</p>
+            <p className="text-xs text-muted-foreground">Pending</p>
           </CardContent>
         </Card>
-        <Card className="bg-white border-gray-200 shadow-sm">
+        <Card className="bg-background border-border shadow-sm">
           <CardContent className="p-3 sm:p-4 text-center">
-            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 mx-auto mb-1 sm:mb-2" />
-            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="stat-utilization">{stats?.fleetUtilization || '0%'}</p>
-            <p className="text-xs text-gray-600">Utilization</p>
+            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground mx-auto mb-1 sm:mb-2" />
+            <p className="text-xl sm:text-2xl font-bold text-foreground" data-testid="stat-utilization">{stats?.fleetUtilization || '0%'}</p>
+            <p className="text-xs text-muted-foreground">Utilization</p>
           </CardContent>
         </Card>
       </div>
@@ -238,38 +238,38 @@ export default function MobileDispatcher() {
       {/* Tabs for Rides */}
       <div className="p-3 sm:p-4">
         <Tabs defaultValue="pending" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-100">
-            <TabsTrigger value="pending" className="data-[state=active]:bg-white data-[state=active]:text-red-600" data-testid="tab-pending">
+          <TabsList className="grid w-full grid-cols-3 bg-muted">
+            <TabsTrigger value="pending" className="data-[state=active]:bg-background data-[state=active]:text-red-600" data-testid="tab-pending">
               Pending ({pendingBookings.length})
             </TabsTrigger>
-            <TabsTrigger value="assigned" className="data-[state=active]:bg-white data-[state=active]:text-red-600" data-testid="tab-assigned">
+            <TabsTrigger value="assigned" className="data-[state=active]:bg-background data-[state=active]:text-red-600" data-testid="tab-assigned">
               Assigned ({assignedBookings.length})
             </TabsTrigger>
-            <TabsTrigger value="active" className="data-[state=active]:bg-white data-[state=active]:text-red-600" data-testid="tab-active">
+            <TabsTrigger value="active" className="data-[state=active]:bg-background data-[state=active]:text-red-600" data-testid="tab-active">
               Active ({activeBookings.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="pending" className="mt-4 space-y-3">
             {pendingBookings.length === 0 ? (
-              <Card className="bg-white border-gray-200 shadow-sm">
+              <Card className="bg-background border-border shadow-sm">
                 <CardContent className="p-8 text-center">
                   <Clock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600">No pending bookings</p>
+                  <p className="text-muted-foreground">No pending bookings</p>
                 </CardContent>
               </Card>
             ) : (
               pendingBookings.map((booking) => (
-                <Card key={booking.id} className="bg-white border-gray-200 shadow-md" data-testid={`booking-pending-${booking.id}`}>
+                <Card key={booking.id} className="bg-background border-border shadow-md" data-testid={`booking-pending-${booking.id}`}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <p className="font-semibold text-gray-900">{booking.passengerFirstName} {booking.passengerLastName}</p>
-                        <Badge variant="outline" className="mt-1 border-gray-300">{booking.vehicleTypeName}</Badge>
+                        <p className="font-semibold text-foreground">{booking.passengerFirstName} {booking.passengerLastName}</p>
+                        <Badge variant="outline" className="mt-1 border-border">{booking.vehicleTypeName}</Badge>
                       </div>
                       <Badge className="bg-orange-100 text-orange-700 border border-orange-200">{booking.bookingType}</Badge>
                     </div>
-                    <div className="space-y-2 text-sm text-gray-900 mb-3">
+                    <div className="space-y-2 text-sm text-foreground mb-3">
                       <div className="flex items-start space-x-2">
                         <MapPin className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
                         <span className="line-clamp-1">{booking.pickupAddress}</span>
@@ -302,26 +302,26 @@ export default function MobileDispatcher() {
 
           <TabsContent value="assigned" className="mt-4 space-y-3">
             {assignedBookings.length === 0 ? (
-              <Card className="bg-white border-gray-200 shadow-sm">
+              <Card className="bg-background border-border shadow-sm">
                 <CardContent className="p-8 text-center">
                   <CheckCircle2 className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600">No assigned bookings</p>
+                  <p className="text-muted-foreground">No assigned bookings</p>
                 </CardContent>
               </Card>
             ) : (
               assignedBookings.map((booking) => (
-                <Card key={booking.id} className="bg-white border-gray-200 shadow-md" data-testid={`booking-assigned-${booking.id}`}>
+                <Card key={booking.id} className="bg-background border-border shadow-md" data-testid={`booking-assigned-${booking.id}`}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <p className="font-semibold text-gray-900">{booking.passengerFirstName} {booking.passengerLastName}</p>
+                        <p className="font-semibold text-foreground">{booking.passengerFirstName} {booking.passengerLastName}</p>
                         <p className="text-sm text-red-600 font-medium">
                           Driver: {booking.driverFirstName} {booking.driverLastName}
                         </p>
                       </div>
                       <Badge className="bg-blue-100 text-blue-700 border border-blue-200">Assigned</Badge>
                     </div>
-                    <div className="space-y-2 text-sm text-gray-900 mb-3">
+                    <div className="space-y-2 text-sm text-foreground mb-3">
                       <div className="flex items-start space-x-2">
                         <MapPin className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
                         <span className="line-clamp-1">{booking.pickupAddress}</span>
@@ -334,7 +334,7 @@ export default function MobileDispatcher() {
                     <Button
                       onClick={() => handleAssignClick(booking.id)}
                       variant="outline"
-                      className="w-full border-gray-300 hover:bg-gray-50"
+                      className="w-full border-border hover:bg-muted"
                       size="sm"
                       data-testid={`button-reassign-${booking.id}`}
                     >
@@ -348,19 +348,19 @@ export default function MobileDispatcher() {
 
           <TabsContent value="active" className="mt-4 space-y-3">
             {activeBookings.length === 0 ? (
-              <Card className="bg-white border-gray-200 shadow-sm">
+              <Card className="bg-background border-border shadow-sm">
                 <CardContent className="p-8 text-center">
                   <Activity className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600">No active rides</p>
+                  <p className="text-muted-foreground">No active rides</p>
                 </CardContent>
               </Card>
             ) : (
               activeBookings.map((booking) => (
-                <Card key={booking.id} className="bg-white border-gray-200 shadow-md" data-testid={`booking-active-${booking.id}`}>
+                <Card key={booking.id} className="bg-background border-border shadow-md" data-testid={`booking-active-${booking.id}`}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <p className="font-semibold text-gray-900">{booking.passengerFirstName} {booking.passengerLastName}</p>
+                        <p className="font-semibold text-foreground">{booking.passengerFirstName} {booking.passengerLastName}</p>
                         <p className="text-sm text-red-600 font-medium">
                           Driver: {booking.driverFirstName} {booking.driverLastName}
                         </p>
@@ -369,7 +369,7 @@ export default function MobileDispatcher() {
                         {booking.status === 'in_progress' ? 'In Progress' : 'Confirmed'}
                       </Badge>
                     </div>
-                    <div className="space-y-2 text-sm text-gray-900">
+                    <div className="space-y-2 text-sm text-foreground">
                       <div className="flex items-start space-x-2">
                         <MapPin className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
                         <span className="line-clamp-1">{booking.pickupAddress}</span>
@@ -391,9 +391,9 @@ export default function MobileDispatcher() {
 
       {/* Assign Driver Dialog */}
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-        <DialogContent className="max-w-sm bg-white">
+        <DialogContent className="max-w-sm bg-background">
           <DialogHeader>
-            <DialogTitle className="text-gray-900">Assign Driver</DialogTitle>
+            <DialogTitle className="text-foreground">Assign Driver</DialogTitle>
             <DialogDescription>Select an available driver for this ride</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -423,30 +423,30 @@ export default function MobileDispatcher() {
 
       {/* Fleet Monitor Dialog */}
       <Dialog open={fleetDialogOpen} onOpenChange={setFleetDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto bg-white">
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto bg-background">
           <DialogHeader>
-            <DialogTitle className="text-gray-900">Fleet Monitor</DialogTitle>
+            <DialogTitle className="text-foreground">Fleet Monitor</DialogTitle>
             <DialogDescription>Real-time driver locations and status</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             {allActiveDrivers.length === 0 ? (
               <div className="text-center p-6">
                 <Car className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-600">No drivers available</p>
+                <p className="text-muted-foreground">No drivers available</p>
               </div>
             ) : (
               allActiveDrivers.map((driver) => {
                 const location = parseLocation(driver.currentLocation);
                 return (
-                  <Card key={driver.id} className="border border-gray-200 bg-white shadow-sm" data-testid={`driver-card-${driver.id}`}>
+                  <Card key={driver.id} className="border border-border bg-background shadow-sm" data-testid={`driver-card-${driver.id}`}>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
                             <div className={`w-2 h-2 rounded-full ${driver.isAvailable ? 'bg-green-500' : 'bg-gray-400'}`} />
-                            <p className="font-semibold text-gray-900">{driver.firstName} {driver.lastName}</p>
+                            <p className="font-semibold text-foreground">{driver.firstName} {driver.lastName}</p>
                           </div>
-                          <p className="text-xs text-gray-600">{driver.email}</p>
+                          <p className="text-xs text-muted-foreground">{driver.email}</p>
                           {driver.phone && (
                             <a href={`tel:${driver.phone}`} className="text-xs text-red-600 flex items-center space-x-1 mt-1">
                               <Phone className="w-3 h-3" />
@@ -460,7 +460,7 @@ export default function MobileDispatcher() {
                       </div>
                       
                       {driver.rating && (
-                        <div className="text-sm text-gray-600 mb-2">
+                        <div className="text-sm text-muted-foreground mb-2">
                           Rating: {driver.rating}★ • {driver.totalRides || 0} rides
                         </div>
                       )}
@@ -470,7 +470,7 @@ export default function MobileDispatcher() {
                           onClick={() => openNavigation(driver)}
                           variant="outline"
                           size="sm"
-                          className="w-full mt-2 border-gray-300 hover:bg-gray-50"
+                          className="w-full mt-2 border-border hover:bg-muted"
                           data-testid={`button-navigate-${driver.id}`}
                         >
                           <Navigation2 className="w-4 h-4 mr-2" />
@@ -479,7 +479,7 @@ export default function MobileDispatcher() {
                       )}
 
                       {!location && driver.isAvailable && (
-                        <div className="flex items-center space-x-1 text-xs text-gray-500 mt-2">
+                        <div className="flex items-center space-x-1 text-xs text-muted-foreground mt-2">
                           <AlertCircle className="w-3 h-3" />
                           <span>Location not available</span>
                         </div>

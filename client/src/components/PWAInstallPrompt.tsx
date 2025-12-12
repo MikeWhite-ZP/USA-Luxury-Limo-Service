@@ -61,14 +61,14 @@ export default function PWAInstallPrompt() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-50 animate-in slide-in-from-bottom">
-      <div className="bg-white dark:bg-gray-900 border rounded-lg shadow-lg p-4">
+      <div className="bg-card border border-border rounded-lg shadow-lg p-4">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
             <Download className="w-5 h-5 text-primary-foreground" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-sm mb-1 text-gray-900 dark:text-white" data-testid="text-pwa-company-name">Install {companyName}</h3>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+            <h3 className="font-semibold text-sm mb-1 text-foreground" data-testid="text-pwa-company-name">Install {companyName}</h3>
+            <p className="text-xs text-muted-foreground mb-3">
               Install our app for quick access and offline use
             </p>
             <div className="flex gap-2">

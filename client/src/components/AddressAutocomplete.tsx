@@ -145,19 +145,19 @@ export function AddressAutocomplete({
             disabled={disabled}
             autoComplete="off"
             data-testid={testId}
-            className="bg-white p-[5px]"
+            className="bg-background p-[5px]"
           />
 
         {/* Saved Addresses Dropdown */}
         {showSavedAddresses && savedAddresses && savedAddresses.length > 0 && (
-          <div className="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-b-lg max-h-60 overflow-y-auto z-50 shadow-lg mt-1">
-            <div className="p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-              <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">SAVED ADDRESSES</p>
+          <div className="absolute top-full left-0 right-0 bg-card border border-border rounded-b-lg max-h-60 overflow-y-auto z-50 shadow-lg mt-1">
+            <div className="p-2 border-b border-border bg-muted">
+              <p className="text-xs font-semibold text-muted-foreground">SAVED ADDRESSES</p>
             </div>
             {savedAddresses.map((address) => (
               <div
                 key={address.id}
-                className="p-3 cursor-pointer border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="p-3 cursor-pointer border-b border-border hover:bg-muted transition-colors"
                 onClick={() => selectSavedAddress(address)}
                 data-testid={`${testId}-saved-${address.id}`}
               >
@@ -165,12 +165,12 @@ export function AddressAutocomplete({
                   <MapPin className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm text-gray-800 dark:text-gray-200">{address.label}</span>
+                      <span className="font-semibold text-sm text-foreground">{address.label}</span>
                       {address.isDefault && (
                         <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">Default</span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{address.address}</p>
+                    <p className="text-sm text-muted-foreground truncate">{address.address}</p>
                   </div>
                 </div>
               </div>
@@ -180,20 +180,20 @@ export function AddressAutocomplete({
 
           {/* TomTom Suggestions Dropdown */}
           {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-b-lg max-h-60 overflow-y-auto z-50 shadow-lg mt-1">
-              <div className="p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">SUGGESTIONS</p>
+            <div className="absolute top-full left-0 right-0 bg-card border border-border rounded-b-lg max-h-60 overflow-y-auto z-50 shadow-lg mt-1">
+              <div className="p-2 border-b border-border bg-muted">
+                <p className="text-xs font-semibold text-muted-foreground">SUGGESTIONS</p>
               </div>
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
-                  className="p-3 cursor-pointer border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="p-3 cursor-pointer border-b border-border hover:bg-muted transition-colors"
                   onClick={() => selectSuggestion(suggestion)}
                   data-testid={`${testId}-suggestion-${index}`}
                 >
                   <div className="flex items-start gap-2">
-                    <Clock className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
-                    <div className="font-medium text-gray-800 dark:text-gray-200">{suggestion.display_name}</div>
+                    <Clock className="w-4 h-4 text-muted-foreground mt-1 flex-shrink-0" />
+                    <div className="font-medium text-foreground">{suggestion.display_name}</div>
                   </div>
                 </div>
               ))}
@@ -211,7 +211,7 @@ export function AddressAutocomplete({
             }}
             disabled={disabled}
           >
-            <SelectTrigger className="w-[200px] bg-[#ffffff] pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px]" data-testid={`${testId}-saved-dropdown`}>
+            <SelectTrigger className="w-[200px] bg-background pt-[5px] pb-[5px] pl-[5px] pr-[5px] mt-[5px] mb-[5px]" data-testid={`${testId}-saved-dropdown`}>
               <SelectValue placeholder="Saved addresses" />
             </SelectTrigger>
             <SelectContent>

@@ -273,11 +273,11 @@ export default function MinIOBrowser() {
   return (
     <>
       <AdminNav />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/50">
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
         <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8">
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-white via-slate-50/50 to-white backdrop-blur-sm overflow-hidden">
+            <Card className="border-0 shadow-xl bg-gradient-to-br from-card via-muted/50 to-card backdrop-blur-sm overflow-hidden">
             <CardHeader className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-b-0 pb-8">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.05)_0%,transparent_50%)]" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1)_0%,transparent_50%)]" />
@@ -313,16 +313,16 @@ export default function MinIOBrowser() {
               </CardTitle>
             </CardHeader>
 
-            <CardContent className="p-8 bg-gradient-to-b from-white to-slate-50/30">
+            <CardContent className="p-8 bg-gradient-to-b from-card to-muted/30">
               {/* Search and Filters */}
               <div className="mb-8 flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
                     placeholder="Search files..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-12 pr-4 py-6 border-slate-200 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm focus:border-cyan-400 focus:ring-cyan-400/20 focus:shadow-md transition-all text-base"
+                    className="pl-12 pr-4 py-6 border-border bg-card/80 backdrop-blur-sm rounded-xl shadow-sm focus:border-cyan-400 focus:ring-cyan-400/20 focus:shadow-md transition-all text-base"
                     data-testid="input-search-files"
                   />
                 </div>
@@ -335,7 +335,7 @@ export default function MinIOBrowser() {
                       variant={selectedFolder === "" ? "default" : "outline"}
                       className={selectedFolder === "" 
                         ? "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-xl"
-                        : "border-slate-200 hover:bg-slate-50 rounded-xl"}
+                        : "border-border hover:bg-muted rounded-xl"}
                       data-testid="button-filter-all"
                     >
                       <FolderOpen className="w-4 h-4 mr-2" />
@@ -372,12 +372,12 @@ export default function MinIOBrowser() {
                   {filteredFiles.map((file) => (
                     <div
                       key={file.key}
-                      className="group relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-slate-100 hover:border-slate-200 hover:-translate-y-1"
+                      className="group relative bg-card rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-border hover:border-primary/30 hover:-translate-y-1"
                       data-testid={`file-card-${file.key}`}
                     >
                       {/* Image Preview */}
                       <div
-                        className="relative h-48 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden cursor-pointer"
+                        className="relative h-48 bg-gradient-to-br from-muted to-muted/50 overflow-hidden cursor-pointer"
                         onClick={() => file.isImage && handleImageClick(file)}
                       >
                         {file.isImage ? (
@@ -391,7 +391,7 @@ export default function MinIOBrowser() {
                           />
                         ) : (
                           <div className="flex items-center justify-center h-full">
-                            <ImageIcon className="w-20 h-20 text-slate-300" />
+                            <ImageIcon className="w-20 h-20 text-muted-foreground/50" />
                           </div>
                         )}
 
@@ -408,10 +408,10 @@ export default function MinIOBrowser() {
                       {/* File Info */}
                       <div className="p-4">
                         <div className="mb-3">
-                          <h3 className="text-sm font-semibold text-slate-900 truncate mb-1" title={file.name} data-testid={`file-name-${file.key}`}>
+                          <h3 className="text-sm font-semibold text-foreground truncate mb-1" title={file.name} data-testid={`file-name-${file.key}`}>
                             {file.name}
                           </h3>
-                          <div className="flex items-center gap-2 text-xs text-slate-500">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <span>{formatFileSize(file.size)}</span>
                             <span>•</span>
                             <span className="truncate">{formatDate(file.lastModified)}</span>
@@ -433,7 +433,7 @@ export default function MinIOBrowser() {
                             size="sm"
                             onClick={() => handleDownload(file)}
                             variant="outline"
-                            className="px-3 border-slate-200 text-slate-600 hover:bg-slate-50 transition-all duration-300 rounded-lg"
+                            className="px-3 border-border text-muted-foreground hover:bg-muted transition-all duration-300 rounded-lg"
                             data-testid={`button-download-${file.key}`}
                           >
                             <Download className="w-3 h-3" />
@@ -453,17 +453,17 @@ export default function MinIOBrowser() {
                   ))}
                 </div>
               ) : (
-                <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-50 via-cyan-50/30 to-slate-50 border-2 border-dashed border-slate-200">
+                <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-muted via-cyan-50/30 dark:via-cyan-900/20 to-muted border-2 border-dashed border-border">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.05)_0%,transparent_70%)]" />
                   <div className="relative text-center py-20 px-6">
                     <div className="relative inline-block mb-6">
-                      <div className="absolute inset-0 bg-cyan-100 rounded-full blur-2xl opacity-50" />
-                      <div className="relative bg-gradient-to-br from-slate-100 to-cyan-100 p-6 rounded-full">
-                        <FileImage className="w-16 h-16 text-slate-400" />
+                      <div className="absolute inset-0 bg-cyan-100 dark:bg-cyan-900 rounded-full blur-2xl opacity-50" />
+                      <div className="relative bg-gradient-to-br from-muted to-cyan-100 dark:to-cyan-900 p-6 rounded-full">
+                        <FileImage className="w-16 h-16 text-muted-foreground" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold text-slate-700 mb-2">No Files Found</h3>
-                    <p className="text-slate-500 max-w-sm mx-auto">
+                    <h3 className="text-xl font-bold text-foreground mb-2">No Files Found</h3>
+                    <p className="text-muted-foreground max-w-sm mx-auto">
                       {searchQuery || selectedFolder
                         ? "Try adjusting your search or filter criteria."
                         : "Upload some files to get started with MinIO object storage."}
@@ -474,8 +474,8 @@ export default function MinIOBrowser() {
 
               {/* Pagination Controls */}
               {filteredFiles && filteredFiles.length > 0 && totalPages > 1 && (
-                <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-200">
-                  <div className="text-sm text-slate-600">
+                <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
+                  <div className="text-sm text-muted-foreground">
                     Page {currentPage} of {totalPages} • {data?.totalFiles} total {data?.totalFiles === 1 ? "file" : "files"}
                   </div>
                   <div className="flex gap-2">
@@ -484,7 +484,7 @@ export default function MinIOBrowser() {
                       disabled={!hasPrevPage}
                       variant="outline"
                       size="sm"
-                      className="border-slate-300 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="border-border hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
                       data-testid="button-prev-page"
                     >
                       <ChevronLeft className="w-4 h-4 mr-1" />
@@ -495,7 +495,7 @@ export default function MinIOBrowser() {
                       disabled={!hasNextPage}
                       variant="outline"
                       size="sm"
-                      className="border-slate-300 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="border-border hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
                       data-testid="button-next-page"
                     >
                       Next
@@ -511,8 +511,8 @@ export default function MinIOBrowser() {
 
       {/* Image Preview Dialog */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-white">
-          <DialogHeader className="border-b border-slate-200 pb-4">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-card">
+          <DialogHeader className="border-b border-border pb-4">
             <div className="flex items-center justify-between">
               <DialogTitle className="flex items-center gap-2 text-cyan-700">
                 <ImageIcon className="w-5 h-5" />
@@ -532,7 +532,7 @@ export default function MinIOBrowser() {
           {selectedImage && (
             <div className="space-y-4">
               {/* Image */}
-              <div className="bg-slate-50 rounded-lg p-4 flex items-center justify-center max-h-[60vh] overflow-auto">
+              <div className="bg-muted rounded-lg p-4 flex items-center justify-center max-h-[60vh] overflow-auto">
                 <img
                   src={selectedImage.url}
                   alt={selectedImage.name}

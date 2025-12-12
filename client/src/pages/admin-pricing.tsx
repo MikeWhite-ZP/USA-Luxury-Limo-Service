@@ -721,15 +721,15 @@ export default function AdminPricing() {
 
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Modern Header */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50/30 border border-slate-200 rounded-xl p-6 shadow-sm">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950/30 border border-border rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="bg-blue-600 p-3 rounded-lg shadow-md">
                 <DollarSign className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Pricing Rules</h2>
-                <p className="text-sm text-slate-600 mt-1">Configure advanced pricing for all vehicle types and services</p>
+                <h2 className="text-2xl font-bold text-foreground">Pricing Rules</h2>
+                <p className="text-sm text-muted-foreground mt-1">Configure advanced pricing for all vehicle types and services</p>
               </div>
             </div>
             
@@ -745,27 +745,27 @@ export default function AdminPricing() {
                   Add Pricing Rule
                 </Button>
               </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[90vh] bg-white flex flex-col" data-testid="dialog-pricing-form">
-                  <DialogHeader className="flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50/30 -mx-6 -mt-6 px-6 py-4 border-b border-slate-200 rounded-t-lg">
-                    <DialogTitle className="text-slate-900 font-semibold text-xl" data-testid="dialog-title">
+                <DialogContent className="max-w-4xl max-h-[90vh] bg-background flex flex-col" data-testid="dialog-pricing-form">
+                  <DialogHeader className="flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950/30 -mx-6 -mt-6 px-6 py-4 border-b border-border rounded-t-lg">
+                    <DialogTitle className="text-foreground font-semibold text-xl" data-testid="dialog-title">
                       {editingRule ? "Edit Pricing Rule" : "Create New Pricing Rule"}
                     </DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto flex-1 pr-2 text-sm">
                     {/* Basic Configuration */}
                     <div className="space-y-4">
-                      <h3 className="font-semibold text-lg text-slate-900">Basic Configuration</h3>
+                      <h3 className="font-semibold text-lg text-foreground">Basic Configuration</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="vehicleType" className="text-slate-700 font-medium">Vehicle Type *</Label>
+                          <Label htmlFor="vehicleType" className="text-muted-foreground font-medium">Vehicle Type *</Label>
                           <Select
                             value={formData.vehicleType}
                             onValueChange={(value) => setFormData(prev => ({ ...prev, vehicleType: value }))}
                           >
-                            <SelectTrigger className="mt-2 border-slate-300" data-testid="select-vehicle-type">
+                            <SelectTrigger className="mt-2 border-border" data-testid="select-vehicle-type">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-white">
+                            <SelectContent className="bg-background">
                               {vehicleTypes.map((type) => (
                                 <SelectItem key={type.value} value={type.value}>
                                   {type.label}
@@ -776,15 +776,15 @@ export default function AdminPricing() {
                         </div>
 
                         <div>
-                          <Label htmlFor="serviceType" className="text-slate-700 font-medium">Service Type *</Label>
+                          <Label htmlFor="serviceType" className="text-muted-foreground font-medium">Service Type *</Label>
                           <Select
                             value={formData.serviceType}
                             onValueChange={(value) => setFormData(prev => ({ ...prev, serviceType: value }))}
                           >
-                            <SelectTrigger className="mt-2 border-slate-300" data-testid="select-service-type">
+                            <SelectTrigger className="mt-2 border-border" data-testid="select-service-type">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-white">
+                            <SelectContent className="bg-background">
                               {serviceTypes.map((type) => (
                                 <SelectItem key={type.value} value={type.value}>
                                   {type.label}
@@ -867,28 +867,28 @@ export default function AdminPricing() {
                                 
                                 {formData.distanceTiers.map((tier, index) => (
                                   <div key={index} className="flex items-center gap-2 bg-blue-50 border border-blue-200 p-2 rounded">
-                                    <div className="w-24 text-sm font-medium text-slate-700">{getTierLabel(index)}</div>
+                                    <div className="w-24 text-sm font-medium text-muted-foreground">{getTierLabel(index)}</div>
                                     {!tier.isRemaining && (
                                       <>
                                         <Input
                                           type="number"
                                           step="0.01"
                                           placeholder="20"
-                                          className="w-32 border-slate-300"
+                                          className="w-32 border-border"
                                           value={tier.miles}
                                           onChange={(e) => updateDistanceTier(index, 'miles', e.target.value)}
                                           data-testid={`input-tier-miles-${index}`}
                                         />
-                                        <span className="text-sm text-slate-600">mile</span>
+                                        <span className="text-sm text-muted-foreground">mile</span>
                                       </>
                                     )}
-                                    <span className="text-sm text-slate-600">@</span>
-                                    <span className="text-sm font-semibold bg-slate-900 text-white px-2 py-1 rounded">$</span>
+                                    <span className="text-sm text-muted-foreground">@</span>
+                                    <span className="text-sm font-semibold bg-foreground text-background px-2 py-1 rounded">$</span>
                                     <Input
                                       type="number"
                                       step="0.01"
                                       placeholder="0"
-                                      className="w-32 border-slate-300"
+                                      className="w-32 border-border"
                                       value={tier.ratePerMile}
                                       onChange={(e) => updateDistanceTier(index, 'ratePerMile', e.target.value)}
                                       data-testid={`input-tier-rate-${index}`}
@@ -961,7 +961,7 @@ export default function AdminPricing() {
                                 type="number"
                                 step="0.01"
                                 placeholder="20.00"
-                                className="border-slate-300"
+                                className="border-border"
                                 value={formData.gratuityPercent}
                                 onChange={(e) => setFormData(prev => ({ ...prev, gratuityPercent: e.target.value }))}
                                 data-testid="input-gratuity"
@@ -1005,7 +1005,7 @@ export default function AdminPricing() {
                                 <Input
                                   type="number"
                                   placeholder="Optional"
-                                  className="border-slate-300"
+                                  className="border-border"
                                   value={fee.waiverMinutes || ""}
                                   onChange={(e) => updateAirportFee(index, 'waiverMinutes', e.target.value ? parseInt(e.target.value) : undefined)}
                                   data-testid={`input-waiver-${index}`}
@@ -1037,11 +1037,11 @@ export default function AdminPricing() {
                               <Label htmlFor="meetGreetEnabled">Enable Meet & Greet</Label>
                             </div>
                             <div>
-                              <Label className="text-slate-700 font-medium">Charge ($)</Label>
+                              <Label className="text-muted-foreground font-medium">Charge ($)</Label>
                               <Input
                                 type="number"
                                 step="0.01"
-                                className="border-slate-300 mt-2"
+                                className="border-border mt-2"
                                 value={formData.meetAndGreet.charge}
                                 onChange={(e) => setFormData(prev => ({ 
                                   ...prev, 
@@ -1074,7 +1074,7 @@ export default function AdminPricing() {
                                   <SelectTrigger data-testid={`select-day-${index}`}>
                                     <SelectValue />
                                   </SelectTrigger>
-                                  <SelectContent className="bg-white">
+                                  <SelectContent className="bg-background">
                                     {daysOfWeek.map((day) => (
                                       <SelectItem key={day.value} value={day.value.toString()}>
                                         {day.label}
@@ -1175,7 +1175,7 @@ export default function AdminPricing() {
                                 type="number"
                                 step="0.01"
                                 placeholder="20.00"
-                                className="border-slate-300"
+                                className="border-border"
                                 value={formData.gratuityPercent}
                                 onChange={(e) => setFormData(prev => ({ ...prev, gratuityPercent: e.target.value }))}
                                 data-testid="input-gratuity-hourly"
@@ -1219,7 +1219,7 @@ export default function AdminPricing() {
                                 <Input
                                   type="number"
                                   placeholder="Optional"
-                                  className="border-slate-300"
+                                  className="border-border"
                                   value={fee.waiverMinutes || ""}
                                   onChange={(e) => updateAirportFee(index, 'waiverMinutes', e.target.value ? parseInt(e.target.value) : undefined)}
                                   data-testid={`input-waiver-hourly-${index}`}
@@ -1252,7 +1252,7 @@ export default function AdminPricing() {
                                   <SelectTrigger data-testid={`select-day-hourly-${index}`}>
                                     <SelectValue />
                                   </SelectTrigger>
-                                  <SelectContent className="bg-white">
+                                  <SelectContent className="bg-background">
                                     {daysOfWeek.map((day) => (
                                       <SelectItem key={day.value} value={day.value.toString()}>
                                         {day.label}
@@ -1304,22 +1304,22 @@ export default function AdminPricing() {
                       <h3 className="font-semibold text-lg">Schedule & Status</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="effectiveStart" className="text-slate-700 font-medium">Effective From</Label>
+                          <Label htmlFor="effectiveStart" className="text-muted-foreground font-medium">Effective From</Label>
                           <Input
                             id="effectiveStart"
                             type="date"
-                            className="border-slate-300 mt-2"
+                            className="border-border mt-2"
                             value={formData.effectiveStart}
                             onChange={(e) => setFormData(prev => ({ ...prev, effectiveStart: e.target.value }))}
                             data-testid="input-effective-start"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="effectiveEnd" className="text-slate-700 font-medium">Effective Until</Label>
+                          <Label htmlFor="effectiveEnd" className="text-muted-foreground font-medium">Effective Until</Label>
                           <Input
                             id="effectiveEnd"
                             type="date"
-                            className="border-slate-300 mt-2"
+                            className="border-border mt-2"
                             value={formData.effectiveEnd}
                             onChange={(e) => setFormData(prev => ({ ...prev, effectiveEnd: e.target.value }))}
                             data-testid="input-effective-end"
@@ -1339,11 +1339,11 @@ export default function AdminPricing() {
                       </div>
                     </div>
 
-                    <div className="flex justify-end space-x-2 pt-4 mt-4 border-t border-slate-200 sticky bottom-0 bg-white">
+                    <div className="flex justify-end space-x-2 pt-4 mt-4 border-t border-border sticky bottom-0 bg-background">
                       <Button
                         type="button"
                         variant="outline"
-                        className="border-slate-300 hover:bg-slate-100"
+                        className="border-border hover:bg-muted dark:hover:bg-slate-800"
                         onClick={() => {
                           setIsDialogOpen(false);
                           resetForm();
@@ -1372,7 +1372,7 @@ export default function AdminPricing() {
           </div>
         
         {/* Content Card */}
-        <Card className="border-slate-200 shadow-md bg-white overflow-hidden" data-testid="pricing-rules-card">
+        <Card className="border-border shadow-md bg-background overflow-hidden" data-testid="pricing-rules-card">
           <CardContent className="p-0">
             {rulesLoading ? (
               <div className="flex items-center justify-center p-12">
@@ -1382,15 +1382,15 @@ export default function AdminPricing() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-50 hover:to-indigo-50 border-b-2 border-blue-200">
-                      <TableHead className="font-semibold text-slate-700 h-12">Vehicle Type</TableHead>
-                      <TableHead className="font-semibold text-slate-700">Service Type</TableHead>
-                      <TableHead className="font-semibold text-slate-700">Base/Hourly Rate</TableHead>
-                      <TableHead className="font-semibold text-slate-700">Gratuity</TableHead>
-                      <TableHead className="font-semibold text-slate-700">Airport Fees</TableHead>
-                      <TableHead className="font-semibold text-slate-700">Surge Rules</TableHead>
-                      <TableHead className="font-semibold text-slate-700">Status</TableHead>
-                      <TableHead className="font-semibold text-slate-700 text-center">Actions</TableHead>
+                    <TableRow className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 hover:from-blue-50 hover:to-indigo-50 border-b-2 border-blue-200">
+                      <TableHead className="font-semibold text-muted-foreground h-12">Vehicle Type</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground">Service Type</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground">Base/Hourly Rate</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground">Gratuity</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground">Airport Fees</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground">Surge Rules</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground">Status</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1398,33 +1398,33 @@ export default function AdminPricing() {
                       <TableRow 
                         key={rule.id} 
                         data-testid={`rule-row-${rule.id}`}
-                        className="hover:bg-slate-50 transition-colors border-b border-slate-100"
+                        className="hover:bg-muted dark:hover:bg-slate-800 transition-colors border-b border-border"
                       >
-                        <TableCell data-testid={`vehicle-type-${rule.id}`} className="font-medium text-slate-900">
+                        <TableCell data-testid={`vehicle-type-${rule.id}`} className="font-medium text-foreground">
                           {getVehicleTypeLabel(rule.vehicleType)}
                         </TableCell>
-                        <TableCell data-testid={`service-type-${rule.id}`} className="text-slate-700">
+                        <TableCell data-testid={`service-type-${rule.id}`} className="text-muted-foreground">
                           {getServiceTypeLabel(rule.serviceType)}
                         </TableCell>
                         <TableCell data-testid={`rate-${rule.id}`} className="font-semibold text-blue-700">
                           {rule.serviceType === 'transfer' && rule.baseRate ? `$${rule.baseRate}` : 
                            rule.serviceType === 'hourly' && rule.hourlyRate ? `$${rule.hourlyRate}/hr` : '-'}
                         </TableCell>
-                        <TableCell data-testid={`gratuity-${rule.id}`} className="text-slate-600">
+                        <TableCell data-testid={`gratuity-${rule.id}`} className="text-muted-foreground">
                           {rule.gratuityPercent ? `${rule.gratuityPercent}%` : '-'}
                         </TableCell>
-                        <TableCell data-testid={`airport-fees-${rule.id}`} className="text-slate-600">
+                        <TableCell data-testid={`airport-fees-${rule.id}`} className="text-muted-foreground">
                           <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-sm">
                             {rule.airportFees?.length || 0} airports
                           </span>
                         </TableCell>
-                        <TableCell data-testid={`surge-rules-${rule.id}`} className="text-slate-600">
+                        <TableCell data-testid={`surge-rules-${rule.id}`} className="text-muted-foreground">
                           <span className="inline-flex items-center px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 text-sm">
                             {rule.surgePricing?.length || 0} periods
                           </span>
                         </TableCell>
                         <TableCell data-testid={`status-${rule.id}`}>
-                          <Badge className={rule.isActive ? "bg-green-100 text-green-800 border-green-200 font-medium" : "bg-slate-100 text-slate-700 border-slate-200 font-medium"}>
+                          <Badge className={rule.isActive ? "bg-green-100 text-green-800 border-green-200 font-medium" : "bg-muted text-muted-foreground border-border font-medium"}>
                             {rule.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
@@ -1433,7 +1433,7 @@ export default function AdminPricing() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                              className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
                               onClick={() => handleEdit(rule)}
                               data-testid={`button-edit-${rule.id}`}
                             >
@@ -1442,7 +1442,7 @@ export default function AdminPricing() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-900 transition-colors"
+                              className="border-border text-muted-foreground hover:bg-muted dark:hover:bg-slate-800 hover:border-border hover:text-foreground transition-colors"
                               onClick={() => handleDelete(rule.id)}
                               data-testid={`button-delete-${rule.id}`}
                             >
@@ -1456,10 +1456,10 @@ export default function AdminPricing() {
                 </Table>
               </div>
             ) : (
-              <div className="text-center p-12 m-6 text-slate-600 bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg border-2 border-dashed border-slate-300" data-testid="no-rules">
-                <DollarSign className="w-12 h-12 mx-auto mb-3 text-slate-400" />
-                <p className="font-medium text-slate-700">No pricing rules configured yet</p>
-                <p className="text-sm text-slate-500 mt-1">Add your first pricing rule to get started.</p>
+              <div className="text-center p-12 m-6 text-muted-foreground bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg border-2 border-dashed border-border" data-testid="no-rules">
+                <DollarSign className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                <p className="font-medium text-muted-foreground">No pricing rules configured yet</p>
+                <p className="text-sm text-muted-foreground mt-1">Add your first pricing rule to get started.</p>
               </div>
             )}
           </CardContent>

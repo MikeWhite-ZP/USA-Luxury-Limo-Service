@@ -307,10 +307,10 @@ export default function AccountPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -321,7 +321,7 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-muted via-blue-50/20 to-muted dark:from-background dark:via-blue-950/10 dark:to-background">
       <Header />
       
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -343,7 +343,7 @@ export default function AccountPage() {
               setLocation('/');
             }
           }}
-          className="mb-6 hover:bg-slate-100"
+          className="mb-6 hover:bg-muted"
           data-testid="button-back"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -352,45 +352,45 @@ export default function AccountPage() {
 
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Account Settings</h1>
-          <p className="text-slate-600">Manage your personal information and security preferences</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Account Settings</h1>
+          <p className="text-muted-foreground">Manage your personal information and security preferences</p>
         </div>
 
         <div className="grid gap-6">
           {/* Account Overview Card */}
-          <Card data-testid="account-details-card" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-slate-50 border-b border-slate-100">
+          <Card data-testid="account-details-card" className="border-border shadow-sm hover:shadow-md transition-shadow bg-card">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-muted dark:from-blue-950/30 dark:to-muted border-b border-border">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg">
                     <Shield className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-slate-900 text-xl">Account Overview</CardTitle>
-                    <CardDescription className="text-slate-600 mt-1">Your account information and status</CardDescription>
+                    <CardTitle className="text-foreground text-xl">Account Overview</CardTitle>
+                    <CardDescription className="text-muted-foreground mt-1">Your account information and status</CardDescription>
                   </div>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                <div className="bg-muted rounded-xl p-4 border border-border">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="bg-blue-100 p-1.5 rounded-lg">
                       <User className="w-4 h-4 text-blue-600" />
                     </div>
-                    <p className="text-xs font-medium text-slate-600">Account Type</p>
+                    <p className="text-xs font-medium text-muted-foreground">Account Type</p>
                   </div>
                   <Badge className="bg-blue-600 hover:bg-blue-700 text-white" data-testid="text-role">
                     {user?.role || 'N/A'}
                   </Badge>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                <div className="bg-muted rounded-xl p-4 border border-border">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="bg-green-100 p-1.5 rounded-lg">
                       <CheckCircle2 className="w-4 h-4 text-green-600" />
                     </div>
-                    <p className="text-xs font-medium text-slate-600">Account Status</p>
+                    <p className="text-xs font-medium text-muted-foreground">Account Status</p>
                   </div>
                   <div data-testid="text-status">
                     {user?.isActive ? (
@@ -404,14 +404,14 @@ export default function AccountPage() {
                   </div>
                 </div>
                 {user?.createdAt && (
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <div className="bg-muted rounded-xl p-4 border border-border">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="bg-purple-100 p-1.5 rounded-lg">
                         <Calendar className="w-4 h-4 text-purple-600" />
                       </div>
-                      <p className="text-xs font-medium text-slate-600">Member Since</p>
+                      <p className="text-xs font-medium text-muted-foreground">Member Since</p>
                     </div>
-                    <p className="font-semibold text-slate-900" data-testid="text-created-at">
+                    <p className="font-semibold text-foreground" data-testid="text-created-at">
                       {new Date(user.createdAt).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
@@ -425,15 +425,15 @@ export default function AccountPage() {
           </Card>
 
           {/* Profile Information Card */}
-          <Card data-testid="profile-card" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50/30 border-b border-slate-100">
+          <Card data-testid="profile-card" className="border-border shadow-sm hover:shadow-md transition-shadow bg-card">
+            <CardHeader className="bg-gradient-to-r from-muted to-blue-50/30 dark:from-muted dark:to-blue-950/20 border-b border-border">
               <div className="flex items-center gap-3">
-                <div className="bg-slate-600 p-2.5 rounded-xl shadow-lg">
+                <div className="bg-slate-600 dark:bg-slate-500 p-2.5 rounded-xl shadow-lg">
                   <User className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-slate-900 text-xl">Personal Information</CardTitle>
-                  <CardDescription className="text-slate-600 mt-1">
+                  <CardTitle className="text-foreground text-xl">Personal Information</CardTitle>
+                  <CardDescription className="text-muted-foreground mt-1">
                     Update your personal information and contact details
                   </CardDescription>
                 </div>
@@ -443,7 +443,7 @@ export default function AccountPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="firstName" className="text-sm font-semibold text-slate-700 mb-2 block">
+                    <Label htmlFor="firstName" className="text-sm font-semibold text-muted-foreground mb-2 block">
                       First Name *
                     </Label>
                     <Input
@@ -451,12 +451,12 @@ export default function AccountPage() {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="Enter your first name"
-                      className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                      className="border-border bg-background text-foreground focus:border-blue-500 focus:ring-blue-500"
                       data-testid="input-first-name"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="lastName" className="text-sm font-semibold text-slate-700 mb-2 block">
+                    <Label htmlFor="lastName" className="text-sm font-semibold text-muted-foreground mb-2 block">
                       Last Name *
                     </Label>
                     <Input
@@ -464,14 +464,14 @@ export default function AccountPage() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Enter your last name"
-                      className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                      className="border-border bg-background text-foreground focus:border-blue-500 focus:ring-blue-500"
                       data-testid="input-last-name"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="email" className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                  <Label htmlFor="email" className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                     <div className="bg-blue-100 p-1 rounded">
                       <Mail className="w-3.5 h-3.5 text-blue-600" />
                     </div>
@@ -483,13 +483,13 @@ export default function AccountPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="border-border focus:border-blue-500 focus:ring-blue-500"
                     data-testid="input-email"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="phone" className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                  <Label htmlFor="phone" className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                     <div className="bg-green-100 p-1 rounded">
                       <Phone className="w-3.5 h-3.5 text-green-600" />
                     </div>
@@ -501,13 +501,13 @@ export default function AccountPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Enter your phone number"
-                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="border-border focus:border-blue-500 focus:ring-blue-500"
                     data-testid="input-phone"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="username" className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                  <Label htmlFor="username" className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                     <div className="bg-purple-100 p-1 rounded">
                       <User className="w-3.5 h-3.5 text-purple-600" />
                     </div>
@@ -519,15 +519,15 @@ export default function AccountPage() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Choose a username"
-                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="border-border focus:border-blue-500 focus:ring-blue-500"
                     data-testid="input-username"
                   />
                   {username && username !== user?.username && (
                     <p className={`text-xs mt-2 flex items-center gap-1 ${
-                      usernameStatus === 'checking' ? 'text-slate-500' :
+                      usernameStatus === 'checking' ? 'text-muted-foreground' :
                       usernameStatus === 'available' ? 'text-green-600' :
                       usernameStatus === 'taken' ? 'text-red-600' :
-                      'text-slate-500'
+                      'text-muted-foreground'
                     }`}>
                       {usernameStatus === 'checking' && '⏳ Checking availability...'}
                       {usernameStatus === 'available' && '✓ Username is available'}
@@ -537,7 +537,7 @@ export default function AccountPage() {
                   )}
                 </div>
 
-                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                <div className="flex gap-3 pt-4 border-t border-border">
                   <Button
                     type="button"
                     variant="outline"
@@ -557,7 +557,7 @@ export default function AccountPage() {
                         setLocation('/');
                       }
                     }}
-                    className="flex-1 border-slate-300 hover:bg-slate-100"
+                    className="flex-1 border-border hover:bg-muted"
                     data-testid="button-cancel"
                   >
                     Cancel
@@ -583,15 +583,15 @@ export default function AccountPage() {
           </Card>
 
           {/* Change Password Card */}
-          <Card data-testid="change-password-card" className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-            <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50/30 border-b border-slate-100">
+          <Card data-testid="change-password-card" className="border-border shadow-sm hover:shadow-md transition-shadow bg-card">
+            <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50/30 dark:from-amber-950/30 dark:to-orange-950/20 border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="bg-amber-600 p-2.5 rounded-xl shadow-lg">
                   <Lock className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-slate-900 text-xl">Security Settings</CardTitle>
-                  <CardDescription className="text-slate-600 mt-1">
+                  <CardTitle className="text-foreground text-xl">Security Settings</CardTitle>
+                  <CardDescription className="text-muted-foreground mt-1">
                     Update your password to keep your account secure
                   </CardDescription>
                 </div>
@@ -600,7 +600,7 @@ export default function AccountPage() {
             <CardContent className="pt-6">
               <form onSubmit={handlePasswordSubmit} className="space-y-5">
                 <div>
-                  <Label htmlFor="currentPassword" className="text-sm font-semibold text-slate-700 mb-2 block">
+                  <Label htmlFor="currentPassword" className="text-sm font-semibold text-muted-foreground mb-2 block">
                     Current Password *
                   </Label>
                   <div className="relative">
@@ -610,13 +610,13 @@ export default function AccountPage() {
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="Enter your current password"
-                      className="border-slate-300 focus:border-amber-500 focus:ring-amber-500 pr-10"
+                      className="border-border focus:border-amber-500 focus:ring-amber-500 pr-10"
                       data-testid="input-current-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
                       data-testid="toggle-current-password"
                     >
                       {showCurrentPassword ? (
@@ -629,7 +629,7 @@ export default function AccountPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="newPassword" className="text-sm font-semibold text-slate-700 mb-2 block">
+                  <Label htmlFor="newPassword" className="text-sm font-semibold text-muted-foreground mb-2 block">
                     New Password *
                   </Label>
                   <div className="relative">
@@ -639,13 +639,13 @@ export default function AccountPage() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter your new password"
-                      className="border-slate-300 focus:border-amber-500 focus:ring-amber-500 pr-10"
+                      className="border-border focus:border-amber-500 focus:ring-amber-500 pr-10"
                       data-testid="input-new-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
                       data-testid="toggle-new-password"
                     >
                       {showNewPassword ? (
@@ -655,13 +655,13 @@ export default function AccountPage() {
                       )}
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500 mt-2 bg-amber-50 p-2 rounded border border-amber-200">
+                  <p className="text-xs text-muted-foreground mt-2 bg-amber-50 p-2 rounded border border-amber-200">
                     Minimum 8 characters with uppercase, lowercase, and numbers
                   </p>
                 </div>
 
                 <div>
-                  <Label htmlFor="confirmPassword" className="text-sm font-semibold text-slate-700 mb-2 block">
+                  <Label htmlFor="confirmPassword" className="text-sm font-semibold text-muted-foreground mb-2 block">
                     Confirm New Password *
                   </Label>
                   <div className="relative">
@@ -671,13 +671,13 @@ export default function AccountPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm your new password"
-                      className="border-slate-300 focus:border-amber-500 focus:ring-amber-500 pr-10"
+                      className="border-border focus:border-amber-500 focus:ring-amber-500 pr-10"
                       data-testid="input-confirm-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
                       data-testid="toggle-confirm-password"
                     >
                       {showConfirmPassword ? (
@@ -689,7 +689,7 @@ export default function AccountPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                <div className="flex gap-3 pt-4 border-t border-border">
                   <Button
                     type="button"
                     variant="outline"
@@ -698,7 +698,7 @@ export default function AccountPage() {
                       setNewPassword('');
                       setConfirmPassword('');
                     }}
-                    className="flex-1 border-slate-300 hover:bg-slate-100"
+                    className="flex-1 border-border hover:bg-muted"
                     data-testid="button-cancel-password"
                   >
                     Clear

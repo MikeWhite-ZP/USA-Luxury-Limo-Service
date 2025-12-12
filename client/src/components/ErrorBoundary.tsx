@@ -63,34 +63,34 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4">
-          <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
-            <div className="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-4">
-              <AlertCircle className="w-8 h-8 text-red-600" />
+        <div className="min-h-screen flex items-center justify-center bg-background px-4">
+          <div className="max-w-md w-full bg-card rounded-lg shadow-xl p-8 border border-border">
+            <div className="flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-950 rounded-full mx-auto mb-4">
+              <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
             
-            <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-center text-foreground mb-2">
               Oops! Something went wrong
             </h1>
             
-            <p className="text-gray-600 text-center mb-6">
+            <p className="text-muted-foreground text-center mb-6">
               We're sorry for the inconvenience. An unexpected error occurred.
             </p>
 
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm font-semibold text-red-800 mb-2">
+              <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
+                <p className="text-sm font-semibold text-red-800 dark:text-red-200 mb-2">
                   Error Details:
                 </p>
-                <p className="text-xs text-red-700 font-mono break-all">
+                <p className="text-xs text-red-700 dark:text-red-300 font-mono break-all">
                   {this.state.error.toString()}
                 </p>
                 {this.state.errorInfo && (
                   <details className="mt-2">
-                    <summary className="text-xs text-red-600 cursor-pointer hover:text-red-800">
+                    <summary className="text-xs text-red-600 dark:text-red-400 cursor-pointer hover:text-red-800 dark:hover:text-red-300">
                       Component Stack
                     </summary>
-                    <pre className="text-xs text-red-700 mt-2 overflow-auto max-h-40">
+                    <pre className="text-xs text-red-700 dark:text-red-300 mt-2 overflow-auto max-h-40">
                       {this.state.errorInfo.componentStack}
                     </pre>
                   </details>
@@ -109,14 +109,14 @@ export class ErrorBoundary extends Component<Props, State> {
               
               <button
                 onClick={this.handleGoHome}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors border border-border"
               >
                 <Home className="w-4 h-4" />
                 Go Home
               </button>
             </div>
 
-            <p className="text-xs text-gray-500 text-center mt-6">
+            <p className="text-xs text-muted-foreground text-center mt-6">
               If this problem persists, please contact support.
             </p>
           </div>

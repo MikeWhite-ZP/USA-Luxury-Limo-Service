@@ -184,13 +184,13 @@ export default function Safety() {
         </section>
 
         {/* Safety Commitment */}
-        <section className="py-16 bg-gray-50 dark:bg-gray-900">
+        <section className="py-16 bg-muted">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4" data-testid="safety-commitment-title">
                 Our Safety Commitment
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 USA Luxury Limo maintains the highest safety standards in the industry. Every aspect of our operation is designed with your safety and peace of mind in mind.
               </p>
             </div>
@@ -234,7 +234,7 @@ export default function Safety() {
               <h2 className="text-3xl font-bold mb-4" data-testid="safety-protocols-title">
                 Safety Protocols & Procedures
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 Our comprehensive safety protocols ensure consistent, reliable, and secure transportation services at every stage of your journey.
               </p>
             </div>
@@ -269,13 +269,13 @@ export default function Safety() {
         </section>
 
         {/* Certifications & Compliance */}
-        <section className="py-16 bg-gray-50 dark:bg-gray-900">
+        <section className="py-16 bg-muted">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4" data-testid="certifications-title">
                 Certifications & Compliance
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 We maintain all required certifications and exceed industry standards for safety and professional operation.
               </p>
             </div>
@@ -310,7 +310,7 @@ export default function Safety() {
                 <h2 className="text-3xl font-bold mb-4" data-testid="health-safety-title">
                   Health & Wellness Measures
                 </h2>
-                <p className="text-lg text-gray-600 dark:text-gray-300">
+                <p className="text-lg text-muted-foreground">
                   Enhanced health and safety protocols to protect our passengers and chauffeurs.
                 </p>
               </div>

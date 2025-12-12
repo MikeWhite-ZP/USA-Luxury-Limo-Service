@@ -425,7 +425,7 @@ export default function MediaLibrary() {
             <div className="grid md:grid-cols-[300px_1fr] gap-6">
               {/* Logo Preview */}
               <div className="space-y-3">
-                <div className="aspect-square bg-white rounded-xl border-2 border-emerald-200 shadow-sm flex items-center justify-center p-6 overflow-hidden">
+                <div className="aspect-square bg-background rounded-xl border-2 border-emerald-200 shadow-sm flex items-center justify-center p-6 overflow-hidden">
                   <img
                     src={currentLogoMedia.fileUrl}
                     alt={currentLogoMedia.altText || 'Site Logo'}
@@ -434,8 +434,8 @@ export default function MediaLibrary() {
                   />
                 </div>
                 <div className="text-sm text-center space-y-1">
-                  <p className="font-medium text-slate-900" data-testid="text-logo-filename">{currentLogoMedia.fileName}</p>
-                  <p className="text-slate-600" data-testid="text-logo-filesize">{formatFileSize(currentLogoMedia.fileSize)}</p>
+                  <p className="font-medium text-foreground" data-testid="text-logo-filename">{currentLogoMedia.fileName}</p>
+                  <p className="text-muted-foreground" data-testid="text-logo-filesize">{formatFileSize(currentLogoMedia.fileSize)}</p>
                 </div>
               </div>
 
@@ -443,16 +443,16 @@ export default function MediaLibrary() {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <div>
-                    <Label className="text-sm font-semibold text-slate-700">Alt Text</Label>
-                    <p className="text-sm text-slate-900 mt-1" data-testid="text-logo-alt">{currentLogoMedia.altText || 'No alt text set'}</p>
+                    <Label className="text-sm font-semibold text-muted-foreground">Alt Text</Label>
+                    <p className="text-sm text-foreground mt-1" data-testid="text-logo-alt">{currentLogoMedia.altText || 'No alt text set'}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold text-slate-700">Description</Label>
-                    <p className="text-sm text-slate-900 mt-1" data-testid="text-logo-description">{currentLogoMedia.description || 'No description set'}</p>
+                    <Label className="text-sm font-semibold text-muted-foreground">Description</Label>
+                    <p className="text-sm text-foreground mt-1" data-testid="text-logo-description">{currentLogoMedia.description || 'No description set'}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold text-slate-700">Uploaded</Label>
-                    <p className="text-sm text-slate-900 mt-1" data-testid="text-logo-uploaded">{new Date(currentLogoMedia.uploadedAt).toLocaleDateString()}</p>
+                    <Label className="text-sm font-semibold text-muted-foreground">Uploaded</Label>
+                    <p className="text-sm text-foreground mt-1" data-testid="text-logo-uploaded">{new Date(currentLogoMedia.uploadedAt).toLocaleDateString()}</p>
                   </div>
                 </div>
 
@@ -503,11 +503,11 @@ export default function MediaLibrary() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <div className="inline-block p-4 bg-white rounded-full border-2 border-dashed border-emerald-300 mb-4">
+              <div className="inline-block p-4 bg-background rounded-full border-2 border-dashed border-emerald-300 mb-4">
                 <ImageIcon className="w-12 h-12 text-emerald-600" />
               </div>
-              <p className="text-lg font-semibold text-slate-900 mb-2">No Active Logo Set</p>
-              <p className="text-sm text-slate-600 mb-4">Upload a logo to get started</p>
+              <p className="text-lg font-semibold text-foreground mb-2">No Active Logo Set</p>
+              <p className="text-sm text-muted-foreground mb-4">Upload a logo to get started</p>
               <Button
                 onClick={() => logoFileInputRef.current?.click()}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white"
@@ -555,7 +555,7 @@ export default function MediaLibrary() {
             <div className="grid md:grid-cols-[300px_1fr] gap-6">
               {/* Hero Preview */}
               <div className="space-y-3">
-                <div className="aspect-video bg-white rounded-xl border-2 border-emerald-200 shadow-sm flex items-center justify-center p-4 overflow-hidden">
+                <div className="aspect-video bg-background rounded-xl border-2 border-emerald-200 shadow-sm flex items-center justify-center p-4 overflow-hidden">
                   <img
                     src={currentHeroMedia.fileUrl}
                     alt={currentHeroMedia.altText || 'Site Hero Image'}
@@ -564,8 +564,8 @@ export default function MediaLibrary() {
                   />
                 </div>
                 <div className="text-sm text-center space-y-1">
-                  <p className="font-medium text-slate-900" data-testid="text-hero-filename">{currentHeroMedia.fileName}</p>
-                  <p className="text-slate-600" data-testid="text-hero-filesize">{formatFileSize(currentHeroMedia.fileSize)}</p>
+                  <p className="font-medium text-foreground" data-testid="text-hero-filename">{currentHeroMedia.fileName}</p>
+                  <p className="text-muted-foreground" data-testid="text-hero-filesize">{formatFileSize(currentHeroMedia.fileSize)}</p>
                 </div>
               </div>
 
@@ -573,16 +573,16 @@ export default function MediaLibrary() {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <div>
-                    <Label className="text-sm font-semibold text-slate-700">Alt Text</Label>
-                    <p className="text-sm text-slate-900 mt-1" data-testid="text-hero-alt">{currentHeroMedia.altText || 'No alt text set'}</p>
+                    <Label className="text-sm font-semibold text-muted-foreground">Alt Text</Label>
+                    <p className="text-sm text-foreground mt-1" data-testid="text-hero-alt">{currentHeroMedia.altText || 'No alt text set'}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold text-slate-700">Description</Label>
-                    <p className="text-sm text-slate-900 mt-1" data-testid="text-hero-description">{currentHeroMedia.description || 'No description set'}</p>
+                    <Label className="text-sm font-semibold text-muted-foreground">Description</Label>
+                    <p className="text-sm text-foreground mt-1" data-testid="text-hero-description">{currentHeroMedia.description || 'No description set'}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold text-slate-700">Uploaded</Label>
-                    <p className="text-sm text-slate-900 mt-1" data-testid="text-hero-uploaded">{new Date(currentHeroMedia.uploadedAt).toLocaleDateString()}</p>
+                    <Label className="text-sm font-semibold text-muted-foreground">Uploaded</Label>
+                    <p className="text-sm text-foreground mt-1" data-testid="text-hero-uploaded">{new Date(currentHeroMedia.uploadedAt).toLocaleDateString()}</p>
                   </div>
                 </div>
 
@@ -633,11 +633,11 @@ export default function MediaLibrary() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <div className="inline-block p-4 bg-white rounded-full border-2 border-dashed border-emerald-300 mb-4">
+              <div className="inline-block p-4 bg-background rounded-full border-2 border-dashed border-emerald-300 mb-4">
                 <ImageIcon className="w-12 h-12 text-emerald-600" />
               </div>
-              <p className="text-lg font-semibold text-slate-900 mb-2">No Active Hero Image Set</p>
-              <p className="text-sm text-slate-600 mb-4">Upload a hero background image to get started</p>
+              <p className="text-lg font-semibold text-foreground mb-2">No Active Hero Image Set</p>
+              <p className="text-sm text-muted-foreground mb-4">Upload a hero background image to get started</p>
               <Button
                 onClick={() => heroFileInputRef.current?.click()}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white"
@@ -978,7 +978,7 @@ export default function MediaLibrary() {
       </Dialog>
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="bg-white" data-testid="dialog-delete-confirm">
+        <DialogContent className="bg-background" data-testid="dialog-delete-confirm">
           <DialogHeader>
             <DialogTitle>Delete Media</DialogTitle>
             <DialogDescription>

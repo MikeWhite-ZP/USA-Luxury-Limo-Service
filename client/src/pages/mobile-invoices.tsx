@@ -172,7 +172,7 @@ export default function MobileInvoices() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-6">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-background dark:from-background pb-6">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 pb-8 rounded-b-3xl shadow-lg">
         <div className="flex items-center gap-3 mb-4">
@@ -195,13 +195,13 @@ export default function MobileInvoices() {
       {/* Search Bar */}
       <div className="px-4 -mt-6 mb-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search by invoice number or address..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-12 bg-white shadow-md border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+            className="pl-10 h-12 bg-card shadow-md border-border focus:border-blue-500 focus:ring-blue-500"
             data-testid="input-search"
           />
         </div>
@@ -209,18 +209,18 @@ export default function MobileInvoices() {
 
       {/* Date Range Filters */}
       <div className="px-4 mb-6">
-        <div className="bg-white shadow-md rounded-lg p-4 border border-slate-200">
+        <div className="bg-card shadow-md rounded-lg p-4 border border-border">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-semibold text-slate-900">Filter by Date</span>
+              <span className="text-sm font-semibold text-foreground">Filter by Date</span>
             </div>
             {hasActiveFilters && (
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={clearFilters}
-                className="h-7 px-2 text-xs text-slate-600 hover:text-red-600 hover:bg-red-50"
+                className="h-7 px-2 text-xs text-muted-foreground hover:text-red-600 hover:bg-red-50"
                 data-testid="button-clear-filters"
               >
                 <X className="w-3 h-3 mr-1" />
@@ -230,30 +230,30 @@ export default function MobileInvoices() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="start-date" className="text-xs text-slate-600 mb-1.5 block">From</Label>
+              <Label htmlFor="start-date" className="text-xs text-muted-foreground mb-1.5 block">From</Label>
               <Input
                 id="start-date"
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="h-9 text-sm border-slate-300"
+                className="h-9 text-sm border-border"
                 data-testid="input-start-date"
               />
             </div>
             <div>
-              <Label htmlFor="end-date" className="text-xs text-slate-600 mb-1.5 block">To</Label>
+              <Label htmlFor="end-date" className="text-xs text-muted-foreground mb-1.5 block">To</Label>
               <Input
                 id="end-date"
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="h-9 text-sm border-slate-300"
+                className="h-9 text-sm border-border"
                 data-testid="input-end-date"
               />
             </div>
           </div>
           {(startDate || endDate) && (
-            <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+            <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
               <span>📅</span>
               {startDate && endDate ? (
                 <span>Showing invoices from {new Date(startDate).toLocaleDateString()} to {new Date(endDate).toLocaleDateString()}</span>
@@ -272,17 +272,17 @@ export default function MobileInvoices() {
         {isLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto" />
-            <p className="text-slate-600 mt-4">Loading invoices...</p>
+            <p className="text-muted-foreground mt-4">Loading invoices...</p>
           </div>
         ) : filteredInvoices.length === 0 ? (
-          <Card className="border-slate-200 bg-white shadow-md">
+          <Card className="border-border bg-card shadow-md">
             <CardContent className="p-12">
               <div className="text-center">
-                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="bg-blue-100 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FileText className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2 text-slate-900">No invoices found</h3>
-                <p className="text-sm text-slate-600">
+                <h3 className="text-lg font-semibold mb-2 text-foreground">No invoices found</h3>
+                <p className="text-sm text-muted-foreground">
                   {searchQuery ? "Try adjusting your search terms" : "Invoices will appear here once your rides are complete"}
                 </p>
               </div>
@@ -290,15 +290,15 @@ export default function MobileInvoices() {
           </Card>
         ) : (
           filteredInvoices.map((invoice) => (
-            <Card key={invoice.id} className="border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+            <Card key={invoice.id} className="border-border bg-card shadow-sm hover:shadow-md transition-shadow">
               <CardContent className="p-0">
                 <div className="p-3 space-y-2">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-bold text-slate-900 text-sm" data-testid={`invoice-number-${invoice.id}`}>
+                      <p className="font-bold text-foreground text-sm" data-testid={`invoice-number-${invoice.id}`}>
                         {invoice.invoiceNumber}
                       </p>
-                      <p className="text-xs text-slate-600" data-testid={`invoice-date-${invoice.id}`}>
+                      <p className="text-xs text-muted-foreground" data-testid={`invoice-date-${invoice.id}`}>
                         {new Date(invoice.createdAt).toLocaleDateString('en-US', { 
                           year: 'numeric', 
                           month: 'short', 
@@ -325,26 +325,26 @@ export default function MobileInvoices() {
 
                   {invoice.booking && (
                     <div className="text-xs space-y-0.5">
-                      <p className="text-slate-600 leading-tight">
-                        <span className="font-medium text-slate-900">From:</span> {invoice.booking.pickupAddress}
+                      <p className="text-muted-foreground leading-tight">
+                        <span className="font-medium text-foreground">From:</span> {invoice.booking.pickupAddress}
                       </p>
                       {invoice.booking.destinationAddress && (
-                        <p className="text-slate-600 leading-tight">
-                          <span className="font-medium text-slate-900">To:</span> {invoice.booking.destinationAddress}
+                        <p className="text-muted-foreground leading-tight">
+                          <span className="font-medium text-foreground">To:</span> {invoice.booking.destinationAddress}
                         </p>
                       )}
-                      <p className="text-slate-600 leading-tight">
-                        <span className="font-medium text-slate-900">ID:</span> #{invoice.bookingId.toUpperCase().substring(0, 8)}
+                      <p className="text-muted-foreground leading-tight">
+                        <span className="font-medium text-foreground">ID:</span> #{invoice.bookingId.toUpperCase().substring(0, 8)}
                       </p>
                     </div>
                   )}
 
-                  <div className="flex gap-1.5 pt-2 border-t border-slate-100">
+                  <div className="flex gap-1.5 pt-2 border-t border-border">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleView(invoice)}
-                      className="flex-1 h-7 text-indigo-700 border-indigo-300 hover:bg-indigo-50 text-[10px] px-1"
+                      className="flex-1 h-7 text-indigo-700 dark:text-indigo-400 border-indigo-300 dark:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-[10px] px-1"
                       data-testid={`button-view-${invoice.id}`}
                     >
                       <Eye className="w-3 h-3 mr-0.5" />
@@ -354,7 +354,7 @@ export default function MobileInvoices() {
                       size="sm"
                       variant="outline"
                       onClick={() => handlePrint(invoice)}
-                      className="flex-1 h-7 text-slate-700 border-slate-300 hover:bg-slate-50 text-[10px] px-1"
+                      className="flex-1 h-7 text-muted-foreground border-border hover:bg-muted text-[10px] px-1"
                       data-testid={`button-print-${invoice.id}`}
                     >
                       <Printer className="w-3 h-3 mr-0.5" />
@@ -381,72 +381,72 @@ export default function MobileInvoices() {
 
       {/* View Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-white max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="border-b border-slate-200 pb-4">
+        <DialogContent className="sm:max-w-[500px] bg-card max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="border-b border-border pb-4">
             <div className="flex items-center gap-3">
               <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-lg">
                 <FileText className="w-5 h-5 text-white" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold text-slate-900">Invoice Details</DialogTitle>
-                <p className="text-sm text-slate-600 mt-0.5">Complete pricing breakdown</p>
+                <DialogTitle className="text-xl font-bold text-foreground">Invoice Details</DialogTitle>
+                <p className="text-sm text-muted-foreground mt-0.5">Complete pricing breakdown</p>
               </div>
             </div>
           </DialogHeader>
           {selectedInvoice && (
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 p-5 rounded-xl border border-slate-200">
+              <div className="bg-muted p-5 rounded-xl border border-border">
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="bg-indigo-100 p-1.5 rounded-lg">
-                    <FileText className="w-4 h-4 text-indigo-700" />
+                  <div className="bg-indigo-100 dark:bg-indigo-900/30 p-1.5 rounded-lg">
+                    <FileText className="w-4 h-4 text-indigo-700 dark:text-indigo-400" />
                   </div>
-                  <h3 className="font-bold text-lg text-slate-900">Invoice Information</h3>
+                  <h3 className="font-bold text-lg text-foreground">Invoice Information</h3>
                 </div>
                 <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
                   <div>
-                    <p className="text-slate-600 mb-1.5 font-medium">Invoice Number</p>
-                    <p className="font-bold text-slate-900" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
+                    <p className="text-muted-foreground mb-1.5 font-medium">Invoice Number</p>
+                    <p className="font-bold text-foreground" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
                   </div>
                   <div>
-                    <p className="text-slate-600 mb-1.5 font-medium">Date</p>
-                    <p className="text-slate-900" data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
+                    <p className="text-muted-foreground mb-1.5 font-medium">Date</p>
+                    <p className="text-foreground" data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-slate-600 mb-1.5 font-medium">Booking ID</p>
-                    <p className="font-mono text-sm bg-slate-200 text-slate-900 px-3 py-1.5 rounded-lg inline-block" data-testid="view-booking-id">
+                    <p className="text-muted-foreground mb-1.5 font-medium">Booking ID</p>
+                    <p className="font-mono text-sm bg-muted text-foreground px-3 py-1.5 rounded-lg inline-block border border-border" data-testid="view-booking-id">
                       #{selectedInvoice.bookingId.toUpperCase().substring(0, 8)}
                     </p>
                   </div>
                   {selectedInvoice.paidAt && (
                     <div className="col-span-2">
-                      <p className="text-slate-600 mb-1.5 font-medium">Payment Date</p>
-                      <p className="text-slate-900" data-testid="view-payment-date">{new Date(selectedInvoice.paidAt).toLocaleDateString()}</p>
+                      <p className="text-muted-foreground mb-1.5 font-medium">Payment Date</p>
+                      <p className="text-foreground" data-testid="view-payment-date">{new Date(selectedInvoice.paidAt).toLocaleDateString()}</p>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <div className="bg-card border border-border rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="bg-blue-100 p-1.5 rounded-lg">
-                    <Receipt className="w-4 h-4 text-blue-700" />
+                  <div className="bg-blue-100 dark:bg-blue-900/30 p-1.5 rounded-lg">
+                    <Receipt className="w-4 h-4 text-blue-700 dark:text-blue-400" />
                   </div>
-                  <h3 className="font-bold text-lg text-slate-900">Detailed Pricing Breakdown</h3>
+                  <h3 className="font-bold text-lg text-foreground">Detailed Pricing Breakdown</h3>
                 </div>
                 <div className="space-y-3">
                   {selectedInvoice.booking?.baseFare && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
-                      <span className="text-slate-900 font-medium">Base Fare</span>
-                      <span className="font-semibold text-slate-900" data-testid="view-base-fare">
+                    <div className="flex justify-between items-center py-2.5 border-b border-border">
+                      <span className="text-foreground font-medium">Base Fare</span>
+                      <span className="font-semibold text-foreground" data-testid="view-base-fare">
                         ${parseFloat(selectedInvoice.booking.baseFare).toFixed(2)}
                       </span>
                     </div>
                   )}
                   
                   {selectedInvoice.booking?.surgePricingAmount && parseFloat(selectedInvoice.booking.surgePricingAmount) > 0 && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
+                    <div className="flex justify-between items-center py-2.5 border-b border-border">
                       <div className="flex items-center gap-2">
-                        <span className="text-slate-900 font-medium">Surge Pricing</span>
+                        <span className="text-foreground font-medium">Surge Pricing</span>
                         {selectedInvoice.booking?.surgePricingMultiplier && (
                           <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
                             {selectedInvoice.booking.surgePricingMultiplier}x
@@ -460,27 +460,27 @@ export default function MobileInvoices() {
                   )}
                   
                   {selectedInvoice.booking?.gratuityAmount && parseFloat(selectedInvoice.booking.gratuityAmount) > 0 && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
-                      <span className="text-slate-900 font-medium">Gratuity (Tip)</span>
-                      <span className="font-semibold text-slate-900" data-testid="view-gratuity">
+                    <div className="flex justify-between items-center py-2.5 border-b border-border">
+                      <span className="text-foreground font-medium">Gratuity (Tip)</span>
+                      <span className="font-semibold text-foreground" data-testid="view-gratuity">
                         +${parseFloat(selectedInvoice.booking.gratuityAmount).toFixed(2)}
                       </span>
                     </div>
                   )}
                   
                   {selectedInvoice.booking?.airportFeeAmount && parseFloat(selectedInvoice.booking.airportFeeAmount) > 0 && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
-                      <span className="text-slate-900 font-medium">Airport Fee</span>
-                      <span className="font-semibold text-slate-900" data-testid="view-airport-fee">
+                    <div className="flex justify-between items-center py-2.5 border-b border-border">
+                      <span className="text-foreground font-medium">Airport Fee</span>
+                      <span className="font-semibold text-foreground" data-testid="view-airport-fee">
                         +${parseFloat(selectedInvoice.booking.airportFeeAmount).toFixed(2)}
                       </span>
                     </div>
                   )}
                   
                   {selectedInvoice.booking?.discountAmount && parseFloat(selectedInvoice.booking.discountAmount) > 0 && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-100">
+                    <div className="flex justify-between items-center py-2.5 border-b border-border">
                       <div className="flex items-center gap-2">
-                        <span className="text-slate-900 font-medium">Discount</span>
+                        <span className="text-foreground font-medium">Discount</span>
                         {selectedInvoice.booking?.discountPercentage && (
                           <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
                             {selectedInvoice.booking.discountPercentage}%
@@ -493,8 +493,8 @@ export default function MobileInvoices() {
                     </div>
                   )}
                   
-                  <div className="flex justify-between items-center py-4 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 -mx-4 rounded-lg mt-3 border-t-2 border-blue-200">
-                    <span className="font-bold text-lg text-slate-900">Total Amount</span>
+                  <div className="flex justify-between items-center py-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 px-4 -mx-4 rounded-lg mt-3 border-t-2 border-blue-200 dark:border-blue-800">
+                    <span className="font-bold text-lg text-foreground">Total Amount</span>
                     <span className="font-bold text-xl text-blue-700" data-testid="view-total">
                       ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}
                     </span>
@@ -515,16 +515,16 @@ export default function MobileInvoices() {
                 </div>
               )}
 
-              <div className="text-xs text-slate-500 text-center pt-2 bg-slate-50 py-3 rounded-lg border border-slate-200">
+              <div className="text-xs text-muted-foreground text-center pt-2 bg-muted py-3 rounded-lg border border-border">
                 <p className="font-medium">💡 All prices include statutory taxes and transportation expenses</p>
               </div>
             </div>
           )}
-          <DialogFooter className="border-t border-slate-200 pt-4">
+          <DialogFooter className="border-t border-border pt-4">
             <Button 
               variant="outline" 
               onClick={() => setViewDialogOpen(false)} 
-              className="border-slate-300 text-slate-700 hover:bg-slate-50"
+              className="border-border text-muted-foreground hover:bg-muted"
               data-testid="button-close-view"
             >
               Close

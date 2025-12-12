@@ -307,10 +307,10 @@ export default function MobileBookingDetails() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-background dark:from-background p-6 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading booking details...</p>
+          <p className="text-muted-foreground">Loading booking details...</p>
         </div>
       </div>
     );
@@ -318,7 +318,7 @@ export default function MobileBookingDetails() {
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-6">
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-background dark:from-background p-6">
         <Button
           variant="ghost"
           onClick={() => navigate('/mobile-passenger')}
@@ -329,7 +329,7 @@ export default function MobileBookingDetails() {
           Back to Dashboard
         </Button>
         <div className="text-center py-12">
-          <p className="text-gray-600">Booking not found</p>
+          <p className="text-muted-foreground">Booking not found</p>
         </div>
       </div>
     );
@@ -343,7 +343,7 @@ export default function MobileBookingDetails() {
     arrived: 'bg-purple-100 text-purple-800',
     on_board: 'bg-green-100 text-green-800',
     in_progress: 'bg-green-100 text-green-800',
-    completed: 'bg-gray-100 text-gray-800',
+    completed: 'bg-muted text-foreground',
     cancelled: 'bg-red-100 text-red-800',
   };
 
@@ -351,7 +351,7 @@ export default function MobileBookingDetails() {
   const canCancel = !['completed', 'cancelled'].includes(booking.status || '');
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-background dark:from-background pb-20">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 pb-8 rounded-b-3xl shadow-lg">
         <div className="flex justify-between items-center mb-4">
@@ -569,15 +569,15 @@ export default function MobileBookingDetails() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="text-sm text-gray-500">Pickup</p>
-                  <p className="font-medium" data-testid="text-pickup-address">{booking.pickupAddress}</p>
+                  <p className="text-sm text-muted-foreground">Pickup</p>
+                  <p className="font-medium text-foreground" data-testid="text-pickup-address">{booking.pickupAddress}</p>
                 </div>
                 {booking.destinationAddress && (
                   <>
                     <Separator />
                     <div>
-                      <p className="text-sm text-gray-500">Destination</p>
-                      <p className="font-medium" data-testid="text-destination-address">{booking.destinationAddress}</p>
+                      <p className="text-sm text-muted-foreground">Destination</p>
+                      <p className="font-medium text-foreground" data-testid="text-destination-address">{booking.destinationAddress}</p>
                     </div>
                   </>
                 )}
@@ -594,8 +594,8 @@ export default function MobileBookingDetails() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center">
-                  <Clock className="w-4 h-4 mr-2 text-gray-400" />
-                  <p className="font-medium" data-testid="text-scheduled-time">
+                  <Clock className="w-4 h-4 mr-2 text-muted-foreground" />
+                  <p className="font-medium text-foreground" data-testid="text-scheduled-time">
                     {format(
                       typeof booking.scheduledDateTime === 'string' 
                         ? parseISO(booking.scheduledDateTime) 
@@ -617,16 +617,16 @@ export default function MobileBookingDetails() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Passengers</span>
-                  <span className="font-medium" data-testid="text-passenger-count">{booking.passengerCount}</span>
+                  <span className="text-muted-foreground">Passengers</span>
+                  <span className="font-medium text-foreground" data-testid="text-passenger-count">{booking.passengerCount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Luggage</span>
-                  <span className="font-medium" data-testid="text-luggage-count">{booking.luggageCount}</span>
+                  <span className="text-muted-foreground">Luggage</span>
+                  <span className="font-medium text-foreground" data-testid="text-luggage-count">{booking.luggageCount}</span>
                 </div>
                 {booking.babySeat && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Baby Seat</span>
+                    <span className="text-muted-foreground">Baby Seat</span>
                     <Baby className="w-5 h-5 text-blue-600" data-testid="icon-baby-seat" />
                   </div>
                 )}
@@ -644,12 +644,12 @@ export default function MobileBookingDetails() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Flight Number</span>
+                    <span className="text-muted-foreground">Flight Number</span>
                     <span className="font-medium" data-testid="text-flight-number">{booking.flightNumber}</span>
                   </div>
                   {booking.flightAirline && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Airline</span>
+                      <span className="text-muted-foreground">Airline</span>
                       <span className="font-medium">{booking.flightAirline}</span>
                     </div>
                   )}
@@ -667,7 +667,7 @@ export default function MobileBookingDetails() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700" data-testid="text-special-instructions">{booking.specialInstructions}</p>
+                  <p className="text-muted-foreground" data-testid="text-special-instructions">{booking.specialInstructions}</p>
                 </CardContent>
               </Card>
             )}
@@ -676,12 +676,12 @@ export default function MobileBookingDetails() {
             <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
               <CardContent className="pt-6">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-medium text-gray-700">Total Amount</span>
+                  <span className="text-lg font-medium text-muted-foreground">Total Amount</span>
                   <span className="text-2xl font-bold text-blue-600" data-testid="text-total-amount">
                     ${parseFloat(booking.totalAmount as string).toFixed(2)}
                   </span>
                 </div>
-                <div className="mt-2 text-sm text-gray-600">
+                <div className="mt-2 text-sm text-muted-foreground">
                   Payment: <span className="font-medium capitalize">{booking.paymentStatus}</span>
                 </div>
               </CardContent>
@@ -715,16 +715,16 @@ export default function MobileBookingDetails() {
 
           {priceComparison && (
             <div className="space-y-4">
-              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+              <div className="bg-muted rounded-lg p-4 space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Original Price</span>
-                  <span className="text-lg font-medium line-through text-gray-500" data-testid="text-old-price">
+                  <span className="text-muted-foreground">Original Price</span>
+                  <span className="text-lg font-medium line-through text-muted-foreground" data-testid="text-old-price">
                     ${priceComparison.oldPrice.toFixed(2)}
                   </span>
                 </div>
                 <Separator />
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">New Price</span>
+                  <span className="text-muted-foreground">New Price</span>
                   <span className="text-2xl font-bold text-blue-600" data-testid="text-new-price">
                     ${priceComparison.newPrice.toFixed(2)}
                   </span>
@@ -747,18 +747,18 @@ export default function MobileBookingDetails() {
                 <p className="font-medium text-sm text-blue-900">Price Breakdown</p>
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Base Fare</span>
+                    <span className="text-muted-foreground">Base Fare</span>
                     <span>${priceComparison.breakdown.baseFare.toFixed(2)}</span>
                   </div>
                   {priceComparison.breakdown.distanceFare > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Distance Fare</span>
+                      <span className="text-muted-foreground">Distance Fare</span>
                       <span>${priceComparison.breakdown.distanceFare.toFixed(2)}</span>
                     </div>
                   )}
                   {priceComparison.breakdown.timeFare > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Time Fare</span>
+                      <span className="text-muted-foreground">Time Fare</span>
                       <span>${priceComparison.breakdown.timeFare.toFixed(2)}</span>
                     </div>
                   )}
@@ -811,7 +811,7 @@ export default function MobileBookingDetails() {
                   ? 'bg-red-50 border border-red-200' 
                   : cancelPreview.willReceiveCredit
                     ? 'bg-green-50 border border-green-200'
-                    : 'bg-gray-50 border border-gray-200'
+                    : 'bg-muted border border-border'
               }`}>
                 {cancelPreview.willBeCharged ? (
                   <div className="space-y-2">
@@ -843,11 +843,11 @@ export default function MobileBookingDetails() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-gray-700">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <Check className="w-5 h-5" />
                       <span className="font-semibold">No Charge</span>
                     </div>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       {cancelPreview.policyMessage}
                     </p>
                   </div>
@@ -855,9 +855,9 @@ export default function MobileBookingDetails() {
               </div>
 
               {/* Time Info */}
-              <div className="bg-gray-50 rounded-lg p-3 text-sm">
+              <div className="bg-muted rounded-lg p-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Hours until pickup</span>
+                  <span className="text-muted-foreground">Hours until pickup</span>
                   <span className="font-medium">{cancelPreview.hoursBeforePickup.toFixed(1)} hours</span>
                 </div>
                 {cancelPreview.driverOnTheWay && (

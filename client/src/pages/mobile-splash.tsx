@@ -69,12 +69,12 @@ export default function MobileSplash() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-96 h-96 bg-red-50 rounded-full blur-3xl -top-48 -left-24 animate-pulse" />
-        <div className="absolute w-96 h-96 bg-gray-50 rounded-full blur-3xl -bottom-48 -right-24 animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute w-80 h-80 bg-red-50 rounded-full blur-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute w-96 h-96 bg-red-50 dark:bg-red-900/20 rounded-full blur-3xl -top-48 -left-24 animate-pulse" />
+        <div className="absolute w-96 h-96 bg-muted rounded-full blur-3xl -bottom-48 -right-24 animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute w-80 h-80 bg-red-50 dark:bg-red-900/20 rounded-full blur-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
       
       <AnimatePresence mode="wait">
@@ -94,7 +94,7 @@ export default function MobileSplash() {
               transition={{ duration: 1.5, ease: "easeInOut" }}
               className="inline-block mb-8 relative"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-red-100/50 via-gray-100/50 to-red-100/50 rounded-full blur-2xl animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-r from-red-100/50 via-muted/50 to-red-100/50 dark:from-red-900/30 dark:via-muted/30 dark:to-red-900/30 rounded-full blur-2xl animate-pulse" />
               <img 
                 src={logoUrl} 
                 alt={companyName} 
@@ -108,7 +108,7 @@ export default function MobileSplash() {
               className="flex items-center justify-center gap-2 mt-4"
             >
               <Sparkles className="w-5 h-5 text-red-600" />
-              <p className="text-gray-600 text-xl font-light tracking-wide">
+              <p className="text-muted-foreground text-xl font-light tracking-wide">
                 {tagline}
               </p>
               <Sparkles className="w-5 h-5 text-red-600" />
@@ -130,25 +130,25 @@ export default function MobileSplash() {
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               transition={{ duration: 1.5, ease: "easeOut" }}
-              className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-200"
+              className="relative rounded-3xl overflow-hidden shadow-2xl border border-border"
             >
               <img
                 src={chauffeurImage}
                 alt="Luxury Chauffeur Service"
                 className="w-full h-[70vh] object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-white/98 via-white/60 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/98 via-background/60 to-transparent" />
               <motion.div
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
                 className="absolute bottom-0 left-0 right-0 p-8 text-center"
               >
-                <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-6 border border-gray-200 shadow-lg">
-                  <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-gray-900 via-red-600 to-gray-900 bg-clip-text text-transparent">
+                <div className="bg-card/95 backdrop-blur-xl rounded-2xl p-6 border border-border shadow-lg">
+                  <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-foreground via-red-600 to-foreground bg-clip-text text-transparent">
                     Premium Chauffeur Experience
                   </h2>
-                  <p className="text-gray-600 text-lg font-light">Professional • Reliable • Luxurious</p>
+                  <p className="text-muted-foreground text-lg font-light">Professional • Reliable • Luxurious</p>
                 </div>
               </motion.div>
             </motion.div>
@@ -175,15 +175,15 @@ export default function MobileSplash() {
                 initial={{ y: -10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-xl border border-gray-200 rounded-full px-6 py-2 mb-6 shadow-sm"
+                className="inline-flex items-center gap-2 bg-card/80 backdrop-blur-xl border border-border rounded-full px-6 py-2 mb-6 shadow-sm"
               >
                 <Sparkles className="w-4 h-4 text-red-600" />
-                <span className="text-gray-600 text-sm font-medium">Select Your Portal</span>
+                <span className="text-muted-foreground text-sm font-medium">Select Your Portal</span>
               </motion.div>
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-red-600 to-gray-900 bg-clip-text text-transparent mb-3">
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-foreground via-red-600 to-foreground bg-clip-text text-transparent mb-3">
                 Welcome
               </h2>
-              <p className="text-gray-600 text-lg font-light">Choose your role to continue</p>
+              <p className="text-muted-foreground text-lg font-light">Choose your role to continue</p>
             </motion.div>
 
             <div className="space-y-3 flex flex-col items-center">
@@ -195,16 +195,16 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('passenger')}
-                  className="group w-full bg-white hover:bg-red-50 text-red-600 rounded-xl font-medium shadow-md hover:shadow-lg border-2 border-red-200 hover:border-red-400 transition-all py-6 h-auto touch-manipulation"
+                  className="group w-full bg-card hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 rounded-xl font-medium shadow-md hover:shadow-lg border-2 border-red-200 dark:border-red-800 hover:border-red-400 transition-all py-6 h-auto touch-manipulation"
                   data-testid="button-role-passenger"
                 >
                   <div className="flex items-center justify-start gap-4">
-                    <div className="bg-red-100 p-3 rounded-lg group-hover:bg-red-200 transition-colors">
+                    <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-lg group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors">
                       <UserCircle className="w-6 h-6 text-red-600" />
                     </div>
                     <div className="text-left">
-                      <div className="text-base font-semibold text-gray-900">Passenger</div>
-                      <div className="text-sm text-gray-600 font-normal">Book and manage rides</div>
+                      <div className="text-base font-semibold text-foreground">Passenger</div>
+                      <div className="text-sm text-muted-foreground font-normal">Book and manage rides</div>
                     </div>
                   </div>
                 </Button>
@@ -218,16 +218,16 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('driver')}
-                  className="group w-full bg-white hover:bg-red-50 text-red-600 rounded-xl font-medium shadow-md hover:shadow-lg border-2 border-red-200 hover:border-red-400 transition-all py-6 h-auto touch-manipulation"
+                  className="group w-full bg-card hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 rounded-xl font-medium shadow-md hover:shadow-lg border-2 border-red-200 dark:border-red-800 hover:border-red-400 transition-all py-6 h-auto touch-manipulation"
                   data-testid="button-role-driver"
                 >
                   <div className="flex items-center justify-start gap-4">
-                    <div className="bg-red-100 p-3 rounded-lg group-hover:bg-red-200 transition-colors">
+                    <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-lg group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors">
                       <Car className="w-6 h-6 text-red-600" />
                     </div>
                     <div className="text-left">
-                      <div className="text-base font-semibold text-gray-900">Driver</div>
-                      <div className="text-sm text-gray-600 font-normal">Accept and complete rides</div>
+                      <div className="text-base font-semibold text-foreground">Driver</div>
+                      <div className="text-sm text-muted-foreground font-normal">Accept and complete rides</div>
                     </div>
                   </div>
                 </Button>
@@ -241,16 +241,16 @@ export default function MobileSplash() {
               >
                 <Button
                   onClick={() => handleRoleSelect('dispatcher')}
-                  className="group w-full bg-white hover:bg-red-50 text-red-600 rounded-xl font-medium shadow-md hover:shadow-lg border-2 border-red-200 hover:border-red-400 transition-all py-6 h-auto touch-manipulation"
+                  className="group w-full bg-card hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 rounded-xl font-medium shadow-md hover:shadow-lg border-2 border-red-200 dark:border-red-800 hover:border-red-400 transition-all py-6 h-auto touch-manipulation"
                   data-testid="button-role-dispatcher"
                 >
                   <div className="flex items-center justify-start gap-4">
-                    <div className="bg-red-100 p-3 rounded-lg group-hover:bg-red-200 transition-colors">
+                    <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-lg group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors">
                       <Radio className="w-6 h-6 text-red-600" />
                     </div>
                     <div className="text-left">
-                      <div className="text-base font-semibold text-gray-900">Dispatcher</div>
-                      <div className="text-sm text-gray-600 font-normal">Manage fleet operations</div>
+                      <div className="text-base font-semibold text-foreground">Dispatcher</div>
+                      <div className="text-sm text-muted-foreground font-normal">Manage fleet operations</div>
                     </div>
                   </div>
                 </Button>
@@ -268,7 +268,7 @@ export default function MobileSplash() {
                   setDevicePreference('desktop');
                   navigate('/');
                 }}
-                className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all text-sm group touch-manipulation py-3 px-4"
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all text-sm group touch-manipulation py-3 px-4"
                 data-testid="button-view-desktop-site"
               >
                 <span className="group-hover:-translate-x-1 transition-transform">←</span>
