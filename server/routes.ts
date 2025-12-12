@@ -5134,22 +5134,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
             reason: 'has_payment_history'
           });
         }
-        
-        // Delete the invoice first if no payment tokens
-        try {
-          await storage.deleteInvoice(invoice.id);
-        } catch (invoiceError) {
-          console.error('Failed to delete invoice:', invoiceError);
-          return res.status(400).json({ 
-            message: 'Cannot delete this booking because it has associated records that cannot be removed. Please contact support.',
-            reason: 'has_linked_records'
-          });
-        }
       }
 
-      // All checks passed - delete the booking
-      await storage.deleteBooking(id);
-      res.json({ success: true, message: 'Booking deleted successfully' });
+      // All checks passed - delete related records first, then the booking
+      try {
+        // Delete invoice if it exists (no payment tokens at this point)
+        if (invoice) {
+          await storage.deleteInvoice(invoice.id);
+        }
+        
+        // Delete booking cancellation record if it exists
+        await storage.deleteBookingCancellation(id);
+        
+        // Delete ride credit transactions for this booking
+        await storage.deleteRideCreditTransactionsForBooking(id);
+        
+        // Delete driver ratings for this booking
+        await storage.deleteDriverRatingsForBooking(id);
+        
+        // Delete emergency incidents for this booking
+        await storage.deleteEmergencyIncidentsForBooking(id);
+        
+        // Finally delete the booking
+        await storage.deleteBooking(id);
+        res.json({ success: true, message: 'Booking deleted successfully' });
+      } catch (deleteError) {
+        console.error('Failed to delete booking and related records:', deleteError);
+        return res.status(400).json({ 
+          message: 'Cannot delete this booking because it has associated records that cannot be removed. Please contact support.',
+          reason: 'has_linked_records'
+        });
+      }
     } catch (error) {
       console.error('Admin delete booking error:', error);
       res.status(500).json({ message: 'Failed to delete booking' });

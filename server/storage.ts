@@ -300,6 +300,10 @@ export interface IStorage {
   // Booking Cancellations
   createBookingCancellation(cancellation: InsertBookingCancellation): Promise<BookingCancellation>;
   getBookingCancellation(bookingId: string): Promise<BookingCancellation | undefined>;
+  deleteBookingCancellation(bookingId: string): Promise<void>;
+  deleteRideCreditTransactionsForBooking(bookingId: string): Promise<void>;
+  deleteDriverRatingsForBooking(bookingId: string): Promise<void>;
+  deleteEmergencyIncidentsForBooking(bookingId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2452,6 +2456,22 @@ export class DatabaseStorage implements IStorage {
     const [cancellation] = await db.select().from(bookingCancellations)
       .where(eq(bookingCancellations.bookingId, bookingId));
     return cancellation;
+  }
+
+  async deleteBookingCancellation(bookingId: string): Promise<void> {
+    await db.delete(bookingCancellations).where(eq(bookingCancellations.bookingId, bookingId));
+  }
+
+  async deleteRideCreditTransactionsForBooking(bookingId: string): Promise<void> {
+    await db.delete(rideCreditTransactions).where(eq(rideCreditTransactions.bookingId, bookingId));
+  }
+
+  async deleteDriverRatingsForBooking(bookingId: string): Promise<void> {
+    await db.delete(driverRatings).where(eq(driverRatings.bookingId, bookingId));
+  }
+
+  async deleteEmergencyIncidentsForBooking(bookingId: string): Promise<void> {
+    await db.delete(emergencyIncidents).where(eq(emergencyIncidents.bookingId, bookingId));
   }
 }
 
