@@ -2052,11 +2052,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       <div className="flex mb-6 border-b-2 border-border">
         <button
           onClick={() => setActiveTab('transfer')}
-          className={`flex-1 py-4 px-6 text-lg font-semibold transition-all border-b-4 ${
-            activeTab === 'transfer'
-              ? 'text-primary border-primary font-bold'
-              : 'text-muted-foreground border-transparent hover:text-muted-foreground'
-          }`}
+          className="flex-1 py-4 px-6 text-lg transition-all border-b-4 border-primary font-bold text-[#fa0202]"
           data-testid="tab-transfer"
         >
           Transfer Only
