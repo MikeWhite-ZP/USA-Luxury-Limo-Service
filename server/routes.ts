@@ -5123,6 +5123,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Rule 5: Check for invoice with payment tokens (payment history)
+      const invoice = await storage.getInvoiceByBooking(id);
+      if (invoice) {
+        // Check if there are any payment tokens for this invoice
+        const paymentTokensExist = await storage.hasPaymentTokensForInvoice(invoice.id);
+        if (paymentTokensExist) {
+          return res.status(400).json({ 
+            message: 'Cannot delete this booking because it has payment records. Bookings with payment history must be kept for financial records.',
+            reason: 'has_payment_history'
+          });
+        }
+        
+        // Delete the invoice first if no payment tokens
+        try {
+          await storage.deleteInvoice(invoice.id);
+        } catch (invoiceError) {
+          console.error('Failed to delete invoice:', invoiceError);
+          return res.status(400).json({ 
+            message: 'Cannot delete this booking because it has associated records that cannot be removed. Please contact support.',
+            reason: 'has_linked_records'
+          });
+        }
+      }
+
       // All checks passed - delete the booking
       await storage.deleteBooking(id);
       res.json({ success: true, message: 'Booking deleted successfully' });

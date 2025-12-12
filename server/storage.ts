@@ -16,6 +16,7 @@ import {
   rideCredits,
   rideCreditTransactions,
   bookingCancellations,
+  paymentTokens,
   type User,
   type UpsertUser,
   type Driver,
@@ -165,6 +166,7 @@ export interface IStorage {
   updateInvoice(id: string, updates: Partial<Omit<Invoice, 'id' | 'createdAt'>>): Promise<Invoice | undefined>;
   deleteInvoice(id: string): Promise<void>;
   backfillInvoices(): Promise<{ total: number; created: number; skipped: number; errors: number; errorDetails?: string[] }>;
+  hasPaymentTokensForInvoice(invoiceId: string): Promise<boolean>;
   
   // Admin dashboard data
   getAdminDashboardStats(): Promise<{
@@ -1205,6 +1207,15 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(invoices)
       .where(eq(invoices.id, id));
+  }
+
+  async hasPaymentTokensForInvoice(invoiceId: string): Promise<boolean> {
+    const [token] = await db
+      .select()
+      .from(paymentTokens)
+      .where(eq(paymentTokens.invoiceId, invoiceId))
+      .limit(1);
+    return !!token;
   }
 
   // Helper function to generate unique invoice numbers
