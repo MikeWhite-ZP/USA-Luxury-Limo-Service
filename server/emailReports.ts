@@ -1,4 +1,4 @@
-import { sendEmail } from './email';
+import { sendEmail, getBrandingInfo } from './email';
 import { storage } from './storage';
 import type { Booking, User } from '@shared/schema';
 
@@ -20,6 +20,9 @@ export async function sendNewBookingReport(booking: Booking, passenger: User, ve
       console.log('[EMAIL REPORT] System admin email not configured - skipping new booking report');
       return;
     }
+
+    const branding = await getBrandingInfo();
+    const companyName = branding.companyName;
 
     const scheduledDate = new Date(booking.scheduledDateTime).toLocaleString('en-US', {
       dateStyle: 'full',
@@ -176,7 +179,7 @@ export async function sendNewBookingReport(booking: Booking, passenger: User, ve
               ` : ''}
             </div>
             <div class="footer">
-              <p><strong>USA Luxury Limo - Admin Dashboard</strong></p>
+              <p><strong>${companyName} - Admin Dashboard</strong></p>
               <p>Report generated at: ${new Date().toLocaleString()}</p>
               <p style="margin-top: 10px;">This is an automated system report for new booking notifications.</p>
             </div>
@@ -211,6 +214,9 @@ export async function sendCancelledBookingReport(
       console.log('[EMAIL REPORT] System admin email not configured - skipping cancellation report');
       return;
     }
+
+    const branding = await getBrandingInfo();
+    const companyName = branding.companyName;
 
     const scheduledDate = new Date(booking.scheduledDateTime).toLocaleString('en-US', {
       dateStyle: 'full',
@@ -337,7 +343,7 @@ export async function sendCancelledBookingReport(
               </div>
             </div>
             <div class="footer">
-              <p><strong>USA Luxury Limo - Admin Dashboard</strong></p>
+              <p><strong>${companyName} - Admin Dashboard</strong></p>
               <p>Report generated at: ${new Date().toLocaleString()}</p>
               <p style="margin-top: 10px;">This is an automated system report for booking cancellations.</p>
             </div>
@@ -376,6 +382,9 @@ export async function sendDriverActivityReport(
       console.log('[EMAIL REPORT] System admin email not configured - skipping driver activity report');
       return;
     }
+
+    const branding = await getBrandingInfo();
+    const companyName = branding.companyName;
 
     const activityLabels = {
       acceptance: { icon: '✅', text: 'Job Accepted', color: '#16a34a' },
@@ -520,7 +529,7 @@ export async function sendDriverActivityReport(
               </div>
             </div>
             <div class="footer">
-              <p><strong>USA Luxury Limo - Admin Dashboard</strong></p>
+              <p><strong>${companyName} - Admin Dashboard</strong></p>
               <p>Report generated at: ${new Date().toLocaleString()}</p>
               <p style="margin-top: 10px;">This is an automated system report for driver activity tracking.</p>
             </div>

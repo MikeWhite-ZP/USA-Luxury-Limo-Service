@@ -211,7 +211,7 @@ export async function testSMTPConnection(): Promise<{ success: boolean; message:
 
 // Email Templates
 
-export function getContactFormEmailHTML(data: {
+export async function getContactFormEmailHTML(data: {
   firstName: string;
   lastName: string;
   email: string;
@@ -219,9 +219,9 @@ export function getContactFormEmailHTML(data: {
   serviceType: string | null | undefined;
   message: string;
   submittedAt: string;
-  companyName?: string;
-}): string {
-  const company = data.companyName || 'USA Luxury Limo';
+}): Promise<string> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   return `
     <!DOCTYPE html>
     <html>
@@ -283,7 +283,7 @@ export function getContactFormEmailHTML(data: {
   `;
 }
 
-export function getBookingConfirmationEmailHTML(data: {
+export async function getBookingConfirmationEmailHTML(data: {
   passengerName: string;
   bookingId: string;
   pickupAddress: string;
@@ -292,9 +292,9 @@ export function getBookingConfirmationEmailHTML(data: {
   vehicleType: string;
   totalAmount: string;
   status: string;
-  companyName?: string;
-}): string {
-  const company = data.companyName || 'USA Luxury Limo';
+}): Promise<string> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   return `
     <!DOCTYPE html>
     <html>
@@ -371,16 +371,16 @@ export function getBookingConfirmationEmailHTML(data: {
   `;
 }
 
-export function getBookingStatusUpdateEmailHTML(data: {
+export async function getBookingStatusUpdateEmailHTML(data: {
   passengerName: string;
   bookingId: string;
   oldStatus: string;
   newStatus: string;
   pickupAddress: string;
   scheduledDateTime: string;
-  companyName?: string;
-}): string {
-  const company = data.companyName || 'USA Luxury Limo';
+}): Promise<string> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   const statusEmoji = {
     pending: '⏳',
     confirmed: '✅',
@@ -434,7 +434,7 @@ export function getBookingStatusUpdateEmailHTML(data: {
   `;
 }
 
-export function getDriverAssignmentEmailHTML(data: {
+export async function getDriverAssignmentEmailHTML(data: {
   driverName: string;
   bookingId: string;
   passengerName: string;
@@ -444,9 +444,9 @@ export function getDriverAssignmentEmailHTML(data: {
   scheduledDateTime: string;
   vehicleType: string;
   driverPayment?: string;
-  companyName?: string;
-}): string {
-  const company = data.companyName || 'USA Luxury Limo';
+}): Promise<string> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   return `
     <!DOCTYPE html>
     <html>
@@ -528,13 +528,13 @@ export function getDriverAssignmentEmailHTML(data: {
   `;
 }
 
-export function getPasswordResetEmailHTML(data: {
+export async function getPasswordResetEmailHTML(data: {
   name: string;
   resetLink: string;
   expiresIn: string;
-  companyName?: string;
-}): string {
-  const company = data.companyName || 'USA Luxury Limo';
+}): Promise<string> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   return `
     <!DOCTYPE html>
     <html>
@@ -587,7 +587,7 @@ export function getPasswordResetEmailHTML(data: {
   `;
 }
 
-export function getPaymentConfirmationEmailHTML(data: {
+export async function getPaymentConfirmationEmailHTML(data: {
   passengerName: string;
   invoiceNumber: string;
   bookingId: string;
@@ -598,9 +598,9 @@ export function getPaymentConfirmationEmailHTML(data: {
   scheduledDateTime: string;
   paymentIntentId: string;
   logoDataUri?: string;
-  companyName?: string;
-}): string {
-  const company = data.companyName || 'USA Luxury Limo';
+}): Promise<string> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   const companyUpper = company.toUpperCase();
   return `
     <!DOCTYPE html>
@@ -1084,7 +1084,7 @@ export async function getTestEmailHTML(): Promise<string> {
   `;
 }
 
-export function getDriverOnTheWayEmailHTML(data: {
+export async function getDriverOnTheWayEmailHTML(data: {
   passengerName: string;
   bookingId: string;
   driverName: string;
@@ -1093,9 +1093,9 @@ export function getDriverOnTheWayEmailHTML(data: {
   pickupAddress: string;
   scheduledDateTime: string;
   estimatedArrival?: string;
-  companyName?: string;
-}): string {
-  const company = data.companyName || 'USA Luxury Limo';
+}): Promise<string> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   return `
     <!DOCTYPE html>
     <html>
@@ -1176,16 +1176,16 @@ export function getDriverOnTheWayEmailHTML(data: {
   `;
 }
 
-export function getDriverArrivedEmailHTML(data: {
+export async function getDriverArrivedEmailHTML(data: {
   passengerName: string;
   bookingId: string;
   driverName: string;
   driverPhone: string;
   vehicleType: string;
   pickupAddress: string;
-  companyName?: string;
-}): string {
-  const company = data.companyName || 'USA Luxury Limo';
+}): Promise<string> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   return `
     <!DOCTYPE html>
     <html>
@@ -1258,16 +1258,16 @@ export function getDriverArrivedEmailHTML(data: {
   `;
 }
 
-export function getBookingCancelledEmailHTML(data: {
+export async function getBookingCancelledEmailHTML(data: {
   passengerName: string;
   bookingId: string;
   pickupAddress: string;
   destinationAddress?: string;
   scheduledDateTime: string;
   cancelReason?: string;
-  companyName?: string;
-}): string {
-  const company = data.companyName || 'USA Luxury Limo';
+}): Promise<string> {
+  const branding = await getBrandingInfo();
+  const company = branding.companyName;
   return `
     <!DOCTYPE html>
     <html>
