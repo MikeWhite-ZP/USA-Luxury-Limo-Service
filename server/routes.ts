@@ -9537,11 +9537,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const adminHosts = (process.env.ADMIN_PANEL_HOSTS || '').split(',').map(h => h.trim().toLowerCase()).filter(Boolean);
       const isAdminSubdomain = hostname.startsWith('adminaccess.') || adminHosts.includes(hostname);
       
+      // Fetch company name from branding settings
+      const brandNameSetting = await storage.getCmsSetting('BRAND_NAME');
+      const companyName = brandNameSetting?.value || 'Luxury Limo';
+      const shortName = companyName.length > 12 ? companyName.substring(0, 12) : companyName;
+      
       // Fetch active favicon from CMS
       const faviconSetting = await storage.getCmsSetting('site_favicon');
       let faviconMediaId: string | null = null;
       let faviconMimeType: string | null = null;
-      let etag = isAdminSubdomain ? '"admin-static"' : '"static"'; // Quoted ETag
+      let etag = isAdminSubdomain ? '"admin-static"' : `"${brandNameSetting?.value || 'static'}"`; // Quoted ETag
       
       if (faviconSetting?.value) {
         const media = await storage.getCmsMediaById(faviconSetting.value);
@@ -9585,9 +9590,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         icons,
         categories: ["business", "productivity"]
       } : {
-        name: "USA Luxury Limo",
-        short_name: "USA Limo",
-        description: "Professional luxury transportation booking platform for passengers, drivers, and dispatchers",
+        name: companyName,
+        short_name: shortName,
+        description: `Professional luxury transportation booking platform - ${companyName}`,
         start_url: "/",
         display: "standalone",
         background_color: "#ffffff",
