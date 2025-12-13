@@ -114,7 +114,6 @@ async function getSMTPSettings(): Promise<SMTPSettings | null> {
 async function getTransporter(): Promise<Transporter | null> {
   const now = Date.now();
   
-  // Return cached transporter if still valid
   if (cachedTransporter && (now - lastSettingsCheck) < CACHE_DURATION) {
     return cachedTransporter;
   }
@@ -137,7 +136,6 @@ async function getTransporter(): Promise<Transporter | null> {
       },
     };
 
-    // For port 587 with STARTTLS, force TLS upgrade
     if (settings.port === 587 && !settings.secure) {
       transportConfig.requireTLS = true;
     }
@@ -171,7 +169,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       to: options.to,
       subject: options.subject,
       html: options.html,
-      text: options.text || options.html.replace(/<[^>]*>/g, ''), // Strip HTML for text version
+      text: options.text || options.html.replace(/<[^>]*>/g, ''),
     };
 
     await transporter.sendMail(mailOptions);
@@ -209,7 +207,54 @@ export async function testSMTPConnection(): Promise<{ success: boolean; message:
   }
 }
 
-// Email Templates
+const emailStyles = `
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f1f3f5; margin: 0; padding: 20px; }
+  .email-container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .email-header { background: #ffffff; padding: 32px; text-align: center; border-bottom: 1px solid #e9ecef; }
+  .logo { max-height: 60px; max-width: 200px; }
+  .email-title { font-size: 24px; font-weight: 600; color: #212529; margin: 16px 0 0 0; }
+  .email-body { padding: 32px; background: #ffffff; }
+  .greeting { font-size: 16px; color: #333333; margin-bottom: 16px; }
+  .intro-text { color: #495057; margin-bottom: 24px; }
+  .info-card { background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 16px 0; border: 1px solid #e9ecef; }
+  .info-row { padding: 12px 0; border-bottom: 1px solid #e9ecef; }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { font-weight: 600; color: #495057; display: block; margin-bottom: 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .info-value { color: #212529; font-size: 15px; }
+  .info-value a { color: #228be6; text-decoration: none; }
+  .status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; }
+  .status-confirmed { background: #d3f9d8; color: #2b8a3e; }
+  .status-pending { background: #fff3cd; color: #856404; }
+  .status-cancelled { background: #ffe3e3; color: #c92a2a; }
+  .status-in_progress { background: #e7f5ff; color: #1971c2; }
+  .status-completed { background: #d3f9d8; color: #2b8a3e; }
+  .amount-box { background: #e7f5ff; border-radius: 8px; padding: 24px; text-align: center; margin: 24px 0; border: 1px solid #a5d8ff; }
+  .amount-label { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #1971c2; font-weight: 600; margin-bottom: 8px; }
+  .amount { font-size: 32px; font-weight: 700; color: #1971c2; }
+  .alert-box { border-radius: 8px; padding: 20px; margin: 20px 0; }
+  .alert-info { background: #e7f5ff; border-left: 4px solid #228be6; }
+  .alert-success { background: #d3f9d8; border-left: 4px solid #2b8a3e; }
+  .alert-warning { background: #fff3cd; border-left: 4px solid #f59f00; }
+  .alert-danger { background: #ffe3e3; border-left: 4px solid #c92a2a; }
+  .btn { display: inline-block; padding: 14px 28px; background: #228be6; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px; }
+  .btn:hover { background: #1c7ed6; }
+  .section-title { font-size: 16px; font-weight: 600; color: #212529; margin: 0 0 16px 0; padding-bottom: 12px; border-bottom: 2px solid #e9ecef; }
+  .list-item { padding: 8px 0; color: #495057; }
+  .email-footer { background: #f8f9fa; padding: 24px; text-align: center; color: #6c757d; font-size: 13px; border-top: 1px solid #e9ecef; }
+  .footer-company { font-weight: 600; color: #495057; margin-bottom: 4px; }
+  .footer-tagline { color: #868e96; font-style: italic; }
+  @media only screen and (max-width: 600px) {
+    body { padding: 10px; }
+    .email-header, .email-body { padding: 24px; }
+    .amount { font-size: 28px; }
+  }
+`;
+
+function getLogoHeader(logoUrl: string | null, company: string): string {
+  return logoUrl 
+    ? `<img src="${logoUrl}" alt="${company}" class="logo" style="max-height: 60px; max-width: 200px;">`
+    : `<div style="font-size: 24px; font-weight: 700; color: #212529;">${company}</div>`;
+}
 
 export async function getContactFormEmailHTML(data: {
   firstName: string;
@@ -222,60 +267,64 @@ export async function getContactFormEmailHTML(data: {
 }): Promise<string> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
+  const logoUrl = branding.logoUrl;
+  
   return `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
-          .field { margin-bottom: 20px; }
-          .field-label { font-weight: bold; color: #555; margin-bottom: 5px; }
-          .field-value { background: white; padding: 12px; border-radius: 4px; border: 1px solid #e0e0e0; }
-          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
-        </style>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1 style="margin: 0;">🚗 New Contact Form Submission</h1>
-            <p style="margin: 10px 0 0 0;">${company}</p>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">New Contact Form Submission</h1>
           </div>
-          <div class="content">
-            <div class="field">
-              <div class="field-label">From:</div>
-              <div class="field-value">${data.firstName} ${data.lastName}</div>
+          <div class="email-body">
+            <p class="intro-text">You have received a new contact form submission. Please review the details below:</p>
+            
+            <div class="info-card">
+              <div class="info-row">
+                <span class="info-label">From</span>
+                <span class="info-value">${data.firstName} ${data.lastName}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value"><a href="mailto:${data.email}">${data.email}</a></span>
+              </div>
+              ${data.phone ? `
+              <div class="info-row">
+                <span class="info-label">Phone</span>
+                <span class="info-value"><a href="tel:${data.phone}">${data.phone}</a></span>
+              </div>
+              ` : ''}
+              ${data.serviceType ? `
+              <div class="info-row">
+                <span class="info-label">Service Type</span>
+                <span class="info-value">${data.serviceType}</span>
+              </div>
+              ` : ''}
+              <div class="info-row">
+                <span class="info-label">Submitted At</span>
+                <span class="info-value">${data.submittedAt}</span>
+              </div>
             </div>
-            <div class="field">
-              <div class="field-label">Email:</div>
-              <div class="field-value"><a href="mailto:${data.email}">${data.email}</a></div>
+
+            <div class="info-card">
+              <h3 class="section-title">Message</h3>
+              <p style="margin: 0; white-space: pre-wrap; color: #333333;">${data.message}</p>
             </div>
-            ${data.phone ? `
-            <div class="field">
-              <div class="field-label">Phone:</div>
-              <div class="field-value"><a href="tel:${data.phone}">${data.phone}</a></div>
-            </div>
-            ` : ''}
-            ${data.serviceType ? `
-            <div class="field">
-              <div class="field-label">Service Type:</div>
-              <div class="field-value">${data.serviceType}</div>
-            </div>
-            ` : ''}
-            <div class="field">
-              <div class="field-label">Message:</div>
-              <div class="field-value" style="white-space: pre-wrap;">${data.message}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Submitted At:</div>
-              <div class="field-value">${data.submittedAt}</div>
+
+            <div class="alert-box alert-info">
+              <p style="margin: 0; color: #1971c2;"><strong>Action Required:</strong> Please respond to the customer at <a href="mailto:${data.email}" style="color: #1971c2;">${data.email}</a></p>
             </div>
           </div>
-          <div class="footer">
-            <p>This email was sent from the ${company} contact form.</p>
-            <p>Please respond to the customer at <a href="mailto:${data.email}">${data.email}</a></p>
+          <div class="email-footer">
+            <p class="footer-company">${company}</p>
+            <p class="footer-tagline">Contact Form Notification</p>
           </div>
         </div>
       </body>
@@ -295,75 +344,73 @@ export async function getBookingConfirmationEmailHTML(data: {
 }): Promise<string> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
+  const logoUrl = branding.logoUrl;
+  
   return `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
-          .booking-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
-          .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-          .detail-label { font-weight: bold; color: #555; }
-          .detail-value { color: #333; }
-          .total-amount { font-size: 24px; font-weight: bold; color: #1a1a2e; text-align: center; margin: 20px 0; padding: 20px; background: #fff3cd; border-radius: 8px; }
-          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
-        </style>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1 style="margin: 0;">✅ Booking Confirmation</h1>
-            <p style="margin: 10px 0 0 0;">${company}</p>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">Booking Confirmation</h1>
           </div>
-          <div class="content">
-            <p>Dear ${data.passengerName},</p>
-            <p>Thank you for choosing ${company}! Your booking has been confirmed.</p>
+          <div class="email-body">
+            <p class="greeting">Dear ${data.passengerName},</p>
+            <p class="intro-text">Thank you for choosing ${company}! Your booking has been confirmed.</p>
             
-            <div class="booking-details">
-              <div class="detail-row">
-                <span class="detail-label">Booking ID:</span>
-                <span class="detail-value">${data.bookingId}</span>
+            <div class="alert-box alert-success">
+              <p style="margin: 0; color: #2b8a3e; font-weight: 600; font-size: 16px;">✓ Your booking is confirmed</p>
+            </div>
+
+            <div class="info-card">
+              <h3 class="section-title">Booking Details</h3>
+              <div class="info-row">
+                <span class="info-label">Booking ID</span>
+                <span class="info-value">${data.bookingId}</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Pickup Location:</span>
-                <span class="detail-value">${data.pickupAddress}</span>
+              <div class="info-row">
+                <span class="info-label">Pickup Location</span>
+                <span class="info-value">${data.pickupAddress}</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Destination:</span>
-                <span class="detail-value">${data.destinationAddress}</span>
+              <div class="info-row">
+                <span class="info-label">Destination</span>
+                <span class="info-value">${data.destinationAddress}</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Scheduled Date & Time:</span>
-                <span class="detail-value">${data.scheduledDateTime}</span>
+              <div class="info-row">
+                <span class="info-label">Date & Time</span>
+                <span class="info-value">${data.scheduledDateTime}</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Vehicle Type:</span>
-                <span class="detail-value">${data.vehicleType}</span>
+              <div class="info-row">
+                <span class="info-label">Vehicle Type</span>
+                <span class="info-value">${data.vehicleType}</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Status:</span>
-                <span class="detail-value">${data.status.toUpperCase()}</span>
+              <div class="info-row">
+                <span class="info-label">Status</span>
+                <span class="info-value"><span class="status-badge status-${data.status}">${data.status.toUpperCase()}</span></span>
               </div>
             </div>
 
-            <div class="total-amount">
-              Total Amount: $${data.totalAmount}
+            <div class="amount-box">
+              <div class="amount-label">Total Amount</div>
+              <div class="amount">$${data.totalAmount}</div>
             </div>
 
-            <p><strong>Important Information:</strong></p>
-            <ul>
-              <li>Please be ready 10 minutes before your scheduled pickup time</li>
-              <li>Our driver will contact you before arrival</li>
-              <li>For any changes or cancellations, please contact us immediately</li>
-            </ul>
+            <div class="info-card">
+              <h3 class="section-title">Important Information</h3>
+              <div class="list-item">• Please be ready 10 minutes before your scheduled pickup time</div>
+              <div class="list-item">• Our driver will contact you before arrival</div>
+              <div class="list-item">• For any changes or cancellations, please contact us immediately</div>
+            </div>
           </div>
-          <div class="footer">
-            <p><strong>${company}</strong></p>
-            <p>Your journey, our passion.</p>
-            <p>For support, please contact us through our website.</p>
+          <div class="email-footer">
+            <p class="footer-company">${company}</p>
+            <p class="footer-tagline">Your journey, our passion</p>
           </div>
         </div>
       </body>
@@ -381,52 +428,60 @@ export async function getBookingStatusUpdateEmailHTML(data: {
 }): Promise<string> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
-  const statusEmoji = {
+  const logoUrl = branding.logoUrl;
+  
+  const statusEmoji: Record<string, string> = {
     pending: '⏳',
-    confirmed: '✅',
+    confirmed: '✓',
     in_progress: '🚗',
-    completed: '🏁',
-    cancelled: '❌',
+    completed: '✓',
+    cancelled: '✕',
   };
 
   return `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
-          .status-update { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
-          .status-badge { display: inline-block; padding: 10px 20px; border-radius: 20px; font-weight: bold; margin: 10px; }
-          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
-        </style>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1 style="margin: 0;">📋 Booking Status Update</h1>
-            <p style="margin: 10px 0 0 0;">${company}</p>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">Booking Status Update</h1>
           </div>
-          <div class="content">
-            <p>Dear ${data.passengerName},</p>
-            <p>Your booking status has been updated.</p>
+          <div class="email-body">
+            <p class="greeting">Dear ${data.passengerName},</p>
+            <p class="intro-text">Your booking status has been updated.</p>
             
-            <div class="status-update">
-              <h3>Booking ID: ${data.bookingId}</h3>
-              <p>
-                <span class="status-badge" style="background: #ffebee; color: #c62828;">${statusEmoji[data.oldStatus as keyof typeof statusEmoji] || ''} ${data.oldStatus.toUpperCase()}</span>
-                <span style="font-size: 24px;">→</span>
-                <span class="status-badge" style="background: #e8f5e9; color: #2e7d32;">${statusEmoji[data.newStatus as keyof typeof statusEmoji] || ''} ${data.newStatus.toUpperCase()}</span>
-              </p>
-              <p style="margin-top: 20px;"><strong>Pickup:</strong> ${data.pickupAddress}</p>
-              <p><strong>Scheduled:</strong> ${data.scheduledDateTime}</p>
+            <div class="info-card" style="text-align: center;">
+              <p style="margin: 0 0 16px 0; color: #495057; font-size: 14px;">Booking ID: <strong>${data.bookingId}</strong></p>
+              <div style="display: inline-block; vertical-align: middle;">
+                <span class="status-badge status-${data.oldStatus}">${statusEmoji[data.oldStatus] || ''} ${data.oldStatus.toUpperCase()}</span>
+              </div>
+              <span style="display: inline-block; padding: 0 16px; font-size: 24px; color: #adb5bd; vertical-align: middle;">→</span>
+              <div style="display: inline-block; vertical-align: middle;">
+                <span class="status-badge status-${data.newStatus}">${statusEmoji[data.newStatus] || ''} ${data.newStatus.toUpperCase()}</span>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <h3 class="section-title">Booking Details</h3>
+              <div class="info-row">
+                <span class="info-label">Pickup Location</span>
+                <span class="info-value">${data.pickupAddress}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Scheduled Date & Time</span>
+                <span class="info-value">${data.scheduledDateTime}</span>
+              </div>
             </div>
           </div>
-          <div class="footer">
-            <p><strong>${company}</strong></p>
-            <p>For questions or support, please contact us through our website.</p>
+          <div class="email-footer">
+            <p class="footer-company">${company}</p>
+            <p class="footer-tagline">For questions, please contact us through our website</p>
           </div>
         </div>
       </body>
@@ -447,80 +502,84 @@ export async function getDriverAssignmentEmailHTML(data: {
 }): Promise<string> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
+  const logoUrl = branding.logoUrl;
+  
   return `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
-          .ride-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
-          .detail-row { padding: 10px 0; border-bottom: 1px solid #eee; }
-          .detail-label { font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
-          .detail-value { color: #333; }
-          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
-        </style>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1 style="margin: 0;">🚗 New Ride Assignment</h1>
-            <p style="margin: 10px 0 0 0;">${company}</p>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">New Ride Assignment</h1>
           </div>
-          <div class="content">
-            <p>Dear ${data.driverName},</p>
-            <p>You have been assigned a new ride. Please review the details below:</p>
+          <div class="email-body">
+            <p class="greeting">Dear ${data.driverName},</p>
+            <p class="intro-text">You have been assigned a new ride. Please review the details below:</p>
             
-            <div class="ride-details">
-              <div class="detail-row">
-                <span class="detail-label">Booking ID:</span>
-                <span class="detail-value">${data.bookingId}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Passenger Name:</span>
-                <span class="detail-value">${data.passengerName}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Passenger Phone:</span>
-                <span class="detail-value"><a href="tel:${data.passengerPhone}">${data.passengerPhone}</a></span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Pickup Location:</span>
-                <span class="detail-value">${data.pickupAddress}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Destination:</span>
-                <span class="detail-value">${data.destinationAddress}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Scheduled Date & Time:</span>
-                <span class="detail-value">${data.scheduledDateTime}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Vehicle Type:</span>
-                <span class="detail-value">${data.vehicleType}</span>
-              </div>
-              ${data.driverPayment ? `
-              <div class="detail-row" style="background: #e8f5e9; margin-top: 10px; padding: 15px; border-radius: 4px;">
-                <span class="detail-label" style="color: #2e7d32; font-size: 16px;">💰 Your Payment for this Ride:</span>
-                <span class="detail-value" style="color: #2e7d32; font-size: 20px; font-weight: bold;">$${data.driverPayment}</span>
-              </div>
-              ` : ''}
+            <div class="alert-box alert-info">
+              <p style="margin: 0; color: #1971c2; font-weight: 600;">New ride assigned - Please confirm your availability</p>
             </div>
 
-            <p><strong>Action Required:</strong></p>
-            <ul>
-              <li>Please confirm your availability immediately</li>
-              <li>Prepare the assigned vehicle</li>
-              <li>Contact the passenger 30 minutes before pickup</li>
-              <li>Arrive 10 minutes before scheduled time</li>
-            </ul>
+            <div class="info-card">
+              <h3 class="section-title">Passenger Information</h3>
+              <div class="info-row">
+                <span class="info-label">Passenger Name</span>
+                <span class="info-value">${data.passengerName}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Contact Number</span>
+                <span class="info-value"><a href="tel:${data.passengerPhone}">${data.passengerPhone}</a></span>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <h3 class="section-title">Ride Details</h3>
+              <div class="info-row">
+                <span class="info-label">Booking ID</span>
+                <span class="info-value">${data.bookingId}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Pickup Location</span>
+                <span class="info-value">${data.pickupAddress}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Destination</span>
+                <span class="info-value">${data.destinationAddress}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Date & Time</span>
+                <span class="info-value">${data.scheduledDateTime}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Vehicle Type</span>
+                <span class="info-value">${data.vehicleType}</span>
+              </div>
+            </div>
+
+            ${data.driverPayment ? `
+            <div class="amount-box" style="background: #d3f9d8; border-color: #8ce99a;">
+              <div class="amount-label" style="color: #2b8a3e;">Your Payment for this Ride</div>
+              <div class="amount" style="color: #2b8a3e;">$${data.driverPayment}</div>
+            </div>
+            ` : ''}
+
+            <div class="info-card">
+              <h3 class="section-title">Action Required</h3>
+              <div class="list-item">• Please confirm your availability immediately</div>
+              <div class="list-item">• Prepare the assigned vehicle</div>
+              <div class="list-item">• Contact the passenger 30 minutes before pickup</div>
+              <div class="list-item">• Arrive 10 minutes before scheduled time</div>
+            </div>
           </div>
-          <div class="footer">
-            <p><strong>${company}</strong></p>
-            <p>Drive safely and provide excellent service!</p>
+          <div class="email-footer">
+            <p class="footer-company">${company}</p>
+            <p class="footer-tagline">Drive safely and provide excellent service!</p>
           </div>
         </div>
       </body>
@@ -535,51 +594,49 @@ export async function getPasswordResetEmailHTML(data: {
 }): Promise<string> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
+  const logoUrl = branding.logoUrl;
+  
   return `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
-          .button { display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
-          .warning { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0; }
-          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
-        </style>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1 style="margin: 0;">🔐 Password Reset Request</h1>
-            <p style="margin: 10px 0 0 0;">${company}</p>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">Password Reset Request</h1>
           </div>
-          <div class="content">
-            <p>Hello ${data.name},</p>
-            <p>We received a request to reset your password. Click the button below to create a new password:</p>
+          <div class="email-body">
+            <p class="greeting">Hello ${data.name},</p>
+            <p class="intro-text">We received a request to reset your password. Click the button below to create a new password:</p>
             
-            <div style="text-align: center;">
-              <a href="${data.resetLink}" class="button">Reset Password</a>
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${data.resetLink}" class="btn" style="color: #ffffff;">Reset Password</a>
             </div>
             
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="background: #fff; padding: 10px; border-radius: 4px; word-break: break-all; font-size: 12px;">
-              ${data.resetLink}
-            </p>
+            <div class="info-card">
+              <p style="margin: 0 0 8px 0; font-size: 13px; color: #495057;"><strong>Or copy and paste this link:</strong></p>
+              <p style="margin: 0; word-break: break-all; font-size: 12px; color: #6c757d; background: #ffffff; padding: 12px; border-radius: 4px; border: 1px solid #e9ecef;">
+                ${data.resetLink}
+              </p>
+            </div>
             
-            <div class="warning">
-              <p style="margin: 0;"><strong>⚠️ Important:</strong></p>
-              <ul style="margin: 10px 0 0 0;">
-                <li>This link will expire in ${data.expiresIn}</li>
-                <li>If you didn't request this reset, please ignore this email</li>
-                <li>Your password won't change until you click the link and create a new one</li>
-              </ul>
+            <div class="alert-box alert-warning">
+              <p style="margin: 0 0 8px 0; font-weight: 600; color: #856404;">⚠️ Important</p>
+              <div style="color: #856404; font-size: 14px;">
+                <div class="list-item">• This link will expire in ${data.expiresIn}</div>
+                <div class="list-item">• If you didn't request this reset, please ignore this email</div>
+                <div class="list-item">• Your password won't change until you click the link and create a new one</div>
+              </div>
             </div>
           </div>
-          <div class="footer">
-            <p><strong>${company}</strong></p>
-            <p>If you have any questions, please contact our support team.</p>
+          <div class="email-footer">
+            <p class="footer-company">${company}</p>
+            <p class="footer-tagline">If you have any questions, please contact our support team</p>
           </div>
         </div>
       </body>
@@ -601,431 +658,88 @@ export async function getPaymentConfirmationEmailHTML(data: {
 }): Promise<string> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
-  const companyUpper = company.toUpperCase();
+  const logoUrl = data.logoDataUri || branding.logoUrl;
+  
   return `
     <!DOCTYPE html>
     <html>
       <head>
-        <meta charset="UTF-8">
+        <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6; 
-            color: #1e293b; 
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            padding: 20px;
-          }
-          .email-wrapper { max-width: 680px; margin: 0 auto; }
-          .email-card { 
-            background: #ffffff; 
-            border-radius: 16px; 
-            overflow: hidden; 
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-          }
-          
-          /* Header with Logo */
-          .header { 
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            padding: 40px 30px;
-            text-align: center;
-            position: relative;
-          }
-          .header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
-          }
-          .logo-container {
-            background: white;
-            padding: 15px 30px;
-            border-radius: 12px;
-            display: inline-block;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          }
-          .logo-img { 
-            max-height: 50px; 
-            max-width: 220px; 
-            display: block;
-          }
-          .company-name {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1e293b;
-            margin: 0;
-          }
-          .tagline {
-            color: rgba(255, 255, 255, 0.95);
-            font-size: 15px;
-            margin-top: 8px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-          }
-          
-          /* Success Banner */
-          .success-banner {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            border-left: 5px solid #10b981;
-            padding: 25px 30px;
-            text-align: center;
-          }
-          .success-icon {
-            width: 60px;
-            height: 60px;
-            background: #10b981;
-            border-radius: 50%;
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            color: white;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-          }
-          .success-title {
-            font-size: 26px;
-            font-weight: 700;
-            color: #065f46;
-            margin-bottom: 5px;
-          }
-          .success-subtitle {
-            color: #047857;
-            font-size: 15px;
-          }
-          
-          /* Content Area */
-          .content { 
-            padding: 40px 30px;
-            background: #ffffff;
-          }
-          .greeting {
-            font-size: 17px;
-            color: #334155;
-            margin-bottom: 12px;
-            font-weight: 600;
-          }
-          .intro-text {
-            color: #64748b;
-            margin-bottom: 30px;
-            font-size: 15px;
-          }
-          
-          /* Amount Card */
-          .amount-card {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border: 2px solid #93c5fd;
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            margin: 30px 0;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
-          }
-          .amount-label {
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #3b82f6;
-            font-weight: 600;
-            margin-bottom: 10px;
-          }
-          .amount-value {
-            font-size: 48px;
-            font-weight: 800;
-            color: #1d4ed8;
-            margin: 10px 0;
-            letter-spacing: -1px;
-          }
-          .amount-date {
-            font-size: 13px;
-            color: #64748b;
-            margin-top: 10px;
-          }
-          
-          /* Details Section */
-          .details-section {
-            margin: 35px 0;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            overflow: hidden;
-          }
-          .section-header {
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-            padding: 15px 20px;
-            border-bottom: 2px solid #cbd5e1;
-          }
-          .section-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1e293b;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-          }
-          .section-icon {
-            width: 20px;
-            height: 20px;
-            background: #3b82f6;
-            border-radius: 4px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-          }
-          .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 16px 20px;
-            border-bottom: 1px solid #f1f5f9;
-            align-items: flex-start;
-          }
-          .detail-row:last-child { border-bottom: none; }
-          .detail-label {
-            font-weight: 600;
-            color: #64748b;
-            font-size: 14px;
-            flex: 0 0 40%;
-          }
-          .detail-value {
-            color: #1e293b;
-            text-align: right;
-            font-size: 14px;
-            flex: 1;
-            font-weight: 500;
-          }
-          
-          /* Info Box */
-          .info-box {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-left: 4px solid #f59e0b;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 25px 0;
-          }
-          .info-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: #92400e;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-          }
-          .info-text {
-            font-size: 13px;
-            color: #78350f;
-            line-height: 1.5;
-          }
-          
-          /* What's Next Section */
-          .next-steps {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 25px;
-            margin: 30px 0;
-          }
-          .next-steps-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-          }
-          .next-steps ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-          }
-          .next-steps li {
-            padding: 10px 0;
-            padding-left: 30px;
-            position: relative;
-            color: #475569;
-            font-size: 14px;
-            line-height: 1.6;
-          }
-          .next-steps li:before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            top: 10px;
-            width: 20px;
-            height: 20px;
-            background: #10b981;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-          }
-          
-          /* Footer */
-          .footer {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            padding: 30px;
-            text-align: center;
-            border-top: 3px solid #e2e8f0;
-          }
-          .footer-logo {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 8px;
-          }
-          .footer-tagline {
-            color: #64748b;
-            font-size: 14px;
-            margin-bottom: 15px;
-            font-style: italic;
-          }
-          .footer-note {
-            font-size: 12px;
-            color: #94a3b8;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e2e8f0;
-          }
-          
-          /* Responsive */
-          @media only screen and (max-width: 600px) {
-            body { padding: 10px; }
-            .content, .success-banner { padding: 25px 20px; }
-            .header { padding: 30px 20px; }
-            .amount-value { font-size: 36px; }
-            .detail-row { flex-direction: column; gap: 5px; }
-            .detail-label, .detail-value { flex: 1; text-align: left; }
-          }
-        </style>
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="email-wrapper">
-          <div class="email-card">
-            <!-- Header with Logo -->
-            <div class="header">
-              ${data.logoDataUri ? `
-                <div class="logo-container">
-                  <img src="${data.logoDataUri}" alt="${company}" class="logo-img" />
-                </div>
-              ` : `
-                <div class="logo-container">
-                  <h1 class="company-name">${companyUpper}</h1>
-                </div>
-              `}
-              <p class="tagline">Ride in Style, Always on Time</p>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">Payment Confirmation</h1>
+          </div>
+          <div class="email-body">
+            <div class="alert-box alert-success" style="text-align: center;">
+              <p style="margin: 0; font-size: 20px; font-weight: 600; color: #2b8a3e;">✓ Payment Successful!</p>
+              <p style="margin: 8px 0 0 0; color: #2b8a3e;">Thank you for choosing ${company}</p>
             </div>
 
-            <!-- Success Banner -->
-            <div class="success-banner">
-              <div class="success-icon">✓</div>
-              <h2 class="success-title">Payment Successful!</h2>
-              <p class="success-subtitle">Thank you for choosing ${company}</p>
+            <p class="greeting">Dear ${data.passengerName},</p>
+            <p class="intro-text">Your payment has been processed successfully. Below is your payment confirmation and booking details.</p>
+
+            <div class="amount-box">
+              <div class="amount-label">Total Amount Paid</div>
+              <div class="amount">$${parseFloat(data.amount).toFixed(2)}</div>
+              <p style="margin: 8px 0 0 0; font-size: 13px; color: #495057;">Payment Date: ${data.paymentDate}</p>
             </div>
 
-            <!-- Content -->
-            <div class="content">
-              <p class="greeting">Dear ${data.passengerName},</p>
-              <p class="intro-text">Your payment has been processed successfully. Below is your payment confirmation and booking details.</p>
-
-              <!-- Amount Paid -->
-              <div class="amount-card">
-                <div class="amount-label">Total Amount Paid</div>
-                <div class="amount-value">$${parseFloat(data.amount).toFixed(2)}</div>
-                <div class="amount-date">Payment Date: ${data.paymentDate}</div>
+            <div class="info-card">
+              <h3 class="section-title">Payment Information</h3>
+              <div class="info-row">
+                <span class="info-label">Invoice Number</span>
+                <span class="info-value">${data.invoiceNumber}</span>
               </div>
-
-              <!-- Payment Information -->
-              <div class="details-section">
-                <div class="section-header">
-                  <div class="section-title">
-                    <span class="section-icon">💳</span>
-                    Payment Information
-                  </div>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Invoice Number</span>
-                  <span class="detail-value">${data.invoiceNumber}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Booking Reference</span>
-                  <span class="detail-value">#${data.bookingId.toUpperCase().substring(0, 8)}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Transaction ID</span>
-                  <span class="detail-value">${data.paymentIntentId.substring(0, 20)}...</span>
-                </div>
+              <div class="info-row">
+                <span class="info-label">Booking Reference</span>
+                <span class="info-value">#${data.bookingId.toUpperCase().substring(0, 8)}</span>
               </div>
-
-              <!-- Journey Details -->
-              <div class="details-section">
-                <div class="section-header">
-                  <div class="section-title">
-                    <span class="section-icon">🚗</span>
-                    Journey Details
-                  </div>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Scheduled Date & Time</span>
-                  <span class="detail-value">${new Date(data.scheduledDateTime).toLocaleString()}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Pickup Location</span>
-                  <span class="detail-value">${data.pickupAddress}</span>
-                </div>
-                ${data.destinationAddress ? `
-                <div class="detail-row">
-                  <span class="detail-label">Destination</span>
-                  <span class="detail-value">${data.destinationAddress}</span>
-                </div>
-                ` : ''}
+              <div class="info-row">
+                <span class="info-label">Transaction ID</span>
+                <span class="info-value">${data.paymentIntentId.substring(0, 20)}...</span>
               </div>
-
-              <!-- Receipt Notice -->
-              <div class="info-box">
-                <div class="info-title">
-                  <span>📧</span> Receipt Sent
-                </div>
-                <p class="info-text">
-                  A detailed payment receipt has been sent to your email by Stripe for your records.
-                </p>
-              </div>
-
-              <!-- What's Next -->
-              <div class="next-steps">
-                <div class="next-steps-title">
-                  <span>📋</span> What's Next?
-                </div>
-                <ul>
-                  <li>Please be ready 10 minutes before your scheduled pickup time</li>
-                  <li>Our professional driver will contact you prior to arrival</li>
-                  <li>Save this confirmation email for your records</li>
-                  <li>Contact us immediately if you need to make any changes</li>
-                </ul>
-              </div>
-
-              <p style="color: #64748b; font-size: 14px; margin-top: 25px;">
-                If you have any questions or concerns about your booking, please don't hesitate to contact our customer support team.
-              </p>
             </div>
 
-            <!-- Footer -->
-            <div class="footer">
-              <p class="footer-logo">${companyUpper}</p>
-              <p class="footer-tagline">Your Journey, Our Passion</p>
-              <p class="footer-note">
-                This is an automated confirmation email. Please do not reply directly to this message.<br>
-                For support, please contact our customer service team.
-              </p>
+            <div class="info-card">
+              <h3 class="section-title">Journey Details</h3>
+              <div class="info-row">
+                <span class="info-label">Date & Time</span>
+                <span class="info-value">${new Date(data.scheduledDateTime).toLocaleString()}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Pickup Location</span>
+                <span class="info-value">${data.pickupAddress}</span>
+              </div>
+              ${data.destinationAddress ? `
+              <div class="info-row">
+                <span class="info-label">Destination</span>
+                <span class="info-value">${data.destinationAddress}</span>
+              </div>
+              ` : ''}
             </div>
+
+            <div class="alert-box alert-info">
+              <p style="margin: 0 0 8px 0; font-weight: 600; color: #1971c2;">📧 Receipt Sent</p>
+              <p style="margin: 0; color: #1971c2; font-size: 14px;">A detailed payment receipt has been sent to your email by Stripe for your records.</p>
+            </div>
+
+            <div class="info-card">
+              <h3 class="section-title">What's Next?</h3>
+              <div class="list-item">✓ Please be ready 10 minutes before your scheduled pickup time</div>
+              <div class="list-item">✓ Our professional driver will contact you prior to arrival</div>
+              <div class="list-item">✓ Save this confirmation email for your records</div>
+              <div class="list-item">✓ Contact us immediately if you need to make any changes</div>
+            </div>
+          </div>
+          <div class="email-footer">
+            <p class="footer-company">${company}</p>
+            <p class="footer-tagline">Your journey, our passion</p>
+            <p style="margin-top: 12px; font-size: 11px; color: #adb5bd;">This is an automated confirmation email. Please do not reply directly to this message.</p>
           </div>
         </div>
       </body>
@@ -1036,47 +750,49 @@ export async function getPaymentConfirmationEmailHTML(data: {
 export async function getTestEmailHTML(): Promise<string> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
+  const logoUrl = branding.logoUrl;
+  
   return `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
-          .success-badge { background: #e8f5e9; color: #2e7d32; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; margin: 20px 0; }
-          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
-        </style>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1 style="margin: 0;">✅ SMTP Test Email</h1>
-            <p style="margin: 10px 0 0 0;">${company}</p>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">SMTP Test Email</h1>
           </div>
-          <div class="content">
-            <div class="success-badge">
-              🎉 Congratulations! Your SMTP configuration is working correctly.
+          <div class="email-body">
+            <div class="alert-box alert-success" style="text-align: center;">
+              <p style="margin: 0; font-size: 18px; font-weight: 600; color: #2b8a3e;">🎉 Congratulations!</p>
+              <p style="margin: 8px 0 0 0; color: #2b8a3e;">Your SMTP configuration is working correctly.</p>
             </div>
-            <p>This is a test email to verify that your email sending functionality is properly configured.</p>
-            <p><strong>What this means:</strong></p>
-            <ul>
-              <li>Your SMTP settings are correct</li>
-              <li>Email server connection is successful</li>
-              <li>You can now send automated emails to your customers</li>
-            </ul>
-            <p>Your ${company} system is now ready to send:</p>
-            <ul>
-              <li>Contact form notifications</li>
-              <li>Booking confirmations</li>
-              <li>Status update notifications</li>
-              <li>Driver assignment alerts</li>
-            </ul>
+
+            <p class="intro-text">This is a test email to verify that your email sending functionality is properly configured.</p>
+
+            <div class="info-card">
+              <h3 class="section-title">What This Means</h3>
+              <div class="list-item">✓ Your SMTP settings are correct</div>
+              <div class="list-item">✓ Email server connection is successful</div>
+              <div class="list-item">✓ You can now send automated emails to your customers</div>
+            </div>
+
+            <div class="info-card">
+              <h3 class="section-title">Ready to Send</h3>
+              <div class="list-item">• Contact form notifications</div>
+              <div class="list-item">• Booking confirmations</div>
+              <div class="list-item">• Status update notifications</div>
+              <div class="list-item">• Driver assignment alerts</div>
+              <div class="list-item">• Payment confirmations</div>
+            </div>
           </div>
-          <div class="footer">
-            <p><strong>${company} Email System</strong></p>
-            <p>Sent at: ${new Date().toLocaleString()}</p>
+          <div class="email-footer">
+            <p class="footer-company">${company} Email System</p>
+            <p class="footer-tagline">Sent at: ${new Date().toLocaleString()}</p>
           </div>
         </div>
       </body>
@@ -1096,79 +812,72 @@ export async function getDriverOnTheWayEmailHTML(data: {
 }): Promise<string> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
+  const logoUrl = branding.logoUrl;
+  
   return `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
-          .alert-banner { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 5px solid #2563eb; padding: 20px; border-radius: 8px; margin: 20px 0; }
-          .driver-info { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
-          .detail-row { padding: 10px 0; border-bottom: 1px solid #eee; }
-          .detail-label { font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
-          .detail-value { color: #333; }
-          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
-        </style>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1 style="margin: 0;">🚗 Driver On The Way!</h1>
-            <p style="margin: 10px 0 0 0;">${company}</p>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">Driver On The Way</h1>
           </div>
-          <div class="content">
-            <p>Dear ${data.passengerName},</p>
+          <div class="email-body">
+            <p class="greeting">Dear ${data.passengerName},</p>
             
-            <div class="alert-banner">
-              <h3 style="margin-top: 0; color: #1e40af;">Your driver is on the way to pick you up!</h3>
-              <p style="margin-bottom: 0; font-size: 16px;">${data.estimatedArrival ? `Estimated arrival: <strong>${data.estimatedArrival}</strong>` : 'Please be ready for pickup.'}</p>
+            <div class="alert-box alert-info" style="text-align: center;">
+              <p style="margin: 0; font-size: 18px; font-weight: 600; color: #1971c2;">🚗 Your driver is on the way!</p>
+              ${data.estimatedArrival ? `<p style="margin: 8px 0 0 0; color: #1971c2;">Estimated arrival: <strong>${data.estimatedArrival}</strong></p>` : '<p style="margin: 8px 0 0 0; color: #1971c2;">Please be ready for pickup.</p>'}
             </div>
             
-            <div class="driver-info">
-              <h3 style="margin-top: 0;">Driver Information</h3>
-              <div class="detail-row">
-                <span class="detail-label">Driver Name:</span>
-                <span class="detail-value">${data.driverName}</span>
+            <div class="info-card">
+              <h3 class="section-title">Driver Information</h3>
+              <div class="info-row">
+                <span class="info-label">Driver Name</span>
+                <span class="info-value">${data.driverName}</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Contact Number:</span>
-                <span class="detail-value"><a href="tel:${data.driverPhone}">${data.driverPhone}</a></span>
+              <div class="info-row">
+                <span class="info-label">Contact Number</span>
+                <span class="info-value"><a href="tel:${data.driverPhone}">${data.driverPhone}</a></span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Vehicle Type:</span>
-                <span class="detail-value">${data.vehicleType}</span>
+              <div class="info-row">
+                <span class="info-label">Vehicle Type</span>
+                <span class="info-value">${data.vehicleType}</span>
               </div>
             </div>
 
-            <div class="driver-info">
-              <h3 style="margin-top: 0;">Booking Details</h3>
-              <div class="detail-row">
-                <span class="detail-label">Booking ID:</span>
-                <span class="detail-value">${data.bookingId}</span>
+            <div class="info-card">
+              <h3 class="section-title">Booking Details</h3>
+              <div class="info-row">
+                <span class="info-label">Booking ID</span>
+                <span class="info-value">${data.bookingId}</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Pickup Location:</span>
-                <span class="detail-value">${data.pickupAddress}</span>
+              <div class="info-row">
+                <span class="info-label">Pickup Location</span>
+                <span class="info-value">${data.pickupAddress}</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Scheduled Time:</span>
-                <span class="detail-value">${data.scheduledDateTime}</span>
+              <div class="info-row">
+                <span class="info-label">Scheduled Time</span>
+                <span class="info-value">${data.scheduledDateTime}</span>
               </div>
             </div>
 
-            <p><strong>Please Note:</strong></p>
-            <ul>
-              <li>Be ready and waiting at your pickup location</li>
-              <li>Keep your phone nearby in case the driver needs to contact you</li>
-              <li>Have your luggage ready for a smooth pickup</li>
-            </ul>
+            <div class="info-card">
+              <h3 class="section-title">Please Note</h3>
+              <div class="list-item">• Be ready and waiting at your pickup location</div>
+              <div class="list-item">• Keep your phone nearby in case the driver needs to contact you</div>
+              <div class="list-item">• Have your luggage ready for a smooth pickup</div>
+            </div>
           </div>
-          <div class="footer">
-            <p><strong>${company}</strong></p>
-            <p>Your journey, our passion.</p>
+          <div class="email-footer">
+            <p class="footer-company">${company}</p>
+            <p class="footer-tagline">Your journey, our passion</p>
           </div>
         </div>
       </body>
@@ -1186,71 +895,62 @@ export async function getDriverArrivedEmailHTML(data: {
 }): Promise<string> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
+  const logoUrl = branding.logoUrl;
+  
   return `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
-          .alert-banner { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-left: 5px solid #16a34a; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
-          .driver-info { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
-          .detail-row { padding: 10px 0; border-bottom: 1px solid #eee; }
-          .detail-label { font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
-          .detail-value { color: #333; }
-          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
-        </style>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1 style="margin: 0;">📍 Driver Has Arrived!</h1>
-            <p style="margin: 10px 0 0 0;">${company}</p>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">Driver Has Arrived</h1>
           </div>
-          <div class="content">
-            <p>Dear ${data.passengerName},</p>
+          <div class="email-body">
+            <p class="greeting">Dear ${data.passengerName},</p>
             
-            <div class="alert-banner">
-              <h2 style="margin: 0; color: #15803d; font-size: 24px;">✓ Your driver has arrived at the pickup location!</h2>
-              <p style="margin: 10px 0 0 0; font-size: 16px;">Please proceed to your vehicle.</p>
+            <div class="alert-box alert-success" style="text-align: center;">
+              <p style="margin: 0; font-size: 20px; font-weight: 600; color: #2b8a3e;">📍 Your driver has arrived!</p>
+              <p style="margin: 8px 0 0 0; color: #2b8a3e;">Please proceed to your vehicle.</p>
             </div>
             
-            <div class="driver-info">
-              <h3 style="margin-top: 0;">Driver Information</h3>
-              <div class="detail-row">
-                <span class="detail-label">Driver Name:</span>
-                <span class="detail-value">${data.driverName}</span>
+            <div class="info-card">
+              <h3 class="section-title">Driver Information</h3>
+              <div class="info-row">
+                <span class="info-label">Driver Name</span>
+                <span class="info-value">${data.driverName}</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Contact Number:</span>
-                <span class="detail-value"><a href="tel:${data.driverPhone}">${data.driverPhone}</a></span>
+              <div class="info-row">
+                <span class="info-label">Contact Number</span>
+                <span class="info-value"><a href="tel:${data.driverPhone}">${data.driverPhone}</a></span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Vehicle Type:</span>
-                <span class="detail-value">${data.vehicleType}</span>
+              <div class="info-row">
+                <span class="info-label">Vehicle Type</span>
+                <span class="info-value">${data.vehicleType}</span>
               </div>
             </div>
 
-            <div class="driver-info">
-              <h3 style="margin-top: 0;">Pickup Location</h3>
-              <p style="margin: 0; padding: 15px; background: #fef3c7; border-radius: 4px;">
-                📍 ${data.pickupAddress}
-              </p>
+            <div class="info-card" style="background: #fff3cd; border-color: #f59f00;">
+              <h3 class="section-title" style="border-color: #f59f00;">Pickup Location</h3>
+              <p style="margin: 0; font-size: 15px; color: #333333;">📍 ${data.pickupAddress}</p>
             </div>
 
-            <p><strong>What to do next:</strong></p>
-            <ul>
-              <li>Proceed to the pickup location immediately</li>
-              <li>Look for your ${data.vehicleType}</li>
-              <li>Contact the driver if you have trouble locating the vehicle</li>
-              <li>Have your belongings ready to load</li>
-            </ul>
+            <div class="info-card">
+              <h3 class="section-title">What To Do Next</h3>
+              <div class="list-item">• Proceed to the pickup location immediately</div>
+              <div class="list-item">• Look for your ${data.vehicleType}</div>
+              <div class="list-item">• Contact the driver if you have trouble locating the vehicle</div>
+              <div class="list-item">• Have your belongings ready to load</div>
+            </div>
           </div>
-          <div class="footer">
-            <p><strong>${company}</strong></p>
-            <p>Enjoy your ride!</p>
+          <div class="email-footer">
+            <p class="footer-company">${company}</p>
+            <p class="footer-tagline">Enjoy your ride!</p>
           </div>
         </div>
       </body>
@@ -1268,79 +968,70 @@ export async function getBookingCancelledEmailHTML(data: {
 }): Promise<string> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
+  const logoUrl = branding.logoUrl;
+  
   return `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none; }
-          .alert-box { background: #fee2e2; border: 2px solid #dc2626; padding: 20px; border-radius: 8px; margin: 20px 0; }
-          .booking-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
-          .detail-row { padding: 10px 0; border-bottom: 1px solid #eee; }
-          .detail-label { font-weight: bold; color: #555; }
-          .detail-value { color: #333; }
-          .footer { background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #777; border-radius: 0 0 8px 8px; }
-        </style>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1 style="margin: 0;">❌ Booking Cancelled</h1>
-            <p style="margin: 10px 0 0 0;">${company}</p>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">Booking Cancelled</h1>
           </div>
-          <div class="content">
-            <p>Dear ${data.passengerName},</p>
+          <div class="email-body">
+            <p class="greeting">Dear ${data.passengerName},</p>
             
-            <div class="alert-box">
-              <h3 style="margin-top: 0; color: #dc2626;">Your booking has been cancelled</h3>
-              <p>Booking ID: <strong>${data.bookingId}</strong></p>
+            <div class="alert-box alert-danger">
+              <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #c92a2a;">Your booking has been cancelled</p>
+              <p style="margin: 0; color: #c92a2a;">Booking ID: <strong>${data.bookingId}</strong></p>
               ${data.cancelReason ? `
-              <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 4px;">
-                <strong>Cancellation Reason:</strong><br>
-                ${data.cancelReason}
+              <div style="margin-top: 16px; padding: 12px; background: #ffffff; border-radius: 6px;">
+                <p style="margin: 0; font-size: 13px; color: #495057;"><strong>Cancellation Reason:</strong></p>
+                <p style="margin: 8px 0 0 0; color: #333333;">${data.cancelReason}</p>
               </div>
               ` : ''}
             </div>
             
-            <div class="booking-details">
-              <h3 style="margin-top: 0;">Cancelled Booking Details</h3>
-              <div class="detail-row">
-                <span class="detail-label">Booking ID:</span>
-                <span class="detail-value">${data.bookingId}</span>
+            <div class="info-card">
+              <h3 class="section-title">Cancelled Booking Details</h3>
+              <div class="info-row">
+                <span class="info-label">Booking ID</span>
+                <span class="info-value">${data.bookingId}</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Pickup Location:</span>
-                <span class="detail-value">${data.pickupAddress}</span>
+              <div class="info-row">
+                <span class="info-label">Pickup Location</span>
+                <span class="info-value">${data.pickupAddress}</span>
               </div>
               ${data.destinationAddress ? `
-              <div class="detail-row">
-                <span class="detail-label">Destination:</span>
-                <span class="detail-value">${data.destinationAddress}</span>
+              <div class="info-row">
+                <span class="info-label">Destination</span>
+                <span class="info-value">${data.destinationAddress}</span>
               </div>
               ` : ''}
-              <div class="detail-row">
-                <span class="detail-label">Scheduled Date & Time:</span>
-                <span class="detail-value">${data.scheduledDateTime}</span>
+              <div class="info-row">
+                <span class="info-label">Scheduled Date & Time</span>
+                <span class="info-value">${data.scheduledDateTime}</span>
               </div>
             </div>
 
-            <p>If you need to make a new booking, please visit our website or contact us directly.</p>
-            <p>If you believe this cancellation was made in error, please contact our support team immediately.</p>
+            <p class="intro-text">If you need to make a new booking, please visit our website or contact us directly.</p>
+            <p style="color: #495057;">If you believe this cancellation was made in error, please contact our support team immediately.</p>
           </div>
-          <div class="footer">
-            <p><strong>${company}</strong></p>
-            <p>We hope to serve you again in the future.</p>
+          <div class="email-footer">
+            <p class="footer-company">${company}</p>
+            <p class="footer-tagline">We hope to serve you again in the future</p>
           </div>
         </div>
       </body>
     </html>
   `;
 }
-
-// Password Reset Email Templates
 
 export async function sendPasswordResetEmail(
   email: string,
@@ -1349,40 +1040,46 @@ export async function sendPasswordResetEmail(
 ): Promise<boolean> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
+  const logoUrl = branding.logoUrl;
   const resetUrl = `${getAppBaseUrl()}/reset-password?token=${resetToken}`;
   
   const html = `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
-          .button { display: inline-block; padding: 12px 24px; background-color: #dc2626; color: white; text-decoration: none; border-radius: 4px; margin: 20px 0; }
-          .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-        </style>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1>Password Reset Request</h1>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">Password Reset Request</h1>
           </div>
-          <div class="content">
-            <p>Hello ${username},</p>
-            <p>We received a request to reset your password for your ${company} account.</p>
-            <p>Click the button below to reset your password:</p>
-            <p style="text-align: center;">
-              <a href="${resetUrl}" class="button">Reset Password</a>
-            </p>
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #666;">${resetUrl}</p>
-            <p><strong>This link will expire in 1 hour.</strong></p>
-            <p>If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
+          <div class="email-body">
+            <p class="greeting">Hello ${username},</p>
+            <p class="intro-text">We received a request to reset your password for your ${company} account.</p>
+            
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${resetUrl}" class="btn" style="color: #ffffff;">Reset Password</a>
+            </div>
+            
+            <div class="info-card">
+              <p style="margin: 0 0 8px 0; font-size: 13px; color: #495057;"><strong>Or copy and paste this link:</strong></p>
+              <p style="margin: 0; word-break: break-all; font-size: 12px; color: #6c757d; background: #ffffff; padding: 12px; border-radius: 4px; border: 1px solid #e9ecef;">
+                ${resetUrl}
+              </p>
+            </div>
+            
+            <div class="alert-box alert-warning">
+              <p style="margin: 0; color: #856404;"><strong>This link will expire in 1 hour.</strong></p>
+              <p style="margin: 8px 0 0 0; color: #856404; font-size: 14px;">If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
+            </div>
           </div>
-          <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} ${company}. All rights reserved.</p>
+          <div class="email-footer">
+            <p class="footer-company">${company}</p>
+            <p style="color: #adb5bd; font-size: 11px;">© ${new Date().getFullYear()} ${company}. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -1403,40 +1100,45 @@ export async function sendTemporaryPasswordEmail(
 ): Promise<boolean> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
+  const logoUrl = branding.logoUrl;
   const loginUrl = `${getAppBaseUrl()}/login`;
   
   const html = `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
-          .password-box { background: #fff; border: 2px solid #dc2626; padding: 15px; margin: 20px 0; text-align: center; font-size: 18px; font-family: monospace; }
-          .button { display: inline-block; padding: 12px 24px; background-color: #dc2626; color: white; text-decoration: none; border-radius: 4px; margin: 20px 0; }
-          .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-        </style>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1>Temporary Password</h1>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">Temporary Password</h1>
           </div>
-          <div class="content">
-            <p>Hello ${username},</p>
-            <p>An administrator has set a temporary password for your ${company} account.</p>
-            <p>Your temporary password is:</p>
-            <div class="password-box">${tempPassword}</div>
-            <p><strong>Please change this password immediately after logging in.</strong></p>
-            <p style="text-align: center;">
-              <a href="${loginUrl}" class="button">Log In Now</a>
-            </p>
-            <p>For security reasons, we recommend changing your password as soon as possible.</p>
+          <div class="email-body">
+            <p class="greeting">Hello ${username},</p>
+            <p class="intro-text">An administrator has set a temporary password for your ${company} account.</p>
+            
+            <div class="amount-box" style="background: #ffe3e3; border-color: #ffa8a8;">
+              <div class="amount-label" style="color: #c92a2a;">Your Temporary Password</div>
+              <div class="amount" style="color: #c92a2a; font-family: monospace; letter-spacing: 2px;">${tempPassword}</div>
+            </div>
+            
+            <div class="alert-box alert-warning">
+              <p style="margin: 0; font-weight: 600; color: #856404;">⚠️ Please change this password immediately after logging in.</p>
+            </div>
+            
+            <div style="text-align: center; margin: 24px 0;">
+              <a href="${loginUrl}" class="btn" style="color: #ffffff;">Log In Now</a>
+            </div>
+            
+            <p style="color: #495057; font-size: 14px;">For security reasons, we recommend changing your password as soon as possible.</p>
           </div>
-          <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} ${company}. All rights reserved.</p>
+          <div class="email-footer">
+            <p class="footer-company">${company}</p>
+            <p style="color: #adb5bd; font-size: 11px;">© ${new Date().getFullYear()} ${company}. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -1456,39 +1158,41 @@ export async function sendUsernameReminderEmail(
 ): Promise<boolean> {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
+  const logoUrl = branding.logoUrl;
   const loginUrl = `${getAppBaseUrl()}/login`;
   
   const html = `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
-          .username-box { background: #fff; border: 2px solid #dc2626; padding: 15px; margin: 20px 0; text-align: center; font-size: 18px; font-weight: bold; }
-          .button { display: inline-block; padding: 12px 24px; background-color: #dc2626; color: white; text-decoration: none; border-radius: 4px; margin: 20px 0; }
-          .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-        </style>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1>Username Reminder</h1>
+        <div class="email-container">
+          <div class="email-header">
+            ${getLogoHeader(logoUrl, company)}
+            <h1 class="email-title">Username Reminder</h1>
           </div>
-          <div class="content">
-            <p>Hello,</p>
-            <p>We received a request for your username at ${company}.</p>
-            <p>Your username is:</p>
-            <div class="username-box">${username}</div>
-            <p style="text-align: center;">
-              <a href="${loginUrl}" class="button">Log In Now</a>
-            </p>
-            <p>If you did not request this information, please contact our support team.</p>
+          <div class="email-body">
+            <p class="greeting">Hello,</p>
+            <p class="intro-text">We received a request for your username at ${company}.</p>
+            
+            <div class="amount-box">
+              <div class="amount-label">Your Username</div>
+              <div class="amount" style="font-size: 24px;">${username}</div>
+            </div>
+            
+            <div style="text-align: center; margin: 24px 0;">
+              <a href="${loginUrl}" class="btn" style="color: #ffffff;">Log In Now</a>
+            </div>
+            
+            <p style="color: #495057; font-size: 14px;">If you did not request this information, please contact our support team.</p>
           </div>
-          <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} ${company}. All rights reserved.</p>
+          <div class="email-footer">
+            <p class="footer-company">${company}</p>
+            <p style="color: #adb5bd; font-size: 11px;">© ${new Date().getFullYear()} ${company}. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -1502,7 +1206,6 @@ export async function sendUsernameReminderEmail(
   });
 }
 
-// Clear transporter cache (useful when settings are updated)
 export function clearEmailCache() {
   cachedTransporter = null;
   lastSettingsCheck = 0;
