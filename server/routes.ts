@@ -9550,9 +9550,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const adminHosts = (process.env.ADMIN_PANEL_HOSTS || '').split(',').map(h => h.trim().toLowerCase()).filter(Boolean);
       const isAdminSubdomain = hostname.startsWith('adminaccess.') || adminHosts.includes(hostname);
       
-      // Fetch company name from branding settings
+      // Fetch company name from branding settings (check BRAND_COMPANY_NAME first, then BRAND_NAME for fallback)
+      const brandCompanyNameSetting = await storage.getCmsSetting('BRAND_COMPANY_NAME');
       const brandNameSetting = await storage.getCmsSetting('BRAND_NAME');
-      const companyName = brandNameSetting?.value || 'Luxury Limo';
+      const companyName = brandCompanyNameSetting?.value || brandNameSetting?.value || 'Luxury Transportation';
       const shortName = companyName.length > 12 ? companyName.substring(0, 12) : companyName;
       
       // Fetch active favicon from CMS
