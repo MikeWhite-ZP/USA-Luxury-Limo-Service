@@ -176,7 +176,7 @@ function AdminEmailSettings({ user }: { user: any }) {
     user: "",
     password: "",
     fromEmail: "",
-    fromName: "USA Luxury Limo",
+    fromName: "Luxury Transportation",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [testEmail, setTestEmail] = useState("");
@@ -239,7 +239,7 @@ function AdminEmailSettings({ user }: { user: any }) {
         user: smtpData.user || "",
         password: "",
         fromEmail: smtpData.fromEmail || "",
-        fromName: smtpData.fromName || "USA Luxury Limo",
+        fromName: smtpData.fromName || "Luxury Transportation",
       });
     }
   }, [smtpData]);
@@ -900,7 +900,7 @@ function AdminEmailSettings({ user }: { user: any }) {
                               fromName: e.target.value,
                             })
                           }
-                          placeholder="USA Luxury Limo"
+                          placeholder="Your Company Name"
                           className="h-12 border-2 border-border focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl text-base"
                           data-testid="input-smtp-from-name"
                         />
@@ -2111,7 +2111,7 @@ function InvoiceManagement() {
     }
 
     // Fetch branding data for tenant logo and company name
-    let companyName = 'USA Luxury Limo';
+    let companyName = 'Luxury Transportation';
     let logoUrl = '';
     try {
       const brandingResponse = await fetch('/api/branding', {
@@ -2562,7 +2562,7 @@ function InvoiceManagement() {
         ` : ''}
         
         <div class="footer">
-          <p class="thank-you">Thank you for choosing USA Luxury Limo!</p>
+          <p class="thank-you">Thank you for choosing ${companyName}!</p>
           <p>All prices include statutory taxes and transportation expenses</p>
         </div>
         

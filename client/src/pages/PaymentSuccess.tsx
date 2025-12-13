@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import { useBranding } from "@/hooks/useBranding";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Home, FileText } from "lucide-react";
@@ -8,6 +9,7 @@ import { CheckCircle2, Home, FileText } from "lucide-react";
 export default function PaymentSuccess() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const { companyName } = useBranding();
 
   useEffect(() => {
     // Auto-redirect after 10 seconds
@@ -89,7 +91,7 @@ export default function PaymentSuccess() {
 
           <div className="pt-4 border-t">
             <p className="text-xs text-muted-foreground">
-              Thank you for choosing USA Luxury Limo!
+              Thank you for choosing {companyName}!
             </p>
           </div>
         </CardContent>

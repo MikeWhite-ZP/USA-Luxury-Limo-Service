@@ -696,7 +696,7 @@ export default function DriverDashboard() {
               {siteLogoData?.logo?.url ? (
                 <img 
                   src={siteLogoData.logo.url} 
-                  alt={siteLogoData.logo.alt || "USA Luxury Limo"} 
+                  alt={siteLogoData.logo.alt || "Luxury Transportation"} 
                   className="h-16 w-auto object-contain"
                   data-testid="dashboard-logo"
                 />

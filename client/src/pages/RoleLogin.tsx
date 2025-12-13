@@ -160,7 +160,7 @@ export function RoleLogin() {
       
       toast({
         title: "Account Created!",
-        description: `Welcome to USA Luxury Limo, ${signupForm.firstName || signupForm.username}!`,
+        description: `Welcome, ${signupForm.firstName || signupForm.username}! Your account has been created.`,
       });
       
       // Check if user has pending booking data

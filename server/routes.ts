@@ -9,7 +9,7 @@ import multer from "multer";
 import crypto from "crypto";
 import { hasEncryptionKey, encrypt, decrypt } from "./crypto";
 import { getStorageAdapter, type StorageAdapter, type StorageCredentials } from "./objectStorageAdapter";
-import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML, getPaymentConfirmationEmailHTML, getDriverOnTheWayEmailHTML, getDriverArrivedEmailHTML, getBookingCancelledEmailHTML, sendPasswordResetEmail, sendTemporaryPasswordEmail, sendUsernameReminderEmail } from "./email";
+import { sendEmail, testSMTPConnection, clearEmailCache, getContactFormEmailHTML, getTestEmailHTML, getBookingConfirmationEmailHTML, getBookingStatusUpdateEmailHTML, getDriverAssignmentEmailHTML, getPasswordResetEmailHTML, getPaymentConfirmationEmailHTML, getDriverOnTheWayEmailHTML, getDriverArrivedEmailHTML, getBookingCancelledEmailHTML, sendPasswordResetEmail, sendTemporaryPasswordEmail, sendUsernameReminderEmail, getBrandingInfo } from "./email";
 import { getTwilioConnectionStatus, sendTestSMS, sendBookingConfirmationSMS, sendBookingStatusUpdateSMS, sendDriverAssignmentSMS, sendSMS, sendDriverOnTheWaySMS, sendDriverArrivedSMS, sendBookingCancelledSMS, sendAdminNewBookingAlertSMS, sendPasswordResetSMS, sendTemporaryPasswordSMS, sendUsernameReminderSMS } from "./sms";
 import { sendNewBookingReport, sendCancelledBookingReport, sendDriverActivityReport } from "./emailReports";
 import { db } from "./db";
@@ -1386,9 +1386,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               timeStyle: 'short'
             });
             
+            const branding = await getBrandingInfo();
             await sendEmail({
               to: passenger.email,
-              subject: `Booking Confirmation - USA Luxury Limo #${booking.id.slice(0, 8)}`,
+              subject: `Booking Confirmation - ${branding.companyName} #${booking.id.slice(0, 8)}`,
               html: getBookingConfirmationEmailHTML({
                 passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
                 bookingId: booking.id.slice(0, 8),
@@ -1435,7 +1436,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             for (const dispatcher of dispatchers) {
               await sendEmail({
                 to: dispatcher.email,
-                subject: `New Booking Alert - USA Luxury Limo #${booking.id.slice(0, 8)}`,
+                subject: `New Booking Alert - ${branding.companyName} #${booking.id.slice(0, 8)}`,
                 html: getBookingConfirmationEmailHTML({
                   passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
                   bookingId: booking.id.slice(0, 8),
@@ -1875,9 +1876,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             // Send email notification to passenger
             if (passenger.email) {
+              const branding = await getBrandingInfo();
               await sendEmail({
                 to: passenger.email,
-                subject: `Driver On The Way - USA Luxury Limo #${booking.id.slice(0, 8)}`,
+                subject: `Driver On The Way - ${branding.companyName} #${booking.id.slice(0, 8)}`,
                 html: getDriverOnTheWayEmailHTML({
                   passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
                   bookingId: booking.id.slice(0, 8),
@@ -1988,9 +1990,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (passenger && vehicleType) {
             // Send email notification to passenger
             if (passenger.email) {
+              const branding = await getBrandingInfo();
               await sendEmail({
                 to: passenger.email,
-                subject: `Driver Has Arrived - USA Luxury Limo #${booking.id.slice(0, 8)}`,
+                subject: `Driver Has Arrived - ${branding.companyName} #${booking.id.slice(0, 8)}`,
                 html: getDriverArrivedEmailHTML({
                   passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
                   bookingId: booking.id.slice(0, 8),
@@ -2363,9 +2366,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 policyMessage = `<p><strong>Cancellation Fee:</strong> Because the driver was already on the way and the cancellation was less than 2 hours before pickup, the full fare of $${cancellationDetails.chargeAmount} applies.</p>`;
               }
               
+              const branding = await getBrandingInfo();
               await sendEmail({
                 to: passenger.email,
-                subject: `Booking Cancelled - USA Luxury Limo #${updatedBooking.id.slice(0, 8)}`,
+                subject: `Booking Cancelled - ${branding.companyName} #${updatedBooking.id.slice(0, 8)}`,
                 html: getBookingCancelledEmailHTML({
                   passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
                   bookingId: updatedBooking.id.slice(0, 8),
@@ -3080,10 +3084,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentToken = token;
       }
 
-      // Get dynamic logo from object storage and convert to base64 for email embedding
+      // Get dynamic branding (company name and logo)
       let logoDataUri = '';
+      let companyName = 'Luxury Transportation';
       try {
-        const logoSetting = await storage.getCmsSetting('BRAND_LOGO_URL');
+        const [logoSetting, brandNameSetting] = await Promise.all([
+          storage.getCmsSetting('BRAND_LOGO_URL'),
+          storage.getCmsSetting('BRAND_NAME')
+        ]);
+        
+        companyName = brandNameSetting?.value || 'Luxury Transportation';
+        
         if (logoSetting?.value) {
           const logoPath = logoSetting.value;
           const fileKey = logoPath.includes('/file/') 
@@ -3115,7 +3126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       } catch (error) {
-        console.error('Error fetching logo for email:', error);
+        console.error('Error fetching branding for email:', error);
       }
 
       // Build detailed pricing rows
@@ -3391,9 +3402,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             <div class="container">
               <div class="header">
                 ${logoDataUri ? `
-                  <img src="${logoDataUri}" alt="USA Luxury Limo" class="logo-img" />
+                  <img src="${logoDataUri}" alt="${companyName}" class="logo-img" />
                 ` : `
-                  <div class="logo">USA Luxury Limo</div>
+                  <div class="logo">${companyName}</div>
                 `}
                 <div class="tagline">Ride in Style, Always on Time</div>
               </div>
@@ -3405,7 +3416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               <div class="content">
                 <div class="greeting">
                   <p><strong>Dear ${passenger?.firstName || 'Customer'},</strong></p>
-                  <p>Thank you for booking with USA Luxury Limo Service! Below is your detailed invoice.</p>
+                  <p>Thank you for booking with ${companyName}! Below is your detailed invoice.</p>
                 </div>
 
                 <div class="section">
@@ -3480,7 +3491,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 <div class="footer-note">
                   <p>💡 <em>All prices include statutory taxes and transportation expenses</em></p>
                   <br>
-                  <p>Best regards,<br><strong>USA Luxury Limo Service</strong></p>
+                  <p>Best regards,<br><strong>${companyName}</strong></p>
                 </div>
               </div>
             </div>
@@ -3491,7 +3502,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const emailSent = await sendEmail({
         to: recipientEmail,
-        subject: `Invoice #${invoice.invoiceNumber} - USA Luxury Limo`,
+        subject: `Invoice #${invoice.invoiceNumber} - ${companyName}`,
         html: emailHtml,
       });
 
@@ -3635,37 +3646,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentToken = token;
       }
 
-      // Get dynamic logo from object storage and convert to base64 for email embedding
+      // Get dynamic branding (company name and logo)
       let logoDataUri = '';
+      let companyName = 'Luxury Transportation';
       try {
-        const logoSetting = await storage.getCmsSetting('BRAND_LOGO_URL');
+        const [logoSetting, brandNameSetting] = await Promise.all([
+          storage.getCmsSetting('BRAND_LOGO_URL'),
+          storage.getCmsSetting('BRAND_NAME')
+        ]);
+        
+        companyName = brandNameSetting?.value || 'Luxury Transportation';
+        
         if (logoSetting?.value) {
-          // Extract the file key from the URL (e.g., /api/object-storage/file/logo.png -> logo.png)
           const logoPath = logoSetting.value;
           const fileKey = logoPath.includes('/file/') 
             ? logoPath.split('/file/')[1] 
             : logoPath.replace('/api/object-storage/', '');
           
-          // Fetch logo from object storage
           const ObjectStorage = await import('@replit/object-storage');
           const storage_client = new ObjectStorage.Client();
           const logoBuffer = await storage_client.downloadAsBytes(fileKey);
           
           if (logoBuffer) {
-            // Convert to base64 and create data URI
             let buffer: Buffer;
             if (Buffer.isBuffer(logoBuffer)) {
               buffer = logoBuffer;
             } else if (Array.isArray(logoBuffer) && logoBuffer.length > 0) {
               buffer = Buffer.from(Object.values(logoBuffer[0]));
             } else if (typeof logoBuffer === 'object' && logoBuffer !== null) {
-              // Handle non-array-wrapped object with numeric keys
               buffer = Buffer.from(Object.values(logoBuffer));
             } else {
               throw new Error('Unexpected logo buffer format from object storage');
             }
             const base64Logo = buffer.toString('base64');
-            // Determine MIME type from file extension
             const ext = fileKey.split('.').pop()?.toLowerCase();
             const mimeType = ext === 'png' ? 'image/png' : 
                             ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
@@ -3674,8 +3687,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       } catch (error) {
-        console.error('Error fetching logo for email:', error);
-        // Continue without logo
+        console.error('Error fetching branding for email:', error);
       }
 
       // Build detailed pricing rows
@@ -4039,10 +4051,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               <div class="header">
                 ${logoDataUri ? `
                   <div class="logo-container">
-                    <img src="${logoDataUri}" alt="USA Luxury Limo" class="logo-img" />
+                    <img src="${logoDataUri}" alt="${companyName}" class="logo-img" />
                   </div>
                 ` : `
-                  <div class="company-name">USA LUXURY LIMO</div>
+                  <div class="company-name">${companyName.toUpperCase()}</div>
                 `}
                 <div class="tagline">Premium Luxury Transportation Service</div>
               </div>
@@ -4056,7 +4068,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               <div class="content">
                 <div class="greeting">
                   <p><strong>Dear ${passenger?.firstName || 'Customer'},</strong></p>
-                  <p>Thank you for booking with USA Luxury Limo Service! Below is your detailed invoice.</p>
+                  <p>Thank you for booking with ${companyName}! Below is your detailed invoice.</p>
                 </div>
 
                 <!-- Invoice Information -->
@@ -4158,7 +4170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 <div class="footer-note">
                   <p>💡 <em>All prices include statutory taxes and transportation expenses</em></p>
                   <br>
-                  <p>Best regards,<br><strong>USA Luxury Limo Service</strong></p>
+                  <p>Best regards,<br><strong>${companyName}</strong></p>
                 </div>
               </div>
             </div>
@@ -4169,7 +4181,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const emailSent = await sendEmail({
         to: recipientEmail,
-        subject: `Invoice #${invoice.invoiceNumber} - USA Luxury Limo`,
+        subject: `Invoice #${invoice.invoiceNumber} - ${companyName}`,
         html: emailHtml,
       });
 
@@ -4813,9 +4825,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             if (driverUser) {
               // Send passenger email about driver assignment
+              const branding = await getBrandingInfo();
               await sendEmail({
                 to: passenger.email,
-                subject: `Driver Assigned - USA Luxury Limo #${updatedBooking.id.slice(0, 8)}`,
+                subject: `Driver Assigned - ${branding.companyName} #${updatedBooking.id.slice(0, 8)}`,
                 html: getBookingStatusUpdateEmailHTML({
                   passengerName: `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username || 'Valued Customer',
                   bookingId: updatedBooking.id.slice(0, 8),
@@ -8172,7 +8185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user: user?.value || '',
         hasPassword: !!(await storage.getSystemSetting('SMTP_PASSWORD'))?.value,
         fromEmail: fromEmail?.value || '',
-        fromName: fromName?.value || 'USA Luxury Limo',
+        fromName: fromName?.value || 'Luxury Transportation',
       });
     } catch (error) {
       console.error('Get SMTP settings error:', error);
@@ -8194,7 +8207,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { key: 'SMTP_SECURE', value: secure ? 'true' : 'false' },
         { key: 'SMTP_USER', value: user },
         { key: 'SMTP_FROM_EMAIL', value: fromEmail },
-        { key: 'SMTP_FROM_NAME', value: fromName || 'USA Luxury Limo' },
+        { key: 'SMTP_FROM_NAME', value: fromName || 'Luxury Transportation' },
       ];
 
       // Only update password if provided
@@ -9459,7 +9472,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const companyNameSetting = await storage.getCmsSetting('BRAND_COMPANY_NAME');
       
       res.json({ 
-        companyName: companyNameSetting?.value || 'USA Luxury Limo'
+        companyName: companyNameSetting?.value || 'Luxury Transportation'
       });
     } catch (error) {
       console.error('Get company name error:', error);
@@ -9511,7 +9524,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json({
-        companyName: companyName?.value || 'USA Luxury Limo',
+        companyName: companyName?.value || 'Luxury Transportation',
         tagline: tagline?.value || 'Premium Transportation Excellence',
         description: description?.value || 'Premium luxury transportation services across the United States. Experience comfort, reliability, and professionalism with every ride.',
         logoUrl: resolvedLogoUrl,
@@ -9945,7 +9958,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   <h2 style="color: #1a202c;">${subject || 'Message from Dispatch'}</h2>
                   <p style="color: #4a5568; line-height: 1.6;">${message}</p>
                   <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-                  <p style="color: #718096; font-size: 14px;">This message was sent via the USA Luxury Limo dispatch system.</p>
+                  <p style="color: #718096; font-size: 14px;">This message was sent via the dispatch system.</p>
                 </div>
               `;
               const emailResult = await sendEmail({

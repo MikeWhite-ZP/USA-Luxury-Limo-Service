@@ -19,7 +19,7 @@ export function useSiteLogo() {
   // Return the logo URL or fallback to default logo
   return {
     logoUrl: data?.logo?.url || logoImage,
-    logoAltText: data?.logo?.altText || "USA Luxury Limo",
+    logoAltText: data?.logo?.altText || "Luxury Transportation",
     isCustomLogo: !!data?.logo,
     isLoading,
     error

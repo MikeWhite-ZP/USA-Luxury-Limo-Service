@@ -63,7 +63,7 @@ export async function getBrandingInfo(): Promise<BrandingInfo> {
     ]);
     
     cachedBranding = {
-      companyName: brandName?.value || 'USA Luxury Limo',
+      companyName: brandName?.value || 'Luxury Transportation',
       logoUrl: logoUrl?.value || null,
     };
     
@@ -72,7 +72,7 @@ export async function getBrandingInfo(): Promise<BrandingInfo> {
   } catch (error) {
     console.error('Error fetching branding info:', error);
     return {
-      companyName: 'USA Luxury Limo',
+      companyName: 'Luxury Transportation',
       logoUrl: null,
     };
   }

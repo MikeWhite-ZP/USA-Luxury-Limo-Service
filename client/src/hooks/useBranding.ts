@@ -22,7 +22,7 @@ export function useBranding() {
 
   // Return branding data with defaults
   return {
-    companyName: data?.companyName || 'USA Luxury Limo',
+    companyName: data?.companyName || 'Luxury Transportation',
     tagline: data?.tagline || 'Premium Transportation Services',
     description: data?.description || '',
     logoUrl: data?.logoUrl || '/images/logo_1759125364025.png',
