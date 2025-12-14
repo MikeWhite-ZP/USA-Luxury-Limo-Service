@@ -365,7 +365,7 @@ export default function MobileAdmin() {
         airportFeeAmount: formData.airportFeeAmount || null,
         surgePricingMultiplier: formData.surgePricingMultiplier || '1',
         surgePricingAmount: formData.surgePricingAmount || '0',
-        requestedHours: formData.bookingType === 'hourly' ? formData.requestedHours : null,
+        requestedHours: formData.bookingType === 'hourly' ? parseInt(formData.requestedHours) || null : null,
         passengerCount: formData.passengerCount,
         luggageCount: formData.luggageCount,
         babySeat: formData.babySeat,
@@ -421,7 +421,7 @@ export default function MobileAdmin() {
         destinationLon: bookingFormData.destinationCoords.lon,
         vehicleTypeId: bookingFormData.vehicleTypeId,
         bookingType: bookingFormData.bookingType,
-        requestedHours: bookingFormData.requestedHours,
+        requestedHours: bookingFormData.requestedHours ? parseInt(bookingFormData.requestedHours) : undefined,
       });
       const data = await response.json();
       setCalculatedPrice(data.totalAmount || '0');
