@@ -1,0 +1,25 @@
+{
+  "tenantId": "acme-limo",
+  "appId": "com.acmelimo.app",
+  "appName": "ACME Luxury Limo",
+  "serverUrl": "https://acme.luxurylimo.com",
+  "adminAppId": "com.acmelimo.admin",
+  "adminAppName": "ACME Limo Admin",
+  "branding": {
+    "companyName": "ACME Luxury Limo",
+    "tagline": "Premium Transportation Excellence",
+    "colors": {
+      "primary": "#1a1a1a",
+      "secondary": "#666666",
+      "accent": "#d4af37"
+    }
+  },
+  "ios": {
+    "teamId": "XXXXXXXXXX",
+    "bundleIdPrefix": "com.acmelimo"
+  },
+  "android": {
+    "packageName": "com.acmelimo.app",
+    "keystoreAlias": "acme-limo"
+  }
+}
