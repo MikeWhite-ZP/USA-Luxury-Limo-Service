@@ -164,60 +164,63 @@ export default function DriverTaxInfoSection() {
         </Alert>
       )}
 
-      <Card>
-        <CardHeader>
+      <Card className="border-2 border-red-100 shadow-md">
+        <CardHeader className="bg-gradient-to-r from-red-50 to-orange-50 border-b">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-red-600" />
+            <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-sm">
+              <FileText className="w-5 h-5 text-white" />
             </div>
             <div>
-              <CardTitle className="text-lg">1099 Tax Information</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg text-red-800">1099 Tax Information</CardTitle>
+              <CardDescription className="text-red-600">
                 Required for tax reporting when earnings exceed $600/year
               </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="taxLegalFirstName">Legal First Name *</Label>
+                <Label htmlFor="taxLegalFirstName" className="font-medium text-foreground">Legal First Name *</Label>
                 <Input
                   id="taxLegalFirstName"
                   value={formData.taxLegalFirstName}
                   onChange={(e) => handleInputChange("taxLegalFirstName", e.target.value)}
                   placeholder="As it appears on your tax documents"
                   required
+                  className="border-gray-300 focus:border-red-500 focus:ring-red-500"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taxLegalLastName">Legal Last Name *</Label>
+                <Label htmlFor="taxLegalLastName" className="font-medium text-foreground">Legal Last Name *</Label>
                 <Input
                   id="taxLegalLastName"
                   value={formData.taxLegalLastName}
                   onChange={(e) => handleInputChange("taxLegalLastName", e.target.value)}
                   placeholder="As it appears on your tax documents"
                   required
+                  className="border-gray-300 focus:border-red-500 focus:ring-red-500"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="ssn">Social Security Number (SSN) *</Label>
+                <Label htmlFor="ssn" className="font-medium text-foreground">Social Security Number (SSN) *</Label>
                 {taxInfo?.hasSsn && !showSsnInput ? (
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 p-2 bg-muted rounded-md text-sm font-mono flex items-center gap-2">
-                      <Lock className="w-4 h-4 text-muted-foreground" />
-                      <span>***-**-{taxInfo.taxSsnLast4}</span>
+                    <div className="flex-1 p-2 bg-green-50 border border-green-200 rounded-md text-sm font-mono flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-green-600" />
+                      <span className="text-green-800">***-**-{taxInfo.taxSsnLast4}</span>
                     </div>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => setShowSsnInput(true)}
+                      className="border-red-200 text-red-600 hover:bg-red-50"
                     >
                       Update
                     </Button>
@@ -231,21 +234,22 @@ export default function DriverTaxInfoSection() {
                     placeholder="XXX-XX-XXXX"
                     maxLength={11}
                     required={!taxInfo?.hasSsn}
+                    className="border-gray-300 focus:border-red-500 focus:ring-red-500"
                   />
                 )}
                 <p className="text-xs text-muted-foreground">Your SSN is encrypted and stored securely</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taxDateOfBirth">Date of Birth *</Label>
+                <Label htmlFor="taxDateOfBirth" className="font-medium text-foreground">Date of Birth *</Label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-red-500" />
                   <Input
                     id="taxDateOfBirth"
                     type="date"
                     value={formData.taxDateOfBirth}
                     onChange={(e) => handleInputChange("taxDateOfBirth", e.target.value)}
-                    className="pl-10"
+                    className="pl-10 border-gray-300 focus:border-red-500 focus:ring-red-500"
                     required
                   />
                 </div>
@@ -253,35 +257,37 @@ export default function DriverTaxInfoSection() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="taxAddressStreet">Street Address *</Label>
+              <Label htmlFor="taxAddressStreet" className="font-medium text-foreground">Street Address *</Label>
               <Input
                 id="taxAddressStreet"
                 value={formData.taxAddressStreet}
                 onChange={(e) => handleInputChange("taxAddressStreet", e.target.value)}
                 placeholder="123 Main Street, Apt 4"
                 required
+                className="border-gray-300 focus:border-red-500 focus:ring-red-500"
               />
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="taxAddressCity">City *</Label>
+                <Label htmlFor="taxAddressCity" className="font-medium text-foreground">City *</Label>
                 <Input
                   id="taxAddressCity"
                   value={formData.taxAddressCity}
                   onChange={(e) => handleInputChange("taxAddressCity", e.target.value)}
                   placeholder="New York"
                   required
+                  className="border-gray-300 focus:border-red-500 focus:ring-red-500"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taxAddressState">State *</Label>
+                <Label htmlFor="taxAddressState" className="font-medium text-foreground">State *</Label>
                 <Select 
                   value={formData.taxAddressState} 
                   onValueChange={(value) => handleInputChange("taxAddressState", value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="border-gray-300 focus:border-red-500 focus:ring-red-500">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -293,7 +299,7 @@ export default function DriverTaxInfoSection() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taxAddressZip">ZIP Code *</Label>
+                <Label htmlFor="taxAddressZip" className="font-medium text-foreground">ZIP Code *</Label>
                 <Input
                   id="taxAddressZip"
                   value={formData.taxAddressZip}
@@ -301,17 +307,18 @@ export default function DriverTaxInfoSection() {
                   placeholder="10001"
                   maxLength={10}
                   required
+                  className="border-gray-300 focus:border-red-500 focus:ring-red-500"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="taxClassification">Tax Classification</Label>
+              <Label htmlFor="taxClassification" className="font-medium text-foreground">Tax Classification</Label>
               <Select 
                 value={formData.taxClassification} 
                 onValueChange={(value) => handleInputChange("taxClassification", value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="border-gray-300 focus:border-red-500 focus:ring-red-500">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -322,10 +329,10 @@ export default function DriverTaxInfoSection() {
               </Select>
             </div>
 
-            <div className="flex justify-end pt-4">
+            <div className="flex justify-end pt-4 border-t mt-6">
               <Button
                 type="submit"
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 shadow-md"
                 disabled={saveMutation.isPending}
               >
                 <Save className="w-4 h-4 mr-2" />
