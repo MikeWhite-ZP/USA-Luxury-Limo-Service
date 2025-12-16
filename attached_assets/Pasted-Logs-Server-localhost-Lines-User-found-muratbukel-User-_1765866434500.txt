@@ -1,0 +1,103 @@
+Logs
+Server: localhost
+Lines:
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+[PRESIGNED-URL] Generated URL for cms/favicon/cms-favicon-1764914388023.png: https://minio.best-chauffeurs.com/hope-limo/cms/favicon/cms-favicon-176491438802...
+[PRESIGNED-URL] Generated URL for cms/favicon/cms-favicon-1764914388023.png: https://minio.best-chauffeurs.com/hope-limo/cms/favicon/cms-favicon-176491438802...
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+[PRESIGNED-URL] Generated URL for cms/logos/cms-logos-1764914402733.png: https://minio.best-chauffeurs.com/hope-limo/cms/logos/cms-logos-1764914402733.pn...
+🔵 User found: muratbukel
+🔵 User found: muratbukel
+6:22:30 AM [express] GET /api/site-logo 200 in 127ms :: {"logo":{"id":"6ccfed51-dfe4-441b-9cbd-1689b…
+6:22:30 AM [express] GET /api/admin/system-commission 200 in 183ms :: {"percentage":15,"description"…
+6:22:30 AM [express] GET /api/admin/settings 200 in 176ms :: {"credentials":[{"key":"MINIO_SERVICE_N…
+6:22:30 AM [express] GET /api/admin/contacts 200 in 174ms :: []
+6:22:30 AM [express] GET /api/admin/active-drivers 200 in 186ms :: [{"id":"3eb0e71d-8f9e-4598-b5c9-b…
+6:22:30 AM [express] GET /api/payment-systems 200 in 185ms :: []
+6:22:30 AM [express] GET /api/favicon/icon.png 200 in 275ms
+6:22:30 AM [express] GET /api/admin/users 200 in 196ms :: [{"id":"85e3103b-0b8d-466d-9b24-bdbc0140af…
+6:22:30 AM [express] GET /api/favicon/apple-touch-icon.png 200 in 303ms
+6:22:30 AM [express] GET /api/payment-options 200 in 211ms :: {"options":[{"id":"c92361d3-e450-43c2-…
+6:22:30 AM [express] GET /api/admin/bookings 200 in 224ms :: [{"id":"d0f385fa-043d-40a3-919d-1114936…
+🔵 User found: muratbukel
+[PRESIGNED-URL] Generated URL for cms/vehicles/cms-vehicles-1764803062350.webp: https://minio.best-chauffeurs.com/hope-limo/cms/vehicles/cms-vehicles-1764803062...
+[PRESIGNED-URL] Generated URL for cms/vehicles/cms-vehicles-1764802979875.webp: https://minio.best-chauffeurs.com/hope-limo/cms/vehicles/cms-vehicles-1764802979...
+[PRESIGNED-URL] Generated URL for cms/vehicles/cms-vehicles-1764803135143.png: https://minio.best-chauffeurs.com/hope-limo/cms/vehicles/cms-vehicles-1764803135...
+[PRESIGNED-URL] Generated URL for cms/vehicles/cms-vehicles-1765049614700.webp: https://minio.best-chauffeurs.com/hope-limo/cms/vehicles/cms-vehicles-1765049614...
+[PRESIGNED-URL] Generated URL for cms/vehicles/cms-vehicles-1765068915420.webp: https://minio.best-chauffeurs.com/hope-limo/cms/vehicles/cms-vehicles-1765068915...
+6:22:30 AM [express] GET /api/vehicle-types 200 in 258ms :: [{"id":"b3ccda5f-2bf3-4646-af13-a704f9f4…
+6:22:30 AM [express] GET /api/admin/dashboard 200 in 274ms :: {"totalRevenue":"1107.94","monthlyReve…
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+6:22:39 AM [express] GET /api/admin/driver-documents 200 in 17ms :: [{"id":"1c1fe569-217a-4b56-8e9b-…
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+6:23:02 AM [express] POST /api/admin/driver-documents/upload 404 in 107ms :: {"message":"Driver not …
+🔵 Deserializing user ID: 39d442fa-6ee3-4272-8e62-a69a0601effd
+🔵 User found: muratbukel
+6:26:30 AM [express] POST /api/admin/driver-documents/upload 404 in 191ms :: {"message":"Driver not …

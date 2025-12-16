@@ -1,0 +1,458 @@
+GET
+https://adminaccess.hopelimo.com/admin
+[HTTP/2 200  240ms]
+
+GET
+https://fonts.googleapis.com/css2?family=Architects+Daughter&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fira+Code:wght@300..700&family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&family=Oxanium:wght@200..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap
+[HTTP/2 200  115ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/index-DoLNZLk1.css
+[HTTP/2 200  235ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/index-Ew3Eb8Gu.js
+[HTTP/2 200  145ms]
+
+Error in parsing value for ‘-webkit-text-size-adjust’.  Declaration dropped. index-DoLNZLk1.css:1:2588
+Error in parsing value for ‘-webkit-text-size-adjust’.  Declaration dropped. index-DoLNZLk1.css:1:4819
+GET
+https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700;800&display=swap
+[HTTP/3 200  34ms]
+
+Unknown property ‘-moz-column-gap’.  Declaration dropped. index-DoLNZLk1.css:1:41291
+Ruleset ignored due to bad selector. index-DoLNZLk1.css:1:124132
+XHRGET
+https://adminaccess.hopelimo.com/api/branding
+[HTTP/3 200  470ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/user
+[HTTP/3 200  190ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/site-favicon
+[HTTP/3 200  431ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/site-company-name
+[HTTP/3 200  196ms]
+
+Service Worker registered successfully: https://adminaccess.hopelimo.com/ index-Ew3Eb8Gu.js:79:78891
+GET
+https://adminaccess.hopelimo.com/assets/authUtils-CcDzk6i0.js
+[HTTP/3 200  104ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/admin-dashboard-DMaFDakb.js
+[HTTP/3 200  191ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/label-D8R50bvQ.js
+[HTTP/3 200  75ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/textarea-Dgi_CzH2.js
+[HTTP/3 200  144ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/card-DD4Vh5xz.js
+[HTTP/3 200  153ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/badge-CvG6Ij9w.js
+[HTTP/3 200  298ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/select-Do4gLVDd.js
+[HTTP/3 200  181ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/index-ozxhp3nj.js
+[HTTP/3 200  313ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/index-BqTCUNk0.js
+[HTTP/3 200  207ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/Combination-D2DH0Mhf.js
+[HTTP/3 200  369ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/chevron-up-DAyqnXK_.js
+[HTTP/3 200  245ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/chevron-down-CuIu7j2-.js
+[HTTP/3 200  230ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/index-BICDmqhl.js
+[HTTP/3 200  195ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/check-WmCOjSo6.js
+[HTTP/3 200  282ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/tabs-Cx_OR7ie.js
+[HTTP/3 200  304ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/index-C1Pf-XAa.js
+[HTTP/3 200  300ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/dialog-DIzY12RE.js
+[HTTP/3 200  266ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/alert-dialog-BXCqjO6W.js
+[HTTP/3 200  321ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/switch-C1nB0Ef_.js
+[HTTP/3 200  320ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/chevron-right-Cda3HKs7.js
+[HTTP/3 200  391ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/dropdown-menu-BldD8-R4.js
+[HTTP/3 200  386ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/AdminNav-CyRdRJ67.js
+[HTTP/3 200  373ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/useSiteLogo-8bEFNdKB.js
+[HTTP/3 200  353ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/circle-DSNRHCaZ.js
+[HTTP/3 200  341ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/log-out-hqnyxi2z.js
+[HTTP/3 200  256ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/ThemeToggle-AUHsKBOO.js
+[HTTP/3 200  363ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/users-CXfoJm1T.js
+[HTTP/3 200  428ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/car-NTlQdfzQ.js
+[HTTP/3 200  414ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/dollar-sign-B4u3VM7u.js
+[HTTP/3 200  442ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/star-BGEsdTw6.js
+[HTTP/3 200  432ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/settings-DF2bYCup.js
+[HTTP/3 200  404ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/palette-CwbNBooG.js
+[HTTP/3 200  451ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/message-square-CXjSpdYj.js
+[HTTP/3 200  465ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/mail-DtolJGWP.js
+[HTTP/3 200  458ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/navigation-Buiou5Tz.js
+[HTTP/3 200  508ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/receipt-B0frX2Ui.js
+[HTTP/3 200  489ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/file-text-BUL5pU7e.js
+[HTTP/3 200  473ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/clock-lYfixxjF.js
+[HTTP/3 200  555ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/map-pin-DZXOIFzN.js
+[HTTP/3 200  541ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/BookingDetailsDialog-BjJ8p7sx.js
+[HTTP/3 200  562ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/user-DPgxCJMX.js
+[HTTP/3 200  577ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/leaflet-Dgihpmma.css
+[HTTP/3 200  558ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/leaflet-DGIY4AGo.js
+[HTTP/3 200  576ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/circle-x-CsaUUDkH.js
+[HTTP/3 200  588ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/plus-N3JI82NW.js
+[HTTP/3 200  576ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/BookingDetailsDialog-CzXs93CS.css
+[HTTP/3 200  601ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/plane-BZtAzOar.js
+[HTTP/3 200  593ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/phone-DWIbGQuI.js
+[HTTP/3 200  627ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/loader-circle-BaDiKTsG.js
+[HTTP/3 200  627ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/circle-check-big-Dzjuw-k_.js
+[HTTP/3 200  613ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/circle-alert-XD7ojkb-.js
+[HTTP/3 200  649ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/eye-Y2WRzehF.js
+[HTTP/3 200  640ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/eye-off-BvwbTMg3.js
+[HTTP/3 200  633ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/alert-CvOKY6Km.js
+[HTTP/3 200  672ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/circle-check-c9WVEnM2.js
+[HTTP/3 200  663ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/send-Dvlyw-2E.js
+[HTTP/3 200  182ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/save-D8kCDiJ0.js
+[HTTP/3 200  664ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/upload-CAnuSPqi.js
+[HTTP/3 200  723ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/pencil-rFPlqG2P.js
+[HTTP/3 200  364ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/building-2-C9MYOff9.js
+[HTTP/3 200  695ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/trash-2-Bfath3ua.js
+[HTTP/3 200  687ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/triangle-alert-CnowAWy9.js
+[HTTP/3 200  682ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/table-BzQvbUb9.js
+[HTTP/3 200  701ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/schema-DdmcYfHF.js
+[HTTP/3 200  748ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/index-D201CMq4.js
+[HTTP/3 200  743ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/folder-open-ClfTs3W4.js
+[HTTP/3 200  729ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/pen-CE_DpwsI.js
+[HTTP/3 200  723ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/shield-vldVctsN.js
+[HTTP/3 200  304ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/heart-TCIncPTu.js
+[HTTP/3 200  746ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/briefcase-C0PGEV40.js
+[HTTP/3 200  747ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/form-DqRfjkza.js
+[HTTP/3 200  747ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/wallet-BRt6AVQk.js
+[HTTP/3 200  780ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/credit-card-BIBUF39J.js
+[HTTP/3 200  773ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/trending-up-e92ukwkf.js
+[HTTP/3 200  773ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/calendar-D312g3LQ.js
+[HTTP/3 200  770ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/banknote-rNiHO_ra.js
+[HTTP/3 200  706ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/printer-tgDmJsuJ.js
+[HTTP/3 200  784ms]
+
+GET
+https://adminaccess.hopelimo.com/assets/search-LkLlQ_Gq.js
+[HTTP/3 200  784ms]
+
+GET
+https://adminaccess.hopelimo.com/api/favicon/apple-touch-icon.png
+NS_BINDING_ABORTED
+
+GET
+https://adminaccess.hopelimo.com/api/favicon/icon.png
+NS_BINDING_ABORTED
+
+Error in parsing value for ‘image-rendering’.  Declaration dropped. leaflet-Dgihpmma.css:1:548
+Unknown property ‘behavior’.  Declaration dropped. leaflet-Dgihpmma.css:1:2065
+Expected ‘none’, URL, or filter function but found ‘progid’.  Error in parsing value for ‘filter’.  Declaration dropped. leaflet-Dgihpmma.css:1:13419
+GET
+https://adminaccess.hopelimo.com/api/favicon/apple-touch-icon.png?v=e3eb8221-02c5-4779-8ae7-45438158020d
+[HTTP/3 200  349ms]
+
+GET
+https://adminaccess.hopelimo.com/api/favicon/icon.png?v=e3eb8221-02c5-4779-8ae7-45438158020d
+[HTTP/3 200  324ms]
+
+GET
+https://adminaccess.hopelimo.com/images/logo_1759125364025.png
+NS_BINDING_ABORTED
+
+XHRGET
+https://adminaccess.hopelimo.com/api/site-logo
+[HTTP/3 200  195ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/admin/settings
+[HTTP/3 200  264ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/admin/dashboard
+[HTTP/3 200  369ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/admin/contacts
+[HTTP/3 200  264ms]
+
+GET
+https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2
+[HTTP/2 200  164ms]
+
+GET
+https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2
+[HTTP/2 200  145ms]
+
+GET
+https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2
+[HTTP/2 200  145ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/vehicle-types
+[HTTP/3 200  362ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/admin/active-drivers
+[HTTP/3 200  283ms]
+
+GET
+https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2
+[HTTP/2 200  175ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/admin/bookings
+[HTTP/3 200  322ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/admin/users
+[HTTP/3 200  307ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/payment-options
+[HTTP/3 200  321ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/payment-systems
+[HTTP/3 200  288ms]
+
+GET
+https://adminaccess.hopelimo.com/images/logo_1759125364025.png
+NS_BINDING_ABORTED
+
+XHRGET
+https://adminaccess.hopelimo.com/api/admin/system-commission
+[HTTP/3 200  255ms]
+
+GET
+https://minio.best-chauffeurs.com/hope-limo/cms/logos/cms-logos-1764914402733.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=minioadmin/20251216/us-east-1/s3/aws4_request&X-Amz-Date=20251216T062230Z&X-Amz-Expires=3600&X-Amz-Signature=0cc0032f35fe2a1809af8b0fa57f4ba9c75690568dd2c8e3c59cae8c36b92bbe&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject
+[HTTP/2 200  275ms]
+
+XHRGET
+https://adminaccess.hopelimo.com/api/admin/driver-documents
+[HTTP/3 200  66ms]
+
+GET
+https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459WlhyyTh89Y.woff2
+[HTTP/3 200  127ms]
+
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+TypeError: can't access property "control", t is undefined content_script.js:1:422997
+XHRPOST
+https://adminaccess.hopelimo.com/api/admin/driver-documents/upload
+[HTTP/3 404  189ms]
+
