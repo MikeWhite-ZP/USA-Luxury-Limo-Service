@@ -1644,6 +1644,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Driver profile not found' });
       }
 
+      // Verify driver has uploaded all required documents
+      const documents = await storage.getDriverDocuments(driver.id);
+      const requiredTypes = ['driver_license', 'limo_license', 'insurance_certificate', 'vehicle_image'];
+      const uploadedTypes = documents.map(d => d.documentType);
+      const missingDocs = requiredTypes.filter(type => !uploadedTypes.includes(type));
+      if (missingDocs.length > 0) {
+        return res.status(403).json({ message: 'You must upload all required documents before accepting jobs. Go to Documents tab to upload your documents.' });
+      }
+
       // Verify driver has completed tax information
       if (!driver.taxInfoCompletedAt) {
         return res.status(403).json({ message: 'You must complete your tax information before accepting jobs. Go to Settings to enter your tax details.' });
@@ -5514,15 +5523,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const users = await storage.getAllUsers();
       
-      // Fetch driver info for drivers
+      // Fetch driver info and document status for drivers
       const usersWithDriverInfo = await Promise.all(
         users.map(async (u) => {
           if (u.role === 'driver') {
             const driverInfo = await storage.getDriverByUserId(u.id);
+            
+            // Check document completion status
+            let documentsComplete = false;
+            if (driverInfo) {
+              const documents = await storage.getDriverDocuments(driverInfo.id);
+              const requiredTypes = ['driver_license', 'limo_license', 'insurance_certificate', 'vehicle_image'];
+              const uploadedTypes = documents.map(d => d.documentType);
+              documentsComplete = requiredTypes.every(type => uploadedTypes.includes(type));
+            }
+            
             return {
               ...u,
               password: undefined,
               driverInfo: driverInfo || null,
+              documentsComplete,
             };
           }
           return {
@@ -5911,6 +5931,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Update driver vehicle plate error:', error);
       res.status(500).json({ message: 'Failed to update vehicle plate' });
+    }
+  });
+
+  // Driver Document Status Check
+  app.get('/api/driver/document-status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+
+      const documents = await storage.getDriverDocuments(driver.id);
+      
+      // Required document types
+      const requiredTypes = ['driver_license', 'limo_license', 'insurance_certificate', 'vehicle_image'] as const;
+      
+      // Check status of each required document
+      const documentStatus = requiredTypes.map(type => {
+        const doc = documents.find(d => d.documentType === type);
+        const now = new Date();
+        const isExpired = doc?.expirationDate && new Date(doc.expirationDate) < now;
+        return {
+          type,
+          uploaded: !!doc,
+          status: doc?.status || 'missing',
+          isExpired,
+          isApproved: doc?.status === 'approved' && !isExpired,
+        };
+      });
+      
+      const allUploaded = documentStatus.every(d => d.uploaded);
+      const allApproved = documentStatus.every(d => d.isApproved);
+      const missingDocuments = documentStatus.filter(d => !d.uploaded).map(d => d.type);
+      const pendingDocuments = documentStatus.filter(d => d.uploaded && d.status === 'pending').map(d => d.type);
+      const rejectedDocuments = documentStatus.filter(d => d.status === 'rejected').map(d => d.type);
+      const expiredDocuments = documentStatus.filter(d => d.isExpired).map(d => d.type);
+      
+      res.json({
+        documentStatus,
+        allUploaded,
+        allApproved,
+        missingDocuments,
+        pendingDocuments,
+        rejectedDocuments,
+        expiredDocuments,
+        documentsComplete: allUploaded, // All required docs uploaded (may still be pending/rejected)
+        documentsReady: allApproved, // All required docs approved and not expired
+      });
+    } catch (error) {
+      console.error('Get driver document status error:', error);
+      res.status(500).json({ message: 'Failed to fetch document status' });
     }
   });
 

@@ -190,6 +190,20 @@ export default function DriverDashboard() {
     enabled: isAuthenticated && user?.role === "driver",
   });
 
+  // Fetch document status to check if all required docs are uploaded
+  const { data: documentStatus } = useQuery<{
+    documentsComplete: boolean;
+    documentsReady: boolean;
+    missingDocuments: string[];
+    pendingDocuments: string[];
+    rejectedDocuments: string[];
+    expiredDocuments: string[];
+  }>({
+    queryKey: ["/api/driver/document-status"],
+    retry: false,
+    enabled: isAuthenticated && user?.role === "driver",
+  });
+
   // Initialize credentials and vehicle plate values when driver data loads
   useEffect(() => {
     if (driver?.driverCredentials) {
@@ -501,6 +515,15 @@ export default function DriverDashboard() {
   }, [isAuthenticated, user?.role]);
 
   const handleAcceptRide = (bookingId: string) => {
+    // Check if all required documents are uploaded
+    if (!documentStatus?.documentsComplete) {
+      toast({
+        title: "Documents Required",
+        description: "Please upload all required documents in the Documents tab before accepting jobs.",
+        variant: "destructive",
+      });
+      return;
+    }
     // Check if tax info is complete
     if (!taxInfo?.taxInfoComplete) {
       toast({
@@ -852,8 +875,31 @@ export default function DriverDashboard() {
         {/* HOME TAB */}
         {activeTab === "home" && (
           <>
-            {/* Tax Info & Activation Status Alert */}
-            {!taxInfo?.taxInfoComplete && (
+            {/* Document Upload Alert */}
+            {!documentStatus?.documentsComplete && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Upload Required Documents</AlertTitle>
+                <AlertDescription>
+                  You must upload all required documents before your account can be activated.
+                  {documentStatus?.missingDocuments && documentStatus.missingDocuments.length > 0 && (
+                    <span className="block mt-1 text-sm">
+                      Missing: {documentStatus.missingDocuments.map(d => d.replace(/_/g, ' ')).join(', ')}
+                    </span>
+                  )}
+                  {" "}
+                  <button 
+                    onClick={() => setActiveTab("documents")} 
+                    className="underline font-medium hover:no-underline"
+                  >
+                    Go to Documents
+                  </button>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Tax Info Alert */}
+            {documentStatus?.documentsComplete && !taxInfo?.taxInfoComplete && (
               <Alert variant="destructive" className="mb-6">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Complete Your Tax Information</AlertTitle>
@@ -869,12 +915,13 @@ export default function DriverDashboard() {
               </Alert>
             )}
 
-            {taxInfo?.taxInfoComplete && !user?.isActive && (
+            {/* Pending Activation Alert */}
+            {documentStatus?.documentsComplete && taxInfo?.taxInfoComplete && !user?.isActive && (
               <Alert className="mb-6 border-yellow-200 bg-yellow-50">
                 <Clock className="h-4 w-4 text-yellow-600" />
                 <AlertTitle className="text-yellow-800">Pending Activation</AlertTitle>
                 <AlertDescription className="text-yellow-700">
-                  Your tax information is complete. Please wait for an administrator to activate your account before you can start accepting jobs.
+                  Your documents and tax information are complete. Please wait for an administrator to review and activate your account before you can start accepting jobs.
                 </AlertDescription>
               </Alert>
             )}
