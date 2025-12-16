@@ -6373,9 +6373,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Driver access required' });
       }
 
-      const driver = await storage.getDriverByUserId(userId);
+      let driver = await storage.getDriverByUserId(userId);
       if (!driver) {
-        return res.status(404).json({ message: 'Driver profile not found' });
+        // Auto-create driver record if it doesn't exist for a driver user
+        console.log(`[DRIVER] Auto-creating driver record for user ${userId}`);
+        driver = await storage.createDriver({
+          userId: userId,
+          active: true,
+          isOnDuty: false,
+        });
       }
 
       if (!req.file) {
