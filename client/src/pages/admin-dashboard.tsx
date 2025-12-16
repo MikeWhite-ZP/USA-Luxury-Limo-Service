@@ -65,6 +65,8 @@ import {
   Printer,
   Receipt,
   AlertCircle,
+  AlertTriangle,
+  CheckCircle,
   CheckCircle2,
   Clock,
   Upload,
@@ -8778,6 +8780,9 @@ export default function AdminDashboard() {
                             Star Rating
                           </th>
                           <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
+                            Tax Info
+                          </th>
+                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
                             Actions
                           </th>
                         </tr>
@@ -8942,6 +8947,23 @@ export default function AdminDashboard() {
                                   <span className="text-sm text-muted-foreground">
                                     N/A
                                   </span>
+                                )}
+                              </td>
+                              <td className="p-3">
+                                {u.role === "driver" ? (
+                                  (u as any).driverInfo?.taxInfoCompletedAt ? (
+                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                      <CheckCircle className="w-3 h-3 mr-1" />
+                                      Complete
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                                      <AlertTriangle className="w-3 h-3 mr-1" />
+                                      Missing
+                                    </Badge>
+                                  )
+                                ) : (
+                                  <span className="text-sm text-muted-foreground">-</span>
                                 )}
                               </td>
                               <td className="p-4">

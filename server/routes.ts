@@ -1644,6 +1644,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Driver profile not found' });
       }
 
+      // Verify driver has completed tax information
+      if (!driver.taxInfoCompletedAt) {
+        return res.status(403).json({ message: 'You must complete your tax information before accepting jobs. Go to Settings to enter your tax details.' });
+      }
+
+      // Verify user account is active
+      if (!user.isActive) {
+        return res.status(403).json({ message: 'Your account must be activated by an administrator before you can accept jobs.' });
+      }
+
       // Get the booking
       const booking = await storage.getBooking(id);
       if (!booking) {

@@ -22,6 +22,7 @@ import {
   Upload,
   CheckCircle,
   AlertCircle,
+  AlertTriangle,
   FileText,
   Car,
   Home,
@@ -34,6 +35,7 @@ import {
   Download,
   Camera,
 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
@@ -174,6 +176,16 @@ export default function DriverDashboard() {
   // Fetch driver earnings
   const { data: earnings, isLoading: earningsLoading } = useQuery<EarningsData>({
     queryKey: ["/api/driver/earnings"],
+    retry: false,
+    enabled: isAuthenticated && user?.role === "driver",
+  });
+
+  // Fetch tax info to check completion status
+  const { data: taxInfo } = useQuery<{
+    taxInfoComplete: boolean;
+    taxInfoCompletedAt: string | null;
+  }>({
+    queryKey: ["/api/driver/tax-info"],
     retry: false,
     enabled: isAuthenticated && user?.role === "driver",
   });
@@ -489,6 +501,24 @@ export default function DriverDashboard() {
   }, [isAuthenticated, user?.role]);
 
   const handleAcceptRide = (bookingId: string) => {
+    // Check if tax info is complete
+    if (!taxInfo?.taxInfoComplete) {
+      toast({
+        title: "Tax Information Required",
+        description: "Please complete your tax information in Settings before accepting jobs.",
+        variant: "destructive",
+      });
+      return;
+    }
+    // Check if user account is active
+    if (!user?.isActive) {
+      toast({
+        title: "Account Pending Activation",
+        description: "Your account must be activated by an administrator before you can accept jobs.",
+        variant: "destructive",
+      });
+      return;
+    }
     acceptBookingMutation.mutate(bookingId);
   };
 
@@ -822,6 +852,33 @@ export default function DriverDashboard() {
         {/* HOME TAB */}
         {activeTab === "home" && (
           <>
+            {/* Tax Info & Activation Status Alert */}
+            {!taxInfo?.taxInfoComplete && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Complete Your Tax Information</AlertTitle>
+                <AlertDescription>
+                  You must complete your tax information in the Settings tab before your account can be activated and you can start earning.{" "}
+                  <button 
+                    onClick={() => setActiveTab("settings")} 
+                    className="underline font-medium hover:no-underline"
+                  >
+                    Go to Settings
+                  </button>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {taxInfo?.taxInfoComplete && !user?.isActive && (
+              <Alert className="mb-6 border-yellow-200 bg-yellow-50">
+                <Clock className="h-4 w-4 text-yellow-600" />
+                <AlertTitle className="text-yellow-800">Pending Activation</AlertTitle>
+                <AlertDescription className="text-yellow-700">
+                  Your tax information is complete. Please wait for an administrator to activate your account before you can start accepting jobs.
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Performance Stats */}
             <div className="grid md:grid-cols-3 gap-6">
               <div className="relative group">
