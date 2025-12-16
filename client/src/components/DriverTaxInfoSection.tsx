@@ -178,18 +178,21 @@ export default function DriverTaxInfoSection() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-6">
+        <CardContent className="pt-6 relative z-10">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="taxLegalFirstName" className="font-medium text-foreground">Legal First Name *</Label>
                 <Input
                   id="taxLegalFirstName"
+                  name="taxLegalFirstName"
+                  type="text"
                   value={formData.taxLegalFirstName}
                   onChange={(e) => handleInputChange("taxLegalFirstName", e.target.value)}
                   placeholder="As it appears on your tax documents"
                   required
-                  className="border-gray-300 focus:border-red-500 focus:ring-red-500"
+                  autoComplete="given-name"
+                  className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors"
                 />
               </div>
 
@@ -197,11 +200,14 @@ export default function DriverTaxInfoSection() {
                 <Label htmlFor="taxLegalLastName" className="font-medium text-foreground">Legal Last Name *</Label>
                 <Input
                   id="taxLegalLastName"
+                  name="taxLegalLastName"
+                  type="text"
                   value={formData.taxLegalLastName}
                   onChange={(e) => handleInputChange("taxLegalLastName", e.target.value)}
                   placeholder="As it appears on your tax documents"
                   required
-                  className="border-gray-300 focus:border-red-500 focus:ring-red-500"
+                  autoComplete="family-name"
+                  className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors"
                 />
               </div>
             </div>
@@ -228,13 +234,15 @@ export default function DriverTaxInfoSection() {
                 ) : (
                   <Input
                     id="ssn"
+                    name="ssn"
                     type="text"
                     value={formData.ssn}
                     onChange={(e) => handleInputChange("ssn", formatSSN(e.target.value))}
                     placeholder="XXX-XX-XXXX"
                     maxLength={11}
                     required={!taxInfo?.hasSsn}
-                    className="border-gray-300 focus:border-red-500 focus:ring-red-500"
+                    autoComplete="off"
+                    className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors"
                   />
                 )}
                 <p className="text-xs text-muted-foreground">Your SSN is encrypted and stored securely</p>
@@ -243,14 +251,16 @@ export default function DriverTaxInfoSection() {
               <div className="space-y-2">
                 <Label htmlFor="taxDateOfBirth" className="font-medium text-foreground">Date of Birth *</Label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-red-500" />
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-red-500 pointer-events-none z-10" />
                   <Input
                     id="taxDateOfBirth"
+                    name="taxDateOfBirth"
                     type="date"
                     value={formData.taxDateOfBirth}
                     onChange={(e) => handleInputChange("taxDateOfBirth", e.target.value)}
-                    className="pl-10 border-gray-300 focus:border-red-500 focus:ring-red-500"
+                    className="pl-10 bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors"
                     required
+                    autoComplete="bday"
                   />
                 </div>
               </div>
@@ -260,11 +270,14 @@ export default function DriverTaxInfoSection() {
               <Label htmlFor="taxAddressStreet" className="font-medium text-foreground">Street Address *</Label>
               <Input
                 id="taxAddressStreet"
+                name="taxAddressStreet"
+                type="text"
                 value={formData.taxAddressStreet}
                 onChange={(e) => handleInputChange("taxAddressStreet", e.target.value)}
                 placeholder="123 Main Street, Apt 4"
                 required
-                className="border-gray-300 focus:border-red-500 focus:ring-red-500"
+                autoComplete="street-address"
+                className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors"
               />
             </div>
 
@@ -273,11 +286,14 @@ export default function DriverTaxInfoSection() {
                 <Label htmlFor="taxAddressCity" className="font-medium text-foreground">City *</Label>
                 <Input
                   id="taxAddressCity"
+                  name="taxAddressCity"
+                  type="text"
                   value={formData.taxAddressCity}
                   onChange={(e) => handleInputChange("taxAddressCity", e.target.value)}
                   placeholder="New York"
                   required
-                  className="border-gray-300 focus:border-red-500 focus:ring-red-500"
+                  autoComplete="address-level2"
+                  className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors"
                 />
               </div>
 
@@ -287,7 +303,7 @@ export default function DriverTaxInfoSection() {
                   value={formData.taxAddressState} 
                   onValueChange={(value) => handleInputChange("taxAddressState", value)}
                 >
-                  <SelectTrigger className="border-gray-300 focus:border-red-500 focus:ring-red-500">
+                  <SelectTrigger className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -302,12 +318,15 @@ export default function DriverTaxInfoSection() {
                 <Label htmlFor="taxAddressZip" className="font-medium text-foreground">ZIP Code *</Label>
                 <Input
                   id="taxAddressZip"
+                  name="taxAddressZip"
+                  type="text"
                   value={formData.taxAddressZip}
                   onChange={(e) => handleInputChange("taxAddressZip", e.target.value)}
                   placeholder="10001"
                   maxLength={10}
                   required
-                  className="border-gray-300 focus:border-red-500 focus:ring-red-500"
+                  autoComplete="postal-code"
+                  className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors"
                 />
               </div>
             </div>
@@ -318,7 +337,7 @@ export default function DriverTaxInfoSection() {
                 value={formData.taxClassification} 
                 onValueChange={(value) => handleInputChange("taxClassification", value)}
               >
-                <SelectTrigger className="border-gray-300 focus:border-red-500 focus:ring-red-500">
+                <SelectTrigger className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
