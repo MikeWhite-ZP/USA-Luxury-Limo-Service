@@ -1,0 +1,103 @@
+Logs
+Server: localhost
+Lines:
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+🔵 User found: MikeWhite
+[PRESIGNED-URL] Generated URL for cms/logos/cms-logos-1764913058546.webp: https://minio.best-chauffeurs.com/usa-luxury-limo/cms/logos/cms-logos-1764913058...
+4:13:14 PM [express] GET /api/driver/document-status 200 in 86ms :: {"documentStatus":[{"type":"driv…
+4:13:14 PM [express] GET /api/site-logo 200 in 81ms :: {"logo":{"id":"29b63a09-1502-4003-b0e2-345875…
+4:13:14 PM [express] GET /api/driver/tax-info 304 in 87ms :: {"taxLegalFirstName":"","taxLegalLastNa…
+4:13:14 PM [express] GET /api/driver/profile 304 in 97ms :: {"id":"913efef8-9547-47e9-b3a2-277afb8c8…
+4:13:14 PM [express] POST /api/bookings/auto-cancel-expired 200 in 96ms :: {"success":true,"cancelle…
+[PRESIGNED-URL] Generated URL for driver-docs/913efef8-9547-47e9-b3a2-277afb8c81ed/profile_photo-1765869271347.jpeg: https://minio.best-chauffeurs.com/usa-luxury-limo/driver-docs/913efef8-9547-47e9...
+[PRESIGNED-URL] Generated URL for driver-docs/913efef8-9547-47e9-b3a2-277afb8c81ed/vehicle_image-1765869203205.png: https://minio.best-chauffeurs.com/usa-luxury-limo/driver-docs/913efef8-9547-47e9...
+[PRESIGNED-URL] Generated URL for driver-docs/913efef8-9547-47e9-b3a2-277afb8c81ed/insurance_certificate-1765869157984.jpeg: https://minio.best-chauffeurs.com/usa-luxury-limo/driver-docs/913efef8-9547-47e9...
+[PRESIGNED-URL] Generated URL for driver-docs/913efef8-9547-47e9-b3a2-277afb8c81ed/limo_license-1765868953442.jpeg: https://minio.best-chauffeurs.com/usa-luxury-limo/driver-docs/913efef8-9547-47e9...
+[PRESIGNED-URL] Generated URL for driver-docs/913efef8-9547-47e9-b3a2-277afb8c81ed/driver_license-1765867640548.jpeg: https://minio.best-chauffeurs.com/usa-luxury-limo/driver-docs/913efef8-9547-47e9...
+4:13:14 PM [express] GET /api/driver/earnings 200 in 102ms :: {"today":0,"week":0,"month":0,"year":0…
+4:13:14 PM [express] GET /api/bookings 304 in 106ms :: []
+4:13:14 PM [express] GET /api/driver/documents 200 in 103ms :: [{"id":"1689bce5-c653-4c93-b565-d72cd…
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+4:14:06 PM [express] PATCH /api/driver/tax-info 500 in 30ms :: {"message":"Encryption not configured…
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+4:14:14 PM [express] PATCH /api/driver/tax-info 500 in 6ms :: {"message":"Encryption not configured.…
+🔵 Deserializing user ID: e9589a19-cf56-4c78-80fd-a629ad625abd
+🔵 User found: MikeWhite
+4:14:35 PM [express] PATCH /api/driver/tax-info 500 in 22ms :: {"message":"Encryption not configured…
