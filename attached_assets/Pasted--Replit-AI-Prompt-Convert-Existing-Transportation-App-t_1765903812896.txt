@@ -1,0 +1,633 @@
+# Replit AI Prompt: Convert Existing Transportation App to Modular SaaS Architecture
+
+## CRITICAL CONTEXT
+This is an **EXISTING, FULLY WORKING** transportation management application that needs to be converted into a modular, subscription-based SaaS platform. DO NOT build from scratch - refactor and restructure the current codebase.
+
+---
+
+## PROJECT GOAL
+Transform the current monolithic application into a modular architecture where customers can subscribe to only the modules they need, with monthly subscription fees based on their selected modules.
+
+---
+
+## PART 1: CONVERT EXISTING PROJECT TO MODULAR DEPLOYMENT
+
+### Current State Analysis Required
+**FIRST, analyze the existing codebase and identify:**
+1. What backend APIs and services currently exist
+2. What frontend interfaces are currently built
+3. What SMS/notification features are implemented
+4. What mobile app functionality exists (if any)
+5. Current database schema and structure
+6. Current deployment configuration
+7. Existing authentication and user management
+
+### Module Breakdown Strategy
+
+Review the existing codebase and separate it into these modules:
+
+#### **Module 1: Backend API (MANDATORY BASE)**
+- Extract all backend logic, APIs, database operations
+- This becomes the foundation that ALL other modules depend on
+- Keep all core business logic here:
+  - User authentication & authorization
+  - Fleet/vehicle management APIs
+  - Route management APIs
+  - Dispatch operations APIs
+  - Database operations
+  - Core business logic
+- **Deployment**: This must be deployable as a standalone API service
+
+#### **Module 2: Frontend Web Dashboard (OPTIONAL)**
+- Extract all web-based UI components
+- Separate the React/Vue/Angular frontend from backend
+- Create standalone web application that consumes the Backend API
+- Features include: fleet management UI, dispatch dashboard, analytics, etc.
+- **Deployment**: Deployable as a separate web application
+
+#### **Module 3: SMS Capability (OPTIONAL)**
+- Extract SMS/notification functionality
+- Create independent SMS service module
+- Connects to Backend API for data
+- Handles: driver notifications, customer alerts, ETA updates, etc.
+- **Deployment**: Deployable as a separate microservice
+
+#### **Module 4: Customer White-Label Mobile App (OPTIONAL)**
+- Extract or create customer-facing mobile functionality
+- Booking, tracking, payments, etc.
+- **Deployment**: Separate mobile app build (iOS/Android)
+
+#### **Module 5: Admin/Driver White-Label Mobile App (OPTIONAL)**
+- Extract or create driver/admin mobile functionality
+- Dispatch acceptance, navigation, status updates, etc.
+- **Deployment**: Separate mobile app build (iOS/Android)
+
+### Refactoring Requirements
+
+**Database Changes:**
+```sql
+-- Add these tables to existing database:
+
+CREATE TABLE subscription_tiers (
+  tier_id SERIAL PRIMARY KEY,
+  tier_name VARCHAR(50),
+  price_usd DECIMAL(10,2),
+  included_modules TEXT[] -- Array of module IDs
+);
+
+CREATE TABLE customer_subscriptions (
+  subscription_id SERIAL PRIMARY KEY,
+  customer_id INT REFERENCES customers(customer_id),
+  tier_id INT REFERENCES subscription_tiers(tier_id),
+  enabled_modules TEXT[], -- Array of module IDs
+  monthly_fee DECIMAL(10,2),
+  subscription_start_date TIMESTAMP,
+  subscription_status VARCHAR(20), -- active, suspended, cancelled
+  billing_cycle_day INT,
+  next_billing_date DATE
+);
+
+CREATE TABLE module_registry (
+  module_id VARCHAR(50) PRIMARY KEY,
+  module_name VARCHAR(100),
+  module_description TEXT,
+  base_price DECIMAL(10,2),
+  is_mandatory BOOLEAN,
+  dependencies TEXT[] -- Other modules this depends on
+);
+
+-- Insert default modules
+INSERT INTO module_registry VALUES
+('backend-api', 'Backend API', 'Core backend services', 99.00, true, '{}'),
+('frontend-web', 'Web Dashboard', 'Desktop web interface', 49.00, false, '{backend-api}'),
+('sms-service', 'SMS Notifications', 'SMS alerts and notifications', 29.00, false, '{backend-api}'),
+('customer-app', 'Customer Mobile App', 'White-label customer app', 79.00, false, '{backend-api}'),
+('admin-app', 'Admin/Driver Mobile App', 'White-label admin app', 79.00, false, '{backend-api}');
+```
+
+**Code Refactoring Steps:**
+
+1. **Create Module Configuration System:**
+```javascript
+// config/modules.js
+const moduleConfig = {
+  'backend-api': {
+    enabled: true, // Always enabled
+    mandatory: true
+  },
+  'frontend-web': {
+    enabled: process.env.MODULE_FRONTEND === 'true',
+    mandatory: false
+  },
+  'sms-service': {
+    enabled: process.env.MODULE_SMS === 'true',
+    mandatory: false
+  },
+  'customer-app': {
+    enabled: process.env.MODULE_CUSTOMER_APP === 'true',
+    mandatory: false
+  },
+  'admin-app': {
+    enabled: process.env.MODULE_ADMIN_APP === 'true',
+    mandatory: false
+  }
+};
+
+// Middleware to check module access
+function checkModuleAccess(moduleName) {
+  return async (req, res, next) => {
+    const customer = await getCustomer(req.user.customerId);
+    if (!customer.enabledModules.includes(moduleName)) {
+      return res.status(403).json({ 
+        error: 'Module not enabled in your subscription' 
+      });
+    }
+    next();
+  };
+}
+```
+
+2. **Separate Backend from Frontend:**
+   - Move all frontend code to `/frontend` directory
+   - Configure frontend to call backend API endpoints
+   - Use environment variables for API URLs
+   - Create separate build processes
+
+3. **Extract SMS Module:**
+   - Move SMS code to `/modules/sms-service`
+   - Create webhook endpoints in backend
+   - Make SMS service callable via API
+   - Add module check before SMS operations
+
+4. **Dockerize Each Module:**
+```dockerfile
+# Backend Dockerfile
+FROM node:18
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["npm", "start"]
+
+# Frontend Dockerfile  
+FROM node:18 as build
+WORKDIR /app
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ ./
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+```
+
+5. **Create docker-compose.yml for Modular Deployment:**
+```yaml
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - MODULE_FRONTEND=${MODULE_FRONTEND:-false}
+      - MODULE_SMS=${MODULE_SMS:-false}
+    ports:
+      - "3000:3000"
+    
+  frontend:
+    build: ./frontend
+    environment:
+      - API_URL=http://backend:3000
+    ports:
+      - "80:80"
+    profiles:
+      - with-frontend
+    depends_on:
+      - backend
+  
+  sms-service:
+    build: ./modules/sms-service
+    environment:
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - API_URL=http://backend:3000
+    profiles:
+      - with-sms
+    depends_on:
+      - backend
+```
+
+6. **Create Deployment Scripts:**
+```bash
+#!/bin/bash
+# deploy.sh - Deploy only selected modules
+
+MODULES=$1 # e.g., "backend,frontend,sms"
+
+if [[ $MODULES == *"backend"* ]]; then
+  docker-compose up -d backend
+fi
+
+if [[ $MODULES == *"frontend"* ]]; then
+  docker-compose --profile with-frontend up -d frontend
+fi
+
+if [[ $MODULES == *"sms"* ]]; then
+  docker-compose --profile with-sms up -d sms-service
+fi
+```
+
+### Environment Variables Template
+Create `.env.template`:
+```
+# Mandatory
+DATABASE_URL=postgresql://user:pass@host:5432/dbname
+JWT_SECRET=your-secret-key
+API_PORT=3000
+
+# Module Activation (set to true/false based on subscription)
+MODULE_FRONTEND=false
+MODULE_SMS=false
+MODULE_CUSTOMER_APP=false
+MODULE_ADMIN_APP=false
+
+# SMS Module (only if MODULE_SMS=true)
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_PHONE_NUMBER=
+
+# Billing
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+```
+
+### Module Pricing Structure
+Define subscription tiers in the backend:
+```javascript
+const subscriptionTiers = {
+  basic: {
+    name: 'Basic',
+    price: 99,
+    modules: ['backend-api'],
+    description: 'API access only'
+  },
+  standard: {
+    name: 'Standard', 
+    price: 199,
+    modules: ['backend-api', 'frontend-web', 'sms-service'],
+    description: 'API + Web Dashboard + SMS'
+  },
+  professional: {
+    name: 'Professional',
+    price: 349,
+    modules: ['backend-api', 'frontend-web', 'sms-service', 'customer-app'],
+    description: 'Standard + Customer Mobile App'
+  },
+  enterprise: {
+    name: 'Enterprise',
+    price: 499,
+    modules: ['backend-api', 'frontend-web', 'sms-service', 'customer-app', 'admin-app'],
+    description: 'All modules included'
+  }
+};
+
+// À la carte pricing
+const moduleAddons = {
+  'frontend-web': { name: 'Web Dashboard', price: 49 },
+  'sms-service': { name: 'SMS Notifications', price: 29 },
+  'customer-app': { name: 'Customer Mobile App', price: 79 },
+  'admin-app': { name: 'Admin Mobile App', price: 79 }
+};
+```
+
+### Testing Checklist
+- [ ] Backend API works standalone
+- [ ] Frontend can be enabled/disabled without breaking backend
+- [ ] SMS module can be enabled/disabled independently
+- [ ] Customer subscription properly restricts module access
+- [ ] Billing integration tracks module usage
+- [ ] Each module can be deployed separately
+- [ ] Module dependencies are enforced
+- [ ] Admin panel can enable/disable customer modules
+
+---
+
+## PART 2: CREATE NEW SALES PAGE PROJECT (unonsolutionsusa.com)
+
+**This is a COMPLETELY SEPARATE Replit project for marketing and sales.**
+
+### Project Requirements
+
+**Domain**: unonsolutionsusa.com
+
+**Purpose**: Professional sales page to showcase and sell modular transportation SaaS subscriptions
+
+**Tech Stack**: Next.js 14+ with App Router (for SEO and performance)
+
+### Page Structure
+
+#### **1. Hero Section**
+- Stunning animated background (subtle particle effects or gradient animations)
+- Headline: "Modular Transportation Management - Pay Only For What You Need"
+- Subheadline: "Scale your fleet operations with our flexible, subscription-based platform"
+- Two CTAs: "View Pricing" and "Book a Demo"
+- Preview dashboard screenshot/video
+
+#### **2. Problem/Solution Section**
+- Visual comparison: Traditional (monolithic) vs. Modular approach
+- Key pain points: High costs, forced features, rigid contracts
+- Our solution: Pay-per-module, flexible scaling, no long-term lock-in
+
+#### **3. Module Showcase**
+Interactive module cards with hover effects:
+
+**Backend API - $99/month** (Required Base)
+- Icon: Server/Database
+- "The Foundation: RESTful API, fleet management, dispatch, reporting"
+- Features list with checkmarks
+- "Always Included" badge
+
+**Web Dashboard - $49/month** (Add-on)
+- Icon: Desktop monitor
+- "Desktop Command Center: Full-featured web interface"
+- Screenshot preview
+- "Add to Plan" button
+
+**SMS Notifications - $29/month** (Add-on)
+- Icon: Message/SMS
+- "Automated Alerts: Driver dispatch, customer ETA, status updates"
+- Features list
+- "Add to Plan" button
+
+**Customer Mobile App - $79/month** (Add-on)
+- Icon: Smartphone with user
+- "White-Label Customer Experience: iOS & Android booking app"
+- App store badges
+- "Add to Plan" button
+
+**Driver Mobile App - $79/month** (Add-on)
+- Icon: Smartphone with driver
+- "Driver Command Center: Accept jobs, navigate, update status"
+- Screenshot preview
+- "Add to Plan" button
+
+#### **4. Interactive Pricing Calculator**
+```
+[Backend API] $99/mo (Required) ✓
+[ ] Web Dashboard +$49/mo
+[ ] SMS Service +$29/mo  
+[ ] Customer App +$79/mo
+[ ] Driver App +$79/mo
+
+Your Monthly Total: $___
+[Start Free Trial] [Contact Sales]
+```
+
+#### **5. Comparison Table**
+| Feature | Basic | Standard | Professional | Enterprise | Custom |
+|---------|-------|----------|--------------|------------|--------|
+| Backend API | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Web Dashboard | - | ✓ | ✓ | ✓ | ✓ |
+| SMS Service | - | ✓ | ✓ | ✓ | ✓ |
+| Customer App | - | - | ✓ | ✓ | ✓ |
+| Driver App | - | - | - | ✓ | ✓ |
+| Price | $99 | $199 | $349 | $499 | Custom |
+
+#### **6. How It Works**
+- Step 1: Choose Your Modules
+- Step 2: Deploy In Minutes (show deployment dashboard)
+- Step 3: Scale As You Grow
+- Timeline visualization
+
+#### **7. Use Cases / Customer Stories**
+- Small Courier Service: "Started with just backend API"
+- Growing Delivery Company: "Added web dashboard as we expanded"
+- Enterprise Fleet: "Full suite with white-label apps"
+- Include logos and testimonials
+
+#### **8. Technical Specifications**
+Expandable accordions:
+- API Documentation
+- Security & Compliance
+- Uptime & SLA
+- Integration Options
+- Deployment Options (Cloud, On-premise)
+
+#### **9. FAQ Section**
+- Can I upgrade/downgrade modules?
+- Is there a free trial?
+- What's included in setup?
+- Do you offer custom development?
+- What's your cancellation policy?
+
+#### **10. Final CTA Section**
+- "Ready to Modernize Your Fleet Management?"
+- Pricing calculator reminder
+- Three buttons: "Start Free Trial", "Book Demo", "Contact Sales"
+- Trust badges: SSL, PCI Compliance, Uptime guarantee
+
+#### **11. Footer**
+- Company info
+- Quick links (Pricing, Docs, Support)
+- Social media
+- Contact: sales@unonsolutionsusa.com
+- Copyright UnonSolutions USA
+
+### Design Requirements
+
+**Visual Style:**
+- Modern, professional, tech-forward
+- Color scheme: Primary blue (#2563eb), accent green (#10b981), dark navy (#1e293b)
+- Glassmorphism effects on cards
+- Smooth scroll animations (framer-motion)
+- Micro-interactions on hover/click
+- Dark mode support
+
+**Animations:**
+- Fade-in on scroll (intersection observer)
+- Number counters for pricing
+- Module cards flip/expand on interaction
+- Smooth page transitions
+- Animated pricing calculator updates
+- Parallax effects on hero section
+
+**Performance:**
+- Lighthouse score 95+
+- Optimized images (WebP format)
+- Lazy loading
+- Fast page load (<2 seconds)
+
+**SEO Optimization:**
+- Semantic HTML
+- Meta tags for social sharing
+- Schema.org markup
+- Sitemap.xml
+- robots.txt
+- Open Graph images
+
+### Technical Implementation
+
+```javascript
+// components/PricingCalculator.jsx
+'use client';
+import { useState } from 'react';
+
+export default function PricingCalculator() {
+  const [modules, setModules] = useState({
+    backend: true, // mandatory
+    frontend: false,
+    sms: false,
+    customerApp: false,
+    adminApp: false
+  });
+
+  const prices = {
+    backend: 99,
+    frontend: 49,
+    sms: 29,
+    customerApp: 79,
+    adminApp: 79
+  };
+
+  const total = Object.entries(modules)
+    .filter(([_, enabled]) => enabled)
+    .reduce((sum, [module]) => sum + prices[module], 0);
+
+  return (
+    <div className="pricing-calculator">
+      <h3>Build Your Custom Plan</h3>
+      {/* Calculator UI */}
+      <div className="total">
+        <span>Monthly Total:</span>
+        <span className="price">${total}</span>
+      </div>
+      <button>Start Free Trial</button>
+    </div>
+  );
+}
+```
+
+### Lead Capture
+
+**Contact Form Integration:**
+- Name, Email, Phone, Company
+- "Which modules interest you?" checkboxes
+- "Estimated fleet size" dropdown
+- Send to: sales@unonsolutionsusa.com
+- Integration with CRM (HubSpot/Salesforce) or simple email
+
+**Demo Booking:**
+- Calendly integration or custom scheduler
+- Collect basic info before booking
+- Send confirmation email
+
+### Analytics & Tracking
+- Google Analytics 4
+- Track module selection patterns
+- Heatmap (Hotjar)
+- Conversion tracking on CTA buttons
+- A/B testing setup for pricing page
+
+---
+
+## EXECUTION STEPS
+
+### Step 1: Analyze Current Project
+```
+"Analyze the entire codebase of this transportation management application. 
+Identify and list:
+1. All backend APIs and endpoints
+2. All frontend components and pages
+3. Database schema and models
+4. SMS/notification features
+5. Authentication and authorization logic
+6. Any existing mobile app code
+Provide a complete breakdown of the current architecture."
+```
+
+### Step 2: Create Module Structure
+```
+"Based on the analysis, refactor the codebase to separate into these modules:
+- /backend (API services)
+- /frontend (Web UI)
+- /modules/sms-service (SMS functionality)
+- /modules/customer-app (if exists)
+- /modules/admin-app (if exists)
+
+Create the database tables for subscription management as specified.
+Set up the module configuration system and environment variables."
+```
+
+### Step 3: Implement Module Checking
+```
+"Add middleware and logic to check customer subscriptions before allowing 
+access to module features. Update all routes and services to respect 
+module activation status. Create admin endpoints to enable/disable modules 
+for customers."
+```
+
+### Step 4: Dockerize Modules
+```
+"Create Dockerfiles for each module and a docker-compose.yml that allows 
+selective module deployment using profiles. Create deployment scripts 
+that deploy only activated modules based on customer subscription."
+```
+
+### Step 5: Test Modular Deployment
+```
+"Test the modular deployment by:
+1. Deploying only backend
+2. Deploying backend + frontend
+3. Deploying backend + SMS
+4. Deploying full suite
+Verify each configuration works correctly and module restrictions are enforced."
+```
+
+### Step 6: Create Sales Page (NEW PROJECT)
+```
+"Create a new Next.js project for unonsolutionsusa.com with:
+- Modern hero section with animations
+- Interactive pricing calculator
+- Module showcase with cards
+- Comparison pricing table
+- Contact form sending to sales@unonsolutionsusa.com
+- FAQ section
+- SEO optimization
+Use Tailwind CSS and framer-motion for animations.
+Implement the exact design specifications provided."
+```
+
+---
+
+## SUCCESS CRITERIA
+
+### For Existing Project Conversion:
+✅ Code is separated into distinct modules
+✅ Database supports subscription and module tracking
+✅ Each module can be deployed independently
+✅ Customer access is controlled by subscription
+✅ Admin can enable/disable modules per customer
+✅ Deployment scripts work for all module combinations
+✅ All modules still function correctly when enabled
+
+### For Sales Page Project:
+✅ Professional, modern design on unonsolutionsusa.com
+✅ Interactive pricing calculator works smoothly
+✅ All CTAs and forms are functional
+✅ Page loads fast (<2 seconds)
+✅ Mobile responsive
+✅ SEO optimized (Lighthouse 95+)
+✅ Lead capture sends to sales@unonsolutionsusa.com
+✅ Animations are smooth and not overwhelming
+
+---
+
+## IMPORTANT NOTES
+
+🔴 **DO NOT rebuild the application from scratch**
+🔴 **Preserve all existing functionality**
+🔴 **Refactor and reorganize, don't rewrite**
+🔴 **Test thoroughly after each module separation**
+🔴 **The sales page is a COMPLETELY SEPARATE project**
+🔴 **Backend API module is ALWAYS mandatory - cannot be disabled**
