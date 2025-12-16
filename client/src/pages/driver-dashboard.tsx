@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -121,6 +122,7 @@ export default function DriverDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<
     "home" | "documents" | "assigned-jobs" | "settings"
   >("home");
@@ -2039,7 +2041,7 @@ export default function DriverDashboard() {
                     </div>
                   </div>
                   <Button 
-                    onClick={() => window.location.href = '/driver/earnings'}
+                    onClick={() => setLocation('/driver/earnings')}
                     className="bg-green-600 hover:bg-green-700"
                   >
                     <DollarSign className="w-4 h-4 mr-2" />
