@@ -9586,7 +9586,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         faviconSetting,
         primaryColor,
         secondaryColor,
-        accentColor
+        accentColor,
+        contactEmail,
+        contactPhone,
+        contactAddress
       ] = await Promise.all([
         storage.getCmsSetting('BRAND_COMPANY_NAME'),
         storage.getCmsSetting('BRAND_TAGLINE'),
@@ -9595,7 +9598,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         storage.getCmsSetting('site_favicon'),
         storage.getCmsSetting('BRAND_PRIMARY_COLOR'),
         storage.getCmsSetting('BRAND_SECONDARY_COLOR'),
-        storage.getCmsSetting('BRAND_ACCENT_COLOR')
+        storage.getCmsSetting('BRAND_ACCENT_COLOR'),
+        storage.getCmsSetting('CONTACT_EMAIL'),
+        storage.getCmsSetting('CONTACT_PHONE'),
+        storage.getCmsSetting('CONTACT_ADDRESS')
       ]);
 
       // Get logo URL from unified site_logo setting (same as MediaLibrary uses)
@@ -9627,7 +9633,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           primary: primaryColor?.value || '#1a1a1a',
           secondary: secondaryColor?.value || '#666666',
           accent: accentColor?.value || '#d4af37'
-        }
+        },
+        contactEmail: contactEmail?.value || '',
+        contactPhone: contactPhone?.value || '',
+        contactAddress: contactAddress?.value || ''
       });
     } catch (error) {
       console.error('Get branding error:', error);

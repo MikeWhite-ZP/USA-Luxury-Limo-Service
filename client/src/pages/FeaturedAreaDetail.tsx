@@ -18,11 +18,13 @@ import {
   Users,
   Shield
 } from "lucide-react";
+import { useBranding } from "@/hooks/useBranding";
 
 export default function FeaturedAreaDetail() {
   const [, setLocation] = useLocation();
   const params = useParams();
   const areaSlug = params.slug;
+  const { contactEmail } = useBranding();
 
   const featuredAreasData = {
     "downtown-houston": {
@@ -291,14 +293,16 @@ export default function FeaturedAreaDetail() {
                 <Calendar className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
                 Book Now
               </Button>
-              <a 
-                href="mailto:usaluxurylimo@gmail.com"
-                className="group border-2 border-white/50 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-primary transition-all duration-300 inline-flex items-center justify-center backdrop-blur-sm hover:border-white shadow-xl hover:shadow-2xl hover:-translate-y-1"
-                data-testid="contact-email-button"
-              >
-                <Mail className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
-                Contact Us
-              </a>
+              {contactEmail && (
+                <a 
+                  href={`mailto:${contactEmail}`}
+                  className="group border-2 border-white/50 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-primary transition-all duration-300 inline-flex items-center justify-center backdrop-blur-sm hover:border-white shadow-xl hover:shadow-2xl hover:-translate-y-1"
+                  data-testid="contact-email-button"
+                >
+                  <Mail className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
+                  Contact Us
+                </a>
+              )}
             </div>
           </div>
         </section>

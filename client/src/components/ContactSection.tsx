@@ -8,9 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Phone, Mail } from "lucide-react";
+import { useBranding } from "@/hooks/useBranding";
 
 export default function ContactSection() {
   const { toast } = useToast();
+  const { contactEmail, contactPhone } = useBranding();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -92,7 +94,11 @@ export default function ContactSection() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-foreground">Phone</h4>
-                  <p className="text-muted-foreground">+1 (xxx) xxx-xxxx</p>
+                  {contactPhone ? (
+                    <a href={`tel:${contactPhone.replace(/[^\d+]/g, '')}`} className="text-muted-foreground hover:text-primary">{contactPhone}</a>
+                  ) : (
+                    <p className="text-muted-foreground">Contact us for details</p>
+                  )}
                   <p className="text-sm text-muted-foreground">Available 24/7 for bookings and support</p>
                 </div>
               </div>
@@ -103,7 +109,11 @@ export default function ContactSection() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-foreground">Email</h4>
-                  <p className="text-muted-foreground">info@usaluxurylimo.com</p>
+                  {contactEmail ? (
+                    <a href={`mailto:${contactEmail}`} className="text-muted-foreground hover:text-primary">{contactEmail}</a>
+                  ) : (
+                    <p className="text-muted-foreground">Contact us for details</p>
+                  )}
                   <p className="text-sm text-muted-foreground">We'll respond within 12 hours</p>
                 </div>
               </div>

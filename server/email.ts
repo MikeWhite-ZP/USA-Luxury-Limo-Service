@@ -43,6 +43,8 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 interface BrandingInfo {
   companyName: string;
   logoUrl: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
 }
 
 let cachedBranding: BrandingInfo | null = null;
@@ -57,14 +59,18 @@ export async function getBrandingInfo(): Promise<BrandingInfo> {
   }
   
   try {
-    const [brandName, logoUrl] = await Promise.all([
+    const [brandName, logoUrl, contactEmail, contactPhone] = await Promise.all([
       storage.getCmsSetting('BRAND_NAME'),
       storage.getCmsSetting('BRAND_LOGO_URL'),
+      storage.getCmsSetting('CONTACT_EMAIL'),
+      storage.getCmsSetting('CONTACT_PHONE'),
     ]);
     
     cachedBranding = {
       companyName: brandName?.value || 'Luxury Transportation',
       logoUrl: logoUrl?.value || null,
+      contactEmail: contactEmail?.value || null,
+      contactPhone: contactPhone?.value || null,
     };
     
     lastBrandingCheck = now;
@@ -74,6 +80,8 @@ export async function getBrandingInfo(): Promise<BrandingInfo> {
     return {
       companyName: 'Luxury Transportation',
       logoUrl: null,
+      contactEmail: null,
+      contactPhone: null,
     };
   }
 }

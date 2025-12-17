@@ -3,9 +3,11 @@ import Footer from "@/components/Footer";
 import { Shield, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
+import { useBranding } from "@/hooks/useBranding";
 
 export default function PrivacyPolicy() {
   const [, setLocation] = useLocation();
+  const { contactEmail, contactPhone, companyName } = useBranding();
 
   return (
     <div className="min-h-screen bg-background">
@@ -303,11 +305,10 @@ export default function PrivacyPolicy() {
                   If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
                 </p>
                 <div className="bg-muted/30 p-6 rounded-lg mt-6">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">USA Luxury Limo Service</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-4">{companyName}</h3>
                   <div className="space-y-2">
-                    <p><strong>Phone:</strong> <a href="tel:+18324796515" className="text-primary hover:underline" data-testid="link-phone">(832) 479-6515</a></p>
-                    <p><strong>Email:</strong> <a href="mailto:usaluxurylimo@gmail.com" className="text-primary hover:underline" data-testid="link-email">usaluxurylimo@gmail.com</a></p>
-                    <p><strong>Privacy Officer:</strong> <a href="mailto:privacy@usaluxurylimo.com" className="text-primary hover:underline" data-testid="link-privacy-email">privacy@usaluxurylimo.com</a></p>
+                    {contactPhone && <p><strong>Phone:</strong> <a href={`tel:${contactPhone.replace(/[^\d+]/g, '')}`} className="text-primary hover:underline" data-testid="link-phone">{contactPhone}</a></p>}
+                    {contactEmail && <p><strong>Email:</strong> <a href={`mailto:${contactEmail}`} className="text-primary hover:underline" data-testid="link-email">{contactEmail}</a></p>}
                   </div>
                 </div>
                 <p>

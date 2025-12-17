@@ -20,9 +20,11 @@ import {
   Award,
   Users
 } from "lucide-react";
+import { useBranding } from "@/hooks/useBranding";
 
 export default function Safety() {
   const [, setLocation] = useLocation();
+  const { contactEmail, contactPhone } = useBranding();
 
   const safetyFeatures = [
     {
@@ -349,22 +351,26 @@ export default function Safety() {
               Our 24/7 emergency support team is always ready to assist you with any safety concerns or emergencies.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="tel:+18324796515"
-                className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center"
-                data-testid="emergency-call-button"
-              >
-                <Phone className="w-5 h-5 mr-2" />
-                Emergency: (832) 479-6515
-              </a>
-              <a 
-                href="mailto:usaluxurylimo@gmail.com"
-                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition-colors inline-flex items-center justify-center"
-                data-testid="emergency-email-button"
-              >
-                <Lock className="w-5 h-5 mr-2" />
-                Report Safety Concern
-              </a>
+              {contactPhone && (
+                <a 
+                  href={`tel:${contactPhone.replace(/[^\d+]/g, '')}`}
+                  className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center"
+                  data-testid="emergency-call-button"
+                >
+                  <Phone className="w-5 h-5 mr-2" />
+                  Emergency: {contactPhone}
+                </a>
+              )}
+              {contactEmail && (
+                <a 
+                  href={`mailto:${contactEmail}`}
+                  className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition-colors inline-flex items-center justify-center"
+                  data-testid="emergency-email-button"
+                >
+                  <Lock className="w-5 h-5 mr-2" />
+                  Report Safety Concern
+                </a>
+              )}
             </div>
           </div>
         </section>

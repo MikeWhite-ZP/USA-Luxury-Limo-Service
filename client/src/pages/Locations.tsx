@@ -16,9 +16,11 @@ import {
   Star,
   Navigation
 } from "lucide-react";
+import { useBranding } from "@/hooks/useBranding";
 
 export default function Locations() {
   const [, setLocation] = useLocation();
+  const { contactEmail } = useBranding();
 
   const primaryLocations = [
     {
@@ -548,14 +550,16 @@ export default function Locations() {
                 Book Now
               </Button>
               
-              <a 
-                href="mailto:usaluxurylimo@gmail.com"
-                className="group border-2 border-primary-foreground/30 text-primary-foreground px-10 py-6 rounded-xl font-bold text-lg hover:bg-primary-foreground hover:text-primary transition-all duration-300 inline-flex items-center justify-center backdrop-blur-sm hover:border-primary-foreground hover:shadow-2xl hover:-translate-y-1"
-                data-testid="contact-email-button"
-              >
-                <Mail className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
-                Email Us
-              </a>
+              {contactEmail && (
+                <a 
+                  href={`mailto:${contactEmail}`}
+                  className="group border-2 border-primary-foreground/30 text-primary-foreground px-10 py-6 rounded-xl font-bold text-lg hover:bg-primary-foreground hover:text-primary transition-all duration-300 inline-flex items-center justify-center backdrop-blur-sm hover:border-primary-foreground hover:shadow-2xl hover:-translate-y-1"
+                  data-testid="contact-email-button"
+                >
+                  <Mail className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
+                  Email Us
+                </a>
+              )}
             </div>
           </div>
         </section>

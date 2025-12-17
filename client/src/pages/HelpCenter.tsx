@@ -4,9 +4,11 @@ import { HelpCircle, ArrowLeft, MessageCircle, Phone, Mail, Clock, Calendar, Cre
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useBranding } from "@/hooks/useBranding";
 
 export default function HelpCenter() {
   const [, setLocation] = useLocation();
+  const { contactEmail, contactPhone, companyName } = useBranding();
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,26 +50,30 @@ export default function HelpCenter() {
               <Phone className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2" data-testid="quick-link-phone-title">Call Us</h3>
               <p className="text-muted-foreground mb-4">Available 24/7 for immediate assistance</p>
-              <a 
-                href="tel:+18324796515" 
-                className="text-primary hover:underline font-medium"
-                data-testid="quick-link-phone"
-              >
-                (832) 479-6515
-              </a>
+              {contactPhone && (
+                <a 
+                  href={`tel:${contactPhone.replace(/[^\d+]/g, '')}`} 
+                  className="text-primary hover:underline font-medium"
+                  data-testid="quick-link-phone"
+                >
+                  {contactPhone}
+                </a>
+              )}
             </div>
             
             <div className="bg-muted/30 p-6 rounded-lg text-center">
               <Mail className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2" data-testid="quick-link-email-title">Email Support</h3>
               <p className="text-muted-foreground mb-4">Get detailed assistance via email</p>
-              <a 
-                href="mailto:usaluxurylimo@gmail.com" 
-                className="text-primary hover:underline font-medium"
-                data-testid="quick-link-email"
-              >
-                usaluxurylimo@gmail.com
-              </a>
+              {contactEmail && (
+                <a 
+                  href={`mailto:${contactEmail}`} 
+                  className="text-primary hover:underline font-medium"
+                  data-testid="quick-link-email"
+                >
+                  {contactEmail}
+                </a>
+              )}
             </div>
             
             <div className="bg-muted/30 p-6 rounded-lg text-center">
@@ -109,14 +115,14 @@ export default function HelpCenter() {
               
               <Accordion type="single" collapsible>
                 <AccordionItem value="booking-1" data-testid="faq-booking-1">
-                  <AccordionTrigger data-testid="faq-booking-1-trigger">How do I book a ride with USA Luxury Limo?</AccordionTrigger>
+                  <AccordionTrigger data-testid="faq-booking-1-trigger">How do I book a ride with {companyName}?</AccordionTrigger>
                   <AccordionContent data-testid="faq-booking-1-content">
                     You can book a ride through multiple convenient methods:
                     <ul className="list-disc ml-6 mt-2 space-y-1">
                       <li>Online through our website booking system</li>
-                      <li>Call us directly at (832) 479-6515</li>
-                      <li>Download our mobile app (USA Luxury Limo Service)</li>
-                      <li>Email us at usaluxurylimo@gmail.com</li>
+                      {contactPhone && <li>Call us directly at {contactPhone}</li>}
+                      <li>Download our mobile app</li>
+                      {contactEmail && <li>Email us at {contactEmail}</li>}
                     </ul>
                     We're available 24/7 to assist with your reservations.
                   </AccordionContent>
@@ -409,7 +415,7 @@ export default function HelpCenter() {
                       <li><strong>Vehicle changes:</strong> May require price adjustment</li>
                       <li><strong>Route changes:</strong> May affect pricing</li>
                     </ul>
-                    Contact our customer service team at (832) 479-6515 to make modifications.
+                    Contact our customer service team{contactPhone ? ` at ${contactPhone}` : ''} to make modifications.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
@@ -424,26 +430,30 @@ export default function HelpCenter() {
                 <Phone className="w-8 h-8 text-primary mx-auto mb-3" />
                 <h3 className="font-semibold mb-2">Call Us</h3>
                 <p className="text-muted-foreground mb-3">24/7 Customer Support</p>
-                <a 
-                  href="tel:+18324796515" 
-                  className="text-primary hover:underline font-medium"
-                  data-testid="contact-phone"
-                >
-                  (832) 479-6515
-                </a>
+                {contactPhone && (
+                  <a 
+                    href={`tel:${contactPhone.replace(/[^\d+]/g, '')}`} 
+                    className="text-primary hover:underline font-medium"
+                    data-testid="contact-phone"
+                  >
+                    {contactPhone}
+                  </a>
+                )}
               </div>
               
               <div>
                 <Mail className="w-8 h-8 text-primary mx-auto mb-3" />
                 <h3 className="font-semibold mb-2">Email Us</h3>
                 <p className="text-muted-foreground mb-3">Get detailed assistance</p>
-                <a 
-                  href="mailto:usaluxurylimo@gmail.com" 
-                  className="text-primary hover:underline font-medium"
-                  data-testid="contact-email"
-                >
-                  usaluxurylimo@gmail.com
-                </a>
+                {contactEmail && (
+                  <a 
+                    href={`mailto:${contactEmail}`} 
+                    className="text-primary hover:underline font-medium"
+                    data-testid="contact-email"
+                  >
+                    {contactEmail}
+                  </a>
+                )}
               </div>
               
               <div>

@@ -3,9 +3,11 @@ import Footer from "@/components/Footer";
 import { FileText, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
+import { useBranding } from "@/hooks/useBranding";
 
 export default function TermsOfService() {
   const [, setLocation] = useLocation();
+  const { contactEmail, contactPhone, companyName } = useBranding();
 
   return (
     <div className="min-h-screen bg-background">
@@ -437,10 +439,10 @@ export default function TermsOfService() {
               <h2 className="text-2xl font-bold text-foreground mb-6">Contact Information</h2>
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-4">USA Luxury Limo Service</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-4">{companyName}</h3>
                   <div className="space-y-2 text-muted-foreground">
-                    <p><strong>Phone:</strong> <a href="tel:+18324796515" className="text-primary hover:underline" data-testid="link-phone">(832) 479-6515</a></p>
-                    <p><strong>Email:</strong> <a href="mailto:usaluxurylimo@gmail.com" className="text-primary hover:underline" data-testid="link-email">usaluxurylimo@gmail.com</a></p>
+                    {contactPhone && <p><strong>Phone:</strong> <a href={`tel:${contactPhone.replace(/[^\d+]/g, '')}`} className="text-primary hover:underline" data-testid="link-phone">{contactPhone}</a></p>}
+                    {contactEmail && <p><strong>Email:</strong> <a href={`mailto:${contactEmail}`} className="text-primary hover:underline" data-testid="link-email">{contactEmail}</a></p>}
                   </div>
                 </div>
                 <div>

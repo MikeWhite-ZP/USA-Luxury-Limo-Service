@@ -11,6 +11,9 @@ export interface BrandingData {
     secondary: string;
     accent: string;
   };
+  contactEmail: string;
+  contactPhone: string;
+  contactAddress: string;
 }
 
 export function useBranding() {
@@ -32,6 +35,9 @@ export function useBranding() {
       secondary: '#666666',
       accent: '#d4af37'
     },
+    contactEmail: data?.contactEmail || '',
+    contactPhone: data?.contactPhone || '',
+    contactAddress: data?.contactAddress || '',
     isLoading,
     isFetched,
     error
