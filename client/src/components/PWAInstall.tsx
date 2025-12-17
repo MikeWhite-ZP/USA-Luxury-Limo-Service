@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Download, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useBranding } from "@/hooks/useBranding";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +16,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function PWAInstall() {
+  const { companyName } = useBranding();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallDialog, setShowInstallDialog] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -87,7 +89,7 @@ export default function PWAInstall() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Download className="w-5 h-5" />
-              Install USA Luxury Limo App
+              Install {companyName} App
             </DialogTitle>
             <DialogDescription className="text-left pt-4">
               {isIOS ? (

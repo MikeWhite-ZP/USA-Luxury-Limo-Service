@@ -36,7 +36,7 @@ export default function TermsOfService() {
                 Terms & Conditions
               </h1>
               <p className="text-xl text-white/90 max-w-3xl mx-auto">
-                USA Luxury Limo Terms and Conditions
+                {companyName} Terms and Conditions
               </p>
             </div>
           </div>
@@ -56,7 +56,7 @@ export default function TermsOfService() {
                 <li><a href="#section-4" className="hover:text-primary transition-colors" data-testid="toc-link-4">4. Selected Content of the Transportation Contract for the Benefit of the User</a></li>
                 <li><a href="#section-5" className="hover:text-primary transition-colors" data-testid="toc-link-5">5. Remuneration and Payment</a></li>
                 <li><a href="#section-6" className="hover:text-primary transition-colors" data-testid="toc-link-6">6. Liability</a></li>
-                <li><a href="#section-7" className="hover:text-primary transition-colors" data-testid="toc-link-7">7. Amendment of the Offer by USA Luxury Limo</a></li>
+                <li><a href="#section-7" className="hover:text-primary transition-colors" data-testid="toc-link-7">7. Amendment of the Offer by {companyName}</a></li>
                 <li><a href="#section-8" className="hover:text-primary transition-colors" data-testid="toc-link-8">8. Protection of Content, Grant of Rights of Use to ULL Tools</a></li>
                 <li><a href="#section-9" className="hover:text-primary transition-colors" data-testid="toc-link-9">9. Final Provisions</a></li>
               </ol>
@@ -67,13 +67,13 @@ export default function TermsOfService() {
               <h2 className="text-2xl font-bold text-foreground mb-6">1. GENERAL PROVISIONS</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  USA Luxury Limo Service, 12026 Fairquarter Ln Pinehurst, TX 77362 (hereinafter referred to as "USA Luxury Limo (ULL)") enables its users to book transportation services via its own online platform by integrating third-party online platforms and applications for mobile devices ("apps"; all methods collectively referred to as "ULL Tools"). USA Luxury Limo's service consists of arranging for the transportation of a user by an independent ride service provider (Transportation Service Provider or "TSP"). USA Luxury Limo arranges this business service for the user but does not in provide the actual transportation service in all locations and for each ride requests.
+                  {companyName} Service, 12026 Fairquarter Ln Pinehurst, TX 77362 (hereinafter referred to as "{companyName} (ULL)") enables its users to book transportation services via its own online platform by integrating third-party online platforms and applications for mobile devices ("apps"; all methods collectively referred to as "ULL Tools"). {companyName}'s service consists of arranging for the transportation of a user by an independent ride service provider (Transportation Service Provider or "TSP"). {companyName} arranges this business service for the user but does not in provide the actual transportation service in all locations and for each ride requests.
                 </p>
                 <p>
-                  These General Terms and Conditions (hereinafter referred to as "T&Cs") are part of each agreement of the user concerning USA Luxury Limo's arrangement of business service contracts. They also describe the details of the transportation services for which USA Luxury Limo provides the user a direct claim against a particular TSP.
+                  These General Terms and Conditions (hereinafter referred to as "T&Cs") are part of each agreement of the user concerning {companyName}'s arrangement of business service contracts. They also describe the details of the transportation services for which {companyName} provides the user a direct claim against a particular TSP.
                 </p>
                 <p>
-                  Conflicting general terms and conditions of the user are hereby also contradicted in the case of confirmation letters and services accepted without condition. Any terms to the contrary shall only apply insofar as the management of USA Luxury Limo has expressly consented to this in writing.
+                  Conflicting general terms and conditions of the user are hereby also contradicted in the case of confirmation letters and services accepted without condition. Any terms to the contrary shall only apply insofar as the management of {companyName} has expressly consented to this in writing.
                 </p>
               </div>
             </section>
@@ -86,13 +86,13 @@ export default function TermsOfService() {
                 <h3 className="text-xl font-semibold text-foreground mb-4">2.1 CONTRACTUAL RELATIONSHIP</h3>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    USA Luxury Limo does not itself provide the transportation services in connection with the ULL Tools and does not do so by way of third-party agents. USA Luxury Limo only provides the user with a claim for transport against a TSP, which is independent of USA Luxury Limo.
+                    {companyName} does not itself provide the transportation services in connection with the ULL Tools and does not do so by way of third-party agents. {companyName} only provides the user with a claim for transport against a TSP, which is independent of {companyName}.
                   </p>
                   <p>
-                    For this purpose, USA Luxury Limo concludes the necessary agreements on its own behalf with the TSP that provide the user with a claim for transport against the TSP ("contract for the benefit of third parties", also "transportation contract for the benefit of the user"). On this basis, the user is entitled to request the transportation service and any further claims in respect of that service directly from the TSP.
+                    For this purpose, {companyName} concludes the necessary agreements on its own behalf with the TSP that provide the user with a claim for transport against the TSP ("contract for the benefit of third parties", also "transportation contract for the benefit of the user"). On this basis, the user is entitled to request the transportation service and any further claims in respect of that service directly from the TSP.
                   </p>
                   <p>
-                    USA Luxury Limo and the user only agree to the arrangement of a business service contract and not to the arrangement of the actual transportation services. The claim for compensation by USA Luxury Limo includes the compensation for arranging business services as well as the compensation distributed to the TSP for the transportation services.
+                    {companyName} and the user only agree to the arrangement of a business service contract and not to the arrangement of the actual transportation services. The claim for compensation by {companyName} includes the compensation for arranging business services as well as the compensation distributed to the TSP for the transportation services.
                   </p>
                 </div>
               </div>
@@ -101,13 +101,13 @@ export default function TermsOfService() {
                 <h3 className="text-xl font-semibold text-foreground mb-4">2.2 CONCLUSION OF CONTRACT</h3>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    By transmitting a completed booking form via the ULL Tools or by making arrangements by telephone with USA Luxury Limo, the user transmits an offer to conclude a business service contract ("ride request" of the user). The subject matter of this contract is the provision of the ride service requested by the user.
+                    By transmitting a completed booking form via the ULL Tools or by making arrangements by telephone with {companyName}, the user transmits an offer to conclude a business service contract ("ride request" of the user). The subject matter of this contract is the provision of the ride service requested by the user.
                   </p>
                   <p>
-                    As an initial matter, USA Luxury Limo transmits to the user an email confirmation of the details of the requested ride service that it has received. In so doing, USA Luxury Limo only confirms the receipt of the user's ride request.
+                    As an initial matter, {companyName} transmits to the user an email confirmation of the details of the requested ride service that it has received. In so doing, {companyName} only confirms the receipt of the user's ride request.
                   </p>
                   <p>
-                    It is only by separate declaration ("booking confirmation") by email from USA Luxury Limo that the business service contract between USA Luxury Limo and the user is concluded for the desired ride service. The user is then directly entitled vis-à-vis the TSP to request the ride service of the TSP and to assert further claims in respect of such ride service directly against the TSP.
+                    It is only by separate declaration ("booking confirmation") by email from {companyName} that the business service contract between {companyName} and the user is concluded for the desired ride service. The user is then directly entitled vis-à-vis the TSP to request the ride service of the TSP and to assert further claims in respect of such ride service directly against the TSP.
                   </p>
                 </div>
               </div>
@@ -118,7 +118,7 @@ export default function TermsOfService() {
               <h2 className="text-2xl font-bold text-foreground mb-6">3. REGISTRATION OBLIGATION OF THE USER FOR THE USE OF THE ULL TOOLS</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  The user provides assurance to USA Luxury Limo that all information it transmits or has transmitted to USA Luxury Limo on its behalf by another person is complete and accurate. Registrations by automated processes are prohibited.
+                  The user provides assurance to {companyName} that all information it transmits or has transmitted to {companyName} on its behalf by another person is complete and accurate. Registrations by automated processes are prohibited.
                 </p>
               </div>
             </section>
@@ -128,10 +128,10 @@ export default function TermsOfService() {
               <h2 className="text-2xl font-bold text-foreground mb-6">4. SELECTED CONTENT OF THE TRANSPORTATION CONTRACT FOR THE BENEFIT OF THE USER</h2>
               <div className="space-y-4 text-muted-foreground mb-8">
                 <p>
-                  The user can only request the details for a user's ride request described under Section 4 from the TSP if this has been agreed with USA Luxury Limo in the business service contract.
+                  The user can only request the details for a user's ride request described under Section 4 from the TSP if this has been agreed with {companyName} in the business service contract.
                 </p>
                 <p>
-                  The following conditions apply to the claim for transportation of the user to be asserted directly against the TSP and to be procured by USA Luxury Limo:
+                  The following conditions apply to the claim for transportation of the user to be asserted directly against the TSP and to be procured by {companyName}:
                 </p>
               </div>
 
@@ -154,10 +154,10 @@ export default function TermsOfService() {
                 <h3 className="text-xl font-semibold text-foreground mb-4">4.2 PICKUP TIME</h3>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    The agreed pickup time is the pickup time specified in the USA Luxury Limo booking confirmation.
+                    The agreed pickup time is the pickup time specified in the {companyName} booking confirmation.
                   </p>
                   <p>
-                    In the event of an airport pickup or pickup at a long-distance train station for which the user has provided a correct flight or train number in its booking, thus enabling USA Luxury Limo to track of the arrival time of the flight or train, the agreed pickup time will be postponed in case the flight or train are late.
+                    In the event of an airport pickup or pickup at a long-distance train station for which the user has provided a correct flight or train number in its booking, thus enabling {companyName} to track of the arrival time of the flight or train, the agreed pickup time will be postponed in case the flight or train are late.
                   </p>
                 </div>
               </div>
@@ -172,7 +172,7 @@ export default function TermsOfService() {
                     The vehicles shown in the ULL Tools are only illustrative examples. There is no right to a particular vehicle model associated with a booked vehicle class Regional differences are possible.
                   </p>
                   <p>
-                    It is possible for USA Luxury Limo to upgrade from the vehicle class "Business Class" to a higher vehicle class (such as "Business Van" or "First Class") at any time at no additional cost for the user, depending on availability.
+                    It is possible for {companyName} to upgrade from the vehicle class "Business Class" to a higher vehicle class (such as "Business Van" or "First Class") at any time at no additional cost for the user, depending on availability.
                   </p>
                 </div>
               </div>
@@ -211,7 +211,7 @@ export default function TermsOfService() {
                   <h4 className="text-lg font-medium text-foreground mb-3">4.4.3 INFORMATION ON NUMBER OF PASSENGERS, NUMBER AND SIZE OF LUGGAGE</h4>
                   <div className="space-y-4 text-muted-foreground">
                     <p>
-                      The maximum number of passengers, number and size of pieces of luggage will be provided by USA Luxury Limo for a specific vehicle and is set out in a binding luggage policy.
+                      The maximum number of passengers, number and size of pieces of luggage will be provided by {companyName} for a specific vehicle and is set out in a binding luggage policy.
                     </p>
                     <p>
                       The TSP may refuse to transport passengers or luggage if, in its opinion, the space and safety conditions do not permit such transport.
@@ -226,7 +226,7 @@ export default function TermsOfService() {
                       The TSP may refuse to transport a user if mandatory requirements (for example, resulting from applicable law) pursuant to this Section 4.3 have not been communicated or were not correctly communicated by the user in its ride request.
                     </p>
                     <p>
-                      If transport is not possible for this reason, USA Luxury Limo shall still be entitled to compensation from the user under the business service contract for that specific transportation.
+                      If transport is not possible for this reason, {companyName} shall still be entitled to compensation from the user under the business service contract for that specific transportation.
                     </p>
                   </div>
                 </div>
@@ -257,7 +257,7 @@ export default function TermsOfService() {
                   <h4 className="text-lg font-medium text-foreground mb-3">4.6.2 REBOOKINGS</h4>
                   <div className="space-y-4 text-muted-foreground">
                     <p>
-                      Rebookings are generally treated as new bookings. The regulations for the handling of cancellations (Section 4.5.1 above) apply accordingly for the originally agreed ride. Accordingly, a claim for compensation by USA Luxury Limo for the originally agreed ride may remain in force.
+                      Rebookings are generally treated as new bookings. The regulations for the handling of cancellations (Section 4.5.1 above) apply accordingly for the originally agreed ride. Accordingly, a claim for compensation by {companyName} for the originally agreed ride may remain in force.
                     </p>
                   </div>
                 </div>
@@ -266,7 +266,7 @@ export default function TermsOfService() {
                   <h4 className="text-lg font-medium text-foreground mb-3">4.6.3 NO-SHOW RIDES WITHOUT CANCELLATION, USER'S DELAY</h4>
                   <div className="space-y-4 text-muted-foreground">
                     <p>
-                      In the event that a user does not show up for a ride and does not cancel it (a "no show"), the user's claim for transport vis-à-vis the TSP shall no longer be applicable; however, USA Luxury Limo's shall still be entitled to compensation from the user.
+                      In the event that a user does not show up for a ride and does not cancel it (a "no show"), the user's claim for transport vis-à-vis the TSP shall no longer be applicable; however, {companyName}'s shall still be entitled to compensation from the user.
                     </p>
                     <p>
                       <strong>(A) FOR TRANSFER AND LONG-DISTANCE RIDES</strong> A ride is considered to be a no-show if the User or guest does not appear within 30 minutes after the agreed pickup time at the agreed pickup location.
@@ -308,7 +308,7 @@ export default function TermsOfService() {
                 <h3 className="text-xl font-semibold text-foreground mb-4">5.1 PAYMENT TERMS</h3>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    Payment for transportation services is due according to the payment terms specified in the booking confirmation. USA Luxury Limo accepts major credit cards (Visa, MasterCard, American Express, Discover) and may require a deposit at the time of booking.
+                    Payment for transportation services is due according to the payment terms specified in the booking confirmation. {companyName} accepts major credit cards (Visa, MasterCard, American Express, Discover) and may require a deposit at the time of booking.
                   </p>
                   <p>
                     For corporate accounts, billing terms may be arranged separately. All prices quoted are subject to applicable taxes and fees.
@@ -337,10 +337,10 @@ export default function TermsOfService() {
                 <h3 className="text-xl font-semibold text-foreground mb-4">6.1 LIMITATION OF LIABILITY</h3>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    USA Luxury Limo's liability is limited to the greatest extent permitted by applicable law. The company shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, use, goodwill, or other intangible losses.
+                    {companyName}'s liability is limited to the greatest extent permitted by applicable law. The company shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, use, goodwill, or other intangible losses.
                   </p>
                   <p>
-                    In no event shall USA Luxury Limo's total liability exceed the amount paid by the user for the specific transportation service giving rise to the claim.
+                    In no event shall {companyName}'s total liability exceed the amount paid by the user for the specific transportation service giving rise to the claim.
                   </p>
                 </div>
               </div>
@@ -349,7 +349,7 @@ export default function TermsOfService() {
                 <h3 className="text-xl font-semibold text-foreground mb-4">6.2 FORCE MAJEURE</h3>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    USA Luxury Limo shall not be liable for any failure or delay in performance due to circumstances beyond its reasonable control, including but not limited to acts of God, natural disasters, war, terrorism, labor disputes, government actions, or failure of transportation infrastructure.
+                    {companyName} shall not be liable for any failure or delay in performance due to circumstances beyond its reasonable control, including but not limited to acts of God, natural disasters, war, terrorism, labor disputes, government actions, or failure of transportation infrastructure.
                   </p>
                 </div>
               </div>
@@ -369,10 +369,10 @@ export default function TermsOfService() {
               <h2 className="text-2xl font-bold text-foreground mb-6">7. AMENDMENT OF THE OFFER BY USA LUXURY LIMO</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  USA Luxury Limo reserves the right to modify these Terms and Conditions at any time without prior notice. Changes will be effective immediately upon posting on the website. Users are encouraged to review these terms periodically.
+                  {companyName} reserves the right to modify these Terms and Conditions at any time without prior notice. Changes will be effective immediately upon posting on the website. Users are encouraged to review these terms periodically.
                 </p>
                 <p>
-                  Continued use of USA Luxury Limo's services after any such changes constitutes acceptance of the new Terms and Conditions.
+                  Continued use of {companyName}'s services after any such changes constitutes acceptance of the new Terms and Conditions.
                 </p>
               </div>
             </section>
@@ -410,7 +410,7 @@ export default function TermsOfService() {
                 <h3 className="text-xl font-semibold text-foreground mb-4">9.2 DISPUTE RESOLUTION</h3>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    Any disputes arising out of or relating to these Terms and Conditions or the use of USA Luxury Limo's services shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.
+                    Any disputes arising out of or relating to these Terms and Conditions or the use of {companyName}'s services shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.
                   </p>
                 </div>
               </div>
@@ -428,7 +428,7 @@ export default function TermsOfService() {
                 <h3 className="text-xl font-semibold text-foreground mb-4">9.4 ENTIRE AGREEMENT</h3>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    These Terms and Conditions constitute the entire agreement between USA Luxury Limo and the user regarding the subject matter hereof and supersede all prior or contemporaneous understandings, whether written or oral.
+                    These Terms and Conditions constitute the entire agreement between {companyName} and the user regarding the subject matter hereof and supersede all prior or contemporaneous understandings, whether written or oral.
                   </p>
                 </div>
               </div>

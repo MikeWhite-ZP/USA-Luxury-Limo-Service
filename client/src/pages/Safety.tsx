@@ -24,7 +24,7 @@ import { useBranding } from "@/hooks/useBranding";
 
 export default function Safety() {
   const [, setLocation] = useLocation();
-  const { contactEmail, contactPhone } = useBranding();
+  const { contactEmail, contactPhone, companyName } = useBranding();
 
   const safetyFeatures = [
     {
@@ -193,7 +193,7 @@ export default function Safety() {
                 Our Safety Commitment
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                USA Luxury Limo maintains the highest safety standards in the industry. Every aspect of our operation is designed with your safety and peace of mind in mind.
+                {companyName} maintains the highest safety standards in the industry. Every aspect of our operation is designed with your safety and peace of mind in mind.
               </p>
             </div>
 

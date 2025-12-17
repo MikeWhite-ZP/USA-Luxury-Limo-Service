@@ -361,7 +361,7 @@ export default function HelpCenter() {
                 <AccordionItem value="service-4" data-testid="faq-service-4">
                   <AccordionTrigger data-testid="faq-service-4-trigger">What is your availability?</AccordionTrigger>
                   <AccordionContent data-testid="faq-service-4-content">
-                    USA Luxury Limo Service operates 24 hours a day, 7 days a week, 365 days a year. Whether you need an early morning airport transfer, late-night event transportation, or holiday service, we're available to serve you. Our customer service team is also available 24/7 to assist with bookings and questions.
+                    {companyName} operates 24 hours a day, 7 days a week, 365 days a year. Whether you need an early morning airport transfer, late-night event transportation, or holiday service, we're available to serve you. Our customer service team is also available 24/7 to assist with bookings and questions.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

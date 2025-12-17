@@ -70,7 +70,7 @@ export default function PrivacyPolicy() {
                   <strong>Last Updated:</strong> September 2025
                 </p>
                 <p>
-                  USA Luxury Limo Service ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our transportation services, visit our website, or use our mobile application (collectively, the "Services").
+                  {companyName} ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our transportation services, visit our website, or use our mobile application (collectively, the "Services").
                 </p>
                 <p>
                   Please read this Privacy Policy carefully. If you do not agree with the terms of this Privacy Policy, please do not access or use our Services.

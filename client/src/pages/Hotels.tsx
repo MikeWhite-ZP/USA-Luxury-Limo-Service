@@ -23,7 +23,7 @@ import { useBranding } from "@/hooks/useBranding";
 
 export default function Hotels() {
   const [, setLocation] = useLocation();
-  const { contactEmail } = useBranding();
+  const { contactEmail, companyName } = useBranding();
 
   const hotelServices = [
     {
@@ -277,7 +277,7 @@ export default function Hotels() {
                 Partnership Benefits
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                Why hotels choose USA Luxury Limo as their preferred transportation partner
+                Why hotels choose {companyName} as their preferred transportation partner
               </p>
             </div>
 

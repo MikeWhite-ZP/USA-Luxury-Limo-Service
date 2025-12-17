@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
+import { useBranding } from "@/hooks/useBranding";
 import { 
   ArrowLeft, 
   Star, 
@@ -20,6 +21,7 @@ import {
 
 export default function AboutUs() {
   const [, setLocation] = useLocation();
+  const { companyName } = useBranding();
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,7 +53,7 @@ export default function AboutUs() {
               </div>
               
               <h1 className="text-5xl md:text-6xl font-bold mb-6" data-testid="about-page-title">
-                About USA Luxury Limo
+                About {companyName}
               </h1>
               <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto leading-relaxed" data-testid="about-page-description">
                 Your trusted partner for premier luxury chauffeur services. We deliver a seamless blend of elegance, comfort, and reliability, making every journey a memorable experience tailored to your unique needs.
@@ -108,7 +110,7 @@ export default function AboutUs() {
                   </div>
                   <h3 className="text-2xl font-bold mb-4">Our Mission</h3>
                   <p className="text-muted-foreground leading-relaxed" data-testid="about-mission">
-                    At USA Luxury Limo Service, we don't just transport you; we elevate your travel experience. Our mission is to deliver unparalleled luxury transportation services that exceed expectations, combining professional excellence with personalized care to ensure every journey is memorable and stress-free.
+                    At {companyName}, we don't just transport you; we elevate your travel experience. Our mission is to deliver unparalleled luxury transportation services that exceed expectations, combining professional excellence with personalized care to ensure every journey is memorable and stress-free.
                   </p>
                 </div>
 
@@ -133,7 +135,7 @@ export default function AboutUs() {
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-16">
                 <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="why-choose-title">
-                  Why Choose USA Luxury Limo Service?
+                  Why Choose {companyName}?
                 </h2>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                   Experience the difference that true luxury and professionalism can make
@@ -324,7 +326,7 @@ export default function AboutUs() {
                 Ready to Experience Luxury?
               </h2>
               <p className="text-xl text-primary-foreground/80 mb-8">
-                Book your premium transportation today and discover the USA Luxury Limo difference
+                Book your premium transportation today and discover the {companyName} difference
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
