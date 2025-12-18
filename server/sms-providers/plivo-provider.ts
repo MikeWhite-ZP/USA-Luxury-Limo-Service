@@ -95,7 +95,7 @@ export class PlivoProvider implements SMSProvider {
 
       const result = await client.messages.create(
         phoneNumber,
-        normalizedPhone.replace('+', ''),
+        normalizedPhone,
         message
       );
 

@@ -107,7 +107,7 @@ export async function getGatewayStatus(): Promise<{
   };
 }
 
-export { SMSResult, SMSGatewayType } from './types';
+export type { SMSResult, SMSGatewayType } from './types';
 export { twilioProvider } from './twilio-provider';
 export { amazonSnsProvider } from './amazon-sns-provider';
 export { plivoProvider } from './plivo-provider';

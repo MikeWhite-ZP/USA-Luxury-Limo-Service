@@ -4,15 +4,14 @@ import {
   getActiveGateway, 
   setActiveGateway, 
   getGatewayStatus,
-  testSMSConnection,
-  SMSResult,
-  SMSGatewayType
+  testSMSConnection
 } from './sms-providers';
+import type { SMSResult, SMSGatewayType } from './sms-providers';
 import { getTwilioConnectionStatus, isTwilioEnabled } from './twilio';
 import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 import { getBrandingInfo } from './email';
 
-export { SMSResult, SMSGatewayType } from './sms-providers';
+export type { SMSResult, SMSGatewayType } from './sms-providers';
 
 export function normalizePhoneNumber(phoneNumber: string): string | null {
   try {
