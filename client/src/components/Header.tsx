@@ -52,13 +52,17 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-18">
           {/* Logo */}
-          <div className="flex items-center">
-            <img 
-              src={logoUrl} 
-              alt={logoAltText} 
-              className="h-12 w-auto object-contain"
-              data-testid="logo"
-            />
+          <div className="flex items-center h-12 min-w-[100px]">
+            {logoUrl ? (
+              <img 
+                src={logoUrl} 
+                alt={logoAltText} 
+                className="h-12 w-auto object-contain"
+                data-testid="logo"
+              />
+            ) : (
+              <div className="h-12 w-24" />
+            )}
           </div>
 
           {/* Navigation */}

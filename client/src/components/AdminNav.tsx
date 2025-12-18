@@ -64,12 +64,16 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             <Link href="/">
-              <img 
-                src={logoUrl} 
-                alt={logoAltText} 
-                className="h-10 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
-                data-testid="admin-logo"
-              />
+              <div className="h-10 min-w-[80px]">
+                {logoUrl && (
+                  <img 
+                    src={logoUrl} 
+                    alt={logoAltText} 
+                    className="h-10 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
+                    data-testid="admin-logo"
+                  />
+                )}
+              </div>
             </Link>
             <div className="hidden sm:block">
               <span className="text-xl font-bold text-foreground">Admin Portal</span>

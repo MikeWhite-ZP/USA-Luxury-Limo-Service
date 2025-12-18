@@ -35,13 +35,15 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Company Info */}
           <div className="md:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <img 
-                src={logoUrl} 
-                alt={logoAltText} 
-                className="h-12 w-auto object-contain"
-                data-testid="footer-logo"
-              />
+            <div className="flex items-center space-x-2 mb-4 h-12 min-w-[100px]">
+              {logoUrl && (
+                <img 
+                  src={logoUrl} 
+                  alt={logoAltText} 
+                  className="h-12 w-auto object-contain"
+                  data-testid="footer-logo"
+                />
+              )}
             </div>
             <p className="text-primary-foreground/80 mb-4 max-w-md" data-testid="footer-description">
               {description || 'Premium luxury transportation services across the United States. Experience comfort, reliability, and professionalism with every ride.'}

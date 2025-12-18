@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 
-const logoImage = '/images/logo_1759125364025.png';
-
 type SiteLogo = {
   id: string;
   url: string;
@@ -16,10 +14,11 @@ export function useSiteLogo() {
     retry: 1,
   });
 
-  // Return the logo URL or fallback to default logo
+  // Return null while loading to prevent flash of wrong logo
+  // Each tenant's logo will load from their own branding settings
   return {
-    logoUrl: data?.logo?.url || logoImage,
-    logoAltText: data?.logo?.altText || "Luxury Transportation",
+    logoUrl: isLoading ? null : (data?.logo?.url || null),
+    logoAltText: data?.logo?.altText || "Company Logo",
     isCustomLogo: !!data?.logo,
     isLoading,
     error
