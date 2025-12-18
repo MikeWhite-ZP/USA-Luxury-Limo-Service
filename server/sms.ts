@@ -1,20 +1,16 @@
-import { 
-  sendSMS as sendSMSViaGateway, 
-  isSMSEnabled, 
-  getActiveGateway, 
-  setActiveGateway, 
-  getGatewayStatus,
-  testSMSConnection
-} from './sms-providers';
-import type { SMSResult, SMSGatewayType } from './sms-providers';
-import { getTwilioConnectionStatus, isTwilioEnabled } from './twilio';
+import { getTwilioClient, getTwilioFromPhoneNumber, getTwilioConnectionStatus, isTwilioEnabled } from './twilio';
 import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 import { getBrandingInfo } from './email';
 
-export type { SMSResult, SMSGatewayType } from './sms-providers';
+export interface SMSResult {
+  success: boolean;
+  messageId?: string;
+  error?: string;
+}
 
 export function normalizePhoneNumber(phoneNumber: string): string | null {
   try {
+    // If it's already in E.164 format (starts with +), validate it
     if (phoneNumber.startsWith('+')) {
       if (isValidPhoneNumber(phoneNumber)) {
         const parsed = parsePhoneNumber(phoneNumber);
@@ -23,8 +19,10 @@ export function normalizePhoneNumber(phoneNumber: string): string | null {
       return null;
     }
     
+    // Try parsing as US number if no country code
     const cleaned = phoneNumber.replace(/\D/g, '');
     
+    // If it's a 10-digit number, assume US
     if (cleaned.length === 10) {
       const usNumber = `+1${cleaned}`;
       if (isValidPhoneNumber(usNumber)) {
@@ -32,6 +30,7 @@ export function normalizePhoneNumber(phoneNumber: string): string | null {
       }
     }
     
+    // If it's 11 digits and starts with 1, assume US
     if (cleaned.length === 11 && cleaned.startsWith('1')) {
       const usNumber = `+${cleaned}`;
       if (isValidPhoneNumber(usNumber)) {
@@ -39,6 +38,7 @@ export function normalizePhoneNumber(phoneNumber: string): string | null {
       }
     }
     
+    // Try parsing with US as default country
     if (isValidPhoneNumber(phoneNumber, 'US')) {
       const parsed = parsePhoneNumber(phoneNumber, 'US');
       return parsed.format('E.164');
@@ -52,10 +52,55 @@ export function normalizePhoneNumber(phoneNumber: string): string | null {
 }
 
 export async function sendSMS(to: string, message: string): Promise<SMSResult> {
-  return sendSMSViaGateway(to, message);
-}
+  try {
+    // Check if Twilio is enabled
+    const enabled = await isTwilioEnabled();
+    if (!enabled) {
+      console.log('SMS sending skipped: Twilio is disabled in admin settings');
+      return {
+        success: false,
+        error: 'SMS notifications are disabled'
+      };
+    }
 
-export { isSMSEnabled, getActiveGateway, setActiveGateway, getGatewayStatus, testSMSConnection };
+    // Normalize and validate phone number
+    const normalizedPhone = normalizePhoneNumber(to);
+    
+    if (!normalizedPhone) {
+      console.warn(`Invalid phone number format: ${to}`);
+      return {
+        success: false,
+        error: 'Invalid phone number format'
+      };
+    }
+
+    const client = await getTwilioClient();
+    const fromNumber = await getTwilioFromPhoneNumber();
+
+    if (!fromNumber) {
+      throw new Error('Twilio phone number not configured');
+    }
+
+    const result = await client.messages.create({
+      body: message,
+      from: fromNumber,
+      to: normalizedPhone
+    });
+
+    console.log(`SMS sent successfully to ${normalizedPhone}, SID: ${result.sid}`);
+    
+    return {
+      success: true,
+      messageId: result.sid
+    };
+  } catch (error) {
+    console.error('Failed to send SMS:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
 
 export async function sendBookingConfirmationSMS(
   phoneNumber: string,

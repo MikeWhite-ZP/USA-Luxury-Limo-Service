@@ -19,7 +19,7 @@ The frontend is built with React 18, TypeScript, and Vite, utilizing Shadcn/ui c
 - **Authentication**: Replit Auth with OpenID Connect, environment-aware session management (PostgreSQL-backed in production, MemoryStore in development), and scrypt hashing for multi-role access. Production deployment requires `NODE_ENV=production` for persistent PostgreSQL session storage. Complete password recovery and management system with secure tokens and anti-enumeration protection.
 - **Object Storage**: Replit Object Storage with custom Buffer normalization, supporting MinIO and AWS S3 via an abstract adapter. Production-ready presigned URL system dynamically generates time-limited URLs for secure direct access to images. **Local Storage Fallback**: In development mode when no cloud storage is configured, files are automatically stored in the `uploads/` directory and served via `/api/uploads/*` endpoint with path traversal protection and proper MIME type handling.
 - **Core Features**:
-    - **Notifications**: Comprehensive email and SMS notification system using a fire-and-forget async pattern. **Multi-Provider SMS Gateway**: Supports Twilio, Amazon SNS, and Plivo with admin-selectable provider via tabbed settings UI. Each provider has its own credential management with test connection capability. Credentials can be stored in database (encrypted) or environment variables.
+    - **Notifications**: Comprehensive email and SMS notification system (Twilio, Nodemailer) for booking lifecycle events using a fire-and-forget async pattern.
     - **Payment**: Integration with multiple providers (Stripe, PayPal, Square), supporting "Pay Now", "Pay Later", and "Pay with Cash" options, including surcharge management.
     - **Geolocation & Flight Data**: TomTom API for geocoding and AeroDataBox API for real-time flight information.
     - **Booking & Dispatch**: A 4-step booking flow, intelligent driver assignment, and a two-stage job acceptance workflow. Supports itemized pricing.
@@ -42,7 +42,7 @@ The application is designed for flexible deployment across Replit, external Dock
     - Each company gets own database + storage bucket on shared infrastructure
 
 ## External Dependencies
-- **Twilio, Amazon SNS, Plivo**: SMS messaging (admin-selectable provider).
+- **Twilio**: SMS messaging.
 - **Stripe, PayPal, Square**: Payment processing.
 - **TomTom**: Geocoding and location services.
 - **Neon Database**: PostgreSQL hosting.
