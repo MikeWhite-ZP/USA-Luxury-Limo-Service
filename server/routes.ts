@@ -2462,14 +2462,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return isPast && isActive;
       });
 
-      // Auto-cancel each expired booking
+      // Auto-cancel each expired booking (keep driver assigned for history)
       const cancelledBookingIds = [];
       for (const booking of expiredBookings) {
         try {
           await storage.updateBooking(booking.id, {
             status: 'cancelled',
-            driverId: null,
-            driverPayment: null,
             cancelledAt: now,
             cancelReason: 'Automatically cancelled - scheduled time passed'
           });

@@ -725,9 +725,15 @@ export default function DriverDashboard() {
     bookings?.filter((b) => b.status === "completed").length || 0;
   const pendingBookings = bookings?.filter((b) => b.status === "pending") || [];
   const activeBooking = bookings?.find((b) => b.status === "in_progress");
-  // Show ALL bookings assigned to this driver (except completed/cancelled/past-due)
+  
+  // Job list sub-tabs state
+  const [jobListTab, setJobListTab] = useState<"current" | "completed" | "cancelled">("current");
+  
+  // Filter bookings by category
   const now = new Date();
-  const assignedBookings =
+  
+  // Current jobs: Active statuses and not past-due
+  const currentJobs =
     bookings?.filter(
       (b) => {
         const isPast = new Date(b.scheduledDateTime) < now;
@@ -739,6 +745,15 @@ export default function DriverDashboard() {
         );
       }
     ) || [];
+  
+  // Completed jobs
+  const completedJobs = bookings?.filter((b) => b.status === "completed") || [];
+  
+  // Cancelled jobs
+  const cancelledJobs = bookings?.filter((b) => b.status === "cancelled") || [];
+  
+  // Legacy: keep assignedBookings for backward compatibility (same as currentJobs)
+  const assignedBookings = currentJobs;
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -1080,18 +1095,54 @@ export default function DriverDashboard() {
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
               <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="accepted-jobs">
-                <CardHeader>
+                <CardHeader className="pb-2">
                   <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-md">
                       <Briefcase className="w-5 h-5 text-white" />
                     </div>
-                    Accepted Jobs
+                    My Jobs
                   </CardTitle>
+                  {/* Job List Sub-Tabs */}
+                  <div className="flex gap-1 mt-4 bg-muted/50 p-1 rounded-lg">
+                    <button
+                      onClick={() => setJobListTab("current")}
+                      className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
+                        jobListTab === "current"
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Current ({currentJobs.length})
+                    </button>
+                    <button
+                      onClick={() => setJobListTab("completed")}
+                      className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
+                        jobListTab === "completed"
+                          ? "bg-emerald-600 text-white shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Completed ({completedJobs.length})
+                    </button>
+                    <button
+                      onClick={() => setJobListTab("cancelled")}
+                      className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
+                        jobListTab === "cancelled"
+                          ? "bg-red-600 text-white shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Cancelled ({cancelledJobs.length})
+                    </button>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  {assignedBookings && assignedBookings.length > 0 ? (
-                    <div className="space-y-4">
-                      {assignedBookings.map((booking) => (
+                  {/* Current Jobs Tab */}
+                  {jobListTab === "current" && (
+                    <>
+                      {currentJobs.length > 0 ? (
+                        <div className="space-y-4">
+                          {currentJobs.map((booking) => (
                         <div
                           key={booking.id}
                           className="relative group"
@@ -1213,17 +1264,171 @@ export default function DriverDashboard() {
                             )}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div
-                      className="text-center p-12"
-                      data-testid="no-accepted-jobs"
-                    >
-                      <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-muted-foreground text-lg font-medium">No accepted jobs yet</p>
-                      <p className="text-muted-foreground text-sm mt-2">New job assignments will appear here</p>
-                    </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center p-12" data-testid="no-current-jobs">
+                          <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                          <p className="text-muted-foreground text-lg font-medium">No current jobs</p>
+                          <p className="text-muted-foreground text-sm mt-2">New job assignments will appear here</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Completed Jobs Tab */}
+                  {jobListTab === "completed" && (
+                    <>
+                      {completedJobs.length > 0 ? (
+                        <div className="space-y-4">
+                          {completedJobs.map((booking) => (
+                            <div
+                              key={booking.id}
+                              className="bg-card rounded-xl p-4 border border-emerald-200 dark:border-emerald-800 shadow-sm"
+                              data-testid={`completed-job-${booking.id}`}
+                            >
+                              <div className="flex items-center justify-between gap-2 mb-2">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-sm font-semibold text-foreground">#{booking.id.slice(0, 8)}</span>
+                                  <Badge className="bg-emerald-600 text-white font-medium text-xs px-2 py-0.5">
+                                    Completed
+                                  </Badge>
+                                  <Badge variant="outline" className="text-xs px-2 py-0.5 border-muted-foreground/30">
+                                    {booking.bookingType === 'hourly' ? 'Hourly' : 'Transfer'}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                                    {booking.driverPayment ? `$${booking.driverPayment}` : "Not set"}
+                                  </span>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setSelectedBookingForDetails(booking)}
+                                    className="h-7 px-2 text-xs"
+                                  >
+                                    <Eye className="w-3 h-3 mr-1" />
+                                    Details
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm mb-2">
+                                {booking.passengerName && (
+                                  <div className="flex items-center gap-1.5">
+                                    <User className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                                    <span className="font-medium text-foreground">{booking.passengerName}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-1.5 text-muted-foreground">
+                                  <Clock className="w-3.5 h-3.5" />
+                                  <span>
+                                    {new Date(booking.scheduledDateTime).toLocaleString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: 'numeric',
+                                      minute: '2-digit'
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="bg-emerald-50 dark:bg-emerald-950/20 rounded-lg p-2.5">
+                                <p className="text-xs text-foreground truncate">{booking.pickupAddress}</p>
+                                {booking.destinationAddress && (
+                                  <p className="text-xs text-muted-foreground truncate mt-1">{booking.destinationAddress}</p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center p-12" data-testid="no-completed-jobs">
+                          <CheckCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                          <p className="text-muted-foreground text-lg font-medium">No completed jobs</p>
+                          <p className="text-muted-foreground text-sm mt-2">Your completed rides will appear here</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Cancelled Jobs Tab */}
+                  {jobListTab === "cancelled" && (
+                    <>
+                      {cancelledJobs.length > 0 ? (
+                        <div className="space-y-4">
+                          {cancelledJobs.map((booking) => (
+                            <div
+                              key={booking.id}
+                              className="bg-card rounded-xl p-4 border border-red-200 dark:border-red-800 shadow-sm opacity-75"
+                              data-testid={`cancelled-job-${booking.id}`}
+                            >
+                              <div className="flex items-center justify-between gap-2 mb-2">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-sm font-semibold text-foreground">#{booking.id.slice(0, 8)}</span>
+                                  <Badge className="bg-red-600 text-white font-medium text-xs px-2 py-0.5">
+                                    Cancelled
+                                  </Badge>
+                                  <Badge variant="outline" className="text-xs px-2 py-0.5 border-muted-foreground/30">
+                                    {booking.bookingType === 'hourly' ? 'Hourly' : 'Transfer'}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-lg font-bold text-muted-foreground line-through">
+                                    {booking.driverPayment ? `$${booking.driverPayment}` : "Not set"}
+                                  </span>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setSelectedBookingForDetails(booking)}
+                                    className="h-7 px-2 text-xs"
+                                  >
+                                    <Eye className="w-3 h-3 mr-1" />
+                                    Details
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm mb-2">
+                                {booking.passengerName && (
+                                  <div className="flex items-center gap-1.5">
+                                    <User className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+                                    <span className="font-medium text-foreground">{booking.passengerName}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-1.5 text-muted-foreground">
+                                  <Clock className="w-3.5 h-3.5" />
+                                  <span>
+                                    {new Date(booking.scheduledDateTime).toLocaleString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: 'numeric',
+                                      minute: '2-digit'
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+                              {(booking as any).cancelReason && (
+                                <div className="bg-red-50 dark:bg-red-950/20 rounded-lg p-2.5 mb-2">
+                                  <p className="text-xs text-red-600 dark:text-red-400">
+                                    <span className="font-medium">Reason:</span> {(booking as any).cancelReason}
+                                  </p>
+                                </div>
+                              )}
+                              <div className="bg-muted/50 rounded-lg p-2.5">
+                                <p className="text-xs text-foreground truncate">{booking.pickupAddress}</p>
+                                {booking.destinationAddress && (
+                                  <p className="text-xs text-muted-foreground truncate mt-1">{booking.destinationAddress}</p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center p-12" data-testid="no-cancelled-jobs">
+                          <AlertCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                          <p className="text-muted-foreground text-lg font-medium">No cancelled jobs</p>
+                          <p className="text-muted-foreground text-sm mt-2">Cancelled rides will appear here</p>
+                        </div>
+                      )}
+                    </>
                   )}
                 </CardContent>
               </Card>
