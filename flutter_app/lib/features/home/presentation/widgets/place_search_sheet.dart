@@ -56,10 +56,23 @@ class _PlaceSearchSheetState extends State<PlaceSearchSheet> {
   }
 
   void _selectPlace(Map<String, dynamic> place) {
+    final lat = place['latitude'];
+    final lng = place['longitude'];
+    
+    if (lat == null || lng == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not get location coordinates. Please try another address.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
     Navigator.pop(context, {
       'address': place['description'] ?? place['mainText'] ?? '',
-      'latitude': place['latitude'],
-      'longitude': place['longitude'],
+      'latitude': lat,
+      'longitude': lng,
       'placeId': place['placeId'],
     });
   }

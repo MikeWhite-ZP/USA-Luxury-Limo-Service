@@ -79,16 +79,50 @@ class GoogleMapsProvider implements MapProvider {
       );
 
       final predictions = response.data['predictions'] as List;
-      return predictions.map((p) {
-        return {
-          'placeId': p['place_id'],
+      final results = <Map<String, dynamic>>[];
+      
+      for (final p in predictions.take(5)) {
+        final placeId = p['place_id'];
+        final details = await _getPlaceDetails(placeId);
+        
+        results.add({
+          'placeId': placeId,
           'description': p['description'],
           'mainText': p['structured_formatting']?['main_text'],
           'secondaryText': p['structured_formatting']?['secondary_text'],
-        };
-      }).toList();
+          'latitude': details?['latitude'],
+          'longitude': details?['longitude'],
+        });
+      }
+      
+      return results;
     } catch (e) {
       return [];
+    }
+  }
+
+  Future<Map<String, dynamic>?> _getPlaceDetails(String placeId) async {
+    try {
+      final response = await _dio.get(
+        'https://maps.googleapis.com/maps/api/place/details/json',
+        queryParameters: {
+          'place_id': placeId,
+          'fields': 'geometry',
+          'key': apiKey,
+        },
+      );
+
+      final result = response.data['result'];
+      if (result != null && result['geometry'] != null) {
+        final location = result['geometry']['location'];
+        return {
+          'latitude': location['lat'],
+          'longitude': location['lng'],
+        };
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
   }
 
