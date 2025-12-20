@@ -36,6 +36,8 @@ import {
   Download,
   Camera,
   Eye,
+  Phone,
+  Plane,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -130,7 +132,7 @@ export default function DriverDashboard() {
     "home" | "documents" | "assigned-jobs" | "settings"
   >("home");
   const [earningsDialogOpen, setEarningsDialogOpen] = useState(false);
-  const [expandedBookingId, setExpandedBookingId] = useState<string | null>(null);
+  const [selectedBookingForDetails, setSelectedBookingForDetails] = useState<Booking | null>(null);
   const [editingCredentials, setEditingCredentials] = useState(false);
   const [credentialsValue, setCredentialsValue] = useState("");
   const [editingVehiclePlate, setEditingVehiclePlate] = useState(false);
@@ -1119,12 +1121,12 @@ export default function DriverDashboard() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => setExpandedBookingId(expandedBookingId === booking.id ? null : booking.id)}
+                                  onClick={() => setSelectedBookingForDetails(booking)}
                                   className="h-7 px-2 text-xs"
                                   data-testid={`button-view-details-${booking.id}`}
                                 >
                                   <Eye className="w-3 h-3 mr-1" />
-                                  {expandedBookingId === booking.id ? 'Less' : 'Details'}
+                                  Details
                                 </Button>
                               </div>
                             </div>
@@ -1152,7 +1154,7 @@ export default function DriverDashboard() {
                               </div>
                             </div>
 
-                            {/* Compact route display - always shown */}
+                            {/* Compact route display */}
                             <div className="bg-muted/50 dark:bg-muted/20 rounded-lg p-2.5 mb-3">
                               <div className="flex items-start gap-2">
                                 <div className="flex flex-col items-center gap-0.5 pt-1">
@@ -1161,53 +1163,17 @@ export default function DriverDashboard() {
                                   <div className="w-2 h-2 rounded-full bg-red-500" />
                                 </div>
                                 <div className="flex-1 min-w-0 space-y-1">
-                                  <p className={`text-xs text-foreground ${expandedBookingId === booking.id ? '' : 'truncate'}`} data-testid={`accepted-pickup-${booking.id}`}>
+                                  <p className="text-xs text-foreground truncate" data-testid={`accepted-pickup-${booking.id}`}>
                                     {booking.pickupAddress}
                                   </p>
                                   {booking.destinationAddress && (
-                                    <p className={`text-xs text-muted-foreground ${expandedBookingId === booking.id ? '' : 'truncate'}`} data-testid={`accepted-destination-${booking.id}`}>
+                                    <p className="text-xs text-muted-foreground truncate" data-testid={`accepted-destination-${booking.id}`}>
                                       {booking.destinationAddress}
                                     </p>
                                   )}
                                 </div>
                               </div>
                             </div>
-
-                            {/* Expanded details section */}
-                            {expandedBookingId === booking.id && (
-                              <div className="bg-muted/30 dark:bg-muted/10 rounded-lg p-3 mb-3 space-y-2 text-sm border border-border">
-                                {booking.passengerEmail && (
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Email:</span>
-                                    <span className="text-foreground">{booking.passengerEmail}</span>
-                                  </div>
-                                )}
-                                {booking.passengerPhone && (
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Phone:</span>
-                                    <a href={`tel:${booking.passengerPhone}`} className="text-blue-600 dark:text-blue-400 hover:underline">{booking.passengerPhone}</a>
-                                  </div>
-                                )}
-                                {booking.totalAmount && (
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Total Fare:</span>
-                                    <span className="text-foreground font-medium">${booking.totalAmount}</span>
-                                  </div>
-                                )}
-                                {booking.flightNumber && (
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Flight:</span>
-                                    <span className="text-foreground">{booking.flightAirline} {booking.flightNumber}</span>
-                                  </div>
-                                )}
-                                {booking.specialInstructions && (
-                                  <div className="pt-2 border-t border-border">
-                                    <span className="text-muted-foreground text-xs">Special Instructions:</span>
-                                    <p className="text-foreground mt-1">{booking.specialInstructions}</p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
 
                             {/* Action buttons */}
                             {booking.status === "pending_driver_acceptance" && (
@@ -2065,6 +2031,160 @@ export default function DriverDashboard() {
           </div>
         )}
       </div>
+
+      {/* Booking Details Dialog */}
+      <Dialog open={!!selectedBookingForDetails} onOpenChange={(open) => !open && setSelectedBookingForDetails(null)}>
+        <DialogContent className="max-w-md bg-background border-border" data-testid="dialog-booking-details">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-foreground">
+              <Briefcase className="w-5 h-5 text-red-600" />
+              Job Details
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedBookingForDetails && (
+            <div className="space-y-4 py-2">
+              {/* Booking ID and Status */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Booking ID</span>
+                <code className="text-sm font-mono bg-muted px-2 py-0.5 rounded">
+                  #{selectedBookingForDetails.id.slice(0, 8)}
+                </code>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Status</span>
+                <Badge variant="secondary" className="capitalize">
+                  {selectedBookingForDetails.status.replace(/_/g, ' ')}
+                </Badge>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Type</span>
+                <span className="text-sm text-foreground font-medium">
+                  {selectedBookingForDetails.bookingType === 'hourly' ? 'Hourly Service' : 'Transfer'}
+                </span>
+              </div>
+
+              {/* Schedule */}
+              <div className="border-t border-border pt-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="w-4 h-4 text-blue-600" />
+                  <span className="font-medium text-foreground">Schedule</span>
+                </div>
+                <p className="text-sm text-muted-foreground pl-6">
+                  {new Date(selectedBookingForDetails.scheduledDateTime).toLocaleString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                  })}
+                </p>
+              </div>
+
+              {/* Route */}
+              <div className="border-t border-border pt-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="w-4 h-4 text-emerald-600" />
+                  <span className="font-medium text-foreground">Route</span>
+                </div>
+                <div className="pl-6 space-y-2">
+                  <div>
+                    <span className="text-xs text-muted-foreground uppercase">Pickup</span>
+                    <p className="text-sm text-foreground">{selectedBookingForDetails.pickupAddress}</p>
+                  </div>
+                  {selectedBookingForDetails.destinationAddress && (
+                    <div>
+                      <span className="text-xs text-muted-foreground uppercase">Destination</span>
+                      <p className="text-sm text-foreground">{selectedBookingForDetails.destinationAddress}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Passenger Info */}
+              <div className="border-t border-border pt-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <User className="w-4 h-4 text-purple-600" />
+                  <span className="font-medium text-foreground">Passenger</span>
+                </div>
+                <div className="pl-6 space-y-1">
+                  {selectedBookingForDetails.passengerName && (
+                    <p className="text-sm text-foreground">{selectedBookingForDetails.passengerName}</p>
+                  )}
+                  {selectedBookingForDetails.passengerPhone && (
+                    <a 
+                      href={`tel:${selectedBookingForDetails.passengerPhone}`}
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                    >
+                      <Phone className="w-3 h-3" />
+                      {selectedBookingForDetails.passengerPhone}
+                    </a>
+                  )}
+                  {selectedBookingForDetails.passengerEmail && (
+                    <p className="text-sm text-muted-foreground">{selectedBookingForDetails.passengerEmail}</p>
+                  )}
+                  <p className="text-sm text-muted-foreground">
+                    {selectedBookingForDetails.passengerCount} passenger{selectedBookingForDetails.passengerCount !== 1 ? 's' : ''}
+                  </p>
+                </div>
+              </div>
+
+              {/* Payment */}
+              <div className="border-t border-border pt-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <DollarSign className="w-4 h-4 text-green-600" />
+                  <span className="font-medium text-foreground">Payment</span>
+                </div>
+                <div className="pl-6 space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Your Payment</span>
+                    <span className="text-sm font-bold text-red-600 dark:text-red-400">
+                      {selectedBookingForDetails.driverPayment ? `$${selectedBookingForDetails.driverPayment}` : 'Not set'}
+                    </span>
+                  </div>
+                  {selectedBookingForDetails.totalAmount && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Total Fare</span>
+                      <span className="text-sm text-foreground">${selectedBookingForDetails.totalAmount}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Flight Info */}
+              {selectedBookingForDetails.flightNumber && (
+                <div className="border-t border-border pt-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Plane className="w-4 h-4 text-sky-600" />
+                    <span className="font-medium text-foreground">Flight Information</span>
+                  </div>
+                  <div className="pl-6">
+                    <p className="text-sm text-foreground">
+                      {selectedBookingForDetails.flightAirline} {selectedBookingForDetails.flightNumber}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Special Instructions */}
+              {selectedBookingForDetails.specialInstructions && (
+                <div className="border-t border-border pt-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertCircle className="w-4 h-4 text-amber-600" />
+                    <span className="font-medium text-foreground">Special Instructions</span>
+                  </div>
+                  <p className="pl-6 text-sm text-muted-foreground">
+                    {selectedBookingForDetails.specialInstructions}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
