@@ -3499,6 +3499,11 @@ export default function AdminDashboard() {
     expirationDate: "",
     whatsappNumber: "",
   });
+  
+  // Document preview dialog state
+  const [documentPreviewOpen, setDocumentPreviewOpen] = useState(false);
+  const [previewDocumentUrl, setPreviewDocumentUrl] = useState<string | null>(null);
+  const [previewDocumentType, setPreviewDocumentType] = useState<string>("");
 
   // Bookings management state
   const [bookingSegmentFilter, setBookingSegmentFilter] = useState<"all" | "pending" | "confirmed" | "in_progress" | "completed" | "cancelled">("all");
@@ -10543,6 +10548,19 @@ export default function AdminDashboard() {
                             </div>
 
                             <div className="flex items-center gap-2 mt-3">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setPreviewDocumentUrl(doc.documentUrl);
+                                  setPreviewDocumentType(doc.documentType);
+                                  setDocumentPreviewOpen(true);
+                                }}
+                                data-testid={`button-view-${doc.id}`}
+                              >
+                                <Eye className="w-3 h-3 mr-1" />
+                                View
+                              </Button>
                               {doc.status !== "approved" && (
                                 <Button
                                   size="sm"
@@ -10778,6 +10796,79 @@ export default function AdminDashboard() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Document Preview Dialog */}
+      <Dialog open={documentPreviewOpen} onOpenChange={setDocumentPreviewOpen}>
+        <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-3xl max-h-[90vh] translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-background overflow-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileImage className="w-5 h-5" />
+              Document Preview - {previewDocumentType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+            </DialogTitle>
+            <DialogDescription>
+              Review the uploaded document below.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col items-center justify-center min-h-[300px] bg-muted/30 rounded-lg p-4">
+            {previewDocumentUrl ? (
+              <>
+                {previewDocumentUrl.toLowerCase().endsWith('.pdf') ? (
+                  <div className="text-center space-y-4">
+                    <FileText className="w-16 h-16 mx-auto text-muted-foreground" />
+                    <p className="text-muted-foreground">PDF Document</p>
+                    <Button
+                      onClick={() => window.open(previewDocumentUrl, '_blank')}
+                      data-testid="button-open-pdf"
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      Open PDF in New Tab
+                    </Button>
+                  </div>
+                ) : (
+                  <img
+                    src={previewDocumentUrl}
+                    alt={`${previewDocumentType} document`}
+                    className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-md"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                      const parent = (e.target as HTMLImageElement).parentElement;
+                      if (parent) {
+                        parent.innerHTML = '<div class="text-center space-y-4"><p class="text-muted-foreground">Unable to load image. The file may have been moved or deleted.</p></div>';
+                      }
+                    }}
+                    data-testid="document-preview-image"
+                  />
+                )}
+              </>
+            ) : (
+              <p className="text-muted-foreground">No document to preview.</p>
+            )}
+          </div>
+
+          <DialogFooter className="gap-2">
+            {previewDocumentUrl && (
+              <Button
+                variant="outline"
+                onClick={() => window.open(previewDocumentUrl, '_blank')}
+                data-testid="button-open-new-tab"
+              >
+                Open in New Tab
+              </Button>
+            )}
+            <Button
+              onClick={() => {
+                setDocumentPreviewOpen(false);
+                setPreviewDocumentUrl(null);
+                setPreviewDocumentType("");
+              }}
+              data-testid="button-close-preview"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
