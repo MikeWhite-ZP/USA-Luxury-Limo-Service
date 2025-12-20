@@ -796,7 +796,9 @@ export default function DriverDashboard() {
                 <img
                   src={
                     getDocumentByType('profile_photo')?.status === 'approved' && getDocumentByType('profile_photo')?.documentUrl 
-                      ? `/${getDocumentByType('profile_photo')!.documentUrl}` 
+                      ? (getDocumentByType('profile_photo')!.documentUrl.startsWith('/') 
+                          ? getDocumentByType('profile_photo')!.documentUrl 
+                          : `/${getDocumentByType('profile_photo')!.documentUrl}`)
                       : defaultUserImage
                   }
                   alt="Driver Profile"
@@ -1799,7 +1801,9 @@ export default function DriverDashboard() {
                       <img
                         src={
                           getDocumentByType('profile_photo')?.status === 'approved' && getDocumentByType('profile_photo')?.documentUrl 
-                            ? `/${getDocumentByType('profile_photo')!.documentUrl}` 
+                            ? (getDocumentByType('profile_photo')!.documentUrl.startsWith('/') 
+                                ? getDocumentByType('profile_photo')!.documentUrl 
+                                : `/${getDocumentByType('profile_photo')!.documentUrl}`)
                             : defaultUserImage
                         }
                         alt="Profile"
