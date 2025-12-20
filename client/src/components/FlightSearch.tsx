@@ -65,7 +65,39 @@ export default function FlightSearch({
   const formatDateTime = (dateString: string) => {
     if (!dateString || dateString === 'N/A') return { date: '', time: '--:--' };
     try {
-      const date = new Date(dateString);
+      // Handle API timestamps like "2025-12-20 10:45-05:00" by normalizing to ISO format
+      // Replace space with T and handle timezone format variations
+      let normalized = dateString;
+      
+      // Check if it's already an object with .local property (API sometimes returns this)
+      if (typeof dateString === 'object' && (dateString as any).local) {
+        normalized = (dateString as any).local;
+      }
+      
+      // Normalize "2025-12-20 10:45-05:00" to "2025-12-20T10:45:00-05:00"
+      if (typeof normalized === 'string') {
+        // Replace first space with T for ISO format
+        normalized = normalized.replace(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/, '$1T$2:00');
+      }
+      
+      const date = new Date(normalized);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        // Fallback: try to extract date/time parts manually
+        const match = String(dateString).match(/(\d{4}-\d{2}-\d{2})[\sT]?(\d{2}:\d{2})/);
+        if (match) {
+          const [, datePart, timePart] = match;
+          const [year, month, day] = datePart.split('-').map(Number);
+          const [hours, minutes] = timePart.split(':').map(Number);
+          return {
+            date: `${day.toString().padStart(2, '0')} ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month - 1]} ${year}`,
+            time: `${hours > 12 ? hours - 12 : hours || 12}:${minutes.toString().padStart(2, '0')} ${hours >= 12 ? 'PM' : 'AM'}`
+          };
+        }
+        return { date: '', time: '--:--' };
+      }
+      
       return {
         date: date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
         time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
