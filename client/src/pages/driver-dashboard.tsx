@@ -2185,16 +2185,31 @@ export default function DriverDashboard() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                          <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                            <FileText className="w-4 h-4 text-red-600 dark:text-red-400" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Driver License #</p>
+                            <p className="text-sm font-mono font-medium text-foreground" data-testid="setting-driver-license">
+                              {driver?.licenseNumber || "Not provided"}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">License Number</p>
-                          <p className="text-sm font-medium text-foreground" data-testid="setting-license">
-                            {driver?.licenseNumber || "Not provided"}
-                          </p>
+                      </div>
+                      <div className="flex items-center p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                            <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Limo License #</p>
+                            <p className="text-sm font-mono font-medium text-foreground" data-testid="setting-limo-license">
+                              {driver?.limoLicenseNumber || "Not provided"}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
