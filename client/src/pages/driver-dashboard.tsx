@@ -874,7 +874,7 @@ export default function DriverDashboard() {
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
                 )}
                 <Briefcase className="w-5 h-5" />
-                Assigned Jobs
+                Accepted
               </button>
               <button
                 onClick={() => setActiveTab("settings")}
