@@ -1,0 +1,103 @@
+Logs
+Server: localhost
+Lines:
+3:52:21 AM [express] GET /api/geocode 200 in 135ms :: {"summary":{"query":"42","queryType":"NON_NEAR…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:22 AM [express] GET /api/geocode 200 in 77ms :: {"summary":{"query":"42 r","queryType":"NON_NEA…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:23 AM [express] GET /api/geocode 200 in 125ms :: {"summary":{"query":"42 ri","queryType":"NON_N…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:23 AM [express] GET /api/geocode 200 in 122ms :: {"summary":{"query":"42 ria","queryType":"NON_…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:23 AM [express] GET /api/geocode 200 in 73ms :: {"summary":{"query":"42 riat","queryType":"NON_…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:24 AM [express] GET /api/geocode 200 in 164ms :: {"summary":{"query":"42 riate","queryType":"NO…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:25 AM [express] GET /api/geocode 200 in 131ms :: {"summary":{"query":"42 riate","queryType":"NO…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:26 AM [express] GET /api/geocode 200 in 207ms :: {"summary":{"query":"42 riate dri","queryType"…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:27 AM [express] GET /api/geocode 200 in 216ms :: {"summary":{"query":"42 riate drive","queryTyp…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:42 AM [express] GET /api/geocode 200 in 273ms :: {"summary":{"query":"42","queryType":"NON_NEAR…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:43 AM [express] GET /api/geocode 200 in 156ms :: {"summary":{"query":"42","queryType":"NON_NEAR…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:44 AM [express] GET /api/geocode 200 in 109ms :: {"summary":{"query":"42 ria","queryType":"NON_…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:45 AM [express] GET /api/geocode 200 in 74ms :: {"summary":{"query":"42 riat","queryType":"NON_…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:52:45 AM [express] GET /api/geocode 200 in 111ms :: {"summary":{"query":"42 riata","queryType":"NO…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:53:35 AM [express] GET /api/flights/search 200 in 555ms :: [{"greatCircleDistance":{"meter":225277…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:54:55 AM [express] POST /api/calculate-price 200 in 22ms :: {"vehicleType":"business_suv","service…
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:55:12 AM [express] POST /api/admin/bookings 500 in 34ms :: {"message":"Failed to create booking"}
+🔵 Deserializing user ID: 2e9272c8-1287-43f2-8eca-1df66248ef5d
+🔵 User found: MikeWhiteAdmin
+3:55:25 AM [express] POST /api/admin/bookings 500 in 29ms :: {"message":"Failed to create booking"}
+Admin create booking error: error: column "flight_departure_terminal" of relation "bookings" does not exist
+at /app/node_modules/pg-pool/index.js:45:11
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+at async DatabaseStorage.createBooking (file:///app/dist/index.js:1507:23)
+at async file:///app/dist/index.js:9422:23 {
+length: 147,
+severity: 'ERROR',
+code: '42703',
+detail: undefined,
+hint: undefined,
+position: '974',
+internalPosition: undefined,
+internalQuery: undefined,
+where: undefined,
+schema: undefined,
+table: undefined,
+column: undefined,
+dataType: undefined,
+constraint: undefined,
+file: 'parse_target.c',
+line: '1065',
+routine: 'checkInsertTargets'
+}
+Admin create booking error: error: column "flight_departure_terminal" of relation "bookings" does not exist
+at /app/node_modules/pg-pool/index.js:45:11
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+at async DatabaseStorage.createBooking (file:///app/dist/index.js:1507:23)
+at async file:///app/dist/index.js:9422:23 {
+length: 147,
+severity: 'ERROR',
+code: '42703',
+detail: undefined,
+hint: undefined,
+position: '974',
+internalPosition: undefined,
+internalQuery: undefined,
+where: undefined,
+schema: undefined,
+table: undefined,
+column: undefined,
+dataType: undefined,
+constraint: undefined,
+file: 'parse_target.c',
+line: '1065',
+routine: 'checkInsertTargets'
+}
