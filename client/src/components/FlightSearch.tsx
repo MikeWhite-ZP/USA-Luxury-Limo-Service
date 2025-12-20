@@ -276,15 +276,6 @@ export default function FlightSearch({
             </div>
           </div>
 
-          <div className="px-5 py-4">
-            <p className="text-teal-600 dark:text-teal-400 text-sm font-medium">
-              Departure at {selectedFlight.departureIata}
-              {selectedFlight.departureTerminal && `, Terminal ${selectedFlight.departureTerminal}`}
-              {depDateTime.date && `, ${depDateTime.date.split(' ')[0]} ${depDateTime.date.split(' ')[1]}`}
-              {depDateTime.time !== '--:--' && `, ${depDateTime.time}`}
-            </p>
-          </div>
-
           <div className="grid grid-cols-2 divide-x divide-slate-200 dark:divide-slate-700 border-t border-slate-200 dark:border-slate-700">
             <div className="p-5">
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide mb-2">Departure</p>
