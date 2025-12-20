@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:usa_luxury_limo/core/constants/app_constants.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 import 'package:usa_luxury_limo/core/maps/map_provider.dart';
 import 'package:usa_luxury_limo/features/auth/presentation/providers/auth_provider.dart';
 import 'package:usa_luxury_limo/features/home/presentation/widgets/location_input_card.dart';
@@ -189,10 +190,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         color: AppColors.textSecondary,
                                       ),
                                 ),
-                                const Text(
+                                Text(
                                   'Where to?',
-                                  style: TextStyle(
-                                    fontFamily: 'Playfair',
+                                  style: AppTypography.displayFont(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textPrimary,

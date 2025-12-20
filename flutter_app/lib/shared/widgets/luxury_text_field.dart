@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 
 class LuxuryTextField extends StatefulWidget {
   final TextEditingController? controller;
@@ -67,8 +68,7 @@ class _LuxuryTextFieldState extends State<LuxuryTextField> {
         if (widget.label != null) ...[
           Text(
             widget.label!,
-            style: const TextStyle(
-              fontFamily: 'Inter',
+            style: AppTypography.bodyFont(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: AppColors.textSecondary,
@@ -91,8 +91,7 @@ class _LuxuryTextFieldState extends State<LuxuryTextField> {
           enabled: widget.enabled,
           maxLines: widget.obscureText ? 1 : widget.maxLines,
           autofocus: widget.autofocus,
-          style: const TextStyle(
-            fontFamily: 'Inter',
+          style: AppTypography.bodyFont(
             fontSize: 16,
             color: AppColors.textPrimary,
           ),

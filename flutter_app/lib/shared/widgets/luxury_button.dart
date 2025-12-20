@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 
 enum LuxuryButtonVariant { filled, outlined, text }
 
@@ -132,8 +133,7 @@ class LuxuryButton extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             text,
-            style: TextStyle(
-              fontFamily: 'Inter',
+            style: AppTypography.bodyFont(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: color,
@@ -145,8 +145,7 @@ class LuxuryButton extends StatelessWidget {
 
     return Text(
       text,
-      style: TextStyle(
-        fontFamily: 'Inter',
+      style: AppTypography.bodyFont(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: color,

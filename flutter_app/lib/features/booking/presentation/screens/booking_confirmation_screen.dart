@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 import 'package:usa_luxury_limo/core/utils/extensions.dart';
 import 'package:usa_luxury_limo/features/booking/data/booking_repository.dart';
 import 'package:usa_luxury_limo/shared/models/vehicle_model.dart';
@@ -223,8 +224,7 @@ class _BookingConfirmationScreenState
                         children: [
                           Text(
                             _vehicle!.name,
-                            style: const TextStyle(
-                              fontFamily: 'Playfair',
+                            style: AppTypography.displayFont(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                             ),
@@ -250,10 +250,9 @@ class _BookingConfirmationScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Trip Details',
-                    style: TextStyle(
-                      fontFamily: 'Playfair',
+                    style: AppTypography.displayFont(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
@@ -283,10 +282,9 @@ class _BookingConfirmationScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Date & Time',
-                    style: TextStyle(
-                      fontFamily: 'Playfair',
+                    style: AppTypography.displayFont(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
@@ -322,10 +320,9 @@ class _BookingConfirmationScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Passengers & Luggage',
-                    style: TextStyle(
-                      fontFamily: 'Playfair',
+                    style: AppTypography.displayFont(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
@@ -363,10 +360,9 @@ class _BookingConfirmationScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Additional Information',
-                    style: TextStyle(
-                      fontFamily: 'Playfair',
+                    style: AppTypography.displayFont(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
@@ -420,8 +416,7 @@ class _BookingConfirmationScreenState
                     ),
                     Text(
                       estimatedPrice.formattedCurrency,
-                      style: const TextStyle(
-                        fontFamily: 'Playfair',
+                      style: AppTypography.displayFont(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: AppColors.gold,

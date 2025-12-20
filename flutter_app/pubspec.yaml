@@ -59,6 +59,9 @@ dependencies:
   dartz: ^0.10.1
   logger: ^2.0.2+1
   connectivity_plus: ^5.0.2
+  
+  # Google Fonts (for custom fonts without bundling)
+  google_fonts: ^6.1.0
 
 dev_dependencies:
   flutter_test:
@@ -72,22 +75,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   
-  assets:
-    - assets/images/
-    - assets/fonts/
-  
-  fonts:
-    - family: Playfair
-      fonts:
-        - asset: assets/fonts/PlayfairDisplay-Regular.ttf
-        - asset: assets/fonts/PlayfairDisplay-Bold.ttf
-          weight: 700
-    - family: Inter
-      fonts:
-        - asset: assets/fonts/Inter-Regular.ttf
-        - asset: assets/fonts/Inter-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Inter-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Inter-Bold.ttf
-          weight: 700
+  # Note: Add custom assets here when available
+  # assets:
+  #   - assets/images/
+  #   - assets/icons/

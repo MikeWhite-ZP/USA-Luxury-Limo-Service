@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 import 'package:usa_luxury_limo/features/auth/presentation/providers/auth_provider.dart';
 import 'package:usa_luxury_limo/shared/widgets/luxury_card.dart';
 
@@ -46,8 +47,7 @@ class ProfileScreen extends ConsumerWidget {
                     child: Center(
                       child: Text(
                         user?.initials ?? 'U',
-                        style: const TextStyle(
-                          fontFamily: 'Playfair',
+                        style: AppTypography.displayFont(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
                           color: AppColors.backgroundDark,
@@ -58,8 +58,7 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Text(
                     user?.fullName ?? 'Guest User',
-                    style: const TextStyle(
-                      fontFamily: 'Playfair',
+                    style: AppTypography.displayFont(
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
                     ),

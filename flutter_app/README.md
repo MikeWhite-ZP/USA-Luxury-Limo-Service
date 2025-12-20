@@ -113,13 +113,7 @@ lib/
      --dart-define=PREFERRED_MAP_PROVIDER=tomtom
    ```
 
-5. **Add font files:**
-   
-   Download and add the following fonts to `assets/fonts/`:
-   - Playfair Display (Regular, Bold)
-   - Inter (Regular, Medium, SemiBold, Bold)
-
-6. **Run the app:**
+5. **Run the app:**
    ```bash
    flutter run
    ```
@@ -165,8 +159,8 @@ The app is designed to work with your existing backend. Update the endpoints in 
 - **Text Primary:** #F5F5F5
 
 ### Typography
-- **Display Font:** Playfair Display
-- **Body Font:** Inter
+- **Display Font:** Playfair Display (via Google Fonts)
+- **Body Font:** Inter (via Google Fonts)
 
 ## Building for Production
 

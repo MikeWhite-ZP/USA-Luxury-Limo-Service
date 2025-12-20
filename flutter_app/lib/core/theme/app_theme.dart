@@ -15,22 +15,19 @@ class AppTheme {
         primary: AppColors.gold,
         secondary: AppColors.goldLight,
         surface: AppColors.surface,
-        background: AppColors.background,
         error: AppColors.error,
         onPrimary: AppColors.backgroundDark,
         onSecondary: AppColors.backgroundDark,
         onSurface: AppColors.textPrimary,
-        onBackground: AppColors.textPrimary,
         onError: Colors.white,
       ),
       textTheme: AppTypography.textTheme,
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
-        titleTextStyle: TextStyle(
-          fontFamily: 'Playfair',
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        titleTextStyle: AppTypography.displayFont(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
@@ -52,8 +49,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          textStyle: const TextStyle(
-            fontFamily: 'Inter',
+          textStyle: AppTypography.bodyFont(
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -67,8 +63,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          textStyle: const TextStyle(
-            fontFamily: 'Inter',
+          textStyle: AppTypography.bodyFont(
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -77,8 +72,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.gold,
-          textStyle: const TextStyle(
-            fontFamily: 'Inter',
+          textStyle: AppTypography.bodyFont(
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),

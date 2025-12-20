@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 import 'package:usa_luxury_limo/core/utils/extensions.dart';
 import 'package:usa_luxury_limo/features/booking/presentation/providers/booking_provider.dart';
 import 'package:usa_luxury_limo/shared/models/vehicle_model.dart';
@@ -93,8 +94,7 @@ class VehicleSelectionScreen extends ConsumerWidget {
                             ),
                             Text(
                               priceState.estimatedPrice!.formattedCurrency,
-                              style: const TextStyle(
-                                fontFamily: 'Playfair',
+                              style: AppTypography.displayFont(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.gold,
@@ -185,8 +185,7 @@ class _VehicleCard extends StatelessWidget {
                     children: [
                       Text(
                         vehicle.name,
-                        style: const TextStyle(
-                          fontFamily: 'Playfair',
+                        style: AppTypography.displayFont(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
@@ -235,8 +234,7 @@ class _VehicleCard extends StatelessWidget {
                       const Spacer(),
                       Text(
                         'From ${vehicle.basePrice.formattedCurrency}',
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
+                        style: AppTypography.bodyFont(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: AppColors.gold,

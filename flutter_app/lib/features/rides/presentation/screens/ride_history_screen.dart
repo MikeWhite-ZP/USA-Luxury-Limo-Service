@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 import 'package:usa_luxury_limo/core/utils/extensions.dart';
 import 'package:usa_luxury_limo/features/rides/presentation/providers/rides_provider.dart';
 import 'package:usa_luxury_limo/shared/models/booking_model.dart';
@@ -161,8 +162,7 @@ class _RideCard extends StatelessWidget {
               children: [
                 Text(
                   ride.scheduledDate.relativeDate,
-                  style: const TextStyle(
-                    fontFamily: 'Playfair',
+                  style: AppTypography.displayFont(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
@@ -276,8 +276,7 @@ class _RideCard extends StatelessWidget {
                   ),
                 Text(
                   ride.displayPrice.formattedCurrency,
-                  style: const TextStyle(
-                    fontFamily: 'Playfair',
+                  style: AppTypography.displayFont(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.gold,

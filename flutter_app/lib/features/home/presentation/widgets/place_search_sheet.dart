@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:usa_luxury_limo/core/maps/map_provider.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 import 'package:usa_luxury_limo/shared/widgets/luxury_text_field.dart';
 
 class PlaceSearchSheet extends StatefulWidget {
@@ -111,8 +112,7 @@ class _PlaceSearchSheetState extends State<PlaceSearchSheet> {
                     const SizedBox(width: 8),
                     Text(
                       widget.title,
-                      style: const TextStyle(
-                        fontFamily: 'Playfair',
+                      style: AppTypography.displayFont(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),

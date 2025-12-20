@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:usa_luxury_limo/core/constants/app_constants.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 import 'package:usa_luxury_limo/features/auth/presentation/providers/auth_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -122,20 +123,22 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 const SizedBox(height: 32),
                 Text(
                   'USA LUXURY',
-                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                        fontFamily: 'Playfair',
-                        letterSpacing: 4,
-                        color: AppColors.gold,
-                      ),
+                  style: AppTypography.displayFont(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 4,
+                    color: AppColors.gold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'LIMO',
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        fontFamily: 'Playfair',
-                        letterSpacing: 8,
-                        color: AppColors.textPrimary,
-                      ),
+                  style: AppTypography.displayFont(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 8,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(

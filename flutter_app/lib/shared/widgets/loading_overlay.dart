@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 
 class LoadingOverlay extends StatelessWidget {
   final bool isLoading;
@@ -34,8 +35,7 @@ class LoadingOverlay extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text(
                       message!,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
+                      style: AppTypography.bodyFont(
                         fontSize: 14,
                         color: AppColors.textSecondary,
                       ),

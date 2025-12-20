@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 
 class LocationInputCard extends StatelessWidget {
   final TextEditingController pickupController;
@@ -99,8 +100,7 @@ class _LocationInput extends StatelessWidget {
       child: AbsorbPointer(
         child: TextField(
           controller: controller,
-          style: const TextStyle(
-            fontFamily: 'Inter',
+          style: AppTypography.bodyFont(
             fontSize: 16,
             color: AppColors.textPrimary,
           ),

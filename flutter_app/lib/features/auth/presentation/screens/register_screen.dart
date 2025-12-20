@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 import 'package:usa_luxury_limo/core/utils/validators.dart';
 import 'package:usa_luxury_limo/features/auth/presentation/providers/auth_provider.dart';
 import 'package:usa_luxury_limo/shared/widgets/luxury_button.dart';
@@ -82,9 +83,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               children: [
                 Text(
                   'Create Account',
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        fontFamily: 'Playfair',
-                      ),
+                  style: AppTypography.displayFont(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(

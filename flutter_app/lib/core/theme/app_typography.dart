@@ -1,107 +1,122 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
 
 class AppTypography {
   AppTypography._();
 
-  static const String fontFamilyDisplay = 'Playfair';
-  static const String fontFamilyBody = 'Inter';
+  static TextStyle displayFont({
+    double fontSize = 20,
+    FontWeight fontWeight = FontWeight.w600,
+    Color color = AppColors.textPrimary,
+    double? letterSpacing,
+    double? height,
+  }) {
+    return GoogleFonts.playfairDisplay(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: letterSpacing,
+      height: height,
+    );
+  }
+
+  static TextStyle bodyFont({
+    double fontSize = 16,
+    FontWeight fontWeight = FontWeight.w400,
+    Color color = AppColors.textPrimary,
+    double? letterSpacing,
+    double? height,
+  }) {
+    return GoogleFonts.inter(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: letterSpacing,
+      height: height,
+    );
+  }
 
   static TextTheme get textTheme {
-    return const TextTheme(
-      displayLarge: TextStyle(
-        fontFamily: fontFamilyDisplay,
+    return TextTheme(
+      displayLarge: GoogleFonts.playfairDisplay(
         fontSize: 48,
         fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
         letterSpacing: -0.5,
       ),
-      displayMedium: TextStyle(
-        fontFamily: fontFamilyDisplay,
+      displayMedium: GoogleFonts.playfairDisplay(
         fontSize: 36,
         fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
         letterSpacing: -0.5,
       ),
-      displaySmall: TextStyle(
-        fontFamily: fontFamilyDisplay,
+      displaySmall: GoogleFonts.playfairDisplay(
         fontSize: 28,
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
       ),
-      headlineLarge: TextStyle(
-        fontFamily: fontFamilyDisplay,
+      headlineLarge: GoogleFonts.playfairDisplay(
         fontSize: 24,
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
       ),
-      headlineMedium: TextStyle(
-        fontFamily: fontFamilyDisplay,
+      headlineMedium: GoogleFonts.playfairDisplay(
         fontSize: 20,
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
       ),
-      headlineSmall: TextStyle(
-        fontFamily: fontFamilyBody,
+      headlineSmall: GoogleFonts.inter(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
       ),
-      titleLarge: TextStyle(
-        fontFamily: fontFamilyBody,
+      titleLarge: GoogleFonts.inter(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
       ),
-      titleMedium: TextStyle(
-        fontFamily: fontFamilyBody,
+      titleMedium: GoogleFonts.inter(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
       ),
-      titleSmall: TextStyle(
-        fontFamily: fontFamilyBody,
+      titleSmall: GoogleFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
       ),
-      bodyLarge: TextStyle(
-        fontFamily: fontFamilyBody,
+      bodyLarge: GoogleFonts.inter(
         fontSize: 16,
         fontWeight: FontWeight.w400,
         color: AppColors.textPrimary,
         height: 1.5,
       ),
-      bodyMedium: TextStyle(
-        fontFamily: fontFamilyBody,
+      bodyMedium: GoogleFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w400,
         color: AppColors.textPrimary,
         height: 1.5,
       ),
-      bodySmall: TextStyle(
-        fontFamily: fontFamilyBody,
+      bodySmall: GoogleFonts.inter(
         fontSize: 12,
         fontWeight: FontWeight.w400,
         color: AppColors.textSecondary,
         height: 1.4,
       ),
-      labelLarge: TextStyle(
-        fontFamily: fontFamilyBody,
+      labelLarge: GoogleFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
         letterSpacing: 0.5,
       ),
-      labelMedium: TextStyle(
-        fontFamily: fontFamilyBody,
+      labelMedium: GoogleFonts.inter(
         fontSize: 12,
         fontWeight: FontWeight.w500,
         color: AppColors.textSecondary,
         letterSpacing: 0.5,
       ),
-      labelSmall: TextStyle(
-        fontFamily: fontFamilyBody,
+      labelSmall: GoogleFonts.inter(
         fontSize: 10,
         fontWeight: FontWeight.w500,
         color: AppColors.textSecondary,

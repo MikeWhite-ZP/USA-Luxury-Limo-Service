@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/theme/app_typography.dart';
 
 class MainShell extends StatelessWidget {
   final Widget child;
@@ -115,8 +116,7 @@ class _NavItem extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(
-                fontFamily: 'Inter',
+              style: AppTypography.bodyFont(
                 fontSize: 12,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                 color: isActive ? AppColors.gold : AppColors.textSecondary,
