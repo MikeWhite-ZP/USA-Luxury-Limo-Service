@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:usa_luxury_limo/core/maps/map_config.dart';
-import 'package:usa_luxury_limo/core/maps/google_maps_provider.dart';
 import 'package:usa_luxury_limo/core/maps/tomtom_maps_provider.dart';
 
-enum MapProviderType { google, tomtom }
+enum MapProviderType { tomtom }
 
 abstract class MapPosition {
   double get latitude;
@@ -87,21 +86,7 @@ final mapConfigProvider = Provider<MapConfig>((ref) {
 
 final mapProviderProvider = Provider<MapProvider>((ref) {
   final config = ref.watch(mapConfigProvider);
-  
-  if (config.preferredProvider == MapProviderType.tomtom && 
-      config.tomtomApiKey != null) {
-    return TomTomMapsProvider(apiKey: config.tomtomApiKey!);
-  }
-  
-  if (config.googleMapsApiKey != null) {
-    return GoogleMapsProvider(apiKey: config.googleMapsApiKey!);
-  }
-  
-  if (config.tomtomApiKey != null) {
-    return TomTomMapsProvider(apiKey: config.tomtomApiKey!);
-  }
-  
-  return TomTomMapsProvider(apiKey: '');
+  return TomTomMapsProvider(apiKey: config.tomtomApiKey ?? '');
 });
 
 final activeMapProviderTypeProvider = Provider<MapProviderType>((ref) {

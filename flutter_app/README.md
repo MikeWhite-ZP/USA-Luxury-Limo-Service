@@ -5,7 +5,7 @@ A premium chauffeur and limo booking service mobile application built with Flutt
 ## Features
 
 - **Luxury Dark Theme** - Premium design with gold accents
-- **Dual Map Provider** - Supports both TomTom and Google Maps (auto-detects available API key)
+- **TomTom Maps Integration** - High-quality maps with dark theme tiles
 - **Map-based Booking** - Select pickup and dropoff locations on map with place search
 - **Vehicle Selection** - Browse and select from available luxury vehicles
 - **Booking Confirmation** - Complete booking with date, time, and passenger details
@@ -20,7 +20,7 @@ This project follows **Clean Architecture** principles:
 lib/
 ├── core/
 │   ├── theme/          # App theme, colors, typography
-│   ├── maps/           # Map provider abstraction (TomTom/Google)
+│   ├── maps/           # TomTom map provider
 │   ├── network/        # API client, interceptors, token storage
 │   ├── utils/          # Validators, extensions
 │   └── constants/      # API & app constants
@@ -42,7 +42,7 @@ lib/
 - **Riverpod** - State management
 - **Dio** - HTTP client
 - **Go Router** - Navigation
-- **TomTom Maps** / **Google Maps** - Dual map provider support
+- **TomTom Maps** - Map provider with flutter_map
 - **Cached Network Image** - Image caching
 
 ## Getting Started
@@ -51,7 +51,7 @@ lib/
 
 - Flutter SDK (>=3.0.0)
 - Android Studio / Xcode
-- TomTom API Key and/or Google Maps API Key
+- TomTom API Key
 
 ### Setup
 
@@ -72,67 +72,25 @@ lib/
    static const String baseUrl = 'https://your-api-domain.com';
    ```
 
-4. **Configure Map Provider (Choose one or both):**
+4. **Configure TomTom Maps:**
 
-   The app automatically selects the map provider based on available API keys.
-   TomTom is preferred when both are configured.
-
-   #### Option A: TomTom Maps (Recommended)
-   
-   Run with the TomTom API key:
+   Run with your TomTom API key:
    ```bash
    flutter run --dart-define=TOMTOM_API_KEY=your_tomtom_api_key
    ```
 
-   #### Option B: Google Maps
-   
-   **Android:** Add your API key to `android/app/src/main/AndroidManifest.xml`:
-   ```xml
-   <meta-data
-       android:name="com.google.android.geo.API_KEY"
-       android:value="YOUR_GOOGLE_MAPS_API_KEY"/>
-   ```
-   
-   **iOS:** Add your API key to `ios/Runner/AppDelegate.swift`:
-   ```swift
-   GMSServices.provideAPIKey("YOUR_GOOGLE_MAPS_API_KEY")
-   ```
-   
-   Run with the Google Maps API key:
-   ```bash
-   flutter run --dart-define=GOOGLE_MAPS_API_KEY=your_google_api_key
-   ```
-
-   #### Option C: Both Providers
-   
-   Configure both and set your preferred provider:
-   ```bash
-   flutter run \
-     --dart-define=TOMTOM_API_KEY=your_tomtom_key \
-     --dart-define=GOOGLE_MAPS_API_KEY=your_google_key \
-     --dart-define=PREFERRED_MAP_PROVIDER=tomtom
-   ```
-
 5. **Run the app:**
    ```bash
-   flutter run
+   flutter run --dart-define=TOMTOM_API_KEY=your_tomtom_api_key
    ```
 
-## Map Provider Features
+## TomTom Maps Features
 
-### TomTom Maps
 - Dark night theme tiles for luxury aesthetic
 - Place search via TomTom Search API
 - Reverse geocoding
 - Route calculation with real-time traffic
 - No native SDK required (uses flutter_map with TomTom tiles)
-
-### Google Maps
-- Native Google Maps widget
-- Custom dark map styling
-- Places Autocomplete
-- Directions API for routing
-- Requires native SDK setup per platform
 
 ## API Integration
 
@@ -167,8 +125,7 @@ The app is designed to work with your existing backend. Update the endpoints in 
 ### Android
 ```bash
 flutter build apk --release \
-  --dart-define=TOMTOM_API_KEY=your_key \
-  --dart-define=PREFERRED_MAP_PROVIDER=tomtom
+  --dart-define=TOMTOM_API_KEY=your_key
 # or
 flutter build appbundle --release \
   --dart-define=TOMTOM_API_KEY=your_key
