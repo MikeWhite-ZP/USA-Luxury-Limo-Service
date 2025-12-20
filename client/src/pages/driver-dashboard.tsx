@@ -52,6 +52,8 @@ interface DriverData {
   id: string;
   licenseNumber?: string;
   licenseExpiry?: string;
+  limoLicenseNumber?: string;
+  limoLicenseExpiry?: string;
   licenseDocumentUrl?: string;
   insuranceDocumentUrl?: string;
   vehiclePlate?: string;
@@ -151,7 +153,7 @@ export default function DriverDashboard() {
   // Form data for mobile-style documents upload
   const [formData, setFormData] = useState({
     driverLicense: { file: null as File | null, expirationDate: "", licenseNumber: "" },
-    limoLicense: { file: null as File | null, expirationDate: "" },
+    limoLicense: { file: null as File | null, expirationDate: "", licenseNumber: "" },
     insuranceCertificate: { file: null as File | null, expirationDate: "" },
     vehicleImage: { file: null as File | null, vehiclePlate: "" },
     profilePhoto: { file: null as File | null },
@@ -218,14 +220,34 @@ export default function DriverDashboard() {
     enabled: isAuthenticated && user?.role === "driver",
   });
 
-  // Initialize credentials and vehicle plate values when driver data loads
+  // Initialize credentials, vehicle plate, and license numbers when driver data loads
   useEffect(() => {
-    if (driver?.driverCredentials) {
+    if (!driver) return; // Only run when driver data is available
+    
+    if (driver.driverCredentials) {
       setCredentialsValue(driver.driverCredentials);
     }
-    if (driver?.vehiclePlate) {
+    if (driver.vehiclePlate) {
       setVehiclePlateValue(driver.vehiclePlate);
     }
+    // Hydrate license numbers and expiration dates from driver profile
+    setFormData(prev => ({
+      ...prev,
+      driverLicense: {
+        ...prev.driverLicense,
+        licenseNumber: driver.licenseNumber || prev.driverLicense.licenseNumber,
+        expirationDate: driver.licenseExpiry 
+          ? new Date(driver.licenseExpiry).toISOString().split('T')[0] 
+          : prev.driverLicense.expirationDate
+      },
+      limoLicense: {
+        ...prev.limoLicense,
+        licenseNumber: driver.limoLicenseNumber || prev.limoLicense.licenseNumber,
+        expirationDate: driver.limoLicenseExpiry 
+          ? new Date(driver.limoLicenseExpiry).toISOString().split('T')[0] 
+          : prev.limoLicense.expirationDate
+      }
+    }));
   }, [driver]);
 
   // Fetch driver bookings with automatic polling for new jobs
@@ -322,7 +344,7 @@ export default function DriverDashboard() {
           setFormData(prev => ({ ...prev, driverLicense: { file: null, expirationDate: "", licenseNumber: "" } }));
           break;
         case "limo_license":
-          setFormData(prev => ({ ...prev, limoLicense: { file: null, expirationDate: "" } }));
+          setFormData(prev => ({ ...prev, limoLicense: { file: null, expirationDate: "", licenseNumber: "" } }));
           break;
         case "insurance_certificate":
           setFormData(prev => ({ ...prev, insuranceCertificate: { file: null, expirationDate: "" } }));
@@ -686,6 +708,7 @@ export default function DriverDashboard() {
       case "limo_license":
         file = formData.limoLicense.file;
         expirationDate = formData.limoLicense.expirationDate;
+        licenseNumber = formData.limoLicense.licenseNumber;
         break;
       case "insurance_certificate":
         file = formData.insuranceCertificate.file;
@@ -1681,6 +1704,14 @@ export default function DriverDashboard() {
 
                 {getDocumentByType('limo_license') && (
                   <div className="bg-red-50 dark:bg-red-950/40 rounded-lg p-3 space-y-2 text-sm border border-red-100 dark:border-red-900">
+                    {driver?.limoLicenseNumber && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">License #:</span>
+                        <span className="font-medium text-foreground font-mono">
+                          {driver.limoLicenseNumber}
+                        </span>
+                      </div>
+                    )}
                     {getDocumentByType('limo_license')!.expirationDate && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Expires:</span>
@@ -1710,6 +1741,23 @@ export default function DriverDashboard() {
                 )}
 
                 <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="limo-license-number" className="text-muted-foreground font-medium mb-2 block">
+                      License Number
+                    </Label>
+                    <Input
+                      id="limo-license-number"
+                      type="text"
+                      placeholder="Enter your limo license number"
+                      value={formData.limoLicense.licenseNumber}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        limoLicense: { ...prev.limoLicense, licenseNumber: e.target.value }
+                      }))}
+                      className="bg-background border-border font-mono"
+                      data-testid="input-limo-license-number"
+                    />
+                  </div>
                   <div>
                     <Label htmlFor="limo-license-file" className="text-muted-foreground font-medium mb-2 block">
                       {getDocumentByType('limo_license') ? 'Replace Document' : 'Upload Document'}

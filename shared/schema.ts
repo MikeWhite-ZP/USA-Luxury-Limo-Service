@@ -70,6 +70,8 @@ export const drivers = pgTable("drivers", {
   userId: varchar("user_id").references(() => users.id).notNull(),
   licenseNumber: varchar("license_number"),
   licenseExpiry: timestamp("license_expiry"),
+  limoLicenseNumber: varchar("limo_license_number"),
+  limoLicenseExpiry: timestamp("limo_license_expiry"),
   licenseDocumentUrl: varchar("license_document_url"),
   insuranceDocumentUrl: varchar("insurance_document_url"),
   vehiclePlate: varchar("vehicle_plate"), // Vehicle license plate number

@@ -6539,6 +6539,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.updateDriver(driver.id, driverUpdates);
         }
       }
+      
+      // If this is a limo license, update the driver's limo license number and expiry
+      if (documentType === 'limo_license') {
+        const driverUpdates: any = {};
+        if (licenseNumber) {
+          driverUpdates.limoLicenseNumber = licenseNumber;
+        }
+        if (expirationDate) {
+          driverUpdates.limoLicenseExpiry = new Date(expirationDate);
+        }
+        if (Object.keys(driverUpdates).length > 0) {
+          await storage.updateDriver(driver.id, driverUpdates);
+        }
+      }
 
       // Validate document data with schema
       const validationResult = insertDriverDocumentSchema.safeParse(docDataToValidate);
