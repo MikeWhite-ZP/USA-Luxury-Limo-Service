@@ -1,0 +1,87 @@
+You are a senior Flutter mobile engineer and UI/UX designer.
+
+GOAL:
+Build a production-ready Flutter mobile application for a premium chauffeur / limo booking service.
+
+IMPORTANT CONTEXT:
+- The backend is already implemented and running on a VPS.
+- All business logic exists as REST APIs.
+- A PWA version of this app already exists.
+- DO NOT create backend logic, database models, or mock data.
+- This Flutter app is a thin native client that ONLY consumes existing APIs.
+
+TECH STACK REQUIREMENTS:
+- Framework: Flutter (latest stable)
+- Architecture: Clean Architecture (presentation, domain, data layers)
+- State Management: Riverpod or Bloc (choose one and be consistent)
+- Networking: Dio or http with proper error handling
+- Design System: Material 3 (Material You)
+- Adaptive UI: Material for Android, Cupertino-style where appropriate for iOS
+- Target Platforms: iOS and Android
+
+UI / UX DESIGN REQUIREMENTS:
+- Style: Luxury, premium, minimal
+- Theme: Dark mode primary with gold / accent highlights
+- Use large cards, rounded corners, subtle shadows
+- Smooth transitions and animations (Hero, implicit animations)
+- Clear loading states, error states, and empty states
+
+SCREENS TO IMPLEMENT:
+1. Splash Screen
+2. Login / Register Screen
+3. Home Screen
+   - Map-based pickup and dropoff selection
+   - Current location support
+4. Vehicle Selection Screen
+5. Booking Confirmation Screen
+6. Ride History Screen
+7. Profile / Settings Screen
+
+FUNCTIONAL REQUIREMENTS:
+- All data must come from existing REST APIs.
+- No mock data, no fake services.
+- Create a centralized API service layer.
+- Handle network errors, timeouts, and API failures gracefully.
+- Use DTOs / models only for API responses.
+- Make UI fully reactive to API states (loading, success, error).
+
+CODE QUALITY RULES:
+- Use reusable widgets.
+- Keep widgets small and readable.
+- Separate UI, business logic, and data layers.
+- Use clear folder structure.
+- Add comments where necessary, but keep code clean.
+
+PROJECT STRUCTURE:
+- lib/
+  - core/
+    - theme/
+    - network/
+    - utils/
+  - features/
+    - auth/
+    - booking/
+    - rides/
+    - profile/
+  - shared/
+    - widgets/
+    - constants/
+
+OUTPUT EXPECTATIONS:
+- Generate the Flutter project structure.
+- Generate main.dart and theme configuration.
+- Generate at least one fully implemented feature end-to-end
+  (UI → API call → state management → error handling).
+- Use placeholder API endpoints (e.g. /api/login, /api/bookings),
+  but structure the code so real endpoints can be plugged in immediately.
+
+DO NOT:
+- Do NOT generate backend code.
+- Do NOT generate database schemas.
+- Do NOT use mock JSON files.
+- Do NOT over-engineer.
+- Do NOT write unnecessary boilerplate explanations.
+
+FINAL GOAL:
+A clean, elegant, fast, and visually premium native mobile app
+that can be directly connected to an existing production backend.
