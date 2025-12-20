@@ -1,4 +1,5 @@
 import 'package:usa_luxury_limo/core/maps/map_provider.dart';
+import 'package:usa_luxury_limo/core/constants/tenant_config.dart';
 
 class MapConfig {
   final String? tomtomApiKey;
@@ -8,7 +9,7 @@ class MapConfig {
   });
 
   factory MapConfig.fromEnvironment() {
-    const tomtomKey = String.fromEnvironment('TOMTOM_API_KEY');
+    final tomtomKey = TenantConfig.tomtomApiKey;
     
     return MapConfig(
       tomtomApiKey: tomtomKey.isNotEmpty ? tomtomKey : null,

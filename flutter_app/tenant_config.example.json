@@ -1,0 +1,22 @@
+{
+  "tenant_id": "example-company",
+  "company_name": "Example Luxury Limo",
+  "app_name": "Example Limo",
+  "package_id_android": "com.example.luxurylimo",
+  "bundle_id_ios": "com.example.luxurylimo",
+  "tomtom_api_key": "YOUR_TOMTOM_API_KEY",
+  "branding": {
+    "primary_color": "#D4AF37",
+    "secondary_color": "#1A1A1A",
+    "background_color": "#0D0D0D",
+    "text_color": "#F5F5F5"
+  },
+  "assets": {
+    "logo_path": "./assets/logo.png",
+    "icon_path": "./assets/icon.png",
+    "splash_logo_path": "./assets/splash_logo.png"
+  },
+  "api": {
+    "base_url": "https://api.example.com"
+  }
+}

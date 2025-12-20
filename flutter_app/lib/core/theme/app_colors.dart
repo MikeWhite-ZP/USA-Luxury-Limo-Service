@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:usa_luxury_limo/core/constants/tenant_config.dart';
 
 class AppColors {
   AppColors._();
 
-  // Primary - Gold Luxury Accent
-  static const Color gold = Color(0xFFD4AF37);
-  static const Color goldLight = Color(0xFFE5C76B);
-  static const Color goldDark = Color(0xFFB8960C);
-  static const Color goldSubtle = Color(0x33D4AF37);
+  // Primary - Gold Luxury Accent (dynamically loaded from tenant config)
+  static Color get gold => TenantConfig.primaryColor;
+  static Color get goldLight => HSLColor.fromColor(gold).withLightness(0.6).toColor();
+  static Color get goldDark => HSLColor.fromColor(gold).withLightness(0.35).toColor();
+  static Color get goldSubtle => gold.withOpacity(0.2);
+  
+  // Fallback constant colors (for cases where const is required)
+  static const Color goldConst = Color(0xFFD4AF37);
+  static const Color goldLightConst = Color(0xFFE5C76B);
+  static const Color goldDarkConst = Color(0xFFB8960C);
 
-  // Background Colors - Deep Dark Theme
-  static const Color background = Color(0xFF0D0D0D);
-  static const Color backgroundDark = Color(0xFF000000);
-  static const Color surface = Color(0xFF1A1A1A);
-  static const Color surfaceLight = Color(0xFF252525);
-  static const Color surfaceHighlight = Color(0xFF2D2D2D);
+  // Background Colors - Deep Dark Theme (dynamically loaded)
+  static Color get background => TenantConfig.backgroundColor;
+  static Color get backgroundDark => HSLColor.fromColor(background).withLightness(0).toColor();
+  static Color get surface => TenantConfig.secondaryColor;
+  static Color get surfaceLight => HSLColor.fromColor(surface).withLightness(0.15).toColor();
+  static Color get surfaceHighlight => HSLColor.fromColor(surface).withLightness(0.18).toColor();
+  
+  // Fallback constant colors
+  static const Color backgroundConst = Color(0xFF0D0D0D);
+  static const Color surfaceConst = Color(0xFF1A1A1A);
 
   // Text Colors
   static const Color textPrimary = Color(0xFFF5F5F5);
@@ -39,22 +49,35 @@ class AppColors {
   static const Color overlay = Color(0x80000000);
   static const Color overlayLight = Color(0x40000000);
 
-  // Gradient Colors
-  static const LinearGradient goldGradient = LinearGradient(
+  // Gradient Colors (dynamic based on tenant config)
+  static LinearGradient get goldGradient => LinearGradient(
     colors: [gold, goldLight],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  static const LinearGradient darkGradient = LinearGradient(
+  static LinearGradient get darkGradient => LinearGradient(
     colors: [background, surface],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
 
-  static const LinearGradient cardGradient = LinearGradient(
+  static LinearGradient get cardGradient => LinearGradient(
     colors: [surfaceLight, surface],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
+  );
+  
+  // Constant gradients (for cases where const is required)
+  static const LinearGradient goldGradientConst = LinearGradient(
+    colors: [goldConst, goldLightConst],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient darkGradientConst = LinearGradient(
+    colors: [backgroundConst, surfaceConst],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
   );
 }

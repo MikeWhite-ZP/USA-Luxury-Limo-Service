@@ -70,11 +70,13 @@ dev_dependencies:
   retrofit_generator: ^8.0.6
   json_serializable: ^6.7.1
   riverpod_generator: ^2.3.9
+  
+  # White-label asset generation
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.3.10
 
 flutter:
   uses-material-design: true
   
-  # Note: Add custom assets here when available
-  # assets:
-  #   - assets/images/
-  #   - assets/icons/
+  assets:
+    - assets/tenant/
