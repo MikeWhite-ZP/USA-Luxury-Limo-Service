@@ -158,6 +158,9 @@ export default function DriverDashboard() {
     whatsappNumber: "",
   });
   const [uploading, setUploading] = useState<string | null>(null);
+  
+  // Job list sub-tabs state
+  const [jobListTab, setJobListTab] = useState<"current" | "completed" | "cancelled">("current");
 
   // Redirect to home if not authenticated or not driver
   useEffect(() => {
@@ -725,9 +728,6 @@ export default function DriverDashboard() {
     bookings?.filter((b) => b.status === "completed").length || 0;
   const pendingBookings = bookings?.filter((b) => b.status === "pending") || [];
   const activeBooking = bookings?.find((b) => b.status === "in_progress");
-  
-  // Job list sub-tabs state
-  const [jobListTab, setJobListTab] = useState<"current" | "completed" | "cancelled">("current");
   
   // Filter bookings by category
   const now = new Date();
