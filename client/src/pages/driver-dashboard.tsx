@@ -988,12 +988,13 @@ export default function DriverDashboard() {
                     <Dialog open={earningsDialogOpen} onOpenChange={setEarningsDialogOpen}>
                       <DialogTrigger asChild>
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          className="h-8 w-8 p-0"
+                          className="h-7 px-2 text-xs"
                           data-testid="button-earnings-details"
                         >
-                          <Info className="w-4 h-4 text-blue-600" />
+                          <Info className="w-3 h-3 mr-1" />
+                          Details
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg sm:max-w-md bg-[#ffffff]" data-testid="dialog-earnings-details">
