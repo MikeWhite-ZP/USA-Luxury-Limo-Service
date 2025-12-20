@@ -4575,8 +4575,21 @@ export default function AdminDashboard() {
   const saveBookingMutation = useMutation({
     mutationFn: async (data: any) => {
       // Transform string values to correct types for schema validation
+      // Ensure scheduledDateTime is properly formatted as ISO string
+      let formattedScheduledDateTime = data.scheduledDateTime;
+      if (data.scheduledDateTime) {
+        const dateObj = new Date(data.scheduledDateTime);
+        formattedScheduledDateTime = dateObj.toISOString();
+        console.log("📅 Saving booking with scheduledDateTime:", {
+          original: data.scheduledDateTime,
+          formatted: formattedScheduledDateTime,
+          dateObject: dateObj.toString()
+        });
+      }
+
       const transformedData = {
         ...data,
+        scheduledDateTime: formattedScheduledDateTime,
         // totalAmount stays as string (decimal type in schema)
         // Only convert requestedHours to number (integer type in schema)
         requestedHours: data.requestedHours
@@ -4590,6 +4603,8 @@ export default function AdminDashboard() {
           ? String(data.discountPercentage)
           : undefined,
       };
+
+      console.log("📦 Full transformedData being sent:", JSON.stringify(transformedData, null, 2));
 
       const method = editingBooking ? "PATCH" : "POST";
       const url = editingBooking

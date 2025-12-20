@@ -2664,6 +2664,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const userId = req.user.id;
       
+      console.log('📝 Admin booking update request:', {
+        bookingId: id,
+        scheduledDateTime: req.body.scheduledDateTime,
+        bodyKeys: Object.keys(req.body)
+      });
+      
       const user = await storage.getUser(userId);
       if (!user || user.role !== 'admin') {
         return res.status(403).json({ message: 'Admin access required' });
@@ -2672,11 +2678,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use partial schema for updates - only validate provided fields
       const updateSchema = insertBookingSchema.partial();
       const validatedUpdates = updateSchema.parse(req.body);
+      
+      console.log('✅ Validated updates:', {
+        scheduledDateTime: validatedUpdates.scheduledDateTime,
+        validatedKeys: Object.keys(validatedUpdates)
+      });
 
       const booking = await storage.updateBooking(id, validatedUpdates);
       if (!booking) {
         return res.status(404).json({ message: 'Booking not found' });
       }
+
+      console.log('💾 Updated booking result:', {
+        bookingId: booking.id,
+        newScheduledDateTime: booking.scheduledDateTime
+      });
 
       res.json(booking);
     } catch (error) {
