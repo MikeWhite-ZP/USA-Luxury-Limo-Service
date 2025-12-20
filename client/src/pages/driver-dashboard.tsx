@@ -1109,8 +1109,8 @@ export default function DriverDashboard() {
                                   </p>
                                   {booking.passengerName && (
                                     <div className="flex items-center gap-2 mt-1">
-                                      <User className="w-3.5 h-3.5 text-blue-600" />
-                                      <span className="text-sm font-medium text-blue-700" data-testid={`passenger-name-${booking.id}`}>
+                                      <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                                      <span className="text-sm font-medium text-blue-700 dark:text-blue-400" data-testid={`passenger-name-${booking.id}`}>
                                         {booking.passengerName}
                                       </span>
                                     </div>
@@ -1129,12 +1129,12 @@ export default function DriverDashboard() {
                             {/* Trip details */}
                             <div className="space-y-4 mb-5">
                               {/* Pickup */}
-                              <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-100">
+                              <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-100 dark:border-blue-900">
                                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <MapPin className="w-4 h-4 text-white" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-blue-700 mb-1">PICKUP LOCATION</p>
+                                  <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-1">PICKUP LOCATION</p>
                                   <p className="text-sm text-foreground font-medium" data-testid={`accepted-pickup-${booking.id}`}>
                                     {booking.pickupAddress}
                                   </p>
@@ -1143,12 +1143,12 @@ export default function DriverDashboard() {
 
                               {/* Destination */}
                               {booking.destinationAddress && (
-                                <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                                <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-950/40 rounded-xl border border-purple-100 dark:border-purple-900">
                                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0 mt-0.5">
                                     <MapPin className="w-4 h-4 text-white" />
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-semibold text-purple-700 mb-1">DESTINATION</p>
+                                    <p className="text-xs font-semibold text-purple-700 dark:text-purple-400 mb-1">DESTINATION</p>
                                     <p className="text-sm text-foreground font-medium" data-testid={`accepted-destination-${booking.id}`}>
                                       {booking.destinationAddress}
                                     </p>
@@ -1159,10 +1159,10 @@ export default function DriverDashboard() {
                               {/* Time and Payment row */}
                               <div className="grid grid-cols-2 gap-3">
                                 {/* Scheduled time */}
-                                <div className="flex items-start gap-2 p-3 bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl border border-orange-100">
-                                  <Clock className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                                <div className="flex items-start gap-2 p-3 bg-orange-50 dark:bg-orange-950/40 rounded-xl border border-orange-100 dark:border-orange-900">
+                                  <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-semibold text-orange-700 mb-1">SCHEDULED</p>
+                                    <p className="text-xs font-semibold text-orange-700 dark:text-orange-400 mb-1">SCHEDULED</p>
                                     <p className="text-sm text-foreground font-medium" data-testid={`accepted-time-${booking.id}`}>
                                       {new Date(booking.scheduledDateTime).toLocaleString('en-US', {
                                         month: 'short',
@@ -1175,11 +1175,11 @@ export default function DriverDashboard() {
                                 </div>
 
                                 {/* Payment */}
-                                <div className="flex items-start gap-2 p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-xl border border-red-200">
-                                  <DollarSign className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-950/40 rounded-xl border border-red-200 dark:border-red-900">
+                                  <DollarSign className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-semibold text-red-700 mb-1">YOUR PAYMENT</p>
-                                    <p className="text-lg text-red-700 font-bold" data-testid={`accepted-amount-${booking.id}`}>
+                                    <p className="text-xs font-semibold text-red-700 dark:text-red-400 mb-1">YOUR PAYMENT</p>
+                                    <p className="text-lg text-red-700 dark:text-red-400 font-bold" data-testid={`accepted-amount-${booking.id}`}>
                                       ${booking.driverPayment || "Not set"}
                                     </p>
                                   </div>
@@ -1262,8 +1262,8 @@ export default function DriverDashboard() {
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-red-600" />
+                    <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-red-600 dark:text-red-400" />
                     </div>
                     <div>
                       <h3 className="font-bold text-foreground">Driver License</h3>
@@ -1274,7 +1274,7 @@ export default function DriverDashboard() {
                 </div>
 
                 {getDocumentByType('driver_license') && (
-                  <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
+                  <div className="bg-red-50 dark:bg-red-950/40 rounded-lg p-3 space-y-2 text-sm border border-red-100 dark:border-red-900">
                     {getDocumentByType('driver_license')!.expirationDate && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Expires:</span>
@@ -1284,8 +1284,8 @@ export default function DriverDashboard() {
                       </div>
                     )}
                     {getDocumentByType('driver_license')!.rejectionReason && (
-                      <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
-                        <p className="text-sm text-red-700">
+                      <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-lg">
+                        <p className="text-sm text-red-700 dark:text-red-300">
                           <strong>Reason:</strong> {getDocumentByType('driver_license')!.rejectionReason}
                         </p>
                       </div>
@@ -1346,8 +1346,8 @@ export default function DriverDashboard() {
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-red-600" />
+                    <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-red-600 dark:text-red-400" />
                     </div>
                     <div>
                       <h3 className="font-bold text-foreground">Limo License</h3>
@@ -1358,7 +1358,7 @@ export default function DriverDashboard() {
                 </div>
 
                 {getDocumentByType('limo_license') && (
-                  <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
+                  <div className="bg-red-50 dark:bg-red-950/40 rounded-lg p-3 space-y-2 text-sm border border-red-100 dark:border-red-900">
                     {getDocumentByType('limo_license')!.expirationDate && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Expires:</span>
@@ -1368,8 +1368,8 @@ export default function DriverDashboard() {
                       </div>
                     )}
                     {getDocumentByType('limo_license')!.rejectionReason && (
-                      <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
-                        <p className="text-sm text-red-700">
+                      <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-lg">
+                        <p className="text-sm text-red-700 dark:text-red-300">
                           <strong>Reason:</strong> {getDocumentByType('limo_license')!.rejectionReason}
                         </p>
                       </div>
@@ -1430,8 +1430,8 @@ export default function DriverDashboard() {
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-red-600" />
+                    <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-red-600 dark:text-red-400" />
                     </div>
                     <div>
                       <h3 className="font-bold text-foreground">Insurance Certificate</h3>
@@ -1442,7 +1442,7 @@ export default function DriverDashboard() {
                 </div>
 
                 {getDocumentByType('insurance_certificate') && (
-                  <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
+                  <div className="bg-red-50 dark:bg-red-950/40 rounded-lg p-3 space-y-2 text-sm border border-red-100 dark:border-red-900">
                     {getDocumentByType('insurance_certificate')!.expirationDate && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Expires:</span>
@@ -1452,8 +1452,8 @@ export default function DriverDashboard() {
                       </div>
                     )}
                     {getDocumentByType('insurance_certificate')!.rejectionReason && (
-                      <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
-                        <p className="text-sm text-red-700">
+                      <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-lg">
+                        <p className="text-sm text-red-700 dark:text-red-300">
                           <strong>Reason:</strong> {getDocumentByType('insurance_certificate')!.rejectionReason}
                         </p>
                       </div>
@@ -1514,8 +1514,8 @@ export default function DriverDashboard() {
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
-                      <Car className="w-5 h-5 text-red-600" />
+                    <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
+                      <Car className="w-5 h-5 text-red-600 dark:text-red-400" />
                     </div>
                     <div>
                       <h3 className="font-bold text-foreground">Vehicle Image</h3>
@@ -1526,7 +1526,7 @@ export default function DriverDashboard() {
                 </div>
 
                 {getDocumentByType('vehicle_image') && (
-                  <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
+                  <div className="bg-red-50 dark:bg-red-950/40 rounded-lg p-3 space-y-2 text-sm border border-red-100 dark:border-red-900">
                     {getDocumentByType('vehicle_image')!.vehiclePlate && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Vehicle Plate:</span>
@@ -1536,8 +1536,8 @@ export default function DriverDashboard() {
                       </div>
                     )}
                     {getDocumentByType('vehicle_image')!.rejectionReason && (
-                      <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
-                        <p className="text-sm text-red-700">
+                      <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-lg">
+                        <p className="text-sm text-red-700 dark:text-red-300">
                           <strong>Reason:</strong> {getDocumentByType('vehicle_image')!.rejectionReason}
                         </p>
                       </div>
@@ -1599,8 +1599,8 @@ export default function DriverDashboard() {
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
-                      <Camera className="w-5 h-5 text-red-600" />
+                    <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
+                      <Camera className="w-5 h-5 text-red-600 dark:text-red-400" />
                     </div>
                     <div>
                       <h3 className="font-bold text-foreground">Profile Photo</h3>
@@ -1613,7 +1613,7 @@ export default function DriverDashboard() {
                 {/* Avatar Preview */}
                 <div className="flex justify-center py-4">
                   <div className="relative">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-red-100 shadow-lg bg-background">
+                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-red-100 dark:border-red-900 shadow-lg bg-background">
                       <img
                         src={
                           getDocumentByType('profile_photo')?.status === 'approved' && getDocumentByType('profile_photo')?.documentUrl 
@@ -1632,7 +1632,7 @@ export default function DriverDashboard() {
                 </div>
 
                 {getDocumentByType('profile_photo') && (
-                  <div className="bg-red-50 rounded-lg p-3 space-y-2 text-sm border border-red-100">
+                  <div className="bg-red-50 dark:bg-red-950/40 rounded-lg p-3 space-y-2 text-sm border border-red-100 dark:border-red-900">
                     {getDocumentByType('profile_photo')!.whatsappNumber && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">WhatsApp:</span>
@@ -1642,8 +1642,8 @@ export default function DriverDashboard() {
                       </div>
                     )}
                     {getDocumentByType('profile_photo')!.rejectionReason && (
-                      <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
-                        <p className="text-sm text-red-700">
+                      <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-lg">
+                        <p className="text-sm text-red-700 dark:text-red-300">
                           <strong>Reason:</strong> {getDocumentByType('profile_photo')!.rejectionReason}
                         </p>
                       </div>
