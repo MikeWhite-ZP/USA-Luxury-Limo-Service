@@ -33,6 +33,11 @@ interface Booking {
   passengerPhone?: string;
   passengerEmail?: string;
   specialRequests?: string;
+  acceptedAt?: string | null;
+  startedAt?: string | null;
+  dodAt?: string | null;
+  pobAt?: string | null;
+  endedAt?: string | null;
 }
 
 export default function MobileDriverRideDetails() {
@@ -42,9 +47,10 @@ export default function MobileDriverRideDetails() {
   const queryClient = useQueryClient();
 
   // Fetch booking details
-  const { data: booking, isLoading } = useQuery<Booking>({
+  const { data: booking, isLoading, isError, error } = useQuery<Booking>({
     queryKey: ['/api/bookings', id],
     retry: false,
+    enabled: !!id,
   });
 
   // Helper function to get current GPS coordinates
@@ -292,6 +298,29 @@ export default function MobileDriverRideDetails() {
     return null;
   };
 
+  if (!id) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5 flex items-center justify-center p-6">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-6 text-center">
+            <MapPin className="w-12 h-12 text-red-600 mx-auto mb-4" />
+            <h2 className="text-xl font-bold mb-2">Invalid Ride</h2>
+            <p className="text-muted-foreground mb-4">
+              No ride ID was provided.
+            </p>
+            <Button 
+              onClick={() => setLocation('/mobile-driver')}
+              className="bg-primary hover:bg-primary/90"
+              data-testid="button-back-to-dashboard"
+            >
+              Back to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5 flex items-center justify-center">
@@ -303,7 +332,7 @@ export default function MobileDriverRideDetails() {
     );
   }
 
-  if (!booking) {
+  if (isError || !booking) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5 flex items-center justify-center p-6">
         <Card className="max-w-md w-full">
@@ -311,7 +340,13 @@ export default function MobileDriverRideDetails() {
             <MapPin className="w-12 h-12 text-red-600 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Ride Not Found</h2>
             <p className="text-muted-foreground mb-4">
-              This ride could not be found or you don't have access to it.
+              {isError && error instanceof Error 
+                ? error.message.includes('403') 
+                  ? "You don't have access to this ride."
+                  : error.message.includes('404')
+                    ? "This ride could not be found."
+                    : "An error occurred while loading ride details."
+                : "This ride could not be found or you don't have access to it."}
             </p>
             <Button 
               onClick={() => setLocation('/mobile-driver')}
@@ -347,10 +382,10 @@ export default function MobileDriverRideDetails() {
         </div>
 
         <div className="flex items-center justify-between">
-          <Badge className={`${getStatusColor(booking.status)} text-sm`} data-testid="badge-status">
-            {booking.status.replace('_', ' ')}
+          <Badge className={`${getStatusColor(booking.status || '')} text-sm`} data-testid="badge-status">
+            {(booking.status || 'Unknown').replace('_', ' ')}
           </Badge>
-          <p className="text-2xl font-bold">${booking.finalPrice.toFixed(2)}</p>
+          <p className="text-2xl font-bold">${(booking.finalPrice ?? 0).toFixed(2)}</p>
         </div>
       </div>
 
@@ -411,7 +446,9 @@ export default function MobileDriverRideDetails() {
             <div className="flex items-center text-sm text-muted-foreground">
               <Calendar className="w-4 h-4 mr-2" />
               <span data-testid="text-scheduled-time">
-                {format(new Date(booking.scheduledTime), 'EEEE, MMMM d, yyyy \'at\' h:mm a')}
+                {booking.scheduledTime 
+                  ? format(new Date(booking.scheduledTime), 'EEEE, MMMM d, yyyy \'at\' h:mm a')
+                  : 'Time not set'}
               </span>
             </div>
 
@@ -483,7 +520,7 @@ export default function MobileDriverRideDetails() {
               <div>
                 <p className="text-xs text-muted-foreground">Vehicle Type</p>
                 <p className="text-sm font-medium text-foreground capitalize" data-testid="text-vehicle-type">
-                  {booking.vehicleType.replace(/_/g, ' ')}
+                  {(booking.vehicleType || 'N/A').replace(/_/g, ' ')}
                 </p>
               </div>
               <div>
