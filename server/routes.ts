@@ -6558,8 +6558,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const document = await storage.createDriverDocument(validatedData);
 
-      // If this is a profile photo or vehicle image, also update the user's profileImageUrl
-      if (documentType === 'profile_photo' || documentType === 'vehicle_image') {
+      // If this is a profile photo, also update the user's profileImageUrl
+      // Note: Only profile_photo should update the user's avatar, not vehicle_image
+      if (documentType === 'profile_photo') {
         // Store just the file path (object storage key), not the full URL
         const imageUrl = fileName;
         
