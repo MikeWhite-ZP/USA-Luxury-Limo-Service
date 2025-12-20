@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Car, DollarSign, MapPin, Star, Calendar, User, FileText, Settings, CheckCircle2, Navigation2, Phone, MessageSquare, MoreVertical, Bell } from 'lucide-react';
+import { ArrowLeft, Car, DollarSign, MapPin, Star, Calendar, User, FileText, Settings, CheckCircle2, Navigation2, Phone, MessageSquare, MoreVertical, Bell, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { format } from 'date-fns';
@@ -155,6 +155,25 @@ export default function MobileDriver() {
     },
     onError: (error: Error) => {
       console.error('Failed to update driver location:', error);
+    },
+  });
+
+  // Logout mutation
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('POST', '/api/logout');
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.clear();
+      setLocation('/mobile-driver-login');
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to logout",
+        variant: "destructive",
+      });
     },
   });
 
@@ -417,6 +436,16 @@ export default function MobileDriver() {
               >
                 <Settings className="w-4 h-4 text-red-600" />
                 <span className="text-muted-foreground">Account</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => logoutMutation.mutate()}
+                className="flex items-center gap-2 cursor-pointer hover:bg-red-50 text-red-600"
+                data-testid="menu-logout"
+                disabled={logoutMutation.isPending}
+              >
+                <LogOut className="w-4 h-4" />
+                <span>{logoutMutation.isPending ? 'Logging out...' : 'Logout'}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
