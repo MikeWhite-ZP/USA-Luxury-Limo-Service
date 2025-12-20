@@ -161,6 +161,9 @@ export default function DriverDashboard() {
   
   // Job list sub-tabs state
   const [jobListTab, setJobListTab] = useState<"current" | "completed" | "cancelled">("current");
+  
+  // Document preview state
+  const [selectedDocumentPreview, setSelectedDocumentPreview] = useState<DriverDocument | null>(null);
 
   // Redirect to home if not authenticated or not driver
   useEffect(() => {
@@ -1441,7 +1444,9 @@ export default function DriverDashboard() {
 
         {/* DOCUMENTS TAB */}
         {activeTab === "documents" && (
-          <div className="p-4 space-y-4">
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Documents List - Left Side */}
+            <div className="lg:col-span-2 space-y-4">
             {/* Driver License */}
             <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="card-driver-license">
               <CardContent className="p-5 space-y-4">
@@ -1475,6 +1480,16 @@ export default function DriverDashboard() {
                         </p>
                       </div>
                     )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedDocumentPreview(getDocumentByType('driver_license')!)}
+                      className="w-full mt-2 h-8 text-xs"
+                      data-testid="button-preview-driver-license"
+                    >
+                      <Eye className="w-3 h-3 mr-1" />
+                      Preview & Download
+                    </Button>
                   </div>
                 )}
 
@@ -1559,6 +1574,16 @@ export default function DriverDashboard() {
                         </p>
                       </div>
                     )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedDocumentPreview(getDocumentByType('limo_license')!)}
+                      className="w-full mt-2 h-8 text-xs"
+                      data-testid="button-preview-limo-license"
+                    >
+                      <Eye className="w-3 h-3 mr-1" />
+                      Preview & Download
+                    </Button>
                   </div>
                 )}
 
@@ -1643,6 +1668,16 @@ export default function DriverDashboard() {
                         </p>
                       </div>
                     )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedDocumentPreview(getDocumentByType('insurance_certificate')!)}
+                      className="w-full mt-2 h-8 text-xs"
+                      data-testid="button-preview-insurance-certificate"
+                    >
+                      <Eye className="w-3 h-3 mr-1" />
+                      Preview & Download
+                    </Button>
                   </div>
                 )}
 
@@ -1727,6 +1762,16 @@ export default function DriverDashboard() {
                         </p>
                       </div>
                     )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedDocumentPreview(getDocumentByType('vehicle_image')!)}
+                      className="w-full mt-2 h-8 text-xs"
+                      data-testid="button-preview-vehicle-image"
+                    >
+                      <Eye className="w-3 h-3 mr-1" />
+                      Preview & Download
+                    </Button>
                   </div>
                 )}
 
@@ -1835,6 +1880,16 @@ export default function DriverDashboard() {
                         </p>
                       </div>
                     )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedDocumentPreview(getDocumentByType('profile_photo')!)}
+                      className="w-full mt-2 h-8 text-xs"
+                      data-testid="button-preview-profile-photo"
+                    >
+                      <Eye className="w-3 h-3 mr-1" />
+                      Preview & Download
+                    </Button>
                   </div>
                 )}
 
@@ -1883,6 +1938,112 @@ export default function DriverDashboard() {
                 </div>
               </CardContent>
             </Card>
+            </div>
+
+            {/* Document Preview Panel - Right Side */}
+            <div className="lg:col-span-1">
+              <Card className="bg-background border-border shadow-lg sticky top-6">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                    <Eye className="w-5 h-5 text-red-600" />
+                    Document Preview
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {selectedDocumentPreview ? (
+                    <>
+                      {/* Document Type Label */}
+                      <div className="flex items-center justify-between">
+                        <Badge variant="outline" className="text-xs">
+                          {selectedDocumentPreview.documentType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                        </Badge>
+                        {getStatusBadge(selectedDocumentPreview.status)}
+                      </div>
+
+                      {/* Image Preview */}
+                      <div className="relative bg-muted/50 rounded-lg overflow-hidden border border-border">
+                        {selectedDocumentPreview.documentUrl && (
+                          selectedDocumentPreview.documentUrl.toLowerCase().endsWith('.pdf') ? (
+                            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                              <FileText className="w-16 h-16 mb-3" />
+                              <p className="text-sm font-medium">PDF Document</p>
+                              <p className="text-xs mt-1">Click download to view</p>
+                            </div>
+                          ) : (
+                            <img
+                              src={selectedDocumentPreview.documentUrl.startsWith('http://') || selectedDocumentPreview.documentUrl.startsWith('https://') || selectedDocumentPreview.documentUrl.startsWith('/') 
+                                ? selectedDocumentPreview.documentUrl 
+                                : `/${selectedDocumentPreview.documentUrl}`}
+                              alt={selectedDocumentPreview.documentType}
+                              className="w-full h-auto max-h-80 object-contain"
+                              data-testid="document-preview-image"
+                            />
+                          )
+                        )}
+                      </div>
+
+                      {/* Document Details */}
+                      <div className="space-y-2 text-sm">
+                        {selectedDocumentPreview.expirationDate && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Expires:</span>
+                            <span className="font-medium text-foreground">
+                              {new Date(selectedDocumentPreview.expirationDate).toLocaleDateString()}
+                            </span>
+                          </div>
+                        )}
+                        {selectedDocumentPreview.vehiclePlate && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Vehicle Plate:</span>
+                            <span className="font-medium text-foreground">
+                              {selectedDocumentPreview.vehiclePlate}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Uploaded:</span>
+                          <span className="font-medium text-foreground">
+                            {new Date(selectedDocumentPreview.uploadedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Download Button */}
+                      <Button
+                        onClick={() => {
+                          if (selectedDocumentPreview?.documentUrl) {
+                            const docUrl = selectedDocumentPreview.documentUrl;
+                            const url = docUrl.startsWith('http://') || docUrl.startsWith('https://') || docUrl.startsWith('/') 
+                              ? docUrl 
+                              : `/${docUrl}`;
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = `${selectedDocumentPreview.documentType}_${selectedDocumentPreview.id}`;
+                            link.target = '_blank';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }
+                        }}
+                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white h-10 font-semibold rounded-lg"
+                        data-testid="button-download-document"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download Document
+                      </Button>
+                    </>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Eye className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
+                      <p className="text-muted-foreground text-sm font-medium">No document selected</p>
+                      <p className="text-muted-foreground/70 text-xs mt-1">
+                        Click "Preview" on any uploaded document to view it here
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
 
