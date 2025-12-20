@@ -1568,6 +1568,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Enrich booking with vehicle type name
+      if (booking.vehicleTypeId) {
+        const vehicleType = await storage.getVehicleType(booking.vehicleTypeId);
+        if (vehicleType) {
+          enrichedBooking = {
+            ...enrichedBooking,
+            vehicleTypeName: vehicleType.name,
+          } as any;
+        }
+      }
+
       // Enrich booking with driver details for dispatchers/admins
       if (booking.driverId) {
         const driver = await storage.getDriver(booking.driverId);

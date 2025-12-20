@@ -23,7 +23,8 @@ interface Booking {
   scheduledTime: string;
   bookingType: 'transfer' | 'hourly';
   requestedHours: number | null;
-  vehicleType: string;
+  vehicleTypeId: string;
+  vehicleTypeName?: string;
   passengerCount: number;
   luggageCount: number;
   babySeat: boolean;
@@ -524,7 +525,7 @@ export default function MobileDriverRideDetails() {
               <div>
                 <p className="text-xs text-muted-foreground">Vehicle Type</p>
                 <p className="text-sm font-medium text-foreground capitalize" data-testid="text-vehicle-type">
-                  {(booking.vehicleType || 'N/A').replace(/_/g, ' ')}
+                  {booking.vehicleTypeName || 'N/A'}
                 </p>
               </div>
               <div>
@@ -565,7 +566,7 @@ export default function MobileDriverRideDetails() {
                   <Plane className="w-4 h-4 mr-2 text-blue-600" />
                   <span className="text-sm font-medium text-foreground">Flight Information</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                <div className="grid grid-cols-2 gap-3 bg-blue-50 dark:bg-slate-800 p-3 rounded-lg border dark:border-slate-700">
                   <div>
                     <p className="text-xs text-muted-foreground">Flight Number</p>
                     <p className="text-sm font-bold text-foreground" data-testid="text-flight-number">
@@ -603,7 +604,7 @@ export default function MobileDriverRideDetails() {
             {booking.specialRequests && (
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Special Requests</p>
-                <p className="text-sm text-foreground bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded border border-yellow-200 dark:border-yellow-800" data-testid="text-special-requests">
+                <p className="text-sm text-foreground bg-yellow-100 dark:bg-amber-900/40 p-2 rounded border border-yellow-200 dark:border-amber-700" data-testid="text-special-requests">
                   {booking.specialRequests}
                 </p>
               </div>
