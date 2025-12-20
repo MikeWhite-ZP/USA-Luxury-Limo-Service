@@ -463,12 +463,44 @@ export function setupAuth(app: Express) {
     });
   });
 
-  // Get current user
-  app.get("/api/user", (req, res) => {
+  // Get current user - fetches from database to get latest profile image URL
+  app.get("/api/user", async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
-    res.json(req.user);
+    
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.json(req.user);
+      }
+      
+      // Fetch latest user data from database
+      const dbUser = await storage.getUser(userId);
+      if (!dbUser) {
+        return res.json(req.user);
+      }
+      
+      // Format profile image URL for serving
+      let profileImageUrl = dbUser.profileImageUrl;
+      if (profileImageUrl) {
+        // Ensure URL has proper format for serving
+        if (!profileImageUrl.startsWith('http://') && 
+            !profileImageUrl.startsWith('https://') && 
+            !profileImageUrl.startsWith('/')) {
+          // Add /api/uploads/ prefix for storage keys
+          profileImageUrl = `/api/uploads/${profileImageUrl}`;
+        }
+      }
+      
+      res.json({
+        ...dbUser,
+        profileImageUrl
+      });
+    } catch (error) {
+      console.error('[AUTH] Error fetching user:', error);
+      res.json(req.user);
+    }
   });
 
   // Debug endpoint for session troubleshooting
