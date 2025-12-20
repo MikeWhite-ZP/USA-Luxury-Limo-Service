@@ -35,6 +35,7 @@ import 'leaflet/dist/leaflet.css';
 import { RouteLayer } from './RouteLayer';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import FlightSearch, { FlightInfo } from "./FlightSearch";
 
 // Fix Leaflet default icon issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -985,99 +986,44 @@ export function BookingDetailsDialog({
               </Card>
             </div>
 
-            {/* Flight Search Section */}
+            {/* Flight Search Section - Premium Executive Design */}
             <div className="mb-6">
-              <Card className="border-emerald-200 shadow-sm">
-                <CardHeader className="bg-gradient-to-r from-emerald-100 to-teal-100 border-b border-emerald-200">
+              <Card className="border-slate-200 dark:border-slate-700 shadow-sm">
+                <CardHeader className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                   <div className="flex items-center gap-2">
-                    <div className="bg-emerald-600 p-2 rounded-lg">
+                    <div className="bg-slate-700 p-2 rounded-lg">
                       <Plane className="w-4 h-4 text-white" />
                     </div>
-                    <CardTitle className="text-lg font-semibold text-emerald-900">Add Flight Information (Optional)</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-100">Flight Information (Optional)</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Search for a flight to automatically populate details.
-                  </p>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Enter flight number (e.g., UA2346)"
-                      value={flightSearchInput}
-                      onChange={(e) => setFlightSearchInput(e.target.value.toUpperCase())}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          onFlightSearch();
-                        }
-                      }}
-                      data-testid="input-flight-search"
-                    />
-                    <Button
-                      onClick={onFlightSearch}
-                      disabled={isSearchingFlight || !flightSearchInput.trim()}
-                      data-testid="button-find-flight"
-                    >
-                      {isSearchingFlight ? 'Searching...' : 'Search'}
-                    </Button>
-                  </div>
-
-                  {/* Flight Information Display */}
-                  {(formData.flightNumber || selectedFlight) && (
-                    <div className="mt-4">
-                      {selectedFlight ? (
-                        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-                          <div className="flex justify-between items-start mb-3">
-                            <div>
-                              <p className="font-bold text-emerald-900">{selectedFlight.airline}</p>
-                              <p className="text-sm text-emerald-700">Flight {selectedFlight.flightNumber}</p>
-                            </div>
-                            <button
-                              onClick={() => {
-                                setSelectedFlight(null);
-                                setFlightSearchInput('');
-                                setFormData({
-                                  ...formData,
-                                  flightNumber: '',
-                                  flightAirline: '',
-                                  flightDepartureAirport: '',
-                                  flightArrivalAirport: '',
-                                });
-                              }}
-                              className="text-emerald-700 hover:text-emerald-900 text-sm font-medium"
-                              data-testid="button-clear-flight"
-                            >
-                              Clear
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-2 gap-3 text-sm">
-                            <div>
-                              <p className="text-xs text-emerald-700 font-semibold">Departure</p>
-                              <p className="text-emerald-900 font-medium">{selectedFlight.departureAirport}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-emerald-700 font-semibold">Arrival</p>
-                              <p className="text-emerald-900 font-medium">{selectedFlight.arrivalAirport}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-                          <p className="font-bold text-emerald-900">{formData.flightAirline}</p>
-                          <p className="text-sm text-emerald-700">Flight {formData.flightNumber}</p>
-                          {formData.flightDepartureAirport && formData.flightArrivalAirport && (
-                            <div className="grid grid-cols-2 gap-3 text-sm mt-2">
-                              <div>
-                                <p className="text-xs text-emerald-700 font-semibold">From: {formData.flightDepartureAirport}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-emerald-700 font-semibold">To: {formData.flightArrivalAirport}</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                <CardContent className="pt-4">
+                  <FlightSearch
+                    selectedFlight={selectedFlight as FlightInfo | null}
+                    onFlightSelect={(flight) => {
+                      setSelectedFlight(flight);
+                      if (flight) {
+                        setFormData({
+                          ...formData,
+                          flightNumber: flight.flightNumber,
+                          flightAirline: flight.airline,
+                          flightDepartureAirport: flight.departureAirport,
+                          flightArrivalAirport: flight.arrivalAirport,
+                        });
+                        setFlightSearchInput(flight.flightNumber);
+                      } else {
+                        setFormData({
+                          ...formData,
+                          flightNumber: '',
+                          flightAirline: '',
+                          flightDepartureAirport: '',
+                          flightArrivalAirport: '',
+                        });
+                        setFlightSearchInput('');
+                      }
+                    }}
+                    bookingDate={formData.scheduledDateTime ? formData.scheduledDateTime.split('T')[0] : undefined}
+                  />
                 </CardContent>
               </Card>
             </div>
