@@ -1,6 +1,6 @@
 import { useLocation, useParams } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, MapPin, User, Phone, Mail, Calendar, DollarSign, Package, Baby, Navigation, CheckCircle2, Clock } from 'lucide-react';
+import { ArrowLeft, MapPin, User, Phone, Mail, Calendar, DollarSign, Package, Baby, Navigation, CheckCircle2, Clock, Plane, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,11 +21,11 @@ interface Booking {
   destinationLat: number | null;
   destinationLon: number | null;
   scheduledTime: string;
-  serviceType: 'transfer' | 'hourly';
-  duration: number | null;
+  bookingType: 'transfer' | 'hourly';
+  requestedHours: number | null;
   vehicleType: string;
-  passengers: number;
-  luggage: number;
+  passengerCount: number;
+  luggageCount: number;
   babySeat: boolean;
   finalPrice: number;
   status: string;
@@ -38,6 +38,10 @@ interface Booking {
   dodAt?: string | null;
   pobAt?: string | null;
   endedAt?: string | null;
+  flightNumber?: string | null;
+  flightAirline?: string | null;
+  flightDepartureAirport?: string | null;
+  flightArrivalAirport?: string | null;
 }
 
 export default function MobileDriverRideDetails() {
@@ -514,7 +518,7 @@ export default function MobileDriverRideDetails() {
               <div>
                 <p className="text-xs text-muted-foreground">Service Type</p>
                 <p className="text-sm font-medium text-foreground capitalize" data-testid="text-service-type">
-                  {booking.serviceType}
+                  {booking.bookingType === 'hourly' ? 'Hourly' : 'Transfer'}
                 </p>
               </div>
               <div>
@@ -525,15 +529,16 @@ export default function MobileDriverRideDetails() {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Passengers</p>
-                <p className="text-sm font-medium text-foreground" data-testid="text-passengers">
-                  {booking.passengers}
+                <p className="text-sm font-medium text-foreground flex items-center" data-testid="text-passengers">
+                  <Users className="w-3 h-3 mr-1" />
+                  {booking.passengerCount ?? 1}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Luggage</p>
                 <p className="text-sm font-medium text-foreground flex items-center" data-testid="text-luggage">
                   <Package className="w-3 h-3 mr-1" />
-                  {booking.luggage}
+                  {booking.luggageCount ?? 0}
                 </p>
               </div>
             </div>
@@ -545,12 +550,53 @@ export default function MobileDriverRideDetails() {
               </div>
             )}
 
-            {booking.serviceType === 'hourly' && booking.duration && (
+            {booking.bookingType === 'hourly' && booking.requestedHours && (
               <div>
                 <p className="text-xs text-muted-foreground">Duration</p>
                 <p className="text-sm font-medium text-foreground" data-testid="text-duration">
-                  {booking.duration} hours
+                  {booking.requestedHours} hours
                 </p>
+              </div>
+            )}
+
+            {booking.flightNumber && (
+              <div className="border-t pt-3 mt-3">
+                <div className="flex items-center mb-2">
+                  <Plane className="w-4 h-4 mr-2 text-blue-600" />
+                  <span className="text-sm font-medium text-foreground">Flight Information</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Flight Number</p>
+                    <p className="text-sm font-bold text-foreground" data-testid="text-flight-number">
+                      {booking.flightNumber}
+                    </p>
+                  </div>
+                  {booking.flightAirline && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Airline</p>
+                      <p className="text-sm font-medium text-foreground" data-testid="text-flight-airline">
+                        {booking.flightAirline}
+                      </p>
+                    </div>
+                  )}
+                  {booking.flightDepartureAirport && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">From</p>
+                      <p className="text-sm font-medium text-foreground" data-testid="text-flight-departure">
+                        {booking.flightDepartureAirport}
+                      </p>
+                    </div>
+                  )}
+                  {booking.flightArrivalAirport && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">To</p>
+                      <p className="text-sm font-medium text-foreground" data-testid="text-flight-arrival">
+                        {booking.flightArrivalAirport}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
