@@ -93,23 +93,31 @@ class _LocationInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
+    return GestureDetector(
       onTap: onTap,
-      style: const TextStyle(
-        fontFamily: 'Inter',
-        fontSize: 16,
-        color: AppColors.textPrimary,
-      ),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 16,
+      behavior: HitTestBehavior.opaque,
+      child: AbsorbPointer(
+        child: TextField(
+          controller: controller,
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 16,
+            color: AppColors.textPrimary,
+          ),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 16,
+            ),
+            border: InputBorder.none,
+            isDense: true,
+            contentPadding: EdgeInsets.zero,
+            suffixIcon: controller.text.isNotEmpty
+                ? const Icon(Icons.check_circle, color: AppColors.success, size: 18)
+                : null,
+          ),
         ),
-        border: InputBorder.none,
-        isDense: true,
-        contentPadding: EdgeInsets.zero,
       ),
     );
   }

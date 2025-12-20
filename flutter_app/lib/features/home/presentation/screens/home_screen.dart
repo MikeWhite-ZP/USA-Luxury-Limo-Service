@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:usa_luxury_limo/core/constants/app_constants.dart';
 import 'package:usa_luxury_limo/core/theme/app_colors.dart';
+import 'package:usa_luxury_limo/core/maps/map_provider.dart';
 import 'package:usa_luxury_limo/features/auth/presentation/providers/auth_provider.dart';
 import 'package:usa_luxury_limo/features/home/presentation/widgets/location_input_card.dart';
+import 'package:usa_luxury_limo/features/home/presentation/widgets/place_search_sheet.dart';
 import 'package:usa_luxury_limo/shared/widgets/luxury_button.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -16,42 +17,76 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  GoogleMapController? _mapController;
   final _pickupController = TextEditingController();
   final _dropoffController = TextEditingController();
   
-  LatLng _currentLocation = const LatLng(
-    AppConstants.defaultLatitude,
-    AppConstants.defaultLongitude,
-  );
+  double _pickupLat = AppConstants.defaultLatitude;
+  double _pickupLng = AppConstants.defaultLongitude;
+  double _dropoffLat = 0;
+  double _dropoffLng = 0;
   
-  Set<Marker> _markers = {};
+  List<MapMarker> _markers = [];
 
   @override
   void dispose() {
     _pickupController.dispose();
     _dropoffController.dispose();
-    _mapController?.dispose();
     super.dispose();
   }
 
-  void _onMapCreated(GoogleMapController controller) {
-    _mapController = controller;
-    _setMapStyle();
+  void _updateMarkers() {
+    final markers = <MapMarker>[];
+    
+    if (_pickupController.text.isNotEmpty && _pickupLat != 0) {
+      markers.add(SimpleMapMarker(
+        id: 'pickup',
+        latitude: _pickupLat,
+        longitude: _pickupLng,
+        title: 'Pickup',
+        color: AppColors.gold,
+      ));
+    }
+    
+    if (_dropoffController.text.isNotEmpty && _dropoffLat != 0) {
+      markers.add(SimpleMapMarker(
+        id: 'dropoff',
+        latitude: _dropoffLat,
+        longitude: _dropoffLng,
+        title: 'Dropoff',
+        color: AppColors.success,
+      ));
+    }
+    
+    setState(() => _markers = markers);
   }
 
-  Future<void> _setMapStyle() async {
-    const darkMapStyle = '''
-    [
-      {"elementType": "geometry", "stylers": [{"color": "#1d1d1d"}]},
-      {"elementType": "labels.text.fill", "stylers": [{"color": "#8ec3b9"}]},
-      {"elementType": "labels.text.stroke", "stylers": [{"color": "#1a3646"}]},
-      {"featureType": "road", "elementType": "geometry", "stylers": [{"color": "#2c2c2c"}]},
-      {"featureType": "road", "elementType": "geometry.stroke", "stylers": [{"color": "#1f1f1f"}]},
-      {"featureType": "water", "elementType": "geometry", "stylers": [{"color": "#0e1626"}]}
-    ]
-    ''';
-    await _mapController?.setMapStyle(darkMapStyle);
+  Future<void> _showPlaceSearch({required bool isPickup}) async {
+    final mapProvider = ref.read(mapProviderProvider);
+    
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => PlaceSearchSheet(
+        mapProvider: mapProvider,
+        title: isPickup ? 'Pickup Location' : 'Dropoff Location',
+      ),
+    );
+    
+    if (result != null && mounted) {
+      setState(() {
+        if (isPickup) {
+          _pickupController.text = result['address'] ?? result['description'] ?? '';
+          _pickupLat = result['latitude'] ?? _pickupLat;
+          _pickupLng = result['longitude'] ?? _pickupLng;
+        } else {
+          _dropoffController.text = result['address'] ?? result['description'] ?? '';
+          _dropoffLat = result['latitude'] ?? 0;
+          _dropoffLng = result['longitude'] ?? 0;
+        }
+      });
+      _updateMarkers();
+    }
   }
 
   void _proceedToVehicleSelection() {
@@ -68,29 +103,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     context.push('/vehicle-selection', extra: {
       'pickupAddress': _pickupController.text,
       'dropoffAddress': _dropoffController.text,
-      'pickupLat': _currentLocation.latitude,
-      'pickupLng': _currentLocation.longitude,
+      'pickupLat': _pickupLat,
+      'pickupLng': _pickupLng,
+      'dropoffLat': _dropoffLat,
+      'dropoffLng': _dropoffLng,
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
+    final mapProvider = ref.watch(mapProviderProvider);
+    final mapType = ref.watch(activeMapProviderTypeProvider);
 
     return Scaffold(
       body: Stack(
         children: [
-          GoogleMap(
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(
-              target: _currentLocation,
+          mapProvider.buildMap(
+            initialPosition: SimpleMapPosition(
+              latitude: _pickupLat,
+              longitude: _pickupLng,
               zoom: AppConstants.defaultMapZoom,
             ),
             markers: _markers,
             myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            mapToolbarEnabled: false,
+            onTap: (lat, lng) async {
+              final result = await mapProvider.reverseGeocode(lat, lng);
+              if (result != null && mounted) {
+                setState(() {
+                  if (_pickupController.text.isEmpty) {
+                    _pickupController.text = result['address'] ?? '';
+                    _pickupLat = lat;
+                    _pickupLng = lng;
+                  } else if (_dropoffController.text.isEmpty) {
+                    _dropoffController.text = result['address'] ?? '';
+                    _dropoffLat = lat;
+                    _dropoffLng = lng;
+                  }
+                });
+                _updateMarkers();
+              }
+            },
           ),
           
           SafeArea(
@@ -99,6 +152,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Column(
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
                         padding: const EdgeInsets.all(12),
@@ -149,6 +203,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ],
                         ),
                       ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              mapType == MapProviderType.tomtom 
+                                  ? Icons.map 
+                                  : Icons.map_outlined,
+                              size: 16,
+                              color: AppColors.gold,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              mapType == MapProviderType.tomtom ? 'TomTom' : 'Google',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -190,8 +271,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     LocationInputCard(
                       pickupController: _pickupController,
                       dropoffController: _dropoffController,
-                      onPickupTap: () {},
-                      onDropoffTap: () {},
+                      onPickupTap: () => _showPlaceSearch(isPickup: true),
+                      onDropoffTap: () => _showPlaceSearch(isPickup: false),
                     ),
                     const SizedBox(height: 24),
                     
