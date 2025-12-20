@@ -656,6 +656,23 @@ export default function DriverDashboard() {
     );
   };
 
+  const getDocumentTypeColor = (docType: string): string => {
+    switch (docType) {
+      case 'driver_license':
+        return 'text-red-600';
+      case 'limo_license':
+        return 'text-blue-600';
+      case 'insurance_certificate':
+        return 'text-emerald-600';
+      case 'vehicle_image':
+        return 'text-purple-600';
+      case 'profile_photo':
+        return 'text-amber-600';
+      default:
+        return 'text-red-600';
+    }
+  };
+
   const formatDocumentLabel = (type: string) => {
     return type
       .split("_")
@@ -1564,657 +1581,477 @@ export default function DriverDashboard() {
 
         {/* DOCUMENTS TAB */}
         {activeTab === "documents" && (
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Documents List - Left Side */}
-            <div className="lg:col-span-2 space-y-4">
-            {/* Driver License */}
-            <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="card-driver-license">
-              <CardContent className="p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-red-600 dark:text-red-400" />
+          <>
+            {/* Document Preview Modal */}
+            <Dialog open={!!selectedDocumentPreview} onOpenChange={(open) => !open && setSelectedDocumentPreview(null)}>
+              <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <FileText className={`w-5 h-5 ${selectedDocumentPreview ? getDocumentTypeColor(selectedDocumentPreview.documentType) : 'text-red-600'}`} />
+                    {selectedDocumentPreview?.documentType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                  </DialogTitle>
+                </DialogHeader>
+                {selectedDocumentPreview && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      {getStatusBadge(selectedDocumentPreview.status)}
+                      <span className="text-xs text-muted-foreground">
+                        Uploaded {new Date(selectedDocumentPreview.uploadedAt).toLocaleDateString()}
+                      </span>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-foreground">Driver License</h3>
-                      <p className="text-xs text-muted-foreground">Required document</p>
-                    </div>
-                  </div>
-                  {getDocumentByType('driver_license') && getStatusBadge(getDocumentByType('driver_license')!.status)}
-                </div>
-
-                {getDocumentByType('driver_license') && (
-                  <div className="bg-red-50 dark:bg-red-950/40 rounded-lg p-3 space-y-2 text-sm border border-red-100 dark:border-red-900">
-                    {driver?.licenseNumber && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">License #:</span>
-                        <span className="font-medium text-foreground font-mono">
-                          {driver.licenseNumber}
-                        </span>
-                      </div>
-                    )}
-                    {getDocumentByType('driver_license')!.expirationDate && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Expires:</span>
-                        <span className="font-medium text-foreground">
-                          {new Date(getDocumentByType('driver_license')!.expirationDate!).toLocaleDateString()}
-                        </span>
-                      </div>
-                    )}
-                    {getDocumentByType('driver_license')!.rejectionReason && (
-                      <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-lg">
-                        <p className="text-sm text-red-700 dark:text-red-300">
-                          <strong>Reason:</strong> {getDocumentByType('driver_license')!.rejectionReason}
-                        </p>
-                      </div>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedDocumentPreview(getDocumentByType('driver_license')!)}
-                      className="w-full mt-2 h-8 text-xs"
-                      data-testid="button-preview-driver-license"
-                    >
-                      <Eye className="w-3 h-3 mr-1" />
-                      Preview & Download
-                    </Button>
-                  </div>
-                )}
-
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="driver-license-number" className="text-muted-foreground font-medium mb-2 block">
-                      License Number
-                    </Label>
-                    <Input
-                      id="driver-license-number"
-                      type="text"
-                      placeholder="Enter your license number"
-                      value={formData.driverLicense.licenseNumber}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        driverLicense: { ...prev.driverLicense, licenseNumber: e.target.value }
-                      }))}
-                      className="bg-background border-border font-mono"
-                      data-testid="input-driver-license-number"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="driver-license-expiry" className="text-muted-foreground font-medium mb-2 block">
-                      Expiration Date
-                    </Label>
-                    <Input
-                      id="driver-license-expiry"
-                      type="date"
-                      value={formData.driverLicense.expirationDate}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        driverLicense: { ...prev.driverLicense, expirationDate: e.target.value }
-                      }))}
-                      className="bg-background border-border"
-                      data-testid="input-driver-license-expiry"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="driver-license-file" className="text-muted-foreground font-medium mb-2 block">
-                      {getDocumentByType('driver_license') ? 'Replace Document' : 'Upload Document'}
-                    </Label>
-                    <Input
-                      id="driver-license-file"
-                      type="file"
-                      accept="image/*,application/pdf"
-                      capture="environment"
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        driverLicense: { ...prev.driverLicense, file: e.target.files?.[0] || null }
-                      }))}
-                      className="bg-background border-border"
-                      data-testid="input-driver-license-file"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">Image or PDF, max 2MB</p>
-                  </div>
-                  <Button
-                    onClick={() => handleUpload('driver_license')}
-                    disabled={!formData.driverLicense.file || uploading === 'driver_license'}
-                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white h-12 text-base font-semibold rounded-xl shadow-md"
-                    data-testid="button-upload-driver-license"
-                  >
-                    <Upload className="w-5 h-5 mr-2" />
-                    {uploading === 'driver_license' ? 'Uploading...' : 'Upload License'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Limo License */}
-            <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="card-limo-license">
-              <CardContent className="p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-red-600 dark:text-red-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-foreground">Limo License</h3>
-                      <p className="text-xs text-muted-foreground">Required document</p>
-                    </div>
-                  </div>
-                  {getDocumentByType('limo_license') && getStatusBadge(getDocumentByType('limo_license')!.status)}
-                </div>
-
-                {getDocumentByType('limo_license') && (
-                  <div className="bg-red-50 dark:bg-red-950/40 rounded-lg p-3 space-y-2 text-sm border border-red-100 dark:border-red-900">
-                    {driver?.limoLicenseNumber && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">License #:</span>
-                        <span className="font-medium text-foreground font-mono">
-                          {driver.limoLicenseNumber}
-                        </span>
-                      </div>
-                    )}
-                    {getDocumentByType('limo_license')!.expirationDate && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Expires:</span>
-                        <span className="font-medium text-foreground">
-                          {new Date(getDocumentByType('limo_license')!.expirationDate!).toLocaleDateString()}
-                        </span>
-                      </div>
-                    )}
-                    {getDocumentByType('limo_license')!.rejectionReason && (
-                      <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-lg">
-                        <p className="text-sm text-red-700 dark:text-red-300">
-                          <strong>Reason:</strong> {getDocumentByType('limo_license')!.rejectionReason}
-                        </p>
-                      </div>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedDocumentPreview(getDocumentByType('limo_license')!)}
-                      className="w-full mt-2 h-8 text-xs"
-                      data-testid="button-preview-limo-license"
-                    >
-                      <Eye className="w-3 h-3 mr-1" />
-                      Preview & Download
-                    </Button>
-                  </div>
-                )}
-
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="limo-license-number" className="text-muted-foreground font-medium mb-2 block">
-                      License Number
-                    </Label>
-                    <Input
-                      id="limo-license-number"
-                      type="text"
-                      placeholder="Enter your limo license number"
-                      value={formData.limoLicense.licenseNumber}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        limoLicense: { ...prev.limoLicense, licenseNumber: e.target.value }
-                      }))}
-                      className="bg-background border-border font-mono"
-                      data-testid="input-limo-license-number"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="limo-license-file" className="text-muted-foreground font-medium mb-2 block">
-                      {getDocumentByType('limo_license') ? 'Replace Document' : 'Upload Document'}
-                    </Label>
-                    <Input
-                      id="limo-license-file"
-                      type="file"
-                      accept="image/*,application/pdf"
-                      capture="environment"
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        limoLicense: { ...prev.limoLicense, file: e.target.files?.[0] || null }
-                      }))}
-                      className="bg-background border-border"
-                      data-testid="input-limo-license-file"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">Image or PDF, max 2MB</p>
-                  </div>
-                  <div>
-                    <Label htmlFor="limo-license-expiry" className="text-muted-foreground font-medium mb-2 block">
-                      Expiration Date
-                    </Label>
-                    <Input
-                      id="limo-license-expiry"
-                      type="date"
-                      value={formData.limoLicense.expirationDate}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        limoLicense: { ...prev.limoLicense, expirationDate: e.target.value }
-                      }))}
-                      className="bg-background border-border"
-                      data-testid="input-limo-license-expiry"
-                    />
-                  </div>
-                  <Button
-                    onClick={() => handleUpload('limo_license')}
-                    disabled={!formData.limoLicense.file || uploading === 'limo_license'}
-                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white h-12 text-base font-semibold rounded-xl shadow-md"
-                    data-testid="button-upload-limo-license"
-                  >
-                    <Upload className="w-5 h-5 mr-2" />
-                    {uploading === 'limo_license' ? 'Uploading...' : 'Upload License'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Insurance Certificate */}
-            <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="card-insurance-certificate">
-              <CardContent className="p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-red-600 dark:text-red-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-foreground">Insurance Certificate</h3>
-                      <p className="text-xs text-muted-foreground">Required document</p>
-                    </div>
-                  </div>
-                  {getDocumentByType('insurance_certificate') && getStatusBadge(getDocumentByType('insurance_certificate')!.status)}
-                </div>
-
-                {getDocumentByType('insurance_certificate') && (
-                  <div className="bg-red-50 dark:bg-red-950/40 rounded-lg p-3 space-y-2 text-sm border border-red-100 dark:border-red-900">
-                    {getDocumentByType('insurance_certificate')!.expirationDate && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Expires:</span>
-                        <span className="font-medium text-foreground">
-                          {new Date(getDocumentByType('insurance_certificate')!.expirationDate!).toLocaleDateString()}
-                        </span>
-                      </div>
-                    )}
-                    {getDocumentByType('insurance_certificate')!.rejectionReason && (
-                      <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-lg">
-                        <p className="text-sm text-red-700 dark:text-red-300">
-                          <strong>Reason:</strong> {getDocumentByType('insurance_certificate')!.rejectionReason}
-                        </p>
-                      </div>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedDocumentPreview(getDocumentByType('insurance_certificate')!)}
-                      className="w-full mt-2 h-8 text-xs"
-                      data-testid="button-preview-insurance-certificate"
-                    >
-                      <Eye className="w-3 h-3 mr-1" />
-                      Preview & Download
-                    </Button>
-                  </div>
-                )}
-
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="insurance-certificate-file" className="text-muted-foreground font-medium mb-2 block">
-                      {getDocumentByType('insurance_certificate') ? 'Replace Document' : 'Upload Document'}
-                    </Label>
-                    <Input
-                      id="insurance-certificate-file"
-                      type="file"
-                      accept="image/*,application/pdf"
-                      capture="environment"
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        insuranceCertificate: { ...prev.insuranceCertificate, file: e.target.files?.[0] || null }
-                      }))}
-                      className="bg-background border-border"
-                      data-testid="input-insurance-certificate-file"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">Image or PDF, max 2MB</p>
-                  </div>
-                  <div>
-                    <Label htmlFor="insurance-certificate-expiry" className="text-muted-foreground font-medium mb-2 block">
-                      Expiration Date
-                    </Label>
-                    <Input
-                      id="insurance-certificate-expiry"
-                      type="date"
-                      value={formData.insuranceCertificate.expirationDate}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        insuranceCertificate: { ...prev.insuranceCertificate, expirationDate: e.target.value }
-                      }))}
-                      className="bg-background border-border"
-                      data-testid="input-insurance-certificate-expiry"
-                    />
-                  </div>
-                  <Button
-                    onClick={() => handleUpload('insurance_certificate')}
-                    disabled={!formData.insuranceCertificate.file || uploading === 'insurance_certificate'}
-                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white h-12 text-base font-semibold rounded-xl shadow-md"
-                    data-testid="button-upload-insurance-certificate"
-                  >
-                    <Upload className="w-5 h-5 mr-2" />
-                    {uploading === 'insurance_certificate' ? 'Uploading...' : 'Upload Certificate'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Vehicle Image */}
-            <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="card-vehicle-image">
-              <CardContent className="p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
-                      <Car className="w-5 h-5 text-red-600 dark:text-red-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-foreground">Vehicle Image</h3>
-                      <p className="text-xs text-muted-foreground">Optional document</p>
-                    </div>
-                  </div>
-                  {getDocumentByType('vehicle_image') && getStatusBadge(getDocumentByType('vehicle_image')!.status)}
-                </div>
-
-                {getDocumentByType('vehicle_image') && (
-                  <div className="bg-red-50 dark:bg-red-950/40 rounded-lg p-3 space-y-2 text-sm border border-red-100 dark:border-red-900">
-                    {getDocumentByType('vehicle_image')!.vehiclePlate && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Vehicle Plate:</span>
-                        <span className="font-medium text-foreground">
-                          {getDocumentByType('vehicle_image')!.vehiclePlate}
-                        </span>
-                      </div>
-                    )}
-                    {getDocumentByType('vehicle_image')!.rejectionReason && (
-                      <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-lg">
-                        <p className="text-sm text-red-700 dark:text-red-300">
-                          <strong>Reason:</strong> {getDocumentByType('vehicle_image')!.rejectionReason}
-                        </p>
-                      </div>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedDocumentPreview(getDocumentByType('vehicle_image')!)}
-                      className="w-full mt-2 h-8 text-xs"
-                      data-testid="button-preview-vehicle-image"
-                    >
-                      <Eye className="w-3 h-3 mr-1" />
-                      Preview & Download
-                    </Button>
-                  </div>
-                )}
-
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="vehicle-image-file" className="text-muted-foreground font-medium mb-2 block">
-                      {getDocumentByType('vehicle_image') ? 'Replace Image' : 'Upload Image'}
-                    </Label>
-                    <Input
-                      id="vehicle-image-file"
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        vehicleImage: { ...prev.vehicleImage, file: e.target.files?.[0] || null }
-                      }))}
-                      className="bg-background border-border"
-                      data-testid="input-vehicle-image-file"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">Image only, max 2MB</p>
-                  </div>
-                  <div>
-                    <Label htmlFor="vehicle-plate" className="text-muted-foreground font-medium mb-2 block">
-                      Vehicle Plate Number
-                    </Label>
-                    <Input
-                      id="vehicle-plate"
-                      type="text"
-                      placeholder="Enter plate number"
-                      value={formData.vehicleImage.vehiclePlate}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        vehicleImage: { ...prev.vehicleImage, vehiclePlate: e.target.value }
-                      }))}
-                      className="bg-background border-border"
-                      data-testid="input-vehicle-plate"
-                    />
-                  </div>
-                  <Button
-                    onClick={() => handleUpload('vehicle_image')}
-                    disabled={!formData.vehicleImage.file || uploading === 'vehicle_image'}
-                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white h-12 text-base font-semibold rounded-xl shadow-md"
-                    data-testid="button-upload-vehicle-image"
-                  >
-                    <Upload className="w-5 h-5 mr-2" />
-                    {uploading === 'vehicle_image' ? 'Uploading...' : 'Upload Image'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Profile Photo */}
-            <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="card-profile-photo">
-              <CardContent className="p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
-                      <Camera className="w-5 h-5 text-red-600 dark:text-red-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-foreground">Profile Photo</h3>
-                      <p className="text-xs text-muted-foreground">Optional</p>
-                    </div>
-                  </div>
-                  {getDocumentByType('profile_photo') && getStatusBadge(getDocumentByType('profile_photo')!.status)}
-                </div>
-
-                {/* Avatar Preview */}
-                <div className="flex justify-center py-4">
-                  <div className="relative">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-red-100 dark:border-red-900 shadow-lg bg-background">
-                      <img
-                        src={
-                          getDocumentByType('profile_photo')?.status === 'approved' && getDocumentByType('profile_photo')?.documentUrl 
-                            ? (getDocumentByType('profile_photo')!.documentUrl.startsWith('/') 
-                                ? getDocumentByType('profile_photo')!.documentUrl 
-                                : `/${getDocumentByType('profile_photo')!.documentUrl}`)
-                            : defaultUserImage
-                        }
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                        data-testid="img-profile-preview"
-                      />
-                    </div>
-                    <div className="absolute bottom-0 right-0 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-md border-2 border-white">
-                      <Camera className="w-5 h-5 text-white" />
-                    </div>
-                  </div>
-                </div>
-
-                {getDocumentByType('profile_photo') && (
-                  <div className="bg-red-50 dark:bg-red-950/40 rounded-lg p-3 space-y-2 text-sm border border-red-100 dark:border-red-900">
-                    {getDocumentByType('profile_photo')!.whatsappNumber && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">WhatsApp:</span>
-                        <span className="font-medium text-foreground">
-                          {getDocumentByType('profile_photo')!.whatsappNumber}
-                        </span>
-                      </div>
-                    )}
-                    {getDocumentByType('profile_photo')!.rejectionReason && (
-                      <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-lg">
-                        <p className="text-sm text-red-700 dark:text-red-300">
-                          <strong>Reason:</strong> {getDocumentByType('profile_photo')!.rejectionReason}
-                        </p>
-                      </div>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedDocumentPreview(getDocumentByType('profile_photo')!)}
-                      className="w-full mt-2 h-8 text-xs"
-                      data-testid="button-preview-profile-photo"
-                    >
-                      <Eye className="w-3 h-3 mr-1" />
-                      Preview & Download
-                    </Button>
-                  </div>
-                )}
-
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="profile-photo-file" className="text-muted-foreground font-medium mb-2 block">
-                      {getDocumentByType('profile_photo') ? 'Replace Photo' : 'Upload Photo'}
-                    </Label>
-                    <Input
-                      id="profile-photo-file"
-                      type="file"
-                      accept="image/*"
-                      capture="user"
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        profilePhoto: { file: e.target.files?.[0] || null }
-                      }))}
-                      className="bg-background border-border"
-                      data-testid="input-profile-photo-file"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">Image only, max 2MB</p>
-                  </div>
-                  <div>
-                    <Label htmlFor="whatsapp-number" className="text-muted-foreground font-medium mb-2 block">
-                      WhatsApp Number (Optional)
-                    </Label>
-                    <Input
-                      id="whatsapp-number"
-                      type="tel"
-                      placeholder="+1 234 567 8900"
-                      value={formData.whatsappNumber}
-                      onChange={(e) => setFormData(prev => ({ ...prev, whatsappNumber: e.target.value }))}
-                      className="bg-background border-border"
-                      data-testid="input-whatsapp-number"
-                    />
-                  </div>
-                  <Button
-                    onClick={() => handleUpload('profile_photo')}
-                    disabled={!formData.profilePhoto.file || uploading === 'profile_photo'}
-                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white h-12 text-base font-semibold rounded-xl shadow-md"
-                    data-testid="button-upload-profile-photo"
-                  >
-                    <Upload className="w-5 h-5 mr-2" />
-                    {uploading === 'profile_photo' ? 'Uploading...' : 'Upload Photo'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-            </div>
-
-            {/* Document Preview Panel - Right Side */}
-            <div className="lg:col-span-1">
-              <Card className="bg-background border-border shadow-lg sticky top-6">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-                    <Eye className="w-5 h-5 text-red-600" />
-                    Document Preview
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {selectedDocumentPreview ? (
-                    <>
-                      {/* Document Type Label */}
-                      <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="text-xs">
-                          {selectedDocumentPreview.documentType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                        </Badge>
-                        {getStatusBadge(selectedDocumentPreview.status)}
-                      </div>
-
-                      {/* Image Preview */}
-                      <div className="relative bg-muted/50 rounded-lg overflow-hidden border border-border">
-                        {selectedDocumentPreview.documentUrl && (
-                          selectedDocumentPreview.documentUrl.toLowerCase().endsWith('.pdf') ? (
-                            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                              <FileText className="w-16 h-16 mb-3" />
-                              <p className="text-sm font-medium">PDF Document</p>
-                              <p className="text-xs mt-1">Click download to view</p>
-                            </div>
-                          ) : (
-                            <img
-                              src={selectedDocumentPreview.documentUrl.startsWith('http://') || selectedDocumentPreview.documentUrl.startsWith('https://') || selectedDocumentPreview.documentUrl.startsWith('/') 
-                                ? selectedDocumentPreview.documentUrl 
-                                : `/${selectedDocumentPreview.documentUrl}`}
-                              alt={selectedDocumentPreview.documentType}
-                              className="w-full h-auto max-h-80 object-contain"
-                              data-testid="document-preview-image"
-                            />
-                          )
-                        )}
-                      </div>
-
-                      {/* Document Details */}
-                      <div className="space-y-2 text-sm">
-                        {selectedDocumentPreview.expirationDate && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Expires:</span>
-                            <span className="font-medium text-foreground">
-                              {new Date(selectedDocumentPreview.expirationDate).toLocaleDateString()}
-                            </span>
-                          </div>
-                        )}
-                        {selectedDocumentPreview.vehiclePlate && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Vehicle Plate:</span>
-                            <span className="font-medium text-foreground">
-                              {selectedDocumentPreview.vehiclePlate}
-                            </span>
-                          </div>
-                        )}
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Uploaded:</span>
-                          <span className="font-medium text-foreground">
-                            {new Date(selectedDocumentPreview.uploadedAt).toLocaleDateString()}
-                          </span>
+                    
+                    <div className="relative bg-muted/30 rounded-xl overflow-hidden border border-border">
+                      {selectedDocumentPreview.documentUrl?.toLowerCase().endsWith('.pdf') ? (
+                        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                          <FileText className="w-20 h-20 mb-4" />
+                          <p className="text-base font-medium">PDF Document</p>
+                          <p className="text-sm mt-1">Click download to view</p>
                         </div>
+                      ) : (
+                        <img
+                          src={selectedDocumentPreview.documentUrl?.startsWith('http') || selectedDocumentPreview.documentUrl?.startsWith('/') 
+                            ? selectedDocumentPreview.documentUrl 
+                            : `/${selectedDocumentPreview.documentUrl}`}
+                          alt={selectedDocumentPreview.documentType}
+                          className="w-full h-auto max-h-[50vh] object-contain"
+                          data-testid="document-preview-image"
+                        />
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3 text-sm bg-muted/20 rounded-lg p-3">
+                      {selectedDocumentPreview.expirationDate && (
+                        <div>
+                          <span className="text-muted-foreground text-xs">Expires</span>
+                          <p className="font-medium">{new Date(selectedDocumentPreview.expirationDate).toLocaleDateString()}</p>
+                        </div>
+                      )}
+                      {selectedDocumentPreview.vehiclePlate && (
+                        <div>
+                          <span className="text-muted-foreground text-xs">Vehicle Plate</span>
+                          <p className="font-medium">{selectedDocumentPreview.vehiclePlate}</p>
+                        </div>
+                      )}
+                      {selectedDocumentPreview.whatsappNumber && (
+                        <div>
+                          <span className="text-muted-foreground text-xs">WhatsApp</span>
+                          <p className="font-medium">{selectedDocumentPreview.whatsappNumber}</p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {selectedDocumentPreview.rejectionReason && (
+                      <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg">
+                        <p className="text-sm text-red-700 dark:text-red-300">
+                          <strong>Rejection Reason:</strong> {selectedDocumentPreview.rejectionReason}
+                        </p>
                       </div>
+                    )}
+                    
+                    <Button
+                      onClick={() => {
+                        if (selectedDocumentPreview?.documentUrl) {
+                          const url = selectedDocumentPreview.documentUrl.startsWith('http') || selectedDocumentPreview.documentUrl.startsWith('/') 
+                            ? selectedDocumentPreview.documentUrl 
+                            : `/${selectedDocumentPreview.documentUrl}`;
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.download = `${selectedDocumentPreview.documentType}_${selectedDocumentPreview.id}`;
+                          link.target = '_blank';
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }
+                      }}
+                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white h-11 font-semibold rounded-lg"
+                      data-testid="button-download-document"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Document
+                    </Button>
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
 
-                      {/* Download Button */}
+            {/* Documents Grid */}
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {/* Driver License */}
+              <Card className="bg-card border-border shadow-sm hover:shadow-md transition-shadow" data-testid="card-driver-license">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-950/40 flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-red-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-sm text-foreground">Driver License</h3>
+                        <p className="text-[10px] text-muted-foreground">Required</p>
+                      </div>
+                    </div>
+                    {getDocumentByType('driver_license') ? getStatusBadge(getDocumentByType('driver_license')!.status) : (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">Missing</Badge>
+                    )}
+                  </div>
+                  
+                  {getDocumentByType('driver_license') && (
+                    <div className="flex items-center justify-between text-xs mb-3 py-2 px-2.5 bg-muted/50 rounded-lg">
+                      <div className="space-y-0.5">
+                        {driver?.licenseNumber && <p className="font-mono text-foreground">{driver.licenseNumber}</p>}
+                        {getDocumentByType('driver_license')!.expirationDate && (
+                          <p className="text-muted-foreground">Exp: {new Date(getDocumentByType('driver_license')!.expirationDate!).toLocaleDateString()}</p>
+                        )}
+                      </div>
                       <Button
-                        onClick={() => {
-                          if (selectedDocumentPreview?.documentUrl) {
-                            const docUrl = selectedDocumentPreview.documentUrl;
-                            const url = docUrl.startsWith('http://') || docUrl.startsWith('https://') || docUrl.startsWith('/') 
-                              ? docUrl 
-                              : `/${docUrl}`;
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.download = `${selectedDocumentPreview.documentType}_${selectedDocumentPreview.id}`;
-                            link.target = '_blank';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                          }
-                        }}
-                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white h-10 font-semibold rounded-lg"
-                        data-testid="button-download-document"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedDocumentPreview(getDocumentByType('driver_license')!)}
+                        className="h-7 px-2 text-xs"
+                        data-testid="button-preview-driver-license"
                       >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download Document
+                        <Eye className="w-3.5 h-3.5" />
                       </Button>
-                    </>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Eye className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
-                      <p className="text-muted-foreground text-sm font-medium">No document selected</p>
-                      <p className="text-muted-foreground/70 text-xs mt-1">
-                        Click "Preview" on any uploaded document to view it here
-                      </p>
                     </div>
                   )}
+                  
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        type="text"
+                        placeholder="License #"
+                        value={formData.driverLicense.licenseNumber}
+                        onChange={(e) => setFormData(prev => ({ ...prev, driverLicense: { ...prev.driverLicense, licenseNumber: e.target.value } }))}
+                        className="h-8 text-xs font-mono"
+                        data-testid="input-driver-license-number"
+                      />
+                      <Input
+                        type="date"
+                        value={formData.driverLicense.expirationDate}
+                        onChange={(e) => setFormData(prev => ({ ...prev, driverLicense: { ...prev.driverLicense, expirationDate: e.target.value } }))}
+                        className="h-8 text-xs"
+                        data-testid="input-driver-license-expiry"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        capture="environment"
+                        onChange={(e) => setFormData(prev => ({ ...prev, driverLicense: { ...prev.driverLicense, file: e.target.files?.[0] || null } }))}
+                        className="h-8 text-xs flex-1"
+                        data-testid="input-driver-license-file"
+                      />
+                      <Button
+                        onClick={() => handleUpload('driver_license')}
+                        disabled={!formData.driverLicense.file || uploading === 'driver_license'}
+                        size="sm"
+                        className="h-8 px-3 bg-red-600 hover:bg-red-700 text-white text-xs"
+                        data-testid="button-upload-driver-license"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Limo License */}
+              <Card className="bg-card border-border shadow-sm hover:shadow-md transition-shadow" data-testid="card-limo-license">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/40 flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-sm text-foreground">Limo License</h3>
+                        <p className="text-[10px] text-muted-foreground">Required</p>
+                      </div>
+                    </div>
+                    {getDocumentByType('limo_license') ? getStatusBadge(getDocumentByType('limo_license')!.status) : (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">Missing</Badge>
+                    )}
+                  </div>
+                  
+                  {getDocumentByType('limo_license') && (
+                    <div className="flex items-center justify-between text-xs mb-3 py-2 px-2.5 bg-muted/50 rounded-lg">
+                      <div className="space-y-0.5">
+                        {driver?.limoLicenseNumber && <p className="font-mono text-foreground">{driver.limoLicenseNumber}</p>}
+                        {getDocumentByType('limo_license')!.expirationDate && (
+                          <p className="text-muted-foreground">Exp: {new Date(getDocumentByType('limo_license')!.expirationDate!).toLocaleDateString()}</p>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedDocumentPreview(getDocumentByType('limo_license')!)}
+                        className="h-7 px-2 text-xs"
+                        data-testid="button-preview-limo-license"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        type="text"
+                        placeholder="License #"
+                        value={formData.limoLicense.licenseNumber}
+                        onChange={(e) => setFormData(prev => ({ ...prev, limoLicense: { ...prev.limoLicense, licenseNumber: e.target.value } }))}
+                        className="h-8 text-xs font-mono"
+                        data-testid="input-limo-license-number"
+                      />
+                      <Input
+                        type="date"
+                        value={formData.limoLicense.expirationDate}
+                        onChange={(e) => setFormData(prev => ({ ...prev, limoLicense: { ...prev.limoLicense, expirationDate: e.target.value } }))}
+                        className="h-8 text-xs"
+                        data-testid="input-limo-license-expiry"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        capture="environment"
+                        onChange={(e) => setFormData(prev => ({ ...prev, limoLicense: { ...prev.limoLicense, file: e.target.files?.[0] || null } }))}
+                        className="h-8 text-xs flex-1"
+                        data-testid="input-limo-license-file"
+                      />
+                      <Button
+                        onClick={() => handleUpload('limo_license')}
+                        disabled={!formData.limoLicense.file || uploading === 'limo_license'}
+                        size="sm"
+                        className="h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                        data-testid="button-upload-limo-license"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Insurance Certificate */}
+              <Card className="bg-card border-border shadow-sm hover:shadow-md transition-shadow" data-testid="card-insurance-certificate">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/40 flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-sm text-foreground">Insurance</h3>
+                        <p className="text-[10px] text-muted-foreground">Required</p>
+                      </div>
+                    </div>
+                    {getDocumentByType('insurance_certificate') ? getStatusBadge(getDocumentByType('insurance_certificate')!.status) : (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">Missing</Badge>
+                    )}
+                  </div>
+                  
+                  {getDocumentByType('insurance_certificate') && (
+                    <div className="flex items-center justify-between text-xs mb-3 py-2 px-2.5 bg-muted/50 rounded-lg">
+                      <div className="space-y-0.5">
+                        {getDocumentByType('insurance_certificate')!.expirationDate && (
+                          <p className="text-muted-foreground">Exp: {new Date(getDocumentByType('insurance_certificate')!.expirationDate!).toLocaleDateString()}</p>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedDocumentPreview(getDocumentByType('insurance_certificate')!)}
+                        className="h-7 px-2 text-xs"
+                        data-testid="button-preview-insurance-certificate"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <Input
+                      type="date"
+                      value={formData.insuranceCertificate.expirationDate}
+                      onChange={(e) => setFormData(prev => ({ ...prev, insuranceCertificate: { ...prev.insuranceCertificate, expirationDate: e.target.value } }))}
+                      className="h-8 text-xs"
+                      data-testid="input-insurance-certificate-expiry"
+                    />
+                    <div className="flex gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        capture="environment"
+                        onChange={(e) => setFormData(prev => ({ ...prev, insuranceCertificate: { ...prev.insuranceCertificate, file: e.target.files?.[0] || null } }))}
+                        className="h-8 text-xs flex-1"
+                        data-testid="input-insurance-certificate-file"
+                      />
+                      <Button
+                        onClick={() => handleUpload('insurance_certificate')}
+                        disabled={!formData.insuranceCertificate.file || uploading === 'insurance_certificate'}
+                        size="sm"
+                        className="h-8 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
+                        data-testid="button-upload-insurance-certificate"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Vehicle Image */}
+              <Card className="bg-card border-border shadow-sm hover:shadow-md transition-shadow" data-testid="card-vehicle-image">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950/40 flex items-center justify-center">
+                        <Car className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-sm text-foreground">Vehicle Photo</h3>
+                        <p className="text-[10px] text-muted-foreground">Optional</p>
+                      </div>
+                    </div>
+                    {getDocumentByType('vehicle_image') ? getStatusBadge(getDocumentByType('vehicle_image')!.status) : (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">Not uploaded</Badge>
+                    )}
+                  </div>
+                  
+                  {getDocumentByType('vehicle_image') && (
+                    <div className="flex items-center justify-between text-xs mb-3 py-2 px-2.5 bg-muted/50 rounded-lg">
+                      <div className="space-y-0.5">
+                        {getDocumentByType('vehicle_image')!.vehiclePlate && (
+                          <p className="font-mono text-foreground">{getDocumentByType('vehicle_image')!.vehiclePlate}</p>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedDocumentPreview(getDocumentByType('vehicle_image')!)}
+                        className="h-7 px-2 text-xs"
+                        data-testid="button-preview-vehicle-image"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <Input
+                      type="text"
+                      placeholder="Plate number"
+                      value={formData.vehicleImage.vehiclePlate}
+                      onChange={(e) => setFormData(prev => ({ ...prev, vehicleImage: { ...prev.vehicleImage, vehiclePlate: e.target.value } }))}
+                      className="h-8 text-xs font-mono"
+                      data-testid="input-vehicle-plate"
+                    />
+                    <div className="flex gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={(e) => setFormData(prev => ({ ...prev, vehicleImage: { ...prev.vehicleImage, file: e.target.files?.[0] || null } }))}
+                        className="h-8 text-xs flex-1"
+                        data-testid="input-vehicle-image-file"
+                      />
+                      <Button
+                        onClick={() => handleUpload('vehicle_image')}
+                        disabled={!formData.vehicleImage.file || uploading === 'vehicle_image'}
+                        size="sm"
+                        className="h-8 px-3 bg-purple-600 hover:bg-purple-700 text-white text-xs"
+                        data-testid="button-upload-vehicle-image"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Profile Photo */}
+              <Card className="bg-card border-border shadow-sm hover:shadow-md transition-shadow" data-testid="card-profile-photo">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950/40 flex items-center justify-center overflow-hidden">
+                        {getDocumentByType('profile_photo')?.status === 'approved' && getDocumentByType('profile_photo')?.documentUrl ? (
+                          <img
+                            src={getDocumentByType('profile_photo')!.documentUrl.startsWith('/') 
+                              ? getDocumentByType('profile_photo')!.documentUrl 
+                              : `/${getDocumentByType('profile_photo')!.documentUrl}`}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                            data-testid="img-profile-preview"
+                          />
+                        ) : (
+                          <Camera className="w-4 h-4 text-amber-600" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-sm text-foreground">Profile Photo</h3>
+                        <p className="text-[10px] text-muted-foreground">Optional</p>
+                      </div>
+                    </div>
+                    {getDocumentByType('profile_photo') ? getStatusBadge(getDocumentByType('profile_photo')!.status) : (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">Not uploaded</Badge>
+                    )}
+                  </div>
+                  
+                  {getDocumentByType('profile_photo') && (
+                    <div className="flex items-center justify-between text-xs mb-3 py-2 px-2.5 bg-muted/50 rounded-lg">
+                      <div className="space-y-0.5">
+                        {getDocumentByType('profile_photo')!.whatsappNumber && (
+                          <p className="text-muted-foreground">{getDocumentByType('profile_photo')!.whatsappNumber}</p>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedDocumentPreview(getDocumentByType('profile_photo')!)}
+                        className="h-7 px-2 text-xs"
+                        data-testid="button-preview-profile-photo"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <Input
+                      type="tel"
+                      placeholder="WhatsApp (optional)"
+                      value={formData.whatsappNumber}
+                      onChange={(e) => setFormData(prev => ({ ...prev, whatsappNumber: e.target.value }))}
+                      className="h-8 text-xs"
+                      data-testid="input-whatsapp-number"
+                    />
+                    <div className="flex gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        capture="user"
+                        onChange={(e) => setFormData(prev => ({ ...prev, profilePhoto: { file: e.target.files?.[0] || null } }))}
+                        className="h-8 text-xs flex-1"
+                        data-testid="input-profile-photo-file"
+                      />
+                      <Button
+                        onClick={() => handleUpload('profile_photo')}
+                        disabled={!formData.profilePhoto.file || uploading === 'profile_photo'}
+                        size="sm"
+                        className="h-8 px-3 bg-amber-600 hover:bg-amber-700 text-white text-xs"
+                        data-testid="button-upload-profile-photo"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
-          </div>
+          </>
         )}
 
 
