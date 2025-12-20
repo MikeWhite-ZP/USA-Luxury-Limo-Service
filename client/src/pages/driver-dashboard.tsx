@@ -228,11 +228,13 @@ export default function DriverDashboard() {
     }
   }, [driver]);
 
-  // Fetch driver bookings
+  // Fetch driver bookings with automatic polling for new jobs
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
     queryKey: ["/api/bookings"],
     retry: false,
     enabled: isAuthenticated && user?.role === "driver",
+    refetchInterval: 30000, // Poll every 30 seconds for new jobs
+    refetchIntervalInBackground: false, // Only poll when tab is active
   });
 
   // Fetch driver documents
