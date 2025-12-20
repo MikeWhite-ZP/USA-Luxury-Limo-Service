@@ -1990,6 +1990,9 @@ export class DatabaseStorage implements IStorage {
         flightAirline: bookings.flightAirline,
         flightDepartureAirport: bookings.flightDepartureAirport,
         flightArrivalAirport: bookings.flightArrivalAirport,
+        flightDepartureTerminal: bookings.flightDepartureTerminal,
+        flightArrivalTerminal: bookings.flightArrivalTerminal,
+        flightBaggageClaim: bookings.flightBaggageClaim,
         // Journey tracking fields
         bookedBy: bookings.bookedBy,
         bookedAt: bookings.bookedAt,

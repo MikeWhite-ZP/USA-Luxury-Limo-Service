@@ -43,6 +43,9 @@ interface Booking {
   flightAirline?: string | null;
   flightDepartureAirport?: string | null;
   flightArrivalAirport?: string | null;
+  flightDepartureTerminal?: string | null;
+  flightArrivalTerminal?: string | null;
+  flightBaggageClaim?: string | null;
 }
 
 export default function MobileDriverRideDetails() {
@@ -586,6 +589,9 @@ export default function MobileDriverRideDetails() {
                       <p className="text-xs text-muted-foreground">From</p>
                       <p className="text-sm font-medium text-foreground" data-testid="text-flight-departure">
                         {booking.flightDepartureAirport}
+                        {booking.flightDepartureTerminal && (
+                          <span className="text-muted-foreground ml-1">(T{booking.flightDepartureTerminal})</span>
+                        )}
                       </p>
                     </div>
                   )}
@@ -594,6 +600,17 @@ export default function MobileDriverRideDetails() {
                       <p className="text-xs text-muted-foreground">To</p>
                       <p className="text-sm font-medium text-foreground" data-testid="text-flight-arrival">
                         {booking.flightArrivalAirport}
+                        {booking.flightArrivalTerminal && (
+                          <span className="text-muted-foreground ml-1">(T{booking.flightArrivalTerminal})</span>
+                        )}
+                      </p>
+                    </div>
+                  )}
+                  {booking.flightBaggageClaim && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Baggage Claim</p>
+                      <p className="text-sm font-bold text-foreground" data-testid="text-flight-baggage">
+                        {booking.flightBaggageClaim}
                       </p>
                     </div>
                   )}

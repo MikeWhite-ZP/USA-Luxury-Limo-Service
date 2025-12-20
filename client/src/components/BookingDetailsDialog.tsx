@@ -110,6 +110,9 @@ interface BookingFormData {
   flightAirline: string;
   flightDepartureAirport: string;
   flightArrivalAirport: string;
+  flightDepartureTerminal: string;
+  flightArrivalTerminal: string;
+  flightBaggageClaim: string;
   specialInstructions: string;
   billReference: string;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
@@ -1009,6 +1012,9 @@ export function BookingDetailsDialog({
                           flightAirline: flight.airline,
                           flightDepartureAirport: flight.departureAirport,
                           flightArrivalAirport: flight.arrivalAirport,
+                          flightDepartureTerminal: flight.departureTerminal || '',
+                          flightArrivalTerminal: flight.arrivalTerminal || '',
+                          flightBaggageClaim: flight.baggageClaim || '',
                         });
                         setFlightSearchInput(flight.flightNumber);
                       } else {
@@ -1018,6 +1024,9 @@ export function BookingDetailsDialog({
                           flightAirline: '',
                           flightDepartureAirport: '',
                           flightArrivalAirport: '',
+                          flightDepartureTerminal: '',
+                          flightArrivalTerminal: '',
+                          flightBaggageClaim: '',
                         });
                         setFlightSearchInput('');
                       }
