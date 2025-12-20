@@ -4575,21 +4575,10 @@ export default function AdminDashboard() {
   const saveBookingMutation = useMutation({
     mutationFn: async (data: any) => {
       // Transform string values to correct types for schema validation
-      // Ensure scheduledDateTime is properly formatted as ISO string
-      let formattedScheduledDateTime = data.scheduledDateTime;
-      if (data.scheduledDateTime) {
-        const dateObj = new Date(data.scheduledDateTime);
-        formattedScheduledDateTime = dateObj.toISOString();
-        console.log("📅 Saving booking with scheduledDateTime:", {
-          original: data.scheduledDateTime,
-          formatted: formattedScheduledDateTime,
-          dateObject: dateObj.toString()
-        });
-      }
-
+      // Note: scheduledDateTime is sent as local time string (YYYY-MM-DDTHH:mm)
+      // The backend handles this format correctly
       const transformedData = {
         ...data,
-        scheduledDateTime: formattedScheduledDateTime,
         // totalAmount stays as string (decimal type in schema)
         // Only convert requestedHours to number (integer type in schema)
         requestedHours: data.requestedHours
@@ -4603,8 +4592,6 @@ export default function AdminDashboard() {
           ? String(data.discountPercentage)
           : undefined,
       };
-
-      console.log("📦 Full transformedData being sent:", JSON.stringify(transformedData, null, 2));
 
       const method = editingBooking ? "PATCH" : "POST";
       const url = editingBooking
@@ -5186,7 +5173,19 @@ export default function AdminDashboard() {
 
     setEditingBooking(booking);
     const scheduledDate = new Date(booking.scheduledDateTime);
-    const formattedDateTime = scheduledDate.toISOString().slice(0, 16);
+    // Format as local datetime for the datetime-local input (YYYY-MM-DDTHH:mm)
+    // Using local time components instead of toISOString() which converts to UTC
+    const year = scheduledDate.getFullYear();
+    const month = String(scheduledDate.getMonth() + 1).padStart(2, '0');
+    const day = String(scheduledDate.getDate()).padStart(2, '0');
+    const hours = String(scheduledDate.getHours()).padStart(2, '0');
+    const minutes = String(scheduledDate.getMinutes()).padStart(2, '0');
+    const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    console.log("📅 openEditBookingDialog - Date formatting:", {
+      original: booking.scheduledDateTime,
+      dateObject: scheduledDate.toString(),
+      formattedForInput: formattedDateTime
+    });
     setBookingFormData({
       passengerId: booking.passengerId || "",
       pickupAddress: booking.pickupAddress || "",
