@@ -160,7 +160,7 @@ export default function DriverDashboard() {
   const [uploading, setUploading] = useState<string | null>(null);
   
   // Job list sub-tabs state
-  const [jobListTab, setJobListTab] = useState<"current" | "completed" | "cancelled">("current");
+  const [jobListTab, setJobListTab] = useState<"new" | "accepted" | "completed" | "cancelled">("new");
   
   // Document preview state
   const [selectedDocumentPreview, setSelectedDocumentPreview] = useState<DriverDocument | null>(null);
@@ -735,18 +735,17 @@ export default function DriverDashboard() {
   // Filter bookings by category
   const now = new Date();
   
-  // Current jobs: Active statuses and not past-due
-  const currentJobs =
+  // New jobs: Pending driver acceptance (assigned but not yet accepted)
+  const newJobs =
     bookings?.filter(
-      (b) => {
-        const isPast = new Date(b.scheduledDateTime) < now;
-        return (
-          b.status !== "completed" &&
-          b.status !== "cancelled" &&
-          b.status !== "pending" &&
-          !isPast
-        );
-      }
+      (b) => b.status === "pending_driver_acceptance"
+    ) || [];
+  
+  // Accepted jobs: Driver accepted but not completed (explicit accepted statuses only)
+  const acceptedStatuses = ["driver_accepted", "confirmed", "on_the_way", "on_board", "in_progress"];
+  const acceptedJobs =
+    bookings?.filter(
+      (b) => acceptedStatuses.includes(b.status)
     ) || [];
   
   // Completed jobs
@@ -755,8 +754,8 @@ export default function DriverDashboard() {
   // Cancelled jobs
   const cancelledJobs = bookings?.filter((b) => b.status === "cancelled") || [];
   
-  // Legacy: keep assignedBookings for backward compatibility (same as currentJobs)
-  const assignedBookings = currentJobs;
+  // Legacy: keep assignedBookings for backward compatibility
+  const assignedBookings = [...newJobs, ...acceptedJobs];
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -1111,172 +1110,273 @@ export default function DriverDashboard() {
                   {/* Job List Sub-Tabs */}
                   <div className="flex gap-1 mt-4 bg-muted/50 p-1 rounded-lg">
                     <button
-                      onClick={() => setJobListTab("current")}
-                      className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                        jobListTab === "current"
-                          ? "bg-background text-foreground shadow-sm"
+                      onClick={() => setJobListTab("new")}
+                      className={`flex-1 py-2 px-2 rounded-md text-sm font-medium transition-all ${
+                        jobListTab === "new"
+                          ? "bg-blue-600 text-white shadow-sm"
                           : "text-muted-foreground hover:text-foreground"
                       }`}
+                      data-testid="tab-new-jobs"
                     >
-                      Current ({currentJobs.length})
+                      New Jobs ({newJobs.length})
+                    </button>
+                    <button
+                      onClick={() => setJobListTab("accepted")}
+                      className={`flex-1 py-2 px-2 rounded-md text-sm font-medium transition-all ${
+                        jobListTab === "accepted"
+                          ? "bg-purple-600 text-white shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                      data-testid="tab-accepted-jobs"
+                    >
+                      Accepted ({acceptedJobs.length})
                     </button>
                     <button
                       onClick={() => setJobListTab("completed")}
-                      className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
+                      className={`flex-1 py-2 px-2 rounded-md text-sm font-medium transition-all ${
                         jobListTab === "completed"
                           ? "bg-emerald-600 text-white shadow-sm"
                           : "text-muted-foreground hover:text-foreground"
                       }`}
+                      data-testid="tab-completed-jobs"
                     >
                       Completed ({completedJobs.length})
                     </button>
                     <button
                       onClick={() => setJobListTab("cancelled")}
-                      className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
+                      className={`flex-1 py-2 px-2 rounded-md text-sm font-medium transition-all ${
                         jobListTab === "cancelled"
                           ? "bg-red-600 text-white shadow-sm"
                           : "text-muted-foreground hover:text-foreground"
                       }`}
+                      data-testid="tab-cancelled-jobs"
                     >
                       Cancelled ({cancelledJobs.length})
                     </button>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {/* Current Jobs Tab */}
-                  {jobListTab === "current" && (
+                  {/* New Jobs Tab - Pending driver acceptance */}
+                  {jobListTab === "new" && (
                     <>
-                      {currentJobs.length > 0 ? (
+                      {newJobs.length > 0 ? (
                         <div className="space-y-4">
-                          {currentJobs.map((booking) => (
-                        <div
-                          key={booking.id}
-                          className="relative group"
-                          data-testid={`accepted-job-${booking.id}`}
-                        >
-                          {/* Compact card design */}
-                          <div className="bg-card rounded-xl p-4 border border-border shadow-sm hover:shadow-md transition-all duration-200">
-                            {/* Header row: Booking ID, Status, Type badge */}
-                            <div className="flex items-center justify-between gap-2 mb-2">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-sm font-semibold text-foreground">#{booking.id.slice(0, 8)}</span>
-                                <Badge
-                                  variant="default"
-                                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-xs px-2 py-0.5"
-                                  data-testid={`accepted-status-${booking.id}`}
-                                >
-                                  {booking.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                                </Badge>
-                                <Badge variant="outline" className="text-xs px-2 py-0.5 border-muted-foreground/30">
-                                  {booking.bookingType === 'hourly' ? 'Hourly' : 'Transfer'}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg font-bold text-red-600 dark:text-red-400" data-testid={`accepted-amount-${booking.id}`}>
-                                  {booking.driverPayment ? `$${booking.driverPayment}` : "Not set"}
-                                </span>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setSelectedBookingForDetails(booking)}
-                                  className="h-7 px-2 text-xs"
-                                  data-testid={`button-view-details-${booking.id}`}
-                                >
-                                  <Eye className="w-3 h-3 mr-1" />
-                                  Details
-                                </Button>
-                              </div>
-                            </div>
-
-                            {/* Passenger and Schedule row */}
-                            <div className="flex items-center gap-4 text-sm mb-3">
-                              {booking.passengerName && (
-                                <div className="flex items-center gap-1.5">
-                                  <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                                  <span className="font-medium text-foreground" data-testid={`passenger-name-${booking.id}`}>
-                                    {booking.passengerName}
-                                  </span>
+                          {newJobs.map((booking) => (
+                            <div
+                              key={booking.id}
+                              className="relative group"
+                              data-testid={`new-job-${booking.id}`}
+                            >
+                              <div className="bg-card rounded-xl p-4 border border-blue-200 dark:border-blue-800 shadow-sm hover:shadow-md transition-all duration-200">
+                                <div className="flex items-center justify-between gap-2 mb-2">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-sm font-semibold text-foreground">#{booking.id.slice(0, 8)}</span>
+                                    <Badge className="bg-blue-600 text-white font-medium text-xs px-2 py-0.5">
+                                      New Assignment
+                                    </Badge>
+                                    <Badge variant="outline" className="text-xs px-2 py-0.5 border-muted-foreground/30">
+                                      {booking.bookingType === 'hourly' ? 'Hourly' : 'Transfer'}
+                                    </Badge>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-lg font-bold text-blue-600 dark:text-blue-400" data-testid={`new-amount-${booking.id}`}>
+                                      {booking.driverPayment ? `$${booking.driverPayment}` : "Not set"}
+                                    </span>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setSelectedBookingForDetails(booking)}
+                                      className="h-7 px-2 text-xs"
+                                      data-testid={`button-view-details-${booking.id}`}
+                                    >
+                                      <Eye className="w-3 h-3 mr-1" />
+                                      Details
+                                    </Button>
+                                  </div>
                                 </div>
-                              )}
-                              <div className="flex items-center gap-1.5 text-muted-foreground">
-                                <Clock className="w-3.5 h-3.5" />
-                                <span data-testid={`accepted-time-${booking.id}`}>
-                                  {new Date(booking.scheduledDateTime).toLocaleString('en-US', {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: 'numeric',
-                                    minute: '2-digit'
-                                  })}
-                                </span>
-                              </div>
-                            </div>
 
-                            {/* Compact route display */}
-                            <div className="bg-muted/50 dark:bg-muted/20 rounded-lg p-2.5 mb-3">
-                              <div className="flex items-start gap-2">
-                                <div className="flex flex-col items-center gap-0.5 pt-1">
-                                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                  <div className="w-0.5 h-6 bg-border" />
-                                  <div className="w-2 h-2 rounded-full bg-red-500" />
-                                </div>
-                                <div className="flex-1 min-w-0 space-y-1">
-                                  <p className="text-xs text-foreground truncate" data-testid={`accepted-pickup-${booking.id}`}>
-                                    {booking.pickupAddress}
-                                  </p>
-                                  {booking.destinationAddress && (
-                                    <p className="text-xs text-muted-foreground truncate" data-testid={`accepted-destination-${booking.id}`}>
-                                      {booking.destinationAddress}
-                                    </p>
+                                <div className="flex items-center gap-4 text-sm mb-3">
+                                  {booking.passengerName && (
+                                    <div className="flex items-center gap-1.5">
+                                      <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                                      <span className="font-medium text-foreground" data-testid={`passenger-name-${booking.id}`}>
+                                        {booking.passengerName}
+                                      </span>
+                                    </div>
                                   )}
+                                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                                    <Clock className="w-3.5 h-3.5" />
+                                    <span data-testid={`new-time-${booking.id}`}>
+                                      {new Date(booking.scheduledDateTime).toLocaleString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: 'numeric',
+                                        minute: '2-digit'
+                                      })}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-2.5 mb-3">
+                                  <div className="flex items-start gap-2">
+                                    <div className="flex flex-col items-center gap-0.5 pt-1">
+                                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                      <div className="w-0.5 h-6 bg-border" />
+                                      <div className="w-2 h-2 rounded-full bg-red-500" />
+                                    </div>
+                                    <div className="flex-1 min-w-0 space-y-1">
+                                      <p className="text-xs text-foreground truncate" data-testid={`new-pickup-${booking.id}`}>
+                                        {booking.pickupAddress}
+                                      </p>
+                                      {booking.destinationAddress && (
+                                        <p className="text-xs text-muted-foreground truncate" data-testid={`new-destination-${booking.id}`}>
+                                          {booking.destinationAddress}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex gap-2">
+                                  <Button
+                                    onClick={() => handleAcceptRide(booking.id)}
+                                    disabled={acceptBookingMutation.isPending || declineBookingMutation.isPending}
+                                    className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold h-10 rounded-lg text-sm"
+                                    data-testid={`button-accept-${booking.id}`}
+                                  >
+                                    <CheckCircle className="w-4 h-4 mr-1.5" />
+                                    {acceptBookingMutation.isPending ? "Accepting..." : "Accept Job"}
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleDeclineRide(booking.id)}
+                                    disabled={acceptBookingMutation.isPending || declineBookingMutation.isPending}
+                                    variant="outline"
+                                    className="flex-1 h-10 rounded-lg text-sm border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
+                                    data-testid={`button-decline-${booking.id}`}
+                                  >
+                                    <AlertCircle className="w-4 h-4 mr-1.5" />
+                                    {declineBookingMutation.isPending ? "..." : "Decline"}
+                                  </Button>
                                 </div>
                               </div>
                             </div>
-
-                            {/* Action buttons */}
-                            {booking.status === "pending_driver_acceptance" && (
-                              <div className="flex gap-2">
-                                <Button
-                                  onClick={() => handleAcceptRide(booking.id)}
-                                  disabled={acceptBookingMutation.isPending || declineBookingMutation.isPending}
-                                  className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold h-9 rounded-lg text-sm"
-                                  data-testid={`button-accept-${booking.id}`}
-                                >
-                                  <CheckCircle className="w-4 h-4 mr-1.5" />
-                                  {acceptBookingMutation.isPending ? "Accepting..." : "Accept"}
-                                </Button>
-                                <Button
-                                  onClick={() => handleDeclineRide(booking.id)}
-                                  disabled={acceptBookingMutation.isPending || declineBookingMutation.isPending}
-                                  variant="outline"
-                                  className="flex-1 h-9 rounded-lg text-sm border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
-                                  data-testid={`button-decline-${booking.id}`}
-                                >
-                                  <AlertCircle className="w-4 h-4 mr-1.5" />
-                                  {declineBookingMutation.isPending ? "..." : "Decline"}
-                                </Button>
-                              </div>
-                            )}
-                            
-                            {booking.status === "in_progress" && (
-                              <Button
-                                onClick={() => handleCompleteRide(booking.id)}
-                                disabled={updateBookingMutation.isPending}
-                                className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold h-9 rounded-lg text-sm"
-                                data-testid={`button-complete-${booking.id}`}
-                              >
-                                <CheckCircle className="w-4 h-4 mr-1.5" />
-                                Complete Ride
-                              </Button>
-                            )}
-                          </div>
-                        </div>
                           ))}
                         </div>
                       ) : (
-                        <div className="text-center p-12" data-testid="no-current-jobs">
+                        <div className="text-center p-12" data-testid="no-new-jobs">
                           <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                          <p className="text-muted-foreground text-lg font-medium">No current jobs</p>
-                          <p className="text-muted-foreground text-sm mt-2">New job assignments will appear here</p>
+                          <p className="text-muted-foreground text-lg font-medium">No new jobs</p>
+                          <p className="text-muted-foreground text-sm mt-2">New job assignments will appear here when dispatched to you</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Accepted Jobs Tab */}
+                  {jobListTab === "accepted" && (
+                    <>
+                      {acceptedJobs.length > 0 ? (
+                        <div className="space-y-4">
+                          {acceptedJobs.map((booking) => (
+                            <div
+                              key={booking.id}
+                              className="relative group"
+                              data-testid={`accepted-job-${booking.id}`}
+                            >
+                              <div className="bg-card rounded-xl p-4 border border-purple-200 dark:border-purple-800 shadow-sm hover:shadow-md transition-all duration-200">
+                                <div className="flex items-center justify-between gap-2 mb-2">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-sm font-semibold text-foreground">#{booking.id.slice(0, 8)}</span>
+                                    <Badge
+                                      variant="default"
+                                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-xs px-2 py-0.5"
+                                      data-testid={`accepted-status-${booking.id}`}
+                                    >
+                                      {booking.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                                    </Badge>
+                                    <Badge variant="outline" className="text-xs px-2 py-0.5 border-muted-foreground/30">
+                                      {booking.bookingType === 'hourly' ? 'Hourly' : 'Transfer'}
+                                    </Badge>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-lg font-bold text-purple-600 dark:text-purple-400" data-testid={`accepted-amount-${booking.id}`}>
+                                      {booking.driverPayment ? `$${booking.driverPayment}` : "Not set"}
+                                    </span>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setSelectedBookingForDetails(booking)}
+                                      className="h-7 px-2 text-xs"
+                                      data-testid={`button-view-details-${booking.id}`}
+                                    >
+                                      <Eye className="w-3 h-3 mr-1" />
+                                      Details
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 text-sm mb-3">
+                                  {booking.passengerName && (
+                                    <div className="flex items-center gap-1.5">
+                                      <User className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                                      <span className="font-medium text-foreground" data-testid={`passenger-name-${booking.id}`}>
+                                        {booking.passengerName}
+                                      </span>
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                                    <Clock className="w-3.5 h-3.5" />
+                                    <span data-testid={`accepted-time-${booking.id}`}>
+                                      {new Date(booking.scheduledDateTime).toLocaleString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: 'numeric',
+                                        minute: '2-digit'
+                                      })}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div className="bg-purple-50 dark:bg-purple-950/20 rounded-lg p-2.5 mb-3">
+                                  <div className="flex items-start gap-2">
+                                    <div className="flex flex-col items-center gap-0.5 pt-1">
+                                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                      <div className="w-0.5 h-6 bg-border" />
+                                      <div className="w-2 h-2 rounded-full bg-red-500" />
+                                    </div>
+                                    <div className="flex-1 min-w-0 space-y-1">
+                                      <p className="text-xs text-foreground truncate" data-testid={`accepted-pickup-${booking.id}`}>
+                                        {booking.pickupAddress}
+                                      </p>
+                                      {booking.destinationAddress && (
+                                        <p className="text-xs text-muted-foreground truncate" data-testid={`accepted-destination-${booking.id}`}>
+                                          {booking.destinationAddress}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {booking.status === "in_progress" && (
+                                  <Button
+                                    onClick={() => handleCompleteRide(booking.id)}
+                                    disabled={updateBookingMutation.isPending}
+                                    className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold h-9 rounded-lg text-sm"
+                                    data-testid={`button-complete-${booking.id}`}
+                                  >
+                                    <CheckCircle className="w-4 h-4 mr-1.5" />
+                                    Complete Ride
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center p-12" data-testid="no-accepted-jobs">
+                          <CheckCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                          <p className="text-muted-foreground text-lg font-medium">No accepted jobs</p>
+                          <p className="text-muted-foreground text-sm mt-2">Jobs you've accepted will appear here</p>
                         </div>
                       )}
                     </>
