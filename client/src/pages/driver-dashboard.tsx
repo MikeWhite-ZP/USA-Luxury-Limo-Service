@@ -2134,229 +2134,361 @@ export default function DriverDashboard() {
 
         {/* SETTINGS TAB */}
         {activeTab === "settings" && (
-          <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="menu-account">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
-                    <Settings className="w-5 h-5 text-white" />
+          <div className="space-y-6" data-testid="menu-account">
+            {/* Profile Header Card */}
+            <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-0 shadow-xl overflow-hidden">
+              <CardContent className="p-0">
+                <div className="relative">
+                  {/* Background Pattern */}
+                  <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_50%,transparent_75%,transparent_100%)] bg-[length:20px_20px]" />
+                  
+                  <div className="relative p-6 md:p-8">
+                    <div className="flex flex-col md:flex-row items-center gap-6">
+                      {/* Profile Avatar */}
+                      <div className="relative">
+                        <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-lg ring-4 ring-white/10">
+                          {user?.profileImageUrl ? (
+                            <img 
+                              src={user.profileImageUrl.startsWith('http') || user.profileImageUrl.startsWith('/') 
+                                ? user.profileImageUrl 
+                                : `/${user.profileImageUrl}`}
+                              alt="Profile"
+                              className="w-full h-full object-cover rounded-2xl"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                target.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
+                          <User className={`w-12 h-12 text-white ${user?.profileImageUrl ? 'hidden' : ''}`} />
+                        </div>
+                        <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg">
+                          <CheckCircle className="w-5 h-5 text-white" />
+                        </div>
+                      </div>
+                      
+                      {/* Profile Info */}
+                      <div className="flex-1 text-center md:text-left">
+                        <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">
+                          {user?.firstName} {user?.lastName}
+                        </h2>
+                        <p className="text-slate-400 mb-3">{user?.email}</p>
+                        <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                          <Badge className="bg-white/10 text-white border-0 px-3 py-1">
+                            <Star className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
+                            {driver?.rating || "0"}/5 Rating
+                          </Badge>
+                          <Badge className="bg-white/10 text-white border-0 px-3 py-1">
+                            <Car className="w-3.5 h-3.5 mr-1.5 text-blue-400" />
+                            {driver?.totalRides || 0} Rides
+                          </Badge>
+                          <Badge className={`border-0 px-3 py-1 ${user?.isActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                            {user?.isActive ? 'Active Driver' : 'Pending Activation'}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      {/* Quick Stats */}
+                      <div className="hidden lg:flex gap-4">
+                        <div className="text-center px-6 py-3 bg-white/5 rounded-xl">
+                          <p className="text-2xl font-bold text-white">${earnings?.month?.toFixed(0) || '0'}</p>
+                          <p className="text-xs text-slate-400">This Month</p>
+                        </div>
+                        <div className="text-center px-6 py-3 bg-white/5 rounded-xl">
+                          <p className="text-2xl font-bold text-white">${earnings?.allTime?.toFixed(0) || '0'}</p>
+                          <p className="text-xs text-slate-400">All Time</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  Account Settings
-                </CardTitle>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Two Column Layout */}
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Account Information */}
+              <Card className="bg-card border-border shadow-lg">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-lg">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                    Account Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-3">
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                          <span className="text-xs font-bold text-slate-600 dark:text-slate-300">#</span>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Driver ID</p>
+                          <p className="text-sm font-mono font-medium text-foreground" data-testid="setting-driver-id" title={driver?.id || ""}>
+                            {driver?.id || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                          <User className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Full Name</p>
+                          <p className="text-sm font-medium text-foreground" data-testid="setting-name">
+                            {`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
+                          <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400">@</span>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Email Address</p>
+                          <p className="text-sm font-medium text-foreground" data-testid="setting-email">
+                            {user?.email || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                          <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">License Number</p>
+                          <p className="text-sm font-medium text-foreground" data-testid="setting-license">
+                            {driver?.licenseNumber || "Not provided"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                          <Star className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Current Rating</p>
+                          <p className="text-sm font-medium text-foreground" data-testid="setting-rating">
+                            {driver?.rating || "0"} / 5.0
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                          <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Total Rides</p>
+                          <p className="text-sm font-medium text-foreground" data-testid="setting-total-rides">
+                            {driver?.totalRides || 0} completed
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Vehicle Information */}
+              <Card className="bg-card border-border shadow-lg">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-lg">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center shadow-md">
+                      <Car className="w-5 h-5 text-white" />
+                    </div>
+                    Vehicle Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 bg-muted/50 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                          <Car className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <Label className="text-sm font-medium">Vehicle Plate Number</Label>
+                      </div>
+                      {!editingVehiclePlate ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingVehiclePlate(true)}
+                          className="h-8 px-3 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          data-testid="button-edit-vehicle-plate"
+                        >
+                          <Pencil className="w-3.5 h-3.5 mr-1.5" />
+                          Edit
+                        </Button>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditingVehiclePlate(false);
+                              setVehiclePlateValue(driver?.vehiclePlate || "");
+                            }}
+                            className="h-8 px-3"
+                            data-testid="button-cancel-vehicle-plate"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => updateVehiclePlateMutation.mutate(vehiclePlateValue)}
+                            disabled={updateVehiclePlateMutation.isPending}
+                            className="h-8 px-4 bg-emerald-600 hover:bg-emerald-700"
+                            data-testid="button-save-vehicle-plate"
+                          >
+                            {updateVehiclePlateMutation.isPending ? "Saving..." : "Save"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    {editingVehiclePlate ? (
+                      <Input
+                        id="vehicle-plate"
+                        value={vehiclePlateValue}
+                        onChange={(e) => setVehiclePlateValue(e.target.value.toUpperCase())}
+                        placeholder="Enter plate (e.g., ABC1234)"
+                        className="font-mono text-lg tracking-wider bg-background"
+                        data-testid="input-vehicle-plate"
+                      />
+                    ) : (
+                      <div className="flex items-center gap-3 p-3 bg-background rounded-lg border border-border">
+                        <span className="text-lg font-mono font-bold tracking-wider text-foreground" data-testid="text-vehicle-plate">
+                          {driver?.vehiclePlate || "Not Set"}
+                        </span>
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Shared with passengers when assigned to their booking
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Driver Credentials */}
+            <Card className="bg-card border-border shadow-lg">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-3 text-lg">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center shadow-md">
+                      <FileText className="w-5 h-5 text-white" />
+                    </div>
+                    Driver Credentials
+                  </CardTitle>
+                  {!editingCredentials ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setEditingCredentials(true)}
+                      className="h-9"
+                      data-testid="button-edit-credentials"
+                    >
+                      <Pencil className="w-3.5 h-3.5 mr-1.5" />
+                      Edit
+                    </Button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setEditingCredentials(false);
+                          setCredentialsValue(driver?.driverCredentials || "");
+                        }}
+                        data-testid="button-cancel-credentials"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => updateCredentialsMutation.mutate(credentialsValue)}
+                        disabled={updateCredentialsMutation.isPending}
+                        className="bg-emerald-600 hover:bg-emerald-700"
+                        data-testid="button-save-credentials"
+                      >
+                        {updateCredentialsMutation.isPending ? "Saving..." : "Save Changes"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <Label>Driver ID</Label>
-                  <Input
-                    value={driver?.id || ""}
-                    disabled
-                    data-testid="setting-driver-id"
+                {editingCredentials ? (
+                  <textarea
+                    id="credentials"
+                    className="w-full min-h-[120px] p-4 border border-border bg-background rounded-xl text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    value={credentialsValue}
+                    onChange={(e) => setCredentialsValue(e.target.value)}
+                    placeholder="Enter your credentials (e.g., CDL License #, TLC License #, certifications, years of experience, languages spoken, etc.)"
+                    data-testid="input-credentials"
                   />
-                </div>
-                <div>
-                  <Label>Email</Label>
-                  <Input
-                    value={user?.email || ""}
-                    disabled
-                    data-testid="setting-email"
-                  />
-                </div>
-                <div>
-                  <Label>Name</Label>
-                  <Input
-                    value={`${user?.firstName || ""} ${user?.lastName || ""}`}
-                    disabled
-                    data-testid="setting-name"
-                  />
-                </div>
-                <div>
-                  <Label>License Number</Label>
-                  <Input
-                    value={driver?.licenseNumber || "Not provided"}
-                    disabled
-                    data-testid="setting-license"
-                  />
-                </div>
-                <div className="pt-2">
-                  <div className="flex justify-between items-center mb-2">
-                    <Label htmlFor="vehicle-plate">Vehicle Plate Number</Label>
-                    {!editingVehiclePlate ? (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setEditingVehiclePlate(true)}
-                        data-testid="button-edit-vehicle-plate"
-                      >
-                        <Pencil className="w-4 h-4 mr-2" />
-                        Edit
-                      </Button>
-                    ) : (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setEditingVehiclePlate(false);
-                            setVehiclePlateValue(driver?.vehiclePlate || "");
-                          }}
-                          data-testid="button-cancel-vehicle-plate"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            updateVehiclePlateMutation.mutate(vehiclePlateValue)
-                          }
-                          disabled={updateVehiclePlateMutation.isPending}
-                          data-testid="button-save-vehicle-plate"
-                        >
-                          {updateVehiclePlateMutation.isPending
-                            ? "Saving..."
-                            : "Save"}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                  {editingVehiclePlate ? (
-                    <Input
-                      id="vehicle-plate"
-                      value={vehiclePlateValue}
-                      onChange={(e) => setVehiclePlateValue(e.target.value)}
-                      placeholder="Enter vehicle plate number (e.g., ABC123)"
-                      className="font-mono"
-                      data-testid="input-vehicle-plate"
-                    />
-                  ) : (
-                    <p
-                      className="text-sm p-2 bg-muted rounded-md font-mono"
-                      data-testid="text-vehicle-plate"
-                    >
-                      {driver?.vehiclePlate || "No vehicle plate added yet"}
+                ) : (
+                  <div className="p-4 bg-muted/50 rounded-xl min-h-[80px]">
+                    <p className="text-sm text-foreground whitespace-pre-wrap" data-testid="text-credentials">
+                      {driver?.driverCredentials || (
+                        <span className="text-muted-foreground italic">
+                          No credentials added yet. Click Edit to add your professional qualifications.
+                        </span>
+                      )}
                     </p>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Your vehicle plate number will be shared with passengers
-                    when you are assigned to their booking.
-                  </p>
-                </div>
-                <div>
-                  <Label>Rating</Label>
-                  <Input
-                    value={`${driver?.rating || "0"}/5`}
-                    disabled
-                    data-testid="setting-rating"
-                  />
-                </div>
-                <div>
-                  <Label>Total Rides</Label>
-                  <Input
-                    value={driver?.totalRides?.toString() || "0"}
-                    disabled
-                    data-testid="setting-total-rides"
-                  />
-                </div>
-                <div className="pt-4 border-t">
-                  <div className="flex justify-between items-center mb-2">
-                    <Label htmlFor="credentials">Driver Credentials</Label>
-                    {!editingCredentials ? (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setEditingCredentials(true)}
-                        data-testid="button-edit-credentials"
-                      >
-                        <Pencil className="w-4 h-4 mr-2" />
-                        Edit
-                      </Button>
-                    ) : (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setEditingCredentials(false);
-                            setCredentialsValue(
-                              driver?.driverCredentials || "",
-                            );
-                          }}
-                          data-testid="button-cancel-credentials"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            updateCredentialsMutation.mutate(credentialsValue)
-                          }
-                          disabled={updateCredentialsMutation.isPending}
-                          data-testid="button-save-credentials"
-                        >
-                          {updateCredentialsMutation.isPending
-                            ? "Saving..."
-                            : "Save"}
-                        </Button>
-                      </div>
-                    )}
                   </div>
-                  {editingCredentials ? (
-                    <textarea
-                      id="credentials"
-                      className="w-full min-h-[100px] p-2 border rounded-md"
-                      value={credentialsValue}
-                      onChange={(e) => setCredentialsValue(e.target.value)}
-                      placeholder="Enter your driver credentials (e.g., CDL License #, TLC License #, certifications, etc.)"
-                      data-testid="input-credentials"
-                    />
-                  ) : (
-                    <p
-                      className="text-sm p-2 bg-muted rounded-md"
-                      data-testid="text-credentials"
-                    >
-                      {driver?.driverCredentials || "No credentials added yet"}
-                    </p>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-2">
-                    These credentials will be shared with passengers when you
-                    are assigned to their booking.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Tax Information Section */}
-          <div className="mt-6">
+                )}
+                <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1.5">
+                  <Info className="w-3.5 h-3.5" />
+                  These credentials are shared with passengers when you're assigned to their booking
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Tax Information Section */}
             <DriverTaxInfoSection />
-          </div>
-          
-          {/* Earnings Link */}
-          <div className="mt-6">
-            <Card className="bg-background border-border shadow-lg">
+
+            {/* Quick Actions */}
+            <Card className="bg-gradient-to-r from-emerald-600 to-teal-600 border-0 shadow-xl overflow-hidden">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center shadow-md">
-                      <DollarSign className="w-6 h-6 text-white" />
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 text-white">
+                    <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                      <DollarSign className="w-7 h-7" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-foreground">My Earnings</h3>
-                      <p className="text-sm text-muted-foreground">View yearly earnings and download 1099 forms</p>
+                      <h3 className="text-xl font-bold">View Your Earnings</h3>
+                      <p className="text-emerald-100">Access detailed earnings reports and download 1099 forms</p>
                     </div>
                   </div>
                   <Button 
                     onClick={() => setLocation('/driver/earnings')}
-                    className="bg-green-600 hover:bg-green-700"
+                    size="lg"
+                    className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold px-6 shadow-lg"
                   >
-                    <DollarSign className="w-4 h-4 mr-2" />
+                    <DollarSign className="w-5 h-5 mr-2" />
                     View Earnings
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          </div>
           </div>
         )}
       </div>
