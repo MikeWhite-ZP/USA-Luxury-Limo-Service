@@ -35,6 +35,7 @@ import {
   User,
   Download,
   Camera,
+  Eye,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -89,6 +90,8 @@ interface Booking {
   passengerPhone?: string;
   passengerEmail?: string;
   bookingFor?: "self" | "someone_else";
+  flightNumber?: string;
+  flightAirline?: string;
 }
 
 interface DriverDocument {
@@ -127,6 +130,7 @@ export default function DriverDashboard() {
     "home" | "documents" | "assigned-jobs" | "settings"
   >("home");
   const [earningsDialogOpen, setEarningsDialogOpen] = useState(false);
+  const [expandedBookingId, setExpandedBookingId] = useState<string | null>(null);
   const [editingCredentials, setEditingCredentials] = useState(false);
   const [credentialsValue, setCredentialsValue] = useState("");
   const [editingVehiclePlate, setEditingVehiclePlate] = useState(false);
@@ -1091,148 +1095,155 @@ export default function DriverDashboard() {
                           className="relative group"
                           data-testid={`accepted-job-${booking.id}`}
                         >
-                          {/* Glow effect */}
-                          <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 via-red-600 to-red-700 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-300" />
-                          
-                          {/* Main card */}
-                          <div className="relative bg-card rounded-2xl p-6 border border-border shadow-lg hover:shadow-xl transition-all duration-300">
-                            {/* Header with status badge */}
-                            <div className="flex items-start justify-between mb-5 pb-4 border-b border-border">
-                              <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-md">
-                                  <Car className="w-6 h-6 text-white" />
+                          {/* Compact card design */}
+                          <div className="bg-card rounded-xl p-4 border border-border shadow-sm hover:shadow-md transition-all duration-200">
+                            {/* Header row: Booking ID, Status, Type badge */}
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-sm font-semibold text-foreground">#{booking.id.slice(0, 8)}</span>
+                                <Badge
+                                  variant="default"
+                                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-xs px-2 py-0.5"
+                                  data-testid={`accepted-status-${booking.id}`}
+                                >
+                                  {booking.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs px-2 py-0.5 border-muted-foreground/30">
+                                  {booking.bookingType === 'hourly' ? 'Hourly' : 'Transfer'}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg font-bold text-red-600 dark:text-red-400" data-testid={`accepted-amount-${booking.id}`}>
+                                  {booking.driverPayment ? `$${booking.driverPayment}` : "Not set"}
+                                </span>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setExpandedBookingId(expandedBookingId === booking.id ? null : booking.id)}
+                                  className="h-7 px-2 text-xs"
+                                  data-testid={`button-view-details-${booking.id}`}
+                                >
+                                  <Eye className="w-3 h-3 mr-1" />
+                                  {expandedBookingId === booking.id ? 'Less' : 'Details'}
+                                </Button>
+                              </div>
+                            </div>
+
+                            {/* Passenger and Schedule row */}
+                            <div className="flex items-center gap-4 text-sm mb-3">
+                              {booking.passengerName && (
+                                <div className="flex items-center gap-1.5">
+                                  <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                                  <span className="font-medium text-foreground" data-testid={`passenger-name-${booking.id}`}>
+                                    {booking.passengerName}
+                                  </span>
                                 </div>
-                                <div>
-                                  <h3 className="font-bold text-foreground text-lg">Booking #{booking.id.slice(0, 8)}</h3>
-                                  <p className="text-sm text-muted-foreground">
-                                    {booking.bookingType === 'hourly' ? 'Hourly Service' : 'Transfer Service'}
+                              )}
+                              <div className="flex items-center gap-1.5 text-muted-foreground">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span data-testid={`accepted-time-${booking.id}`}>
+                                  {new Date(booking.scheduledDateTime).toLocaleString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: 'numeric',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Compact route display - always shown */}
+                            <div className="bg-muted/50 dark:bg-muted/20 rounded-lg p-2.5 mb-3">
+                              <div className="flex items-start gap-2">
+                                <div className="flex flex-col items-center gap-0.5 pt-1">
+                                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                  <div className="w-0.5 h-6 bg-border" />
+                                  <div className="w-2 h-2 rounded-full bg-red-500" />
+                                </div>
+                                <div className="flex-1 min-w-0 space-y-1">
+                                  <p className={`text-xs text-foreground ${expandedBookingId === booking.id ? '' : 'truncate'}`} data-testid={`accepted-pickup-${booking.id}`}>
+                                    {booking.pickupAddress}
                                   </p>
-                                  {booking.passengerName && (
-                                    <div className="flex items-center gap-2 mt-1">
-                                      <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                                      <span className="text-sm font-medium text-blue-700 dark:text-blue-400" data-testid={`passenger-name-${booking.id}`}>
-                                        {booking.passengerName}
-                                      </span>
-                                    </div>
+                                  {booking.destinationAddress && (
+                                    <p className={`text-xs text-muted-foreground ${expandedBookingId === booking.id ? '' : 'truncate'}`} data-testid={`accepted-destination-${booking.id}`}>
+                                      {booking.destinationAddress}
+                                    </p>
                                   )}
                                 </div>
                               </div>
-                              <Badge
-                                variant="default"
-                                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium px-3 py-1 shadow-md"
-                                data-testid={`accepted-status-${booking.id}`}
-                              >
-                                {booking.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                              </Badge>
                             </div>
 
-                            {/* Trip details */}
-                            <div className="space-y-4 mb-5">
-                              {/* Pickup */}
-                              <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-100 dark:border-blue-900">
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <MapPin className="w-4 h-4 text-white" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-1">PICKUP LOCATION</p>
-                                  <p className="text-sm text-foreground font-medium" data-testid={`accepted-pickup-${booking.id}`}>
-                                    {booking.pickupAddress}
-                                  </p>
-                                </div>
+                            {/* Expanded details section */}
+                            {expandedBookingId === booking.id && (
+                              <div className="bg-muted/30 dark:bg-muted/10 rounded-lg p-3 mb-3 space-y-2 text-sm border border-border">
+                                {booking.passengerEmail && (
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Email:</span>
+                                    <span className="text-foreground">{booking.passengerEmail}</span>
+                                  </div>
+                                )}
+                                {booking.passengerPhone && (
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Phone:</span>
+                                    <a href={`tel:${booking.passengerPhone}`} className="text-blue-600 dark:text-blue-400 hover:underline">{booking.passengerPhone}</a>
+                                  </div>
+                                )}
+                                {booking.totalAmount && (
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Total Fare:</span>
+                                    <span className="text-foreground font-medium">${booking.totalAmount}</span>
+                                  </div>
+                                )}
+                                {booking.flightNumber && (
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Flight:</span>
+                                    <span className="text-foreground">{booking.flightAirline} {booking.flightNumber}</span>
+                                  </div>
+                                )}
+                                {booking.specialInstructions && (
+                                  <div className="pt-2 border-t border-border">
+                                    <span className="text-muted-foreground text-xs">Special Instructions:</span>
+                                    <p className="text-foreground mt-1">{booking.specialInstructions}</p>
+                                  </div>
+                                )}
                               </div>
-
-                              {/* Destination */}
-                              {booking.destinationAddress && (
-                                <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-950/40 rounded-xl border border-purple-100 dark:border-purple-900">
-                                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <MapPin className="w-4 h-4 text-white" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-semibold text-purple-700 dark:text-purple-400 mb-1">DESTINATION</p>
-                                    <p className="text-sm text-foreground font-medium" data-testid={`accepted-destination-${booking.id}`}>
-                                      {booking.destinationAddress}
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Time and Payment row */}
-                              <div className="grid grid-cols-2 gap-3">
-                                {/* Scheduled time */}
-                                <div className="flex items-start gap-2 p-3 bg-orange-50 dark:bg-orange-950/40 rounded-xl border border-orange-100 dark:border-orange-900">
-                                  <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-semibold text-orange-700 dark:text-orange-400 mb-1">SCHEDULED</p>
-                                    <p className="text-sm text-foreground font-medium" data-testid={`accepted-time-${booking.id}`}>
-                                      {new Date(booking.scheduledDateTime).toLocaleString('en-US', {
-                                        month: 'short',
-                                        day: 'numeric',
-                                        hour: 'numeric',
-                                        minute: '2-digit'
-                                      })}
-                                    </p>
-                                  </div>
-                                </div>
-
-                                {/* Payment */}
-                                <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-950/40 rounded-xl border border-red-200 dark:border-red-900">
-                                  <DollarSign className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-semibold text-red-700 dark:text-red-400 mb-1">YOUR PAYMENT</p>
-                                    <p className="text-lg text-red-700 dark:text-red-400 font-bold" data-testid={`accepted-amount-${booking.id}`}>
-                                      ${booking.driverPayment || "Not set"}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                            )}
 
                             {/* Action buttons */}
                             {booking.status === "pending_driver_acceptance" && (
-                              <div className="flex gap-3 pt-4 border-t border-border">
+                              <div className="flex gap-2">
                                 <Button
                                   onClick={() => handleAcceptRide(booking.id)}
-                                  disabled={
-                                    acceptBookingMutation.isPending ||
-                                    declineBookingMutation.isPending
-                                  }
-                                  className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
+                                  disabled={acceptBookingMutation.isPending || declineBookingMutation.isPending}
+                                  className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold h-9 rounded-lg text-sm"
                                   data-testid={`button-accept-${booking.id}`}
                                 >
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  {acceptBookingMutation.isPending
-                                    ? "Accepting..."
-                                    : "Accept Ride"}
+                                  <CheckCircle className="w-4 h-4 mr-1.5" />
+                                  {acceptBookingMutation.isPending ? "Accepting..." : "Accept"}
                                 </Button>
                                 <Button
                                   onClick={() => handleDeclineRide(booking.id)}
-                                  disabled={
-                                    acceptBookingMutation.isPending ||
-                                    declineBookingMutation.isPending
-                                  }
-                                  className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
+                                  disabled={acceptBookingMutation.isPending || declineBookingMutation.isPending}
+                                  variant="outline"
+                                  className="flex-1 h-9 rounded-lg text-sm border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
                                   data-testid={`button-decline-${booking.id}`}
                                 >
-                                  <AlertCircle className="w-4 h-4 mr-2" />
-                                  {declineBookingMutation.isPending
-                                    ? "Declining..."
-                                    : "Decline"}
+                                  <AlertCircle className="w-4 h-4 mr-1.5" />
+                                  {declineBookingMutation.isPending ? "..." : "Decline"}
                                 </Button>
                               </div>
                             )}
                             
                             {booking.status === "in_progress" && (
-                              <div className="pt-4 border-t border-border">
-                                <Button
-                                  onClick={() => handleCompleteRide(booking.id)}
-                                  disabled={updateBookingMutation.isPending}
-                                  className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
-                                  data-testid={`button-complete-${booking.id}`}
-                                >
-                                  <CheckCircle className="w-5 h-5 mr-2" />
-                                  Complete Ride
-                                </Button>
-                              </div>
+                              <Button
+                                onClick={() => handleCompleteRide(booking.id)}
+                                disabled={updateBookingMutation.isPending}
+                                className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold h-9 rounded-lg text-sm"
+                                data-testid={`button-complete-${booking.id}`}
+                              >
+                                <CheckCircle className="w-4 h-4 mr-1.5" />
+                                Complete Ride
+                              </Button>
                             )}
                           </div>
                         </div>
