@@ -150,7 +150,7 @@ export default function DriverDashboard() {
 
   // Form data for mobile-style documents upload
   const [formData, setFormData] = useState({
-    driverLicense: { file: null as File | null, expirationDate: "" },
+    driverLicense: { file: null as File | null, expirationDate: "", licenseNumber: "" },
     limoLicense: { file: null as File | null, expirationDate: "" },
     insuranceCertificate: { file: null as File | null, expirationDate: "" },
     vehicleImage: { file: null as File | null, vehiclePlate: "" },
@@ -258,24 +258,32 @@ export default function DriverDashboard() {
       documentType,
       file,
       expirationDate,
+      vehiclePlate,
+      whatsappNumber,
+      licenseNumber,
     }: {
       documentType: string;
       file: File;
       expirationDate?: string;
+      vehiclePlate?: string;
+      whatsappNumber?: string;
+      licenseNumber?: string;
     }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("documentType", documentType);
 
-      // For vehicle_image, send as vehiclePlate; for profile_photo, send as whatsappNumber
       if (expirationDate) {
-        if (documentType === "vehicle_image") {
-          formData.append("vehiclePlate", expirationDate);
-        } else if (documentType === "profile_photo") {
-          formData.append("whatsappNumber", expirationDate);
-        } else {
-          formData.append("expirationDate", expirationDate);
-        }
+        formData.append("expirationDate", expirationDate);
+      }
+      if (vehiclePlate) {
+        formData.append("vehiclePlate", vehiclePlate);
+      }
+      if (whatsappNumber) {
+        formData.append("whatsappNumber", whatsappNumber);
+      }
+      if (licenseNumber) {
+        formData.append("licenseNumber", licenseNumber);
       }
 
       const response = await fetch("/api/driver/documents/upload", {
@@ -311,7 +319,7 @@ export default function DriverDashboard() {
       // Clear the formData state based on document type
       switch (variables.documentType) {
         case "driver_license":
-          setFormData(prev => ({ ...prev, driverLicense: { file: null, expirationDate: "" } }));
+          setFormData(prev => ({ ...prev, driverLicense: { file: null, expirationDate: "", licenseNumber: "" } }));
           break;
         case "limo_license":
           setFormData(prev => ({ ...prev, limoLicense: { file: null, expirationDate: "" } }));
@@ -667,11 +675,13 @@ export default function DriverDashboard() {
     let expirationDate: string | undefined = undefined;
     let vehiclePlate: string | undefined = undefined;
     let whatsappNumber: string | undefined = undefined;
+    let licenseNumber: string | undefined = undefined;
 
     switch (documentType) {
       case "driver_license":
         file = formData.driverLicense.file;
         expirationDate = formData.driverLicense.expirationDate;
+        licenseNumber = formData.driverLicense.licenseNumber;
         break;
       case "limo_license":
         file = formData.limoLicense.file;
@@ -713,7 +723,10 @@ export default function DriverDashboard() {
     uploadDocumentMutation.mutate({
       documentType,
       file,
-      expirationDate: vehiclePlate || expirationDate || whatsappNumber,
+      expirationDate,
+      vehiclePlate,
+      whatsappNumber,
+      licenseNumber,
     });
   };
 
@@ -1549,6 +1562,14 @@ export default function DriverDashboard() {
 
                 {getDocumentByType('driver_license') && (
                   <div className="bg-red-50 dark:bg-red-950/40 rounded-lg p-3 space-y-2 text-sm border border-red-100 dark:border-red-900">
+                    {driver?.licenseNumber && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">License #:</span>
+                        <span className="font-medium text-foreground font-mono">
+                          {driver.licenseNumber}
+                        </span>
+                      </div>
+                    )}
                     {getDocumentByType('driver_license')!.expirationDate && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Expires:</span>
@@ -1579,22 +1600,21 @@ export default function DriverDashboard() {
 
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="driver-license-file" className="text-muted-foreground font-medium mb-2 block">
-                      {getDocumentByType('driver_license') ? 'Replace Document' : 'Upload Document'}
+                    <Label htmlFor="driver-license-number" className="text-muted-foreground font-medium mb-2 block">
+                      License Number
                     </Label>
                     <Input
-                      id="driver-license-file"
-                      type="file"
-                      accept="image/*,application/pdf"
-                      capture="environment"
+                      id="driver-license-number"
+                      type="text"
+                      placeholder="Enter your license number"
+                      value={formData.driverLicense.licenseNumber}
                       onChange={(e) => setFormData(prev => ({
                         ...prev,
-                        driverLicense: { ...prev.driverLicense, file: e.target.files?.[0] || null }
+                        driverLicense: { ...prev.driverLicense, licenseNumber: e.target.value }
                       }))}
-                      className="bg-background border-border"
-                      data-testid="input-driver-license-file"
+                      className="bg-background border-border font-mono"
+                      data-testid="input-driver-license-number"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">Image or PDF, max 2MB</p>
                   </div>
                   <div>
                     <Label htmlFor="driver-license-expiry" className="text-muted-foreground font-medium mb-2 block">
@@ -1611,6 +1631,24 @@ export default function DriverDashboard() {
                       className="bg-background border-border"
                       data-testid="input-driver-license-expiry"
                     />
+                  </div>
+                  <div>
+                    <Label htmlFor="driver-license-file" className="text-muted-foreground font-medium mb-2 block">
+                      {getDocumentByType('driver_license') ? 'Replace Document' : 'Upload Document'}
+                    </Label>
+                    <Input
+                      id="driver-license-file"
+                      type="file"
+                      accept="image/*,application/pdf"
+                      capture="environment"
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        driverLicense: { ...prev.driverLicense, file: e.target.files?.[0] || null }
+                      }))}
+                      className="bg-background border-border"
+                      data-testid="input-driver-license-file"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Image or PDF, max 2MB</p>
                   </div>
                   <Button
                     onClick={() => handleUpload('driver_license')}

@@ -6501,7 +6501,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'No file uploaded' });
       }
 
-      const { documentType, expirationDate, vehiclePlate, whatsappNumber } = req.body;
+      const { documentType, expirationDate, vehiclePlate, whatsappNumber, licenseNumber } = req.body;
       
       // Validate with Zod schema
       const docDataToValidate: any = {
@@ -6524,6 +6524,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (whatsappNumber) {
         docDataToValidate.whatsappNumber = whatsappNumber;
+      }
+      
+      // If this is a driver license, update the driver's license number and expiry
+      if (documentType === 'driver_license') {
+        const driverUpdates: any = {};
+        if (licenseNumber) {
+          driverUpdates.licenseNumber = licenseNumber;
+        }
+        if (expirationDate) {
+          driverUpdates.licenseExpiry = new Date(expirationDate);
+        }
+        if (Object.keys(driverUpdates).length > 0) {
+          await storage.updateDriver(driver.id, driverUpdates);
+        }
       }
 
       // Validate document data with schema
