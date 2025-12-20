@@ -129,7 +129,7 @@ export default function DriverDashboard() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<
-    "home" | "documents" | "assigned-jobs" | "settings"
+    "home" | "documents" | "settings"
   >("home");
   const [earningsDialogOpen, setEarningsDialogOpen] = useState(false);
   const [selectedBookingForDetails, setSelectedBookingForDetails] = useState<Booking | null>(null);
@@ -753,9 +753,6 @@ export default function DriverDashboard() {
   
   // Cancelled jobs
   const cancelledJobs = bookings?.filter((b) => b.status === "cancelled") || [];
-  
-  // Legacy: keep assignedBookings for backward compatibility
-  const assignedBookings = [...newJobs, ...acceptedJobs];
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -862,21 +859,6 @@ export default function DriverDashboard() {
                 )}
                 <FileText className="w-5 h-5" />
                 Documents
-              </button>
-              <button
-                onClick={() => setActiveTab("assigned-jobs")}
-                className={`relative py-4 px-6 font-medium text-sm flex items-center gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap ${
-                  activeTab === "assigned-jobs"
-                    ? 'text-red-600 bg-gradient-to-b from-red-50/80 dark:from-red-900/30 to-transparent'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                }`}
-                data-testid="nav-assigned-jobs"
-              >
-                {activeTab === "assigned-jobs" && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
-                )}
-                <Briefcase className="w-5 h-5" />
-                Accepted
               </button>
               <button
                 onClick={() => setActiveTab("settings")}
@@ -2147,132 +2129,6 @@ export default function DriverDashboard() {
           </div>
         )}
 
-        {/* ASSIGNED JOBS TAB */}
-        {activeTab === "assigned-jobs" && (
-          <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-background border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="assigned-jobs-tab">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center shadow-md">
-                    <Briefcase className="w-5 h-5 text-white" />
-                  </div>
-                  My Assigned Jobs
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-              {assignedBookings && assignedBookings.length > 0 ? (
-                <div className="space-y-4">
-                  {assignedBookings.map((booking) => (
-                    <div
-                      key={booking.id}
-                      className="bg-gradient-to-r from-muted to-background dark:from-muted dark:to-background rounded-xl p-5 border border-border hover:border-orange-300 hover:shadow-md transition-all space-y-3"
-                      data-testid={`assigned-booking-${booking.id}`}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-2 text-sm flex-1">
-                          <div className="text-foreground" data-testid={`assigned-pickup-${booking.id}`}>
-                            <strong className="text-muted-foreground">Pickup:</strong> {booking.pickupAddress}
-                          </div>
-                          {booking.destinationAddress && (
-                            <div
-                              className="text-foreground"
-                              data-testid={`assigned-destination-${booking.id}`}
-                            >
-                              <strong className="text-muted-foreground">Destination:</strong>{" "}
-                              {booking.destinationAddress}
-                            </div>
-                          )}
-                          <div className="text-foreground" data-testid={`assigned-time-${booking.id}`}>
-                            <strong className="text-muted-foreground">Scheduled:</strong>{" "}
-                            {new Date(
-                              booking.scheduledDateTime,
-                            ).toLocaleString()}
-                          </div>
-                          <div className="text-foreground" data-testid={`assigned-amount-${booking.id}`}>
-                            <strong className="text-muted-foreground">Your Payment:</strong>{" "}
-                            <span className="text-red-600 font-bold">
-                              ${booking.driverPayment || "Not set"}
-                            </span>
-                          </div>
-                        </div>
-                        <Badge
-                          variant={
-                            booking.status === "pending_driver_acceptance"
-                              ? "secondary"
-                              : "default"
-                          }
-                          className={booking.status === "pending_driver_acceptance" ? "bg-orange-600 text-white" : "bg-orange-600 text-white"}
-                          data-testid={`assigned-status-${booking.id}`}
-                        >
-                          {booking.status === "pending_driver_acceptance"
-                            ? "Awaiting Your Response"
-                            : booking.status}
-                        </Badge>
-                      </div>
-
-                      {/* Accept/Decline buttons for pending acceptance */}
-                      {booking.status === "pending_driver_acceptance" && (
-                        <div className="flex space-x-2 pt-3 border-t border-border">
-                          <Button
-                            onClick={() => handleAcceptRide(booking.id)}
-                            disabled={
-                              acceptBookingMutation.isPending ||
-                              declineBookingMutation.isPending
-                            }
-                            className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold"
-                            data-testid={`button-accept-${booking.id}`}
-                          >
-                            {acceptBookingMutation.isPending
-                              ? "Accepting..."
-                              : "Accept Ride"}
-                          </Button>
-                          <Button
-                            onClick={() => handleDeclineRide(booking.id)}
-                            disabled={
-                              acceptBookingMutation.isPending ||
-                              declineBookingMutation.isPending
-                            }
-                            className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-semibold"
-                            data-testid={`button-decline-${booking.id}`}
-                          >
-                            {declineBookingMutation.isPending
-                              ? "Declining..."
-                              : "Decline"}
-                          </Button>
-                        </div>
-                      )}
-
-                      {/* Complete button for in-progress rides */}
-                      {booking.status === "in_progress" && (
-                        <div className="flex space-x-2 pt-3 border-t border-border">
-                          <Button
-                            onClick={() => handleCompleteRide(booking.id)}
-                            disabled={updateBookingMutation.isPending}
-                            className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold"
-                            data-testid={`button-complete-${booking.id}`}
-                          >
-                            Complete Ride
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div
-                  className="text-center p-12"
-                  data-testid="no-assigned-jobs-tab"
-                >
-                  <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground text-lg font-medium">No assigned jobs</p>
-                  <p className="text-muted-foreground text-sm mt-2">New job assignments will appear here</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          </div>
-        )}
 
         {/* SETTINGS TAB */}
         {activeTab === "settings" && (
