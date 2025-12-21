@@ -2530,45 +2530,39 @@ export default function PassengerDashboard() {
           </Card>
         )}
 
-        {/* Invoices Section */}
+        {/* Invoices Section - Compact Professional Design */}
         {activeSection === 'invoices' && (
-          <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="invoices-section">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center shadow-md">
-                    <FileText className="w-5 h-5 text-white" />
-                  </div>
-                  My Invoices
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">View and manage your ride invoices</p>
-              </CardHeader>
-              <CardContent>
-                <InvoicesList />
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="bg-card border-border shadow-sm" data-testid="invoices-section">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg icon-brand-bg flex items-center justify-center">
+                  <FileText className="w-4 h-4 text-white" />
+                </div>
+                My Invoices
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">View and manage your ride invoices</p>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <InvoicesList />
+            </CardContent>
+          </Card>
         )}
 
-        {/* Payment Methods Section */}
+        {/* Payment Methods Section - Compact Professional Design */}
         {activeSection === 'payment-methods' && (
-          <div className="relative group">
-            <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="payment-methods-section">
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
-                  <CreditCard className="w-5 h-5 text-white" />
+          <Card className="bg-card border-border shadow-sm" data-testid="payment-methods-section">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg icon-brand-bg flex items-center justify-center">
+                  <CreditCard className="w-4 h-4 text-white" />
                 </div>
                 Payment Methods
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="pt-0 space-y-4">
               <PaymentMethodsList />
             </CardContent>
           </Card>
-          </div>
         )}
 
         {/* Account Details Section */}
