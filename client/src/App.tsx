@@ -166,6 +166,7 @@ const MobileDriver = lazy(() => import("@/pages/mobile-driver"));
 const MobileDriverRideDetails = lazy(() => import("@/pages/mobile-driver-ride-details"));
 const MobileDriverDocuments = lazy(() => import("@/pages/mobile-driver-documents"));
 const DriverEarnings = lazy(() => import("@/pages/driver-earnings"));
+const ExcuseNoteGenerator = lazy(() => import("@/pages/excuse-note-generator"));
 const MobileProfile = lazy(() => import("@/pages/mobile-profile"));
 const MobileDispatcher = lazy(() => import("@/pages/mobile-dispatcher"));
 const MobileAdminLogin = lazy(() => import("@/pages/mobile-admin-login"));
@@ -250,6 +251,10 @@ function Router() {
       {/* Mobile Admin PWA Routes (admin subdomain only) */}
       <Route path="/mobile-admin-login" component={MobileAdminLogin} />
       <Route path="/mobile-admin" component={MobileAdmin} />
+      
+      {/* Public Tools */}
+      <Route path="/tools/excuse-note" component={ExcuseNoteGenerator} />
+      <Route path="/excuse-note-generator" component={ExcuseNoteGenerator} />
       
       {/* Public routes */}
       <Route path="/booking" component={Booking} />
