@@ -225,6 +225,7 @@ export interface IStorage {
   createDriverDocument(doc: InsertDriverDocument): Promise<DriverDocument>;
   getDriverDocuments(driverId: string): Promise<DriverDocument[]>;
   getDriverDocument(id: string): Promise<DriverDocument | undefined>;
+  updateDriverDocument(id: string, updates: Partial<InsertDriverDocument>): Promise<DriverDocument | undefined>;
   updateDriverDocumentStatus(id: string, status: string, rejectionReason?: string, reviewedBy?: string): Promise<DriverDocument | undefined>;
   deleteDriverDocument(id: string): Promise<boolean>;
   
@@ -1885,6 +1886,15 @@ export class DatabaseStorage implements IStorage {
   async getDriverDocument(id: string): Promise<DriverDocument | undefined> {
     const [doc] = await db.select().from(driverDocuments).where(eq(driverDocuments.id, id));
     return doc;
+  }
+
+  async updateDriverDocument(id: string, updates: Partial<InsertDriverDocument>): Promise<DriverDocument | undefined> {
+    const [updatedDoc] = await db
+      .update(driverDocuments)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(driverDocuments.id, id))
+      .returning();
+    return updatedDoc;
   }
 
   async updateDriverDocumentStatus(

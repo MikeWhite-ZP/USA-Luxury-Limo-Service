@@ -6835,6 +6835,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update document metadata (without re-uploading file)
+  app.patch('/api/driver/documents/:documentType/metadata', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver record not found' });
+      }
+
+      const { documentType } = req.params;
+      const { licenseNumber, expirationDate, vehiclePlate, whatsappNumber } = req.body;
+
+      // Find existing document of this type
+      const documents = await storage.getDriverDocuments(driver.id);
+      const existingDoc = documents.find(d => d.documentType === documentType);
+
+      // Update document metadata if document exists
+      if (existingDoc) {
+        const docUpdates: any = {};
+        // Expiration date applies to driver_license, limo_license, and insurance_certificate (not vehicle_image or profile_photo)
+        if (expirationDate !== undefined && ['driver_license', 'limo_license', 'insurance_certificate'].includes(documentType)) {
+          docUpdates.expirationDate = expirationDate ? new Date(expirationDate) : null;
+        }
+        if (vehiclePlate !== undefined && documentType === 'vehicle_image') {
+          docUpdates.vehiclePlate = vehiclePlate;
+        }
+        if (whatsappNumber !== undefined && documentType === 'profile_photo') {
+          docUpdates.whatsappNumber = whatsappNumber;
+        }
+        
+        if (Object.keys(docUpdates).length > 0) {
+          await storage.updateDriverDocument(existingDoc.id, docUpdates);
+        }
+      }
+
+      // Update driver record for license numbers
+      const driverUpdates: any = {};
+      
+      if (documentType === 'driver_license') {
+        if (licenseNumber !== undefined) {
+          driverUpdates.licenseNumber = licenseNumber;
+        }
+        if (expirationDate !== undefined) {
+          driverUpdates.licenseExpiry = expirationDate ? new Date(expirationDate) : null;
+        }
+      }
+      
+      if (documentType === 'limo_license') {
+        if (licenseNumber !== undefined) {
+          driverUpdates.limoLicenseNumber = licenseNumber;
+        }
+        if (expirationDate !== undefined) {
+          driverUpdates.limoLicenseExpiry = expirationDate ? new Date(expirationDate) : null;
+        }
+      }
+
+      if (Object.keys(driverUpdates).length > 0) {
+        await storage.updateDriver(driver.id, driverUpdates);
+      }
+
+      res.json({ 
+        success: true, 
+        message: 'Document metadata updated successfully' 
+      });
+
+    } catch (error) {
+      console.error('Update document metadata error:', error);
+      res.status(500).json({ message: 'Failed to update document metadata' });
+    }
+  });
+
   // Admin: Backfill missing driver records for users with 'driver' role
   app.post('/api/admin/backfill-drivers', isAuthenticated, async (req: any, res) => {
     try {

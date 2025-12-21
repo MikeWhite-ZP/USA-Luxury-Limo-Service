@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -160,6 +160,16 @@ export default function DriverDashboard() {
     whatsappNumber: "",
   });
   const [uploading, setUploading] = useState<string | null>(null);
+  
+  // Auto-save status tracking: 'idle' | 'saving' | 'saved' | 'error'
+  const [saveStatus, setSaveStatus] = useState<Record<string, 'idle' | 'saving' | 'saved' | 'error'>>({
+    driver_license: 'idle',
+    limo_license: 'idle',
+    insurance_certificate: 'idle',
+    vehicle_image: 'idle',
+    profile_photo: 'idle',
+  });
+  const saveTimeoutRefs = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   
   // Job list sub-tabs state
   const [jobListTab, setJobListTab] = useState<"new" | "accepted" | "completed" | "cancelled">("new");
@@ -560,6 +570,81 @@ export default function DriverDashboard() {
     }
   }, [isAuthenticated, user?.role]);
 
+  // Auto-save document metadata mutation
+  const saveDocumentMetadataMutation = useMutation({
+    mutationFn: async ({
+      documentType,
+      licenseNumber,
+      expirationDate,
+      vehiclePlate,
+      whatsappNumber,
+    }: {
+      documentType: string;
+      licenseNumber?: string;
+      expirationDate?: string;
+      vehiclePlate?: string;
+      whatsappNumber?: string;
+    }) => {
+      const response = await apiRequest(
+        "PATCH",
+        `/api/driver/documents/${documentType}/metadata`,
+        { licenseNumber, expirationDate, vehiclePlate, whatsappNumber },
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to save");
+      }
+      return { documentType };
+    },
+    onSuccess: ({ documentType }) => {
+      setSaveStatus(prev => ({ ...prev, [documentType]: 'saved' }));
+      // Reset to idle after 2 seconds
+      setTimeout(() => {
+        setSaveStatus(prev => ({ ...prev, [documentType]: 'idle' }));
+      }, 2000);
+      // Refresh driver data and documents to show updated values
+      queryClient.invalidateQueries({ queryKey: ["/api/driver/profile"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/driver/documents"] });
+    },
+    onError: (error: Error, variables) => {
+      setSaveStatus(prev => ({ ...prev, [variables.documentType]: 'error' }));
+      toast({
+        title: "Save Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Debounced auto-save function
+  const debouncedSave = useCallback((
+    documentType: string,
+    data: { licenseNumber?: string; expirationDate?: string; vehiclePlate?: string; whatsappNumber?: string }
+  ) => {
+    // Clear existing timeout for this document type
+    if (saveTimeoutRefs.current[documentType]) {
+      clearTimeout(saveTimeoutRefs.current[documentType]);
+    }
+    
+    // Set saving status
+    setSaveStatus(prev => ({ ...prev, [documentType]: 'saving' }));
+    
+    // Debounce for 1.5 seconds
+    saveTimeoutRefs.current[documentType] = setTimeout(() => {
+      saveDocumentMetadataMutation.mutate({
+        documentType,
+        ...data,
+      });
+    }, 1500);
+  }, [saveDocumentMetadataMutation]);
+
+  // Clean up timeouts on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(saveTimeoutRefs.current).forEach(timeout => clearTimeout(timeout));
+    };
+  }, []);
+
   const handleAcceptRide = (bookingId: string) => {
     // Check if all required documents are uploaded
     if (!documentStatus?.documentsComplete) {
@@ -671,6 +756,23 @@ export default function DriverDashboard() {
       default:
         return 'text-red-600';
     }
+  };
+
+  // Render save status indicator
+  const renderSaveStatus = (documentType: string) => {
+    const status = saveStatus[documentType];
+    if (status === 'idle') return null;
+    
+    return (
+      <span className={`text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1 ${
+        status === 'saving' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+        status === 'saved' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+        'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+      }`}>
+        {status === 'saving' && <span className="animate-spin">⟳</span>}
+        {status === 'saving' ? 'Saving...' : status === 'saved' ? '✓ Saved' : '✕ Error'}
+      </span>
+    );
   };
 
   const formatDocumentLabel = (type: string) => {
@@ -1685,7 +1787,10 @@ export default function DriverDashboard() {
                         <FileText className="w-4 h-4 text-red-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-sm text-foreground">Driver License</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-sm text-foreground">Driver License</h3>
+                          {renderSaveStatus('driver_license')}
+                        </div>
                         <p className="text-[10px] text-muted-foreground">Required</p>
                       </div>
                     </div>
@@ -1720,14 +1825,22 @@ export default function DriverDashboard() {
                         type="text"
                         placeholder="License #"
                         value={formData.driverLicense.licenseNumber}
-                        onChange={(e) => setFormData(prev => ({ ...prev, driverLicense: { ...prev.driverLicense, licenseNumber: e.target.value } }))}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setFormData(prev => ({ ...prev, driverLicense: { ...prev.driverLicense, licenseNumber: value } }));
+                          debouncedSave('driver_license', { licenseNumber: value, expirationDate: formData.driverLicense.expirationDate });
+                        }}
                         className="h-8 text-xs font-mono"
                         data-testid="input-driver-license-number"
                       />
                       <Input
                         type="date"
                         value={formData.driverLicense.expirationDate}
-                        onChange={(e) => setFormData(prev => ({ ...prev, driverLicense: { ...prev.driverLicense, expirationDate: e.target.value } }))}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setFormData(prev => ({ ...prev, driverLicense: { ...prev.driverLicense, expirationDate: value } }));
+                          debouncedSave('driver_license', { licenseNumber: formData.driverLicense.licenseNumber, expirationDate: value });
+                        }}
                         className="h-8 text-xs"
                         data-testid="input-driver-license-expiry"
                       />
@@ -1764,7 +1877,10 @@ export default function DriverDashboard() {
                         <FileText className="w-4 h-4 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-sm text-foreground">Limo License</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-sm text-foreground">Limo License</h3>
+                          {renderSaveStatus('limo_license')}
+                        </div>
                         <p className="text-[10px] text-muted-foreground">Required</p>
                       </div>
                     </div>
@@ -1799,14 +1915,22 @@ export default function DriverDashboard() {
                         type="text"
                         placeholder="License #"
                         value={formData.limoLicense.licenseNumber}
-                        onChange={(e) => setFormData(prev => ({ ...prev, limoLicense: { ...prev.limoLicense, licenseNumber: e.target.value } }))}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setFormData(prev => ({ ...prev, limoLicense: { ...prev.limoLicense, licenseNumber: value } }));
+                          debouncedSave('limo_license', { licenseNumber: value, expirationDate: formData.limoLicense.expirationDate });
+                        }}
                         className="h-8 text-xs font-mono"
                         data-testid="input-limo-license-number"
                       />
                       <Input
                         type="date"
                         value={formData.limoLicense.expirationDate}
-                        onChange={(e) => setFormData(prev => ({ ...prev, limoLicense: { ...prev.limoLicense, expirationDate: e.target.value } }))}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setFormData(prev => ({ ...prev, limoLicense: { ...prev.limoLicense, expirationDate: value } }));
+                          debouncedSave('limo_license', { licenseNumber: formData.limoLicense.licenseNumber, expirationDate: value });
+                        }}
                         className="h-8 text-xs"
                         data-testid="input-limo-license-expiry"
                       />
@@ -1843,7 +1967,10 @@ export default function DriverDashboard() {
                         <FileText className="w-4 h-4 text-emerald-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-sm text-foreground">Insurance</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-sm text-foreground">Insurance</h3>
+                          {renderSaveStatus('insurance_certificate')}
+                        </div>
                         <p className="text-[10px] text-muted-foreground">Required</p>
                       </div>
                     </div>
@@ -1875,7 +2002,11 @@ export default function DriverDashboard() {
                     <Input
                       type="date"
                       value={formData.insuranceCertificate.expirationDate}
-                      onChange={(e) => setFormData(prev => ({ ...prev, insuranceCertificate: { ...prev.insuranceCertificate, expirationDate: e.target.value } }))}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData(prev => ({ ...prev, insuranceCertificate: { ...prev.insuranceCertificate, expirationDate: value } }));
+                        debouncedSave('insurance_certificate', { expirationDate: value });
+                      }}
                       className="h-8 text-xs"
                       data-testid="input-insurance-certificate-expiry"
                     />
@@ -1911,7 +2042,10 @@ export default function DriverDashboard() {
                         <Car className="w-4 h-4 text-purple-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-sm text-foreground">Vehicle Photo</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-sm text-foreground">Vehicle Photo</h3>
+                          {renderSaveStatus('vehicle_image')}
+                        </div>
                         <p className="text-[10px] text-muted-foreground">Optional</p>
                       </div>
                     </div>
@@ -1944,7 +2078,11 @@ export default function DriverDashboard() {
                       type="text"
                       placeholder="Plate number"
                       value={formData.vehicleImage.vehiclePlate}
-                      onChange={(e) => setFormData(prev => ({ ...prev, vehicleImage: { ...prev.vehicleImage, vehiclePlate: e.target.value } }))}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData(prev => ({ ...prev, vehicleImage: { ...prev.vehicleImage, vehiclePlate: value } }));
+                        debouncedSave('vehicle_image', { vehiclePlate: value });
+                      }}
                       className="h-8 text-xs font-mono"
                       data-testid="input-vehicle-plate"
                     />
@@ -1991,7 +2129,10 @@ export default function DriverDashboard() {
                         )}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-sm text-foreground">Profile Photo</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-sm text-foreground">Profile Photo</h3>
+                          {renderSaveStatus('profile_photo')}
+                        </div>
                         <p className="text-[10px] text-muted-foreground">Optional</p>
                       </div>
                     </div>
@@ -2024,7 +2165,11 @@ export default function DriverDashboard() {
                       type="tel"
                       placeholder="WhatsApp (optional)"
                       value={formData.whatsappNumber}
-                      onChange={(e) => setFormData(prev => ({ ...prev, whatsappNumber: e.target.value }))}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData(prev => ({ ...prev, whatsappNumber: value }));
+                        debouncedSave('profile_photo', { whatsappNumber: value });
+                      }}
                       className="h-8 text-xs"
                       data-testid="input-whatsapp-number"
                     />
