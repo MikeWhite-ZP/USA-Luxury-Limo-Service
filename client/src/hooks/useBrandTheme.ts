@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useBranding } from './useBranding';
+import { useBranding, BrandColors } from './useBranding';
 
 // Utility function to convert hex to HSL
 function hexToHSL(hex: string): { h: number; s: number; l: number } {
@@ -51,53 +51,109 @@ function getContrastColor(hex: string): string {
   return l > 50 ? '0 0% 10%' : '0 0% 100%';
 }
 
+// Apply a single color as CSS variable (both HSL and hex formats)
+function applyColor(root: HTMLElement, name: string, hex: string) {
+  const hsl = hexToHSLString(hex);
+  root.style.setProperty(`--brand-${name}`, hsl);
+  root.style.setProperty(`--brand-${name}-hex`, hex);
+  root.style.setProperty(`--brand-${name}-foreground`, getContrastColor(hex));
+}
+
 export function useBrandTheme() {
   const branding = useBranding();
   
   useEffect(() => {
     if (!branding.isLoading && branding.colors) {
       const root = document.documentElement;
+      const colors = branding.colors;
       
-      // Apply primary color (used for main brand elements)
-      const primaryHSL = hexToHSLString(branding.colors.primary);
-      root.style.setProperty('--brand-primary', primaryHSL);
-      root.style.setProperty('--brand-primary-foreground', getContrastColor(branding.colors.primary));
+      // Apply all brand colors as CSS variables
+      // Core brand colors
+      applyColor(root, 'primary', colors.primary);
+      applyColor(root, 'secondary', colors.secondary);
+      applyColor(root, 'accent', colors.accent);
       
-      // Apply secondary color
-      const secondaryHSL = hexToHSLString(branding.colors.secondary);
-      root.style.setProperty('--brand-secondary', secondaryHSL);
-      root.style.setProperty('--brand-secondary-foreground', getContrastColor(branding.colors.secondary));
+      // Button colors
+      applyColor(root, 'button-primary', colors.buttonPrimary);
+      applyColor(root, 'button-primary-hover', colors.buttonPrimaryHover);
+      applyColor(root, 'button-secondary', colors.buttonSecondary);
+      applyColor(root, 'button-secondary-hover', colors.buttonSecondaryHover);
       
-      // Apply accent color (for highlights and CTAs)
-      const accentHSL = hexToHSLString(branding.colors.accent);
-      root.style.setProperty('--brand-accent', accentHSL);
-      root.style.setProperty('--brand-accent-foreground', getContrastColor(branding.colors.accent));
+      // Background colors
+      applyColor(root, 'page-bg', colors.pageBackground);
+      applyColor(root, 'card-bg', colors.cardBackground);
+      applyColor(root, 'header-bg', colors.headerBackground);
       
-      // Store raw hex values for components that need them
-      root.style.setProperty('--brand-primary-hex', branding.colors.primary);
-      root.style.setProperty('--brand-secondary-hex', branding.colors.secondary);
-      root.style.setProperty('--brand-accent-hex', branding.colors.accent);
+      // Text colors
+      applyColor(root, 'text-primary', colors.textPrimary);
+      applyColor(root, 'text-secondary', colors.textSecondary);
+      applyColor(root, 'text-muted', colors.textMuted);
       
-      // CRITICAL: Sync brand colors with core Shadcn theme variables
-      // This makes all Shadcn/UI components automatically use brand colors
+      // Navigation colors
+      applyColor(root, 'nav-active', colors.navActive);
+      applyColor(root, 'nav-indicator', colors.navIndicator);
+      applyColor(root, 'nav-hover', colors.navHover);
+      
+      // Link colors
+      applyColor(root, 'link-default', colors.linkDefault);
+      applyColor(root, 'link-hover', colors.linkHover);
+      
+      // CRITICAL: Sync with core Shadcn theme variables
+      const primaryHSL = hexToHSLString(colors.primary);
+      const secondaryHSL = hexToHSLString(colors.secondary);
+      const accentHSL = hexToHSLString(colors.accent);
+      const pageBackgroundHSL = hexToHSLString(colors.pageBackground);
+      const cardBackgroundHSL = hexToHSLString(colors.cardBackground);
+      const textMutedHSL = hexToHSLString(colors.textMuted);
       
       // Primary color - used by primary buttons, links, and key UI elements
       root.style.setProperty('--primary', primaryHSL);
-      root.style.setProperty('--primary-foreground', getContrastColor(branding.colors.primary));
+      root.style.setProperty('--primary-foreground', getContrastColor(colors.primary));
+      
+      // Secondary color - used for less prominent elements
+      root.style.setProperty('--secondary', secondaryHSL);
+      root.style.setProperty('--secondary-foreground', getContrastColor(colors.secondary));
       
       // Accent color - used for highlights, CTAs, and emphasis
       root.style.setProperty('--accent', accentHSL);
-      root.style.setProperty('--accent-foreground', getContrastColor(branding.colors.accent));
+      root.style.setProperty('--accent-foreground', getContrastColor(colors.accent));
+      
+      // Background colors mapped to Shadcn semantic tokens
+      root.style.setProperty('--background', pageBackgroundHSL);
+      root.style.setProperty('--card', cardBackgroundHSL);
+      root.style.setProperty('--popover', cardBackgroundHSL);
+      
+      // Text colors mapped to semantic tokens
+      const textPrimaryHSL = hexToHSLString(colors.textPrimary);
+      const textSecondaryHSL = hexToHSLString(colors.textSecondary);
+      root.style.setProperty('--foreground', textPrimaryHSL);
+      root.style.setProperty('--card-foreground', textPrimaryHSL);
+      root.style.setProperty('--popover-foreground', textPrimaryHSL);
+      root.style.setProperty('--muted-foreground', textMutedHSL);
+      
+      // Link colors
+      const linkDefaultHSL = hexToHSLString(colors.linkDefault);
+      root.style.setProperty('--link', linkDefaultHSL);
       
       // Ring color - focus states should match accent for consistency
       root.style.setProperty('--ring', accentHSL);
       
-      // Destructive actions can stay red for UX clarity, but we sync with accent if it's red-toned
-      const accentHSLObj = hexToHSL(branding.colors.accent);
+      // Border and input colors
+      const headerBackgroundHSL = hexToHSLString(colors.headerBackground);
+      root.style.setProperty('--border', '214.3 31.8% 91.4%'); // Keep neutral border
+      root.style.setProperty('--input', '214.3 31.8% 91.4%'); // Keep neutral input
+      
+      // Button colors - map primary/secondary button settings to semantic tokens
+      const buttonPrimaryHSL = hexToHSLString(colors.buttonPrimary);
+      const buttonSecondaryHSL = hexToHSLString(colors.buttonSecondary);
+      root.style.setProperty('--button-primary', buttonPrimaryHSL);
+      root.style.setProperty('--button-secondary', buttonSecondaryHSL);
+      
+      // Destructive actions sync with accent if it's red-toned
+      const accentHSLObj = hexToHSL(colors.accent);
       if (accentHSLObj.h >= 350 || accentHSLObj.h <= 15) {
-        // Accent is red-toned, sync destructive with it
         root.style.setProperty('--destructive', accentHSL);
-        root.style.setProperty('--destructive-foreground', getContrastColor(branding.colors.accent));
+        root.style.setProperty('--destructive-foreground', getContrastColor(colors.accent));
       }
     }
   }, [branding.isLoading, branding.colors]);

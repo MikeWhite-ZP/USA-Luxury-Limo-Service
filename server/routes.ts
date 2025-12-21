@@ -9708,32 +9708,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Public endpoint to get all branding settings
   app.get('/api/branding', async (req, res) => {
     try {
-      // Fetch all branding settings in parallel for performance
+      // Extended color keys matching the frontend color palette
+      const colorKeys = [
+        'primary', 'secondary', 'accent',
+        'buttonPrimary', 'buttonPrimaryHover', 'buttonSecondary', 'buttonSecondaryHover',
+        'pageBackground', 'cardBackground', 'headerBackground',
+        'textPrimary', 'textSecondary', 'textMuted',
+        'navActive', 'navIndicator', 'navHover',
+        'linkDefault', 'linkHover'
+      ];
+      
+      // Default color palette
+      const defaultColors: Record<string, string> = {
+        primary: '#1a1a1a',
+        secondary: '#666666',
+        accent: '#dc2626',
+        buttonPrimary: '#dc2626',
+        buttonPrimaryHover: '#b91c1c',
+        buttonSecondary: '#1a1a1a',
+        buttonSecondaryHover: '#374151',
+        pageBackground: '#ffffff',
+        cardBackground: '#ffffff',
+        headerBackground: '#ffffff',
+        textPrimary: '#1a1a1a',
+        textSecondary: '#4b5563',
+        textMuted: '#9ca3af',
+        navActive: '#dc2626',
+        navIndicator: '#dc2626',
+        navHover: '#fee2e2',
+        linkDefault: '#dc2626',
+        linkHover: '#b91c1c',
+      };
+
+      // Convert camelCase to setting key format: buttonPrimary -> BRAND_COLOR_BUTTON_PRIMARY
+      const toSettingKey = (key: string) => `BRAND_COLOR_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+      
+      // Fetch basic branding and all color settings in parallel
       const [
         companyName,
         tagline,
         description,
         logoSetting,
         faviconSetting,
-        primaryColor,
-        secondaryColor,
-        accentColor,
         contactEmail,
         contactPhone,
-        contactAddress
+        contactAddress,
+        // Legacy color keys for backward compatibility
+        legacyPrimary,
+        legacySecondary,
+        legacyAccent,
+        // All extended color settings
+        ...colorSettings
       ] = await Promise.all([
         storage.getCmsSetting('BRAND_COMPANY_NAME'),
         storage.getCmsSetting('BRAND_TAGLINE'),
         storage.getCmsSetting('BRAND_DESCRIPTION'),
         storage.getCmsSetting('site_logo'),
         storage.getCmsSetting('site_favicon'),
+        storage.getCmsSetting('CONTACT_EMAIL'),
+        storage.getCmsSetting('CONTACT_PHONE'),
+        storage.getCmsSetting('CONTACT_ADDRESS'),
+        // Legacy keys
         storage.getCmsSetting('BRAND_PRIMARY_COLOR'),
         storage.getCmsSetting('BRAND_SECONDARY_COLOR'),
         storage.getCmsSetting('BRAND_ACCENT_COLOR'),
-        storage.getCmsSetting('CONTACT_EMAIL'),
-        storage.getCmsSetting('CONTACT_PHONE'),
-        storage.getCmsSetting('CONTACT_ADDRESS')
+        // Extended color keys
+        ...colorKeys.map(key => storage.getCmsSetting(toSettingKey(key)))
       ]);
+
+      // Build colors object with fallbacks
+      const colors: Record<string, string> = { ...defaultColors };
+      
+      // Apply extended color settings
+      colorKeys.forEach((key, index) => {
+        if (colorSettings[index]?.value) {
+          colors[key] = colorSettings[index]!.value;
+        }
+      });
+      
+      // Apply legacy colors if no extended versions exist (backward compatibility)
+      if (legacyPrimary?.value && !colorSettings[0]?.value) colors.primary = legacyPrimary.value;
+      if (legacySecondary?.value && !colorSettings[1]?.value) colors.secondary = legacySecondary.value;
+      if (legacyAccent?.value && !colorSettings[2]?.value) colors.accent = legacyAccent.value;
 
       // Get logo URL from unified site_logo setting (same as MediaLibrary uses)
       let resolvedLogoUrl = '/images/logo_1759125364025.png';
@@ -9760,11 +9816,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         description: description?.value || 'Premium luxury transportation services across the United States. Experience comfort, reliability, and professionalism with every ride.',
         logoUrl: resolvedLogoUrl,
         faviconUrl: resolvedFaviconUrl,
-        colors: {
-          primary: primaryColor?.value || '#1a1a1a',
-          secondary: secondaryColor?.value || '#666666',
-          accent: accentColor?.value || '#d4af37'
-        },
+        colors,
         contactEmail: contactEmail?.value || '',
         contactPhone: contactPhone?.value || '',
         contactAddress: contactAddress?.value || ''

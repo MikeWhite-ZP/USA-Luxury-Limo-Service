@@ -532,3 +532,69 @@
 .animate-slide-up {
   animation: slideUp 0.4s ease-out;
 }
+
+/* ================================
+   Brand-Aware Utility Classes
+   These classes use CSS variables set by useBrandTheme
+   so they automatically respond to admin color changes.
+   ================================ */
+
+/* Navigation Tab Styles */
+.nav-tab-active {
+  color: var(--brand-nav-active-hex, #dc2626);
+  background: linear-gradient(to bottom, var(--brand-nav-hover-hex, #fee2e2), transparent);
+}
+
+.nav-tab-indicator {
+  background: linear-gradient(to right, var(--brand-nav-indicator-hex, #dc2626), var(--brand-button-primary-hover-hex, #b91c1c));
+}
+
+/* Primary Button Gradient */
+.btn-brand-primary {
+  background: linear-gradient(to right, var(--brand-button-primary-hex, #dc2626), var(--brand-button-primary-hover-hex, #b91c1c));
+  color: white;
+}
+
+.btn-brand-primary:hover {
+  filter: brightness(1.1);
+}
+
+/* Card Header Gradient */
+.card-header-brand {
+  background: linear-gradient(to right, var(--brand-button-primary-hex, #dc2626), var(--brand-button-primary-hover-hex, #b91c1c));
+  color: white;
+}
+
+/* Brand Accent Text */
+.text-brand-accent {
+  color: var(--brand-accent-hex, #dc2626);
+}
+
+/* Brand Link Styles */
+.link-brand {
+  color: var(--brand-link-default-hex, #dc2626);
+}
+
+.link-brand:hover {
+  color: var(--brand-link-hover-hex, #b91c1c);
+}
+
+/* Brand Icon Background */
+.icon-brand-bg {
+  background: linear-gradient(to bottom right, var(--brand-button-primary-hex, #dc2626), var(--brand-button-primary-hover-hex, #b91c1c));
+}
+
+/* Brand Glow Effect */
+.glow-brand {
+  background: linear-gradient(to right, var(--brand-button-primary-hex, #dc2626), var(--brand-button-primary-hover-hex, #b91c1c));
+}
+
+/* Brand Border */
+.border-brand {
+  border-color: var(--brand-accent-hex, #dc2626);
+}
+
+/* Brand background light (for hover states) */
+.bg-brand-light {
+  background-color: var(--brand-nav-hover-hex, #fee2e2);
+}

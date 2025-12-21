@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useBranding } from "@/hooks/useBranding";
+import { useBrandTheme } from "@/hooks/useBrandTheme";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -143,7 +144,7 @@ function AddPaymentMethodForm({ onSuccess }: { onSuccess: () => void }) {
           }}
         />
       </div>
-      <Button type="submit" disabled={!stripe || isProcessing} className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white">
+      <Button type="submit" disabled={!stripe || isProcessing} className="w-full btn-brand-primary">
         {isProcessing ? 'Adding...' : 'Add Payment Method'}
       </Button>
     </form>
@@ -1045,7 +1046,7 @@ function ContactSupportForm({ user }: { user: any }) {
               <Button 
                 type="submit" 
                 disabled={submitContactMutation.isPending}
-                className="min-w-[150px] bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white"
+                className="min-w-[150px] btn-brand-primary"
                 data-testid="button-submit-contact"
               >
                 {submitContactMutation.isPending ? (
@@ -1072,6 +1073,9 @@ export default function PassengerDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
+  
+  // Apply dynamic brand colors via CSS variables
+  const { colors } = useBrandTheme();
   
   // Navigation state
   const [activeSection, setActiveSection] = useState<'home' | 'booking' | 'saved-locations' | 'future-bookings' | 'past-bookings' | 'invoices' | 'payment-methods' | 'account-details' | 'support'>('home');
@@ -1706,7 +1710,7 @@ export default function PassengerDashboard() {
     <div className="min-h-screen bg-card relative overflow-hidden">
       {/* Subtle Light Background Pattern */}
       <div className="fixed inset-0 pointer-events-none opacity-30">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-50 via-white to-gray-50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-light via-white to-gray-50" />
         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(220 38 38 / 0.03) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
       </div>
 
@@ -1733,15 +1737,19 @@ export default function PassengerDashboard() {
                   Passenger Dashboard
                 </h1>
                 <p className="text-muted-foreground text-lg mt-1" data-testid="passenger-subtitle">
-                  Welcome back, <span className="text-red-600 font-medium">{user?.firstName || user?.email}</span>
+                  Welcome back, <span className="font-medium" style={{ color: 'var(--brand-accent-hex)' }}>{user?.firstName || user?.email}</span>
                 </p>
               </div>
             </div>
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-800 rounded-xl opacity-0 group-hover:opacity-75 blur transition-opacity duration-300" />
+              <div 
+                className="absolute -inset-0.5 rounded-xl opacity-0 group-hover:opacity-75 blur transition-opacity duration-300" 
+                style={{ background: `linear-gradient(to right, var(--brand-button-primary-hex), var(--brand-button-primary-hover-hex))` }}
+              />
               <Button 
                 onClick={() => window.location.href = '/api/logout'}
-                className="relative bg-black hover:bg-gray-900 text-white border border-gray-800 hover:border-red-600 px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                className="relative bg-black hover:bg-gray-900 text-white border border-gray-800 px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                style={{ borderColor: 'var(--brand-accent-hex)' }}
                 data-testid="button-logout"
               >
                 Sign Out
@@ -1759,13 +1767,13 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('home')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'home'
-                  ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                  ? 'nav-tab-active'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               data-testid="nav-home"
             >
               {activeSection === 'home' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
               )}
               <Home className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Home</span>
@@ -1775,13 +1783,13 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('saved-locations')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'saved-locations'
-                  ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                  ? 'nav-tab-active'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               data-testid="nav-saved-locations"
             >
               {activeSection === 'saved-locations' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
               )}
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Saved Locations</span>
@@ -1792,13 +1800,13 @@ export default function PassengerDashboard() {
                 <button
                   className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                     activeSection === 'future-bookings' || activeSection === 'past-bookings'
-                      ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                      ? 'nav-tab-active'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                   data-testid="nav-bookings"
                 >
                   {(activeSection === 'future-bookings' || activeSection === 'past-bookings') && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
                   )}
                   <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span className="hidden sm:inline">Bookings</span>
@@ -1813,7 +1821,7 @@ export default function PassengerDashboard() {
               >
                 <DropdownMenuItem
                   onClick={() => setActiveSection('future-bookings')}
-                  className="cursor-pointer hover:bg-red-50 focus:bg-red-50 text-black"
+                  className="cursor-pointer hover:bg-brand-light focus:bg-brand-light text-black"
                   data-testid="nav-future-bookings"
                 >
                   <Calendar className="w-4 h-4 mr-2" />
@@ -1821,7 +1829,7 @@ export default function PassengerDashboard() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setActiveSection('past-bookings')}
-                  className="cursor-pointer hover:bg-red-50 focus:bg-red-50 text-black"
+                  className="cursor-pointer hover:bg-brand-light focus:bg-brand-light text-black"
                   data-testid="nav-past-bookings"
                 >
                   <History className="w-4 h-4 mr-2" />
@@ -1833,13 +1841,13 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('invoices')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'invoices'
-                  ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                  ? 'nav-tab-active'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               data-testid="nav-invoices"
             >
               {activeSection === 'invoices' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
               )}
               <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Invoices</span>
@@ -1849,13 +1857,13 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('payment-methods')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'payment-methods'
-                  ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                  ? 'nav-tab-active'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               data-testid="nav-payment-methods"
             >
               {activeSection === 'payment-methods' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
               )}
               <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Payment Methods</span>
@@ -1865,13 +1873,13 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('account-details')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'account-details'
-                  ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                  ? 'nav-tab-active'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               data-testid="nav-account-details"
             >
               {activeSection === 'account-details' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
               )}
               <User className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Account Details</span>
@@ -1881,13 +1889,13 @@ export default function PassengerDashboard() {
               onClick={() => setActiveSection('support')}
               className={`relative py-3 px-3 sm:px-6 font-medium text-xs sm:text-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-2 transition-all duration-300 rounded-t-xl whitespace-nowrap min-w-[70px] sm:min-w-auto ${
                 activeSection === 'support'
-                  ? 'text-red-600 bg-gradient-to-b from-red-50/80 to-transparent'
+                  ? 'nav-tab-active'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               data-testid="nav-support"
             >
               {activeSection === 'support' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
               )}
               <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Support</span>
@@ -1903,11 +1911,11 @@ export default function PassengerDashboard() {
           <>
             {/* Quick Actions */}
             <div className="relative group" data-testid="quick-actions">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+              <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
               <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-black flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
+                    <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
                       <MapPin className="w-5 h-5 text-white" />
                     </div>
                     Quick Actions
@@ -1916,10 +1924,10 @@ export default function PassengerDashboard() {
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="relative group/btn">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-800 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
+                      <div className="absolute -inset-0.5 glow-brand rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
                       <Button
                         onClick={() => setActiveSection('booking')}
-                        className="relative h-20 w-full flex flex-col space-y-2 bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white border-0 shadow-xl group-hover/btn:scale-[1.02] transition-transform duration-300"
+                        className="relative h-20 w-full flex flex-col space-y-2 btn-brand-primary border-0 shadow-xl group-hover/btn:scale-[1.02] transition-transform duration-300"
                         data-testid="button-book-ride"
                       >
                         <MapPin className="w-6 h-6" />
@@ -1931,7 +1939,7 @@ export default function PassengerDashboard() {
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-black to-gray-800 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
                       <Button
                         onClick={() => setActiveSection('past-bookings')}
-                        className="relative h-20 w-full flex flex-col space-y-2 bg-card hover:bg-muted text-black border-2 border-gray-300 hover:border-red-600 shadow-lg group-hover/btn:scale-[1.02] transition-all duration-300"
+                        className="relative h-20 w-full flex flex-col space-y-2 bg-card hover:bg-muted text-black border-2 border-gray-300 hover:border-brand shadow-lg group-hover/btn:scale-[1.02] transition-all duration-300"
                         data-testid="button-view-history"
                       >
                         <History className="w-6 h-6" />
@@ -1945,11 +1953,11 @@ export default function PassengerDashboard() {
 
             {/* Recent Bookings */}
             <div className="relative group" data-testid="recent-bookings">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+              <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
               <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-black flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
+              <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
                 <Calendar className="w-5 h-5 text-white" />
               </div>
               Recent Bookings
@@ -1965,7 +1973,7 @@ export default function PassengerDashboard() {
                 {recentBookings.map((booking) => (
                   <div
                     key={booking.id}
-                    className="bg-gradient-to-r from-muted to-background dark:from-muted dark:to-background rounded-xl p-5 border border-border hover:border-red-300 hover:shadow-md transition-all"
+                    className="bg-gradient-to-r from-muted to-background dark:from-muted dark:to-background rounded-xl p-5 border border-border hover:border-brand hover:shadow-md transition-all"
                     data-testid={`booking-${booking.id}`}
                   >
                     <div className="flex justify-between items-start">
@@ -2069,16 +2077,16 @@ export default function PassengerDashboard() {
         {/* Booking Section */}
         {activeSection === 'booking' && (
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
             <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-red-600 to-red-800 text-white border-b-0">
+              <CardHeader className="card-header-brand">
                 <CardTitle className="text-2xl font-bold flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-card/20 backdrop-blur-sm flex items-center justify-center shadow-md">
                     <MapPin className="w-6 h-6 text-white" />
                   </div>
                   Book Your Luxury Transportation
                 </CardTitle>
-                <p className="text-red-100 mt-2 text-sm">Premium rides at your fingertips</p>
+                <p className="text-white/80 mt-2 text-sm">Premium rides at your fingertips</p>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="bg-gradient-to-br from-white via-white to-gray-50">
@@ -2094,19 +2102,19 @@ export default function PassengerDashboard() {
         {/* Saved Locations Section */}
         {activeSection === 'saved-locations' && (
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
             <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="saved-addresses">
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
                   <MapPin className="w-5 h-5 text-white" />
                 </div>
                 Saved Locations
               </CardTitle>
               <Dialog open={addAddressOpen} onOpenChange={setAddAddressOpen}>
                 <DialogTrigger asChild>
-                  <Button size="sm" className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white" data-testid="button-add-address">
+                  <Button size="sm" className="btn-brand-primary" data-testid="button-add-address">
                     <Plus className="w-4 h-4 mr-2" />
                     Add Location
                   </Button>
@@ -2528,11 +2536,11 @@ export default function PassengerDashboard() {
         {/* Payment Methods Section */}
         {activeSection === 'payment-methods' && (
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+            <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
             <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="payment-methods-section">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
                   <CreditCard className="w-5 h-5 text-white" />
                 </div>
                 Payment Methods
@@ -2550,11 +2558,11 @@ export default function PassengerDashboard() {
           <div className="grid gap-6">
             {/* Editable Profile Information Card */}
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+              <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
               <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="profile-card">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
+                    <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
                       <User className="w-5 h-5 text-white" />
                     </div>
                     Account Information
@@ -2596,7 +2604,7 @@ export default function PassengerDashboard() {
 
                     <div>
                       <Label htmlFor="email" className="text-base font-medium flex items-center gap-2 text-gray-700">
-                        <Mail className="w-4 h-4 text-red-600" />
+                        <Mail className="w-4 h-4 text-brand-accent" />
                         Email Address *
                       </Label>
                       <Input
@@ -2612,7 +2620,7 @@ export default function PassengerDashboard() {
 
                     <div>
                       <Label htmlFor="phone" className="text-base font-medium flex items-center gap-2 text-gray-700">
-                        <Phone className="w-4 h-4 text-red-600" />
+                        <Phone className="w-4 h-4 text-brand-accent" />
                         Phone Number
                       </Label>
                       <Input
@@ -2630,7 +2638,7 @@ export default function PassengerDashboard() {
                       <Button
                         type="submit"
                         disabled={updateProfileMutation.isPending}
-                        className="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white border-0 shadow-lg"
+                        className="flex-1 btn-brand-primary border-0 shadow-lg"
                         data-testid="button-save"
                       >
                         {updateProfileMutation.isPending ? (
@@ -2653,11 +2661,11 @@ export default function PassengerDashboard() {
 
             {/* Password Update Card */}
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+              <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
               <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="password-card">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
+                    <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
                       <Save className="w-5 h-5 text-white" />
                     </div>
                     Change Password
@@ -2721,7 +2729,7 @@ export default function PassengerDashboard() {
                       <Button
                         type="submit"
                         disabled={updatePasswordMutation.isPending}
-                        className="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white border-0 shadow-lg"
+                        className="flex-1 btn-brand-primary border-0 shadow-lg"
                         data-testid="button-update-password"
                       >
                         {updatePasswordMutation.isPending ? (
@@ -2744,11 +2752,11 @@ export default function PassengerDashboard() {
 
             {/* Account Details Card */}
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
+              <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
               <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="account-details-card">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md">
+                    <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
                       <User className="w-5 h-5 text-white" />
                     </div>
                     Account Details
@@ -2819,13 +2827,13 @@ export default function PassengerDashboard() {
                   
                   {user?.payLaterEnabled && (
                     <div className="relative group/privilege">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-400 to-red-600 rounded-xl opacity-20 group-hover/privilege:opacity-30 blur transition-opacity" />
-                      <div className="relative p-4 bg-gradient-to-r from-red-50 to-red-100 border border-red-300 rounded-xl">
-                        <p className="text-sm font-bold text-red-900 flex items-center gap-2 mb-2">
+                      <div className="absolute -inset-0.5 glow-brand rounded-xl opacity-20 group-hover/privilege:opacity-30 blur transition-opacity" />
+                      <div className="relative p-4 bg-brand-light border-brand rounded-xl">
+                        <p className="text-sm font-bold text-brand-accent flex items-center gap-2 mb-2">
                           <span className="text-lg">✓</span>
                           Pay Later Enabled
                         </p>
-                        <p className="text-sm text-red-800">
+                        <p className="text-sm text-foreground">
                           You have been granted pay later privileges by the administrator.
                         </p>
                       </div>
@@ -2834,13 +2842,13 @@ export default function PassengerDashboard() {
                   
                   {(user as any)?.discountType && ((user as any)?.discountValue ?? 0) > 0 && (
                     <div className="relative group/discount">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-400 to-red-600 rounded-xl opacity-20 group-hover/discount:opacity-30 blur transition-opacity" />
-                      <div className="relative p-4 bg-gradient-to-r from-red-50 to-red-100 border border-red-300 rounded-xl">
-                        <p className="text-sm font-bold text-red-900 flex items-center gap-2 mb-2">
+                      <div className="absolute -inset-0.5 glow-brand rounded-xl opacity-20 group-hover/discount:opacity-30 blur transition-opacity" />
+                      <div className="relative p-4 bg-brand-light border-brand rounded-xl">
+                        <p className="text-sm font-bold text-brand-accent flex items-center gap-2 mb-2">
                           <span className="text-lg">🎉</span>
                           Active Discount
                         </p>
-                        <p className="text-sm text-red-800">
+                        <p className="text-sm text-foreground">
                           {(user as any).discountType === 'percentage' 
                             ? `${(user as any).discountValue}% off all bookings` 
                             : `$${(user as any).discountValue} off all bookings`}

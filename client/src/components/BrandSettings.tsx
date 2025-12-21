@@ -34,18 +34,77 @@ export default function BrandSettings() {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
 
-  // Default USA Luxury Limo brand colors
+  // Extended color palette with clear names and descriptions
   const DEFAULT_COLORS = {
-    primary: '#1a1a1a',     // Deep black - main brand color
-    secondary: '#666666',   // Elegant gray
-    accent: '#dc2626',      // Luxury red for highlights/CTAs
+    // Core brand colors
+    primary: '#1a1a1a',
+    secondary: '#666666',
+    accent: '#dc2626',
+    // Button colors
+    buttonPrimary: '#dc2626',
+    buttonPrimaryHover: '#b91c1c',
+    buttonSecondary: '#1a1a1a',
+    buttonSecondaryHover: '#374151',
+    // Background colors
+    pageBackground: '#ffffff',
+    cardBackground: '#ffffff',
+    headerBackground: '#ffffff',
+    // Text colors
+    textPrimary: '#1a1a1a',
+    textSecondary: '#4b5563',
+    textMuted: '#9ca3af',
+    // Navigation colors
+    navActive: '#dc2626',
+    navIndicator: '#dc2626',
+    navHover: '#fee2e2',
+    // Link colors
+    linkDefault: '#dc2626',
+    linkHover: '#b91c1c',
   };
 
-  const [primaryColor, setPrimaryColor] = useState(DEFAULT_COLORS.primary);
-  const [secondaryColor, setSecondaryColor] = useState(DEFAULT_COLORS.secondary);
-  const [accentColor, setAccentColor] = useState(DEFAULT_COLORS.accent);
+  // Color state with all options
+  const [colors, setColors] = useState(DEFAULT_COLORS);
   const [colorsSaving, setColorsSaving] = useState(false);
   const [hasColorChanges, setHasColorChanges] = useState(false);
+
+  // Color field configurations with labels and descriptions
+  const colorFields = [
+    // Core Brand Colors
+    { section: 'Core Brand Colors', description: 'Main colors that define your brand identity' },
+    { key: 'primary', label: 'Primary Color', desc: 'Main brand color used for headers and key elements' },
+    { key: 'secondary', label: 'Secondary Color', desc: 'Supporting color for less prominent elements' },
+    { key: 'accent', label: 'Accent Color', desc: 'Highlight color for calls-to-action and emphasis' },
+    
+    // Button Colors
+    { section: 'Button Colors', description: 'Control how buttons appear throughout the site' },
+    { key: 'buttonPrimary', label: 'Primary Button', desc: 'Main action buttons (e.g., Book Now, Submit)' },
+    { key: 'buttonPrimaryHover', label: 'Primary Button Hover', desc: 'When mouse hovers over primary buttons' },
+    { key: 'buttonSecondary', label: 'Secondary Button', desc: 'Less prominent action buttons' },
+    { key: 'buttonSecondaryHover', label: 'Secondary Button Hover', desc: 'When mouse hovers over secondary buttons' },
+    
+    // Background Colors
+    { section: 'Background Colors', description: 'Page and component background colors' },
+    { key: 'pageBackground', label: 'Page Background', desc: 'Main page background color' },
+    { key: 'cardBackground', label: 'Card Background', desc: 'Background for cards and panels' },
+    { key: 'headerBackground', label: 'Header Background', desc: 'Top navigation bar background' },
+    
+    // Text Colors
+    { section: 'Text Colors', description: 'How text appears across the site' },
+    { key: 'textPrimary', label: 'Primary Text', desc: 'Main headings and important text' },
+    { key: 'textSecondary', label: 'Secondary Text', desc: 'Body text and descriptions' },
+    { key: 'textMuted', label: 'Muted Text', desc: 'Subtle text like placeholders and hints' },
+    
+    // Navigation Colors
+    { section: 'Navigation Colors', description: 'Menu and tab styling' },
+    { key: 'navActive', label: 'Active Tab Text', desc: 'Color of currently selected menu item' },
+    { key: 'navIndicator', label: 'Active Indicator', desc: 'Underline/border for active menu items' },
+    { key: 'navHover', label: 'Menu Hover Background', desc: 'Background when hovering over menu items' },
+    
+    // Link Colors
+    { section: 'Link Colors', description: 'Clickable text links' },
+    { key: 'linkDefault', label: 'Link Color', desc: 'Default color for text links' },
+    { key: 'linkHover', label: 'Link Hover', desc: 'Color when hovering over links' },
+  ];
 
   const { data: settings, isLoading } = useQuery<CmsSetting[]>({
     queryKey: ['/api/admin/cms/settings'],
@@ -59,32 +118,45 @@ export default function BrandSettings() {
     queryKey: ['/api/site-favicon'],
   });
 
+  // Color key to setting key mapping
+  const colorKeyToSettingKey = (key: string) => `BRAND_COLOR_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+  
   useEffect(() => {
     if (settings) {
-      const primary = settings.find(s => s.key === 'BRAND_PRIMARY_COLOR')?.value;
-      const secondary = settings.find(s => s.key === 'BRAND_SECONDARY_COLOR')?.value;
-      const accent = settings.find(s => s.key === 'BRAND_ACCENT_COLOR')?.value;
+      const loadedColors = { ...DEFAULT_COLORS };
+      
+      // Load all color settings
+      Object.keys(DEFAULT_COLORS).forEach((key) => {
+        const settingKey = colorKeyToSettingKey(key);
+        const value = settings.find(s => s.key === settingKey)?.value;
+        if (value) {
+          (loadedColors as any)[key] = value;
+        }
+      });
+      
+      // Also check legacy keys for backward compatibility
+      const legacyPrimary = settings.find(s => s.key === 'BRAND_PRIMARY_COLOR')?.value;
+      const legacySecondary = settings.find(s => s.key === 'BRAND_SECONDARY_COLOR')?.value;
+      const legacyAccent = settings.find(s => s.key === 'BRAND_ACCENT_COLOR')?.value;
+      
+      if (legacyPrimary) loadedColors.primary = legacyPrimary;
+      if (legacySecondary) loadedColors.secondary = legacySecondary;
+      if (legacyAccent) loadedColors.accent = legacyAccent;
 
-      setPrimaryColor(primary || DEFAULT_COLORS.primary);
-      setSecondaryColor(secondary || DEFAULT_COLORS.secondary);
-      setAccentColor(accent || DEFAULT_COLORS.accent);
+      setColors(loadedColors);
       setHasColorChanges(false);
     }
   }, [settings]);
 
   // Track color changes
-  const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent', value: string) => {
-    if (colorType === 'primary') setPrimaryColor(value);
-    else if (colorType === 'secondary') setSecondaryColor(value);
-    else if (colorType === 'accent') setAccentColor(value);
+  const handleColorChange = (key: string, value: string) => {
+    setColors(prev => ({ ...prev, [key]: value }));
     setHasColorChanges(true);
   };
 
   // Reset colors to default
   const handleResetColors = () => {
-    setPrimaryColor(DEFAULT_COLORS.primary);
-    setSecondaryColor(DEFAULT_COLORS.secondary);
-    setAccentColor(DEFAULT_COLORS.accent);
+    setColors(DEFAULT_COLORS);
     setHasColorChanges(true);
     toast({
       title: 'Colors Reset',
@@ -96,26 +168,37 @@ export default function BrandSettings() {
   const handleApplyColors = async () => {
     setColorsSaving(true);
     try {
-      await Promise.all([
-        apiRequest('PUT', '/api/admin/cms/settings', { 
-          key: 'BRAND_PRIMARY_COLOR',
-          value: primaryColor, 
-          category: 'colors', 
-          description: 'Primary brand color' 
-        }),
-        apiRequest('PUT', '/api/admin/cms/settings', { 
-          key: 'BRAND_SECONDARY_COLOR',
-          value: secondaryColor, 
-          category: 'colors', 
-          description: 'Secondary brand color' 
-        }),
-        apiRequest('PUT', '/api/admin/cms/settings', { 
-          key: 'BRAND_ACCENT_COLOR',
-          value: accentColor, 
-          category: 'colors', 
-          description: 'Accent brand color' 
-        }),
-      ]);
+      const colorDescriptions: Record<string, string> = {
+        primary: 'Primary brand color',
+        secondary: 'Secondary brand color',
+        accent: 'Accent/highlight color',
+        buttonPrimary: 'Primary button background',
+        buttonPrimaryHover: 'Primary button hover state',
+        buttonSecondary: 'Secondary button background',
+        buttonSecondaryHover: 'Secondary button hover state',
+        pageBackground: 'Page background color',
+        cardBackground: 'Card/panel background',
+        headerBackground: 'Header background',
+        textPrimary: 'Primary text color',
+        textSecondary: 'Secondary text color',
+        textMuted: 'Muted text color',
+        navActive: 'Active navigation text',
+        navIndicator: 'Navigation indicator color',
+        navHover: 'Navigation hover background',
+        linkDefault: 'Default link color',
+        linkHover: 'Link hover color',
+      };
+      
+      await Promise.all(
+        Object.entries(colors).map(([key, value]) =>
+          apiRequest('PUT', '/api/admin/cms/settings', { 
+            key: colorKeyToSettingKey(key),
+            value, 
+            category: 'colors', 
+            description: colorDescriptions[key] || `Brand color: ${key}`
+          })
+        )
+      );
       
       await queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/settings'] });
       await queryClient.invalidateQueries({ queryKey: ['/api/branding'] });
@@ -484,72 +567,66 @@ export default function BrandSettings() {
           <Card>
             <CardHeader>
               <CardTitle>Brand Colors</CardTitle>
-              <CardDescription>Customize your website's color scheme. These colors affect the entire application theme.</CardDescription>
+              <CardDescription>
+                Customize your website's color scheme. These colors affect the entire application theme.
+                Each color has a specific purpose - hover over labels for more details.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="primary-color">Primary Color</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="color"
-                      id="primary-color"
-                      value={primaryColor}
-                      onChange={(e) => handleColorChange('primary', e.target.value)}
-                      className="w-20 h-10 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={primaryColor}
-                      onChange={(e) => handleColorChange('primary', e.target.value)}
-                      placeholder="#1a1a1a"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">Default: {DEFAULT_COLORS.primary}</p>
-                </div>
+              {/* Render color sections dynamically */}
+              {(() => {
+                let currentSection = '';
+                return colorFields.map((field, index) => {
+                  // Section header
+                  if ('section' in field) {
+                    currentSection = field.section;
+                    return (
+                      <div key={`section-${index}`} className="pt-4 first:pt-0">
+                        <h3 className="text-lg font-semibold text-foreground mb-1">{field.section}</h3>
+                        <p className="text-sm text-muted-foreground mb-4">{field.description}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {colorFields
+                            .slice(index + 1)
+                            .filter((f): f is { key: string; label: string; desc: string } => 
+                              'key' in f && !('section' in colorFields[colorFields.indexOf(f) - 1] || false)
+                            )
+                            .slice(0, colorFields.slice(index + 1).findIndex(f => 'section' in f) === -1 
+                              ? colorFields.slice(index + 1).filter(f => 'key' in f).length 
+                              : colorFields.slice(index + 1).findIndex(f => 'section' in f))
+                            .map((colorField) => (
+                              <div key={colorField.key} className="space-y-2 p-3 rounded-lg border border-border bg-muted/30">
+                                <Label htmlFor={`color-${colorField.key}`} className="text-sm font-medium" title={colorField.desc}>
+                                  {colorField.label}
+                                </Label>
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    type="color"
+                                    id={`color-${colorField.key}`}
+                                    value={(colors as any)[colorField.key] || DEFAULT_COLORS[colorField.key as keyof typeof DEFAULT_COLORS]}
+                                    onChange={(e) => handleColorChange(colorField.key, e.target.value)}
+                                    className="w-12 h-10 cursor-pointer p-1 rounded"
+                                  />
+                                  <Input
+                                    type="text"
+                                    value={(colors as any)[colorField.key] || DEFAULT_COLORS[colorField.key as keyof typeof DEFAULT_COLORS]}
+                                    onChange={(e) => handleColorChange(colorField.key, e.target.value)}
+                                    placeholder="#000000"
+                                    className="font-mono text-xs flex-1"
+                                  />
+                                </div>
+                                <p className="text-xs text-muted-foreground">{colorField.desc}</p>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                });
+              })()}
 
-                <div className="space-y-2">
-                  <Label htmlFor="secondary-color">Secondary Color</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="color"
-                      id="secondary-color"
-                      value={secondaryColor}
-                      onChange={(e) => handleColorChange('secondary', e.target.value)}
-                      className="w-20 h-10 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={secondaryColor}
-                      onChange={(e) => handleColorChange('secondary', e.target.value)}
-                      placeholder="#666666"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">Default: {DEFAULT_COLORS.secondary}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="accent-color">Accent Color</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="color"
-                      id="accent-color"
-                      value={accentColor}
-                      onChange={(e) => handleColorChange('accent', e.target.value)}
-                      className="w-20 h-10 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={accentColor}
-                      onChange={(e) => handleColorChange('accent', e.target.value)}
-                      placeholder="#dc2626"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">Default: {DEFAULT_COLORS.accent}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t">
+              {/* Action buttons */}
+              <div className="flex items-center justify-between pt-6 border-t">
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
@@ -560,7 +637,7 @@ export default function BrandSettings() {
                     <RotateCcw className="w-4 h-4" />
                     Reset to Defaults
                   </Button>
-                  <p className="text-xs text-muted-foreground">Restore to default colors</p>
+                  <p className="text-xs text-muted-foreground hidden sm:block">Restore all colors to defaults</p>
                 </div>
                 <Button
                   onClick={handleApplyColors}
