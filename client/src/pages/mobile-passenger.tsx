@@ -445,33 +445,33 @@ export default function MobilePassenger() {
             </div>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-4 gap-2">
-            <div className="bg-background border border-red-200 rounded-xl p-2 shadow-sm">
-              <p className="text-muted-foreground text-[10px]">Active</p>
-              <p className="text-lg font-bold text-red-600 mt-0.5">{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
+          {/* Quick Stats - Compact */}
+          <div className="grid grid-cols-4 gap-1.5">
+            <div className="bg-background border rounded-lg p-1.5 shadow-sm" style={{ borderColor: 'var(--brand-primary-hex)' }}>
+              <p className="text-muted-foreground text-[9px]">Active</p>
+              <p className="text-base font-bold mt-0.5" style={{ color: 'var(--brand-accent-hex)' }}>{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
             </div>
-            <div className="bg-background border border-blue-200 rounded-xl p-2 shadow-sm">
-              <p className="text-muted-foreground text-[10px]">Upcoming</p>
-              <p className="text-lg font-bold text-blue-600 mt-0.5">{upcomingBookings.length}</p>
+            <div className="bg-background border border-blue-200 rounded-lg p-1.5 shadow-sm">
+              <p className="text-muted-foreground text-[9px]">Upcoming</p>
+              <p className="text-base font-bold text-blue-600 mt-0.5">{upcomingBookings.length}</p>
             </div>
-            <div className="bg-background border border-border rounded-xl p-2 shadow-sm">
-              <p className="text-muted-foreground text-[10px]">Total</p>
-              <p className="text-lg font-bold text-foreground mt-0.5">{bookings?.length || 0}</p>
+            <div className="bg-background border border-border rounded-lg p-1.5 shadow-sm">
+              <p className="text-muted-foreground text-[9px]">Total</p>
+              <p className="text-base font-bold text-foreground mt-0.5">{bookings?.length || 0}</p>
             </div>
-            <div className="bg-background border border-green-200 rounded-xl p-2 shadow-sm">
-              <p className="text-muted-foreground text-[10px] flex items-center gap-1">
-                <Wallet className="w-3 h-3" />
+            <div className="bg-background border border-green-200 rounded-lg p-1.5 shadow-sm">
+              <p className="text-muted-foreground text-[9px] flex items-center gap-0.5">
+                <Wallet className="w-2.5 h-2.5" />
                 Credits
               </p>
-              <p className="text-lg font-bold text-green-600 mt-0.5">${rideCredits?.balance || '0.00'}</p>
+              <p className="text-base font-bold text-green-600 mt-0.5">${rideCredits?.balance || '0.00'}</p>
             </div>
           </div>
         </div>
 
-        {/* Navigation Menu */}
-        <div className="px-2 pt-2 pb-0 overflow-x-auto scrollbar-hide">
-          <div className="flex gap-1 min-w-max">
+        {/* Navigation Menu - Compact */}
+        <div className="px-1.5 pt-1.5 pb-0 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-0.5 min-w-max">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id;
@@ -486,15 +486,16 @@ export default function MobilePassenger() {
                     }
                     setMenuOpen(false);
                   }}
-                  className={`flex flex-col items-center gap-0.5 px-2.5 py-2 rounded-t-lg transition-all touch-manipulation ${
+                  className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-t-lg transition-all touch-manipulation ${
                     isActive
-                      ? 'bg-muted text-red-600 shadow-lg border-t border-x border-border'
+                      ? 'bg-muted shadow-lg border-t border-x border-border'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
+                  style={isActive ? { color: 'var(--brand-accent-hex)' } : undefined}
                   data-testid={`nav-${item.id}`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />
-                  <span className={`text-[10px] font-medium whitespace-nowrap ${isActive ? 'text-red-600' : ''}`}>
+                  <Icon className="w-3.5 h-3.5" style={isActive ? { color: 'var(--brand-accent-hex)' } : undefined} />
+                  <span className="text-[9px] font-medium whitespace-nowrap" style={isActive ? { color: 'var(--brand-accent-hex)' } : undefined}>
                     {item.label}
                   </span>
                 </button>
@@ -509,13 +510,14 @@ export default function MobilePassenger() {
         {/* Home Section */}
         {activeSection === 'home' && (
           <>
-            {/* Quick Action Button */}
+            {/* Quick Action Button - Compact */}
             <Button
               onClick={() => navigate('/mobile-booking')}
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-6 rounded-2xl text-lg font-semibold shadow-lg transition-all transform active:scale-95"
+              className="w-full text-white py-4 rounded-xl text-base font-semibold shadow-md transition-all transform active:scale-95"
+              style={{ backgroundColor: 'var(--brand-button-primary-hex)' }}
               data-testid="button-new-booking-home"
             >
-              <Plus className="w-6 h-6 mr-2" />
+              <Plus className="w-5 h-5 mr-1.5" />
               Book New Ride
             </Button>
 
@@ -523,17 +525,17 @@ export default function MobilePassenger() {
             <Card className="shadow-md border-border bg-background">
               <CardHeader className="pb-3 bg-background border-b border-border">
                 <CardTitle className="text-lg flex items-center gap-2 text-foreground">
-                  <Car className="w-5 h-5 text-red-600" />
+                  <Car className="w-5 h-5" style={{ color: 'var(--brand-accent-hex)' }} />
                   My Rides
                 </CardTitle>
               </CardHeader>
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'upcoming' | 'past')} className="w-full">
               <TabsList className="w-full grid grid-cols-2 bg-muted mx-4 mb-3" style={{width: 'calc(100% - 2rem)'}}>
-                <TabsTrigger value="upcoming" className="data-[state=active]:bg-background data-[state=active]:text-red-600" data-testid="tab-upcoming">
+                <TabsTrigger value="upcoming" className="data-[state=active]:bg-background" style={{ '--tw-text-opacity': 1 } as any} data-testid="tab-upcoming">
                   Upcoming ({upcomingBookings.length})
                 </TabsTrigger>
-                <TabsTrigger value="past" className="data-[state=active]:bg-background data-[state=active]:text-red-600" data-testid="tab-past">
+                <TabsTrigger value="past" className="data-[state=active]:bg-background" data-testid="tab-past">
                   Past ({pastBookings.length})
                 </TabsTrigger>
               </TabsList>
@@ -579,7 +581,7 @@ export default function MobilePassenger() {
                           </div>
                           
                           <div className="flex items-start gap-2">
-                            <MapPin className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                            <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--brand-accent-hex)' }} />
                             <div className="flex-1">
                               <p className="text-foreground font-medium">{booking.pickupAddress}</p>
                               {booking.destinationAddress && (
@@ -660,7 +662,7 @@ export default function MobilePassenger() {
                 <div className="flex justify-between items-center">
                   <div>
                     <CardTitle className="text-sm flex items-center gap-1.5 text-foreground">
-                      <MapPin className="w-3.5 h-3.5 text-red-600" />
+                      <MapPin className="w-3.5 h-3.5" style={{ color: 'var(--brand-accent-hex)' }} />
                       Saved Locations
                     </CardTitle>
                     <CardDescription className="text-xs mt-0.5">Your favorite places</CardDescription>
@@ -669,7 +671,7 @@ export default function MobilePassenger() {
                     <DialogTrigger asChild>
                       <Button
                         size="sm"
-                        className="bg-red-600 hover:bg-red-700 text-white shadow-sm h-7 px-2 text-xs"
+                        className="text-white shadow-sm h-7 px-2 text-xs" style={{ backgroundColor: 'var(--brand-button-primary-hex)' }}
                         data-testid="button-add-location"
                       >
                         <Plus className="w-3 h-3 mr-1" />
@@ -828,7 +830,7 @@ export default function MobilePassenger() {
                                 deleteAddressMutation.mutate(location.id);
                               }
                             }}
-                            className="text-muted-foreground hover:text-red-600 hover:bg-red-50 p-1 h-6 w-6"
+                            className="text-muted-foreground hover:bg-muted p-1 h-6 w-6"
                             data-testid={`button-delete-${location.id}`}
                           >
                             <Trash2 className="w-2.5 h-2.5" />

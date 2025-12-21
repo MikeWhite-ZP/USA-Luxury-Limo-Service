@@ -115,192 +115,191 @@ export default function MobileRegister() {
   const getRoleIcon = () => {
     switch (selectedRole) {
       case 'passenger':
-        return <UserCircle className="w-12 h-12" />;
+        return <UserCircle className="w-8 h-8" />;
       case 'driver':
-        return <Car className="w-12 h-12" />;
+        return <Car className="w-8 h-8" />;
       case 'dispatcher':
-        return <Radio className="w-12 h-12" />;
+        return <Radio className="w-8 h-8" />;
     }
   };
 
   const getRoleDescription = () => {
     switch (selectedRole) {
       case 'passenger':
-        return 'Book luxury rides with ease';
+        return 'Book luxury rides';
       case 'driver':
-        return 'Join our professional driver team';
+        return 'Join our driver team';
       case 'dispatcher':
-        return 'Manage fleet operations';
+        return 'Manage operations';
     }
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-96 h-96 bg-red-50 rounded-full blur-3xl -top-48 -left-24 animate-pulse" />
-        <div className="absolute w-96 h-96 bg-muted rounded-full blur-3xl -bottom-48 -right-24 animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute w-80 h-80 bg-red-50 rounded-full blur-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{ animationDelay: '2s' }} />
-      </div>
-
+    <div className="min-h-screen bg-background flex items-center justify-center p-3 relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md relative z-10"
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-sm relative z-10"
       >
-        <div className="bg-background border-b border-border rounded-t-2xl p-6 text-center shadow-lg">
+        {/* Header - Compact */}
+        <div className="bg-card border-b border-border rounded-t-xl p-3 text-center shadow-md">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            className="inline-block mb-3 text-red-600"
+            className="inline-block mb-1.5"
+            style={{ color: 'var(--brand-accent-hex)' }}
           >
             {getRoleIcon()}
           </motion.div>
-          <h1 className="text-2xl font-bold capitalize text-foreground">{selectedRole} Registration</h1>
-          <p className="text-sm text-muted-foreground mt-1">{getRoleDescription()}</p>
+          <h1 className="text-lg font-bold capitalize text-foreground">{selectedRole} Registration</h1>
+          <p className="text-xs text-muted-foreground">{getRoleDescription()}</p>
         </div>
 
-        <div className="bg-background rounded-b-2xl p-6 shadow-2xl border-x border-b border-border max-h-[70vh] overflow-y-auto">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="firstName" className="text-foreground text-sm">First Name</Label>
+        {/* Form - Compact */}
+        <div className="bg-card rounded-b-xl p-4 shadow-lg border-x border-b border-border max-h-[65vh] overflow-y-auto">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label htmlFor="firstName" className="text-xs text-muted-foreground">First Name</Label>
                 <Input
                   id="firstName"
                   type="text"
                   placeholder="John"
                   {...register('firstName')}
-                  className="h-11 text-base bg-background border-border focus:border-red-600 focus:ring-red-600 touch-manipulation"
+                  className="h-9 text-sm bg-background border-border touch-manipulation"
                   data-testid="input-mobile-firstname"
                 />
                 {errors.firstName && (
-                  <p className="text-red-600 text-xs">{errors.firstName.message}</p>
+                  <p className="text-destructive text-[10px]">{errors.firstName.message}</p>
                 )}
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="lastName" className="text-foreground text-sm">Last Name</Label>
+              <div className="space-y-1">
+                <Label htmlFor="lastName" className="text-xs text-muted-foreground">Last Name</Label>
                 <Input
                   id="lastName"
                   type="text"
                   placeholder="Doe"
                   {...register('lastName')}
-                  className="h-11 text-base bg-background border-border focus:border-red-600 focus:ring-red-600 touch-manipulation"
+                  className="h-9 text-sm bg-background border-border touch-manipulation"
                   data-testid="input-mobile-lastname"
                 />
                 {errors.lastName && (
-                  <p className="text-red-600 text-xs">{errors.lastName.message}</p>
+                  <p className="text-destructive text-[10px]">{errors.lastName.message}</p>
                 )}
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="username" className="text-foreground text-sm">Username</Label>
+            <div className="space-y-1">
+              <Label htmlFor="username" className="text-xs text-muted-foreground">Username</Label>
               <Input
                 id="username"
                 type="text"
-                placeholder="Choose a username"
+                placeholder="Choose username"
                 {...register('username')}
-                className="h-11 text-base bg-background border-border focus:border-red-600 focus:ring-red-600 touch-manipulation"
+                className="h-9 text-sm bg-background border-border touch-manipulation"
                 data-testid="input-mobile-register-username"
               />
               {errors.username && (
-                <p className="text-red-600 text-xs">{errors.username.message}</p>
+                <p className="text-destructive text-[10px]">{errors.username.message}</p>
               )}
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-foreground text-sm">Email</Label>
+            <div className="space-y-1">
+              <Label htmlFor="email" className="text-xs text-muted-foreground">Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="your@email.com"
                 {...register('email')}
-                className="h-11 text-base bg-background border-border focus:border-red-600 focus:ring-red-600 touch-manipulation"
+                className="h-9 text-sm bg-background border-border touch-manipulation"
                 data-testid="input-mobile-register-email"
               />
               {errors.email && (
-                <p className="text-red-600 text-xs">{errors.email.message}</p>
+                <p className="text-destructive text-[10px]">{errors.email.message}</p>
               )}
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-foreground text-sm">Password</Label>
+            <div className="space-y-1">
+              <Label htmlFor="password" className="text-xs text-muted-foreground">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Create a password"
+                  placeholder="Create password"
                   {...register('password')}
-                  className="h-11 text-base pr-12 bg-background border-border focus:border-red-600 focus:ring-red-600 touch-manipulation"
+                  className="h-9 text-sm pr-9 bg-background border-border touch-manipulation"
                   data-testid="input-mobile-register-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors touch-manipulation p-2"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors touch-manipulation p-1"
                   data-testid="button-toggle-password"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-red-600 text-xs">{errors.password.message}</p>
+                <p className="text-destructive text-[10px]">{errors.password.message}</p>
               )}
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="confirmPassword" className="text-foreground text-sm">Confirm Password</Label>
+            <div className="space-y-1">
+              <Label htmlFor="confirmPassword" className="text-xs text-muted-foreground">Confirm Password</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="Confirm your password"
+                  placeholder="Confirm password"
                   {...register('confirmPassword')}
-                  className="h-11 text-base pr-12 bg-background border-border focus:border-red-600 focus:ring-red-600 touch-manipulation"
+                  className="h-9 text-sm pr-9 bg-background border-border touch-manipulation"
                   data-testid="input-mobile-register-confirm-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors touch-manipulation p-2"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors touch-manipulation p-1"
                   data-testid="button-toggle-confirm-password"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="text-red-600 text-xs">{errors.confirmPassword.message}</p>
+                <p className="text-destructive text-[10px]">{errors.confirmPassword.message}</p>
               )}
             </div>
 
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 text-lg font-semibold bg-red-600 hover:bg-red-700 text-white transition-all shadow-md hover:shadow-lg touch-manipulation mt-2"
+              className="w-full h-9 text-sm font-semibold text-white transition-all shadow-sm hover:shadow-md touch-manipulation mt-2"
+              style={{ backgroundColor: 'var(--brand-button-primary-hex)' }}
               data-testid="button-mobile-register"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Creating Account...
+                  <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                  Creating...
                 </>
               ) : (
                 <>
-                  <UserPlus className="w-5 h-5 mr-2" />
+                  <UserPlus className="w-4 h-4 mr-1.5" />
                   Create Account
                 </>
               )}
             </Button>
           </form>
 
-          <div className="mt-5 text-center space-y-3">
-            <p className="text-muted-foreground text-sm">
+          <div className="mt-3 text-center space-y-1.5">
+            <p className="text-muted-foreground text-xs">
               Already have an account?{' '}
               <button
                 onClick={() => navigate(`/mobile-login?role=${selectedRole}`)}
-                className="text-red-600 hover:text-red-700 font-semibold transition-colors touch-manipulation"
+                className="font-semibold transition-colors touch-manipulation"
+                style={{ color: 'var(--brand-accent-hex)' }}
                 data-testid="button-go-to-login"
               >
                 Sign In
@@ -308,15 +307,15 @@ export default function MobileRegister() {
             </p>
             <button
               onClick={() => navigate('/mobile-splash')}
-              className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors touch-manipulation py-2 px-4"
+              className="text-muted-foreground hover:text-foreground text-xs font-medium transition-colors touch-manipulation py-1 px-2"
               data-testid="button-change-role"
             >
-              ← Change role
+              Change role
             </button>
             <div>
               <button
                 onClick={() => navigate('/')}
-                className="text-muted-foreground hover:text-foreground text-xs transition-colors touch-manipulation py-2 px-4"
+                className="text-muted-foreground hover:text-foreground text-[10px] transition-colors touch-manipulation py-1 px-2"
                 data-testid="button-back-to-website"
               >
                 Back to website
