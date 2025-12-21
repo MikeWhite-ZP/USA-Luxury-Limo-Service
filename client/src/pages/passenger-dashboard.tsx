@@ -2002,14 +2002,19 @@ export default function PassengerDashboard() {
                 </p>
               </div>
             </div>
-            <div className="relative group">
-              <div 
-                className="absolute -inset-0.5 rounded-xl opacity-0 group-hover:opacity-75 blur transition-opacity duration-300" 
-                style={{ background: `linear-gradient(to right, var(--brand-button-primary-hex), var(--brand-button-primary-hover-hex))` }}
-              />
+            <div className="flex items-center gap-3">
+              <Button 
+                onClick={() => window.location.href = '/'}
+                variant="outline"
+                className="px-4 py-2 rounded-xl font-medium transition-all duration-300 border-border hover:bg-muted"
+                data-testid="button-main-site"
+              >
+                <Home className="w-4 h-4 mr-2" />
+                Main Site
+              </Button>
               <Button 
                 onClick={() => window.location.href = '/api/logout'}
-                className="relative bg-black hover:bg-gray-900 text-white border border-gray-800 px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                className="bg-black hover:bg-gray-900 text-white border border-gray-800 px-6 py-3 rounded-xl font-medium transition-all duration-300"
                 style={{ borderColor: 'var(--brand-accent-hex)' }}
                 data-testid="button-logout"
               >
