@@ -129,6 +129,7 @@ export function useBrandTheme() {
       root.style.setProperty('--foreground', textPrimaryHSL);
       root.style.setProperty('--card-foreground', textPrimaryHSL);
       root.style.setProperty('--popover-foreground', textPrimaryHSL);
+      root.style.setProperty('--muted', hexToHSLString(colors.cardBackground)); // Use card background for muted
       root.style.setProperty('--muted-foreground', textMutedHSL);
       
       // Link colors
