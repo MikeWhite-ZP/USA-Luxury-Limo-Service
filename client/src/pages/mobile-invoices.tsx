@@ -180,7 +180,7 @@ export default function MobileInvoices() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-background dark:from-background pb-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 pb-8 rounded-b-3xl shadow-lg">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-b-3xl shadow-lg mt-[0px] mb-[0px] pt-[48px] pb-[48px]">
         <div className="flex items-center gap-3 mb-4">
           <Button
             variant="ghost"
@@ -197,7 +197,6 @@ export default function MobileInvoices() {
           </div>
         </div>
       </div>
-
       {/* Search Bar */}
       <div className="px-4 -mt-6 mb-4">
         <div className="relative">
@@ -212,7 +211,6 @@ export default function MobileInvoices() {
           />
         </div>
       </div>
-
       {/* Date Range Filters */}
       <div className="px-4 mb-6">
         <div className="bg-card shadow-md rounded-lg p-4 border border-border">
@@ -272,7 +270,6 @@ export default function MobileInvoices() {
           )}
         </div>
       </div>
-
       {/* Invoices List */}
       <div className="px-4 space-y-3">
         {isLoading ? (
@@ -384,7 +381,6 @@ export default function MobileInvoices() {
           ))
         )}
       </div>
-
       {/* View Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent className="sm:max-w-[500px] bg-card max-h-[90vh] overflow-y-auto">
