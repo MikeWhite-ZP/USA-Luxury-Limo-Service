@@ -68,6 +68,12 @@ export default function MobileInvoices() {
   });
 
   const filteredInvoices = invoices?.filter(invoice => {
+    // Exclude cancelled and unpaid invoices
+    const isCancelledAndUnpaid = invoice.booking?.status === 'cancelled' && !invoice.paidAt;
+    if (isCancelledAndUnpaid) {
+      return false;
+    }
+    
     // Text search filter
     const matchesSearch = !searchQuery || 
       invoice.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
