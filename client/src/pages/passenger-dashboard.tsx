@@ -1909,46 +1909,50 @@ export default function PassengerDashboard() {
         {/* Home Section */}
         {activeSection === 'home' && (
           <>
-            {/* Quick Actions */}
-            <div className="relative group" data-testid="quick-actions">
-              <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-              <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-black flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
-                      <MapPin className="w-5 h-5 text-white" />
-                    </div>
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="relative group/btn">
-                      <div className="absolute -inset-0.5 glow-brand rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
-                      <Button
-                        onClick={() => setActiveSection('booking')}
-                        className="relative h-20 w-full flex flex-col space-y-2 btn-brand-primary border-0 shadow-xl group-hover/btn:scale-[1.02] transition-transform duration-300"
-                        data-testid="button-book-ride"
-                      >
-                        <MapPin className="w-6 h-6" />
-                        <span className="font-semibold">Book a Ride</span>
-                      </Button>
-                    </div>
-                    
-                    <div className="relative group/btn">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-black to-gray-800 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
-                      <Button
-                        onClick={() => setActiveSection('past-bookings')}
-                        className="relative h-20 w-full flex flex-col space-y-2 bg-card hover:bg-muted text-black border-2 border-gray-300 hover:border-brand shadow-lg group-hover/btn:scale-[1.02] transition-all duration-300"
-                        data-testid="button-view-history"
-                      >
-                        <History className="w-6 h-6" />
-                        <span className="font-semibold">View History</span>
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Quick Actions - Compact Professional Design */}
+            <div className="bg-card border border-border rounded-xl p-4 shadow-sm" data-testid="quick-actions">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-sm font-medium text-muted-foreground mr-1">Quick Actions:</span>
+                <Button
+                  onClick={() => setActiveSection('booking')}
+                  size="sm"
+                  className="btn-brand-primary h-9 px-4 gap-2 font-medium shadow-sm hover:shadow-md transition-shadow"
+                  data-testid="button-book-ride"
+                >
+                  <MapPin className="w-4 h-4" />
+                  Book a Ride
+                </Button>
+                <Button
+                  onClick={() => setActiveSection('past-bookings')}
+                  size="sm"
+                  variant="outline"
+                  className="h-9 px-4 gap-2 font-medium border-border hover:bg-muted hover:border-[var(--brand-primary-hex)] transition-all"
+                  data-testid="button-view-history"
+                >
+                  <History className="w-4 h-4" />
+                  History
+                </Button>
+                <Button
+                  onClick={() => setActiveSection('saved-locations')}
+                  size="sm"
+                  variant="outline"
+                  className="h-9 px-4 gap-2 font-medium border-border hover:bg-muted hover:border-[var(--brand-primary-hex)] transition-all"
+                  data-testid="button-saved-locations"
+                >
+                  <MapPin className="w-4 h-4" />
+                  Saved Places
+                </Button>
+                <Button
+                  onClick={() => setActiveSection('support')}
+                  size="sm"
+                  variant="outline"
+                  className="h-9 px-4 gap-2 font-medium border-border hover:bg-muted hover:border-[var(--brand-primary-hex)] transition-all"
+                  data-testid="button-support"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  Support
+                </Button>
+              </div>
             </div>
 
             {/* Recent Bookings */}
