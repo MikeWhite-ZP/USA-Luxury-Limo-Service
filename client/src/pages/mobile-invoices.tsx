@@ -213,7 +213,7 @@ export default function MobileInvoices() {
       </div>
       {/* Date Range Filters */}
       <div className="px-4 mb-6">
-        <div className="bg-card shadow-md rounded-lg p-4 border border-border">
+        <div className="bg-card shadow-md rounded-lg p-4 border border-border mt-[10px] mb-[10px]">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-blue-600" />
