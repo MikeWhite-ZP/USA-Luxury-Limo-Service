@@ -1323,80 +1323,81 @@ export default function MobilePassenger() {
 
             {/* Password Change Card */}
             <Card className="shadow-sm border-2 border-border bg-card">
-              <CardHeader className="bg-primary/5/50 border-b border-border p-3">
-                <CardTitle className="text-sm flex items-center gap-2 text-foreground">
-                  <div className="bg-primary/10 p-1.5 rounded-lg">
-                    <Lock className="w-3.5 h-3.5 text-primary" />
+              <CardHeader className="bg-primary/5/50 border-b border-border p-2.5">
+                <CardTitle className="text-xs flex items-center gap-2 text-foreground">
+                  <div className="bg-primary/10 p-1 rounded-md">
+                    <Lock className="w-3 h-3 text-primary" />
                   </div>
                   Change Password
                 </CardTitle>
-                <CardDescription className="text-xs mt-0.5 text-muted-foreground">Update your account password</CardDescription>
               </CardHeader>
-              <CardContent className="p-4 space-y-3">
+              <CardContent className="p-3 space-y-2">
                 <div>
-                  <Label htmlFor="currentPassword" className="text-sm text-muted-foreground">Current Password</Label>
-                  <div className="relative mt-1.5">
+                  <Label htmlFor="currentPassword" className="text-xs text-muted-foreground">Current Password</Label>
+                  <div className="relative mt-1">
                     <Input
                       id="currentPassword"
                       type={showCurrentPassword ? "text" : "password"}
                       value={passwordForm.currentPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                      className="h-10 text-sm pr-10"
+                      className="h-8 text-sm pr-8"
                       data-testid="input-currentPassword"
                     />
                     <button
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       data-testid="button-toggle-current-password"
                     >
-                      {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showCurrentPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
                   </div>
                 </div>
-                <div>
-                  <Label htmlFor="newPassword" className="text-sm text-muted-foreground">New Password</Label>
-                  <div className="relative mt-1.5">
-                    <Input
-                      id="newPassword"
-                      type={showNewPassword ? "text" : "password"}
-                      value={passwordForm.newPassword}
-                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                      className="h-10 text-sm pr-10"
-                      data-testid="input-newPassword"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      data-testid="button-toggle-new-password"
-                    >
-                      {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor="newPassword" className="text-xs text-muted-foreground">New Password</Label>
+                    <div className="relative mt-1">
+                      <Input
+                        id="newPassword"
+                        type={showNewPassword ? "text" : "password"}
+                        value={passwordForm.newPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                        className="h-8 text-sm pr-8"
+                        data-testid="input-newPassword"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        data-testid="button-toggle-new-password"
+                      >
+                        {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1.5">8+ characters with uppercase, lowercase, and number</p>
-                </div>
-                <div>
-                  <Label htmlFor="confirmPassword" className="text-sm text-muted-foreground">Confirm New Password</Label>
-                  <div className="relative mt-1.5">
-                    <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      value={passwordForm.confirmPassword}
-                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                      className="h-10 text-sm pr-10"
-                      data-testid="input-confirmPassword"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      data-testid="button-toggle-confirm-password"
-                    >
-                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+                  <div>
+                    <Label htmlFor="confirmPassword" className="text-xs text-muted-foreground">Confirm Password</Label>
+                    <div className="relative mt-1">
+                      <Input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={passwordForm.confirmPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                        className="h-8 text-sm pr-8"
+                        data-testid="input-confirmPassword"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        data-testid="button-toggle-confirm-password"
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
                   </div>
                 </div>
+                <p className="text-[10px] text-muted-foreground">8+ chars with uppercase, lowercase & number</p>
                 <Button
                   onClick={() => {
                     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
@@ -1413,10 +1414,10 @@ export default function MobilePassenger() {
                     });
                   }}
                   disabled={updatePasswordMutation.isPending || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
-                  className="w-full h-10 text-sm bg-card hover:bg-primary/5 text-primary border-2 border-primary/30 hover:border-primary/40 shadow-sm hover:shadow-md transition-all mt-2"
+                  className="w-full h-8 text-xs bg-card hover:bg-primary/5 text-primary border border-primary/30 hover:border-primary/40 shadow-sm transition-all"
                   data-testid="button-change-password"
                 >
-                  <Lock className="w-4 h-4 mr-2" />
+                  <Lock className="w-3 h-3 mr-1.5" />
                   {updatePasswordMutation.isPending ? 'Updating...' : 'Update Password'}
                 </Button>
               </CardContent>
