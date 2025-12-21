@@ -9898,8 +9898,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'linkDefault', 'linkHover'
       ];
       
-      // Default color palette
-      const defaultColors: Record<string, string> = {
+      // Default light theme color palette
+      const defaultLightColors: Record<string, string> = {
         primary: '#1a1a1a',
         secondary: '#666666',
         accent: '#dc2626',
@@ -9919,11 +9919,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         linkDefault: '#dc2626',
         linkHover: '#b91c1c',
       };
+      
+      // Default dark theme color palette
+      const defaultDarkColors: Record<string, string> = {
+        primary: '#e5e5e5',
+        secondary: '#a3a3a3',
+        accent: '#ef4444',
+        buttonPrimary: '#ef4444',
+        buttonPrimaryHover: '#f87171',
+        buttonSecondary: '#6b7280',
+        buttonSecondaryHover: '#9ca3af',
+        pageBackground: '#0f0f0f',
+        cardBackground: '#1a1a1a',
+        headerBackground: '#141414',
+        textPrimary: '#f5f5f5',
+        textSecondary: '#d4d4d4',
+        textMuted: '#737373',
+        navActive: '#ef4444',
+        navIndicator: '#ef4444',
+        navHover: '#2a1a1a',
+        linkDefault: '#ef4444',
+        linkHover: '#f87171',
+      };
 
       // Convert camelCase to setting key format: buttonPrimary -> BRAND_COLOR_BUTTON_PRIMARY
-      const toSettingKey = (key: string) => `BRAND_COLOR_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+      const toSettingKey = (key: string, theme: 'light' | 'dark' = 'light') => {
+        const prefix = theme === 'dark' ? 'BRAND_COLOR_DARK_' : 'BRAND_COLOR_';
+        return `${prefix}${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+      };
       
-      // Fetch basic branding and all color settings in parallel
+      // Fetch basic branding settings
       const [
         companyName,
         tagline,
@@ -9937,8 +9962,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         legacyPrimary,
         legacySecondary,
         legacyAccent,
-        // All extended color settings
-        ...colorSettings
       ] = await Promise.all([
         storage.getCmsSetting('BRAND_COMPANY_NAME'),
         storage.getCmsSetting('BRAND_TAGLINE'),
@@ -9952,24 +9975,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         storage.getCmsSetting('BRAND_PRIMARY_COLOR'),
         storage.getCmsSetting('BRAND_SECONDARY_COLOR'),
         storage.getCmsSetting('BRAND_ACCENT_COLOR'),
-        // Extended color keys
-        ...colorKeys.map(key => storage.getCmsSetting(toSettingKey(key)))
       ]);
-
-      // Build colors object with fallbacks
-      const colors: Record<string, string> = { ...defaultColors };
       
-      // Apply extended color settings
+      // Fetch light theme color settings
+      const lightColorSettings = await Promise.all(
+        colorKeys.map(key => storage.getCmsSetting(toSettingKey(key, 'light')))
+      );
+      
+      // Fetch dark theme color settings
+      const darkColorSettings = await Promise.all(
+        colorKeys.map(key => storage.getCmsSetting(toSettingKey(key, 'dark')))
+      );
+
+      // Build light colors object with fallbacks
+      const colors: Record<string, string> = { ...defaultLightColors };
       colorKeys.forEach((key, index) => {
-        if (colorSettings[index]?.value) {
-          colors[key] = colorSettings[index]!.value;
+        if (lightColorSettings[index]?.value) {
+          colors[key] = lightColorSettings[index]!.value;
+        }
+      });
+      
+      // Build dark colors object with fallbacks
+      const darkColors: Record<string, string> = { ...defaultDarkColors };
+      colorKeys.forEach((key, index) => {
+        if (darkColorSettings[index]?.value) {
+          darkColors[key] = darkColorSettings[index]!.value;
         }
       });
       
       // Apply legacy colors if no extended versions exist (backward compatibility)
-      if (legacyPrimary?.value && !colorSettings[0]?.value) colors.primary = legacyPrimary.value;
-      if (legacySecondary?.value && !colorSettings[1]?.value) colors.secondary = legacySecondary.value;
-      if (legacyAccent?.value && !colorSettings[2]?.value) colors.accent = legacyAccent.value;
+      if (legacyPrimary?.value && !lightColorSettings[0]?.value) colors.primary = legacyPrimary.value;
+      if (legacySecondary?.value && !lightColorSettings[1]?.value) colors.secondary = legacySecondary.value;
+      if (legacyAccent?.value && !lightColorSettings[2]?.value) colors.accent = legacyAccent.value;
 
       // Get logo URL from unified site_logo setting (same as MediaLibrary uses)
       let resolvedLogoUrl = '/images/logo_1759125364025.png';
@@ -9996,7 +10033,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         description: description?.value || 'Premium luxury transportation services across the United States. Experience comfort, reliability, and professionalism with every ride.',
         logoUrl: resolvedLogoUrl,
         faviconUrl: resolvedFaviconUrl,
-        colors,
+        colors, // Light theme colors (default, for backward compatibility)
+        darkColors, // Dark theme colors
         contactEmail: contactEmail?.value || '',
         contactPhone: contactPhone?.value || '',
         contactAddress: contactAddress?.value || ''

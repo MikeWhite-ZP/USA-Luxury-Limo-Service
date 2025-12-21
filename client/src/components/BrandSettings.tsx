@@ -8,8 +8,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Upload, Settings, Palette, Share2, Mail, Globe, Pencil, Trash2, RotateCcw, Check, Building2 } from 'lucide-react';
+import { Loader2, Upload, Settings, Palette, Share2, Mail, Pencil, Trash2, RotateCcw, Check, Building2, Sun, Moon, Wand2 } from 'lucide-react';
 import TenantTaxSettings from './TenantTaxSettings';
+import { generateDarkPalette, ColorPalette, DEFAULT_DARK_COLORS } from '@/lib/colorUtils';
 
 type CmsSetting = {
   id: string;
@@ -30,77 +31,68 @@ type SiteMediaData = {
 export default function BrandSettings() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('branding');
+  const [colorThemeTab, setColorThemeTab] = useState<'light' | 'dark'>('light');
 
   const logoInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
 
-  // Extended color palette with clear names and descriptions
-  const DEFAULT_COLORS = {
-    // Core brand colors
+  // Default light theme colors
+  const DEFAULT_LIGHT_COLORS: ColorPalette = {
     primary: '#1a1a1a',
     secondary: '#666666',
     accent: '#dc2626',
-    // Button colors
     buttonPrimary: '#dc2626',
     buttonPrimaryHover: '#b91c1c',
     buttonSecondary: '#1a1a1a',
     buttonSecondaryHover: '#374151',
-    // Background colors
     pageBackground: '#ffffff',
     cardBackground: '#ffffff',
     headerBackground: '#ffffff',
-    // Text colors
     textPrimary: '#1a1a1a',
     textSecondary: '#4b5563',
     textMuted: '#9ca3af',
-    // Navigation colors
     navActive: '#dc2626',
     navIndicator: '#dc2626',
     navHover: '#fee2e2',
-    // Link colors
     linkDefault: '#dc2626',
     linkHover: '#b91c1c',
   };
 
-  // Color state with all options
-  const [colors, setColors] = useState(DEFAULT_COLORS);
+  // Color states for light and dark themes
+  const [lightColors, setLightColors] = useState<ColorPalette>(DEFAULT_LIGHT_COLORS);
+  const [darkColors, setDarkColors] = useState<ColorPalette>(DEFAULT_DARK_COLORS);
   const [colorsSaving, setColorsSaving] = useState(false);
-  const [hasColorChanges, setHasColorChanges] = useState(false);
+  const [hasLightChanges, setHasLightChanges] = useState(false);
+  const [hasDarkChanges, setHasDarkChanges] = useState(false);
 
   // Color field configurations with labels and descriptions
   const colorFields = [
-    // Core Brand Colors
     { section: 'Core Brand Colors', description: 'Main colors that define your brand identity' },
     { key: 'primary', label: 'Primary Color', desc: 'Main brand color used for headers and key elements' },
     { key: 'secondary', label: 'Secondary Color', desc: 'Supporting color for less prominent elements' },
     { key: 'accent', label: 'Accent Color', desc: 'Highlight color for calls-to-action and emphasis' },
     
-    // Button Colors
     { section: 'Button Colors', description: 'Control how buttons appear throughout the site' },
     { key: 'buttonPrimary', label: 'Primary Button', desc: 'Main action buttons (e.g., Book Now, Submit)' },
     { key: 'buttonPrimaryHover', label: 'Primary Button Hover', desc: 'When mouse hovers over primary buttons' },
     { key: 'buttonSecondary', label: 'Secondary Button', desc: 'Less prominent action buttons' },
     { key: 'buttonSecondaryHover', label: 'Secondary Button Hover', desc: 'When mouse hovers over secondary buttons' },
     
-    // Background Colors
     { section: 'Background Colors', description: 'Page and component background colors' },
     { key: 'pageBackground', label: 'Page Background', desc: 'Main page background color' },
     { key: 'cardBackground', label: 'Card Background', desc: 'Background for cards and panels' },
     { key: 'headerBackground', label: 'Header Background', desc: 'Top navigation bar background' },
     
-    // Text Colors
     { section: 'Text Colors', description: 'How text appears across the site' },
     { key: 'textPrimary', label: 'Primary Text', desc: 'Main headings and important text' },
     { key: 'textSecondary', label: 'Secondary Text', desc: 'Body text and descriptions' },
     { key: 'textMuted', label: 'Muted Text', desc: 'Subtle text like placeholders and hints' },
     
-    // Navigation Colors
     { section: 'Navigation Colors', description: 'Menu and tab styling' },
     { key: 'navActive', label: 'Active Tab Text', desc: 'Color of currently selected menu item' },
     { key: 'navIndicator', label: 'Active Indicator', desc: 'Underline/border for active menu items' },
     { key: 'navHover', label: 'Menu Hover Background', desc: 'Background when hovering over menu items' },
     
-    // Link Colors
     { section: 'Link Colors', description: 'Clickable text links' },
     { key: 'linkDefault', label: 'Link Color', desc: 'Default color for text links' },
     { key: 'linkHover', label: 'Link Hover', desc: 'Color when hovering over links' },
@@ -118,92 +110,149 @@ export default function BrandSettings() {
     queryKey: ['/api/site-favicon'],
   });
 
-  // Color key to setting key mapping
-  const colorKeyToSettingKey = (key: string) => `BRAND_COLOR_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+  // Color key to setting key mapping (with optional theme prefix)
+  const colorKeyToSettingKey = (key: string, theme: 'light' | 'dark' = 'light') => {
+    const prefix = theme === 'dark' ? 'BRAND_COLOR_DARK_' : 'BRAND_COLOR_';
+    return `${prefix}${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+  };
   
   useEffect(() => {
     if (settings) {
-      const loadedColors = { ...DEFAULT_COLORS };
+      const loadedLightColors = { ...DEFAULT_LIGHT_COLORS };
+      const loadedDarkColors = { ...DEFAULT_DARK_COLORS };
       
-      // Load all color settings
-      Object.keys(DEFAULT_COLORS).forEach((key) => {
-        const settingKey = colorKeyToSettingKey(key);
+      // Load light theme colors
+      Object.keys(DEFAULT_LIGHT_COLORS).forEach((key) => {
+        const settingKey = colorKeyToSettingKey(key, 'light');
         const value = settings.find(s => s.key === settingKey)?.value;
         if (value) {
-          (loadedColors as any)[key] = value;
+          (loadedLightColors as Record<string, string>)[key] = value;
         }
       });
       
-      // Also check legacy keys for backward compatibility
+      // Load dark theme colors
+      Object.keys(DEFAULT_DARK_COLORS).forEach((key) => {
+        const settingKey = colorKeyToSettingKey(key, 'dark');
+        const value = settings.find(s => s.key === settingKey)?.value;
+        if (value) {
+          (loadedDarkColors as Record<string, string>)[key] = value;
+        }
+      });
+      
+      // Legacy key support for backward compatibility
       const legacyPrimary = settings.find(s => s.key === 'BRAND_PRIMARY_COLOR')?.value;
       const legacySecondary = settings.find(s => s.key === 'BRAND_SECONDARY_COLOR')?.value;
       const legacyAccent = settings.find(s => s.key === 'BRAND_ACCENT_COLOR')?.value;
       
-      if (legacyPrimary) loadedColors.primary = legacyPrimary;
-      if (legacySecondary) loadedColors.secondary = legacySecondary;
-      if (legacyAccent) loadedColors.accent = legacyAccent;
+      if (legacyPrimary) loadedLightColors.primary = legacyPrimary;
+      if (legacySecondary) loadedLightColors.secondary = legacySecondary;
+      if (legacyAccent) loadedLightColors.accent = legacyAccent;
 
-      setColors(loadedColors);
-      setHasColorChanges(false);
+      setLightColors(loadedLightColors);
+      setDarkColors(loadedDarkColors);
+      setHasLightChanges(false);
+      setHasDarkChanges(false);
     }
   }, [settings]);
 
   // Track color changes
-  const handleColorChange = (key: string, value: string) => {
-    setColors(prev => ({ ...prev, [key]: value }));
-    setHasColorChanges(true);
+  const handleLightColorChange = (key: string, value: string) => {
+    setLightColors(prev => ({ ...prev, [key]: value }));
+    setHasLightChanges(true);
+  };
+
+  const handleDarkColorChange = (key: string, value: string) => {
+    setDarkColors(prev => ({ ...prev, [key]: value }));
+    setHasDarkChanges(true);
   };
 
   // Reset colors to default
-  const handleResetColors = () => {
-    setColors(DEFAULT_COLORS);
-    setHasColorChanges(true);
+  const handleResetLightColors = () => {
+    setLightColors(DEFAULT_LIGHT_COLORS);
+    setHasLightChanges(true);
     toast({
-      title: 'Colors Reset',
-      description: 'Colors have been reset to defaults. Click "Apply Colors" to save.',
+      title: 'Light Theme Reset',
+      description: 'Light theme colors reset to defaults. Click "Apply Colors" to save.',
     });
   };
 
-  // Save all colors at once
+  const handleResetDarkColors = () => {
+    setDarkColors(DEFAULT_DARK_COLORS);
+    setHasDarkChanges(true);
+    toast({
+      title: 'Dark Theme Reset',
+      description: 'Dark theme colors reset to defaults. Click "Apply Colors" to save.',
+    });
+  };
+
+  // Auto-generate dark colors from light colors
+  const handleAutoGenerateDarkColors = () => {
+    const generatedDark = generateDarkPalette(lightColors);
+    setDarkColors(generatedDark);
+    setHasDarkChanges(true);
+    toast({
+      title: 'Dark Theme Generated',
+      description: 'Dark theme colors auto-generated from light theme. Review and click "Apply Colors" to save.',
+    });
+  };
+
+  // Save colors for a specific theme
+  const saveThemeColors = async (theme: 'light' | 'dark', colors: ColorPalette) => {
+    const colorDescriptions: Record<string, string> = {
+      primary: 'Primary brand color',
+      secondary: 'Secondary brand color',
+      accent: 'Accent/highlight color',
+      buttonPrimary: 'Primary button background',
+      buttonPrimaryHover: 'Primary button hover state',
+      buttonSecondary: 'Secondary button background',
+      buttonSecondaryHover: 'Secondary button hover state',
+      pageBackground: 'Page background color',
+      cardBackground: 'Card/panel background',
+      headerBackground: 'Header background',
+      textPrimary: 'Primary text color',
+      textSecondary: 'Secondary text color',
+      textMuted: 'Muted text color',
+      navActive: 'Active navigation text',
+      navIndicator: 'Navigation indicator color',
+      navHover: 'Navigation hover background',
+      linkDefault: 'Default link color',
+      linkHover: 'Link hover color',
+    };
+
+    const themeLabel = theme === 'dark' ? 'Dark theme ' : '';
+    
+    await Promise.all(
+      Object.entries(colors).map(([key, value]) =>
+        apiRequest('PUT', '/api/admin/cms/settings', { 
+          key: colorKeyToSettingKey(key, theme),
+          value, 
+          category: 'colors', 
+          description: `${themeLabel}${colorDescriptions[key] || `Brand color: ${key}`}`
+        })
+      )
+    );
+  };
+
+  // Save all colors (both themes)
   const handleApplyColors = async () => {
     setColorsSaving(true);
     try {
-      const colorDescriptions: Record<string, string> = {
-        primary: 'Primary brand color',
-        secondary: 'Secondary brand color',
-        accent: 'Accent/highlight color',
-        buttonPrimary: 'Primary button background',
-        buttonPrimaryHover: 'Primary button hover state',
-        buttonSecondary: 'Secondary button background',
-        buttonSecondaryHover: 'Secondary button hover state',
-        pageBackground: 'Page background color',
-        cardBackground: 'Card/panel background',
-        headerBackground: 'Header background',
-        textPrimary: 'Primary text color',
-        textSecondary: 'Secondary text color',
-        textMuted: 'Muted text color',
-        navActive: 'Active navigation text',
-        navIndicator: 'Navigation indicator color',
-        navHover: 'Navigation hover background',
-        linkDefault: 'Default link color',
-        linkHover: 'Link hover color',
-      };
+      const savePromises: Promise<void>[] = [];
       
-      await Promise.all(
-        Object.entries(colors).map(([key, value]) =>
-          apiRequest('PUT', '/api/admin/cms/settings', { 
-            key: colorKeyToSettingKey(key),
-            value, 
-            category: 'colors', 
-            description: colorDescriptions[key] || `Brand color: ${key}`
-          })
-        )
-      );
+      if (hasLightChanges) {
+        savePromises.push(saveThemeColors('light', lightColors));
+      }
+      if (hasDarkChanges) {
+        savePromises.push(saveThemeColors('dark', darkColors));
+      }
+      
+      await Promise.all(savePromises);
       
       await queryClient.invalidateQueries({ queryKey: ['/api/admin/cms/settings'] });
       await queryClient.invalidateQueries({ queryKey: ['/api/branding'] });
       
-      setHasColorChanges(false);
+      setHasLightChanges(false);
+      setHasDarkChanges(false);
       toast({
         title: 'Success',
         description: 'Brand colors saved successfully. Theme updated.',
@@ -374,6 +423,133 @@ export default function BrandSettings() {
     }
   };
 
+  // Render color picker grid for a theme
+  const renderColorSection = (theme: 'light' | 'dark') => {
+    const colors = theme === 'light' ? lightColors : darkColors;
+    const handleChange = theme === 'light' ? handleLightColorChange : handleDarkColorChange;
+    const defaultColors = theme === 'light' ? DEFAULT_LIGHT_COLORS : DEFAULT_DARK_COLORS;
+
+    return (
+      <div className="space-y-6">
+        {colorFields.map((field, index) => {
+          if ('section' in field && field.section) {
+            const sectionColors = colorFields
+              .slice(index + 1)
+              .filter((f): f is { key: string; label: string; desc: string } => 
+                'key' in f && f.key !== undefined
+              )
+              .slice(0, colorFields.slice(index + 1).findIndex(f => 'section' in f && f.section) === -1 
+                ? colorFields.slice(index + 1).filter(f => 'key' in f).length 
+                : colorFields.slice(index + 1).findIndex(f => 'section' in f && f.section));
+
+            return (
+              <div key={`section-${index}`} className="pt-4 first:pt-0">
+                <h3 className="text-base font-semibold text-foreground mb-1">{field.section}</h3>
+                <p className="text-sm text-muted-foreground mb-3">{field.description}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {sectionColors.map((colorField) => (
+                    <div key={colorField.key} className="space-y-1.5 p-2.5 rounded-lg border border-border bg-muted/30">
+                      <Label htmlFor={`${theme}-color-${colorField.key}`} className="text-xs font-medium" title={colorField.desc}>
+                        {colorField.label}
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="color"
+                          id={`${theme}-color-${colorField.key}`}
+                          value={(colors as Record<string, string>)[colorField.key] || (defaultColors as Record<string, string>)[colorField.key]}
+                          onChange={(e) => handleChange(colorField.key, e.target.value)}
+                          className="w-10 h-8 cursor-pointer p-0.5 rounded"
+                        />
+                        <Input
+                          type="text"
+                          value={(colors as Record<string, string>)[colorField.key] || (defaultColors as Record<string, string>)[colorField.key]}
+                          onChange={(e) => handleChange(colorField.key, e.target.value)}
+                          placeholder="#000000"
+                          className="font-mono text-xs flex-1 h-8"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })}
+      </div>
+    );
+  };
+
+  // Theme preview component
+  const renderThemePreview = (theme: 'light' | 'dark') => {
+    const colors = theme === 'light' ? lightColors : darkColors;
+    
+    return (
+      <div 
+        className="rounded-lg border overflow-hidden"
+        style={{ backgroundColor: colors.pageBackground }}
+      >
+        {/* Preview Header */}
+        <div 
+          className="px-4 py-3 flex items-center justify-between"
+          style={{ backgroundColor: colors.headerBackground }}
+        >
+          <span style={{ color: colors.textPrimary }} className="font-semibold text-sm">Preview</span>
+          <div className="flex gap-2">
+            <span 
+              style={{ color: colors.navActive }} 
+              className="text-xs font-medium border-b-2"
+            >
+              Active
+            </span>
+            <span style={{ color: colors.textMuted }} className="text-xs">Tab</span>
+          </div>
+        </div>
+        
+        {/* Preview Card */}
+        <div className="p-3">
+          <div 
+            className="rounded-lg p-3 mb-3"
+            style={{ backgroundColor: colors.cardBackground }}
+          >
+            <h4 style={{ color: colors.textPrimary }} className="font-semibold text-sm mb-1">Card Title</h4>
+            <p style={{ color: colors.textSecondary }} className="text-xs mb-2">Card description text</p>
+            <p style={{ color: colors.textMuted }} className="text-xs">Muted helper text</p>
+          </div>
+          
+          {/* Preview Buttons */}
+          <div className="flex gap-2">
+            <button 
+              className="px-3 py-1.5 rounded text-xs font-medium"
+              style={{ 
+                backgroundColor: colors.buttonPrimary, 
+                color: '#ffffff' 
+              }}
+            >
+              Primary
+            </button>
+            <button 
+              className="px-3 py-1.5 rounded text-xs font-medium"
+              style={{ 
+                backgroundColor: colors.buttonSecondary, 
+                color: '#ffffff' 
+              }}
+            >
+              Secondary
+            </button>
+          </div>
+          
+          {/* Preview Link */}
+          <div className="mt-2">
+            <span style={{ color: colors.linkDefault }} className="text-xs underline cursor-pointer">
+              Sample link
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -381,6 +557,8 @@ export default function BrandSettings() {
       </div>
     );
   }
+
+  const hasAnyChanges = hasLightChanges || hasDarkChanges;
 
   return (
     <div className="space-y-6">
@@ -470,7 +648,7 @@ export default function BrandSettings() {
                       <Button 
                         variant="outline" 
                         onClick={() => handleLogoDelete('logo')}
-                        className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="flex items-center gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
                         <Trash2 className="w-4 h-4" />
                         Remove
@@ -527,7 +705,7 @@ export default function BrandSettings() {
                       <Button 
                         variant="outline" 
                         onClick={() => handleLogoDelete('favicon')}
-                        className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="flex items-center gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
                         <Trash2 className="w-4 h-4" />
                         Remove
@@ -566,82 +744,101 @@ export default function BrandSettings() {
         <TabsContent value="colors" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Brand Colors</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="w-5 h-5" />
+                Brand Colors
+              </CardTitle>
               <CardDescription>
-                Customize your website's color scheme. These colors affect the entire application theme.
-                Each color has a specific purpose - hover over labels for more details.
+                Customize your website's color scheme for both light and dark themes. 
+                Your visitors will see the appropriate theme based on their system preferences or theme toggle.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Render color sections dynamically */}
-              {(() => {
-                let currentSection = '';
-                return colorFields.map((field, index) => {
-                  // Section header
-                  if ('section' in field) {
-                    currentSection = field.section;
-                    return (
-                      <div key={`section-${index}`} className="pt-4 first:pt-0">
-                        <h3 className="text-lg font-semibold text-foreground mb-1">{field.section}</h3>
-                        <p className="text-sm text-muted-foreground mb-4">{field.description}</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {colorFields
-                            .slice(index + 1)
-                            .filter((f): f is { key: string; label: string; desc: string } => 
-                              'key' in f && !('section' in colorFields[colorFields.indexOf(f) - 1] || false)
-                            )
-                            .slice(0, colorFields.slice(index + 1).findIndex(f => 'section' in f) === -1 
-                              ? colorFields.slice(index + 1).filter(f => 'key' in f).length 
-                              : colorFields.slice(index + 1).findIndex(f => 'section' in f))
-                            .map((colorField) => (
-                              <div key={colorField.key} className="space-y-2 p-3 rounded-lg border border-border bg-muted/30">
-                                <Label htmlFor={`color-${colorField.key}`} className="text-sm font-medium" title={colorField.desc}>
-                                  {colorField.label}
-                                </Label>
-                                <div className="flex items-center gap-2">
-                                  <Input
-                                    type="color"
-                                    id={`color-${colorField.key}`}
-                                    value={(colors as any)[colorField.key] || DEFAULT_COLORS[colorField.key as keyof typeof DEFAULT_COLORS]}
-                                    onChange={(e) => handleColorChange(colorField.key, e.target.value)}
-                                    className="w-12 h-10 cursor-pointer p-1 rounded"
-                                  />
-                                  <Input
-                                    type="text"
-                                    value={(colors as any)[colorField.key] || DEFAULT_COLORS[colorField.key as keyof typeof DEFAULT_COLORS]}
-                                    onChange={(e) => handleColorChange(colorField.key, e.target.value)}
-                                    placeholder="#000000"
-                                    className="font-mono text-xs flex-1"
-                                  />
-                                </div>
-                                <p className="text-xs text-muted-foreground">{colorField.desc}</p>
-                              </div>
-                            ))}
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                });
-              })()}
-
-              {/* Action buttons */}
-              <div className="flex items-center justify-between pt-6 border-t">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={handleResetColors}
-                    disabled={colorsSaving}
-                    className="flex items-center gap-2"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                    Reset to Defaults
-                  </Button>
-                  <p className="text-xs text-muted-foreground hidden sm:block">Restore all colors to defaults</p>
+            <CardContent className="space-y-4">
+              {/* Light/Dark Theme Tabs */}
+              <Tabs value={colorThemeTab} onValueChange={(v) => setColorThemeTab(v as 'light' | 'dark')}>
+                <div className="flex items-center justify-between mb-4">
+                  <TabsList className="grid w-64 grid-cols-2">
+                    <TabsTrigger value="light" className="flex items-center gap-2">
+                      <Sun className="w-4 h-4" />
+                      <span>Light Theme</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="dark" className="flex items-center gap-2">
+                      <Moon className="w-4 h-4" />
+                      <span>Dark Theme</span>
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  {colorThemeTab === 'dark' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAutoGenerateDarkColors}
+                      className="flex items-center gap-2"
+                    >
+                      <Wand2 className="w-4 h-4" />
+                      Auto-Generate from Light
+                    </Button>
+                  )}
                 </div>
+
+                <TabsContent value="light" className="space-y-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <div className="lg:col-span-3">
+                      {renderColorSection('light')}
+                    </div>
+                    <div className="lg:col-span-1">
+                      <div className="sticky top-4">
+                        <h4 className="text-sm font-medium mb-2">Light Theme Preview</h4>
+                        {renderThemePreview('light')}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t">
+                    <Button
+                      variant="outline"
+                      onClick={handleResetLightColors}
+                      disabled={colorsSaving}
+                      className="flex items-center gap-2"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      Reset Light Theme
+                    </Button>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="dark" className="space-y-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <div className="lg:col-span-3">
+                      {renderColorSection('dark')}
+                    </div>
+                    <div className="lg:col-span-1">
+                      <div className="sticky top-4">
+                        <h4 className="text-sm font-medium mb-2">Dark Theme Preview</h4>
+                        {renderThemePreview('dark')}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t">
+                    <Button
+                      variant="outline"
+                      onClick={handleResetDarkColors}
+                      disabled={colorsSaving}
+                      className="flex items-center gap-2"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      Reset Dark Theme
+                    </Button>
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              {/* Global Apply Button */}
+              <div className="flex items-center justify-end pt-4 border-t">
                 <Button
                   onClick={handleApplyColors}
-                  disabled={colorsSaving || !hasColorChanges}
+                  disabled={colorsSaving || !hasAnyChanges}
                   className="flex items-center gap-2"
                 >
                   {colorsSaving ? (
@@ -649,13 +846,16 @@ export default function BrandSettings() {
                   ) : (
                     <Check className="w-4 h-4" />
                   )}
-                  {colorsSaving ? 'Saving...' : 'Apply Colors'}
+                  {colorsSaving ? 'Saving...' : 'Apply All Changes'}
                 </Button>
               </div>
 
-              {hasColorChanges && (
+              {hasAnyChanges && (
                 <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md p-3 text-sm text-amber-800 dark:text-amber-200">
-                  You have unsaved color changes. Click "Apply Colors" to save your changes.
+                  You have unsaved color changes. Click "Apply All Changes" to save your changes.
+                  {hasLightChanges && hasDarkChanges && ' (Both themes modified)'}
+                  {hasLightChanges && !hasDarkChanges && ' (Light theme modified)'}
+                  {!hasLightChanges && hasDarkChanges && ' (Dark theme modified)'}
                 </div>
               )}
             </CardContent>

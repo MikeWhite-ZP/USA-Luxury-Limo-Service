@@ -31,6 +31,9 @@ export interface BrandColors {
   // Link colors
   linkDefault: string;
   linkHover: string;
+  
+  // Index signature for dynamic access
+  [key: string]: string;
 }
 
 export interface BrandingData {
@@ -40,12 +43,13 @@ export interface BrandingData {
   logoUrl: string;
   faviconUrl: string;
   colors: BrandColors;
+  darkColors?: BrandColors;
   contactEmail: string;
   contactPhone: string;
   contactAddress: string;
 }
 
-// Default color palette
+// Default light theme color palette
 export const DEFAULT_BRAND_COLORS: BrandColors = {
   // Core
   primary: '#1a1a1a',
@@ -78,6 +82,39 @@ export const DEFAULT_BRAND_COLORS: BrandColors = {
   linkHover: '#b91c1c',
 };
 
+// Default dark theme color palette
+export const DEFAULT_DARK_BRAND_COLORS: BrandColors = {
+  // Core
+  primary: '#e5e5e5',
+  secondary: '#a3a3a3',
+  accent: '#ef4444',
+  
+  // Buttons
+  buttonPrimary: '#ef4444',
+  buttonPrimaryHover: '#f87171',
+  buttonSecondary: '#6b7280',
+  buttonSecondaryHover: '#9ca3af',
+  
+  // Backgrounds
+  pageBackground: '#0f0f0f',
+  cardBackground: '#1a1a1a',
+  headerBackground: '#141414',
+  
+  // Text
+  textPrimary: '#f5f5f5',
+  textSecondary: '#d4d4d4',
+  textMuted: '#737373',
+  
+  // Navigation
+  navActive: '#ef4444',
+  navIndicator: '#ef4444',
+  navHover: '#2a1a1a',
+  
+  // Links
+  linkDefault: '#ef4444',
+  linkHover: '#f87171',
+};
+
 export function useBranding() {
   const { data, isLoading, isFetched, error } = useQuery<BrandingData>({
     queryKey: ['/api/branding'],
@@ -90,6 +127,12 @@ export function useBranding() {
     ...DEFAULT_BRAND_COLORS,
     ...(data?.colors || {}),
   };
+  
+  // Merge fetched dark colors with defaults
+  const darkColors: BrandColors = {
+    ...DEFAULT_DARK_BRAND_COLORS,
+    ...(data?.darkColors || {}),
+  };
 
   // Return branding data with defaults
   return {
@@ -99,6 +142,7 @@ export function useBranding() {
     logoUrl: data?.logoUrl || '/images/logo_1759125364025.png',
     faviconUrl: data?.faviconUrl || '/images/favicon_1759253989963.png',
     colors,
+    darkColors,
     contactEmail: data?.contactEmail || '',
     contactPhone: data?.contactPhone || '',
     contactAddress: data?.contactAddress || '',
