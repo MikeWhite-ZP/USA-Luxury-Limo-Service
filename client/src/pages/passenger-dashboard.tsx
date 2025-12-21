@@ -2814,246 +2814,64 @@ export default function PassengerDashboard() {
           </Card>
         )}
 
-        {/* Account Details Section - Compact Professional Design */}
+        {/* Account Details Section - Ultra Compact */}
         {activeSection === 'account-details' && (
-          <div className="space-y-4">
-            {/* Account Status Bar */}
-            <Card className="bg-card border-border shadow-sm" data-testid="account-details-card">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg icon-brand-bg flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
-                  </div>
-                  Account Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <p className="text-[10px] uppercase text-muted-foreground font-medium">Type</p>
-                    <p className="font-semibold text-sm text-foreground capitalize" data-testid="text-role">
-                      {user?.role || 'N/A'}
-                    </p>
-                  </div>
-                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <p className="text-[10px] uppercase text-muted-foreground font-medium">Status</p>
-                    <p className="font-semibold text-sm" data-testid="text-status">
-                      {user?.isActive ? (
-                        <span className="text-green-600 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 bg-green-600 rounded-full" />
-                          Active
-                        </span>
-                      ) : (
-                        <span className="text-red-600 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 bg-red-600 rounded-full" />
-                          Inactive
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <p className="text-[10px] uppercase text-muted-foreground font-medium">Payment</p>
-                    <p className={`font-semibold text-sm ${paymentCardStatus.color}`} data-testid="text-payment-status">
-                      {paymentCardStatus.status}
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Compact Privilege Badges */}
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {user?.payLaterEnabled && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-brand-light text-brand-accent text-xs font-medium border-brand">
-                      <span className="text-xs">✓</span> Pay Later
-                    </span>
-                  )}
+          <Card className="bg-card border-border shadow-sm" data-testid="account-details-card">
+            <CardContent className="p-4 space-y-4">
+              {/* Status Row */}
+              <div className="flex items-center justify-between gap-2 pb-3 border-b border-border">
+                <div className="flex items-center gap-4">
+                  <span className="text-xs text-muted-foreground">Type: <span className="font-medium text-foreground capitalize" data-testid="text-role">{user?.role || 'N/A'}</span></span>
+                  <span className="text-xs" data-testid="text-status">
+                    {user?.isActive ? (
+                      <span className="text-green-600 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-600 rounded-full" />Active</span>
+                    ) : (
+                      <span className="text-red-600 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-red-600 rounded-full" />Inactive</span>
+                    )}
+                  </span>
+                  <span className={`text-xs ${paymentCardStatus.color}`} data-testid="text-payment-status">{paymentCardStatus.status}</span>
+                  {user?.payLaterEnabled && <span className="text-xs text-brand-accent">✓ Pay Later</span>}
                   {(user as any)?.discountType && ((user as any)?.discountValue ?? 0) > 0 && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-brand-light text-brand-accent text-xs font-medium border-brand">
-                      <span className="text-xs">🎉</span>
-                      {(user as any).discountType === 'percentage' 
-                        ? `${(user as any).discountValue}% off` 
-                        : `$${(user as any).discountValue} off`}
+                    <span className="text-xs text-brand-accent">
+                      {(user as any).discountType === 'percentage' ? `${(user as any).discountValue}% off` : `$${(user as any).discountValue} off`}
                     </span>
                   )}
                 </div>
-                
                 {paymentCardStatus.message && (
-                  <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between gap-2">
-                    <p className="text-xs text-amber-800 flex items-center gap-1">
-                      <span>⚠️</span> {paymentCardStatus.message}
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setActiveSection('payment-methods')}
-                      className="text-xs h-7 px-2 bg-amber-600 hover:bg-amber-500 text-white border-0"
-                      data-testid="button-manage-payment"
-                    >
-                      {paymentCardStatus.action}
-                    </Button>
-                  </div>
+                  <Button size="sm" onClick={() => setActiveSection('payment-methods')} className="h-6 px-2 text-xs bg-amber-600 hover:bg-amber-500 text-white" data-testid="button-manage-payment">
+                    {paymentCardStatus.action}
+                  </Button>
                 )}
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Profile Information Card - Compact */}
-            <Card className="bg-card border-border shadow-sm" data-testid="profile-card">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg icon-brand-bg flex items-center justify-center">
-                    <Mail className="w-4 h-4 text-white" />
-                  </div>
-                  Profile Information
-                </CardTitle>
-                <p className="text-xs text-muted-foreground">Update your personal details</p>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <form onSubmit={handleProfileSubmit} className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label htmlFor="firstName" className="text-xs font-medium text-muted-foreground">First Name *</Label>
-                      <Input
-                        id="firstName"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="First name"
-                        className="mt-1 h-9 text-sm"
-                        data-testid="input-first-name"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="lastName" className="text-xs font-medium text-muted-foreground">Last Name *</Label>
-                      <Input
-                        id="lastName"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Last name"
-                        className="mt-1 h-9 text-sm"
-                        data-testid="input-last-name"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Email address"
-                        className="mt-1 h-9 text-sm"
-                        data-testid="input-email"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone" className="text-xs font-medium text-muted-foreground">Phone</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="Phone number"
-                        className="mt-1 h-9 text-sm"
-                        data-testid="input-phone"
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    disabled={updateProfileMutation.isPending}
-                    className="w-full h-9 btn-brand-primary border-0 text-sm"
-                    data-testid="button-save"
-                  >
-                    {updateProfileMutation.isPending ? (
-                      <>
-                        <div className="animate-spin w-3 h-3 border-2 border-white border-t-transparent rounded-full mr-1" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-3 h-3 mr-1" />
-                        Save Changes
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+              {/* Profile Form */}
+              <form onSubmit={handleProfileSubmit} className="space-y-2" data-testid="profile-card">
+                <p className="text-xs font-medium text-muted-foreground">Profile</p>
+                <div className="grid grid-cols-4 gap-2">
+                  <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First name *" className="h-8 text-xs" data-testid="input-first-name" />
+                  <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last name *" className="h-8 text-xs" data-testid="input-last-name" />
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email *" className="h-8 text-xs" data-testid="input-email" />
+                  <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="h-8 text-xs" data-testid="input-phone" />
+                </div>
+                <Button type="submit" disabled={updateProfileMutation.isPending} size="sm" className="h-7 px-3 text-xs btn-brand-primary border-0" data-testid="button-save">
+                  {updateProfileMutation.isPending ? 'Saving...' : 'Save Profile'}
+                </Button>
+              </form>
 
-            {/* Password Card - Compact */}
-            <Card className="bg-card border-border shadow-sm" data-testid="password-card">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg icon-brand-bg flex items-center justify-center">
-                    <Save className="w-4 h-4 text-white" />
-                  </div>
-                  Change Password
-                </CardTitle>
-                <p className="text-xs text-muted-foreground">Keep your account secure</p>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <form onSubmit={handlePasswordSubmit} className="space-y-3">
-                  <div>
-                    <Label htmlFor="currentPassword" className="text-xs font-medium text-muted-foreground">Current Password *</Label>
-                    <Input
-                      id="currentPassword"
-                      type="password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      placeholder="Current password"
-                      className="mt-1 h-9 text-sm"
-                      data-testid="input-current-password"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label htmlFor="newPassword" className="text-xs font-medium text-muted-foreground">New Password *</Label>
-                      <Input
-                        id="newPassword"
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="New password"
-                        className="mt-1 h-9 text-sm"
-                        data-testid="input-new-password"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="confirmPassword" className="text-xs font-medium text-muted-foreground">Confirm Password *</Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Confirm password"
-                        className="mt-1 h-9 text-sm"
-                        data-testid="input-confirm-password"
-                      />
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground">Min 8 chars with uppercase, lowercase & numbers</p>
-                  <Button
-                    type="submit"
-                    disabled={updatePasswordMutation.isPending}
-                    className="w-full h-9 btn-brand-primary border-0 text-sm"
-                    data-testid="button-update-password"
-                  >
-                    {updatePasswordMutation.isPending ? (
-                      <>
-                        <div className="animate-spin w-3 h-3 border-2 border-white border-t-transparent rounded-full mr-1" />
-                        Updating...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-3 h-3 mr-1" />
-                        Update Password
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
+              {/* Password Form */}
+              <form onSubmit={handlePasswordSubmit} className="space-y-2 pt-2 border-t border-border" data-testid="password-card">
+                <p className="text-xs font-medium text-muted-foreground">Password</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <Input id="currentPassword" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Current *" className="h-8 text-xs" data-testid="input-current-password" />
+                  <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New *" className="h-8 text-xs" data-testid="input-new-password" />
+                  <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm *" className="h-8 text-xs" data-testid="input-confirm-password" />
+                </div>
+                <Button type="submit" disabled={updatePasswordMutation.isPending} size="sm" className="h-7 px-3 text-xs btn-brand-primary border-0" data-testid="button-update-password">
+                  {updatePasswordMutation.isPending ? 'Updating...' : 'Update Password'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         )}
 
         {/* Support Section */}
