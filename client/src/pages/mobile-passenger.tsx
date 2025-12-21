@@ -416,7 +416,7 @@ export default function MobilePassenger() {
     <div className="min-h-screen bg-muted pb-20">
       {/* Modern Header */}
       <div className="bg-background border-b border-border shadow-lg">
-        <div className="px-5 pt-8 pb-5">
+        <div className="px-5 pt-[26px] pb-[26px] mt-[20px] mb-[20px]">
           <div className="flex justify-between items-start mb-5">
             <div>
               <h1 className="text-xl font-bold text-foreground">Welcome Back</h1>
@@ -504,7 +504,6 @@ export default function MobilePassenger() {
           </div>
         </div>
       </div>
-
       {/* Main Content */}
       <div className="px-4 py-6 space-y-4">
         {/* Home Section */}
