@@ -1,6 +1,10 @@
 import { useEffect } from 'react';
 import { useBranding, BrandColors } from './useBranding';
 
+// Store colors globally so observer can access latest values without re-creation
+let globalLightColors: BrandColors | null = null;
+let globalDarkColors: BrandColors | null = null;
+
 // Utility function to convert hex to HSL
 function hexToHSL(hex: string): { h: number; s: number; l: number } {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -170,48 +174,61 @@ function isDarkModeActive(): boolean {
   return false;
 }
 
+// Function to apply colors based on current theme using global state
+function applyCurrentThemeColors() {
+  if (!globalLightColors || !globalDarkColors) {
+    return;
+  }
+  const darkMode = isDarkModeActive();
+  const colors = darkMode ? globalDarkColors : globalLightColors;
+  applyThemeColors(colors, darkMode);
+}
+
+// Set up global observer once (singleton pattern)
+let observerInitialized = false;
+
+function initializeThemeObserver() {
+  if (observerInitialized || typeof window === 'undefined') {
+    return;
+  }
+  observerInitialized = true;
+  
+  // Watch for dark mode changes via class mutations
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        applyCurrentThemeColors();
+        break;
+      }
+    }
+  });
+  
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
+  
+  // Also listen for system preference changes
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  mediaQuery.addEventListener('change', () => applyCurrentThemeColors());
+}
+
 export function useBrandTheme() {
   const branding = useBranding();
   
-  // Apply theme colors when branding data changes or dark mode changes
+  // Apply colors when branding data loads or changes
   useEffect(() => {
-    if (branding.isLoading || !branding.colors || !branding.darkColors) {
-      return;
+    if (!branding.isLoading && branding.colors && branding.darkColors) {
+      // Update global state
+      globalLightColors = branding.colors;
+      globalDarkColors = branding.darkColors;
+      
+      // Initialize observer if not already done
+      initializeThemeObserver();
+      
+      // Apply current theme colors
+      applyCurrentThemeColors();
     }
-    
-    // Function to apply colors based on current theme
-    const applyCurrentThemeColors = () => {
-      const darkMode = isDarkModeActive();
-      const colors = darkMode ? branding.darkColors : branding.colors;
-      applyThemeColors(colors, darkMode);
-    };
-    
-    // Initial color application
-    applyCurrentThemeColors();
-    
-    // Watch for dark mode changes via class mutations
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          applyCurrentThemeColors();
-        }
-      });
-    });
-    
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class']
-    });
-    
-    // Also listen for system preference changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleMediaChange = () => applyCurrentThemeColors();
-    mediaQuery.addEventListener('change', handleMediaChange);
-    
-    return () => {
-      observer.disconnect();
-      mediaQuery.removeEventListener('change', handleMediaChange);
-    };
   }, [branding.isLoading, branding.colors, branding.darkColors]);
   
   return branding;
