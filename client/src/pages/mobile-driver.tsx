@@ -166,7 +166,7 @@ export default function MobileDriver() {
     },
     onSuccess: () => {
       queryClient.clear();
-      setLocation('/mobile-driver-login');
+      setLocation('/mobile-splash');
     },
     onError: (error: Error) => {
       toast({
