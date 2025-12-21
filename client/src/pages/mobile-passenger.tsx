@@ -1223,97 +1223,97 @@ export default function MobilePassenger() {
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="p-3 space-y-2">
+              <CardContent className="p-4">
                 {!isEditingProfile ? (
-                  <div className="bg-accent/5 rounded-lg p-2.5 space-y-2">
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground">Name</label>
-                      <p className="text-sm font-medium mt-0.5" data-testid="text-name">{user.firstName} {user.lastName}</p>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Name</span>
+                      <span className="text-sm font-medium text-foreground" data-testid="text-name">{user.firstName} {user.lastName}</span>
                     </div>
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground">Email</label>
-                      <p className="text-sm font-medium mt-0.5" data-testid="text-email">{user.email || 'Not provided'}</p>
+                    <div className="flex items-center justify-between py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Email</span>
+                      <span className="text-sm font-medium text-foreground truncate max-w-[180px]" data-testid="text-email">{user.email || 'Not provided'}</span>
                     </div>
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground">Phone</label>
-                      <p className="text-sm font-medium mt-0.5" data-testid="text-phone">{user.phone || 'Not provided'}</p>
+                    <div className="flex items-center justify-between py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Phone</span>
+                      <span className="text-sm font-medium text-foreground" data-testid="text-phone">{user.phone || 'Not provided'}</span>
                     </div>
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground">Username</label>
-                      <p className="text-sm font-medium mt-0.5" data-testid="text-username">{user.username}</p>
+                    <div className="flex items-center justify-between py-2">
+                      <span className="text-sm text-muted-foreground">Username</span>
+                      <span className="text-sm font-medium text-foreground" data-testid="text-username">{user.username}</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="firstName" className="text-xs text-muted-foreground">First Name</Label>
+                        <Label htmlFor="firstName" className="text-sm text-muted-foreground">First Name</Label>
                         <Input
                           id="firstName"
                           value={profileForm.firstName}
                           onChange={(e) => setProfileForm({ ...profileForm, firstName: e.target.value })}
-                          className="h-8 text-sm mt-1"
+                          className="h-10 text-sm mt-1.5"
                           data-testid="input-firstName"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="lastName" className="text-xs text-muted-foreground">Last Name</Label>
+                        <Label htmlFor="lastName" className="text-sm text-muted-foreground">Last Name</Label>
                         <Input
                           id="lastName"
                           value={profileForm.lastName}
                           onChange={(e) => setProfileForm({ ...profileForm, lastName: e.target.value })}
-                          className="h-8 text-sm mt-1"
+                          className="h-10 text-sm mt-1.5"
                           data-testid="input-lastName"
                         />
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="email" className="text-xs text-muted-foreground">Email</Label>
+                      <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
                       <Input
                         id="email"
                         type="email"
                         value={profileForm.email}
                         onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                        className="h-8 text-sm mt-1"
+                        className="h-10 text-sm mt-1.5"
                         data-testid="input-email"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="phone" className="text-xs text-muted-foreground">Phone</Label>
+                      <Label htmlFor="phone" className="text-sm text-muted-foreground">Phone</Label>
                       <Input
                         id="phone"
                         type="tel"
                         value={profileForm.phone}
                         onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                        className="h-8 text-sm mt-1"
+                        className="h-10 text-sm mt-1.5"
                         data-testid="input-phone"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="username" className="text-xs text-muted-foreground">Username</Label>
+                      <Label htmlFor="username" className="text-sm text-muted-foreground">Username</Label>
                       <Input
                         id="username"
                         value={profileForm.username}
                         onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
                         placeholder="Optional username"
-                        className="h-8 text-sm mt-1"
+                        className="h-10 text-sm mt-1.5"
                         data-testid="input-username"
                       />
                       {profileForm.username && profileForm.username !== user?.username && (
-                        <p className={`text-xs mt-0.5 ${
+                        <p className={`text-xs mt-1 ${
                           usernameStatus === 'checking' ? 'text-muted-foreground' :
                           usernameStatus === 'available' ? 'text-green-600' :
                           usernameStatus === 'taken' ? 'text-red-600' :
                           'text-muted-foreground'
                         }`}>
-                          {usernameStatus === 'checking' && '⏳ Checking...'}
-                          {usernameStatus === 'available' && '✓ Available'}
-                          {usernameStatus === 'taken' && '✗ Taken'}
+                          {usernameStatus === 'checking' && 'Checking...'}
+                          {usernameStatus === 'available' && 'Available'}
+                          {usernameStatus === 'taken' && 'Taken'}
                           {usernameStatus === 'idle' && '3-30 chars, letters, numbers, -, _'}
                         </p>
                       )}
                       {(!profileForm.username || profileForm.username === user?.username) && (
-                        <p className="text-xs text-muted-foreground mt-0.5">3-30 characters, letters, numbers, -, _</p>
+                        <p className="text-xs text-muted-foreground mt-1">3-30 characters, letters, numbers, -, _</p>
                       )}
                     </div>
                   </div>
@@ -1332,22 +1332,22 @@ export default function MobilePassenger() {
                 </CardTitle>
                 <CardDescription className="text-xs mt-0.5 text-muted-foreground">Update your account password</CardDescription>
               </CardHeader>
-              <CardContent className="p-3 space-y-2">
+              <CardContent className="p-4 space-y-3">
                 <div>
-                  <Label htmlFor="currentPassword" className="text-xs text-muted-foreground">Current Password</Label>
-                  <div className="relative mt-1">
+                  <Label htmlFor="currentPassword" className="text-sm text-muted-foreground">Current Password</Label>
+                  <div className="relative mt-1.5">
                     <Input
                       id="currentPassword"
                       type={showCurrentPassword ? "text" : "password"}
                       value={passwordForm.currentPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                      className="h-8 text-sm pr-8"
+                      className="h-10 text-sm pr-10"
                       data-testid="input-currentPassword"
                     />
                     <button
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       data-testid="button-toggle-current-password"
                     >
                       {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -1355,42 +1355,42 @@ export default function MobilePassenger() {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="newPassword" className="text-xs text-muted-foreground">New Password</Label>
-                  <div className="relative mt-1">
+                  <Label htmlFor="newPassword" className="text-sm text-muted-foreground">New Password</Label>
+                  <div className="relative mt-1.5">
                     <Input
                       id="newPassword"
                       type={showNewPassword ? "text" : "password"}
                       value={passwordForm.newPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                      className="h-8 text-sm pr-8"
+                      className="h-10 text-sm pr-10"
                       data-testid="input-newPassword"
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       data-testid="button-toggle-new-password"
                     >
                       {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-1">Must be 8+ characters with uppercase, lowercase, and number</p>
+                  <p className="text-xs text-muted-foreground mt-1.5">8+ characters with uppercase, lowercase, and number</p>
                 </div>
                 <div>
-                  <Label htmlFor="confirmPassword" className="text-xs text-muted-foreground">Confirm New Password</Label>
-                  <div className="relative mt-1">
+                  <Label htmlFor="confirmPassword" className="text-sm text-muted-foreground">Confirm New Password</Label>
+                  <div className="relative mt-1.5">
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
                       value={passwordForm.confirmPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                      className="h-8 text-sm pr-8"
+                      className="h-10 text-sm pr-10"
                       data-testid="input-confirmPassword"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       data-testid="button-toggle-confirm-password"
                     >
                       {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -1413,10 +1413,10 @@ export default function MobilePassenger() {
                     });
                   }}
                   disabled={updatePasswordMutation.isPending || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
-                  className="w-full h-8 text-xs bg-card hover:bg-primary/5 text-primary border-2 border-primary/30 hover:border-primary/40 shadow-sm hover:shadow-md transition-all"
+                  className="w-full h-10 text-sm bg-card hover:bg-primary/5 text-primary border-2 border-primary/30 hover:border-primary/40 shadow-sm hover:shadow-md transition-all mt-2"
                   data-testid="button-change-password"
                 >
-                  <Lock className="w-3 h-3 mr-1" />
+                  <Lock className="w-4 h-4 mr-2" />
                   {updatePasswordMutation.isPending ? 'Updating...' : 'Update Password'}
                 </Button>
               </CardContent>
