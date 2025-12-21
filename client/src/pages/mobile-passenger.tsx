@@ -416,19 +416,19 @@ export default function MobilePassenger() {
     <div className="min-h-screen bg-muted pb-20">
       {/* Modern Header */}
       <div className="bg-background border-b border-border shadow-lg">
-        <div className="px-6 pt-6 pb-4">
-          <div className="flex justify-between items-start mb-6">
+        <div className="px-5 pt-8 pb-5">
+          <div className="flex justify-between items-start mb-5">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Welcome Back</h1>
-              <p className="text-muted-foreground mt-1 text-sm">{user.firstName || ''} {user.lastName || ''}</p>
+              <h1 className="text-xl font-bold text-foreground">Welcome Back</h1>
+              <p className="text-muted-foreground mt-1.5 text-sm">{user.firstName || ''} {user.lastName || ''}</p>
             </div>
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-3 items-center">
               <ThemeToggleMobile />
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="text-muted-foreground hover:bg-muted touch-manipulation"
+                className="text-muted-foreground hover:bg-muted touch-manipulation h-10 w-10"
                 data-testid="button-menu"
               >
                 {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -437,7 +437,7 @@ export default function MobilePassenger() {
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
-                className="text-muted-foreground hover:bg-muted touch-manipulation"
+                className="text-muted-foreground hover:bg-muted touch-manipulation h-10 w-10"
                 data-testid="button-logout"
               >
                 <LogOut className="w-5 h-5" />
@@ -445,33 +445,33 @@ export default function MobilePassenger() {
             </div>
           </div>
 
-          {/* Quick Stats - Compact */}
-          <div className="grid grid-cols-4 gap-1.5">
-            <div className="bg-background border rounded-lg p-1.5 shadow-sm" style={{ borderColor: 'var(--brand-primary-hex)' }}>
-              <p className="text-muted-foreground text-[9px]">Active</p>
-              <p className="text-base font-bold mt-0.5" style={{ color: 'var(--brand-accent-hex)' }}>{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
+          {/* Quick Stats */}
+          <div className="grid grid-cols-4 gap-2.5">
+            <div className="bg-background border rounded-xl p-2.5 shadow-sm" style={{ borderColor: 'var(--brand-primary-hex)' }}>
+              <p className="text-muted-foreground text-[10px]">Active</p>
+              <p className="text-lg font-bold mt-1" style={{ color: 'var(--brand-accent-hex)' }}>{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
             </div>
-            <div className="bg-background border border-blue-200 rounded-lg p-1.5 shadow-sm">
-              <p className="text-muted-foreground text-[9px]">Upcoming</p>
-              <p className="text-base font-bold text-blue-600 mt-0.5">{upcomingBookings.length}</p>
+            <div className="bg-background border border-blue-200 rounded-xl p-2.5 shadow-sm">
+              <p className="text-muted-foreground text-[10px]">Upcoming</p>
+              <p className="text-lg font-bold text-blue-600 mt-1">{upcomingBookings.length}</p>
             </div>
-            <div className="bg-background border border-border rounded-lg p-1.5 shadow-sm">
-              <p className="text-muted-foreground text-[9px]">Total</p>
-              <p className="text-base font-bold text-foreground mt-0.5">{bookings?.length || 0}</p>
+            <div className="bg-background border border-border rounded-xl p-2.5 shadow-sm">
+              <p className="text-muted-foreground text-[10px]">Total</p>
+              <p className="text-lg font-bold text-foreground mt-1">{bookings?.length || 0}</p>
             </div>
-            <div className="bg-background border border-green-200 rounded-lg p-1.5 shadow-sm">
-              <p className="text-muted-foreground text-[9px] flex items-center gap-0.5">
-                <Wallet className="w-2.5 h-2.5" />
+            <div className="bg-background border border-green-200 rounded-xl p-2.5 shadow-sm">
+              <p className="text-muted-foreground text-[10px] flex items-center gap-1">
+                <Wallet className="w-3 h-3" />
                 Credits
               </p>
-              <p className="text-base font-bold text-green-600 mt-0.5">${rideCredits?.balance || '0.00'}</p>
+              <p className="text-lg font-bold text-green-600 mt-1">${rideCredits?.balance || '0.00'}</p>
             </div>
           </div>
         </div>
 
-        {/* Navigation Menu - Compact */}
-        <div className="px-1.5 pt-1.5 pb-0 overflow-x-auto scrollbar-hide">
-          <div className="flex gap-0.5 min-w-max">
+        {/* Navigation Menu */}
+        <div className="px-3 pt-2 pb-0 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1.5 min-w-max">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id;
@@ -486,7 +486,7 @@ export default function MobilePassenger() {
                     }
                     setMenuOpen(false);
                   }}
-                  className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-t-lg transition-all touch-manipulation ${
+                  className={`flex flex-col items-center gap-1 px-3 py-2 rounded-t-lg transition-all touch-manipulation ${
                     isActive
                       ? 'bg-muted shadow-lg border-t border-x border-border'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -494,8 +494,8 @@ export default function MobilePassenger() {
                   style={isActive ? { color: 'var(--brand-accent-hex)' } : undefined}
                   data-testid={`nav-${item.id}`}
                 >
-                  <Icon className="w-3.5 h-3.5" style={isActive ? { color: 'var(--brand-accent-hex)' } : undefined} />
-                  <span className="text-[9px] font-medium whitespace-nowrap" style={isActive ? { color: 'var(--brand-accent-hex)' } : undefined}>
+                  <Icon className="w-4 h-4" style={isActive ? { color: 'var(--brand-accent-hex)' } : undefined} />
+                  <span className="text-[10px] font-medium whitespace-nowrap" style={isActive ? { color: 'var(--brand-accent-hex)' } : undefined}>
                     {item.label}
                   </span>
                 </button>
