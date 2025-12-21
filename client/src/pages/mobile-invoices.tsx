@@ -198,7 +198,7 @@ export default function MobileInvoices() {
         </div>
       </div>
       {/* Search Bar */}
-      <div className="px-4 -mt-6 mb-4">
+      <div className="px-4 mt-[-10px] mb-[-10px]">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
