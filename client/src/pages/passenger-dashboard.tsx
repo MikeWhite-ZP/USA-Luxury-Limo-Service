@@ -2814,312 +2814,245 @@ export default function PassengerDashboard() {
           </Card>
         )}
 
-        {/* Account Details Section */}
+        {/* Account Details Section - Compact Professional Design */}
         {activeSection === 'account-details' && (
-          <div className="grid gap-6">
-            {/* Editable Profile Information Card */}
-            <div className="relative group">
-              <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-              <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="profile-card">
-                <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
-                      <User className="w-5 h-5 text-white" />
-                    </div>
-                    Account Information
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Update your personal information and contact details
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleProfileSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="firstName" className="text-base font-medium text-gray-700">
-                          First Name *
-                        </Label>
-                        <Input
-                          id="firstName"
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
-                          placeholder="Enter your first name"
-                          className="mt-2"
-                          data-testid="input-first-name"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="lastName" className="text-base font-medium text-gray-700">
-                          Last Name *
-                        </Label>
-                        <Input
-                          id="lastName"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                          placeholder="Enter your last name"
-                          className="mt-2"
-                          data-testid="input-last-name"
-                        />
-                      </div>
-                    </div>
+          <div className="space-y-4">
+            {/* Account Status Bar */}
+            <Card className="bg-card border-border shadow-sm" data-testid="account-details-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg icon-brand-bg flex items-center justify-center">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  Account Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                    <p className="text-[10px] uppercase text-muted-foreground font-medium">Type</p>
+                    <p className="font-semibold text-sm text-foreground capitalize" data-testid="text-role">
+                      {user?.role || 'N/A'}
+                    </p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                    <p className="text-[10px] uppercase text-muted-foreground font-medium">Status</p>
+                    <p className="font-semibold text-sm" data-testid="text-status">
+                      {user?.isActive ? (
+                        <span className="text-green-600 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-green-600 rounded-full" />
+                          Active
+                        </span>
+                      ) : (
+                        <span className="text-red-600 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-red-600 rounded-full" />
+                          Inactive
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                    <p className="text-[10px] uppercase text-muted-foreground font-medium">Payment</p>
+                    <p className={`font-semibold text-sm ${paymentCardStatus.color}`} data-testid="text-payment-status">
+                      {paymentCardStatus.status}
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Compact Privilege Badges */}
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {user?.payLaterEnabled && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-brand-light text-brand-accent text-xs font-medium border-brand">
+                      <span className="text-xs">✓</span> Pay Later
+                    </span>
+                  )}
+                  {(user as any)?.discountType && ((user as any)?.discountValue ?? 0) > 0 && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-brand-light text-brand-accent text-xs font-medium border-brand">
+                      <span className="text-xs">🎉</span>
+                      {(user as any).discountType === 'percentage' 
+                        ? `${(user as any).discountValue}% off` 
+                        : `$${(user as any).discountValue} off`}
+                    </span>
+                  )}
+                </div>
+                
+                {paymentCardStatus.message && (
+                  <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between gap-2">
+                    <p className="text-xs text-amber-800 flex items-center gap-1">
+                      <span>⚠️</span> {paymentCardStatus.message}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setActiveSection('payment-methods')}
+                      className="text-xs h-7 px-2 bg-amber-600 hover:bg-amber-500 text-white border-0"
+                      data-testid="button-manage-payment"
+                    >
+                      {paymentCardStatus.action}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
+            {/* Profile Information Card - Compact */}
+            <Card className="bg-card border-border shadow-sm" data-testid="profile-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg icon-brand-bg flex items-center justify-center">
+                    <Mail className="w-4 h-4 text-white" />
+                  </div>
+                  Profile Information
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">Update your personal details</p>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <form onSubmit={handleProfileSubmit} className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label htmlFor="email" className="text-base font-medium flex items-center gap-2 text-gray-700">
-                        <Mail className="w-4 h-4 text-brand-accent" />
-                        Email Address *
-                      </Label>
+                      <Label htmlFor="firstName" className="text-xs font-medium text-muted-foreground">First Name *</Label>
+                      <Input
+                        id="firstName"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="First name"
+                        className="mt-1 h-9 text-sm"
+                        data-testid="input-first-name"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName" className="text-xs font-medium text-muted-foreground">Last Name *</Label>
+                      <Input
+                        id="lastName"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Last name"
+                        className="mt-1 h-9 text-sm"
+                        data-testid="input-last-name"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">Email *</Label>
                       <Input
                         id="email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
-                        className="mt-2"
+                        placeholder="Email address"
+                        className="mt-1 h-9 text-sm"
                         data-testid="input-email"
                       />
                     </div>
-
                     <div>
-                      <Label htmlFor="phone" className="text-base font-medium flex items-center gap-2 text-gray-700">
-                        <Phone className="w-4 h-4 text-brand-accent" />
-                        Phone Number
-                      </Label>
+                      <Label htmlFor="phone" className="text-xs font-medium text-muted-foreground">Phone</Label>
                       <Input
                         id="phone"
                         type="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        placeholder="Enter your phone number"
-                        className="mt-2"
+                        placeholder="Phone number"
+                        className="mt-1 h-9 text-sm"
                         data-testid="input-phone"
                       />
                     </div>
+                  </div>
+                  <Button
+                    type="submit"
+                    disabled={updateProfileMutation.isPending}
+                    className="w-full h-9 btn-brand-primary border-0 text-sm"
+                    data-testid="button-save"
+                  >
+                    {updateProfileMutation.isPending ? (
+                      <>
+                        <div className="animate-spin w-3 h-3 border-2 border-white border-t-transparent rounded-full mr-1" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-3 h-3 mr-1" />
+                        Save Changes
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
 
-                    <div className="flex gap-3 pt-4">
-                      <Button
-                        type="submit"
-                        disabled={updateProfileMutation.isPending}
-                        className="flex-1 btn-brand-primary border-0 shadow-lg"
-                        data-testid="button-save"
-                      >
-                        {updateProfileMutation.isPending ? (
-                          <>
-                            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                            Saving...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="w-4 h-4 mr-2" />
-                            Save Changes
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Password Update Card */}
-            <div className="relative group">
-              <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-              <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="password-card">
-                <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
-                      <Save className="w-5 h-5 text-white" />
-                    </div>
-                    Change Password
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Update your password to keep your account secure
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handlePasswordSubmit} className="space-y-6">
+            {/* Password Card - Compact */}
+            <Card className="bg-card border-border shadow-sm" data-testid="password-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg icon-brand-bg flex items-center justify-center">
+                    <Save className="w-4 h-4 text-white" />
+                  </div>
+                  Change Password
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">Keep your account secure</p>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <form onSubmit={handlePasswordSubmit} className="space-y-3">
+                  <div>
+                    <Label htmlFor="currentPassword" className="text-xs font-medium text-muted-foreground">Current Password *</Label>
+                    <Input
+                      id="currentPassword"
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="Current password"
+                      className="mt-1 h-9 text-sm"
+                      data-testid="input-current-password"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label htmlFor="currentPassword" className="text-base font-medium text-gray-700">
-                        Current Password *
-                      </Label>
-                      <Input
-                        id="currentPassword"
-                        type="password"
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                        placeholder="Enter current password"
-                        className="mt-2"
-                        data-testid="input-current-password"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="newPassword" className="text-base font-medium text-gray-700">
-                        New Password *
-                      </Label>
+                      <Label htmlFor="newPassword" className="text-xs font-medium text-muted-foreground">New Password *</Label>
                       <Input
                         id="newPassword"
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Enter new password (min 8 characters)"
-                        className="mt-2"
+                        placeholder="New password"
+                        className="mt-1 h-9 text-sm"
                         data-testid="input-new-password"
                       />
-                      <p className="text-xs text-muted-foreground mt-2 flex items-start gap-2">
-                        <span className="text-red-600 mt-0.5">ℹ️</span>
-                        Password must be at least 8 characters with uppercase, lowercase, and numbers
-                      </p>
                     </div>
-
                     <div>
-                      <Label htmlFor="confirmPassword" className="text-base font-medium text-gray-700">
-                        Confirm New Password *
-                      </Label>
+                      <Label htmlFor="confirmPassword" className="text-xs font-medium text-muted-foreground">Confirm Password *</Label>
                       <Input
                         id="confirmPassword"
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Re-enter new password"
-                        className="mt-2"
+                        placeholder="Confirm password"
+                        className="mt-1 h-9 text-sm"
                         data-testid="input-confirm-password"
                       />
                     </div>
-
-                    <div className="flex gap-3 pt-4">
-                      <Button
-                        type="submit"
-                        disabled={updatePasswordMutation.isPending}
-                        className="flex-1 btn-brand-primary border-0 shadow-lg"
-                        data-testid="button-update-password"
-                      >
-                        {updatePasswordMutation.isPending ? (
-                          <>
-                            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                            Updating...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="w-4 h-4 mr-2" />
-                            Update Password
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Account Details Card */}
-            <div className="relative group">
-              <div className="absolute -inset-0.5 glow-brand rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-              <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="account-details-card">
-                <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
-                      <User className="w-5 h-5 text-white" />
-                    </div>
-                    Account Details
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    View your account information and privileges
-                  </p>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-gradient-to-br from-muted to-background dark:from-muted dark:to-background rounded-xl p-4 border border-border">
-                      <p className="text-sm text-muted-foreground mb-2">Account Type</p>
-                      <p className="font-bold text-lg text-foreground capitalize" data-testid="text-role">
-                        {user?.role || 'N/A'}
-                      </p>
-                    </div>
-                    <div className="bg-gradient-to-br from-green-50 to-white rounded-xl p-4 border border-green-200">
-                      <p className="text-sm text-muted-foreground mb-2">Account Status</p>
-                      <p className="font-bold text-lg" data-testid="text-status">
-                        {user?.isActive ? (
-                          <span className="text-green-600 flex items-center gap-2">
-                            <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse" />
-                            Active
-                          </span>
-                        ) : (
-                          <span className="text-red-600 flex items-center gap-2">
-                            <span className="w-2 h-2 bg-red-600 rounded-full" />
-                            Inactive
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    <div className="bg-gradient-to-br from-muted to-background dark:from-muted dark:to-background rounded-xl p-4 border border-border">
-                      <p className="text-sm text-muted-foreground mb-2">Payment Card</p>
-                      <p className={`font-bold text-lg ${paymentCardStatus.color}`} data-testid="text-payment-status">
-                        {paymentCardStatus.status}
-                      </p>
-                    </div>
                   </div>
-                  
-                  {paymentCardStatus.message && (
-                    <div className="relative group/alert">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-20 group-hover/alert:opacity-30 blur transition-opacity" />
-                      <div className="relative p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 rounded-xl">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <p className="text-sm font-bold text-amber-900 flex items-center gap-2 mb-2">
-                              <span className="text-lg">⚠️</span>
-                              Action Required
-                            </p>
-                            <p className="text-sm text-amber-800">
-                              {paymentCardStatus.message}
-                            </p>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setActiveSection('payment-methods')}
-                            className="whitespace-nowrap bg-amber-600 hover:bg-amber-500 text-white border-0"
-                            data-testid="button-manage-payment"
-                          >
-                            {paymentCardStatus.action}
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {user?.payLaterEnabled && (
-                    <div className="relative group/privilege">
-                      <div className="absolute -inset-0.5 glow-brand rounded-xl opacity-20 group-hover/privilege:opacity-30 blur transition-opacity" />
-                      <div className="relative p-4 bg-brand-light border-brand rounded-xl">
-                        <p className="text-sm font-bold text-brand-accent flex items-center gap-2 mb-2">
-                          <span className="text-lg">✓</span>
-                          Pay Later Enabled
-                        </p>
-                        <p className="text-sm text-foreground">
-                          You have been granted pay later privileges by the administrator.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {(user as any)?.discountType && ((user as any)?.discountValue ?? 0) > 0 && (
-                    <div className="relative group/discount">
-                      <div className="absolute -inset-0.5 glow-brand rounded-xl opacity-20 group-hover/discount:opacity-30 blur transition-opacity" />
-                      <div className="relative p-4 bg-brand-light border-brand rounded-xl">
-                        <p className="text-sm font-bold text-brand-accent flex items-center gap-2 mb-2">
-                          <span className="text-lg">🎉</span>
-                          Active Discount
-                        </p>
-                        <p className="text-sm text-foreground">
-                          {(user as any).discountType === 'percentage' 
-                            ? `${(user as any).discountValue}% off all bookings` 
-                            : `$${(user as any).discountValue} off all bookings`}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                  <p className="text-[10px] text-muted-foreground">Min 8 chars with uppercase, lowercase & numbers</p>
+                  <Button
+                    type="submit"
+                    disabled={updatePasswordMutation.isPending}
+                    className="w-full h-9 btn-brand-primary border-0 text-sm"
+                    data-testid="button-update-password"
+                  >
+                    {updatePasswordMutation.isPending ? (
+                      <>
+                        <div className="animate-spin w-3 h-3 border-2 border-white border-t-transparent rounded-full mr-1" />
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-3 h-3 mr-1" />
+                        Update Password
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         )}
 
