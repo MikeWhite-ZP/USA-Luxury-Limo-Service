@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone, FileText, Eye, Printer, ChevronDown } from "lucide-react";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -2186,76 +2187,113 @@ export default function PassengerDashboard() {
               </Dialog>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-2">
             {addressesLoading ? (
-              <div className="flex items-center justify-center p-8">
-                <div className="animate-spin w-6 h-6 border-4 border-red-500 border-t-transparent rounded-full" />
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full" />
               </div>
             ) : addresses && addresses.length > 0 ? (
-              <div className="space-y-3">
+              <div className="divide-y divide-border">
                 {addresses.map((address) => {
                   const IconComponent = getAddressIcon(address.label);
                   return (
                     <div
                       key={address.id}
-                      className="bg-gradient-to-r from-muted to-background dark:from-muted dark:to-background rounded-xl p-4 border border-border group flex items-center justify-between gap-4 hover:border-red-400 hover:shadow-md transition-all"
+                      className="group flex items-center gap-3 py-3 px-2 -mx-2 rounded-lg hover:bg-muted/50 transition-colors"
                       data-testid={`address-${address.id}`}
                     >
-                      <div className="flex items-center space-x-3 flex-1 min-w-0">
-                        <IconComponent className="w-5 h-5 text-red-600 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <span className="font-semibold text-foreground block" data-testid={`address-label-${address.id}`}>
+                      {/* Icon */}
+                      <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/30 flex items-center justify-center flex-shrink-0">
+                        <IconComponent className="w-4 h-4 text-red-600" />
+                      </div>
+                      
+                      {/* Label & Address */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span 
+                            className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
+                            data-testid={`address-label-${address.id}`}
+                          >
                             {address.label}
                           </span>
-                          <p className="text-sm text-muted-foreground truncate" data-testid={`address-text-${address.id}`}>
-                            {address.address}
-                          </p>
                         </div>
+                        <p 
+                          className="text-sm text-muted-foreground truncate mt-0.5"
+                          data-testid={`address-text-${address.id}`}
+                          title={address.address}
+                        >
+                          {address.address}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        <div className="text-center">
-                          <p className="text-xs mb-1 whitespace-nowrap font-medium text-red-600">Quick Book</p>
-                          <div className="flex gap-2">
+                      
+                      {/* Action Buttons - Always visible for touch accessibility */}
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => window.location.href = `/?from=${encodeURIComponent(address.address)}`}
-                              className="bg-card border-red-300 text-red-700 hover:bg-red-600 hover:text-white hover:border-red-600"
+                              className="h-7 px-2 text-xs border-red-200 text-red-600 hover:bg-red-600 hover:text-white hover:border-red-600"
                               data-testid={`button-from-${address.id}`}
+                              aria-label="Book from this location"
                             >
                               From
                             </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">
+                            Start pickup here
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => window.location.href = `/?to=${encodeURIComponent(address.address)}`}
-                              className="bg-card border-red-300 text-red-700 hover:bg-red-600 hover:text-white hover:border-red-600"
+                              className="h-7 px-2 text-xs border-red-200 text-red-600 hover:bg-red-600 hover:text-white hover:border-red-600"
                               data-testid={`button-to-${address.id}`}
+                              aria-label="Book to this location"
                             >
                               To
                             </Button>
-                          </div>
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteAddressMutation.mutate(address.id);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all"
-                          data-testid={`button-delete-address-${address.id}`}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">
+                            Set destination here
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteAddressMutation.mutate(address.id);
+                              }}
+                              className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                              data-testid={`button-delete-address-${address.id}`}
+                              aria-label="Delete this location"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">
+                            Delete
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="text-center p-12" data-testid="no-addresses">
-                <MapPin className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground text-lg font-medium">No saved locations yet</p>
-                <p className="text-muted-foreground text-sm mt-2">Add your frequently used locations for quick booking</p>
+              <div className="text-center py-10" data-testid="no-addresses">
+                <div className="w-12 h-12 rounded-full bg-muted mx-auto mb-3 flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground font-medium">No saved locations</p>
+                <p className="text-sm text-muted-foreground mt-1">Add locations for quick booking</p>
               </div>
             )}
           </CardContent>
