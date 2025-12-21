@@ -1124,6 +1124,17 @@ export default function PassengerDashboard() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
+  
+  // Cancellation reason options
+  const cancellationReasons = [
+    'Change of plans',
+    'Found alternative transportation',
+    'Schedule conflict',
+    'Price too high',
+    'Booked by mistake',
+    'Other',
+  ];
   const [editFormData, setEditFormData] = useState({
     scheduledDateTime: '',
     pickupAddress: '',
@@ -1393,8 +1404,8 @@ export default function PassengerDashboard() {
 
   // Cancel booking mutation
   const cancelBookingMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await apiRequest('PATCH', `/api/bookings/${id}/cancel`);
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+      const response = await apiRequest('PATCH', `/api/bookings/${id}/cancel`, { reason });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Failed to cancel booking');
@@ -1405,6 +1416,7 @@ export default function PassengerDashboard() {
       queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
       setCancelDialogOpen(false);
       setSelectedBooking(null);
+      setCancelReason('');
       toast({
         title: "Booking Cancelled",
         description: "Your booking has been cancelled successfully.",
@@ -2414,82 +2426,83 @@ export default function PassengerDashboard() {
           </div>
         )}
 
-        {/* Past Bookings Section */}
+        {/* Past Bookings Section - Compact Professional Design */}
         {activeSection === 'past-bookings' && (
-          <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-400 to-gray-600 rounded-2xl opacity-10 group-hover:opacity-20 blur transition-opacity duration-500" />
-            <Card className="relative bg-card border-border shadow-lg hover:shadow-xl transition-shadow" data-testid="past-bookings-section">
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center shadow-md">
-                  <History className="w-5 h-5 text-white" />
+          <Card className="bg-card border-border shadow-sm" data-testid="past-bookings-section">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg icon-brand-bg flex items-center justify-center">
+                  <History className="w-4 h-4 text-white" />
                 </div>
                 Past Bookings
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               {bookingsLoading ? (
-                <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin w-6 h-6 border-4 border-gray-500 border-t-transparent rounded-full" />
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin w-5 h-5 border-2 border-[var(--brand-primary-hex)] border-t-transparent rounded-full" />
                 </div>
               ) : pastBookings.length > 0 ? (
-                <div className="space-y-4">
+                <div className="divide-y divide-border">
                   {pastBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="bg-gradient-to-r from-muted to-background dark:from-muted dark:to-background rounded-xl p-5 border border-border hover:shadow-md transition-all"
+                      className="py-4 first:pt-0 last:pb-0"
                       data-testid={`past-booking-${booking.id}`}
                     >
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-1 flex-1">
-                          <p className="font-medium" data-testid={`past-booking-route-${booking.id}`}>
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm text-foreground truncate" data-testid={`past-booking-route-${booking.id}`}>
                             {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
                           </p>
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                             <span data-testid={`past-booking-date-${booking.id}`}>
-                              {new Date(booking.scheduledDateTime).toLocaleDateString()} • {new Date(booking.scheduledDateTime).toLocaleTimeString()}
+                              {new Date(booking.scheduledDateTime).toLocaleDateString()} • {new Date(booking.scheduledDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
-                            <Badge variant="outline" data-testid={`past-booking-type-${booking.id}`}>
+                            <Badge variant="outline" className="text-xs h-5" data-testid={`past-booking-type-${booking.id}`}>
                               {booking.bookingType}
                             </Badge>
                           </div>
                         </div>
-                        <div className="text-right space-y-1 flex flex-col items-end ml-4">
-                          <p className="font-bold text-[#29b24a]" data-testid={`past-booking-total-${booking.id}`}>
+                        <div className="text-right flex flex-col items-end gap-1">
+                          <p className="font-semibold text-sm text-green-600" data-testid={`past-booking-total-${booking.id}`}>
                             ${booking.totalAmount}
                           </p>
-                          <Badge variant={getStatusColor(booking.status)} data-testid={`past-booking-status-${booking.id}`}>
+                          <Badge 
+                            variant={getStatusColor(booking.status)} 
+                            className="text-xs h-5"
+                            data-testid={`past-booking-status-${booking.id}`}
+                          >
                             {booking.status}
                           </Badge>
                         </div>
                       </div>
+                      {booking.status === 'cancelled' && (booking as any).cancelReason && (
+                        <div className="mt-2 px-3 py-2 bg-red-50 border border-red-200 rounded-md">
+                          <p className="text-xs text-red-700">
+                            <span className="font-medium">Cancellation reason:</span> {(booking as any).cancelReason}
+                          </p>
+                        </div>
+                      )}
                       {booking.driverId && (booking.driverFirstName || booking.driverLastName) && (
-                        <div className="mt-3 pt-3 border-t border-border">
-                          <div className="flex items-start space-x-2">
-                            <User className="w-4 h-4 mt-0.5 text-muted-foreground" />
-                            <div className="flex-1 space-y-1">
-                              <p className="text-sm font-medium" data-testid={`past-booking-driver-name-${booking.id}`}>
-                                Driver: {booking.driverFirstName} {booking.driverLastName}
-                              </p>
-                              {booking.driverPhone && (
-                                <p className="text-xs text-muted-foreground" data-testid={`past-booking-driver-phone-${booking.id}`}>
-                                  📞 {booking.driverPhone}
-                                </p>
-                              )}
-                              {booking.driverCredentials && (
-                                <p className="text-xs text-muted-foreground" data-testid={`past-booking-driver-credentials-${booking.id}`}>
-                                  {booking.driverCredentials}
-                                </p>
-                              )}
-                            </div>
-                          </div>
+                        <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                          <User className="w-3 h-3" />
+                          <span data-testid={`past-booking-driver-name-${booking.id}`}>
+                            {booking.driverFirstName} {booking.driverLastName}
+                          </span>
+                          {booking.driverPhone && (
+                            <span className="text-muted-foreground" data-testid={`past-booking-driver-phone-${booking.id}`}>
+                              • {booking.driverPhone}
+                            </span>
+                          )}
                         </div>
                       )}
                       {booking.status === 'completed' && booking.driverId && (
-                        <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                        <div className="mt-2">
                           <Button
                             variant="outline"
                             size="sm"
+                            className="h-7 text-xs"
                             onClick={() => {
                               setSelectedBookingForRating(booking);
                               setRatingDialogOpen(true);
@@ -2505,15 +2518,16 @@ export default function PassengerDashboard() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center p-12" data-testid="no-past-bookings">
-                  <History className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground text-lg font-medium">No past bookings found</p>
-                  <p className="text-muted-foreground text-sm mt-2">Your completed rides will appear here</p>
+                <div className="text-center py-10" data-testid="no-past-bookings">
+                  <div className="w-12 h-12 rounded-full bg-muted mx-auto mb-3 flex items-center justify-center">
+                    <History className="w-6 h-6 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground font-medium">No past bookings</p>
+                  <p className="text-sm text-muted-foreground mt-1">Completed rides will appear here</p>
                 </div>
               )}
             </CardContent>
           </Card>
-          </div>
         )}
 
         {/* Invoices Section */}
@@ -3222,20 +3236,23 @@ export default function PassengerDashboard() {
       </Dialog>
 
       {/* Cancel Confirmation Dialog */}
-      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-        <DialogContent className="sm:max-w-[400px] bg-[#ffffff]">
+      <Dialog open={cancelDialogOpen} onOpenChange={(open) => {
+        setCancelDialogOpen(open);
+        if (!open) setCancelReason('');
+      }}>
+        <DialogContent className="sm:max-w-[450px] bg-card">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-foreground">
               <AlertTriangle className="w-5 h-5 text-destructive" />
               Cancel Booking
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to cancel this booking? This action cannot be undone.
+              Please select a reason for cancellation. This helps us improve our service.
             </DialogDescription>
           </DialogHeader>
           {selectedBooking && (
-            <div className="bg-muted rounded-lg p-4 my-4">
-              <p className="text-sm font-medium mb-1">
+            <div className="bg-muted rounded-lg p-4 border border-border">
+              <p className="text-sm font-medium mb-1 text-foreground">
                 {selectedBooking.pickupAddress} → {selectedBooking.destinationAddress || 'Hourly Service'}
               </p>
               <p className="text-sm text-muted-foreground">
@@ -3243,10 +3260,35 @@ export default function PassengerDashboard() {
               </p>
             </div>
           )}
-          <div className="flex justify-end gap-2">
+          <div className="space-y-3 py-2">
+            <Label className="text-sm font-medium text-foreground">Reason for cancellation</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {cancellationReasons.map((reason) => (
+                <Button
+                  key={reason}
+                  type="button"
+                  variant={cancelReason === reason ? "default" : "outline"}
+                  size="sm"
+                  className={`h-9 text-xs justify-start ${
+                    cancelReason === reason 
+                      ? 'btn-brand-primary' 
+                      : 'border-border hover:bg-muted'
+                  }`}
+                  onClick={() => setCancelReason(reason)}
+                  data-testid={`reason-${reason.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  {reason}
+                </Button>
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
             <Button
               variant="outline"
-              onClick={() => setCancelDialogOpen(false)}
+              onClick={() => {
+                setCancelDialogOpen(false);
+                setCancelReason('');
+              }}
               data-testid="button-cancel-cancel"
             >
               Keep Booking
@@ -3254,11 +3296,14 @@ export default function PassengerDashboard() {
             <Button
               variant="destructive"
               onClick={() => {
-                if (selectedBooking) {
-                  cancelBookingMutation.mutate(selectedBooking.id);
+                if (selectedBooking && cancelReason) {
+                  cancelBookingMutation.mutate({ 
+                    id: selectedBooking.id, 
+                    reason: cancelReason 
+                  });
                 }
               }}
-              disabled={cancelBookingMutation.isPending}
+              disabled={cancelBookingMutation.isPending || !cancelReason}
               data-testid="button-confirm-cancel"
             >
               {cancelBookingMutation.isPending ? 'Cancelling...' : 'Cancel Booking'}
