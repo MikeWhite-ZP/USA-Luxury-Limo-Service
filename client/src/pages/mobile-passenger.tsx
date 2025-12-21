@@ -24,7 +24,9 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Wallet
+  Wallet,
+  Printer,
+  Mail
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -50,6 +52,8 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Booking } from '@shared/schema';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ThemeToggleMobile } from '@/components/ThemeToggle';
+import { useBranding } from '@/hooks/useBranding';
+import { generateInvoiceHTML } from '@/lib/invoiceTemplate';
 
 type Section = 'home' | 'new-booking' | 'saved-locations' | 'invoices' | 'payment' | 'account';
 
@@ -57,7 +61,9 @@ export default function MobilePassenger() {
   const [, navigate] = useLocation();
   const { user, isLoading: authLoading, logoutMutation } = useAuth();
   const { toast } = useToast();
+  const { companyName, logoUrl } = useBranding();
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [isLoadingEmail, setIsLoadingEmail] = useState(false);
   const [activeSection, setActiveSection] = useState<Section>('home');
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -110,6 +116,105 @@ export default function MobilePassenger() {
     queryKey: ['/api/ride-credits'],
     enabled: !!user,
   });
+
+  // Fetch user's invoices
+  const { data: invoices, isLoading: invoicesLoading } = useQuery<any[]>({
+    queryKey: ['/api/passenger/invoices'],
+    enabled: !!user,
+  });
+
+  // Filter invoices: exclude cancelled AND unpaid invoices
+  const filteredInvoices = invoices?.filter(invoice => 
+    !(invoice.booking?.status === 'cancelled' && !invoice.paidAt)
+  ) || [];
+
+  // Email invoice mutation
+  const emailInvoiceMutation = useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const response = await fetch(`/api/passenger/invoices/${id}/email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to send email');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: 'Email Sent', description: 'Invoice sent to your email' });
+      setIsLoadingEmail(false);
+    },
+    onError: (error: any) => {
+      toast({ title: 'Error', description: error.message || 'Failed to send email', variant: 'destructive' });
+      setIsLoadingEmail(false);
+    },
+  });
+
+  // Handle invoice print
+  const handleInvoicePrint = (invoice: any) => {
+    const booking = invoice.booking;
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    
+    const passengerName = booking?.passengerFirstName && booking?.passengerLastName 
+      ? `${booking.passengerFirstName} ${booking.passengerLastName}`
+      : booking?.passengerName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Guest';
+    
+    const printContent = generateInvoiceHTML({
+      logoUrl,
+      companyName,
+      invoiceNumber: invoice.invoiceNumber,
+      booking: {
+        confirmationNumber: booking?.confirmationNumber || invoice.invoiceNumber,
+        scheduledDateTime: booking?.scheduledDateTime || invoice.createdAt,
+        createdAt: invoice.createdAt,
+        passengerCount: booking?.passengerCount || 1,
+        vehicleType: booking?.vehicleTypeName || booking?.vehicleType,
+        vehicleName: booking?.vehicleName,
+        driverName: booking?.driverName,
+        driverPhone: booking?.driverPhone,
+        passengerName,
+        passengerFirstName: booking?.passengerFirstName,
+        passengerLastName: booking?.passengerLastName,
+        passengerPhone: booking?.passengerPhone || user?.phone,
+        passengerEmail: booking?.passengerEmail || user?.email,
+        passengerAddress: booking?.passengerAddress,
+        pickupAddress: booking?.pickupAddress || 'N/A',
+        destinationAddress: booking?.destinationAddress,
+        bookingType: booking?.bookingType,
+        requestedHours: booking?.requestedHours,
+        paymentMethod: booking?.paymentMethod,
+        status: booking?.status,
+        notes: booking?.notes,
+        specialRequests: booking?.specialInstructions,
+        baseFare: booking?.baseFare,
+        totalFare: invoice.totalAmount || booking?.totalFare,
+        gratuityAmount: booking?.gratuityAmount,
+        surgePricingAmount: booking?.surgePricingAmount,
+        surgePricingMultiplier: booking?.surgePricingMultiplier,
+        airportFeeAmount: booking?.airportFeeAmount,
+        discountAmount: booking?.discountAmount,
+        discountPercentage: booking?.discountPercentage,
+        tollFees: booking?.tollFees,
+        parkingFees: booking?.parkingFees,
+        extraStopFees: booking?.extraStopFees,
+        waitTimeFees: booking?.waitTimeFees,
+        creditAmountApplied: booking?.creditAmountApplied,
+        paidAmount: invoice.paidAt ? invoice.totalAmount : '0',
+        taxAmount: booking?.taxAmount,
+      }
+    });
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+  };
+
+  // Handle invoice email
+  const handleInvoiceEmail = (invoice: any) => {
+    setIsLoadingEmail(true);
+    emailInvoiceMutation.mutate({ id: invoice.id });
+  };
 
   // TomTom address search for new address
   useEffect(() => {
@@ -479,11 +584,7 @@ export default function MobilePassenger() {
                 <button
                   key={item.id}
                   onClick={() => {
-                    if (item.id === 'invoices') {
-                      navigate('/mobile-invoices');
-                    } else {
-                      setActiveSection(item.id);
-                    }
+                    setActiveSection(item.id);
                     setMenuOpen(false);
                   }}
                   className={`flex flex-col items-center gap-1 px-3 py-2 rounded-t-lg transition-all touch-manipulation ${
@@ -946,6 +1047,115 @@ export default function MobilePassenger() {
                     Manage Payment Methods
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Invoices Section */}
+        {activeSection === 'invoices' && (
+          <div className="space-y-3">
+            <Card className="shadow-sm border-2 border-border bg-card">
+              <CardHeader className="bg-primary/5/50 border-b border-border p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                      <div className="bg-primary/10 p-1.5 rounded-lg">
+                        <FileText className="w-3.5 h-3.5 text-primary" />
+                      </div>
+                      My Invoices
+                    </CardTitle>
+                    <CardDescription className="text-xs mt-0.5">View your ride invoices</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-3">
+                {invoicesLoading ? (
+                  <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>
+                ) : filteredInvoices.length === 0 ? (
+                  <div className="text-center py-6 text-muted-foreground">
+                    <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No invoices yet</p>
+                    <p className="text-xs mt-1">Invoices appear after completed rides</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {filteredInvoices.slice(0, 10).map((invoice) => (
+                      <div
+                        key={invoice.id}
+                        className="bg-card border border-border rounded-lg p-2.5 hover:border-primary/50 hover:shadow-sm transition-all"
+                        data-testid={`invoice-${invoice.id}`}
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <span className="font-semibold text-foreground text-xs">{invoice.invoiceNumber}</span>
+                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
+                                invoice.paidAt
+                                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                  : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                              }`}>
+                                {invoice.paidAt ? 'Paid' : 'Unpaid'}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground">
+                              {new Date(invoice.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </p>
+                            {invoice.booking && (
+                              <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                                {invoice.booking.pickupAddress?.substring(0, 40)}{invoice.booking.pickupAddress?.length > 40 ? '...' : ''}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <span className="font-bold text-sm text-primary">${parseFloat(invoice.totalAmount).toFixed(2)}</span>
+                          </div>
+                        </div>
+                        {/* Action Buttons */}
+                        <div className="flex gap-1.5 pt-2 border-t border-border">
+                          {invoice.bookingId && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => navigate(`/mobile-booking-details/${invoice.bookingId}`)}
+                              className="flex-1 h-7 text-primary border-primary/30 hover:bg-primary/5 text-[10px] px-1"
+                              data-testid={`button-view-${invoice.id}`}
+                            >
+                              <Eye className="w-3 h-3 mr-0.5" />
+                              View
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleInvoicePrint(invoice)}
+                            className="flex-1 h-7 text-muted-foreground border-border hover:bg-muted text-[10px] px-1"
+                            data-testid={`button-print-${invoice.id}`}
+                          >
+                            <Printer className="w-3 h-3 mr-0.5" />
+                            Print
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleInvoiceEmail(invoice)}
+                            disabled={isLoadingEmail}
+                            className="flex-1 h-7 text-muted-foreground border-border hover:bg-muted text-[10px] px-1"
+                            data-testid={`button-email-${invoice.id}`}
+                          >
+                            <Mail className="w-3 h-3 mr-0.5" />
+                            Email
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                    {filteredInvoices.length > 10 && (
+                      <p className="text-center text-xs text-muted-foreground pt-2">
+                        Showing 10 of {filteredInvoices.length} invoices
+                      </p>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
