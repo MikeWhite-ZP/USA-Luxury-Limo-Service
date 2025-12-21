@@ -842,7 +842,9 @@ function InvoicesList() {
     <>
       {printInvoice && renderPrintableInvoice(printInvoice)}
       <div className="divide-y divide-border">
-        {invoices.map((invoice, index) => (
+        {invoices
+          .filter(invoice => !(invoice.booking?.status === 'cancelled' && !invoice.paidAt))
+          .map((invoice, index) => (
           <div
             key={invoice.id}
             className={`py-3 ${index === 0 ? '' : ''}`}
