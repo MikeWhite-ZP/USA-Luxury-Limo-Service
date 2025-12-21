@@ -354,7 +354,7 @@ export default function MobileDriver() {
     return (
       <div className="min-h-screen bg-muted flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-3" style={{ borderColor: 'var(--brand-accent-hex)', borderTopColor: 'transparent' }}></div>
           <p className="text-muted-foreground">Loading driver dashboard...</p>
         </div>
       </div>
@@ -366,14 +366,14 @@ export default function MobileDriver() {
       <div className="min-h-screen bg-muted flex items-center justify-center p-6">
         <Card className="max-w-md w-full bg-background shadow-sm border border-border">
           <CardContent className="p-6 text-center">
-            <Car className="w-12 h-12 text-red-600 mx-auto mb-4" />
+            <Car className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--brand-accent-hex)' }} />
             <h2 className="text-xl font-bold mb-2 text-foreground">Driver Profile Not Found</h2>
             <p className="text-muted-foreground mb-4">
               You need to complete your driver profile to access this dashboard.
             </p>
             <Button 
               onClick={() => setLocation('/driver-dashboard')}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="text-white" style={{ backgroundColor: 'var(--brand-button-primary-hex)' }}
               data-testid="button-setup-profile"
             >
               Set Up Profile
@@ -418,7 +418,7 @@ export default function MobileDriver() {
                 className="flex items-center gap-2 cursor-pointer hover:bg-muted"
                 data-testid="menu-documents"
               >
-                <FileText className="w-4 h-4 text-red-600" />
+                <FileText className="w-4 h-4" style={{ color: 'var(--brand-accent-hex)' }} />
                 <span className="text-muted-foreground">Documents</span>
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -426,7 +426,7 @@ export default function MobileDriver() {
                 className="flex items-center gap-2 cursor-pointer hover:bg-muted"
                 data-testid="menu-profile"
               >
-                <User className="w-4 h-4 text-red-600" />
+                <User className="w-4 h-4" style={{ color: 'var(--brand-accent-hex)' }} />
                 <span className="text-muted-foreground">Profile</span>
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -434,13 +434,13 @@ export default function MobileDriver() {
                 className="flex items-center gap-2 cursor-pointer hover:bg-muted"
                 data-testid="menu-account"
               >
-                <Settings className="w-4 h-4 text-red-600" />
+                <Settings className="w-4 h-4" style={{ color: 'var(--brand-accent-hex)' }} />
                 <span className="text-muted-foreground">Account</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => logoutMutation.mutate()}
-                className="flex items-center gap-2 cursor-pointer hover:bg-red-50 text-red-600"
+                className="flex items-center gap-2 cursor-pointer hover:bg-destructive/10 text-destructive"
                 data-testid="menu-logout"
                 disabled={logoutMutation.isPending}
               >
@@ -568,7 +568,7 @@ export default function MobileDriver() {
             <TabsTrigger 
               value="upcoming" 
               data-testid="tab-upcoming"
-              className="data-[state=active]:bg-red-600 data-[state=active]:text-white rounded-md font-medium transition-all text-muted-foreground relative"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md font-medium transition-all text-muted-foreground relative"
             >
               Upcoming ({upcomingBookings.length})
               {newJobAlert && (
@@ -581,7 +581,7 @@ export default function MobileDriver() {
             <TabsTrigger 
               value="completed" 
               data-testid="tab-completed"
-              className="data-[state=active]:bg-red-600 data-[state=active]:text-white rounded-md font-medium transition-all text-muted-foreground"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md font-medium transition-all text-muted-foreground"
             >
               Completed ({completedBookings.length})
             </TabsTrigger>
@@ -616,7 +616,7 @@ export default function MobileDriver() {
                             <Badge className={`${getStatusColor(booking.status)} font-medium text-xs px-2.5 py-1`} data-testid={`badge-status-${booking.id}`}>
                               {booking.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                             </Badge>
-                            <span className="text-base font-bold text-red-600">
+                            <span className="text-base font-bold" style={{ color: 'var(--brand-accent-hex)' }}>
                               ${booking.driverPayment && Number.isFinite(parseFloat(booking.driverPayment)) ? parseFloat(booking.driverPayment).toFixed(2) : '0.00'}
                             </span>
                           </div>
@@ -749,7 +749,7 @@ export default function MobileDriver() {
                         )}
 
                         <div className="flex items-start gap-2.5">
-                          <div className="w-2.5 h-2.5 rounded-full bg-red-500 mt-1 flex-shrink-0"></div>
+                          <div className="w-2.5 h-2.5 rounded-full bg-primary mt-1 flex-shrink-0"></div>
                           <div className="flex-1 min-w-0">
                             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">Dropoff</p>
                             <p className="text-sm font-medium text-foreground line-clamp-2">{booking.destinationAddress}</p>
@@ -758,7 +758,7 @@ export default function MobileDriver() {
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                                 <button
-                                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors border border-red-200"
+                                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-primary/10 hover:bg-primary/20 transition-colors border border-primary/20" style={{ color: 'var(--brand-accent-hex)' }}
                                   aria-label="Navigate to dropoff"
                                   title="Navigate to dropoff"
                                   data-testid={`button-nav-dropoff-${booking.id}`}
@@ -794,7 +794,7 @@ export default function MobileDriver() {
                           disabled={updateStatusMutation.isPending || !canStartTrip(booking)}
                           className={`w-full font-semibold shadow-sm hover:shadow-md transition-all ${
                             canStartTrip(booking) 
-                              ? 'bg-red-600 hover:bg-red-700 text-white' 
+                              ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
                               : 'bg-gray-200 text-muted-foreground cursor-not-allowed'
                           }`}
                           data-testid={`button-${nextAction.nextStatus}-${booking.id}`}

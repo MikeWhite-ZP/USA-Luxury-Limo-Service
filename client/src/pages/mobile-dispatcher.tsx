@@ -165,7 +165,7 @@ export default function MobileDispatcher() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-foreground text-center">
-          <Activity className="w-12 h-12 animate-spin mx-auto mb-4 text-red-600" />
+          <Activity className="w-10 h-10 animate-spin mx-auto mb-3" style={{ color: 'var(--brand-accent-hex)' }} />
           <p>Loading dispatcher dashboard...</p>
         </div>
       </div>
@@ -196,7 +196,7 @@ export default function MobileDispatcher() {
             <ThemeToggleMobile />
             <Button
               onClick={() => setFleetDialogOpen(true)}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="text-white" style={{ backgroundColor: 'var(--brand-button-primary-hex)' }}
               size="sm"
               data-testid="button-fleet-monitor"
             >
@@ -243,13 +243,13 @@ export default function MobileDispatcher() {
       <div className="p-3 sm:p-4">
         <Tabs defaultValue="pending" className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-muted">
-            <TabsTrigger value="pending" className="data-[state=active]:bg-background data-[state=active]:text-red-600" data-testid="tab-pending">
+            <TabsTrigger value="pending" className="data-[state=active]:bg-background data-[state=active]:text-primary" data-testid="tab-pending">
               Pending ({pendingBookings.length})
             </TabsTrigger>
-            <TabsTrigger value="assigned" className="data-[state=active]:bg-background data-[state=active]:text-red-600" data-testid="tab-assigned">
+            <TabsTrigger value="assigned" className="data-[state=active]:bg-background data-[state=active]:text-primary" data-testid="tab-assigned">
               Assigned ({assignedBookings.length})
             </TabsTrigger>
-            <TabsTrigger value="active" className="data-[state=active]:bg-background data-[state=active]:text-red-600" data-testid="tab-active">
+            <TabsTrigger value="active" className="data-[state=active]:bg-background data-[state=active]:text-primary" data-testid="tab-active">
               Active ({activeBookings.length})
             </TabsTrigger>
           </TabsList>
@@ -280,7 +280,7 @@ export default function MobileDispatcher() {
                       </div>
                       {booking.destinationAddress && (
                         <div className="flex items-start space-x-2">
-                          <MapPin className="w-4 h-4 mt-0.5 text-red-600 flex-shrink-0" />
+                          <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--brand-accent-hex)' }} />
                           <span className="line-clamp-1">{booking.destinationAddress}</span>
                         </div>
                       )}
@@ -319,7 +319,7 @@ export default function MobileDispatcher() {
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <p className="font-semibold text-foreground">{booking.passengerFirstName} {booking.passengerLastName}</p>
-                        <p className="text-sm text-red-600 font-medium">
+                        <p className="text-sm font-medium" style={{ color: 'var(--brand-accent-hex)' }}>
                           Driver: {booking.driverFirstName} {booking.driverLastName}
                         </p>
                       </div>
@@ -365,7 +365,7 @@ export default function MobileDispatcher() {
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <p className="font-semibold text-foreground">{booking.passengerFirstName} {booking.passengerLastName}</p>
-                        <p className="text-sm text-red-600 font-medium">
+                        <p className="text-sm font-medium" style={{ color: 'var(--brand-accent-hex)' }}>
                           Driver: {booking.driverFirstName} {booking.driverLastName}
                         </p>
                       </div>
@@ -380,7 +380,7 @@ export default function MobileDispatcher() {
                       </div>
                       {booking.destinationAddress && (
                         <div className="flex items-start space-x-2">
-                          <MapPin className="w-4 h-4 mt-0.5 text-red-600 flex-shrink-0" />
+                          <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--brand-accent-hex)' }} />
                           <span className="line-clamp-1">{booking.destinationAddress}</span>
                         </div>
                       )}
@@ -452,7 +452,7 @@ export default function MobileDispatcher() {
                           </div>
                           <p className="text-xs text-muted-foreground">{driver.email}</p>
                           {driver.phone && (
-                            <a href={`tel:${driver.phone}`} className="text-xs text-red-600 flex items-center space-x-1 mt-1">
+                            <a href={`tel:${driver.phone}`} className="text-xs flex items-center space-x-1 mt-1" style={{ color: 'var(--brand-accent-hex)' }}>
                               <Phone className="w-3 h-3" />
                               <span>{driver.phone}</span>
                             </a>

@@ -220,7 +220,7 @@ export default function MobileInvoices() {
                 size="sm"
                 variant="ghost"
                 onClick={clearFilters}
-                className="h-7 px-2 text-xs text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                 data-testid="button-clear-filters"
               >
                 <X className="w-3 h-3 mr-1" />
