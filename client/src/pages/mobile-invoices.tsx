@@ -181,7 +181,7 @@ export default function MobileInvoices() {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-background dark:from-background pb-6">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-b-3xl shadow-lg mt-[0px] mb-[0px] pt-[48px] pb-[48px]">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mt-[15px] mb-[15px]">
           <Button
             variant="ghost"
             size="icon"
