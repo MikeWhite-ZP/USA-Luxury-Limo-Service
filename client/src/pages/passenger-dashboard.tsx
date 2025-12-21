@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone, FileText, Eye, Printer, ChevronDown } from "lucide-react";
-import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { Elements, CardElement, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -284,12 +284,16 @@ function PaymentMethodsList() {
 
 function InvoicesList() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { companyName, logoUrl, isFetched: isBrandingFetched } = useBranding();
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [isLoadingEmail, setIsLoadingEmail] = useState(false);
   const [printInvoice, setPrintInvoice] = useState<any>(null);
   const [pendingPrintInvoice, setPendingPrintInvoice] = useState<any>(null);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [paymentInvoice, setPaymentInvoice] = useState<any>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   // Effect to handle printing when branding is ready
   useEffect(() => {
@@ -307,6 +311,79 @@ function InvoicesList() {
   const { data: invoices, isLoading } = useQuery<any[]>({
     queryKey: ['/api/passenger/invoices'],
   });
+
+  // Create payment intent mutation
+  const createPaymentIntentMutation = useMutation({
+    mutationFn: async ({ invoiceId }: { invoiceId: string }) => {
+      const response = await fetch(`/api/passenger/invoices/${invoiceId}/pay`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create payment');
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setClientSecret(data.clientSecret);
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Payment Error',
+        description: error.message || 'Failed to initiate payment',
+        variant: 'destructive',
+      });
+      setPaymentDialogOpen(false);
+      setPaymentInvoice(null);
+    },
+  });
+
+  // Confirm payment mutation
+  const confirmPaymentMutation = useMutation({
+    mutationFn: async ({ invoiceId, paymentIntentId }: { invoiceId: string; paymentIntentId: string }) => {
+      const response = await fetch(`/api/passenger/invoices/${invoiceId}/confirm-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ paymentIntentId }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to confirm payment');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Payment Successful',
+        description: 'Your invoice has been paid successfully',
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/passenger/invoices'] });
+      setPaymentDialogOpen(false);
+      setPaymentInvoice(null);
+      setClientSecret(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Payment Error',
+        description: error.message || 'Failed to confirm payment',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handlePay = (invoice: any) => {
+    setPaymentInvoice(invoice);
+    setPaymentDialogOpen(true);
+    createPaymentIntentMutation.mutate({ invoiceId: invoice.id });
+  };
+
+  const canPayInvoice = (invoice: any) => {
+    // Can pay if: unpaid AND booking is not cancelled
+    return !invoice.paidAt && invoice.booking?.status !== 'cancelled' && parseFloat(invoice.totalAmount) > 0;
+  };
 
   // Email invoice mutation
   const emailInvoiceMutation = useMutation({
@@ -817,6 +894,17 @@ function InvoicesList() {
               
               {/* Right: Actions */}
               <div className="flex items-center gap-1 shrink-0">
+                {/* Pay Now button - only for unpaid non-cancelled bookings */}
+                {canPayInvoice(invoice) && (
+                  <button
+                    onClick={() => handlePay(invoice)}
+                    className="px-2 py-1 rounded text-xs font-medium btn-brand-primary text-white transition-colors"
+                    title="Pay Now"
+                    data-testid={`button-pay-${invoice.id}`}
+                  >
+                    Pay
+                  </button>
+                )}
                 <button
                   onClick={() => handlePrint(invoice)}
                   className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
@@ -875,7 +963,152 @@ function InvoicesList() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Payment Dialog */}
+      <Dialog open={paymentDialogOpen} onOpenChange={(open) => {
+        if (!open) {
+          setPaymentDialogOpen(false);
+          setPaymentInvoice(null);
+          setClientSecret(null);
+        }
+      }}>
+        <DialogContent className="sm:max-w-[450px] bg-card p-5">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="text-lg font-semibold text-foreground">Pay Invoice</DialogTitle>
+            {paymentInvoice && (
+              <p className="text-sm text-muted-foreground">
+                {paymentInvoice.invoiceNumber} - ${parseFloat(paymentInvoice.totalAmount).toFixed(2)}
+              </p>
+            )}
+          </DialogHeader>
+          
+          {createPaymentIntentMutation.isPending ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full" />
+              <span className="ml-3 text-sm text-muted-foreground">Preparing payment...</span>
+            </div>
+          ) : clientSecret ? (
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <InvoicePaymentForm 
+                invoiceId={paymentInvoice?.id}
+                amount={paymentInvoice?.totalAmount}
+                onSuccess={(paymentIntentId) => {
+                  confirmPaymentMutation.mutate({ 
+                    invoiceId: paymentInvoice?.id, 
+                    paymentIntentId 
+                  });
+                }}
+                onCancel={() => {
+                  setPaymentDialogOpen(false);
+                  setPaymentInvoice(null);
+                  setClientSecret(null);
+                }}
+              />
+            </Elements>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </>
+  );
+}
+
+// Stripe Payment Form for Invoice
+function InvoicePaymentForm({ 
+  invoiceId, 
+  amount, 
+  onSuccess, 
+  onCancel 
+}: { 
+  invoiceId: string;
+  amount: string;
+  onSuccess: (paymentIntentId: string) => void;
+  onCancel: () => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      const { error: submitError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: window.location.href,
+        },
+        redirect: 'if_required',
+      });
+
+      if (submitError) {
+        setError(submitError.message || 'Payment failed');
+        toast({
+          title: 'Payment Failed',
+          description: submitError.message || 'Please try again',
+          variant: 'destructive',
+        });
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        onSuccess(paymentIntent.id);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Payment failed');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="bg-muted/50 p-3 rounded-lg border border-border">
+        <p className="text-xs text-muted-foreground mb-1">Amount to Pay</p>
+        <p className="text-2xl font-bold text-brand-accent">${parseFloat(amount).toFixed(2)}</p>
+      </div>
+      
+      <div className="border border-border rounded-lg p-3">
+        <PaymentElement />
+      </div>
+      
+      {error && (
+        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+          {error}
+        </div>
+      )}
+      
+      <div className="flex gap-3 pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isProcessing}
+          className="flex-1"
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={!stripe || isProcessing}
+          className="flex-1 btn-brand-primary"
+        >
+          {isProcessing ? (
+            <>
+              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+              Processing...
+            </>
+          ) : (
+            'Pay Now'
+          )}
+        </Button>
+      </div>
+    </form>
   );
 }
 

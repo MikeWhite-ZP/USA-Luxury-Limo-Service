@@ -3563,6 +3563,186 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Manual invoice payment endpoint for authenticated passengers
+  app.post('/api/passenger/invoices/:id/pay', isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: 'Payment service not configured' });
+      }
+
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+
+      const invoice = await storage.getInvoice(req.params.id);
+      if (!invoice) {
+        return res.status(404).json({ message: 'Invoice not found' });
+      }
+
+      const booking = await storage.getBooking(invoice.bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: 'Associated booking not found' });
+      }
+
+      // Verify this invoice belongs to the requesting passenger
+      if (booking.passengerId !== userId) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      // Check if invoice is already paid
+      if (invoice.paidAt) {
+        return res.status(400).json({ message: 'Invoice is already paid' });
+      }
+
+      // Check if booking is cancelled - don't allow payment for cancelled bookings
+      if (booking.status === 'cancelled') {
+        return res.status(400).json({ message: 'Cannot pay for a cancelled booking' });
+      }
+
+      // Create Stripe payment intent
+      const amount = Math.round(parseFloat(invoice.totalAmount) * 100); // Convert to cents
+
+      if (amount <= 0) {
+        return res.status(400).json({ message: 'Invoice amount must be greater than zero' });
+      }
+
+      const paymentIntentData: any = {
+        amount,
+        currency: 'usd',
+        metadata: {
+          invoiceId: invoice.id,
+          bookingId: invoice.bookingId,
+          passengerId: userId,
+          paymentType: 'manual_invoice_payment',
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      };
+
+      // If user has a Stripe customer ID, attach it to enable saved cards
+      if (user.stripeCustomerId) {
+        paymentIntentData.customer = user.stripeCustomerId;
+        paymentIntentData.setup_future_usage = 'off_session';
+      } else if (user.email) {
+        // Create a Stripe customer for this user
+        try {
+          const customer = await stripe.customers.create({
+            email: user.email,
+            name: `${user.firstName} ${user.lastName}`,
+            metadata: {
+              userId: user.id,
+            },
+          });
+          await storage.updateStripeCustomerId(user.id, customer.id);
+          paymentIntentData.customer = customer.id;
+        } catch (customerError) {
+          console.error('Failed to create Stripe customer:', customerError);
+          // Continue without customer ID - payment will still work
+        }
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        invoiceId: invoice.id,
+        amount: invoice.totalAmount,
+      });
+    } catch (error) {
+      console.error('Manual invoice payment error:', error);
+      res.status(500).json({ message: 'Failed to create payment intent' });
+    }
+  });
+
+  // Confirm manual invoice payment (called after Stripe payment succeeds)
+  app.post('/api/passenger/invoices/:id/confirm-payment', isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: 'Payment service not configured' });
+      }
+
+      const userId = req.user.id;
+      const { paymentIntentId } = req.body;
+      
+      if (!paymentIntentId) {
+        return res.status(400).json({ message: 'Payment intent ID is required' });
+      }
+
+      const invoice = await storage.getInvoice(req.params.id);
+      if (!invoice) {
+        return res.status(404).json({ message: 'Invoice not found' });
+      }
+
+      const booking = await storage.getBooking(invoice.bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: 'Associated booking not found' });
+      }
+
+      // Verify this invoice belongs to the requesting passenger
+      if (booking.passengerId !== userId) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      // Check if already paid
+      if (invoice.paidAt) {
+        return res.json({ message: 'Invoice already marked as paid', invoice });
+      }
+
+      // CRITICAL: Verify payment with Stripe before marking as paid
+      let paymentIntent;
+      try {
+        paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      } catch (stripeError: any) {
+        console.error('Failed to retrieve payment intent:', stripeError);
+        return res.status(400).json({ message: 'Invalid payment intent ID' });
+      }
+
+      // Verify payment status
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ 
+          message: `Payment not completed. Status: ${paymentIntent.status}` 
+        });
+      }
+
+      // Verify the payment amount matches invoice amount (in cents)
+      const expectedAmount = Math.round(parseFloat(invoice.totalAmount) * 100);
+      if (paymentIntent.amount !== expectedAmount) {
+        console.error(`Payment amount mismatch: expected ${expectedAmount}, got ${paymentIntent.amount}`);
+        return res.status(400).json({ message: 'Payment amount does not match invoice' });
+      }
+
+      // Verify the payment metadata matches this invoice
+      if (paymentIntent.metadata?.invoiceId !== invoice.id) {
+        console.error(`Invoice ID mismatch: expected ${invoice.id}, got ${paymentIntent.metadata?.invoiceId}`);
+        return res.status(400).json({ message: 'Payment does not match this invoice' });
+      }
+
+      // All verifications passed - update invoice as paid
+      const updatedInvoice = await storage.updateInvoice(invoice.id, {
+        paidAt: new Date().toISOString(),
+      });
+
+      // Update booking payment status with verified payment intent ID
+      await storage.updateBookingPayment(
+        invoice.bookingId,
+        paymentIntentId,
+        'paid'
+      );
+
+      res.json({ 
+        message: 'Payment confirmed successfully', 
+        invoice: updatedInvoice 
+      });
+    } catch (error) {
+      console.error('Confirm invoice payment error:', error);
+      res.status(500).json({ message: 'Failed to confirm payment' });
+    }
+  });
+
   // Invoice management endpoints
   app.get('/api/invoices', isAuthenticated, async (req: any, res) => {
     try {
