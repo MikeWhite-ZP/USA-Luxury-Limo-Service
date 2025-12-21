@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useBranding, BrandColors } from './useBranding';
 
 // Utility function to convert hex to HSL
@@ -172,29 +172,28 @@ function isDarkModeActive(): boolean {
 
 export function useBrandTheme() {
   const branding = useBranding();
-  const [isDark, setIsDark] = useState(false);
   
-  // Function to update colors based on current theme
-  const updateColors = useCallback(() => {
-    if (!branding.isLoading && branding.colors && branding.darkColors) {
+  // Apply theme colors when branding data changes or dark mode changes
+  useEffect(() => {
+    if (branding.isLoading || !branding.colors || !branding.darkColors) {
+      return;
+    }
+    
+    // Function to apply colors based on current theme
+    const applyCurrentThemeColors = () => {
       const darkMode = isDarkModeActive();
-      setIsDark(darkMode);
-      
-      // Apply the appropriate color palette
       const colors = darkMode ? branding.darkColors : branding.colors;
       applyThemeColors(colors, darkMode);
-    }
-  }, [branding.isLoading, branding.colors, branding.darkColors]);
-  
-  useEffect(() => {
+    };
+    
     // Initial color application
-    updateColors();
+    applyCurrentThemeColors();
     
     // Watch for dark mode changes via class mutations
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          updateColors();
+          applyCurrentThemeColors();
         }
       });
     });
@@ -206,20 +205,16 @@ export function useBrandTheme() {
     
     // Also listen for system preference changes
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleMediaChange = () => updateColors();
+    const handleMediaChange = () => applyCurrentThemeColors();
     mediaQuery.addEventListener('change', handleMediaChange);
     
     return () => {
       observer.disconnect();
       mediaQuery.removeEventListener('change', handleMediaChange);
     };
-  }, [updateColors]);
+  }, [branding.isLoading, branding.colors, branding.darkColors]);
   
-  return {
-    ...branding,
-    isDarkMode: isDark,
-    updateColors
-  };
+  return branding;
 }
 
 // Export utilities for use in components
