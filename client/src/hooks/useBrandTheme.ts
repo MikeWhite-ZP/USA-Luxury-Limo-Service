@@ -162,74 +162,66 @@ function applyThemeColors(colors: BrandColors, isDarkMode: boolean) {
 }
 
 // Check if dark mode is currently active
+// NOTE: Only check the CSS class - it's the single source of truth set by ThemeProvider
 function isDarkModeActive(): boolean {
-  // Check for dark class on documentElement (used by next-themes and similar)
-  if (document.documentElement.classList.contains('dark')) {
-    return true;
-  }
-  // Check system preference as fallback
-  if (typeof window !== 'undefined' && window.matchMedia) {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  }
-  return false;
-}
-
-// Function to apply colors based on current theme using global state
-function applyCurrentThemeColors() {
-  if (!globalLightColors || !globalDarkColors) {
-    return;
-  }
-  const darkMode = isDarkModeActive();
-  const colors = darkMode ? globalDarkColors : globalLightColors;
-  applyThemeColors(colors, darkMode);
-}
-
-// Set up global observer once (singleton pattern)
-let observerInitialized = false;
-
-function initializeThemeObserver() {
-  if (observerInitialized || typeof window === 'undefined') {
-    return;
-  }
-  observerInitialized = true;
-  
-  // Watch for dark mode changes via class mutations
-  const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        applyCurrentThemeColors();
-        break;
-      }
-    }
-  });
-  
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['class']
-  });
-  
-  // Also listen for system preference changes
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  mediaQuery.addEventListener('change', () => applyCurrentThemeColors());
+  return document.documentElement.classList.contains('dark');
 }
 
 export function useBrandTheme() {
   const branding = useBranding();
   
-  // Apply colors when branding data loads or changes
+  // Update global state when branding data changes
   useEffect(() => {
     if (!branding.isLoading && branding.colors && branding.darkColors) {
-      // Update global state
       globalLightColors = branding.colors;
       globalDarkColors = branding.darkColors;
       
-      // Initialize observer if not already done
-      initializeThemeObserver();
-      
-      // Apply current theme colors
-      applyCurrentThemeColors();
+      // Apply current theme colors immediately
+      const darkMode = isDarkModeActive();
+      const colors = darkMode ? branding.darkColors : branding.colors;
+      applyThemeColors(colors, darkMode);
     }
   }, [branding.isLoading, branding.colors, branding.darkColors]);
+  
+  // Set up observer for theme changes - this effect runs once on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Function to apply colors based on current theme using global state
+    const applyCurrentThemeColors = () => {
+      if (!globalLightColors || !globalDarkColors) {
+        return;
+      }
+      const darkMode = isDarkModeActive();
+      const colors = darkMode ? globalDarkColors : globalLightColors;
+      applyThemeColors(colors, darkMode);
+    };
+    
+    // Watch for dark mode changes via class mutations on document.documentElement
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          applyCurrentThemeColors();
+          break;
+        }
+      }
+    });
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    
+    // Also listen for system preference changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleMediaChange = () => applyCurrentThemeColors();
+    mediaQuery.addEventListener('change', handleMediaChange);
+    
+    return () => {
+      observer.disconnect();
+      mediaQuery.removeEventListener('change', handleMediaChange);
+    };
+  }, []); // Empty deps - observer is set up once
   
   return branding;
 }
