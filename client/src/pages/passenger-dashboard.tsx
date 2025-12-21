@@ -905,23 +905,40 @@ function InvoicesList() {
                     Pay
                   </button>
                 )}
-                <button
-                  onClick={() => handlePrint(invoice)}
-                  className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                  title="Print Invoice"
-                  data-testid={`button-print-${invoice.id}`}
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => handleEmail(invoice)}
-                  disabled={isLoadingEmail}
-                  className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-brand-accent transition-colors disabled:opacity-50"
-                  title="Email Invoice"
-                  data-testid={`button-email-${invoice.id}`}
-                >
-                  <Mail className="w-3.5 h-3.5" />
-                </button>
+                {/* Print/Email disabled for unpaid cancelled bookings */}
+                {(() => {
+                  const isUnpaidCancelled = !invoice.paidAt && invoice.booking?.status === 'cancelled';
+                  return (
+                    <>
+                      <button
+                        onClick={() => !isUnpaidCancelled && handlePrint(invoice)}
+                        disabled={isUnpaidCancelled}
+                        className={`p-1.5 rounded transition-colors ${
+                          isUnpaidCancelled 
+                            ? 'text-muted-foreground/40 cursor-not-allowed' 
+                            : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+                        }`}
+                        title={isUnpaidCancelled ? "Cannot print cancelled unpaid invoice" : "Print Invoice"}
+                        data-testid={`button-print-${invoice.id}`}
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => !isUnpaidCancelled && handleEmail(invoice)}
+                        disabled={isLoadingEmail || isUnpaidCancelled}
+                        className={`p-1.5 rounded transition-colors disabled:opacity-50 ${
+                          isUnpaidCancelled 
+                            ? 'text-muted-foreground/40 cursor-not-allowed' 
+                            : 'hover:bg-muted text-muted-foreground hover:text-brand-accent'
+                        }`}
+                        title={isUnpaidCancelled ? "Cannot email cancelled unpaid invoice" : "Email Invoice"}
+                        data-testid={`button-email-${invoice.id}`}
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>
