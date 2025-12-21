@@ -743,18 +743,20 @@ function InvoicesList() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin w-6 h-6 border-4 border-amber-500 border-t-transparent rounded-full" />
+      <div className="flex items-center justify-center py-6">
+        <div className="animate-spin w-5 h-5 border-2 border-brand-accent border-t-transparent rounded-full" />
       </div>
     );
   }
 
   if (!invoices || invoices.length === 0) {
     return (
-      <div className="text-center p-12" data-testid="no-invoices">
-        <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-        <p className="text-muted-foreground text-lg font-medium">No invoices found</p>
-        <p className="text-muted-foreground text-sm mt-2">Invoices will appear here once your rides are complete</p>
+      <div className="text-center py-8" data-testid="no-invoices">
+        <div className="w-10 h-10 rounded-full bg-muted mx-auto mb-2 flex items-center justify-center">
+          <FileText className="w-5 h-5 text-muted-foreground" />
+        </div>
+        <p className="text-muted-foreground text-sm font-medium">No invoices found</p>
+        <p className="text-muted-foreground text-xs mt-1">Invoices appear after completed rides</p>
       </div>
     );
   }
@@ -762,115 +764,112 @@ function InvoicesList() {
   return (
     <>
       {printInvoice && renderPrintableInvoice(printInvoice)}
-      <div className="space-y-4">
-        {invoices.map((invoice) => (
+      <div className="divide-y divide-border">
+        {invoices.map((invoice, index) => (
           <div
             key={invoice.id}
-            className="bg-gradient-to-r from-muted to-background dark:from-muted dark:to-background rounded-xl p-5 border border-border hover:border-amber-300 hover:shadow-md transition-all"
+            className={`py-3 ${index === 0 ? '' : ''}`}
             data-testid={`invoice-${invoice.id}`}
           >
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <p className="font-bold text-foreground text-lg" data-testid={`invoice-number-${invoice.id}`}>
-                  {invoice.invoiceNumber}
-                </p>
-                <p className="text-sm text-muted-foreground" data-testid={`invoice-date-${invoice.id}`}>
-                  {new Date(invoice.createdAt).toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'short', 
-                    day: 'numeric' 
-                  })}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-amber-600" data-testid={`invoice-amount-${invoice.id}`}>
+            {/* Compact invoice row */}
+            <div className="flex items-center justify-between gap-3">
+              {/* Left: Invoice info - clickable to view details */}
+              <button
+                onClick={() => handleView(invoice)}
+                className="flex-1 min-w-0 text-left hover:bg-muted/50 rounded p-1 -m-1 transition-colors"
+                title="View invoice details"
+              >
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="font-semibold text-sm text-brand-accent hover:underline" data-testid={`invoice-number-${invoice.id}`}>
+                    {invoice.invoiceNumber}
+                  </span>
+                  <span className="text-xs text-muted-foreground" data-testid={`invoice-date-${invoice.id}`}>
+                    {new Date(invoice.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                </div>
+                {invoice.booking && (
+                  <p className="text-xs text-muted-foreground truncate" title={invoice.booking.pickupAddress}>
+                    {invoice.booking.pickupAddress?.substring(0, 50)}{invoice.booking.pickupAddress?.length > 50 ? '...' : ''}
+                    {invoice.booking.destinationAddress && (
+                      <span className="text-brand-accent"> → </span>
+                    )}
+                    {invoice.booking.destinationAddress?.substring(0, 30)}{invoice.booking.destinationAddress?.length > 30 ? '...' : ''}
+                  </p>
+                )}
+              </button>
+              
+              {/* Center: Amount & Status */}
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="font-bold text-sm text-brand-accent" data-testid={`invoice-amount-${invoice.id}`}>
                   ${parseFloat(invoice.totalAmount).toFixed(2)}
-                </p>
-                <Badge
-                  className={`mt-1 ${
+                </span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
                     invoice.paidAt
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-amber-100 text-amber-800'
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-amber-100 text-amber-700'
                   }`}
                   data-testid={`invoice-status-${invoice.id}`}
                 >
                   {invoice.paidAt ? 'Paid' : 'Unpaid'}
-                </Badge>
+                </span>
               </div>
-            </div>
-
-            {invoice.booking && (
-              <div className="text-sm space-y-1 mb-4">
-                <p className="text-muted-foreground">
-                  <span className="font-medium text-foreground">From:</span> {invoice.booking.pickupAddress}
-                </p>
-                {invoice.booking.destinationAddress && (
-                  <p className="text-muted-foreground">
-                    <span className="font-medium text-foreground">To:</span> {invoice.booking.destinationAddress}
-                  </p>
-                )}
+              
+              {/* Right: Actions */}
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={() => handlePrint(invoice)}
+                  className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  title="Print Invoice"
+                  data-testid={`button-print-${invoice.id}`}
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => handleEmail(invoice)}
+                  disabled={isLoadingEmail}
+                  className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-brand-accent transition-colors disabled:opacity-50"
+                  title="Email Invoice"
+                  data-testid={`button-email-${invoice.id}`}
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                </button>
               </div>
-            )}
-
-            <div className="flex gap-2 pt-3 border-t border-border">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handlePrint(invoice)}
-                className="flex-1 bg-card text-red-700 border-red-200 hover:bg-red-50"
-                data-testid={`button-print-${invoice.id}`}
-              >
-                <Printer className="w-4 h-4 mr-1.5" />
-                Print
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleEmail(invoice)}
-                disabled={isLoadingEmail}
-                className="flex-1 text-amber-700 border-amber-300 hover:bg-amber-50"
-                data-testid={`button-email-${invoice.id}`}
-              >
-                <Mail className="w-4 h-4 mr-1.5" />
-                {isLoadingEmail ? "..." : "Email"}
-              </Button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* View Dialog */}
+      {/* View Dialog - Compact Professional */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-card max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="border-b border-border pb-4">
-            <DialogTitle className="text-xl font-bold text-foreground">Invoice Details</DialogTitle>
-            <DialogDescription>Complete pricing breakdown</DialogDescription>
+        <DialogContent className="sm:max-w-[400px] bg-card p-4">
+          <DialogHeader className="pb-3">
+            <DialogTitle className="text-base font-semibold text-foreground">Invoice Details</DialogTitle>
           </DialogHeader>
           {selectedInvoice && (
-            <div className="space-y-6">
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 p-5 rounded-xl border border-border">
-                <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
+            <div className="space-y-3">
+              <div className="bg-muted/50 p-3 rounded-lg border border-border">
+                <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <p className="text-muted-foreground mb-1.5 font-medium">Invoice Number</p>
-                    <p className="font-bold text-foreground" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
+                    <p className="text-[10px] uppercase text-muted-foreground font-medium">Invoice #</p>
+                    <p className="font-semibold text-foreground text-sm" data-testid="view-invoice-number">{selectedInvoice.invoiceNumber}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground mb-1.5 font-medium">Date</p>
-                    <p className="text-foreground" data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <p className="text-muted-foreground mb-1.5 font-medium">Total Amount</p>
-                    <p className="text-3xl font-bold text-amber-600" data-testid="view-total-amount">
-                      ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}
-                    </p>
-                  </div>
-                  <div className="col-span-2">
-                    <p className="text-muted-foreground mb-1.5 font-medium">Status</p>
-                    <Badge className={selectedInvoice.paidAt ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}>
-                      {selectedInvoice.paidAt ? 'Paid' : 'Unpaid'}
-                    </Badge>
+                    <p className="text-[10px] uppercase text-muted-foreground font-medium">Date</p>
+                    <p className="text-foreground text-sm" data-testid="view-invoice-date">{new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-brand-light border-brand rounded-lg">
+                <div>
+                  <p className="text-[10px] uppercase text-muted-foreground font-medium">Total</p>
+                  <p className="text-xl font-bold text-brand-accent" data-testid="view-total-amount">
+                    ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}
+                  </p>
+                </div>
+                <span className={`text-xs px-2 py-1 rounded font-medium ${selectedInvoice.paidAt ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                  {selectedInvoice.paidAt ? 'Paid' : 'Unpaid'}
+                </span>
               </div>
             </div>
           )}
