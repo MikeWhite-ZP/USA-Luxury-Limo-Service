@@ -58,3 +58,43 @@ The application is designed for flexible deployment across Replit, external Dock
 - **react-datepicker**: Date and time selection.
 - **AWS SDK**: For S3-compatible storage.
 - **Ionic Capacitor**: Native app framework.
+
+## Flutter Native Apps (New Architecture)
+
+### Overview
+The `flutter_app/` directory contains a **complete Flutter monorepo** for building native iOS and Android apps as an alternative to the Ionic Capacitor approach. It supports multi-tenant white-label deployments with 4 apps per tenant (User App + Admin App for both iOS and Android).
+
+### Structure
+```
+flutter_app/
+├── apps/
+│   ├── user_app/        # Passenger & Driver app
+│   └── admin_app/       # Admin/Dispatcher app
+├── packages/
+│   ├── core/            # API client, models, auth provider
+│   ├── theme/           # Dynamic branding from /api/branding
+│   └── features/auth/   # Authentication module
+├── scripts/
+│   ├── build_app.sh         # Build single tenant app
+│   └── build_all_tenants.sh # Batch build all tenants
+└── melos.yaml           # Monorepo configuration
+```
+
+### Key Features
+- **Multi-Tenant**: Compile-time `--dart-define TENANT_SLUG` + runtime `/api/branding` fetch
+- **Session Auth**: Dio with cookie_jar for session persistence
+- **Dynamic Theming**: Material 3 ThemeData generated from tenant colors
+- **Riverpod**: State management for auth, tenant config, and theme
+- **Go Router**: Declarative navigation with role-based redirects
+
+### Build Commands
+```bash
+# Single app build
+./scripts/build_app.sh user android acme https://api.acme.com
+
+# Batch build (all tenants)
+./scripts/build_all_tenants.sh tenants.json
+```
+
+### Tech Stack
+Flutter 3.10+, Riverpod, Dio, Go Router, Google Fonts, flutter_secure_storage, Melos

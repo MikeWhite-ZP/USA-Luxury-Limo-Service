@@ -1,67 +1,62 @@
-# USA Luxury Limo - Flutter Mobile App
+# USA Luxury Limo - Flutter Mobile Apps
 
-A premium chauffeur and limo booking service mobile application built with Flutter.
+Multi-tenant Flutter mobile applications for the USA Luxury Limo transportation booking system.
 
 ## Features
 
-- **Luxury Dark Theme** - Premium design with customizable colors
-- **TomTom Maps Integration** - High-quality maps with dark theme tiles
-- **White-Label Support** - Build branded apps for multiple tenants
-- **Map-based Booking** - Select pickup and dropoff locations on map with place search
-- **Vehicle Selection** - Browse and select from available luxury vehicles
-- **Booking Confirmation** - Complete booking with date, time, and passenger details
-- **Ride History** - View upcoming and past rides
-- **User Profile** - Manage account settings and preferences
+- **Multi-Tenant White-Label** - Build branded apps for multiple companies
+- **User App** - Passenger booking & Driver job management
+- **Admin App** - Fleet management & dispatch dashboard
+- **Dynamic Branding** - Colors, logos from `/api/branding` endpoint
+- **4-Step Booking Flow** - Type → Route → Vehicle → Confirm
+- **Session-Based Auth** - Cookie persistence with Dio
 
 ## Architecture
 
-This project follows **Clean Architecture** principles:
+This project uses a **monorepo structure** with Melos:
 
 ```
-lib/
-├── core/
-│   ├── theme/          # App theme, colors, typography
-│   ├── maps/           # TomTom map provider
-│   ├── constants/      # Tenant config, API constants
-│   ├── network/        # API client, interceptors
-│   └── utils/          # Validators, extensions
-├── features/
-│   ├── auth/           # Login, register, splash screens
-│   ├── home/           # Home screen with map
-│   ├── booking/        # Vehicle selection, booking confirmation
-│   ├── rides/          # Ride history
-│   └── profile/        # User profile
-└── shared/
-    ├── widgets/        # Reusable UI components
-    ├── models/         # Data models
-    └── providers/      # App-wide providers
+flutter_app/
+├── apps/
+│   ├── user_app/        # Passenger & Driver app
+│   └── admin_app/       # Admin/Dispatcher app
+├── packages/
+│   ├── core/            # API client, models, providers
+│   ├── theme/           # Dynamic branding & theming
+│   └── features/
+│       └── auth/        # Authentication module
+├── scripts/
+│   ├── build_app.sh         # Build single tenant app
+│   └── build_all_tenants.sh # Build all tenant apps
+└── melos.yaml           # Monorepo configuration
 ```
 
 ## Tech Stack
 
-- **Flutter** (latest stable)
+- **Flutter 3.10+** (Dart 3.0+)
 - **Riverpod** - State management
-- **Dio** - HTTP client
-- **Go Router** - Navigation
-- **TomTom Maps** - Map provider with flutter_map
-- **flutter_launcher_icons** - App icon generation
-- **flutter_native_splash** - Splash screen generation
+- **Dio** - HTTP client with cookie session
+- **Go Router** - Declarative routing
+- **Melos** - Monorepo management
+- **Google Fonts** - Typography (Inter)
+- **flutter_secure_storage** - Encrypted credentials
 
 ## Getting Started
 
 ### Prerequisites
 
-- Flutter SDK (>=3.0.0)
+- Flutter SDK (>=3.10.0)
+- Melos (`dart pub global activate melos`)
 - Android Studio / Xcode
-- TomTom API Key
-- jq (for JSON parsing in build scripts)
+- jq (for build scripts)
 
-### Quick Start (Default Branding)
+### Quick Start
 
 ```bash
 cd flutter_app
-flutter pub get
-flutter run --dart-define=TOMTOM_API_KEY=your_tomtom_api_key
+melos bootstrap     # Install all dependencies
+cd apps/user_app
+flutter run         # Run User App
 ```
 
 ## White-Label Build System
