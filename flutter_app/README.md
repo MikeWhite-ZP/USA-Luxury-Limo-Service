@@ -7,7 +7,7 @@ Multi-tenant Flutter mobile applications for the USA Luxury Limo transportation 
 - **Multi-Tenant White-Label** - Build branded apps for multiple companies
 - **User App** - Passenger booking & Driver job management
 - **Admin App** - Fleet management & dispatch dashboard
-- **Dynamic Branding** - Colors, logos from `/api/branding` endpoint
+- **Dynamic Branding** - Colors, logos fetched from `/api/branding` endpoint at runtime
 - **4-Step Booking Flow** - Type → Route → Vehicle → Confirm
 - **Session-Based Auth** - Cookie persistence with Dio
 
@@ -18,17 +18,22 @@ This project uses a **monorepo structure** with Melos:
 ```
 flutter_app/
 ├── apps/
-│   ├── user_app/        # Passenger & Driver app
-│   └── admin_app/       # Admin/Dispatcher app
+│   ├── user_app/           # Passenger & Driver app
+│   └── admin_app/          # Admin/Dispatcher app
 ├── packages/
-│   ├── core/            # API client, models, providers
-│   ├── theme/           # Dynamic branding & theming
+│   ├── core/               # API client, models, providers
+│   ├── theme/              # Dynamic branding & theming
 │   └── features/
-│       └── auth/        # Authentication module
+│       ├── auth/           # Authentication module
+│       ├── passenger/      # Passenger booking features
+│       ├── driver/         # Driver job management
+│       ├── booking/        # Booking flow logic
+│       ├── invoices/       # Invoice management
+│       └── admin/          # Admin dashboard features
 ├── scripts/
-│   ├── build_app.sh         # Build single tenant app
+│   ├── build_app.sh        # Build single tenant app
 │   └── build_all_tenants.sh # Build all tenant apps
-└── melos.yaml           # Monorepo configuration
+└── melos.yaml              # Monorepo configuration
 ```
 
 ## Tech Stack
@@ -41,176 +46,337 @@ flutter_app/
 - **Google Fonts** - Typography (Inter)
 - **flutter_secure_storage** - Encrypted credentials
 
+---
+
 ## Getting Started
 
 ### Prerequisites
 
 - Flutter SDK (>=3.10.0)
 - Melos (`dart pub global activate melos`)
-- Android Studio / Xcode
-- jq (for build scripts)
+- Android Studio (for Android builds)
+- Xcode 15+ (for iOS builds, macOS only)
+- jq (for batch build scripts)
 
-### Quick Start
+### Initial Setup
 
 ```bash
 cd flutter_app
-melos bootstrap     # Install all dependencies
-cd apps/user_app
-flutter run         # Run User App
+
+# Install Melos globally
+dart pub global activate melos
+
+# Bootstrap all packages (installs dependencies)
+melos bootstrap
 ```
 
-## White-Label Build System
-
-Build branded apps for different tenants with custom logos, colors, and API keys.
-
-### Option 1: Interactive Mode
-
-Run the build script and answer the prompts:
+### Run in Development
 
 ```bash
-./scripts/build-tenant-app.sh --interactive --platform android
+# User App
+cd apps/user_app
+flutter run
+
+# Admin App
+cd apps/admin_app
+flutter run
 ```
 
-You'll be asked for:
-- Tenant ID (e.g., `my-company`)
-- Company Name (e.g., `My Luxury Limo`)
-- App Name (short name for home screen)
-- Package ID (e.g., `com.mycompany.limo`)
-- TomTom API Key
-- API Base URL
-- Branding colors (optional, has defaults)
-- App icon file path (1024x1024 PNG)
-- Splash logo path (optional)
+---
 
-### Option 2: Config File Mode
+## Multi-Tenant Build System
 
-1. Create a tenant configuration file:
+Each tenant can have up to **4 apps**:
+- User App (Android APK) - fully automated
+- User App (iOS IPA) - requires macOS + Xcode + Apple Developer signing
+- Admin App (Android APK) - fully automated
+- Admin App (iOS IPA) - requires macOS + Xcode + Apple Developer signing
 
+> **Note:** Android builds work on any OS. iOS builds require macOS with Xcode and a valid Apple Developer account for code signing. The build scripts generate unsigned iOS builds that must be signed via Xcode.
+
+### Build-Time Variables
+
+Apps are configured via `--dart-define` flags:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `TENANT_SLUG` | Unique tenant identifier | `acme` |
+| `API_BASE_URL` | Backend API endpoint | `https://api.acme.com` |
+| `FLAVOR` | Environment | `development`, `staging`, `production` |
+
+### Runtime Branding
+
+At startup, the app fetches branding from `{API_BASE_URL}/api/branding`:
 ```json
 {
-  "tenant_id": "my-company",
-  "company_name": "My Luxury Limo",
-  "app_name": "My Limo",
-  "package_id_android": "com.mycompany.limo",
-  "bundle_id_ios": "com.mycompany.limo",
-  "tomtom_api_key": "YOUR_TOMTOM_API_KEY",
-  "branding": {
-    "primary_color": "#D4AF37",
-    "secondary_color": "#1A1A1A",
-    "background_color": "#0D0D0D",
-    "text_color": "#F5F5F5"
-  },
-  "assets": {
-    "icon_path": "./my-assets/icon.png",
-    "splash_logo_path": "./my-assets/splash.png"
-  },
-  "api": {
-    "base_url": "https://api.mycompany.com"
-  }
+  "companyName": "Acme Limo",
+  "tagline": "Luxury Transportation",
+  "logoUrl": "https://...",
+  "lightColors": { "primary": "#2563eb", ... },
+  "darkColors": { "primary": "#3b82f6", ... }
 }
 ```
 
-2. Run the build:
+---
+
+## Automated Builds (Command Line)
+
+### Option 1: Single App Build
+
+Use `build_app.sh` to build one app for one tenant:
 
 ```bash
-./scripts/build-tenant-app.sh --config my-tenant-config.json --platform android --type apk
+./scripts/build_app.sh <app_type> <platform> <tenant_slug> <api_base_url> [flavor] [build_type]
 ```
 
-### Build Options
+**Arguments:**
+- `app_type`: `user` or `admin`
+- `platform`: `android` or `ios`
+- `tenant_slug`: Unique identifier (e.g., `acme`)
+- `api_base_url`: Backend URL (e.g., `https://api.acme.com`)
+- `flavor`: `development`, `staging`, or `production` (default: `production`)
+- `build_type`: `debug` or `release` (default: `release`)
 
-| Option | Description |
-|--------|-------------|
-| `-c, --config FILE` | Path to tenant config JSON file |
-| `-i, --interactive` | Run in interactive mode |
-| `-p, --platform` | Platform: `android`, `ios`, or `both` |
-| `-t, --type` | Build type: `apk` or `appbundle` |
+**Examples:**
+```bash
+# Build User App for Android
+./scripts/build_app.sh user android acme https://api.acme.com
 
-### Asset Requirements
+# Build Admin App for iOS (release)
+./scripts/build_app.sh admin ios acme https://api.acme.com production release
 
-| Asset | Size | Format | Description |
-|-------|------|--------|-------------|
-| App Icon | 1024x1024 | PNG | Main app icon (will be resized) |
-| Splash Logo | 512x512+ | PNG | Logo for splash screen |
-
-The build script automatically generates:
-- All Android icon sizes (mdpi to xxxhdpi)
-- Adaptive icons for Android 8.0+
-- All iOS icon sizes
-- Splash screens for both platforms
-
-### Output
-
-Built apps are saved to:
-```
-flutter_app/build/tenant-builds/{tenant_id}/
-├── {tenant_id}.apk      # Android APK
-└── {tenant_id}.aab      # Android App Bundle (if --type appbundle)
+# Build for development/debugging
+./scripts/build_app.sh user android acme https://api.acme.com development debug
 ```
 
-## Customizable Branding
+**Output:**
+```
+flutter_app/build/output/{tenant_slug}/{app_type}/
+├── acme_user_app-production.apk    # Android (always generated)
+└── acme_user_app-production.ipa    # iOS (requires macOS + Xcode + signing)
+```
 
-The app reads branding configuration at build time via Dart defines:
+> **iOS Note:** The script generates iOS project files. To create an IPA, you must complete code signing via Xcode (see "iOS Builds" section below).
 
-| Define | Description | Default |
-|--------|-------------|---------|
-| `TENANT_ID` | Unique tenant identifier | `default` |
-| `COMPANY_NAME` | Full company name | `USA Luxury Limo` |
-| `APP_NAME` | Short app name | `USA Luxury Limo` |
-| `TOMTOM_API_KEY` | TomTom Maps API key | (required) |
-| `API_BASE_URL` | Backend API URL | (required) |
-| `PRIMARY_COLOR` | Primary/accent color | `#D4AF37` |
-| `SECONDARY_COLOR` | Surface/card color | `#1A1A1A` |
-| `BACKGROUND_COLOR` | Background color | `#0D0D0D` |
-| `TEXT_COLOR` | Primary text color | `#F5F5F5` |
+### Option 2: Batch Build (All Tenants)
 
-## TomTom Maps Features
+Create a `tenants.json` file:
+```json
+[
+  {
+    "slug": "acme",
+    "api_base_url": "https://api.acme.com"
+  },
+  {
+    "slug": "luxury",
+    "api_base_url": "https://api.luxurylimo.com"
+  }
+]
+```
 
-- Dark night theme tiles for luxury aesthetic
-- Place search via TomTom Search API
-- Reverse geocoding
-- Route calculation with real-time traffic
-- No native SDK required (uses flutter_map with TomTom tiles)
+Run batch build:
+```bash
+./scripts/build_all_tenants.sh tenants.json
+```
 
-## Design System
+This attempts to build all 4 apps (user/admin × android/ios) for each tenant.
+- **Android:** APKs are fully generated
+- **iOS:** Project files are generated; signing must be completed in Xcode
 
-### Default Colors
-- **Primary Gold:** #D4AF37
-- **Background:** #0D0D0D
-- **Surface:** #1A1A1A
-- **Text Primary:** #F5F5F5
+---
 
-### Typography
-- **Display Font:** Playfair Display (via Google Fonts)
-- **Body Font:** Inter (via Google Fonts)
-
-## Manual Build Commands
+## Manual Builds
 
 ### Android APK
+
 ```bash
+cd apps/user_app  # or apps/admin_app
+
 flutter build apk --release \
-  --dart-define=TENANT_ID=my-company \
-  --dart-define=COMPANY_NAME="My Luxury Limo" \
-  --dart-define=TOMTOM_API_KEY=your_key \
-  --dart-define=API_BASE_URL=https://api.mycompany.com
+  --dart-define=TENANT_SLUG=acme \
+  --dart-define=API_BASE_URL=https://api.acme.com \
+  --dart-define=FLAVOR=production
 ```
 
-### Android App Bundle
+Output: `build/app/outputs/flutter-apk/app-release.apk`
+
+### Android App Bundle (Play Store)
+
 ```bash
 flutter build appbundle --release \
-  --dart-define=TENANT_ID=my-company \
-  --dart-define=COMPANY_NAME="My Luxury Limo" \
-  --dart-define=TOMTOM_API_KEY=your_key \
-  --dart-define=API_BASE_URL=https://api.mycompany.com
+  --dart-define=TENANT_SLUG=acme \
+  --dart-define=API_BASE_URL=https://api.acme.com \
+  --dart-define=FLAVOR=production
 ```
 
-### iOS
+Output: `build/app/outputs/bundle/release/app-release.aab`
+
+---
+
+## iOS Builds
+
+### Prerequisites for iOS
+
+- **macOS** (required - iOS apps cannot be built on Windows/Linux)
+- **Xcode 15+** (from Mac App Store)
+- **Apple Developer Account** ($99/year for App Store distribution)
+- **Code Signing configured** (certificates and provisioning profiles)
+
+### Option A: Command Line (Still Requires Xcode Signing)
+
+This builds the app but you'll still need to sign it in Xcode for distribution.
+
 ```bash
+cd apps/user_app
+
+# Build without code signing (for archive)
 flutter build ios --release --no-codesign \
-  --dart-define=TENANT_ID=my-company \
-  --dart-define=COMPANY_NAME="My Luxury Limo" \
-  --dart-define=TOMTOM_API_KEY=your_key \
-  --dart-define=API_BASE_URL=https://api.mycompany.com
+  --dart-define=TENANT_SLUG=acme \
+  --dart-define=API_BASE_URL=https://api.acme.com \
+  --dart-define=FLAVOR=production
+
+# Build IPA (requires signing)
+flutter build ipa \
+  --dart-define=TENANT_SLUG=acme \
+  --dart-define=API_BASE_URL=https://api.acme.com \
+  --dart-define=FLAVOR=production
 ```
+
+### Option B: Using Xcode GUI
+
+If you prefer Xcode's graphical interface:
+
+**Step 1: Generate iOS Project Files**
+```bash
+cd apps/user_app  # or apps/admin_app
+
+flutter build ios --no-codesign \
+  --dart-define=TENANT_SLUG=acme \
+  --dart-define=API_BASE_URL=https://api.acme.com \
+  --dart-define=FLAVOR=production
+```
+
+**Step 2: Open in Xcode**
+```bash
+open ios/Runner.xcworkspace
+```
+
+**Step 3: Configure in Xcode**
+1. Select **Runner** in the project navigator (left sidebar)
+2. Select **Runner** target under TARGETS
+3. Go to **Signing & Capabilities** tab
+4. Select your Team from the dropdown
+5. Xcode will automatically manage provisioning profiles
+
+**Step 4: Set Build Configuration**
+1. Go to **Build Settings** tab
+2. Search for "Bundle Identifier"
+3. Set to your tenant's bundle ID (e.g., `com.acme.limo`)
+
+**Step 5: Archive & Distribute**
+1. Select **Product → Destination → Any iOS Device (arm64)**
+2. Select **Product → Archive**
+3. Wait for archive to complete
+4. In the Organizer window, click **Distribute App**
+5. Choose distribution method:
+   - **App Store Connect** - For TestFlight/App Store
+   - **Ad Hoc** - For direct device installation
+   - **Enterprise** - For enterprise distribution
+
+**Step 6: Export IPA**
+- Follow the prompts to sign and export
+- IPA file will be saved to your chosen location
+
+---
+
+## App Icons & Splash Screens
+
+### Updating App Icons
+
+1. Replace icon files in:
+   - `apps/user_app/assets/icons/app_icon.png` (1024x1024)
+   - `apps/admin_app/assets/icons/admin_icon.png` (1024x1024)
+
+2. Run icon generator:
+```bash
+cd apps/user_app
+flutter pub run flutter_launcher_icons
+```
+
+### Splash Screen
+
+The app uses an animated splash screen that displays:
+- Tenant logo (from `/api/branding`)
+- Company name
+- Loading indicator
+
+---
+
+## Packages Reference
+
+### Core (`packages/core`)
+- **ApiClient** - Dio-based HTTP client with cookie session management
+- **ApiEndpoints** - All API endpoint definitions
+- **Models** - User, Booking, Invoice, VehicleType
+- **AuthProvider** - Authentication state (Riverpod)
+- **TenantProvider** - Tenant configuration state
+- **SecureStorage** - Encrypted local storage wrapper
+- **Validators** - Form validation utilities
+
+### Theme (`packages/theme`)
+- **AppTheme** - Material 3 theme generation from tenant colors
+- **ColorUtils** - Hex parsing, contrast calculation
+- **ThemeProvider** - Theme mode state (light/dark/system)
+- **BrandLogo** - Cached network image with fallback
+- **LoadingIndicator** - Consistent loading widgets
+
+---
+
+## Melos Commands
+
+```bash
+# Install dependencies for all packages
+melos bootstrap
+
+# Run analysis on all packages
+melos run analyze
+
+# Format all packages
+melos run format
+
+# Run tests
+melos run test
+
+# Clean all packages
+melos run clean
+
+# Get dependencies
+melos run get
+```
+
+---
+
+## Troubleshooting
+
+### iOS Build Fails
+- Ensure Xcode Command Line Tools are installed: `xcode-select --install`
+- Open Xcode once to accept license: `sudo xcodebuild -license accept`
+- Clean and rebuild: `flutter clean && flutter pub get`
+
+### Android Build Fails
+- Ensure Android SDK is configured: `flutter doctor`
+- Accept licenses: `flutter doctor --android-licenses`
+
+### Melos Bootstrap Fails
+- Try cleaning first: `melos clean`
+- Update Melos: `dart pub global activate melos`
+
+### Session/Auth Issues
+- Clear app data on device
+- Check that `API_BASE_URL` is correct and accessible
+- Verify backend `/api/auth/login` endpoint works
+
+---
 
 ## License
 
