@@ -751,7 +751,14 @@ export default function MobileDriver() {
                         <div className="flex items-start gap-2.5">
                           <div className="w-2.5 h-2.5 rounded-full bg-primary mt-1 flex-shrink-0"></div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">Dropoff</p>
+                            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
+                              Dropoff
+                              {(booking as any).bookingType === 'hourly' && (booking as any).requestedHours && (
+                                <span className="ml-2 text-primary font-bold">
+                                  ({(booking as any).requestedHours} {(booking as any).requestedHours === 1 ? 'Hour' : 'Hours'})
+                                </span>
+                              )}
+                            </p>
                             <p className="text-sm font-medium text-foreground line-clamp-2">{booking.destinationAddress}</p>
                           </div>
                           {isTripActive(booking.status) && (
