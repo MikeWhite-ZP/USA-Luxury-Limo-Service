@@ -4153,6 +4153,36 @@ export default function AdminDashboard() {
     },
   });
 
+  // Unassign driver mutation
+  const unassignDriverMutation = useMutation({
+    mutationFn: async (bookingId: string) => {
+      const response = await apiRequest(
+        "PATCH",
+        `/api/admin/bookings/${bookingId}/unassign-driver`,
+        {},
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to unassign driver");
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+      toast({
+        title: "Driver Unassigned",
+        description: "Driver has been removed from this booking.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to unassign driver",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Update driver payment mutation
   const updateDriverPaymentMutation = useMutation({
     mutationFn: async ({
@@ -7466,6 +7496,15 @@ export default function AdminDashboard() {
                                     </p>
                                   )}
                                 </div>
+                                <button
+                                  onClick={() => unassignDriverMutation.mutate(booking.id)}
+                                  disabled={unassignDriverMutation.isPending}
+                                  className="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 hover:bg-red-200 border border-red-300 flex items-center justify-center text-red-600 hover:text-red-700 transition-colors disabled:opacity-50"
+                                  title="Unassign driver"
+                                  data-testid={`button-unassign-driver-${booking.id}`}
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
                               </div>
                             ) : (
                               <p className="text-sm text-muted-foreground text-center py-1">

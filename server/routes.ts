@@ -5087,6 +5087,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/admin/bookings/:id/unassign-driver', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
+      }
+
+      const { id } = req.params;
+
+      const updatedBooking = await storage.updateBooking(id, { 
+        driverId: null,
+        driverPayment: null,
+        driverAcceptanceStatus: null,
+        acceptedAt: null,
+        status: 'pending'
+      });
+      
+      if (!updatedBooking) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+      
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Unassign driver error:', error);
+      res.status(500).json({ error: 'Failed to unassign driver from booking' });
+    }
+  });
+
   app.patch('/api/admin/bookings/:id/driver-payment', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
