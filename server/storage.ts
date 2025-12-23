@@ -869,32 +869,62 @@ export class DatabaseStorage implements IStorage {
     return booking;
   }
 
+  // Helper to normalize driverAcceptanceStatus for legacy bookings
+  private normalizeBookingAcceptanceStatus(booking: Booking): Booking {
+    if (booking.driverAcceptanceStatus !== null) {
+      return booking;
+    }
+    
+    // Infer status from other fields for legacy data
+    let inferredStatus: 'pending' | 'accepted' | 'declined' = 'pending';
+    
+    // If acceptedAt exists, the job was accepted
+    if (booking.acceptedAt) {
+      inferredStatus = 'accepted';
+    }
+    // If status indicates confirmed, in-progress or completed, treat as accepted
+    // (historically "confirmed" implied driver acceptance)
+    else if (['confirmed', 'in_progress', 'completed', 'arrived', 'on_the_way', 'on_board'].includes(booking.status || '')) {
+      inferredStatus = 'accepted';
+    }
+    // If driver is assigned but status is pending_driver_acceptance, it's truly pending
+    else if (booking.driverId && booking.status === 'pending_driver_acceptance') {
+      inferredStatus = 'pending';
+    }
+    // If no driver assigned, leave as pending (no action needed)
+    
+    return { ...booking, driverAcceptanceStatus: inferredStatus };
+  }
+
   async getBooking(id: string): Promise<Booking | undefined> {
     const [booking] = await db.select().from(bookings).where(eq(bookings.id, id));
-    return booking;
+    return booking ? this.normalizeBookingAcceptanceStatus(booking) : undefined;
   }
 
   async getBookingsByUser(userId: string): Promise<Booking[]> {
-    return await db
+    const results = await db
       .select()
       .from(bookings)
       .where(eq(bookings.passengerId, userId))
       .orderBy(desc(bookings.createdAt));
+    return results.map(b => this.normalizeBookingAcceptanceStatus(b));
   }
 
   async getBookingsByDriver(driverId: string): Promise<Booking[]> {
-    return await db
+    const results = await db
       .select()
       .from(bookings)
       .where(eq(bookings.driverId, driverId))
       .orderBy(desc(bookings.scheduledDateTime));
+    return results.map(b => this.normalizeBookingAcceptanceStatus(b));
   }
 
   async getAllBookings(): Promise<Booking[]> {
-    return await db
+    const results = await db
       .select()
       .from(bookings)
       .orderBy(desc(bookings.scheduledDateTime));
+    return results.map(b => this.normalizeBookingAcceptanceStatus(b));
   }
 
   async updateBookingStatus(id: string, status: string): Promise<void> {
@@ -2113,7 +2143,9 @@ export class DatabaseStorage implements IStorage {
         driverId,
         driverPayment: finalDriverPayment,
         status: 'pending_driver_acceptance',
+        driverAcceptanceStatus: 'pending', // Reset for new driver to receive acceptance prompt
         assignedAt: new Date(),
+        acceptedAt: null, // Clear previous acceptance
         updatedAt: new Date(),
       })
       .where(eq(bookings.id, bookingId))

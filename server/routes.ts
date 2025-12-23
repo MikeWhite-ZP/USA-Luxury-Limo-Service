@@ -6515,6 +6515,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         acceptedAt: new Date(),
         acceptedLocation: location,
         driverAcceptanceStatus: 'accepted',
+        // Note: We preserve decline history (declinedAt, declineReason, declineNotes) for audit purposes
+        // The UI hides the decline warning once driverAcceptanceStatus === 'accepted'
       });
 
       res.json(updatedBooking);
@@ -6545,13 +6547,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid decline reason' });
       }
 
+      // First get the booking to record who declined it
+      const booking = await storage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      // Note: We record the decline in the notes field with timestamp for history,
+      // but reset driverAcceptanceStatus to 'pending' so next driver gets prompted
+      const declineHistoryNote = `[${new Date().toISOString()}] Driver declined: ${reason}${notes ? ` - ${notes}` : ''}`;
+      const existingNotes = booking.declineNotes ? `${booking.declineNotes}\n${declineHistoryNote}` : declineHistoryNote;
+
       const updatedBooking = await storage.updateBooking(bookingId, {
-        driverAcceptanceStatus: 'declined',
-        declinedAt: new Date(),
-        declineReason: reason,
-        declineNotes: notes || null,
+        driverAcceptanceStatus: 'pending', // Reset to pending so next driver gets prompted
+        declinedAt: new Date(), // Record when last declined
+        declineReason: reason, // Record last decline reason
+        declineNotes: existingNotes, // Append to history
         driverId: null, // Unassign driver so booking can be reassigned
-        status: 'pending', // Set back to pending for reassignment
+        status: 'pending_driver_acceptance', // Set back to pending assignment so dispatcher knows to reassign
+        assignedAt: null, // Clear assignment timestamp
+        acceptedAt: null, // Clear accepted timestamp
       });
 
       res.json(updatedBooking);

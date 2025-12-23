@@ -1123,6 +1123,55 @@ export function BookingDetailsDialog({
                         </div>
                       )}
 
+                      {/* Job Decline History - shown only when job is pending reassignment (not accepted) */}
+                      {(editingBooking.declineReason || editingBooking.declineNotes) && 
+                       editingBooking.driverAcceptanceStatus !== 'accepted' && 
+                       !editingBooking.acceptedAt && (
+                        <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-3 space-y-2">
+                          <div className="flex items-center text-amber-700 dark:text-amber-400">
+                            <AlertCircle className="w-4 h-4 mr-2" />
+                            <span className="font-semibold">Previous Driver Declined</span>
+                          </div>
+                          {editingBooking.declinedAt && (
+                            <div className="text-sm text-amber-600 dark:text-amber-400">
+                              <span className="font-medium">When: </span>
+                              {new Date(editingBooking.declinedAt).toLocaleString('en-US', {
+                                month: '2-digit',
+                                day: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                              })}
+                            </div>
+                          )}
+                          {editingBooking.declineReason && (
+                            <div className="text-sm">
+                              <span className="font-medium text-amber-600 dark:text-amber-400">Reason: </span>
+                              <span className="text-amber-700 dark:text-amber-300 capitalize">
+                                {editingBooking.declineReason.replace(/_/g, ' ')}
+                              </span>
+                            </div>
+                          )}
+                          {editingBooking.declineNotes && (
+                            <div className="text-sm">
+                              <span className="font-medium text-amber-600 dark:text-amber-400">History: </span>
+                              <pre className="text-amber-700 dark:text-amber-300 text-xs whitespace-pre-wrap mt-1 bg-amber-100 dark:bg-amber-900/50 p-2 rounded">
+                                {editingBooking.declineNotes}
+                              </pre>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Driver Acceptance Pending */}
+                      {editingBooking.driverAcceptanceStatus === 'pending' && editingBooking.driverId && (
+                        <div className="text-amber-600 dark:text-amber-400 flex items-center">
+                          <AlertCircle className="w-4 h-4 mr-2" />
+                          <span className="font-semibold">Awaiting Driver Acceptance</span>
+                        </div>
+                      )}
+
                       {/* Start At */}
                       {editingBooking.startedAt && (
                         <div>
