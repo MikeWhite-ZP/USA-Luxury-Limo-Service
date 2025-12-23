@@ -4574,11 +4574,25 @@ export default function AdminDashboard() {
   // Create/Update booking mutation
   const saveBookingMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Convert scheduledDateTime from local time string to ISO string with timezone
+      // This ensures the server correctly interprets the user's intended local time
+      let scheduledDateTimeISO = data.scheduledDateTime;
+      if (data.scheduledDateTime && !data.scheduledDateTime.includes('Z') && !data.scheduledDateTime.match(/[+-]\d{2}:\d{2}$/)) {
+        // Parse the local time string and convert to ISO with timezone
+        const localDate = new Date(data.scheduledDateTime);
+        scheduledDateTimeISO = localDate.toISOString();
+        console.log('📅 DateTime conversion:', {
+          original: data.scheduledDateTime,
+          localDateObject: localDate.toString(),
+          isoString: scheduledDateTimeISO
+        });
+      }
+      
       // Transform string values to correct types for schema validation
-      // Note: scheduledDateTime is sent as local time string (YYYY-MM-DDTHH:mm)
-      // The backend handles this format correctly
       const transformedData = {
         ...data,
+        // Send scheduledDateTime as proper ISO string with timezone
+        scheduledDateTime: scheduledDateTimeISO,
         // totalAmount stays as string (decimal type in schema)
         // Only convert requestedHours to number (integer type in schema)
         requestedHours: data.requestedHours
