@@ -313,6 +313,14 @@ export const bookings = pgTable("bookings", {
   confirmedAt: timestamp("confirmed_at"),
   assignedAt: timestamp("assigned_at"),
   acceptedAt: timestamp("accepted_at"),
+  driverAcceptanceStatus: varchar("driver_acceptance_status", {
+    enum: ["pending", "accepted", "declined"]
+  }).default("pending"),
+  declinedAt: timestamp("declined_at"),
+  declineReason: varchar("decline_reason", {
+    enum: ["timing_conflict", "pricing_issue", "too_far_away", "vehicle_unavailable", "personal_emergency", "other"]
+  }),
+  declineNotes: text("decline_notes"), // Optional additional notes for decline
   reminderSentAt: timestamp("reminder_sent_at"), // When 2-hour reminder was sent
   onTheWayAt: timestamp("on_the_way_at"), // When driver started journey
   arrivedAt: timestamp("arrived_at"), // When driver arrived at pickup

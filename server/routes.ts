@@ -6514,12 +6514,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedBooking = await storage.updateBooking(bookingId, {
         acceptedAt: new Date(),
         acceptedLocation: location,
+        driverAcceptanceStatus: 'accepted',
       });
 
       res.json(updatedBooking);
     } catch (error) {
       console.error('Accept job error:', error);
       res.status(500).json({ message: 'Failed to accept job' });
+    }
+  });
+
+  // Driver decline job with reason
+  app.post('/api/driver/job/decline', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Driver access required' });
+      }
+
+      const { bookingId, reason, notes } = req.body;
+      if (!bookingId || !reason) {
+        return res.status(400).json({ message: 'Booking ID and decline reason required' });
+      }
+
+      // Validate reason is one of the allowed values
+      const validReasons = ['timing_conflict', 'pricing_issue', 'too_far_away', 'vehicle_unavailable', 'personal_emergency', 'other'];
+      if (!validReasons.includes(reason)) {
+        return res.status(400).json({ message: 'Invalid decline reason' });
+      }
+
+      const updatedBooking = await storage.updateBooking(bookingId, {
+        driverAcceptanceStatus: 'declined',
+        declinedAt: new Date(),
+        declineReason: reason,
+        declineNotes: notes || null,
+        driverId: null, // Unassign driver so booking can be reassigned
+        status: 'pending', // Set back to pending for reassignment
+      });
+
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Decline job error:', error);
+      res.status(500).json({ message: 'Failed to decline job' });
     }
   });
 
