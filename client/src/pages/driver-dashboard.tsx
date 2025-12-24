@@ -43,10 +43,24 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+
+// Decline reason options matching the document requirements
+const DECLINE_REASONS = [
+  { value: 'timing_conflict', label: 'Timing Conflict', description: 'The job time doesn\'t work with my schedule' },
+  { value: 'pricing_too_low', label: 'Pricing Too Low', description: 'The offered rate is not acceptable' },
+  { value: 'too_far_away', label: 'Too Far Away', description: 'The distance/location is outside my preferred area' },
+  { value: 'vehicle_not_suitable', label: 'Vehicle Not Suitable', description: 'My vehicle doesn\'t meet the job requirements' },
+  { value: 'already_booked', label: 'Already Booked', description: 'I have another commitment at this time' },
+  { value: 'personal_reasons', label: 'Personal Reasons', description: 'Other personal circumstances' },
+] as const;
 
 interface DriverData {
   id: string;
@@ -176,6 +190,12 @@ export default function DriverDashboard() {
   
   // Document preview state
   const [selectedDocumentPreview, setSelectedDocumentPreview] = useState<DriverDocument | null>(null);
+
+  // Decline dialog state
+  const [showDeclineDialog, setShowDeclineDialog] = useState(false);
+  const [declineBookingId, setDeclineBookingId] = useState<string | null>(null);
+  const [selectedDeclineReason, setSelectedDeclineReason] = useState<string>('');
+  const [declineNotes, setDeclineNotes] = useState('');
 
   // Redirect to home if not authenticated or not driver
   useEffect(() => {
@@ -506,14 +526,18 @@ export default function DriverDashboard() {
     mutationFn: async ({
       bookingId,
       reason,
+      reasonDisplay,
+      notes,
     }: {
       bookingId: string;
       reason?: string;
+      reasonDisplay?: string;
+      notes?: string;
     }) => {
       const response = await apiRequest(
         "POST",
         `/api/bookings/${bookingId}/decline`,
-        { reason },
+        { reason, reasonDisplay, notes },
       );
       if (!response.ok) {
         const error = await response.json();
@@ -677,8 +701,32 @@ export default function DriverDashboard() {
   };
 
   const handleDeclineRide = (bookingId: string) => {
-    // Could add a confirmation dialog here with reason input
-    declineBookingMutation.mutate({ bookingId });
+    // Open decline dialog with reason selection
+    setDeclineBookingId(bookingId);
+    setSelectedDeclineReason('');
+    setDeclineNotes('');
+    setShowDeclineDialog(true);
+  };
+
+  const handleDeclineSubmit = () => {
+    if (!declineBookingId || !selectedDeclineReason) return;
+    
+    // Find the display label for the selected reason
+    const reasonObj = DECLINE_REASONS.find(r => r.value === selectedDeclineReason);
+    const reasonDisplay = reasonObj ? `${reasonObj.label} - ${reasonObj.description}` : selectedDeclineReason;
+    
+    declineBookingMutation.mutate({ 
+      bookingId: declineBookingId,
+      reason: selectedDeclineReason,
+      reasonDisplay,
+      notes: declineNotes || undefined
+    });
+    
+    // Close dialog and reset state
+    setShowDeclineDialog(false);
+    setDeclineBookingId(null);
+    setSelectedDeclineReason('');
+    setDeclineNotes('');
   };
 
   const handleCompleteRide = (bookingId: string) => {
@@ -2727,6 +2775,85 @@ export default function DriverDashboard() {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Decline Reason Dialog */}
+      <Dialog open={showDeclineDialog} onOpenChange={(open) => {
+        if (!open) {
+          setShowDeclineDialog(false);
+          setDeclineBookingId(null);
+          setSelectedDeclineReason('');
+          setDeclineNotes('');
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Decline Job</DialogTitle>
+            <DialogDescription>
+              Please select a reason for declining this job. This helps us improve future assignments.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <RadioGroup
+              value={selectedDeclineReason}
+              onValueChange={setSelectedDeclineReason}
+              className="space-y-3"
+            >
+              {DECLINE_REASONS.map((reason) => (
+                <div
+                  key={reason.value}
+                  className={`flex items-start space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                    selectedDeclineReason === reason.value
+                      ? 'border-red-500 bg-red-50 dark:bg-red-950/50'
+                      : 'border-border hover:bg-muted/50'
+                  }`}
+                  onClick={() => setSelectedDeclineReason(reason.value)}
+                >
+                  <RadioGroupItem value={reason.value} id={`decline-${reason.value}`} className="mt-0.5" />
+                  <Label htmlFor={`decline-${reason.value}`} className="flex-1 cursor-pointer">
+                    <span className="font-medium block text-foreground">{reason.label}</span>
+                    <span className="text-sm text-muted-foreground">{reason.description}</span>
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+
+            {/* Always show notes field for additional comments */}
+            <div className="space-y-2">
+              <Label htmlFor="decline-notes">Additional Notes (optional)</Label>
+              <Textarea
+                id="decline-notes"
+                placeholder="Provide any additional details..."
+                value={declineNotes}
+                onChange={(e) => setDeclineNotes(e.target.value)}
+                className="resize-none"
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeclineDialog(false);
+                setDeclineBookingId(null);
+                setSelectedDeclineReason('');
+                setDeclineNotes('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeclineSubmit}
+              disabled={!selectedDeclineReason || declineBookingMutation.isPending}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {declineBookingMutation.isPending ? 'Declining...' : 'Confirm Decline'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

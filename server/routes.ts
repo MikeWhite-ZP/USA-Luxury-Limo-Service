@@ -1746,7 +1746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/bookings/:id/decline', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const { reason } = req.body; // Optional decline reason
+      const { reason, reasonDisplay, notes } = req.body; // Decline reason and optional notes
       const userId = req.user.id;
 
       // Get user and verify they're a driver
@@ -1777,12 +1777,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'This booking is not awaiting your acceptance' });
       }
 
-      // Update booking: remove driver assignment and revert to pending status
+      // Build decline history entry
+      const declineEntry = {
+        driverId: driver.id,
+        driverName: `${user.firstName} ${user.lastName}`,
+        reason: reason || 'not_specified',
+        reasonDisplay: reasonDisplay || reason || 'Not specified',
+        notes: notes || null,
+        declinedAt: new Date().toISOString(),
+      };
+
+      // Get existing decline history or initialize
+      let declineHistory: any[] = [];
+      try {
+        if (booking.declineNotes) {
+          const parsed = JSON.parse(booking.declineNotes);
+          if (Array.isArray(parsed)) {
+            declineHistory = parsed;
+          }
+        }
+      } catch (e) {
+        // If existing notes aren't JSON, preserve them as first entry
+        if (booking.declineNotes) {
+          declineHistory = [{ notes: booking.declineNotes, reason: 'legacy' }];
+        }
+      }
+      
+      // Add new decline entry to history
+      declineHistory.push(declineEntry);
+
+      // Update booking: remove driver assignment, record decline, and revert to pending status
+      // Note: driverAcceptanceStatus is set to 'declined' to maintain state until reassignment.
+      // The decline history is preserved in declineNotes for audit/admin viewing.
+      // When a new driver is assigned via assignDriverToBooking, driverAcceptanceStatus will be reset to 'pending'.
       const updatedBooking = await storage.updateBooking(id, {
         status: 'pending',
         driverId: null,
         driverPayment: null,
         assignedAt: null,
+        driverAcceptanceStatus: 'declined',
+        declinedAt: new Date(),
+        declineReason: reason || null,
+        declineNotes: JSON.stringify(declineHistory),
       });
 
       // Send notification to admins/dispatchers (fire-and-forget)
@@ -1790,7 +1826,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const allUsers = await storage.getAllUsers();
           const admins = allUsers.filter(u => u.role === 'admin' || u.role === 'dispatcher');
-          const notificationMessage = `Driver ${user.firstName} ${user.lastName} has declined booking #${id.substring(0, 8)} for ${new Date(booking.scheduledDateTime).toLocaleString()}.${reason ? ` Reason: ${reason}` : ''}`;
+          const reasonText = reasonDisplay || reason || 'Not specified';
+          const notesText = notes ? ` Additional notes: ${notes}` : '';
+          const notificationMessage = `Driver ${user.firstName} ${user.lastName} has declined booking #${id.substring(0, 8)} for ${new Date(booking.scheduledDateTime).toLocaleString()}. Reason: ${reasonText}.${notesText}`;
           
           for (const admin of admins) {
             if (admin.email) {

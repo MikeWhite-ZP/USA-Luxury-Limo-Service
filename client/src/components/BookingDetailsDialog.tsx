@@ -1155,10 +1155,39 @@ export function BookingDetailsDialog({
                           )}
                           {editingBooking.declineNotes && (
                             <div className="text-sm">
-                              <span className="font-medium text-amber-600 dark:text-amber-400">History: </span>
-                              <pre className="text-amber-700 dark:text-amber-300 text-xs whitespace-pre-wrap mt-1 bg-amber-100 dark:bg-amber-900/50 p-2 rounded">
-                                {editingBooking.declineNotes}
-                              </pre>
+                              <span className="font-medium text-amber-600 dark:text-amber-400">Decline History: </span>
+                              <div className="mt-1 space-y-2">
+                                {(() => {
+                                  try {
+                                    const history = JSON.parse(editingBooking.declineNotes);
+                                    if (Array.isArray(history)) {
+                                      return history.map((entry: any, index: number) => (
+                                        <div key={index} className="bg-amber-100 dark:bg-amber-900/50 p-2 rounded text-xs">
+                                          <div className="font-medium text-amber-800 dark:text-amber-200">
+                                            {entry.driverName || 'Driver'}
+                                          </div>
+                                          <div className="text-amber-700 dark:text-amber-300">
+                                            {entry.reasonDisplay || entry.reason?.replace(/_/g, ' ') || 'No reason'}
+                                          </div>
+                                          {entry.notes && (
+                                            <div className="text-amber-600 dark:text-amber-400 italic mt-1">
+                                              "{entry.notes}"
+                                            </div>
+                                          )}
+                                          {entry.declinedAt && (
+                                            <div className="text-amber-500 dark:text-amber-500 mt-1">
+                                              {new Date(entry.declinedAt).toLocaleString()}
+                                            </div>
+                                          )}
+                                        </div>
+                                      ));
+                                    }
+                                    return <span className="text-amber-700 dark:text-amber-300">{editingBooking.declineNotes}</span>;
+                                  } catch {
+                                    return <span className="text-amber-700 dark:text-amber-300">{editingBooking.declineNotes}</span>;
+                                  }
+                                })()}
+                              </div>
                             </div>
                           )}
                         </div>
