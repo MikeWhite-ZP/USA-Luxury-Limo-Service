@@ -27,7 +27,15 @@ import {
   Check,
   CreditCard,
   Banknote,
-  Wallet
+  Wallet,
+  Building2,
+  Hotel,
+  Utensils,
+  ShoppingBag,
+  Coffee,
+  Hospital,
+  School,
+  Landmark
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,11 +43,15 @@ import { Textarea } from "@/components/ui/textarea";
 interface AddressSuggestion {
   id: string;
   display_name: string;
+  secondary_text?: string;
   address: any;
   position: {
     lat: number;
     lon: number;
   };
+  isPOI: boolean;
+  poiCategory?: string;
+  poiCategoryIcon?: string;
 }
 
 interface VehicleType {
@@ -197,6 +209,73 @@ export default function MobileBookingForm() {
       .replace(/[^a-z0-9_]/g, '');
   };
 
+  // Get POI category icon based on TomTom POI data
+  const getPOICategoryInfo = (poi: any): { icon: string; label: string } => {
+    if (!poi) return { icon: 'building', label: 'Place' };
+    
+    let categoryName = '';
+    
+    if (poi.categories && poi.categories.length > 0) {
+      categoryName = poi.categories.join(' ').toLowerCase();
+    } else if (poi.classifications && poi.classifications.length > 0) {
+      const classification = poi.classifications[0];
+      if (classification.names && classification.names.length > 0) {
+        categoryName = classification.names.map((n: any) => n.name || n).join(' ').toLowerCase();
+      } else if (classification.code) {
+        categoryName = classification.code.toLowerCase();
+      }
+    } else if (poi.categorySet && poi.categorySet.length > 0) {
+      categoryName = poi.categorySet[0]?.name?.toLowerCase() || '';
+    }
+    
+    if (categoryName.includes('airport') || categoryName.includes('aviation')) {
+      return { icon: 'plane', label: 'Airport' };
+    }
+    if (categoryName.includes('hotel') || categoryName.includes('motel') || categoryName.includes('lodging') || categoryName.includes('accommodation')) {
+      return { icon: 'hotel', label: 'Hotel' };
+    }
+    if (categoryName.includes('restaurant') || categoryName.includes('food') || categoryName.includes('dining')) {
+      return { icon: 'restaurant', label: 'Restaurant' };
+    }
+    if (categoryName.includes('cafe') || categoryName.includes('coffee')) {
+      return { icon: 'coffee', label: 'Cafe' };
+    }
+    if (categoryName.includes('hospital') || categoryName.includes('medical') || categoryName.includes('health') || categoryName.includes('clinic')) {
+      return { icon: 'hospital', label: 'Medical' };
+    }
+    if (categoryName.includes('school') || categoryName.includes('university') || categoryName.includes('college') || categoryName.includes('education')) {
+      return { icon: 'school', label: 'Education' };
+    }
+    if (categoryName.includes('shop') || categoryName.includes('store') || categoryName.includes('mall') || categoryName.includes('retail') || categoryName.includes('market')) {
+      return { icon: 'shopping', label: 'Shopping' };
+    }
+    if (categoryName.includes('parking') || categoryName.includes('car') || categoryName.includes('automotive') || categoryName.includes('gas') || categoryName.includes('fuel')) {
+      return { icon: 'car', label: 'Automotive' };
+    }
+    if (categoryName.includes('government') || categoryName.includes('civic') || categoryName.includes('municipal') || categoryName.includes('city hall') || categoryName.includes('courthouse')) {
+      return { icon: 'landmark', label: 'Government' };
+    }
+    
+    return { icon: 'building', label: 'Place' };
+  };
+
+  // Render POI category icon
+  const renderPOIIcon = (iconType: string) => {
+    const iconProps = { className: "w-4 h-4 text-primary mt-0.5 flex-shrink-0" };
+    switch (iconType) {
+      case 'plane': return <Plane {...iconProps} />;
+      case 'hotel': return <Hotel {...iconProps} />;
+      case 'restaurant': return <Utensils {...iconProps} />;
+      case 'coffee': return <Coffee {...iconProps} />;
+      case 'hospital': return <Hospital {...iconProps} />;
+      case 'school': return <School {...iconProps} />;
+      case 'shopping': return <ShoppingBag {...iconProps} />;
+      case 'car': return <Car {...iconProps} />;
+      case 'landmark': return <Landmark {...iconProps} />;
+      default: return <Building2 {...iconProps} />;
+    }
+  };
+
   // Address geocoding with debounce
   const handleAddressInput = (inputId: string, value: string) => {
     if (suggestionTimeouts.current[inputId]) {
@@ -211,15 +290,30 @@ export default function MobileBookingForm() {
 
     suggestionTimeouts.current[inputId] = setTimeout(async () => {
       try {
-        const response = await fetch(`/api/geocode?q=${encodeURIComponent(value)}&limit=5`);
+        const response = await fetch(`/api/geocode?q=${encodeURIComponent(value)}&limit=10`);
         if (response.ok) {
           const data = await response.json();
-          const suggestions = data.results?.map((result: any) => ({
-            id: result.id || result.address?.freeformAddress,
-            display_name: result.address?.freeformAddress || result.poi?.name,
-            address: result.address,
-            position: result.position
-          })) || [];
+          const suggestions = data.results?.map((result: any) => {
+            const isPOI = !!result.poi;
+            const categoryInfo = isPOI ? getPOICategoryInfo(result.poi) : { icon: 'mappin', label: '' };
+            const displayName = isPOI && result.poi?.name 
+              ? result.poi.name 
+              : result.address?.freeformAddress || '';
+            const secondaryText = isPOI && result.address?.freeformAddress
+              ? result.address.freeformAddress
+              : '';
+            
+            return {
+              id: result.id || result.address?.freeformAddress || Math.random().toString(),
+              display_name: displayName,
+              secondary_text: secondaryText,
+              address: result.address,
+              position: result.position,
+              isPOI,
+              poiCategory: categoryInfo.label,
+              poiCategoryIcon: categoryInfo.icon,
+            };
+          }) || [];
           
           setSuggestions(prev => ({ ...prev, [inputId]: suggestions }));
           setShowSuggestions(prev => ({ ...prev, [inputId]: true }));
@@ -231,19 +325,24 @@ export default function MobileBookingForm() {
   };
 
   const selectSuggestion = (inputId: string, suggestion: AddressSuggestion) => {
+    // For POIs, use the address (secondary_text) for the actual address field value
+    const addressValue = suggestion.isPOI && suggestion.secondary_text 
+      ? suggestion.secondary_text 
+      : suggestion.display_name;
+    
     if (inputId === 'from') {
-      setFromAddress(suggestion.display_name);
+      setFromAddress(addressValue);
       setFromCoords(suggestion.position);
     } else if (inputId === 'to') {
-      setToAddress(suggestion.display_name);
+      setToAddress(addressValue);
       setToCoords(suggestion.position);
     } else if (inputId === 'pickup') {
-      setPickupAddress(suggestion.display_name);
+      setPickupAddress(addressValue);
       setPickupCoords(suggestion.position);
     } else if (inputId.startsWith('via-')) {
       const index = parseInt(inputId.split('-')[1]);
       const newViaPoints = [...viaPoints];
-      newViaPoints[index] = suggestion.display_name;
+      newViaPoints[index] = addressValue;
       setViaPoints(newViaPoints);
       
       setViaCoords(prev => ({
@@ -887,15 +986,34 @@ export default function MobileBookingForm() {
                       data-testid="input-from-address"
                     />
                     {showSuggestions['from'] && suggestions['from']?.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg max-h-60 overflow-auto z-20">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg max-h-72 overflow-auto z-20">
                         {suggestions['from'].map((suggestion, idx) => (
                           <button
                             key={idx}
                             onClick={() => selectSuggestion('from', suggestion)}
-                            className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:bg-blue-900/20 border-b last:border-b-0 text-sm min-h-[48px]"
+                            className="w-full text-left px-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-b last:border-b-0 text-sm"
                             data-testid={`suggestion-from-${idx}`}
                           >
-                            <div className="font-medium">{suggestion.display_name}</div>
+                            <div className="flex items-start gap-2">
+                              {suggestion.isPOI ? (
+                                renderPOIIcon(suggestion.poiCategoryIcon || 'building')
+                              ) : (
+                                <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-foreground truncate">{suggestion.display_name}</span>
+                                  {suggestion.isPOI && suggestion.poiCategory && (
+                                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded flex-shrink-0">
+                                      {suggestion.poiCategory}
+                                    </span>
+                                  )}
+                                </div>
+                                {suggestion.secondary_text && (
+                                  <p className="text-xs text-muted-foreground truncate">{suggestion.secondary_text}</p>
+                                )}
+                              </div>
+                            </div>
                           </button>
                         ))}
                       </div>
@@ -931,15 +1049,34 @@ export default function MobileBookingForm() {
                         data-testid={`input-via-${index}`}
                       />
                       {showSuggestions[`via-${index}`] && suggestions[`via-${index}`]?.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg max-h-60 overflow-auto z-20">
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg max-h-72 overflow-auto z-20">
                           {suggestions[`via-${index}`].map((suggestion, idx) => (
                             <button
                               key={idx}
                               onClick={() => selectSuggestion(`via-${index}`, suggestion)}
-                              className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:bg-blue-900/20 border-b last:border-b-0 text-sm min-h-[48px]"
+                              className="w-full text-left px-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-b last:border-b-0 text-sm"
                               data-testid={`suggestion-via-${index}-${idx}`}
                             >
-                              <div className="font-medium">{suggestion.display_name}</div>
+                              <div className="flex items-start gap-2">
+                                {suggestion.isPOI ? (
+                                  renderPOIIcon(suggestion.poiCategoryIcon || 'building')
+                                ) : (
+                                  <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium text-foreground truncate">{suggestion.display_name}</span>
+                                    {suggestion.isPOI && suggestion.poiCategory && (
+                                      <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded flex-shrink-0">
+                                        {suggestion.poiCategory}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {suggestion.secondary_text && (
+                                    <p className="text-xs text-muted-foreground truncate">{suggestion.secondary_text}</p>
+                                  )}
+                                </div>
+                              </div>
                             </button>
                           ))}
                         </div>
@@ -980,15 +1117,34 @@ export default function MobileBookingForm() {
                       data-testid="input-to-address"
                     />
                     {showSuggestions['to'] && suggestions['to']?.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg max-h-60 overflow-auto z-20">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg max-h-72 overflow-auto z-20">
                         {suggestions['to'].map((suggestion, idx) => (
                           <button
                             key={idx}
                             onClick={() => selectSuggestion('to', suggestion)}
-                            className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:bg-blue-900/20 border-b last:border-b-0 text-sm min-h-[48px]"
+                            className="w-full text-left px-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-b last:border-b-0 text-sm"
                             data-testid={`suggestion-to-${idx}`}
                           >
-                            <div className="font-medium">{suggestion.display_name}</div>
+                            <div className="flex items-start gap-2">
+                              {suggestion.isPOI ? (
+                                renderPOIIcon(suggestion.poiCategoryIcon || 'building')
+                              ) : (
+                                <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-foreground truncate">{suggestion.display_name}</span>
+                                  {suggestion.isPOI && suggestion.poiCategory && (
+                                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded flex-shrink-0">
+                                      {suggestion.poiCategory}
+                                    </span>
+                                  )}
+                                </div>
+                                {suggestion.secondary_text && (
+                                  <p className="text-xs text-muted-foreground truncate">{suggestion.secondary_text}</p>
+                                )}
+                              </div>
+                            </div>
                           </button>
                         ))}
                       </div>
@@ -1017,15 +1173,34 @@ export default function MobileBookingForm() {
                       data-testid="input-pickup-address"
                     />
                     {showSuggestions['pickup'] && suggestions['pickup']?.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg max-h-60 overflow-auto z-20">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg max-h-72 overflow-auto z-20">
                         {suggestions['pickup'].map((suggestion, idx) => (
                           <button
                             key={idx}
                             onClick={() => selectSuggestion('pickup', suggestion)}
-                            className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:bg-blue-900/20 border-b last:border-b-0 text-sm min-h-[48px]"
+                            className="w-full text-left px-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-b last:border-b-0 text-sm"
                             data-testid={`suggestion-pickup-${idx}`}
                           >
-                            <div className="font-medium">{suggestion.display_name}</div>
+                            <div className="flex items-start gap-2">
+                              {suggestion.isPOI ? (
+                                renderPOIIcon(suggestion.poiCategoryIcon || 'building')
+                              ) : (
+                                <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-foreground truncate">{suggestion.display_name}</span>
+                                  {suggestion.isPOI && suggestion.poiCategory && (
+                                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded flex-shrink-0">
+                                      {suggestion.poiCategory}
+                                    </span>
+                                  )}
+                                </div>
+                                {suggestion.secondary_text && (
+                                  <p className="text-xs text-muted-foreground truncate">{suggestion.secondary_text}</p>
+                                )}
+                              </div>
+                            </div>
                           </button>
                         ))}
                       </div>

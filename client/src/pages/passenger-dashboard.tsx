@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, Edit2, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone, FileText, Eye, Printer, ChevronDown } from "lucide-react";
+import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, Edit2, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone, FileText, Eye, Printer, ChevronDown, Building2, Plane, Hotel, Utensils, ShoppingBag, Car, Coffee, Hospital, School, Landmark } from "lucide-react";
 import { Elements, CardElement, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useForm } from "react-hook-form";
@@ -1743,6 +1743,53 @@ export default function PassengerDashboard() {
     },
   });
 
+  // POI category helper function
+  const getPOICategoryInfo = (poi: any): { icon: string; label: string } => {
+    if (!poi) return { icon: 'building', label: 'Place' };
+    let categoryName = '';
+    if (poi.categories && poi.categories.length > 0) {
+      categoryName = poi.categories.join(' ').toLowerCase();
+    } else if (poi.classifications && poi.classifications.length > 0) {
+      const classification = poi.classifications[0];
+      if (classification.names && classification.names.length > 0) {
+        categoryName = classification.names.map((n: any) => n.name || n).join(' ').toLowerCase();
+      } else if (classification.code) {
+        categoryName = classification.code.toLowerCase();
+      }
+    } else if (poi.categorySet && poi.categorySet.length > 0) {
+      categoryName = poi.categorySet[0]?.name?.toLowerCase() || '';
+    }
+    
+    if (categoryName.includes('airport') || categoryName.includes('aviation')) return { icon: 'plane', label: 'Airport' };
+    if (categoryName.includes('hotel') || categoryName.includes('motel') || categoryName.includes('lodging')) return { icon: 'hotel', label: 'Hotel' };
+    if (categoryName.includes('restaurant') || categoryName.includes('food') || categoryName.includes('dining')) return { icon: 'restaurant', label: 'Restaurant' };
+    if (categoryName.includes('cafe') || categoryName.includes('coffee')) return { icon: 'coffee', label: 'Cafe' };
+    if (categoryName.includes('hospital') || categoryName.includes('medical') || categoryName.includes('health')) return { icon: 'hospital', label: 'Medical' };
+    if (categoryName.includes('school') || categoryName.includes('university') || categoryName.includes('college')) return { icon: 'school', label: 'Education' };
+    if (categoryName.includes('shop') || categoryName.includes('store') || categoryName.includes('mall')) return { icon: 'shopping', label: 'Shopping' };
+    if (categoryName.includes('parking') || categoryName.includes('car') || categoryName.includes('automotive')) return { icon: 'car', label: 'Automotive' };
+    if (categoryName.includes('government') || categoryName.includes('civic')) return { icon: 'landmark', label: 'Government' };
+    
+    return { icon: 'building', label: 'Place' };
+  };
+
+  // Render POI category icon
+  const renderPOIIcon = (iconType: string) => {
+    const iconProps = { className: "w-4 h-4 text-primary mt-0.5 flex-shrink-0" };
+    switch (iconType) {
+      case 'plane': return <Plane {...iconProps} />;
+      case 'hotel': return <Hotel {...iconProps} />;
+      case 'restaurant': return <Utensils {...iconProps} />;
+      case 'coffee': return <Coffee {...iconProps} />;
+      case 'hospital': return <Hospital {...iconProps} />;
+      case 'school': return <School {...iconProps} />;
+      case 'shopping': return <ShoppingBag {...iconProps} />;
+      case 'car': return <Car {...iconProps} />;
+      case 'landmark': return <Landmark {...iconProps} />;
+      default: return <Building2 {...iconProps} />;
+    }
+  };
+
   // TomTom address search with debouncing
   const searchAddress = async (query: string) => {
     if (query.length < 3) {
@@ -1753,11 +1800,19 @@ export default function PassengerDashboard() {
 
     setIsSearchingAddress(true);
     try {
-      const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}&limit=5`);
+      const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}&limit=10`);
       if (response.ok) {
         const data = await response.json();
         if (data.results && data.results.length > 0) {
-          setAddressSuggestions(data.results);
+          const suggestionWithPOI = data.results.map((result: any) => ({
+            ...result,
+            isPOI: !!result.poi,
+            poiCategory: result.poi ? getPOICategoryInfo(result.poi).label : '',
+            poiCategoryIcon: result.poi ? getPOICategoryInfo(result.poi).icon : 'mappin',
+            displayName: result.poi?.name || result.address?.freeformAddress || '',
+            secondaryText: result.poi ? result.address?.freeformAddress : '',
+          }));
+          setAddressSuggestions(suggestionWithPOI);
           setShowSuggestions(true);
         } else {
           setAddressSuggestions([]);
@@ -1783,7 +1838,7 @@ export default function PassengerDashboard() {
   }, [newAddress.address]);
 
   const handleAddressSelect = (suggestion: any) => {
-    const address = suggestion.address.freeformAddress;
+    const address = suggestion.address?.freeformAddress || suggestion.displayName || '';
     const lat = suggestion.position.lat.toString();
     const lon = suggestion.position.lon.toString();
     
@@ -1802,11 +1857,19 @@ export default function PassengerDashboard() {
 
     setIsSearchingEditAddress(true);
     try {
-      const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}&limit=5`);
+      const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}&limit=10`);
       if (response.ok) {
         const data = await response.json();
         if (data.results && data.results.length > 0) {
-          setEditSuggestions(data.results);
+          const suggestionWithPOI = data.results.map((result: any) => ({
+            ...result,
+            isPOI: !!result.poi,
+            poiCategory: result.poi ? getPOICategoryInfo(result.poi).label : '',
+            poiCategoryIcon: result.poi ? getPOICategoryInfo(result.poi).icon : 'mappin',
+            displayName: result.poi?.name || result.address?.freeformAddress || '',
+            secondaryText: result.poi ? result.address?.freeformAddress : '',
+          }));
+          setEditSuggestions(suggestionWithPOI);
           setShowEditSuggestions(true);
         } else {
           setEditSuggestions([]);
@@ -1832,7 +1895,7 @@ export default function PassengerDashboard() {
   }, [editAddress.address, editAddressOpen]);
 
   const handleEditAddressSelect = (suggestion: any) => {
-    const address = suggestion.address.freeformAddress;
+    const address = suggestion.address?.freeformAddress || suggestion.displayName || '';
     const lat = suggestion.position.lat.toString();
     const lon = suggestion.position.lon.toString();
     
@@ -2651,12 +2714,27 @@ export default function PassengerDashboard() {
                               data-testid={`suggestion-${index}`}
                             >
                               <div className="flex items-start space-x-2">
-                                <MapPin className="w-4 h-4 mt-1 text-primary flex-shrink-0" />
+                                {suggestion.isPOI ? (
+                                  renderPOIIcon(suggestion.poiCategoryIcon || 'building')
+                                ) : (
+                                  <MapPin className="w-4 h-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                                )}
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-foreground dark:text-gray-100 truncate">
-                                    {suggestion.address.freeformAddress}
-                                  </p>
-                                  {suggestion.address.country && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-foreground dark:text-gray-100 truncate">
+                                      {suggestion.displayName || suggestion.address?.freeformAddress}
+                                    </span>
+                                    {suggestion.isPOI && suggestion.poiCategory && (
+                                      <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded flex-shrink-0">
+                                        {suggestion.poiCategory}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {suggestion.secondaryText ? (
+                                    <p className="text-xs text-muted-foreground dark:text-gray-400 truncate">
+                                      {suggestion.secondaryText}
+                                    </p>
+                                  ) : suggestion.address?.country && (
                                     <p className="text-xs text-muted-foreground dark:text-gray-400 truncate">
                                       {suggestion.address.countrySubdivision}, {suggestion.address.country}
                                     </p>
@@ -2864,12 +2942,27 @@ export default function PassengerDashboard() {
                         data-testid={`edit-suggestion-${index}`}
                       >
                         <div className="flex items-start space-x-2">
-                          <MapPin className="w-4 h-4 mt-1 text-red-600 flex-shrink-0" />
+                          {suggestion.isPOI ? (
+                            renderPOIIcon(suggestion.poiCategoryIcon || 'building')
+                          ) : (
+                            <MapPin className="w-4 h-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                          )}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground dark:text-gray-100 truncate">
-                              {suggestion.address.freeformAddress}
-                            </p>
-                            {suggestion.address.country && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-foreground dark:text-gray-100 truncate">
+                                {suggestion.displayName || suggestion.address?.freeformAddress}
+                              </span>
+                              {suggestion.isPOI && suggestion.poiCategory && (
+                                <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded flex-shrink-0">
+                                  {suggestion.poiCategory}
+                                </span>
+                              )}
+                            </div>
+                            {suggestion.secondaryText ? (
+                              <p className="text-xs text-muted-foreground dark:text-gray-400 truncate">
+                                {suggestion.secondaryText}
+                              </p>
+                            ) : suggestion.address?.country && (
                               <p className="text-xs text-muted-foreground dark:text-gray-400 truncate">
                                 {suggestion.address.countrySubdivision}, {suggestion.address.country}
                               </p>
