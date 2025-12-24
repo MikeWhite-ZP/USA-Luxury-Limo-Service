@@ -1440,22 +1440,21 @@ export default function DriverDashboard() {
                                 </div>
 
                                 <div className="bg-blue-50 dark:bg-blue-900/40 rounded-lg p-2.5 mb-3">
-                                  <div className="flex items-start gap-2">
-                                    <div className="flex flex-col items-center gap-0.5 pt-1">
-                                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                      <div className="w-0.5 h-6 bg-border" />
-                                      <div className="w-2 h-2 rounded-full bg-red-500" />
-                                    </div>
-                                    <div className="flex-1 min-w-0 space-y-1">
-                                      <p className="text-xs text-blue-900 dark:text-blue-100 truncate" data-testid={`new-pickup-${booking.id}`}>
+                                  <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
+                                      <p className="text-xs text-blue-900 dark:text-blue-100 truncate flex-1" data-testid={`new-pickup-${booking.id}`}>
                                         {booking.pickupAddress}
                                       </p>
-                                      {booking.destinationAddress && (
-                                        <p className="text-xs text-blue-700 dark:text-blue-300 truncate" data-testid={`new-destination-${booking.id}`}>
+                                    </div>
+                                    {booking.destinationAddress && (
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+                                        <p className="text-xs text-blue-700 dark:text-blue-300 truncate flex-1" data-testid={`new-destination-${booking.id}`}>
                                           {booking.destinationAddress}
                                         </p>
-                                      )}
-                                    </div>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
 
@@ -1560,22 +1559,21 @@ export default function DriverDashboard() {
                                 </div>
 
                                 <div className="bg-purple-50 dark:bg-purple-900/40 rounded-lg p-2.5 mb-3">
-                                  <div className="flex items-start gap-2">
-                                    <div className="flex flex-col items-center gap-0.5 pt-1">
+                                  <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-2">
                                       <div className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
-                                      <div className="w-0.5 flex-1 min-h-[16px] bg-border" />
-                                      <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
-                                    </div>
-                                    <div className="flex-1 min-w-0 space-y-3">
-                                      <p className="text-xs text-purple-900 dark:text-purple-100 leading-relaxed" data-testid={`accepted-pickup-${booking.id}`}>
+                                      <p className="text-xs text-purple-900 dark:text-purple-100 truncate flex-1" data-testid={`accepted-pickup-${booking.id}`}>
                                         {booking.pickupAddress}
                                       </p>
-                                      {booking.destinationAddress && (
-                                        <p className="text-xs text-purple-700 dark:text-purple-300 leading-relaxed" data-testid={`accepted-destination-${booking.id}`}>
+                                    </div>
+                                    {booking.destinationAddress && (
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+                                        <p className="text-xs text-purple-700 dark:text-purple-300 truncate flex-1" data-testid={`accepted-destination-${booking.id}`}>
                                           {booking.destinationAddress}
                                         </p>
-                                      )}
-                                    </div>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
 
