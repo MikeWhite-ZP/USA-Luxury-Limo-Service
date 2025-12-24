@@ -165,11 +165,11 @@ export default function MobilePaymentMethods() {
     retry: false,
   });
 
-  // Fetch payment methods
+  // Fetch payment methods - always fetch when payment options are loaded
+  // The API returns empty array for users without linked Stripe customer
   const { data: paymentData, isLoading: paymentMethodsLoading } = useQuery<PaymentMethodsResponse>({
     queryKey: ['/api/payment-methods'],
     retry: false,
-    enabled: !!paymentOptionsData?.options?.find(o => o.optionType === 'credit_card' && o.isEnabled),
   });
 
   // Fetch ride credits balance
@@ -268,14 +268,18 @@ export default function MobilePaymentMethods() {
   const isPayLaterEnabled = payLaterOption?.isEnabled ?? false;
   const isCashEnabled = cashOption?.isEnabled ?? false;
 
-  // Card management is available when admin enabled credit_card AND Stripe public key is configured
+  // Adding new cards is available when admin enabled credit_card AND Stripe public key is configured
   // Note: stripePromise checks for VITE_STRIPE_PUBLIC_KEY at build time
-  const canManageCreditCards = isCreditCardEnabled && stripePromise;
+  const canAddNewCards = isCreditCardEnabled && stripePromise;
+  
+  // Always show existing synced payment methods if the user has them
+  const hasExistingPaymentMethods = paymentMethods && paymentMethods.length > 0;
 
   // Show alternative payment options page when:
   // 1. Credit card is disabled by admin, OR
   // 2. Stripe public key is not configured (stripePromise is null)
-  if (!canManageCreditCards) {
+  // BUT only if user has no existing synced payment methods
+  if (!canAddNewCards && !hasExistingPaymentMethods) {
     const enabledOptions = [];
     // Pay Later is available when admin enabled it
     if (isPayLaterEnabled) {
@@ -393,15 +397,17 @@ export default function MobilePaymentMethods() {
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back
           </Button>
-          <Button
-            variant="ghost"
-            onClick={() => setAddPaymentOpen(true)}
-            className="text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
-            data-testid="button-add-payment-method"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Add Card
-          </Button>
+          {canAddNewCards && (
+            <Button
+              variant="ghost"
+              onClick={() => setAddPaymentOpen(true)}
+              className="text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+              data-testid="button-add-payment-method"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Add Card
+            </Button>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <div className="bg-blue-100 dark:bg-blue-900/30 p-2.5 rounded-xl">
@@ -409,7 +415,7 @@ export default function MobilePaymentMethods() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-blue-900 dark:text-blue-100">Payment Methods</h1>
-            <p className="text-muted-foreground text-sm mt-0.5">Manage your credit cards</p>
+            <p className="text-muted-foreground text-sm mt-0.5">{hasExistingPaymentMethods ? 'Your saved cards' : 'Manage your credit cards'}</p>
           </div>
         </div>
       </div>
@@ -425,14 +431,16 @@ export default function MobilePaymentMethods() {
               <p className="text-muted-foreground mb-4">
                 Add a credit card to make bookings easier and faster.
               </p>
-              <Button
-                onClick={() => setAddPaymentOpen(true)}
-                className="bg-card hover:bg-blue-50 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-300 shadow-sm hover:shadow-md transition-all"
-                data-testid="button-add-first-card"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Your First Card
-              </Button>
+              {canAddNewCards && (
+                <Button
+                  onClick={() => setAddPaymentOpen(true)}
+                  className="bg-card hover:bg-blue-50 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-300 shadow-sm hover:shadow-md transition-all"
+                  data-testid="button-add-first-card"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Your First Card
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
