@@ -1498,13 +1498,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 if (driver) {
                   const driverUser = await storage.getUser(driver.userId);
                   if (driverUser) {
-                    // Get driver's vehicle plate from vehicles table
-                    const vehicleData = await db
-                      .select()
-                      .from(vehicles)
-                      .where(eq(vehicles.driverId, driver.id))
-                      .limit(1);
-                    
                     return {
                       ...booking,
                       driverFirstName: driverUser.firstName || null,
@@ -1512,7 +1505,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                       driverPhone: driverUser.phone || null,
                       driverCredentials: driver.driverCredentials || null,
                       driverProfileImageUrl: driverUser.profileImageUrl || null,
-                      driverVehiclePlate: vehicleData[0]?.licensePlate || null,
+                      driverVehiclePlate: driver.vehiclePlate || null,
                     };
                   }
                 }
