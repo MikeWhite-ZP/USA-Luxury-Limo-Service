@@ -4832,6 +4832,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Get all declined bookings across all drivers
+  app.get('/api/admin/declined-bookings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || (user.role !== 'admin' && user.role !== 'dispatcher')) {
+        return res.status(403).json({ message: 'Admin or dispatcher access required' });
+      }
+
+      const declinedBookings = await storage.getAllDeclinedBookings();
+      res.json(declinedBookings);
+    } catch (error) {
+      console.error('Get all declined bookings error:', error);
+      res.status(500).json({ message: 'Failed to fetch declined bookings' });
+    }
+  });
+
   app.get('/api/admin/active-drivers', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;

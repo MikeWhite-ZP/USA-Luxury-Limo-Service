@@ -3506,7 +3506,7 @@ export default function AdminDashboard() {
   const [previewDocumentType, setPreviewDocumentType] = useState<string>("");
 
   // Bookings management state
-  const [bookingSegmentFilter, setBookingSegmentFilter] = useState<"all" | "pending" | "confirmed" | "in_progress" | "completed" | "cancelled">("all");
+  const [bookingSegmentFilter, setBookingSegmentFilter] = useState<"all" | "pending" | "confirmed" | "in_progress" | "completed" | "cancelled" | "declined">("all");
   const [bookingDateFrom, setBookingDateFrom] = useState("");
   const [bookingDateTo, setBookingDateTo] = useState("");
   const [bookingSearch, setBookingSearch] = useState("");
@@ -3719,6 +3719,39 @@ export default function AdminDashboard() {
   // Fetch all bookings
   const { data: bookings, isLoading: bookingsLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/bookings"],
+    retry: false,
+    enabled: isAuthenticated && user?.role === "admin",
+  });
+
+  // Fetch all declined bookings for admin view
+  interface DeclinedBookingAdmin {
+    declineId: string;
+    bookingId: string;
+    driverId: string;
+    reason: string;
+    reasonDisplay: string;
+    additionalNotes: string | null;
+    declinedAt: string;
+    pickupAddress: string;
+    destinationAddress: string | null;
+    scheduledDateTime: string;
+    passengerName: string | null;
+    passengerFirstName: string | null;
+    passengerLastName: string | null;
+    bookingType: string;
+    bookingStatus: string;
+    driverPayment: string | null;
+    totalAmount: string | null;
+    specialInstructions: string | null;
+    vehicleTypeId: string | null;
+    requestedHours: number | null;
+    driverFirstName: string;
+    driverLastName: string;
+    driverPhone: string | null;
+  }
+  
+  const { data: declinedBookings, isLoading: declinedBookingsLoading } = useQuery<DeclinedBookingAdmin[]>({
+    queryKey: ["/api/admin/declined-bookings"],
     retry: false,
     enabled: isAuthenticated && user?.role === "admin",
   });
@@ -4773,7 +4806,10 @@ export default function AdminDashboard() {
   // Filter bookings based on criteria
   const filteredBookings = bookings?.filter((booking) => {
     // Segment filter - filter based on segment tabs
-    if (bookingSegmentFilter === "all") {
+    if (bookingSegmentFilter === "declined") {
+      // Declined segment uses separate declinedBookings data
+      return false;
+    } else if (bookingSegmentFilter === "all") {
       // "All" segment excludes completed and cancelled bookings
       if (booking.status === "completed" || booking.status === "cancelled") {
         return false;
@@ -7244,6 +7280,17 @@ export default function AdminDashboard() {
                 >
                   Cancelled
                 </button>
+                <button
+                  onClick={() => setBookingSegmentFilter("declined")}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    bookingSegmentFilter === "declined"
+                      ? "bg-amber-600 text-white shadow-md"
+                      : "bg-muted text-muted-foreground hover:bg-muted dark:hover:bg-slate-700"
+                  }`}
+                  data-testid="segment-declined"
+                >
+                  Declined ({declinedBookings?.length || 0})
+                </button>
               </div>
 
               {/* Filters */}
@@ -7282,7 +7329,186 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {bookingsLoading ? (
+              {/* Declined Bookings View */}
+              {bookingSegmentFilter === "declined" ? (
+                declinedBookingsLoading ? (
+                  <div className="flex items-center justify-center p-8">
+                    <div className="animate-spin w-6 h-6 border-4 border-amber-500 border-t-transparent rounded-full" />
+                  </div>
+                ) : declinedBookings && declinedBookings.length > 0 ? (
+                  <div className="space-y-4">
+                    {declinedBookings.map((declined) => (
+                      <div
+                        key={declined.declineId}
+                        className="border-2 border-amber-200 dark:border-amber-800 rounded-xl p-6 space-y-5 bg-gradient-to-br from-amber-50/50 to-white hover:shadow-lg hover:border-amber-300 transition-all cursor-pointer"
+                        data-testid={`declined-booking-${declined.bookingId}`}
+                        onClick={() => {
+                          const fullBooking = bookings?.find(b => b.id === declined.bookingId);
+                          if (fullBooking) {
+                            openEditBookingDialog(fullBooking);
+                          }
+                        }}
+                      >
+                        <div className="flex justify-between items-start gap-6">
+                          <div className="flex-1 space-y-4">
+                            {/* Header Row */}
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-bold text-foreground text-base">
+                                #{declined.bookingId.substring(0, 8).toUpperCase()}
+                              </h4>
+                              <Badge className="bg-amber-100 text-amber-800 border-amber-300 font-semibold">
+                                DECLINED
+                              </Badge>
+                              <Badge className="bg-muted text-foreground border-border font-semibold">
+                                {declined.bookingType.toUpperCase()}
+                              </Badge>
+                              <Badge className={
+                                declined.bookingStatus === "pending"
+                                  ? "bg-blue-100 text-blue-800 border-blue-300 font-semibold"
+                                  : declined.bookingStatus === "confirmed"
+                                    ? "bg-green-100 text-green-800 border-green-300 font-semibold"
+                                    : "bg-gray-100 text-gray-800 border-gray-300 font-semibold"
+                              }>
+                                {declined.bookingStatus.replace('_', ' ').toUpperCase()}
+                              </Badge>
+                            </div>
+
+                            {/* Declined Reason Box */}
+                            <div className="bg-amber-100 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-lg p-4">
+                              <div className="flex items-center gap-2 mb-2">
+                                <svg className="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <p className="text-amber-900 dark:text-amber-200 font-bold text-sm">
+                                  Driver Declined: {declined.driverFirstName} {declined.driverLastName}
+                                </p>
+                              </div>
+                              <p className="text-amber-800 dark:text-amber-300 text-sm">
+                                <span className="font-medium">Reason:</span> {declined.reasonDisplay}
+                              </p>
+                              {declined.additionalNotes && (
+                                <p className="text-amber-700 dark:text-amber-400 text-sm italic mt-1">
+                                  "{declined.additionalNotes}"
+                                </p>
+                              )}
+                              <p className="text-amber-600 dark:text-amber-500 text-xs mt-2">
+                                Declined: {new Date(declined.declinedAt).toLocaleString()}
+                              </p>
+                            </div>
+
+                            {/* Booking Details Grid */}
+                            <div className="grid md:grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">Passenger</p>
+                                <p className="font-bold text-foreground">
+                                  {declined.passengerName || `${declined.passengerFirstName || ''} ${declined.passengerLastName || ''}`.trim() || "Not assigned"}
+                                </p>
+                              </div>
+
+                              <div className="space-y-1">
+                                <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">Pickup</p>
+                                <p className="font-semibold text-foreground leading-tight">
+                                  {declined.pickupAddress}
+                                </p>
+                              </div>
+
+                              <div className="space-y-1">
+                                <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
+                                  Scheduled Time
+                                </p>
+                                <p className="font-semibold text-foreground">
+                                  {new Date(declined.scheduledDateTime).toLocaleString()}
+                                </p>
+                              </div>
+
+                              <div className="space-y-1">
+                                <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
+                                  Destination
+                                </p>
+                                <p className="font-semibold text-foreground leading-tight">
+                                  {declined.destinationAddress || "Hourly Service"}
+                                </p>
+                              </div>
+
+                              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 p-3 rounded-lg border border-blue-200">
+                                <p className="text-muted-foreground text-xs font-semibold mb-1">
+                                  Total Amount
+                                </p>
+                                <p className="font-bold text-2xl text-blue-700">
+                                  ${declined.totalAmount || "0.00"}
+                                </p>
+                              </div>
+
+                              <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-3 rounded-lg border border-green-200">
+                                <p className="text-muted-foreground text-xs font-semibold mb-1">
+                                  Driver Payment
+                                </p>
+                                <p className="font-bold text-2xl text-green-700 line-through">
+                                  ${declined.driverPayment || "Not set"}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Actions Sidebar */}
+                          <div className="flex flex-col gap-2.5 min-w-[180px]">
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const fullBooking = bookings?.find(b => b.id === declined.bookingId);
+                                if (fullBooking) {
+                                  setAssigningBookingId(fullBooking.id);
+                                  if (fullBooking.driverId) {
+                                    setSelectedDriverForAssignment(fullBooking.driverId);
+                                    setManualDriverPayment(fullBooking.driverPayment || "");
+                                    setCalculatedDriverPayment(fullBooking.driverPayment || "");
+                                  }
+                                  setAssignDriverDialogOpen(true);
+                                }
+                              }}
+                              className="w-full h-9 text-indigo-700 border-indigo-300 bg-indigo-50 hover:bg-indigo-100 font-semibold"
+                              variant="outline"
+                            >
+                              <Car className="w-3.5 h-3.5 mr-1.5" />
+                              Assign New Driver
+                            </Button>
+
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const fullBooking = bookings?.find(b => b.id === declined.bookingId);
+                                if (fullBooking) {
+                                  openEditBookingDialog(fullBooking);
+                                }
+                              }}
+                              className="w-full h-9 text-green-700 border-green-300 bg-green-50 hover:bg-green-100 font-semibold"
+                              variant="outline"
+                            >
+                              <Edit2 className="w-3.5 h-3.5 mr-1.5" />
+                              Edit Booking
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div
+                    className="text-center p-12 bg-gradient-to-br from-amber-50 to-white border-2 border-amber-200 rounded-xl"
+                    data-testid="no-declined-bookings"
+                  >
+                    <div className="bg-amber-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-foreground font-semibold text-lg mb-1">No declined bookings</p>
+                    <p className="text-muted-foreground">Bookings declined by drivers will appear here</p>
+                  </div>
+                )
+              ) : bookingsLoading ? (
                 <div className="flex items-center justify-center p-8">
                   <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
                 </div>

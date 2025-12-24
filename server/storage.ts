@@ -313,6 +313,7 @@ export interface IStorage {
   createDeclineReason(declineReason: InsertDeclineReason): Promise<DeclineReason>;
   getDeclineReasonsByDriver(driverId: string): Promise<DeclineReason[]>;
   getDeclinedBookingsByDriver(driverId: string): Promise<any[]>;
+  getAllDeclinedBookings(): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2562,6 +2563,41 @@ export class DatabaseStorage implements IStorage {
       .from(declineReasons)
       .innerJoin(bookings, eq(declineReasons.bookingId, bookings.id))
       .where(eq(declineReasons.driverId, driverId))
+      .orderBy(desc(declineReasons.declinedAt));
+    
+    return results;
+  }
+  
+  async getAllDeclinedBookings(): Promise<any[]> {
+    const results = await db
+      .select({
+        declineId: declineReasons.id,
+        bookingId: declineReasons.bookingId,
+        driverId: declineReasons.driverId,
+        reason: declineReasons.reason,
+        reasonDisplay: declineReasons.reasonDisplay,
+        additionalNotes: declineReasons.additionalNotes,
+        declinedAt: declineReasons.declinedAt,
+        pickupAddress: bookings.pickupAddress,
+        destinationAddress: bookings.destinationAddress,
+        scheduledDateTime: bookings.scheduledDateTime,
+        passengerName: bookings.passengerName,
+        passengerFirstName: bookings.passengerFirstName,
+        passengerLastName: bookings.passengerLastName,
+        bookingType: bookings.bookingType,
+        bookingStatus: bookings.status,
+        driverPayment: bookings.driverPayment,
+        totalAmount: bookings.totalAmount,
+        specialInstructions: bookings.specialInstructions,
+        vehicleTypeId: bookings.vehicleTypeId,
+        requestedHours: bookings.requestedHours,
+        driverFirstName: driverProfiles.firstName,
+        driverLastName: driverProfiles.lastName,
+        driverPhone: driverProfiles.phone,
+      })
+      .from(declineReasons)
+      .innerJoin(bookings, eq(declineReasons.bookingId, bookings.id))
+      .innerJoin(driverProfiles, eq(declineReasons.driverId, driverProfiles.id))
       .orderBy(desc(declineReasons.declinedAt));
     
     return results;
