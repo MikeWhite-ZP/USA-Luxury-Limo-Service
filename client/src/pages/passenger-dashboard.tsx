@@ -59,6 +59,7 @@ interface Booking {
   driverPhone?: string;
   driverCredentials?: string;
   driverProfileImageUrl?: string;
+  driverVehiclePlate?: string;
   vehicleTypeId?: string;
   vehicleTypeName?: string;
   passengerCount?: number;
@@ -2446,6 +2447,11 @@ export default function PassengerDashboard() {
                             {booking.driverPhone && (
                               <p className="text-xs text-muted-foreground" data-testid={`booking-driver-phone-${booking.id}`}>
                                 📞 {booking.driverPhone}
+                              </p>
+                            )}
+                            {booking.driverVehiclePlate && (
+                              <p className="text-xs text-muted-foreground" data-testid={`booking-driver-plate-${booking.id}`}>
+                                🚗 Plate: {booking.driverVehiclePlate}
                               </p>
                             )}
                             {booking.driverCredentials && (
