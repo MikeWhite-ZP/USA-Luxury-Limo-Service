@@ -3,14 +3,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Star, Clock } from 'lucide-react';
+import { MapPin, Star, Clock, Building2, Plane, Hotel, Utensils, ShoppingBag, Car, Coffee, Hospital, School, Landmark } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
 interface AddressSuggestion {
   id: string;
   display_name: string;
+  secondary_text?: string; // Address line for POIs
   address: any;
   position: { lat: number; lon: number };
+  isPOI: boolean;
+  poiCategory?: string;
+  poiCategoryIcon?: string;
 }
 
 interface SavedAddress {
@@ -65,6 +69,80 @@ export function AddressAutocomplete({
     };
   }, []);
 
+  // Get POI category icon based on TomTom POI data
+  // TomTom provides categories in poi.categories (array of strings) and poi.classifications (array with code/names)
+  const getPOICategoryInfo = (poi: any): { icon: string; label: string } => {
+    if (!poi) return { icon: 'building', label: 'Place' };
+    
+    // Try to get category from multiple TomTom fields
+    let categoryName = '';
+    
+    // Check poi.categories (array of strings)
+    if (poi.categories && poi.categories.length > 0) {
+      categoryName = poi.categories.join(' ').toLowerCase();
+    }
+    // Check poi.classifications (array with code and names)
+    else if (poi.classifications && poi.classifications.length > 0) {
+      const classification = poi.classifications[0];
+      if (classification.names && classification.names.length > 0) {
+        categoryName = classification.names.map((n: any) => n.name || n).join(' ').toLowerCase();
+      } else if (classification.code) {
+        categoryName = classification.code.toLowerCase();
+      }
+    }
+    // Fall back to poi.categorySet if present (older API version)
+    else if (poi.categorySet && poi.categorySet.length > 0) {
+      categoryName = poi.categorySet[0]?.name?.toLowerCase() || '';
+    }
+    
+    if (categoryName.includes('airport') || categoryName.includes('aviation')) {
+      return { icon: 'plane', label: 'Airport' };
+    }
+    if (categoryName.includes('hotel') || categoryName.includes('motel') || categoryName.includes('lodging') || categoryName.includes('accommodation')) {
+      return { icon: 'hotel', label: 'Hotel' };
+    }
+    if (categoryName.includes('restaurant') || categoryName.includes('food') || categoryName.includes('dining')) {
+      return { icon: 'restaurant', label: 'Restaurant' };
+    }
+    if (categoryName.includes('cafe') || categoryName.includes('coffee')) {
+      return { icon: 'coffee', label: 'Cafe' };
+    }
+    if (categoryName.includes('hospital') || categoryName.includes('medical') || categoryName.includes('health') || categoryName.includes('clinic')) {
+      return { icon: 'hospital', label: 'Medical' };
+    }
+    if (categoryName.includes('school') || categoryName.includes('university') || categoryName.includes('college') || categoryName.includes('education')) {
+      return { icon: 'school', label: 'Education' };
+    }
+    if (categoryName.includes('shop') || categoryName.includes('store') || categoryName.includes('mall') || categoryName.includes('retail') || categoryName.includes('market')) {
+      return { icon: 'shopping', label: 'Shopping' };
+    }
+    if (categoryName.includes('parking') || categoryName.includes('car') || categoryName.includes('automotive') || categoryName.includes('gas') || categoryName.includes('fuel')) {
+      return { icon: 'car', label: 'Automotive' };
+    }
+    if (categoryName.includes('government') || categoryName.includes('civic') || categoryName.includes('municipal') || categoryName.includes('city hall') || categoryName.includes('courthouse')) {
+      return { icon: 'landmark', label: 'Government' };
+    }
+    
+    return { icon: 'building', label: 'Place' };
+  };
+
+  // Render POI category icon
+  const renderPOIIcon = (iconType: string) => {
+    const iconProps = { className: "w-4 h-4 text-primary mt-0.5 flex-shrink-0" };
+    switch (iconType) {
+      case 'plane': return <Plane {...iconProps} />;
+      case 'hotel': return <Hotel {...iconProps} />;
+      case 'restaurant': return <Utensils {...iconProps} />;
+      case 'coffee': return <Coffee {...iconProps} />;
+      case 'hospital': return <Hospital {...iconProps} />;
+      case 'school': return <School {...iconProps} />;
+      case 'shopping': return <ShoppingBag {...iconProps} />;
+      case 'car': return <Car {...iconProps} />;
+      case 'landmark': return <Landmark {...iconProps} />;
+      default: return <Building2 {...iconProps} />;
+    }
+  };
+
   // Handle address input with debouncing for TomTom suggestions
   const handleAddressInput = (inputValue: string) => {
     onChange(inputValue);
@@ -81,15 +159,34 @@ export function AddressAutocomplete({
 
     timeoutRef.current = setTimeout(async () => {
       try {
-        const response = await fetch(`/api/geocode?q=${encodeURIComponent(inputValue)}&limit=5`);
+        const response = await fetch(`/api/geocode?q=${encodeURIComponent(inputValue)}&limit=10`);
         if (response.ok) {
           const data = await response.json();
-          const suggestionList = data.results?.map((result: any) => ({
-            id: result.id || result.address?.freeformAddress,
-            display_name: result.address?.freeformAddress || result.poi?.name,
-            address: result.address,
-            position: result.position
-          })) || [];
+          const suggestionList = data.results?.map((result: any) => {
+            const isPOI = !!result.poi;
+            const categoryInfo = isPOI ? getPOICategoryInfo(result.poi) : { icon: 'mappin', label: '' };
+            
+            // For POIs, show POI name as primary, address as secondary
+            // For addresses, show full address as primary
+            const displayName = isPOI && result.poi?.name 
+              ? result.poi.name 
+              : result.address?.freeformAddress || '';
+            
+            const secondaryText = isPOI && result.address?.freeformAddress
+              ? result.address.freeformAddress
+              : '';
+            
+            return {
+              id: result.id || result.address?.freeformAddress || Math.random().toString(),
+              display_name: displayName,
+              secondary_text: secondaryText,
+              address: result.address,
+              position: result.position,
+              isPOI,
+              poiCategory: categoryInfo.label,
+              poiCategoryIcon: categoryInfo.icon,
+            };
+          }) || [];
           
           setSuggestions(suggestionList);
           setShowSuggestions(true);
@@ -102,7 +199,12 @@ export function AddressAutocomplete({
 
   // Select a TomTom suggestion
   const selectSuggestion = (suggestion: AddressSuggestion) => {
-    onChange(suggestion.display_name, suggestion.position);
+    // For POIs, use the address as the value (more useful for booking)
+    // For regular addresses, use the display_name
+    const valueToUse = suggestion.isPOI && suggestion.secondary_text 
+      ? suggestion.secondary_text 
+      : suggestion.display_name;
+    onChange(valueToUse, suggestion.position);
     setShowSuggestions(false);
   };
 
@@ -180,20 +282,36 @@ export function AddressAutocomplete({
 
           {/* TomTom Suggestions Dropdown */}
           {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 bg-card border border-border rounded-b-lg max-h-60 overflow-y-auto z-50 shadow-lg mt-1">
+            <div className="absolute top-full left-0 right-0 bg-card border border-border rounded-b-lg max-h-72 overflow-y-auto z-50 shadow-lg mt-1">
               <div className="p-2 border-b border-border bg-muted">
                 <p className="text-xs font-semibold text-muted-foreground">SUGGESTIONS</p>
               </div>
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
-                  className="p-3 cursor-pointer border-b border-border hover:bg-muted transition-colors"
+                  className="p-3 cursor-pointer border-b border-border hover:bg-muted transition-colors last:border-b-0"
                   onClick={() => selectSuggestion(suggestion)}
                   data-testid={`${testId}-suggestion-${index}`}
                 >
                   <div className="flex items-start gap-2">
-                    <Clock className="w-4 h-4 text-muted-foreground mt-1 flex-shrink-0" />
-                    <div className="font-medium text-foreground">{suggestion.display_name}</div>
+                    {suggestion.isPOI ? (
+                      renderPOIIcon(suggestion.poiCategoryIcon || 'building')
+                    ) : (
+                      <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-foreground truncate">{suggestion.display_name}</span>
+                        {suggestion.isPOI && suggestion.poiCategory && (
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded flex-shrink-0">
+                            {suggestion.poiCategory}
+                          </span>
+                        )}
+                      </div>
+                      {suggestion.secondary_text && (
+                        <p className="text-sm text-muted-foreground truncate">{suggestion.secondary_text}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

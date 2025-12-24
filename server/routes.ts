@@ -1122,9 +1122,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // TomTom geocoding proxy
+  // TomTom geocoding proxy with POI and address search support
   app.get('/api/geocode', async (req, res) => {
-    const { q, limit = 5 } = req.query;
+    const { q, limit = 10 } = req.query;
     
     if (!q || typeof q !== 'string') {
       return res.status(400).json({ error: 'Query parameter is required' });
@@ -1136,7 +1136,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ error: 'TomTom API key not configured' });
       }
 
-      const url = `https://api.tomtom.com/search/2/search/${encodeURIComponent(q)}.json?key=${apiKey}&limit=${limit}&countrySet=US&typeahead=true`;
+      // Build URL with expanded search parameters:
+      // - typeahead=true: Enable fuzzy autocomplete matching
+      // - idxSet=Addr,Geo,PAD,POI,Str: Include addresses, geography, point addresses, POIs, and streets
+      // This provides comprehensive results including businesses, airports, hotels, restaurants, etc.
+      const params = new URLSearchParams({
+        key: apiKey,
+        limit: String(limit),
+        countrySet: 'US',
+        typeahead: 'true',
+        idxSet: 'Addr,Geo,PAD,POI,Str',  // Address, Geography, Point Address, POI, Street
+      });
+      
+      const url = `https://api.tomtom.com/search/2/search/${encodeURIComponent(q)}.json?${params.toString()}`;
 
       const response = await fetch(url);
       if (!response.ok) {
