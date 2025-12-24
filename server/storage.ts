@@ -2590,7 +2590,7 @@ export class DatabaseStorage implements IStorage {
   }
   
   async getAllDeclinedBookings(): Promise<any[]> {
-    const results = await db
+    const declineData = await db
       .select({
         declineId: declineReasons.id,
         bookingId: declineReasons.bookingId,
@@ -2612,17 +2612,41 @@ export class DatabaseStorage implements IStorage {
         specialInstructions: bookings.specialInstructions,
         vehicleTypeId: bookings.vehicleTypeId,
         requestedHours: bookings.requestedHours,
-        driverFirstName: users.firstName,
-        driverLastName: users.lastName,
-        driverPhone: users.phone,
       })
       .from(declineReasons)
       .innerJoin(bookings, eq(declineReasons.bookingId, bookings.id))
-      .innerJoin(drivers, eq(declineReasons.driverId, drivers.id))
-      .innerJoin(users, eq(drivers.userId, users.id))
       .orderBy(desc(declineReasons.declinedAt));
     
-    return results;
+    const driverIds = [...new Set(declineData.map(d => d.driverId))];
+    
+    if (driverIds.length === 0) {
+      return declineData.map(decline => ({
+        ...decline,
+        driverFirstName: null,
+        driverLastName: null,
+        driverPhone: null,
+      }));
+    }
+    
+    const driverInfo = await db
+      .select({
+        driverId: drivers.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        phone: users.phone,
+      })
+      .from(drivers)
+      .innerJoin(users, eq(users.id, drivers.userId))
+      .where(sql`${drivers.id} IN (${sql.join(driverIds.map(id => sql`${id}`), sql`, `)})`);
+    
+    const driverMap = new Map(driverInfo.map(d => [d.driverId, d]));
+    
+    return declineData.map(decline => ({
+      ...decline,
+      driverFirstName: driverMap.get(decline.driverId)?.firstName ?? null,
+      driverLastName: driverMap.get(decline.driverId)?.lastName ?? null,
+      driverPhone: driverMap.get(decline.driverId)?.phone ?? null,
+    }));
   }
 }
 
