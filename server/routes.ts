@@ -8782,6 +8782,8 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
       }
 
       // If user doesn't have a Stripe customer ID, return empty array
+      // For legacy customers, admin should use the Stripe Sync feature (Settings > Stripe Customer Sync)
+      // to safely link existing Stripe customers with proper verification
       if (!user.stripeCustomerId) {
         return res.json({ paymentMethods: [], defaultPaymentMethodId: null });
       }
