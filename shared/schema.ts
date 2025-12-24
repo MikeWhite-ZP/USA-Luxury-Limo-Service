@@ -880,6 +880,26 @@ export const insertDeclineReasonSchema = createInsertSchema(declineReasons).omit
   createdAt: true,
 });
 
+// Old Invoices - Legacy/historical PDF invoice files for passengers
+export const oldInvoices = pgTable("old_invoices", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  fileName: varchar("file_name").notNull(),
+  fileUrl: text("file_url").notNull(),
+  fileSize: integer("file_size"),
+  description: text("description"),
+  invoiceDate: timestamp("invoice_date"),
+  uploadedBy: varchar("uploaded_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertOldInvoiceSchema = createInsertSchema(oldInvoices).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Insert schemas for ride credits
 export const insertRideCreditTransactionSchema = createInsertSchema(rideCreditTransactions).omit({
   id: true,
@@ -943,3 +963,5 @@ export type EmergencyIncident = typeof emergencyIncidents.$inferSelect;
 export type InsertEmergencyIncident = z.infer<typeof insertEmergencyIncidentSchema>;
 export type DeclineReason = typeof declineReasons.$inferSelect;
 export type InsertDeclineReason = z.infer<typeof insertDeclineReasonSchema>;
+export type OldInvoice = typeof oldInvoices.$inferSelect;
+export type InsertOldInvoice = z.infer<typeof insertOldInvoiceSchema>;

@@ -76,6 +76,7 @@ import {
   CreditCard,
   Banknote,
   Wallet,
+  Download,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { AdminNav } from "@/components/AdminNav";
@@ -3408,6 +3409,235 @@ function InvoiceManagement() {
   );
 }
 
+function OldInvoicesAdminTab({ userId }: { userId: string }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [description, setDescription] = useState('');
+  const [invoiceDate, setInvoiceDate] = useState('');
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+
+  const { data: oldInvoices, isLoading } = useQuery<any[]>({
+    queryKey: ['/api/admin/users', userId, 'old-invoices'],
+    queryFn: async () => {
+      const response = await fetch(`/api/admin/users/${userId}/old-invoices`, {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch old invoices');
+      return response.json();
+    },
+    enabled: !!userId,
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      if (description) formData.append('description', description);
+      if (invoiceDate) formData.append('invoiceDate', invoiceDate);
+
+      const response = await fetch(`/api/admin/users/${userId}/old-invoices`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to upload invoice');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users', userId, 'old-invoices'] });
+      toast({ title: 'Success', description: 'Old invoice uploaded successfully' });
+      setDescription('');
+      setInvoiceDate('');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+    onSettled: () => setUploading(false),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (invoiceId: number) => {
+      const response = await fetch(`/api/admin/old-invoices/${invoiceId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete invoice');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users', userId, 'old-invoices'] });
+      toast({ title: 'Deleted', description: 'Old invoice deleted successfully' });
+      setDeleteConfirmId(null);
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast({ title: 'Invalid File', description: 'Only PDF files are allowed', variant: 'destructive' });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: 'File Too Large', description: 'Maximum file size is 10MB', variant: 'destructive' });
+      return;
+    }
+
+    setUploading(true);
+    uploadMutation.mutate(file);
+  };
+
+  return (
+    <div className="space-y-4 py-2">
+      <Card className="border-dashed">
+        <CardHeader className="py-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Upload className="w-4 h-4" />
+            Upload Old Invoice (PDF)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Invoice Date (optional)</Label>
+              <Input
+                type="date"
+                value={invoiceDate}
+                onChange={(e) => setInvoiceDate(e.target.value)}
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Description (optional)</Label>
+              <Input
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="e.g., Trip to airport"
+                className="h-8 text-sm"
+              />
+            </div>
+          </div>
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="w-full"
+            >
+              {uploading ? (
+                <>
+                  <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Select PDF File
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-2">
+        <h4 className="text-sm font-medium flex items-center gap-2">
+          <FileText className="w-4 h-4" />
+          Uploaded Old Invoices ({oldInvoices?.length || 0})
+        </h4>
+
+        {isLoading ? (
+          <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>
+        ) : !oldInvoices || oldInvoices.length === 0 ? (
+          <div className="text-center py-6 text-muted-foreground border rounded-lg">
+            <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No old invoices uploaded</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {oldInvoices.map((invoice) => (
+              <div
+                key={invoice.id}
+                className="flex items-center justify-between p-3 bg-muted rounded-lg border"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{invoice.fileName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {invoice.invoiceDate
+                      ? new Date(invoice.invoiceDate).toLocaleDateString()
+                      : new Date(invoice.createdAt).toLocaleDateString()}
+                    {invoice.description && ` - ${invoice.description}`}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => invoice.downloadUrl && window.open(invoice.downloadUrl, '_blank')}
+                    title="Download"
+                  >
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  {deleteConfirmId === invoice.id ? (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => deleteMutation.mutate(invoice.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Check className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setDeleteConfirmId(null)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setDeleteConfirmId(invoice.id)}
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -3465,7 +3695,7 @@ export default function AdminDashboard() {
     temporaryPassword: "", // For setting temp password when editing
   });
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
-  const [userDialogTab, setUserDialogTab] = useState<'profile' | 'credits' | 'transactions' | 'earnings' | 'documents'>('profile');
+  const [userDialogTab, setUserDialogTab] = useState<'profile' | 'credits' | 'transactions' | 'earnings' | 'documents' | 'oldinvoices'>('profile');
   const [creditAdjustmentAmount, setCreditAdjustmentAmount] = useState('');
   const [creditAdjustmentType, setCreditAdjustmentType] = useState<'add' | 'deduct'>('add');
   const [creditAdjustmentDescription, setCreditAdjustmentDescription] = useState('');
@@ -9660,8 +9890,8 @@ export default function AdminDashboard() {
           </DialogHeader>
 
           {editingUser && editingUser.role === 'passenger' ? (
-            <Tabs value={userDialogTab} onValueChange={(v) => setUserDialogTab(v as 'profile' | 'credits' | 'transactions')} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="grid w-full grid-cols-3 mb-4">
+            <Tabs value={userDialogTab} onValueChange={(v) => setUserDialogTab(v as 'profile' | 'credits' | 'transactions' | 'oldinvoices')} className="flex-1 flex flex-col min-h-0">
+              <TabsList className="grid w-full grid-cols-4 mb-4">
                 <TabsTrigger value="profile" className="flex items-center gap-2">
                   <UserIcon className="w-4 h-4" />
                   Profile
@@ -9673,6 +9903,10 @@ export default function AdminDashboard() {
                 <TabsTrigger value="transactions" className="flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Transactions
+                </TabsTrigger>
+                <TabsTrigger value="oldinvoices" className="flex items-center gap-2">
+                  <Upload className="w-4 h-4" />
+                  Old Invoices
                 </TabsTrigger>
               </TabsList>
 
@@ -10062,6 +10296,10 @@ export default function AdminDashboard() {
                     </div>
                   )}
                 </div>
+              </TabsContent>
+
+              <TabsContent value="oldinvoices" className="flex-1 overflow-y-auto pr-2 mt-0">
+                <OldInvoicesAdminTab userId={editingUser.id} />
               </TabsContent>
             </Tabs>
           ) : editingUser && editingUser.role === 'driver' ? (

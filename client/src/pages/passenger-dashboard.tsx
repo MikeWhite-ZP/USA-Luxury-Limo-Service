@@ -15,7 +15,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, Edit2, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone, FileText, Eye, Printer, ChevronDown, Building2, Plane, Hotel, Utensils, ShoppingBag, Car, Coffee, Hospital, School, Landmark } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, Edit2, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone, FileText, Eye, Printer, ChevronDown, Building2, Plane, Hotel, Utensils, ShoppingBag, Car, Coffee, Hospital, School, Landmark, Download } from "lucide-react";
 import { Elements, CardElement, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useForm } from "react-hook-form";
@@ -1047,6 +1048,102 @@ function InvoicesList() {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+function OldInvoicesList() {
+  const { data: oldInvoices, isLoading } = useQuery<any[]>({
+    queryKey: ['/api/old-invoices'],
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-6">
+        <div className="animate-spin w-5 h-5 border-2 border-brand-accent border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!oldInvoices || oldInvoices.length === 0) {
+    return (
+      <div className="text-center py-8" data-testid="no-old-invoices">
+        <div className="w-10 h-10 rounded-full bg-muted mx-auto mb-2 flex items-center justify-center">
+          <FileText className="w-5 h-5 text-muted-foreground" />
+        </div>
+        <p className="text-muted-foreground text-sm font-medium">No old invoices</p>
+        <p className="text-muted-foreground text-xs mt-1">Historical invoices uploaded by admin will appear here</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="divide-y divide-border">
+      {oldInvoices.map((oldInvoice, index) => (
+        <div
+          key={oldInvoice.id}
+          className={`py-3`}
+          data-testid={`old-invoice-${oldInvoice.id}`}
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="font-semibold text-sm text-brand-accent" data-testid={`old-invoice-name-${oldInvoice.id}`}>
+                  {oldInvoice.fileName}
+                </span>
+                <span className="text-xs text-muted-foreground" data-testid={`old-invoice-date-${oldInvoice.id}`}>
+                  {oldInvoice.invoiceDate 
+                    ? new Date(oldInvoice.invoiceDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    : new Date(oldInvoice.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </span>
+              </div>
+              {oldInvoice.description && (
+                <p className="text-xs text-muted-foreground truncate" title={oldInvoice.description}>
+                  {oldInvoice.description}
+                </p>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2 shrink-0">
+              {oldInvoice.fileSize && (
+                <span className="text-xs text-muted-foreground">
+                  {(oldInvoice.fileSize / 1024).toFixed(0)} KB
+                </span>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => {
+                  if (oldInvoice.downloadUrl) {
+                    window.open(oldInvoice.downloadUrl, '_blank');
+                  }
+                }}
+                className="p-1.5 rounded transition-colors hover:bg-muted text-muted-foreground hover:text-foreground"
+                title="Download Invoice"
+                data-testid={`button-download-${oldInvoice.id}`}
+              >
+                <Download className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => {
+                  if (oldInvoice.downloadUrl) {
+                    const printWindow = window.open(oldInvoice.downloadUrl, '_blank');
+                    if (printWindow) {
+                      printWindow.onload = () => printWindow.print();
+                    }
+                  }
+                }}
+                className="p-1.5 rounded transition-colors hover:bg-muted text-muted-foreground hover:text-foreground"
+                title="Print Invoice"
+                data-testid={`button-print-old-${oldInvoice.id}`}
+              >
+                <Printer className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -3250,7 +3347,18 @@ export default function PassengerDashboard() {
               <p className="text-xs text-muted-foreground">View and manage your ride invoices</p>
             </CardHeader>
             <CardContent className="pt-0">
-              <InvoicesList />
+              <Tabs defaultValue="current" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="current" data-testid="tab-current-invoices">Current Invoices</TabsTrigger>
+                  <TabsTrigger value="old" data-testid="tab-old-invoices">Old Invoices</TabsTrigger>
+                </TabsList>
+                <TabsContent value="current">
+                  <InvoicesList />
+                </TabsContent>
+                <TabsContent value="old">
+                  <OldInvoicesList />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         )}

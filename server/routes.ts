@@ -8381,6 +8381,190 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
     }
   });
 
+  // ============================================
+  // OLD INVOICES (Legacy PDF uploads)
+  // ============================================
+  
+  // Passenger: Get their own old invoices
+  app.get('/api/old-invoices', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const invoices = await storage.getOldInvoicesByUser(userId);
+      
+      // Generate presigned URLs for file access
+      const objStorage = await getObjectStorage();
+      const invoicesWithUrls = await Promise.all(
+        invoices.map(async (invoice) => {
+          let downloadUrl = invoice.fileUrl;
+          // Generate presigned URL if it's an object storage path
+          if (invoice.fileUrl && !invoice.fileUrl.startsWith('http')) {
+            const presignedUrl = await objStorage.getPresignedUrl(invoice.fileUrl);
+            if (presignedUrl) {
+              downloadUrl = presignedUrl;
+            }
+          }
+          return { ...invoice, downloadUrl };
+        })
+      );
+      
+      res.json(invoicesWithUrls);
+    } catch (error) {
+      console.error('Get old invoices error:', error);
+      res.status(500).json({ message: 'Failed to fetch invoices' });
+    }
+  });
+  
+  // Admin: Get old invoices for a specific user
+  app.get('/api/admin/users/:userId/old-invoices', isAuthenticated, async (req: any, res) => {
+    try {
+      const adminId = req.user.id;
+      const admin = await storage.getUser(adminId);
+      
+      if (!admin || admin.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+      
+      const { userId } = req.params;
+      const invoices = await storage.getOldInvoicesByUser(userId);
+      
+      // Generate presigned URLs for file access
+      const objStorage = await getObjectStorage();
+      const invoicesWithUrls = await Promise.all(
+        invoices.map(async (invoice) => {
+          let downloadUrl = invoice.fileUrl;
+          if (invoice.fileUrl && !invoice.fileUrl.startsWith('http')) {
+            const presignedUrl = await objStorage.getPresignedUrl(invoice.fileUrl);
+            if (presignedUrl) {
+              downloadUrl = presignedUrl;
+            }
+          }
+          return { ...invoice, downloadUrl };
+        })
+      );
+      
+      res.json(invoicesWithUrls);
+    } catch (error) {
+      console.error('Admin get old invoices error:', error);
+      res.status(500).json({ message: 'Failed to fetch invoices' });
+    }
+  });
+  
+  // Admin: Upload old invoice for a user
+  app.post('/api/admin/users/:userId/old-invoices', isAuthenticated, upload.single('file'), async (req: any, res) => {
+    try {
+      const adminId = req.user.id;
+      const admin = await storage.getUser(adminId);
+      
+      if (!admin || admin.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+      
+      const { userId } = req.params;
+      const { description, invoiceDate } = req.body;
+      
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+      
+      // Validate file type (PDF only)
+      if (req.file.mimetype !== 'application/pdf') {
+        return res.status(400).json({ message: 'Only PDF files are allowed' });
+      }
+      
+      // Upload to object storage
+      const fileName = `old-invoices/${userId}/${Date.now()}-${req.file.originalname}`;
+      const objStorage = await getObjectStorage();
+      const { ok, error } = await objStorage.uploadFromBytes(fileName, req.file.buffer);
+      
+      if (!ok) {
+        console.error('Upload to Object Storage failed:', error);
+        return res.status(500).json({ message: 'Failed to upload file' });
+      }
+      
+      // Create database record
+      const invoice = await storage.createOldInvoice({
+        userId,
+        fileName: req.file.originalname,
+        fileUrl: fileName,
+        fileSize: req.file.size,
+        description: description || null,
+        invoiceDate: invoiceDate ? new Date(invoiceDate) : null,
+        uploadedBy: adminId,
+      });
+      
+      res.json(invoice);
+    } catch (error) {
+      console.error('Admin upload old invoice error:', error);
+      res.status(500).json({ message: 'Failed to upload invoice' });
+    }
+  });
+  
+  // Admin: Update old invoice metadata
+  app.patch('/api/admin/old-invoices/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const adminId = req.user.id;
+      const admin = await storage.getUser(adminId);
+      
+      if (!admin || admin.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+      
+      const { id } = req.params;
+      const { description, invoiceDate } = req.body;
+      
+      const existing = await storage.getOldInvoice(id);
+      if (!existing) {
+        return res.status(404).json({ message: 'Invoice not found' });
+      }
+      
+      const updated = await storage.updateOldInvoice(id, {
+        description: description !== undefined ? description : existing.description,
+        invoiceDate: invoiceDate ? new Date(invoiceDate) : existing.invoiceDate,
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error('Admin update old invoice error:', error);
+      res.status(500).json({ message: 'Failed to update invoice' });
+    }
+  });
+  
+  // Admin: Delete old invoice
+  app.delete('/api/admin/old-invoices/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const adminId = req.user.id;
+      const admin = await storage.getUser(adminId);
+      
+      if (!admin || admin.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+      
+      const { id } = req.params;
+      
+      const existing = await storage.getOldInvoice(id);
+      if (!existing) {
+        return res.status(404).json({ message: 'Invoice not found' });
+      }
+      
+      // Delete from object storage
+      const objStorage = await getObjectStorage();
+      try {
+        await objStorage.delete(existing.fileUrl);
+      } catch (storageError) {
+        console.error('Failed to delete file from storage:', storageError);
+        // Continue with database deletion even if storage delete fails
+      }
+      
+      // Delete from database
+      const deleted = await storage.deleteOldInvoice(id);
+      
+      res.json({ success: deleted });
+    } catch (error) {
+      console.error('Admin delete old invoice error:', error);
+      res.status(500).json({ message: 'Failed to delete invoice' });
+    }
+  });
+
   // Pricing rules management (admin only)
   app.get('/api/admin/pricing-rules', isAuthenticated, async (req: any, res) => {
     try {

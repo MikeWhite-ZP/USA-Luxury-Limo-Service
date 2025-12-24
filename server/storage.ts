@@ -77,6 +77,9 @@ import {
   declineReasons,
   type DeclineReason,
   type InsertDeclineReason,
+  oldInvoices,
+  type OldInvoice,
+  type InsertOldInvoice,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -315,6 +318,13 @@ export interface IStorage {
   getDeclineReasonsByDriver(driverId: string): Promise<DeclineReason[]>;
   getDeclinedBookingsByDriver(driverId: string): Promise<any[]>;
   getAllDeclinedBookings(): Promise<any[]>;
+  
+  // Old Invoices (Legacy PDF uploads)
+  getOldInvoicesByUser(userId: string): Promise<OldInvoice[]>;
+  getOldInvoice(id: string): Promise<OldInvoice | undefined>;
+  createOldInvoice(invoice: InsertOldInvoice): Promise<OldInvoice>;
+  updateOldInvoice(id: string, updates: Partial<InsertOldInvoice>): Promise<OldInvoice | undefined>;
+  deleteOldInvoice(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2647,6 +2657,48 @@ export class DatabaseStorage implements IStorage {
       driverLastName: driverMap.get(decline.driverId)?.lastName ?? null,
       driverPhone: driverMap.get(decline.driverId)?.phone ?? null,
     }));
+  }
+  
+  // Old Invoices (Legacy PDF uploads)
+  async getOldInvoicesByUser(userId: string): Promise<OldInvoice[]> {
+    return await db
+      .select()
+      .from(oldInvoices)
+      .where(eq(oldInvoices.userId, userId))
+      .orderBy(desc(oldInvoices.invoiceDate), desc(oldInvoices.createdAt));
+  }
+  
+  async getOldInvoice(id: string): Promise<OldInvoice | undefined> {
+    const [invoice] = await db
+      .select()
+      .from(oldInvoices)
+      .where(eq(oldInvoices.id, id));
+    return invoice;
+  }
+  
+  async createOldInvoice(invoice: InsertOldInvoice): Promise<OldInvoice> {
+    const [created] = await db
+      .insert(oldInvoices)
+      .values(invoice)
+      .returning();
+    return created;
+  }
+  
+  async updateOldInvoice(id: string, updates: Partial<InsertOldInvoice>): Promise<OldInvoice | undefined> {
+    const [updated] = await db
+      .update(oldInvoices)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(oldInvoices.id, id))
+      .returning();
+    return updated;
+  }
+  
+  async deleteOldInvoice(id: string): Promise<boolean> {
+    const result = await db
+      .delete(oldInvoices)
+      .where(eq(oldInvoices.id, id))
+      .returning();
+    return result.length > 0;
   }
 }
 

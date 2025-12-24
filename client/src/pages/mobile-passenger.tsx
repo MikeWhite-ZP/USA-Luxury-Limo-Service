@@ -27,6 +27,7 @@ import {
   Wallet,
   Printer,
   Mail,
+  Download,
   Building2,
   Plane,
   Hotel,
@@ -72,6 +73,7 @@ export default function MobilePassenger() {
   const { toast } = useToast();
   const { companyName, logoUrl } = useBranding();
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [invoiceTab, setInvoiceTab] = useState<'current' | 'old'>('current');
   const [isLoadingEmail, setIsLoadingEmail] = useState(false);
   const [activeSection, setActiveSection] = useState<Section>('home');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -129,6 +131,12 @@ export default function MobilePassenger() {
   // Fetch user's invoices
   const { data: invoices, isLoading: invoicesLoading } = useQuery<any[]>({
     queryKey: ['/api/passenger/invoices'],
+    enabled: !!user,
+  });
+
+  // Fetch user's old invoices (legacy PDFs)
+  const { data: oldInvoices, isLoading: oldInvoicesLoading } = useQuery<any[]>({
+    queryKey: ['/api/old-invoices'],
     enabled: !!user,
   });
 
@@ -1181,93 +1189,185 @@ export default function MobilePassenger() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-3">
-                {invoicesLoading ? (
-                  <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>
-                ) : filteredInvoices.length === 0 ? (
-                  <div className="text-center py-6 text-muted-foreground">
-                    <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No invoices yet</p>
-                    <p className="text-xs mt-1">Invoices appear after completed rides</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {filteredInvoices.slice(0, 10).map((invoice) => (
-                      <div
-                        key={invoice.id}
-                        className="bg-card border border-border rounded-lg p-2.5 hover:border-primary/50 hover:shadow-sm transition-all"
-                        data-testid={`invoice-${invoice.id}`}
-                      >
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5 mb-0.5">
-                              <span className="font-semibold text-foreground text-xs">{invoice.invoiceNumber}</span>
-                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
-                                invoice.paidAt
-                                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                  : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                              }`}>
-                                {invoice.paidAt ? 'Paid' : 'Unpaid'}
-                              </span>
-                            </div>
-                            <p className="text-[10px] text-muted-foreground">
-                              {new Date(invoice.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                            </p>
-                            {invoice.booking && (
-                              <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                                {invoice.booking.pickupAddress?.substring(0, 40)}{invoice.booking.pickupAddress?.length > 40 ? '...' : ''}
-                              </p>
-                            )}
-                          </div>
-                          <div className="text-right flex-shrink-0">
-                            <span className="font-bold text-sm text-primary">${parseFloat(invoice.totalAmount).toFixed(2)}</span>
-                          </div>
-                        </div>
-                        {/* Action Buttons */}
-                        <div className="flex gap-1.5 pt-2 border-t border-border">
-                          {invoice.bookingId && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => navigate(`/mobile-booking-details/${invoice.bookingId}`)}
-                              className="flex-1 h-7 text-primary border-primary/30 hover:bg-primary/5 text-[10px] px-1"
-                              data-testid={`button-view-${invoice.id}`}
-                            >
-                              <Eye className="w-3 h-3 mr-0.5" />
-                              View
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleInvoicePrint(invoice)}
-                            className="flex-1 h-7 text-muted-foreground border-border hover:bg-muted text-[10px] px-1"
-                            data-testid={`button-print-${invoice.id}`}
-                          >
-                            <Printer className="w-3 h-3 mr-0.5" />
-                            Print
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleInvoiceEmail(invoice)}
-                            disabled={isLoadingEmail}
-                            className="flex-1 h-7 text-muted-foreground border-border hover:bg-muted text-[10px] px-1"
-                            data-testid={`button-email-${invoice.id}`}
-                          >
-                            <Mail className="w-3 h-3 mr-0.5" />
-                            Email
-                          </Button>
-                        </div>
+              <CardContent className="p-0">
+                <Tabs value={invoiceTab} onValueChange={(v) => setInvoiceTab(v as 'current' | 'old')} className="w-full">
+                  <TabsList className="w-full grid grid-cols-2 bg-muted mx-3 mt-3" style={{width: 'calc(100% - 1.5rem)'}}>
+                    <TabsTrigger value="current" className="data-[state=active]:bg-background text-xs" data-testid="tab-current-invoices">
+                      Current ({filteredInvoices.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="old" className="data-[state=active]:bg-background text-xs" data-testid="tab-old-invoices">
+                      Old Invoices ({oldInvoices?.length || 0})
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="current" className="mt-0 p-3">
+                    {invoicesLoading ? (
+                      <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>
+                    ) : filteredInvoices.length === 0 ? (
+                      <div className="text-center py-6 text-muted-foreground">
+                        <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No invoices yet</p>
+                        <p className="text-xs mt-1">Invoices appear after completed rides</p>
                       </div>
-                    ))}
-                    {filteredInvoices.length > 10 && (
-                      <p className="text-center text-xs text-muted-foreground pt-2">
-                        Showing 10 of {filteredInvoices.length} invoices
-                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {filteredInvoices.slice(0, 10).map((invoice) => (
+                          <div
+                            key={invoice.id}
+                            className="bg-card border border-border rounded-lg p-2.5 hover:border-primary/50 hover:shadow-sm transition-all"
+                            data-testid={`invoice-${invoice.id}`}
+                          >
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 mb-0.5">
+                                  <span className="font-semibold text-foreground text-xs">{invoice.invoiceNumber}</span>
+                                  <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
+                                    invoice.paidAt
+                                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                      : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                  }`}>
+                                    {invoice.paidAt ? 'Paid' : 'Unpaid'}
+                                  </span>
+                                </div>
+                                <p className="text-[10px] text-muted-foreground">
+                                  {new Date(invoice.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                </p>
+                                {invoice.booking && (
+                                  <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                                    {invoice.booking.pickupAddress?.substring(0, 40)}{invoice.booking.pickupAddress?.length > 40 ? '...' : ''}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="text-right flex-shrink-0">
+                                <span className="font-bold text-sm text-primary">${parseFloat(invoice.totalAmount).toFixed(2)}</span>
+                              </div>
+                            </div>
+                            <div className="flex gap-1.5 pt-2 border-t border-border">
+                              {invoice.bookingId && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => navigate(`/mobile-booking-details/${invoice.bookingId}`)}
+                                  className="flex-1 h-7 text-primary border-primary/30 hover:bg-primary/5 text-[10px] px-1"
+                                  data-testid={`button-view-${invoice.id}`}
+                                >
+                                  <Eye className="w-3 h-3 mr-0.5" />
+                                  View
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleInvoicePrint(invoice)}
+                                className="flex-1 h-7 text-muted-foreground border-border hover:bg-muted text-[10px] px-1"
+                                data-testid={`button-print-${invoice.id}`}
+                              >
+                                <Printer className="w-3 h-3 mr-0.5" />
+                                Print
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleInvoiceEmail(invoice)}
+                                disabled={isLoadingEmail}
+                                className="flex-1 h-7 text-muted-foreground border-border hover:bg-muted text-[10px] px-1"
+                                data-testid={`button-email-${invoice.id}`}
+                              >
+                                <Mail className="w-3 h-3 mr-0.5" />
+                                Email
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                        {filteredInvoices.length > 10 && (
+                          <p className="text-center text-xs text-muted-foreground pt-2">
+                            Showing 10 of {filteredInvoices.length} invoices
+                          </p>
+                        )}
+                      </div>
                     )}
-                  </div>
-                )}
+                  </TabsContent>
+
+                  <TabsContent value="old" className="mt-0 p-3">
+                    {oldInvoicesLoading ? (
+                      <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>
+                    ) : !oldInvoices || oldInvoices.length === 0 ? (
+                      <div className="text-center py-6 text-muted-foreground">
+                        <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No old invoices</p>
+                        <p className="text-xs mt-1">Historical invoices uploaded by admin</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {oldInvoices.map((oldInvoice) => (
+                          <div
+                            key={oldInvoice.id}
+                            className="bg-card border border-border rounded-lg p-2.5 hover:border-primary/50 hover:shadow-sm transition-all"
+                            data-testid={`old-invoice-${oldInvoice.id}`}
+                          >
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 mb-0.5">
+                                  <span className="font-semibold text-foreground text-xs truncate">{oldInvoice.fileName}</span>
+                                </div>
+                                <p className="text-[10px] text-muted-foreground">
+                                  {oldInvoice.invoiceDate 
+                                    ? new Date(oldInvoice.invoiceDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                                    : new Date(oldInvoice.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                </p>
+                                {oldInvoice.description && (
+                                  <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                                    {oldInvoice.description}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="text-right flex-shrink-0">
+                                {oldInvoice.fileSize && (
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {(oldInvoice.fileSize / 1024).toFixed(0)} KB
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex gap-1.5 pt-2 border-t border-border">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  if (oldInvoice.downloadUrl) {
+                                    window.open(oldInvoice.downloadUrl, '_blank');
+                                  }
+                                }}
+                                className="flex-1 h-7 text-primary border-primary/30 hover:bg-primary/5 text-[10px] px-1"
+                                data-testid={`button-download-${oldInvoice.id}`}
+                              >
+                                <Download className="w-3 h-3 mr-0.5" />
+                                Download
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  if (oldInvoice.downloadUrl) {
+                                    const printWindow = window.open(oldInvoice.downloadUrl, '_blank');
+                                    if (printWindow) {
+                                      printWindow.onload = () => printWindow.print();
+                                    }
+                                  }
+                                }}
+                                className="flex-1 h-7 text-muted-foreground border-border hover:bg-muted text-[10px] px-1"
+                                data-testid={`button-print-old-${oldInvoice.id}`}
+                              >
+                                <Printer className="w-3 h-3 mr-0.5" />
+                                Print
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>
