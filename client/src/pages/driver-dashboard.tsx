@@ -1527,16 +1527,16 @@ export default function DriverDashboard() {
                                 <div className="bg-purple-50 dark:bg-purple-950/20 rounded-lg p-2.5 mb-3">
                                   <div className="flex items-start gap-2">
                                     <div className="flex flex-col items-center gap-0.5 pt-1">
-                                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                      <div className="w-0.5 h-6 bg-border" />
-                                      <div className="w-2 h-2 rounded-full bg-red-500" />
+                                      <div className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
+                                      <div className="w-0.5 flex-1 min-h-[16px] bg-border" />
+                                      <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
                                     </div>
-                                    <div className="flex-1 min-w-0 space-y-1">
-                                      <p className="text-xs text-foreground truncate" data-testid={`accepted-pickup-${booking.id}`}>
+                                    <div className="flex-1 min-w-0 space-y-3">
+                                      <p className="text-xs text-foreground leading-relaxed" data-testid={`accepted-pickup-${booking.id}`}>
                                         {booking.pickupAddress}
                                       </p>
                                       {booking.destinationAddress && (
-                                        <p className="text-xs text-muted-foreground truncate" data-testid={`accepted-destination-${booking.id}`}>
+                                        <p className="text-xs text-muted-foreground leading-relaxed" data-testid={`accepted-destination-${booking.id}`}>
                                           {booking.destinationAddress}
                                         </p>
                                       )}
