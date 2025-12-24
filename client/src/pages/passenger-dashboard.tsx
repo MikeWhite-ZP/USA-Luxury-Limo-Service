@@ -2464,26 +2464,32 @@ export default function PassengerDashboard() {
                       </div>
                     )}
                     {booking.status === 'pending' && (
-                      <div className="flex gap-2 mt-3 pt-3 border-t border-border">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditBooking(booking)}
-                          data-testid={`button-edit-${booking.id}`}
-                        >
-                          <Edit className="w-3 h-3 mr-1" />
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteBooking(booking)}
-                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                          data-testid={`button-delete-${booking.id}`}
-                        >
-                          <Trash2 className="w-3 h-3 mr-1" />
-                          Delete
-                        </Button>
+                      <div className="mt-3 pt-3 border-t border-border space-y-2">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-blue-50 dark:bg-blue-950/30 rounded-md px-2 py-1.5">
+                          <Info className="w-3 h-3 flex-shrink-0 text-blue-500" />
+                          <span>Editing allowed up to 3 hours before booking time</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditBooking(booking)}
+                            data-testid={`button-edit-${booking.id}`}
+                          >
+                            <Edit className="w-3 h-3 mr-1" />
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteBooking(booking)}
+                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            data-testid={`button-delete-${booking.id}`}
+                          >
+                            <Trash2 className="w-3 h-3 mr-1" />
+                            Delete
+                          </Button>
+                        </div>
                       </div>
                     )}
                     {(booking.status === 'confirmed' || booking.status === 'in_progress' || booking.status === 'pending_driver_acceptance') && (
@@ -2939,26 +2945,32 @@ export default function PassengerDashboard() {
                         </div>
                       </div>
                       {booking.status === 'pending' && (
-                        <div className="flex gap-2 mt-3 pt-3 border-t border-border">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditBooking(booking)}
-                            data-testid={`button-edit-future-${booking.id}`}
-                          >
-                            <Edit className="w-3 h-3 mr-1" />
-                            Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteBooking(booking)}
-                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                            data-testid={`button-delete-future-${booking.id}`}
-                          >
-                            <Trash2 className="w-3 h-3 mr-1" />
-                            Delete
-                          </Button>
+                        <div className="mt-3 pt-3 border-t border-border space-y-2">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-blue-50 dark:bg-blue-950/30 rounded-md px-2 py-1.5">
+                            <Info className="w-3 h-3 flex-shrink-0 text-blue-500" />
+                            <span>Editing allowed up to 3 hours before booking time</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditBooking(booking)}
+                              data-testid={`button-edit-future-${booking.id}`}
+                            >
+                              <Edit className="w-3 h-3 mr-1" />
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteBooking(booking)}
+                              className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                              data-testid={`button-delete-future-${booking.id}`}
+                            >
+                              <Trash2 className="w-3 h-3 mr-1" />
+                              Delete
+                            </Button>
+                          </div>
                         </div>
                       )}
                       {(booking.status === 'confirmed' || booking.status === 'in_progress' || booking.status === 'pending_driver_acceptance') && (
