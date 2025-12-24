@@ -1504,6 +1504,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                       driverLastName: driverUser.lastName || null,
                       driverPhone: driverUser.phone || null,
                       driverCredentials: driver.driverCredentials || null,
+                      driverProfileImageUrl: driverUser.profileImageUrl || null,
                     };
                   }
                 }

@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, Edit2, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone, FileText, Eye, Printer, ChevronDown } from "lucide-react";
 import { Elements, CardElement, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -51,6 +52,7 @@ interface Booking {
   driverLastName?: string;
   driverPhone?: string;
   driverCredentials?: string;
+  driverProfileImageUrl?: string;
 }
 
 interface PaymentMethod {
@@ -2375,8 +2377,19 @@ export default function PassengerDashboard() {
                     </div>
                     {booking.driverId && (booking.driverFirstName || booking.driverLastName) && (
                       <div className="mt-3 pt-3 border-t border-border">
-                        <div className="flex items-start space-x-2">
-                          <User className="w-4 h-4 mt-0.5 text-muted-foreground" />
+                        <div className="flex items-start space-x-3">
+                          <Avatar className="w-10 h-10 border-2 border-primary/20">
+                            {booking.driverProfileImageUrl ? (
+                              <AvatarImage 
+                                src={booking.driverProfileImageUrl} 
+                                alt={`${booking.driverFirstName || ''} ${booking.driverLastName || ''}`}
+                              />
+                            ) : null}
+                            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                              {(booking.driverFirstName?.[0] || '').toUpperCase()}
+                              {(booking.driverLastName?.[0] || '').toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
                           <div className="flex-1 space-y-1">
                             <p className="text-sm font-medium" data-testid={`booking-driver-name-${booking.id}`}>
                               Driver: {booking.driverFirstName} {booking.driverLastName}
