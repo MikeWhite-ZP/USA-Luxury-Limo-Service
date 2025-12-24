@@ -25,6 +25,8 @@ import type { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import BookingForm from "@/components/BookingForm";
+import EditBookingDialog from "@/components/EditBookingDialog";
+import { Clock, Info } from "lucide-react";
 
 const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 const stripePromise = STRIPE_PUBLIC_KEY ? loadStripe(STRIPE_PUBLIC_KEY) : null;
@@ -41,9 +43,13 @@ interface SavedAddress {
 interface Booking {
   id: string;
   bookingType: 'transfer' | 'hourly';
-  status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+  status: 'pending' | 'pending_driver_acceptance' | 'confirmed' | 'on_the_way' | 'arrived' | 'on_board' | 'in_progress' | 'completed' | 'cancelled';
   pickupAddress: string;
+  pickupLat?: string;
+  pickupLon?: string;
   destinationAddress?: string;
+  destinationLat?: string;
+  destinationLon?: string;
   scheduledDateTime: string;
   totalAmount: string;
   createdAt: string;
@@ -53,6 +59,16 @@ interface Booking {
   driverPhone?: string;
   driverCredentials?: string;
   driverProfileImageUrl?: string;
+  vehicleTypeId?: string;
+  vehicleTypeName?: string;
+  passengerCount?: number;
+  luggageCount?: number;
+  requestedHours?: number;
+  specialInstructions?: string;
+  passengerName?: string;
+  passengerPhone?: string;
+  passengerEmail?: string;
+  bookingFor?: 'self' | 'someone_else';
 }
 
 interface PaymentMethod {
@@ -1405,6 +1421,40 @@ export default function PassengerDashboard() {
     specialInstructions: '',
   });
 
+  // Helper function to check if booking can be edited (3-hour restriction for non-pending)
+  const canEditBooking = (booking: Booking): { canEdit: boolean; reason?: string } => {
+    const editableStatuses = ['pending', 'pending_driver_acceptance', 'confirmed', 'in_progress'];
+    if (!editableStatuses.includes(booking.status)) {
+      return { canEdit: false, reason: 'This booking cannot be edited.' };
+    }
+    
+    // Pending bookings can always be edited
+    if (booking.status === 'pending') {
+      return { canEdit: true };
+    }
+    
+    // Non-pending bookings need 3+ hours before pickup
+    const now = new Date();
+    const pickupTime = new Date(booking.scheduledDateTime);
+    const hoursBeforePickup = (pickupTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+    
+    if (hoursBeforePickup < 3) {
+      return { 
+        canEdit: false, 
+        reason: 'Bookings can only be edited at least 3 hours before pickup.' 
+      };
+    }
+    
+    return { canEdit: true };
+  };
+
+  // Get hours until pickup for display
+  const getHoursUntilPickup = (booking: Booking): number => {
+    const now = new Date();
+    const pickupTime = new Date(booking.scheduledDateTime);
+    return (pickupTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+  };
+
   // Check for payment success in URL
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -1933,17 +1983,16 @@ export default function PassengerDashboard() {
   const paymentCardStatus = getPaymentCardStatus();
 
   const handleEditBooking = (booking: Booking) => {
+    const editCheck = canEditBooking(booking);
+    if (!editCheck.canEdit) {
+      toast({
+        title: "Cannot Edit Booking",
+        description: editCheck.reason,
+        variant: "destructive",
+      });
+      return;
+    }
     setSelectedBooking(booking);
-    // Pre-fill form with booking data
-    const dateTime = new Date(booking.scheduledDateTime);
-    setEditFormData({
-      scheduledDateTime: dateTime.toISOString().slice(0, 16), // Format for datetime-local input
-      pickupAddress: booking.pickupAddress,
-      destinationAddress: booking.destinationAddress || '',
-      passengerCount: (booking as any).passengerCount || 1,
-      luggageCount: (booking as any).luggageCount || 0,
-      specialInstructions: (booking as any).specialInstructions || '',
-    });
     setEditDialogOpen(true);
   };
 
@@ -2431,18 +2480,56 @@ export default function PassengerDashboard() {
                         </Button>
                       </div>
                     )}
-                    {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
-                      <div className="flex gap-2 mt-3 pt-3 border-t border-border">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleCancelBooking(booking)}
-                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                          data-testid={`button-cancel-${booking.id}`}
-                        >
-                          <AlertTriangle className="w-3 h-3 mr-1" />
-                          Cancel Booking
-                        </Button>
+                    {(booking.status === 'confirmed' || booking.status === 'in_progress' || booking.status === 'pending_driver_acceptance') && (
+                      <div className="mt-3 pt-3 border-t border-border space-y-2">
+                        {/* 3-hour restriction notice */}
+                        {(() => {
+                          const editCheck = canEditBooking(booking);
+                          const hoursLeft = getHoursUntilPickup(booking);
+                          return (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-md px-2 py-1.5">
+                              <Clock className="w-3 h-3 flex-shrink-0" />
+                              {editCheck.canEdit ? (
+                                <span>You can edit this booking (pickup in {Math.floor(hoursLeft)}h {Math.round((hoursLeft % 1) * 60)}m)</span>
+                              ) : (
+                                <span className="text-amber-600">Editing disabled - must be 3+ hours before pickup</span>
+                              )}
+                            </div>
+                          );
+                        })()}
+                        <div className="flex gap-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEditBooking(booking)}
+                                  disabled={!canEditBooking(booking).canEdit}
+                                  data-testid={`button-edit-${booking.id}`}
+                                >
+                                  <Edit className="w-3 h-3 mr-1" />
+                                  Edit
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            {!canEditBooking(booking).canEdit && (
+                              <TooltipContent>
+                                <p>{canEditBooking(booking).reason}</p>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleCancelBooking(booking)}
+                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            data-testid={`button-cancel-${booking.id}`}
+                          >
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            Cancel Booking
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -2868,18 +2955,56 @@ export default function PassengerDashboard() {
                           </Button>
                         </div>
                       )}
-                      {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
-                        <div className="flex gap-2 mt-3 pt-3 border-t border-border">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleCancelBooking(booking)}
-                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                            data-testid={`button-cancel-future-${booking.id}`}
-                          >
-                            <AlertTriangle className="w-3 h-3 mr-1" />
-                            Cancel Booking
-                          </Button>
+                      {(booking.status === 'confirmed' || booking.status === 'in_progress' || booking.status === 'pending_driver_acceptance') && (
+                        <div className="mt-3 pt-3 border-t border-border space-y-2">
+                          {/* 3-hour restriction notice */}
+                          {(() => {
+                            const editCheck = canEditBooking(booking);
+                            const hoursLeft = getHoursUntilPickup(booking);
+                            return (
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-md px-2 py-1.5">
+                                <Clock className="w-3 h-3 flex-shrink-0" />
+                                {editCheck.canEdit ? (
+                                  <span>You can edit this booking (pickup in {Math.floor(hoursLeft)}h {Math.round((hoursLeft % 1) * 60)}m)</span>
+                                ) : (
+                                  <span className="text-amber-600">Editing disabled - must be 3+ hours before pickup</span>
+                                )}
+                              </div>
+                            );
+                          })()}
+                          <div className="flex gap-2">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleEditBooking(booking)}
+                                    disabled={!canEditBooking(booking).canEdit}
+                                    data-testid={`button-edit-future-${booking.id}`}
+                                  >
+                                    <Edit className="w-3 h-3 mr-1" />
+                                    Edit
+                                  </Button>
+                                </div>
+                              </TooltipTrigger>
+                              {!canEditBooking(booking).canEdit && (
+                                <TooltipContent>
+                                  <p>{canEditBooking(booking).reason}</p>
+                                </TooltipContent>
+                              )}
+                            </Tooltip>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleCancelBooking(booking)}
+                              className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                              data-testid={`button-cancel-future-${booking.id}`}
+                            >
+                              <AlertTriangle className="w-3 h-3 mr-1" />
+                              Cancel Booking
+                            </Button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -3527,6 +3652,16 @@ export default function PassengerDashboard() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Booking Dialog */}
+      <EditBookingDialog
+        booking={selectedBooking}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+        }}
+      />
     </div>
   );
 }

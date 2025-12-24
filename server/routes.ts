@@ -2233,7 +2233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update booking (passengers can edit their own pending bookings)
+  // Update booking (passengers can edit their own bookings with restrictions)
   app.patch('/api/bookings/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
@@ -2251,23 +2251,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Not authorized to edit this booking' });
       }
 
-      // Only allow editing pending bookings
-      if (booking.status !== 'pending' && user?.role !== 'admin') {
-        return res.status(400).json({ message: 'Only pending bookings can be edited' });
+      const isAdmin = user?.role === 'admin' || user?.role === 'dispatcher';
+      const isPassenger = booking.passengerId === userId && !isAdmin;
+
+      // For passengers: check if booking can be edited
+      if (isPassenger) {
+        // Check if booking status allows editing
+        const editableStatuses = ['pending', 'pending_driver_acceptance', 'confirmed', 'in_progress'];
+        if (!editableStatuses.includes(booking.status || '')) {
+          return res.status(400).json({ 
+            message: 'This booking cannot be edited. Only pending, confirmed, or in-progress bookings can be modified.' 
+          });
+        }
+
+        // Check 3-hour restriction for non-pending bookings
+        if (booking.status !== 'pending') {
+          const now = new Date();
+          const pickupTime = new Date(booking.scheduledDateTime);
+          const hoursBeforePickup = (pickupTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+          
+          if (hoursBeforePickup < 3) {
+            return res.status(400).json({ 
+              message: 'Bookings can only be edited at least 3 hours before the scheduled pickup time.' 
+            });
+          }
+        }
       }
 
       // Validate updates
       const updateSchema = insertBookingSchema.partial();
       const validatedUpdates = updateSchema.parse(req.body);
 
-      // Don't allow changing status or payment fields
-      if (user?.role !== 'admin') {
+      // Don't allow changing status or payment fields (for non-admins)
+      if (!isAdmin) {
         delete (validatedUpdates as any).status;
         delete (validatedUpdates as any).paymentStatus;
         delete (validatedUpdates as any).paymentIntentId;
       }
 
+      // For passenger edits on non-pending bookings: reset status and remove driver
+      const wasConfirmedOrInProgress = ['confirmed', 'pending_driver_acceptance', 'in_progress', 'on_the_way', 'arrived', 'on_board'].includes(booking.status || '');
+      
+      if (isPassenger && wasConfirmedOrInProgress) {
+        (validatedUpdates as any).status = 'pending';
+        (validatedUpdates as any).driverId = null;
+        (validatedUpdates as any).driverAcceptanceStatus = null;
+        (validatedUpdates as any).acceptedAt = null;
+      }
+
       const updatedBooking = await storage.updateBooking(id, validatedUpdates);
+
+      // Send notifications to admin/dispatcher if booking was edited by passenger
+      if (isPassenger && (wasConfirmedOrInProgress || booking.status === 'pending')) {
+        (async () => {
+          try {
+            // Get passenger info
+            const passenger = await storage.getUser(booking.passengerId);
+            const passengerName = passenger ? `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username : 'Unknown';
+            
+            // Get admin settings for notifications
+            const settings = await storage.getSystemSettings();
+            const adminEmail = settings?.dispatchEmail || settings?.systemEmail;
+            const adminPhone = settings?.adminPhone;
+            
+            // Prepare notification message
+            const notificationSubject = wasConfirmedOrInProgress 
+              ? `Booking Updated - Requires Re-assignment (ID: ${id.substring(0, 8)})`
+              : `Booking Updated (ID: ${id.substring(0, 8)})`;
+            
+            const pickupTime = new Date(updatedBooking.scheduledDateTime);
+            const notificationBody = `
+A booking has been updated by the passenger.
+
+Booking ID: ${id.substring(0, 8)}
+Passenger: ${passengerName}
+Pickup: ${updatedBooking.pickupAddress}
+${updatedBooking.destinationAddress ? `Destination: ${updatedBooking.destinationAddress}` : 'Service Type: Hourly'}
+Scheduled: ${pickupTime.toLocaleString()}
+Amount: $${updatedBooking.totalAmount}
+
+${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PENDING and the driver assignment has been removed. Please review and reassign a driver.' : 'Please review the updated booking details.'}
+            `.trim();
+            
+            // Send email notification
+            if (adminEmail) {
+              const { sendEmail } = await import('./email');
+              await sendEmail({
+                to: adminEmail,
+                subject: notificationSubject,
+                text: notificationBody,
+                html: `<pre style="font-family: Arial, sans-serif; white-space: pre-wrap;">${notificationBody}</pre>`,
+              });
+            }
+            
+            // Send SMS notification
+            if (adminPhone) {
+              const smsMessage = `Booking Updated - ID: ${id.substring(0, 8)}, ${passengerName}, ${pickupTime.toLocaleString()}${wasConfirmedOrInProgress ? ' - NEEDS DRIVER RE-ASSIGNMENT' : ''}. Check admin dashboard.`;
+              await sendSMS(adminPhone, smsMessage);
+            }
+          } catch (error) {
+            console.error('Error sending booking update notifications:', error);
+          }
+        })();
+      }
+
       res.json(updatedBooking);
     } catch (error) {
       console.error('Update booking error:', error);
