@@ -1,0 +1,67 @@
+-- Pager'ı kapat
+\pset pager off
+
+-- decline_reasons tablosunu oluştur
+CREATE TABLE IF NOT EXISTS decline_reasons (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+  driver_id UUID NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+  reason TEXT NOT NULL CHECK (reason IN (
+    'timing_conflict',
+    'pricing_too_low',
+    'too_far_away',
+    'vehicle_not_suitable',
+    'already_booked',
+    'personal_reasons'
+  )),
+  reason_display TEXT NOT NULL,
+  additional_notes TEXT,
+  declined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- İndexleri oluştur
+CREATE INDEX IF NOT EXISTS idx_decline_reasons_booking_id ON decline_reasons(booking_id);
+CREATE INDEX IF NOT EXISTS idx_decline_reasons_driver_id ON decline_reasons(driver_id);
+CREATE INDEX IF NOT EXISTS idx_decline_reasons_declined_at ON decline_reasons(declined_at);
+CREATE INDEX IF NOT EXISTS idx_decline_reasons_reason ON decline_reasons(reason);
+
+-- RLS'i aktif et
+ALTER TABLE decline_reasons ENABLE ROW LEVEL SECURITY;
+
+-- Politikaları oluştur
+CREATE POLICY "drivers_view_own_declines"
+  ON decline_reasons
+  FOR SELECT
+  USING (
+    driver_id IN (
+      SELECT id FROM drivers WHERE user_id::VARCHAR = current_setting('app.user_id', true)
+    )
+  );
+
+CREATE POLICY "admins_view_all_declines"
+  ON decline_reasons
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM users
+      WHERE users.id = current_setting('app.user_id', true)
+      AND users.role = 'admin'
+    )
+  );
+
+CREATE POLICY "anyone_can_insert_declines"
+  ON decline_reasons
+  FOR INSERT
+  WITH CHECK (true);
+
+-- Yorumları ekle
+COMMENT ON TABLE decline_reasons IS 'Tracks reasons why drivers decline bookings';
+COMMENT ON COLUMN decline_reasons.booking_id IS 'Reference to the declined booking';
+COMMENT ON COLUMN decline_reasons.driver_id IS 'Reference to the driver who declined';
+COMMENT ON COLUMN decline_reasons.reason IS 'Machine-readable reason code';
+COMMENT ON COLUMN decline_reasons.reason_display IS 'Human-readable reason text';
+COMMENT ON COLUMN decline_reasons.additional_notes IS 'Optional driver notes about the decline';
+
+-- Kontrol et
+\d decline_reasons
