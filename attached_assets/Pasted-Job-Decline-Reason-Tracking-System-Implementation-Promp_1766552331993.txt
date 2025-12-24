@@ -1,0 +1,155 @@
+Job Decline Reason Tracking System - Implementation Prompt
+Overview
+Implement a system that captures and records reasons when drivers decline job offers. This feature will help track patterns and improve job assignment efficiency.
+Required Functionality
+1. Decline Reason Selection
+When a driver declines a job, present them with a modal/dialog containing these options:
+Decline Reasons (select one):
+
+Timing Conflict - The job time doesn't work with my schedule
+Pricing Too Low - The offered rate is not acceptable
+Too Far Away - The distance/location is outside my preferred area
+Vehicle Not Suitable - My vehicle doesn't meet the job requirements
+Already Booked - I have another commitment at this time
+Personal Reasons - Other personal circumstances
+
+2. Database Storage
+Store the decline reason with the following information:
+
+Job ID
+Driver ID
+Decline reason (selected option)
+Timestamp of decline
+Optional: Driver comment field (for additional notes)
+
+3. Viewing Capabilities
+
+Driver View: Drivers should see their own decline history in their profile/dashboard
+Admin View: Admins should see all decline reasons with filtering by:
+
+Driver
+Date range
+Reason type
+Job ID
+
+
+
+4. UI/UX Requirements
+
+Show the decline reason options immediately after driver clicks "Decline"
+Make selection mandatory (driver cannot skip)
+Include an optional text field for additional comments
+Confirm submission with a brief success message
+Update job status to "Declined" after reason is recorded
+
+
+Database Schema Updates
+Since you're using Supabase, here are the SQL commands to add this functionality:
+sql-- Create decline_reasons table
+CREATE TABLE IF NOT EXISTS decline_reasons (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  job_id UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  driver_id UUID NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+  reason TEXT NOT NULL CHECK (reason IN (
+    'timing_conflict',
+    'pricing_too_low',
+    'too_far_away',
+    'vehicle_not_suitable',
+    'already_booked',
+    'personal_reasons'
+  )),
+  reason_display TEXT NOT NULL,
+  additional_notes TEXT,
+  declined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for better query performance
+CREATE INDEX idx_decline_reasons_job_id ON decline_reasons(job_id);
+CREATE INDEX idx_decline_reasons_driver_id ON decline_reasons(driver_id);
+CREATE INDEX idx_decline_reasons_declined_at ON decline_reasons(declined_at);
+CREATE INDEX idx_decline_reasons_reason ON decline_reasons(reason);
+
+-- Enable Row Level Security
+ALTER TABLE decline_reasons ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Drivers can view their own decline history
+CREATE POLICY "Drivers can view own declines"
+  ON decline_reasons
+  FOR SELECT
+  USING (auth.uid() = driver_id);
+
+-- Policy: Admins can view all decline reasons
+CREATE POLICY "Admins can view all declines"
+  ON decline_reasons
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM drivers
+      WHERE drivers.id = auth.uid()
+      AND drivers.role = 'admin'
+    )
+  );
+
+-- Policy: System can insert decline reasons
+CREATE POLICY "System can insert declines"
+  ON decline_reasons
+  FOR INSERT
+  WITH CHECK (true);
+
+-- Add a comment to the table
+COMMENT ON TABLE decline_reasons IS 'Tracks reasons why drivers decline jobs';
+
+Implementation Steps
+Step 1: Update the Decline Job Function
+Modify your existing decline job handler to:
+
+Show the reason selection modal
+Capture the selected reason
+Call the database insert function
+Update job status
+
+Step 2: Create API Endpoint
+javascript// Example endpoint structure
+POST /api/jobs/:jobId/decline
+Body: {
+  driverId: "uuid",
+  reason: "timing_conflict",
+  reasonDisplay: "Timing Conflict - The job time doesn't work with my schedule",
+  additionalNotes: "Optional notes from driver"
+}
+Step 3: Frontend Components Needed
+
+Decline reason modal/dialog
+Radio buttons or dropdown for reason selection
+Optional textarea for additional notes
+Submit and cancel buttons
+Driver decline history page
+Admin analytics dashboard showing decline reasons
+
+Step 4: Analytics Dashboard (Admin)
+Create views showing:
+
+Most common decline reasons (pie chart)
+Decline reasons by driver (table)
+Decline trends over time (line chart)
+Jobs with multiple declines
+
+
+Testing Checklist
+
+ Driver can decline job and select reason
+ Reason is stored in database correctly
+ Driver can view their decline history
+ Admin can view all decline reasons
+ Filters work correctly in admin view
+ Optional notes are saved when provided
+ Job status updates to "Declined" after submission
+
+
+Additional Recommendations
+
+Analytics: Track which reasons are most common to identify systematic issues
+Follow-up: Consider automated follow-up for certain reasons (e.g., if "pricing_too_low" is frequent, review pricing strategy)
+Notifications: Alert admins when a job is declined multiple times
+Driver Feedback Loop: Show drivers aggregated decline data to help them understand market patterns
