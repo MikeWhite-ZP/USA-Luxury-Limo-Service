@@ -145,6 +145,7 @@ export interface IStorage {
   createSavedAddress(address: InsertSavedAddress): Promise<SavedAddress>;
   getSavedAddressesByUser(userId: string): Promise<SavedAddress[]>;
   deleteSavedAddress(id: string, userId: string): Promise<void>;
+  updateSavedAddress(id: string, userId: string, updates: { label?: string; address?: string; lat?: string; lon?: string }): Promise<SavedAddress | undefined>;
   
   // System settings
   getSystemSetting(key: string): Promise<SystemSetting | undefined>;
@@ -1092,6 +1093,26 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(savedAddresses)
       .where(and(eq(savedAddresses.id, id), eq(savedAddresses.userId, userId)));
+  }
+
+  async updateSavedAddress(id: string, userId: string, updates: { label?: string; address?: string; lat?: string; lon?: string }): Promise<SavedAddress | undefined> {
+    const cleanUpdates: any = {};
+    if (updates.label) cleanUpdates.label = updates.label;
+    if (updates.address) cleanUpdates.address = updates.address;
+    if (updates.lat && updates.lat.trim() !== '') cleanUpdates.lat = updates.lat;
+    if (updates.lon && updates.lon.trim() !== '') cleanUpdates.lon = updates.lon;
+    
+    if (Object.keys(cleanUpdates).length === 0) {
+      const existing = await db.select().from(savedAddresses).where(and(eq(savedAddresses.id, id), eq(savedAddresses.userId, userId)));
+      return existing[0];
+    }
+    
+    const [updated] = await db
+      .update(savedAddresses)
+      .set(cleanUpdates)
+      .where(and(eq(savedAddresses.id, id), eq(savedAddresses.userId, userId)))
+      .returning();
+    return updated;
   }
 
   async getSystemSetting(key: string): Promise<SystemSetting | undefined> {

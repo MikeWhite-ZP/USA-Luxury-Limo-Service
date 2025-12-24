@@ -2955,6 +2955,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/saved-addresses/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { id } = req.params;
+      const { label, address, lat, lon } = req.body;
+      
+      const updatedAddress = await storage.updateSavedAddress(id, userId, { label, address, lat, lon });
+      res.json(updatedAddress);
+    } catch (error) {
+      console.error('Update saved address error:', error);
+      res.status(500).json({ message: 'Failed to update saved address' });
+    }
+  });
+
   // Contact form
   app.post('/api/contact', async (req, res) => {
     try {
