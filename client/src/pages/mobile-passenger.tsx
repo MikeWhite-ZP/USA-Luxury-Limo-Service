@@ -26,7 +26,16 @@ import {
   EyeOff,
   Wallet,
   Printer,
-  Mail
+  Mail,
+  Building2,
+  Plane,
+  Hotel,
+  Utensils,
+  ShoppingBag,
+  Coffee,
+  Hospital,
+  School,
+  Landmark
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -216,6 +225,55 @@ export default function MobilePassenger() {
     emailInvoiceMutation.mutate({ id: invoice.id });
   };
 
+  // Helper function to get POI category info
+  const getPOICategoryInfo = (poi: any): { icon: string; label: string } => {
+    if (!poi) return { icon: 'building', label: 'Place' };
+    
+    let categoryName = '';
+    if (poi.categories && poi.categories.length > 0) {
+      categoryName = poi.categories.join(' ').toLowerCase();
+    } else if (poi.classifications && poi.classifications.length > 0) {
+      const classification = poi.classifications[0];
+      if (classification.names && classification.names.length > 0) {
+        categoryName = classification.names.map((n: any) => n.name || n).join(' ').toLowerCase();
+      } else if (classification.code) {
+        categoryName = classification.code.toLowerCase();
+      }
+    } else if (poi.categorySet && poi.categorySet.length > 0) {
+      categoryName = poi.categorySet[0]?.name?.toLowerCase() || '';
+    }
+
+    if (categoryName.includes('airport') || categoryName.includes('aviation')) return { icon: 'plane', label: 'Airport' };
+    if (categoryName.includes('hotel') || categoryName.includes('motel') || categoryName.includes('lodging')) return { icon: 'hotel', label: 'Hotel' };
+    if (categoryName.includes('restaurant') || categoryName.includes('food') || categoryName.includes('dining')) return { icon: 'restaurant', label: 'Restaurant' };
+    if (categoryName.includes('cafe') || categoryName.includes('coffee')) return { icon: 'coffee', label: 'Cafe' };
+    if (categoryName.includes('hospital') || categoryName.includes('medical') || categoryName.includes('health')) return { icon: 'hospital', label: 'Medical' };
+    if (categoryName.includes('school') || categoryName.includes('university') || categoryName.includes('college')) return { icon: 'school', label: 'Education' };
+    if (categoryName.includes('shop') || categoryName.includes('store') || categoryName.includes('mall')) return { icon: 'shopping', label: 'Shopping' };
+    if (categoryName.includes('parking') || categoryName.includes('car') || categoryName.includes('automotive')) return { icon: 'car', label: 'Automotive' };
+    if (categoryName.includes('government') || categoryName.includes('civic')) return { icon: 'landmark', label: 'Government' };
+
+    return { icon: 'building', label: 'Place' };
+  };
+
+  // Helper function to render POI icon
+  const renderPOIIcon = (iconType: string) => {
+    const iconClass = "w-4 h-4 text-primary flex-shrink-0";
+    switch (iconType) {
+      case 'plane': return <Plane className={iconClass} />;
+      case 'hotel': return <Hotel className={iconClass} />;
+      case 'restaurant': return <Utensils className={iconClass} />;
+      case 'coffee': return <Coffee className={iconClass} />;
+      case 'hospital': return <Hospital className={iconClass} />;
+      case 'school': return <School className={iconClass} />;
+      case 'shopping': return <ShoppingBag className={iconClass} />;
+      case 'car': return <Car className={iconClass} />;
+      case 'landmark': return <Landmark className={iconClass} />;
+      case 'building': return <Building2 className={iconClass} />;
+      default: return <MapPin className={iconClass} />;
+    }
+  };
+
   // TomTom address search for new address
   useEffect(() => {
     if (!newAddress.address || newAddress.address.length < 3) {
@@ -227,11 +285,21 @@ export default function MobilePassenger() {
     const timeoutId = setTimeout(async () => {
       setIsSearchingAddress(true);
       try {
-        const response = await fetch(
-          `https://api.tomtom.com/search/2/search/${encodeURIComponent(newAddress.address)}.json?key=${import.meta.env.VITE_TOMTOM_API_KEY}&limit=5&countrySet=US`
-        );
+        const response = await fetch(`/api/geocode?q=${encodeURIComponent(newAddress.address)}&limit=10`);
         const data = await response.json();
-        setAddressSuggestions(data.results || []);
+        const suggestions = (data.results || []).map((result: any) => {
+          const isPOI = !!result.poi;
+          const categoryInfo = isPOI ? getPOICategoryInfo(result.poi) : { icon: 'mappin', label: '' };
+          return {
+            ...result,
+            isPOI,
+            displayName: isPOI && result.poi?.name ? result.poi.name : result.address?.freeformAddress || '',
+            secondaryText: isPOI ? result.address?.freeformAddress : '',
+            poiCategory: categoryInfo.label,
+            poiCategoryIcon: categoryInfo.icon,
+          };
+        });
+        setAddressSuggestions(suggestions);
         setShowSuggestions(true);
       } catch (error) {
         console.error('Error searching address:', error);
@@ -254,11 +322,21 @@ export default function MobilePassenger() {
     const timeoutId = setTimeout(async () => {
       setIsSearchingEditAddress(true);
       try {
-        const response = await fetch(
-          `https://api.tomtom.com/search/2/search/${encodeURIComponent(editAddress.address)}.json?key=${import.meta.env.VITE_TOMTOM_API_KEY}&limit=5&countrySet=US`
-        );
+        const response = await fetch(`/api/geocode?q=${encodeURIComponent(editAddress.address)}&limit=10`);
         const data = await response.json();
-        setEditSuggestions(data.results || []);
+        const suggestions = (data.results || []).map((result: any) => {
+          const isPOI = !!result.poi;
+          const categoryInfo = isPOI ? getPOICategoryInfo(result.poi) : { icon: 'mappin', label: '' };
+          return {
+            ...result,
+            isPOI,
+            displayName: isPOI && result.poi?.name ? result.poi.name : result.address?.freeformAddress || '',
+            secondaryText: isPOI ? result.address?.freeformAddress : '',
+            poiCategory: categoryInfo.label,
+            poiCategoryIcon: categoryInfo.icon,
+          };
+        });
+        setEditSuggestions(suggestions);
         setShowEditSuggestions(true);
       } catch (error) {
         console.error('Error searching address:', error);
@@ -432,9 +510,12 @@ export default function MobilePassenger() {
   }, [profileForm.username, user?.username]);
 
   const handleAddressSelect = (suggestion: any) => {
+    const address = suggestion.isPOI && suggestion.secondaryText 
+      ? suggestion.secondaryText 
+      : suggestion.address?.freeformAddress || suggestion.displayName;
     setNewAddress({
       ...newAddress,
-      address: suggestion.address.freeformAddress,
+      address,
       lat: suggestion.position.lat.toString(),
       lon: suggestion.position.lon.toString(),
     });
@@ -442,9 +523,12 @@ export default function MobilePassenger() {
   };
 
   const handleEditAddressSelect = (suggestion: any) => {
+    const address = suggestion.isPOI && suggestion.secondaryText 
+      ? suggestion.secondaryText 
+      : suggestion.address?.freeformAddress || suggestion.displayName;
     setEditAddress({
       ...editAddress,
-      address: suggestion.address.freeformAddress,
+      address,
       lat: suggestion.position.lat.toString(),
       lon: suggestion.position.lon.toString(),
     });
@@ -815,7 +899,7 @@ export default function MobilePassenger() {
                             </div>
                           )}
                           {showSuggestions && addressSuggestions.length > 0 && (
-                            <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-72 overflow-y-auto">
                               {addressSuggestions.map((suggestion, index) => (
                                 <button
                                   key={index}
@@ -825,12 +909,26 @@ export default function MobilePassenger() {
                                   data-testid={`suggestion-${index}`}
                                 >
                                   <div className="flex items-start space-x-2">
-                                    <MapPin className="w-4 h-4 mt-1 text-primary flex-shrink-0" />
+                                    <div className="mt-1">
+                                      {suggestion.isPOI ? renderPOIIcon(suggestion.poiCategoryIcon) : <MapPin className="w-4 h-4 text-primary flex-shrink-0" />}
+                                    </div>
                                     <div className="flex-1 min-w-0">
-                                      <p className="text-sm font-medium text-foreground truncate">
-                                        {suggestion.address.freeformAddress}
-                                      </p>
-                                      {suggestion.address.country && (
+                                      <div className="flex items-center gap-2">
+                                        <p className="text-sm font-medium text-foreground truncate">
+                                          {suggestion.displayName}
+                                        </p>
+                                        {suggestion.isPOI && suggestion.poiCategory && (
+                                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium flex-shrink-0">
+                                            {suggestion.poiCategory}
+                                          </span>
+                                        )}
+                                      </div>
+                                      {suggestion.secondaryText && (
+                                        <p className="text-xs text-muted-foreground truncate">
+                                          {suggestion.secondaryText}
+                                        </p>
+                                      )}
+                                      {!suggestion.isPOI && suggestion.address?.country && (
                                         <p className="text-xs text-muted-foreground truncate">
                                           {suggestion.address.countrySubdivision}, {suggestion.address.country}
                                         </p>
@@ -982,7 +1080,7 @@ export default function MobilePassenger() {
                       </div>
                     )}
                     {showEditSuggestions && editSuggestions.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-72 overflow-y-auto">
                         {editSuggestions.map((suggestion, index) => (
                           <button
                             key={index}
@@ -992,12 +1090,26 @@ export default function MobilePassenger() {
                             data-testid={`edit-suggestion-${index}`}
                           >
                             <div className="flex items-start space-x-2">
-                              <MapPin className="w-4 h-4 mt-1 text-primary flex-shrink-0" />
+                              <div className="mt-1">
+                                {suggestion.isPOI ? renderPOIIcon(suggestion.poiCategoryIcon) : <MapPin className="w-4 h-4 text-primary flex-shrink-0" />}
+                              </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-foreground truncate">
-                                  {suggestion.address.freeformAddress}
-                                </p>
-                                {suggestion.address.country && (
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-medium text-foreground truncate">
+                                    {suggestion.displayName}
+                                  </p>
+                                  {suggestion.isPOI && suggestion.poiCategory && (
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium flex-shrink-0">
+                                      {suggestion.poiCategory}
+                                    </span>
+                                  )}
+                                </div>
+                                {suggestion.secondaryText && (
+                                  <p className="text-xs text-muted-foreground truncate">
+                                    {suggestion.secondaryText}
+                                  </p>
+                                )}
+                                {!suggestion.isPOI && suggestion.address?.country && (
                                   <p className="text-xs text-muted-foreground truncate">
                                     {suggestion.address.countrySubdivision}, {suggestion.address.country}
                                   </p>
