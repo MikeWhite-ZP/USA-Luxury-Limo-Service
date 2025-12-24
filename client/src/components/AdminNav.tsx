@@ -25,6 +25,7 @@ import {
   Database,
   Navigation,
   Palette,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
@@ -36,7 +37,7 @@ interface AdminNavProps {
   onBookingsClick?: () => void;
   onInvoicesClick?: () => void;
   onVehicleTypesClick?: () => void;
-  onSettingsClick?: (section: 'commission' | 'email' | 'sms' | 'database' | 'branding') => void;
+  onSettingsClick?: (section: 'commission' | 'email' | 'sms' | 'database' | 'branding' | 'stripe') => void;
   onCMSClick?: (section: 'pages' | 'media' | 'services') => void;
   onPricingClick?: () => void;
 }
@@ -351,6 +352,20 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 >
                   <Database className="w-4 h-4 mr-3 text-muted-foreground" />
                   <span className="font-medium">Database URL</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onSettingsClick?.('stripe');
+                    } else {
+                      setLocation('/admin#settings-stripe');
+                    }
+                  }}
+                  className={dropdownItemClass}
+                  data-testid="nav-stripe-sync"
+                >
+                  <CreditCard className="w-4 h-4 mr-3 text-purple-500" />
+                  <span className="font-medium">Stripe Customer Sync</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

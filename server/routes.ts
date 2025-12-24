@@ -6162,6 +6162,377 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
     }
   });
 
+  // Admin: Preview Stripe customer sync - find passengers that can be linked to existing Stripe customers
+  app.get('/api/admin/stripe-sync/preview', isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: 'Stripe is not configured' });
+      }
+
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      // Get all passengers without a Stripe customer ID
+      const allUsers = await storage.getAllUsers();
+      const passengersWithoutStripe = allUsers.filter(u => 
+        u.role === 'passenger' && !u.stripeCustomerId && u.email
+      );
+
+      const syncCandidates: Array<{
+        userId: string;
+        email: string;
+        firstName: string | null;
+        lastName: string | null;
+        phone: string | null;
+        stripeCustomer: {
+          id: string;
+          email: string | null;
+          name: string | null;
+          phone: string | null;
+          paymentMethodsCount: number;
+        } | null;
+        matchConfidence: 'high' | 'medium' | 'low' | 'no_match';
+        matchDetails: string;
+      }> = [];
+
+      for (const passenger of passengersWithoutStripe) {
+        try {
+          // Search for Stripe customers with matching email
+          const stripeCustomers = await stripe.customers.list({
+            email: passenger.email!,
+            limit: 10,
+          });
+
+          if (stripeCustomers.data.length === 0) {
+            syncCandidates.push({
+              userId: passenger.id,
+              email: passenger.email!,
+              firstName: passenger.firstName,
+              lastName: passenger.lastName,
+              phone: passenger.phone,
+              stripeCustomer: null,
+              matchConfidence: 'no_match',
+              matchDetails: 'No Stripe customer found with this email',
+            });
+            continue;
+          }
+
+          // Find the best matching customer
+          let bestMatch = stripeCustomers.data[0];
+          let matchConfidence: 'high' | 'medium' | 'low' = 'medium';
+          let matchDetails: string[] = ['Email matches'];
+
+          // Check for name match
+          const passengerFullName = `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim().toLowerCase();
+          
+          for (const customer of stripeCustomers.data) {
+            const customerName = (customer.name || '').toLowerCase();
+            const nameMatches = customerName === passengerFullName || 
+              customerName.includes(passengerFullName) || 
+              passengerFullName.includes(customerName);
+            
+            if (nameMatches && passengerFullName.length > 0) {
+              bestMatch = customer;
+              matchDetails.push('Name matches');
+              matchConfidence = 'high';
+              break;
+            }
+            
+            // Check phone match
+            if (customer.phone && passenger.phone) {
+              const cleanCustomerPhone = customer.phone.replace(/\D/g, '');
+              const cleanPassengerPhone = passenger.phone.replace(/\D/g, '');
+              if (cleanCustomerPhone === cleanPassengerPhone || 
+                  cleanCustomerPhone.endsWith(cleanPassengerPhone) ||
+                  cleanPassengerPhone.endsWith(cleanCustomerPhone)) {
+                bestMatch = customer;
+                matchDetails.push('Phone matches');
+                matchConfidence = 'high';
+              }
+            }
+          }
+
+          // Get payment methods count for the best match
+          const paymentMethods = await stripe.paymentMethods.list({
+            customer: bestMatch.id,
+            type: 'card',
+          });
+
+          syncCandidates.push({
+            userId: passenger.id,
+            email: passenger.email!,
+            firstName: passenger.firstName,
+            lastName: passenger.lastName,
+            phone: passenger.phone,
+            stripeCustomer: {
+              id: bestMatch.id,
+              email: bestMatch.email,
+              name: bestMatch.name,
+              phone: bestMatch.phone,
+              paymentMethodsCount: paymentMethods.data.length,
+            },
+            matchConfidence: stripeCustomers.data.length > 1 && matchConfidence !== 'high' ? 'low' : matchConfidence,
+            matchDetails: stripeCustomers.data.length > 1 
+              ? `${matchDetails.join(', ')} (${stripeCustomers.data.length} customers found with this email)` 
+              : matchDetails.join(', '),
+          });
+        } catch (stripeError) {
+          console.error(`Error searching Stripe for ${passenger.email}:`, stripeError);
+          syncCandidates.push({
+            userId: passenger.id,
+            email: passenger.email!,
+            firstName: passenger.firstName,
+            lastName: passenger.lastName,
+            phone: passenger.phone,
+            stripeCustomer: null,
+            matchConfidence: 'no_match',
+            matchDetails: 'Error searching Stripe',
+          });
+        }
+      }
+
+      res.json({
+        totalPassengersWithoutStripe: passengersWithoutStripe.length,
+        candidates: syncCandidates,
+        summary: {
+          highConfidence: syncCandidates.filter(c => c.matchConfidence === 'high').length,
+          mediumConfidence: syncCandidates.filter(c => c.matchConfidence === 'medium').length,
+          lowConfidence: syncCandidates.filter(c => c.matchConfidence === 'low').length,
+          noMatch: syncCandidates.filter(c => c.matchConfidence === 'no_match').length,
+        }
+      });
+    } catch (error) {
+      console.error('Stripe sync preview error:', error);
+      res.status(500).json({ message: 'Failed to preview Stripe sync' });
+    }
+  });
+
+  // Admin: Execute Stripe customer sync for selected passengers
+  app.post('/api/admin/stripe-sync/execute', isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: 'Stripe is not configured' });
+      }
+
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { syncItems } = req.body as { 
+        syncItems: Array<{ userId: string; stripeCustomerId: string }> 
+      };
+
+      if (!syncItems || !Array.isArray(syncItems) || syncItems.length === 0) {
+        return res.status(400).json({ message: 'No sync items provided' });
+      }
+
+      const results: Array<{
+        userId: string;
+        success: boolean;
+        message: string;
+      }> = [];
+
+      for (const item of syncItems) {
+        try {
+          // Verify the user exists and doesn't already have a Stripe customer ID
+          const passenger = await storage.getUser(item.userId);
+          if (!passenger) {
+            results.push({
+              userId: item.userId,
+              success: false,
+              message: 'User not found',
+            });
+            continue;
+          }
+
+          if (passenger.stripeCustomerId) {
+            results.push({
+              userId: item.userId,
+              success: false,
+              message: 'User already has a Stripe customer ID linked',
+            });
+            continue;
+          }
+
+          // Verify the Stripe customer exists
+          try {
+            const stripeCustomer = await stripe.customers.retrieve(item.stripeCustomerId);
+            if (stripeCustomer.deleted) {
+              results.push({
+                userId: item.userId,
+                success: false,
+                message: 'Stripe customer has been deleted',
+              });
+              continue;
+            }
+          } catch (stripeError) {
+            results.push({
+              userId: item.userId,
+              success: false,
+              message: 'Invalid Stripe customer ID',
+            });
+            continue;
+          }
+
+          // Link the Stripe customer to the user
+          await storage.updateUser(item.userId, {
+            stripeCustomerId: item.stripeCustomerId,
+          });
+
+          results.push({
+            userId: item.userId,
+            success: true,
+            message: 'Successfully linked Stripe customer',
+          });
+        } catch (itemError) {
+          console.error(`Error syncing user ${item.userId}:`, itemError);
+          results.push({
+            userId: item.userId,
+            success: false,
+            message: 'Error during sync',
+          });
+        }
+      }
+
+      res.json({
+        total: results.length,
+        successful: results.filter(r => r.success).length,
+        failed: results.filter(r => !r.success).length,
+        results,
+      });
+    } catch (error) {
+      console.error('Stripe sync execute error:', error);
+      res.status(500).json({ message: 'Failed to execute Stripe sync' });
+    }
+  });
+
+  // Admin: Sync single passenger with Stripe by searching for matching customer
+  app.post('/api/admin/stripe-sync/user/:userId', isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: 'Stripe is not configured' });
+      }
+
+      const adminId = req.user.id;
+      const admin = await storage.getUser(adminId);
+      
+      if (!admin || admin.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { userId: targetUserId } = req.params;
+      const { stripeCustomerId } = req.body;
+
+      const passenger = await storage.getUser(targetUserId);
+      if (!passenger) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      if (passenger.stripeCustomerId) {
+        return res.status(400).json({ message: 'User already has a Stripe customer ID linked' });
+      }
+
+      // If a specific Stripe customer ID is provided, use it
+      if (stripeCustomerId) {
+        try {
+          const stripeCustomer = await stripe.customers.retrieve(stripeCustomerId);
+          if (stripeCustomer.deleted) {
+            return res.status(400).json({ message: 'Stripe customer has been deleted' });
+          }
+
+          await storage.updateUser(targetUserId, { stripeCustomerId });
+          
+          // Get payment methods count
+          const paymentMethods = await stripe.paymentMethods.list({
+            customer: stripeCustomerId,
+            type: 'card',
+          });
+
+          return res.json({
+            success: true,
+            message: 'Successfully linked Stripe customer',
+            stripeCustomer: {
+              id: stripeCustomer.id,
+              email: stripeCustomer.email,
+              name: stripeCustomer.name,
+              paymentMethodsCount: paymentMethods.data.length,
+            },
+          });
+        } catch (stripeError) {
+          return res.status(400).json({ message: 'Invalid Stripe customer ID' });
+        }
+      }
+
+      // Otherwise, search for matching Stripe customer by email
+      if (!passenger.email) {
+        return res.status(400).json({ message: 'User does not have an email address' });
+      }
+
+      const stripeCustomers = await stripe.customers.list({
+        email: passenger.email,
+        limit: 10,
+      });
+
+      if (stripeCustomers.data.length === 0) {
+        return res.status(404).json({ message: 'No Stripe customer found with this email' });
+      }
+
+      if (stripeCustomers.data.length > 1) {
+        // Return candidates for manual selection
+        const candidates = await Promise.all(
+          stripeCustomers.data.map(async (customer) => {
+            const paymentMethods = await stripe.paymentMethods.list({
+              customer: customer.id,
+              type: 'card',
+            });
+            return {
+              id: customer.id,
+              email: customer.email,
+              name: customer.name,
+              phone: customer.phone,
+              paymentMethodsCount: paymentMethods.data.length,
+            };
+          })
+        );
+
+        return res.status(300).json({
+          message: 'Multiple Stripe customers found, please select one',
+          candidates,
+        });
+      }
+
+      // Single match - link automatically
+      const matchedCustomer = stripeCustomers.data[0];
+      await storage.updateUser(targetUserId, { stripeCustomerId: matchedCustomer.id });
+
+      const paymentMethods = await stripe.paymentMethods.list({
+        customer: matchedCustomer.id,
+        type: 'card',
+      });
+
+      res.json({
+        success: true,
+        message: 'Successfully linked Stripe customer',
+        stripeCustomer: {
+          id: matchedCustomer.id,
+          email: matchedCustomer.email,
+          name: matchedCustomer.name,
+          paymentMethodsCount: paymentMethods.data.length,
+        },
+      });
+    } catch (error) {
+      console.error('Single user Stripe sync error:', error);
+      res.status(500).json({ message: 'Failed to sync user with Stripe' });
+    }
+  });
+
   // Admin: Set temporary password for user
   app.post('/api/admin/users/:id/set-temp-password', isAuthenticated, async (req: any, res) => {
     try {

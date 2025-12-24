@@ -83,6 +83,7 @@ import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { AdminSMSSettings } from "@/components/admin-sms-settings";
 import { DatabaseURLSettings } from "@/components/DatabaseURLSettings";
 import BrandSettings from "@/components/BrandSettings";
+import { StripeSyncSettings } from "@/components/StripeSyncSettings";
 import MediaLibrary from "@/components/MediaLibrary";
 import { ServiceCMS } from "@/components/ServiceCMS";
 import { BookingDetailsDialog } from "@/components/BookingDetailsDialog";
@@ -3428,7 +3429,7 @@ export default function AdminDashboard() {
     "api" | "payment" | "minio" | null
   >(null);
   const [visibleSettingsSection, setVisibleSettingsSection] = useState<
-    "commission" | "email" | "sms" | "database" | "branding" | null
+    "commission" | "email" | "sms" | "database" | "branding" | "stripe" | null
   >(null);
   const [visibleCMSSection, setVisibleCMSSection] = useState<
     "pages" | "media" | null
@@ -3639,7 +3640,7 @@ export default function AdminDashboard() {
           document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       } else if (section === 'settings') {
-        setVisibleSettingsSection(subsection as 'commission' | 'email' | 'sms' | 'database' | 'branding');
+        setVisibleSettingsSection(subsection as 'commission' | 'email' | 'sms' | 'database' | 'branding' | 'stripe');
         setVisibleCredentialsSection(null);
         setVisibleCMSSection(null);
         setShowUserManager(false);
@@ -7120,6 +7121,11 @@ export default function AdminDashboard() {
               <BrandSettings />
             </CardContent>
           </Card>
+        )}
+
+        {/* Stripe Sync Settings */}
+        {visibleSettingsSection === "stripe" && (
+          <StripeSyncSettings />
         )}
 
         {/* CMS - Pages Management */}

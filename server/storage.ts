@@ -2612,13 +2612,14 @@ export class DatabaseStorage implements IStorage {
         specialInstructions: bookings.specialInstructions,
         vehicleTypeId: bookings.vehicleTypeId,
         requestedHours: bookings.requestedHours,
-        driverFirstName: driverProfiles.firstName,
-        driverLastName: driverProfiles.lastName,
-        driverPhone: driverProfiles.phone,
+        driverFirstName: users.firstName,
+        driverLastName: users.lastName,
+        driverPhone: users.phone,
       })
       .from(declineReasons)
       .innerJoin(bookings, eq(declineReasons.bookingId, bookings.id))
-      .innerJoin(driverProfiles, eq(declineReasons.driverId, driverProfiles.id))
+      .innerJoin(drivers, eq(declineReasons.driverId, drivers.id))
+      .innerJoin(users, eq(drivers.userId, users.id))
       .orderBy(desc(declineReasons.declinedAt));
     
     return results;
