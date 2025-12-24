@@ -854,6 +854,32 @@ export const insertEmergencyIncidentSchema = createInsertSchema(emergencyInciden
   updatedAt: true,
 });
 
+// Decline reasons - tracks why drivers decline bookings
+export const declineReasonEnum = [
+  "timing_conflict",
+  "pricing_too_low", 
+  "too_far_away",
+  "vehicle_not_suitable",
+  "already_booked",
+  "personal_reasons"
+] as const;
+
+export const declineReasons = pgTable("decline_reasons", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  bookingId: uuid("booking_id").references(() => bookings.id, { onDelete: 'cascade' }).notNull(),
+  driverId: uuid("driver_id").references(() => drivers.id, { onDelete: 'cascade' }).notNull(),
+  reason: varchar("reason", { enum: declineReasonEnum }).notNull(),
+  reasonDisplay: varchar("reason_display").notNull(),
+  additionalNotes: text("additional_notes"),
+  declinedAt: timestamp("declined_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertDeclineReasonSchema = createInsertSchema(declineReasons).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Insert schemas for ride credits
 export const insertRideCreditTransactionSchema = createInsertSchema(rideCreditTransactions).omit({
   id: true,
@@ -915,3 +941,5 @@ export type DriverMessage = typeof driverMessages.$inferSelect;
 export type InsertDriverMessage = z.infer<typeof insertDriverMessageSchema>;
 export type EmergencyIncident = typeof emergencyIncidents.$inferSelect;
 export type InsertEmergencyIncident = z.infer<typeof insertEmergencyIncidentSchema>;
+export type DeclineReason = typeof declineReasons.$inferSelect;
+export type InsertDeclineReason = z.infer<typeof insertDeclineReasonSchema>;

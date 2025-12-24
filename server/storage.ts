@@ -74,6 +74,9 @@ import {
   type InsertRideCreditTransaction,
   type BookingCancellation,
   type InsertBookingCancellation,
+  declineReasons,
+  type DeclineReason,
+  type InsertDeclineReason,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql } from "drizzle-orm";
@@ -305,6 +308,11 @@ export interface IStorage {
   deleteRideCreditTransactionsForBooking(bookingId: string): Promise<void>;
   deleteDriverRatingsForBooking(bookingId: string): Promise<void>;
   deleteEmergencyIncidentsForBooking(bookingId: string): Promise<void>;
+  
+  // Decline Reasons
+  createDeclineReason(declineReason: InsertDeclineReason): Promise<DeclineReason>;
+  getDeclineReasonsByDriver(driverId: string): Promise<DeclineReason[]>;
+  getDeclinedBookingsByDriver(driverId: string): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2517,6 +2525,46 @@ export class DatabaseStorage implements IStorage {
 
   async deleteEmergencyIncidentsForBooking(bookingId: string): Promise<void> {
     await db.delete(emergencyIncidents).where(eq(emergencyIncidents.bookingId, bookingId));
+  }
+  
+  // Decline Reasons Methods
+  async createDeclineReason(declineReason: InsertDeclineReason): Promise<DeclineReason> {
+    const [result] = await db.insert(declineReasons).values({
+      ...declineReason,
+      createdAt: new Date(),
+    }).returning();
+    return result;
+  }
+  
+  async getDeclineReasonsByDriver(driverId: string): Promise<DeclineReason[]> {
+    return await db.select().from(declineReasons)
+      .where(eq(declineReasons.driverId, driverId))
+      .orderBy(desc(declineReasons.declinedAt));
+  }
+  
+  async getDeclinedBookingsByDriver(driverId: string): Promise<any[]> {
+    const results = await db
+      .select({
+        declineId: declineReasons.id,
+        bookingId: declineReasons.bookingId,
+        reason: declineReasons.reason,
+        reasonDisplay: declineReasons.reasonDisplay,
+        additionalNotes: declineReasons.additionalNotes,
+        declinedAt: declineReasons.declinedAt,
+        pickupAddress: bookings.pickupAddress,
+        destinationAddress: bookings.destinationAddress,
+        scheduledDateTime: bookings.scheduledDateTime,
+        passengerName: bookings.passengerName,
+        bookingType: bookings.bookingType,
+        driverPayment: bookings.driverPayment,
+        totalAmount: bookings.totalAmount,
+      })
+      .from(declineReasons)
+      .innerJoin(bookings, eq(declineReasons.bookingId, bookings.id))
+      .where(eq(declineReasons.driverId, driverId))
+      .orderBy(desc(declineReasons.declinedAt));
+    
+    return results;
   }
 }
 

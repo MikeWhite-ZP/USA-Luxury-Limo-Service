@@ -186,7 +186,7 @@ export default function DriverDashboard() {
   const saveTimeoutRefs = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   
   // Job list sub-tabs state
-  const [jobListTab, setJobListTab] = useState<"new" | "accepted" | "completed" | "cancelled">("new");
+  const [jobListTab, setJobListTab] = useState<"new" | "accepted" | "completed" | "cancelled" | "declined">("new");
   
   // Document preview state
   const [selectedDocumentPreview, setSelectedDocumentPreview] = useState<DriverDocument | null>(null);
@@ -294,6 +294,29 @@ export default function DriverDashboard() {
     DriverDocument[]
   >({
     queryKey: ["/api/driver/documents"],
+    retry: false,
+    enabled: isAuthenticated && user?.role === "driver",
+  });
+
+  // Fetch driver's declined bookings history
+  interface DeclinedBooking {
+    declineId: string;
+    bookingId: string;
+    reason: string;
+    reasonDisplay: string;
+    additionalNotes: string | null;
+    declinedAt: string;
+    pickupAddress: string;
+    destinationAddress: string | null;
+    scheduledDateTime: string;
+    passengerName: string | null;
+    bookingType: string;
+    driverPayment: string | null;
+    totalAmount: string | null;
+  }
+  
+  const { data: declinedBookings } = useQuery<DeclinedBooking[]>({
+    queryKey: ["/api/driver/declined-bookings"],
     retry: false,
     enabled: isAuthenticated && user?.role === "driver",
   });
@@ -547,6 +570,7 @@ export default function DriverDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/driver/declined-bookings"] });
       toast({
         title: "Booking Declined",
         description:
@@ -1340,6 +1364,17 @@ export default function DriverDashboard() {
                     >
                       Cancelled ({cancelledJobs.length})
                     </button>
+                    <button
+                      onClick={() => setJobListTab("declined")}
+                      className={`flex-1 py-2 px-2 rounded-md text-sm font-medium transition-all ${
+                        jobListTab === "declined"
+                          ? "bg-amber-600 text-white shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                      data-testid="tab-declined-jobs"
+                    >
+                      Declined ({declinedBookings?.length || 0})
+                    </button>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -1719,6 +1754,88 @@ export default function DriverDashboard() {
                           <AlertCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
                           <p className="text-muted-foreground text-lg font-medium">No cancelled jobs</p>
                           <p className="text-muted-foreground text-sm mt-2">Cancelled rides will appear here</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Declined Jobs Tab */}
+                  {jobListTab === "declined" && (
+                    <>
+                      {(declinedBookings?.length || 0) > 0 ? (
+                        <div className="space-y-4">
+                          {declinedBookings?.map((declined) => (
+                            <div
+                              key={declined.declineId}
+                              className="bg-card rounded-xl p-4 border border-amber-200 dark:border-amber-800 shadow-sm"
+                              data-testid={`declined-job-${declined.bookingId}`}
+                            >
+                              <div className="flex items-center justify-between gap-2 mb-2">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-sm font-semibold text-foreground">#{declined.bookingId.slice(0, 8)}</span>
+                                  <Badge className="bg-amber-600 text-white font-medium text-xs px-2 py-0.5">
+                                    Declined
+                                  </Badge>
+                                  <Badge variant="outline" className="text-xs px-2 py-0.5 border-muted-foreground/30">
+                                    {declined.bookingType === 'hourly' ? 'Hourly' : 'Transfer'}
+                                  </Badge>
+                                </div>
+                                <span className="text-lg font-bold text-muted-foreground line-through">
+                                  {declined.driverPayment ? `$${declined.driverPayment}` : "Not set"}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm mb-2">
+                                {declined.passengerName && (
+                                  <div className="flex items-center gap-1.5">
+                                    <User className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                                    <span className="font-medium text-foreground">{declined.passengerName}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-1.5 text-muted-foreground">
+                                  <Clock className="w-3.5 h-3.5" />
+                                  <span>
+                                    {new Date(declined.scheduledDateTime).toLocaleString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: 'numeric',
+                                      minute: '2-digit'
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-2.5 mb-2">
+                                <p className="text-xs text-amber-700 dark:text-amber-400">
+                                  <span className="font-medium">Reason: </span>
+                                  {declined.reasonDisplay}
+                                </p>
+                                {declined.additionalNotes && (
+                                  <p className="text-xs text-amber-600 dark:text-amber-500 mt-1 italic">
+                                    "{declined.additionalNotes}"
+                                  </p>
+                                )}
+                                <p className="text-xs text-amber-500 dark:text-amber-600 mt-1">
+                                  Declined: {new Date(declined.declinedAt).toLocaleString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: 'numeric',
+                                    minute: '2-digit'
+                                  })}
+                                </p>
+                              </div>
+                              <div className="bg-muted/50 rounded-lg p-2.5">
+                                <p className="text-xs text-foreground truncate">{declined.pickupAddress}</p>
+                                {declined.destinationAddress && (
+                                  <p className="text-xs text-muted-foreground truncate mt-1">{declined.destinationAddress}</p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center p-12" data-testid="no-declined-jobs">
+                          <AlertCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                          <p className="text-muted-foreground text-lg font-medium">No declined jobs</p>
+                          <p className="text-muted-foreground text-sm mt-2">Jobs you've declined will appear here</p>
                         </div>
                       )}
                     </>

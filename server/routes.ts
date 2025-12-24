@@ -1820,6 +1820,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         declineReason: reason || null,
         declineNotes: JSON.stringify(declineHistory),
       });
+      
+      // Also insert into decline_reasons table for proper tracking
+      await storage.createDeclineReason({
+        bookingId: id,
+        driverId: driver.id,
+        reason: reason || 'personal_reasons',
+        reasonDisplay: reasonDisplay || reason?.replace(/_/g, ' ') || 'Not specified',
+        additionalNotes: notes || null,
+        declinedAt: new Date(),
+      });
 
       // Send notification to admins/dispatchers (fire-and-forget)
       (async () => {
@@ -1861,6 +1871,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Decline booking error:', error);
       res.status(500).json({ message: 'Failed to decline booking' });
+    }
+  });
+
+  // Get driver's declined bookings history
+  app.get('/api/driver/declined-bookings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      
+      // Get user and verify they're a driver
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== 'driver') {
+        return res.status(403).json({ message: 'Only drivers can view declined bookings' });
+      }
+      
+      // Get driver profile
+      const driver = await storage.getDriverByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: 'Driver profile not found' });
+      }
+      
+      // Get declined bookings with booking details
+      const declinedBookings = await storage.getDeclinedBookingsByDriver(driver.id);
+      
+      res.json(declinedBookings);
+    } catch (error) {
+      console.error('Get declined bookings error:', error);
+      res.status(500).json({ message: 'Failed to fetch declined bookings' });
     }
   });
 
