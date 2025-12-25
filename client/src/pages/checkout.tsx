@@ -73,6 +73,7 @@ const CheckoutForm = ({ bookingId, amount, mode }: { bookingId?: string; amount:
       
       const response = await apiRequest('POST', '/api/bookings', {
         ...bookingData,
+        paymentMethod: 'pay_now',
         paymentStatus: 'paid',
         paymentIntentId,
       });

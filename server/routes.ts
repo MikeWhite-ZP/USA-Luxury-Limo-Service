@@ -1290,12 +1290,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/bookings', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const bookingData = insertBookingSchema.parse({
-        ...req.body,
-        passengerId: userId,
-        bookedBy: 'passenger',
-        bookedAt: new Date(),
-      });
+      console.log('[BOOKING] Request body:', JSON.stringify(req.body, null, 2));
+      
+      let bookingData;
+      try {
+        bookingData = insertBookingSchema.parse({
+          ...req.body,
+          passengerId: userId,
+          bookedBy: 'passenger',
+          bookedAt: new Date(),
+        });
+      } catch (parseError: any) {
+        console.error('[BOOKING] Schema validation error:', parseError);
+        return res.status(400).json({ 
+          message: 'Invalid booking data', 
+          errors: parseError.errors || parseError.message 
+        });
+      }
 
       const booking = await storage.createBooking(bookingData);
 
@@ -1468,9 +1479,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       })();
       
       res.status(201).json(booking);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Create booking error:', error);
-      res.status(500).json({ message: 'Failed to create booking' });
+      console.error('Create booking error stack:', error?.stack);
+      console.error('Create booking error message:', error?.message);
+      res.status(500).json({ 
+        message: 'Failed to create booking',
+        error: error?.message || 'Unknown error'
+      });
     }
   });
 
@@ -8392,17 +8408,9 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
       const invoices = await storage.getOldInvoicesByUser(userId);
       
       // Generate presigned URLs for file access
-      const objStorage = await getObjectStorage();
       const invoicesWithUrls = await Promise.all(
         invoices.map(async (invoice) => {
-          let downloadUrl = invoice.fileUrl;
-          // Generate presigned URL if it's an object storage path
-          if (invoice.fileUrl && !invoice.fileUrl.startsWith('http')) {
-            const presignedUrl = await objStorage.getPresignedUrl(invoice.fileUrl);
-            if (presignedUrl) {
-              downloadUrl = presignedUrl;
-            }
-          }
+          const downloadUrl = await getPresignedUrl(invoice.fileUrl);
           return { ...invoice, downloadUrl };
         })
       );
@@ -8428,16 +8436,9 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
       const invoices = await storage.getOldInvoicesByUser(userId);
       
       // Generate presigned URLs for file access
-      const objStorage = await getObjectStorage();
       const invoicesWithUrls = await Promise.all(
         invoices.map(async (invoice) => {
-          let downloadUrl = invoice.fileUrl;
-          if (invoice.fileUrl && !invoice.fileUrl.startsWith('http')) {
-            const presignedUrl = await objStorage.getPresignedUrl(invoice.fileUrl);
-            if (presignedUrl) {
-              downloadUrl = presignedUrl;
-            }
-          }
+          const downloadUrl = await getPresignedUrl(invoice.fileUrl);
           return { ...invoice, downloadUrl };
         })
       );
