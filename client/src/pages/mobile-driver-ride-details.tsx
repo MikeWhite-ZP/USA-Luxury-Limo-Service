@@ -44,6 +44,7 @@ interface Booking {
   luggageCount: number;
   babySeat: boolean;
   finalPrice: number;
+  driverPayment?: number | string | null;
   status: string;
   passengerName?: string;
   passengerPhone?: string;
@@ -483,7 +484,7 @@ export default function MobileDriverRideDetails() {
           <Badge className={`${getStatusColor(booking.status || '')} text-sm`} data-testid="badge-status">
             {(booking.status || 'Unknown').replace('_', ' ')}
           </Badge>
-          <p className="text-2xl font-bold">${(booking.finalPrice ?? 0).toFixed(2)}</p>
+          <p className="text-2xl font-bold">${parseFloat(String(booking.driverPayment ?? 0)).toFixed(2)}</p>
         </div>
       </div>
 
