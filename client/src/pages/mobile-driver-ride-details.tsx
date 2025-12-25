@@ -322,6 +322,49 @@ export default function MobileDriverRideDetails() {
     }
   };
 
+  // Check if driver can start trip (within 150 minutes of scheduled time)
+  const canStartTrip = (booking: any) => {
+    // Use scheduledTime or scheduledDateTime (API returns scheduledDateTime)
+    const scheduledTimeValue = booking.scheduledTime || booking.scheduledDateTime;
+    if (booking.status !== 'confirmed' || !scheduledTimeValue) return true;
+    
+    const now = new Date();
+    const scheduledTime = new Date(scheduledTimeValue);
+    const minutesUntilPickup = (scheduledTime.getTime() - now.getTime()) / (1000 * 60);
+    
+    return minutesUntilPickup <= 150;
+  };
+
+  // Get minutes until trip can be started
+  const getMinutesUntilCanStart = (booking: any) => {
+    // Use scheduledTime or scheduledDateTime (API returns scheduledDateTime)
+    const scheduledTimeValue = booking.scheduledTime || booking.scheduledDateTime;
+    if (!scheduledTimeValue) return 0;
+    
+    const now = new Date();
+    const scheduledTime = new Date(scheduledTimeValue);
+    const minutesUntilPickup = (scheduledTime.getTime() - now.getTime()) / (1000 * 60);
+    const minutesUntilCanStart = minutesUntilPickup - 150;
+    
+    return Math.max(0, Math.ceil(minutesUntilCanStart));
+  };
+
+  // Format minutes into hours and minutes display
+  const formatWaitingTime = (totalMinutes: number) => {
+    if (totalMinutes <= 0) return 'Available now';
+    
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    
+    if (hours > 0 && minutes > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (hours > 0) {
+      return `${hours} hour${hours > 1 ? 's' : ''}`;
+    } else {
+      return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    }
+  };
+
   // Check if job needs acceptance/decline decision
   const needsAcceptanceDecision = (booking: any) => {
     // Job needs decision if driverAcceptanceStatus is pending
@@ -747,18 +790,47 @@ export default function MobileDriverRideDetails() {
 
         {/* Journey Action Button - shown after job accepted */}
         {nextAction && (
-          <Button
-            onClick={() => nextAction.mutation.mutate()}
-            disabled={nextAction.mutation.isPending}
-            className={`w-full ${nextAction.color} h-12 text-lg font-semibold shadow-lg`}
-            data-testid={`button-${nextAction.label.toLowerCase().replace(/\s+/g, '-')}`}
-          >
-            <nextAction.icon className="w-5 h-5 mr-2" />
-            {nextAction.mutation.isPending ? 'Processing...' : nextAction.label}
-          </Button>
+          <>
+            {/* Show waiting time card when Start Trip is not yet available */}
+            {nextAction.label === 'Start Trip' && !canStartTrip(booking) ? (
+              <div className="space-y-3">
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-800 flex items-center justify-center">
+                      <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-amber-800 dark:text-amber-300">Waiting for Start Time</h4>
+                      <p className="text-sm text-amber-600 dark:text-amber-400">Trip can start 2.5 hours before pickup</p>
+                    </div>
+                  </div>
+                  <div className="bg-white dark:bg-amber-950/50 rounded-lg p-3 text-center">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Available to start in</p>
+                    <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+                      {formatWaitingTime(getMinutesUntilCanStart(booking))}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center p-3 bg-green-100 dark:bg-green-900/40 rounded-lg">
+                  <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
+                  <span className="text-green-700 dark:text-green-400 font-medium text-sm">Job Accepted</span>
+                </div>
+              </div>
+            ) : (
+              <Button
+                onClick={() => nextAction.mutation.mutate()}
+                disabled={nextAction.mutation.isPending}
+                className={`w-full ${nextAction.color} h-12 text-lg font-semibold shadow-lg`}
+                data-testid={`button-${nextAction.label.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                <nextAction.icon className="w-5 h-5 mr-2" />
+                {nextAction.mutation.isPending ? 'Processing...' : nextAction.label}
+              </Button>
+            )}
+          </>
         )}
 
-        {/* Accepted Badge - shown when job is accepted */}
+        {/* Accepted Badge - shown when job is accepted and completed */}
         {booking.driverAcceptanceStatus === 'accepted' && !nextAction && (
           <div className="flex items-center justify-center p-4 bg-green-100 dark:bg-green-900/40 rounded-lg">
             <CheckCircle2 className="w-5 h-5 mr-2 text-green-600" />
