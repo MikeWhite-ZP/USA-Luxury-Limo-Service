@@ -1724,6 +1724,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedBooking = await storage.updateBooking(id, {
         status: 'confirmed',
         acceptedAt: new Date(),
+        driverAcceptanceStatus: 'accepted',
       });
 
       // Send notification to passenger and system admin report (fire-and-forget)
