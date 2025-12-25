@@ -3798,6 +3798,9 @@ export default function AdminDashboard() {
     flightAirline: "",
     flightDepartureAirport: "",
     flightArrivalAirport: "",
+    flightDepartureTerminal: "",
+    flightArrivalTerminal: "",
+    flightBaggageClaim: "",
     // Payment method
     paymentMethod: "pay_now" as "pay_now" | "pay_later" | "cash" | "ride_credit",
   });
@@ -4831,13 +4834,16 @@ export default function AdminDashboard() {
       console.log("💾 Setting selectedFlight state...");
       setSelectedFlight(selectedFlightData);
 
-      // Update form with flight info
+      // Update form with flight info including terminal and baggage claim
       const updatedFormData = {
         ...bookingFormData,
         flightNumber: selectedFlightData.flightNumber,
         flightAirline: selectedFlightData.airline,
         flightDepartureAirport: selectedFlightData.departureAirport,
         flightArrivalAirport: selectedFlightData.arrivalAirport,
+        flightDepartureTerminal: selectedFlightData.departureTerminal !== "N/A" ? selectedFlightData.departureTerminal : "",
+        flightArrivalTerminal: selectedFlightData.arrivalTerminal !== "N/A" ? selectedFlightData.arrivalTerminal : "",
+        flightBaggageClaim: selectedFlightData.baggageClaim !== "N/A" ? selectedFlightData.baggageClaim : "",
       };
       console.log("📝 Updating Booking Form Data with:", updatedFormData);
       setBookingFormData(updatedFormData);
@@ -4954,6 +4960,9 @@ export default function AdminDashboard() {
         flightAirline: "",
         flightDepartureAirport: "",
         flightArrivalAirport: "",
+        flightDepartureTerminal: "",
+        flightArrivalTerminal: "",
+        flightBaggageClaim: "",
         paymentMethod: "pay_now",
       });
       setCalculatedPrice("");
@@ -5448,6 +5457,9 @@ export default function AdminDashboard() {
       flightAirline: "",
       flightDepartureAirport: "",
       flightArrivalAirport: "",
+      flightDepartureTerminal: "",
+      flightArrivalTerminal: "",
+      flightBaggageClaim: "",
       paymentMethod: "pay_now",
     });
     setCalculatedPrice("");
@@ -5536,6 +5548,12 @@ export default function AdminDashboard() {
         "",
       flightArrivalAirport:
         booking.flightArrivalAirport || booking.flight_arrival_airport || "",
+      flightDepartureTerminal:
+        booking.flightDepartureTerminal || booking.flight_departure_terminal || "",
+      flightArrivalTerminal:
+        booking.flightArrivalTerminal || booking.flight_arrival_terminal || "",
+      flightBaggageClaim:
+        booking.flightBaggageClaim || booking.flight_baggage_claim || "",
       paymentMethod: booking.paymentMethod || "pay_now",
     });
     setCalculatedPrice("");
@@ -5566,6 +5584,11 @@ export default function AdminDashboard() {
 
     if (flightNum && flightAir) {
       console.log("✅ Flight data exists, restoring flight information");
+      // Read terminal and baggage claim from saved booking data
+      const deptTerminal = booking.flightDepartureTerminal || booking.flight_departure_terminal || "";
+      const arrTerminal = booking.flightArrivalTerminal || booking.flight_arrival_terminal || "";
+      const baggageClaim = booking.flightBaggageClaim || booking.flight_baggage_claim || "";
+      
       const restoredFlight = {
         flightNumber: flightNum,
         airline: flightAir,
@@ -5573,9 +5596,9 @@ export default function AdminDashboard() {
         arrivalAirport: arrAirport || "N/A",
         departureTime: "N/A",
         arrivalTime: "N/A",
-        departureTerminal: "N/A",
-        arrivalTerminal: "N/A",
-        baggageClaim: "N/A",
+        departureTerminal: deptTerminal || "N/A",
+        arrivalTerminal: arrTerminal || "N/A",
+        baggageClaim: baggageClaim || "N/A",
         aircraft: "N/A",
       };
       console.log("Restored flight object:", restoredFlight);
@@ -8998,6 +9021,9 @@ export default function AdminDashboard() {
                             flightAirline: "",
                             flightDepartureAirport: "",
                             flightArrivalAirport: "",
+                            flightDepartureTerminal: "",
+                            flightArrivalTerminal: "",
+                            flightBaggageClaim: "",
                           });
                         }}
                         className="text-green-600 hover:text-green-800 text-sm font-medium"
