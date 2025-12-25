@@ -1,0 +1,103 @@
+Logs
+Server: localhost
+Lines:
+"destinationAddress": "Will Clayton Parkway, Houston, TX 77032",
+"destinationLat": "29.98627",
+"destinationLon": "-95.317044",
+"bookingFor": "self",
+"passengerName": "Test Passenger",
+"passengerPhone": "+18325629281",
+"passengerEmail": "usaluxurylimo+testpassenger@gmail.com",
+"passengerCount": 1,
+"luggageCount": 2,
+"babySeat": false,
+"specialInstructions": "test instructions",
+"billReference": "test reference"
+}
+8:38:03 PM [express] POST /api/bookings 500 in 91ms :: {"message":"Failed to create booking","error"…
+🔵 Deserializing user ID: 8b5d9b07-e17f-4ef9-8404-8f7ef7e12743
+🔵 User found: testpassenger
+[BOOKING] Request body: {
+"vehicleTypeId": "dffe7302-e9d0-4c5b-bb62-d411e9fd7316",
+"bookingType": "transfer",
+"scheduledDateTime": "2025-12-26T18:00:00.000Z",
+"totalAmount": "88.49",
+"pickupAddress": "2800 North Terminal Road, Houston, TX 77032",
+"pickupLat": "29.987934",
+"pickupLon": "-95.342186",
+"destinationAddress": "Will Clayton Parkway, Houston, TX 77032",
+"destinationLat": "29.98627",
+"destinationLon": "-95.317044",
+"bookingFor": "self",
+"passengerName": "Test Passenger",
+"passengerPhone": "+18325629281",
+"passengerEmail": "usaluxurylimo+testpassenger@gmail.com",
+"passengerCount": 1,
+"luggageCount": 2,
+"babySeat": false,
+"specialInstructions": "test instructions",
+"billReference": "test reference"
+}
+8:38:04 PM [express] POST /api/bookings 500 in 13ms :: {"message":"Failed to create booking","error"…
+Create booking error: error: column "declined_at" of relation "bookings" does not exist
+at /app/node_modules/pg-pool/index.js:45:11
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+at async DatabaseStorage.createBooking (file:///app/dist/index.js:1587:27)
+at async file:///app/dist/index.js:8843:23 {
+length: 134,
+severity: 'ERROR',
+code: '42703',
+detail: undefined,
+hint: undefined,
+position: '1210',
+internalPosition: undefined,
+internalQuery: undefined,
+where: undefined,
+schema: undefined,
+table: undefined,
+column: undefined,
+dataType: undefined,
+constraint: undefined,
+file: 'parse_target.c',
+line: '1065',
+routine: 'checkInsertTargets'
+}
+Create booking error stack: error: column "declined_at" of relation "bookings" does not exist
+at /app/node_modules/pg-pool/index.js:45:11
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+at async DatabaseStorage.createBooking (file:///app/dist/index.js:1587:27)
+at async file:///app/dist/index.js:8843:23
+Create booking error message: column "declined_at" of relation "bookings" does not exist
+Create booking error: error: column "declined_at" of relation "bookings" does not exist
+at /app/node_modules/pg-pool/index.js:45:11
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+at async DatabaseStorage.createBooking (file:///app/dist/index.js:1587:27)
+at async file:///app/dist/index.js:8843:23 {
+length: 134,
+severity: 'ERROR',
+code: '42703',
+detail: undefined,
+hint: undefined,
+position: '1210',
+internalPosition: undefined,
+internalQuery: undefined,
+where: undefined,
+schema: undefined,
+table: undefined,
+column: undefined,
+dataType: undefined,
+constraint: undefined,
+file: 'parse_target.c',
+line: '1065',
+routine: 'checkInsertTargets'
+}
+Create booking error stack: error: column "declined_at" of relation "bookings" does not exist
+at /app/node_modules/pg-pool/index.js:45:11
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+at async DatabaseStorage.createBooking (file:///app/dist/index.js:1587:27)
+at async file:///app/dist/index.js:8843:23
+Create booking error message: column "declined_at" of relation "bookings" does not exist
