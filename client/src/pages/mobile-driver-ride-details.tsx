@@ -367,20 +367,34 @@ export default function MobileDriverRideDetails() {
 
   // Check if job needs acceptance/decline decision
   const needsAcceptanceDecision = (booking: any) => {
-    // Job needs decision if driverAcceptanceStatus is pending
-    // For legacy data without driverAcceptanceStatus field:
-    //   - If acceptedAt exists, the job was already accepted
-    //   - If acceptedAt is null and no driverAcceptanceStatus, assume pending
-    const status = booking.driverAcceptanceStatus;
-    
-    // Explicitly pending
-    if (status === 'pending') return true;
-    
-    // Legacy data: no status field but also no acceptance
-    if (status === null || status === undefined) {
-      return !booking.acceptedAt;
+    // If booking status is 'confirmed' or beyond, job has been accepted
+    // This handles cases where job was accepted from dashboard or other pages
+    if (booking.status === 'confirmed' || booking.status === 'in_progress' || booking.status === 'completed') {
+      return false;
     }
     
+    // Cancelled jobs don't need decision
+    if (booking.status === 'cancelled') {
+      return false;
+    }
+    
+    // If driverAcceptanceStatus is explicitly 'accepted' or 'declined', no decision needed
+    if (booking.driverAcceptanceStatus === 'accepted' || booking.driverAcceptanceStatus === 'declined') {
+      return false;
+    }
+    
+    // If acceptedAt timestamp exists, job was accepted (legacy data)
+    if (booking.acceptedAt) {
+      return false;
+    }
+    
+    // Job needs decision ONLY if status is pending_driver_acceptance AND driverAcceptanceStatus is pending (or not set)
+    if (booking.status === 'pending_driver_acceptance') {
+      // Only show if not already declined/accepted
+      return booking.driverAcceptanceStatus === 'pending' || !booking.driverAcceptanceStatus;
+    }
+    
+    // Default: no decision needed (safe fallback)
     return false;
   };
 
