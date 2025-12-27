@@ -7574,35 +7574,32 @@ export default function AdminDashboard() {
                 </button>
               </div>
 
-              {/* Filters */}
-              <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label className="text-muted-foreground font-medium">Date From</Label>
+              {/* Compact Filters Bar */}
+              <div className="mb-4 flex items-center gap-3 flex-wrap bg-muted/30 rounded-lg px-3 py-2 border border-border">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">From:</span>
                   <Input
-                    className="border-border focus:border-blue-500 focus:ring-blue-500 mt-2"
+                    className="h-8 w-32 text-sm border-border bg-background"
                     type="date"
                     value={bookingDateFrom}
                     onChange={(e) => setBookingDateFrom(e.target.value)}
                     data-testid="filter-date-from"
                   />
                 </div>
-
-                <div>
-                  <Label className="text-muted-foreground font-medium">Date To</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">To:</span>
                   <Input
-                    className="border-border focus:border-blue-500 focus:ring-blue-500 mt-2"
+                    className="h-8 w-32 text-sm border-border bg-background"
                     type="date"
                     value={bookingDateTo}
                     onChange={(e) => setBookingDateTo(e.target.value)}
                     data-testid="filter-date-to"
                   />
                 </div>
-
-                <div>
-                  <Label className="text-muted-foreground font-medium">Search</Label>
+                <div className="flex-1 min-w-[200px]">
                   <Input
-                    className="border-border focus:border-blue-500 focus:ring-blue-500 mt-2"
-                    placeholder="Passenger, Driver, ID..."
+                    className="h-8 text-sm border-border bg-background"
+                    placeholder="Search passenger, driver, booking ID..."
                     value={bookingSearch}
                     onChange={(e) => setBookingSearch(e.target.value)}
                     data-testid="filter-booking-search"
