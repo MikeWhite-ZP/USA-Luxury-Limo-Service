@@ -487,49 +487,66 @@ export function BookingDetailsDialog({
                       <Input
                         placeholder="Search by name, email, or phone..."
                         value={(() => {
-                          if (!formData.passengerId) return '';
-                          const selectedPassenger = allUsers?.find(u => u.id === formData.passengerId);
-                          if (selectedPassenger) {
-                            return `${selectedPassenger.firstName} ${selectedPassenger.lastName} (${selectedPassenger.email})`;
+                          // If user is actively typing/searching, show the search query
+                          if (userSearchQuery && userSearchQuery.trim()) return userSearchQuery;
+                          // If passenger is selected, show their name
+                          if (formData.passengerId) {
+                            const selectedPassenger = allUsers?.find(u => u.id === formData.passengerId);
+                            if (selectedPassenger) {
+                              return `${selectedPassenger.firstName} ${selectedPassenger.lastName} (${selectedPassenger.email})`;
+                            }
                           }
+                          // Show empty string for placeholder
                           return '';
                         })()}
                         onChange={(e) => {
                           const searchQuery = e.target.value;
+                          // Clear passenger selection when user starts typing
                           if (formData.passengerId) {
                             setFormData({ ...formData, passengerId: '' });
                           }
                           setUserSearchQuery(searchQuery);
                         }}
                         onFocus={() => {
-                          if (!userSearchQuery && !formData.passengerId) {
+                          // Show dropdown on focus if no passenger selected
+                          if (!formData.passengerId && !userSearchQuery) {
                             setUserSearchQuery(' ');
                           }
                         }}
                         className="bg-background border-border focus:border-blue-500 focus:ring-blue-500"
                         data-testid="input-passenger-search"
                       />
-                      {userSearchQuery && allUsers && allUsers.length > 0 && (
+                      {userSearchQuery && allUsers && (
                         <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-lg shadow-xl max-h-60 overflow-y-auto">
-                          {allUsers
-                            .filter(u => u.role === 'passenger')
-                            .filter(u => {
-                              const query = userSearchQuery.trim().toLowerCase();
-                              if (!query) return true;
+                          {(() => {
+                            const query = userSearchQuery.trim().toLowerCase();
+                            const filteredPassengers = allUsers
+                              .filter(u => u.role === 'passenger')
+                              .filter(u => {
+                                if (!query) return true;
+                                return (
+                                  u.firstName?.toLowerCase().includes(query) ||
+                                  u.lastName?.toLowerCase().includes(query) ||
+                                  u.email?.toLowerCase().includes(query) ||
+                                  u.phone?.toLowerCase().includes(query) ||
+                                  `${u.firstName} ${u.lastName}`.toLowerCase().includes(query)
+                                );
+                              })
+                              .slice(0, 10);
+                            
+                            if (filteredPassengers.length === 0) {
                               return (
-                                u.firstName?.toLowerCase().includes(query) ||
-                                u.lastName?.toLowerCase().includes(query) ||
-                                u.email?.toLowerCase().includes(query) ||
-                                u.phone?.toLowerCase().includes(query) ||
-                                `${u.firstName} ${u.lastName}`.toLowerCase().includes(query)
+                                <div className="px-4 py-3 text-sm text-muted-foreground text-center">
+                                  No passengers found matching "{userSearchQuery.trim()}"
+                                </div>
                               );
-                            })
-                            .slice(0, 10)
-                            .map((passenger) => (
+                            }
+                            
+                            return filteredPassengers.map((passenger) => (
                               <button
                                 key={passenger.id}
                                 type="button"
-                                className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:bg-blue-900/20 border-b border-border last:border-0 text-sm transition-colors"
+                                className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 border-b border-border last:border-0 text-sm transition-colors"
                                 onClick={() => {
                                   setFormData({ ...formData, passengerId: passenger.id });
                                   setUserSearchQuery('');
@@ -539,7 +556,8 @@ export function BookingDetailsDialog({
                                 <div className="font-medium text-foreground">{passenger.firstName} {passenger.lastName}</div>
                                 <div className="text-xs text-muted-foreground">{passenger.email} • {passenger.phone || 'N/A'}</div>
                               </button>
-                            ))}
+                            ));
+                          })()}
                         </div>
                       )}
                     </div>
