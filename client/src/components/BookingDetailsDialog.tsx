@@ -544,18 +544,18 @@ export function BookingDetailsDialog({
               <div className="space-y-2">
                   {/* Passenger Selection */}
                   <div className="space-y-0.5">
-                    <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
-                      Passenger *
+                    <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">
+                      Passenger
                     </Label>
                     <div className="relative">
                       <Input
-                        placeholder="Search name, email, phone..."
+                        placeholder="Search passenger..."
                         value={(() => {
                           if (userSearchQuery && userSearchQuery.trim()) return userSearchQuery;
                           if (formData.passengerId) {
                             const selectedPassenger = allUsers?.find(u => u.id === formData.passengerId);
                             if (selectedPassenger) {
-                              return `${selectedPassenger.firstName} ${selectedPassenger.lastName} (${selectedPassenger.email})`;
+                              return `${selectedPassenger.firstName} ${selectedPassenger.lastName}`;
                             }
                           }
                           return '';
@@ -572,7 +572,7 @@ export function BookingDetailsDialog({
                             setUserSearchQuery(' ');
                           }
                         }}
-                        className="h-7 text-xs"
+                        className="h-6 text-[10px]"
                         data-testid="input-passenger-search"
                       />
                       {userSearchQuery && allUsers && (
@@ -623,14 +623,14 @@ export function BookingDetailsDialog({
                   </div>
 
                   {/* Type, Vehicle, Pax, Bags - Single Compact Row */}
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-4 gap-1">
                     <div className="space-y-0.5">
-                      <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Type</Label>
+                      <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Type</Label>
                       <Select
                         value={formData.bookingType}
                         onValueChange={(value) => setFormData({ ...formData, bookingType: value as 'transfer' | 'hourly' })}
                       >
-                        <SelectTrigger data-testid="select-booking-type" className="h-7 text-xs">
+                        <SelectTrigger data-testid="select-booking-type" className="h-6 text-[10px]">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -641,12 +641,12 @@ export function BookingDetailsDialog({
                     </div>
                     
                     <div className="space-y-0.5">
-                      <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Vehicle</Label>
+                      <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Vehicle</Label>
                       <Select
                         value={formData.vehicleTypeId}
                         onValueChange={(value) => setFormData({ ...formData, vehicleTypeId: value })}
                       >
-                        <SelectTrigger data-testid="select-vehicle-type" className="h-7 text-xs">
+                        <SelectTrigger data-testid="select-vehicle-type" className="h-6 text-[10px]">
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
@@ -660,35 +660,35 @@ export function BookingDetailsDialog({
                     </div>
                     
                     <div className="space-y-0.5">
-                      <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Pax</Label>
+                      <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Pax</Label>
                       <Input
                         type="number"
                         min="1"
                         value={formData.passengerCount}
                         onChange={(e) => setFormData({ ...formData, passengerCount: parseInt(e.target.value) || 1 })}
-                        className="h-7 text-xs"
+                        className="h-6 text-[10px]"
                         data-testid="input-passenger-count"
                       />
                     </div>
                     
                     <div className="space-y-0.5">
-                      <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Bags</Label>
+                      <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Bags</Label>
                       <Input
                         type="number"
                         min="0"
                         value={formData.luggageCount}
                         onChange={(e) => setFormData({ ...formData, luggageCount: parseInt(e.target.value) || 0 })}
-                        className="h-7 text-xs"
+                        className="h-6 text-[10px]"
                         data-testid="input-luggage-count"
                       />
                     </div>
                   </div>
 
                   {/* Addresses Section */}
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <div className="space-y-0.5">
-                      <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                      <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                        <div className="w-1 h-1 rounded-full bg-green-500"></div>
                         Pickup
                       </Label>
                       <AddressAutocomplete
@@ -707,10 +707,10 @@ export function BookingDetailsDialog({
 
                     {/* Via Points Section - Hidden for Hourly Service */}
                     {formData.bookingType !== 'hourly' && (
-                      <div className="space-y-1">
+                      <div className="space-y-0.5">
                         <div className="flex items-center justify-between">
-                          <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                          <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                            <div className="w-1 h-1 rounded-full bg-amber-500"></div>
                             Stops
                           </Label>
                           <Button
@@ -722,9 +722,9 @@ export function BookingDetailsDialog({
                               setFormData({ ...formData, viaPoints: newViaPoints });
                             }}
                             data-testid="button-add-via-point"
-                            className="h-5 text-[9px] text-primary hover:text-primary px-1"
+                            className="h-4 text-[8px] text-primary hover:text-primary px-1"
                           >
-                            <Plus className="w-2.5 h-2.5 mr-0.5" />
+                            <Plus className="w-2 h-2 mr-0.5" />
                             Add
                           </Button>
                         </div>
@@ -774,8 +774,8 @@ export function BookingDetailsDialog({
                     {/* Destination Address - Hidden for Hourly Service */}
                     {formData.bookingType !== 'hourly' && (
                       <div className="space-y-0.5">
-                        <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                        <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                          <div className="w-1 h-1 rounded-full bg-red-500"></div>
                           Destination
                         </Label>
                         <AddressAutocomplete
@@ -796,14 +796,14 @@ export function BookingDetailsDialog({
                     {/* Duration for Hourly */}
                     {formData.bookingType === 'hourly' && (
                       <div className="space-y-0.5">
-                        <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+                        <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">
                           Duration
                         </Label>
                         <Select
                           value={formData.requestedHours}
                           onValueChange={(value) => setFormData({ ...formData, requestedHours: value })}
                         >
-                          <SelectTrigger data-testid="select-requested-hours" className="h-7 text-xs">
+                          <SelectTrigger data-testid="select-requested-hours" className="h-6 text-[10px]">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -822,12 +822,12 @@ export function BookingDetailsDialog({
                   </div>
 
                   {/* Schedule Section - Ultra Compact Single Row */}
-                  <div className="space-y-1.5 pt-1.5 border-t border-border">
-                    <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                      <Clock className="w-2.5 h-2.5 text-blue-600" />
+                  <div className="space-y-1 pt-1 border-t border-border">
+                    <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                      <Clock className="w-2 h-2 text-blue-600" />
                       Schedule
                     </Label>
-                    <div className="grid grid-cols-[1fr_auto_auto_auto] gap-1">
+                    <div className="grid grid-cols-[1fr_auto_auto_auto] gap-0.5">
                       {/* Date */}
                       <DatePicker
                         selected={formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : null}
@@ -856,9 +856,9 @@ export function BookingDetailsDialog({
                             setFormData({ ...formData, scheduledDateTime: formattedDateTime });
                           }
                         }}
-                        dateFormat="MMM d, yyyy"
+                        dateFormat="MMM d"
                         minDate={new Date()}
-                        className="w-full h-7 px-2 text-xs border border-border rounded-md bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                        className="w-full h-6 px-1.5 text-[10px] border border-border rounded-md bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
                         placeholderText="Date"
                         wrapperClassName="w-full"
                         data-testid="input-scheduled-date"
@@ -888,7 +888,7 @@ export function BookingDetailsDialog({
                           setFormData({ ...formData, scheduledDateTime: formattedDateTime });
                         }}
                       >
-                        <SelectTrigger data-testid="select-hour" className="h-7 w-12 text-xs px-1.5">
+                        <SelectTrigger data-testid="select-hour" className="h-6 w-10 text-[10px] px-1">
                           <SelectValue placeholder="Hr" />
                         </SelectTrigger>
                         <SelectContent>
@@ -915,7 +915,7 @@ export function BookingDetailsDialog({
                           setFormData({ ...formData, scheduledDateTime: formattedDateTime });
                         }}
                       >
-                        <SelectTrigger data-testid="select-minute" className="h-7 w-12 text-xs px-1.5">
+                        <SelectTrigger data-testid="select-minute" className="h-6 w-10 text-[10px] px-1">
                           <SelectValue placeholder="Min" />
                         </SelectTrigger>
                         <SelectContent>
@@ -949,7 +949,7 @@ export function BookingDetailsDialog({
                           setFormData({ ...formData, scheduledDateTime: formattedDateTime });
                         }}
                       >
-                        <SelectTrigger data-testid="select-period" className="h-7 w-12 text-xs px-1.5">
+                        <SelectTrigger data-testid="select-period" className="h-6 w-10 text-[10px] px-1">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -961,19 +961,19 @@ export function BookingDetailsDialog({
                   </div>
 
                   {/* Extra Options - Compact Row */}
-                  <div className="flex items-center gap-3 pt-1.5 border-t border-border">
-                    <label className="flex items-center gap-1.5 cursor-pointer">
+                  <div className="flex items-center gap-2.5 pt-1 border-t border-border">
+                    <label className="flex items-center gap-1 cursor-pointer">
                       <input
                         id="baby-seat"
                         type="checkbox"
                         checked={formData.babySeat}
                         onChange={(e) => setFormData({ ...formData, babySeat: e.target.checked })}
-                        className="w-3 h-3 rounded border-border"
+                        className="w-2.5 h-2.5 rounded border-border"
                         data-testid="checkbox-baby-seat"
                       />
-                      <span className="text-[10px] text-muted-foreground">Baby Seat</span>
+                      <span className="text-[9px] text-muted-foreground">Baby Seat</span>
                     </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer">
+                    <label className="flex items-center gap-1 cursor-pointer">
                       <input
                         id="booking-for-toggle"
                         type="checkbox"
@@ -982,29 +982,29 @@ export function BookingDetailsDialog({
                           ...formData, 
                           bookingFor: e.target.checked ? 'someone_else' : 'self' 
                         })}
-                        className="w-3 h-3 rounded border-border"
+                        className="w-2.5 h-2.5 rounded border-border"
                         data-testid="checkbox-booking-for"
                       />
-                      <span className="text-[10px] text-muted-foreground">Book for other</span>
+                      <span className="text-[9px] text-muted-foreground">Book for other</span>
                     </label>
                   </div>
                     
                   {formData.bookingFor === 'someone_else' && (
-                    <div className="space-y-1.5 pl-4 border-l-2 border-purple-200 dark:border-purple-800">
+                    <div className="space-y-1 pl-3 border-l border-purple-200 dark:border-purple-800">
                       <Input
                         placeholder="Passenger Name"
                         value={formData.passengerName}
                         onChange={(e) => setFormData({ ...formData, passengerName: e.target.value })}
-                        className="h-7 text-xs"
+                        className="h-6 text-[10px]"
                         data-testid="input-passenger-name"
                       />
-                      <div className="grid grid-cols-2 gap-1.5">
+                      <div className="grid grid-cols-2 gap-1">
                         <Input
                           type="email"
                           placeholder="Email"
                           value={formData.passengerEmail}
                           onChange={(e) => setFormData({ ...formData, passengerEmail: e.target.value })}
-                          className="h-7 text-xs"
+                          className="h-6 text-[10px]"
                           data-testid="input-passenger-email"
                         />
                         <Input
@@ -1012,7 +1012,7 @@ export function BookingDetailsDialog({
                           placeholder="Phone"
                           value={formData.passengerPhone}
                           onChange={(e) => setFormData({ ...formData, passengerPhone: e.target.value })}
-                          className="h-7 text-xs"
+                          className="h-6 text-[10px]"
                           data-testid="input-passenger-phone"
                         />
                       </div>
@@ -1020,13 +1020,13 @@ export function BookingDetailsDialog({
                   )}
 
                   {/* Flight Information Section */}
-                  <div className="space-y-1.5 pt-1.5 border-t border-border">
-                    <div className="flex items-center gap-1.5">
-                      <Plane className="w-2.5 h-2.5 text-slate-500" />
-                      <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
-                        Flight Info
+                  <div className="space-y-1 pt-1 border-t border-border">
+                    <div className="flex items-center gap-1">
+                      <Plane className="w-2 h-2 text-slate-500" />
+                      <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">
+                        Flight
                       </Label>
-                      <span className="text-[8px] text-muted-foreground">(Optional)</span>
+                      <span className="text-[7px] text-muted-foreground">(Optional)</span>
                     </div>
                   <FlightSearch
                     selectedFlight={selectedFlight as FlightInfo | null}
