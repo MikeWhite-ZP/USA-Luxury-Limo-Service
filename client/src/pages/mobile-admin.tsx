@@ -71,6 +71,7 @@ import {
   Menu,
   Navigation,
   UserCheck,
+  LayoutGrid
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { BookingDetailsDialog } from '@/components/BookingDetailsDialog';
