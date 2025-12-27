@@ -611,9 +611,9 @@ export default function MobilePassenger() {
 
   return (
     <div className="min-h-screen bg-muted pb-20">
-      {/* Modern Header */}
-      <div className="bg-background border-b border-border shadow-lg">
-        <div className="px-5 pt-[26px] pb-[26px] mt-[20px] mb-[20px]">
+      {/* Modern Header with safe area for phone notch/camera */}
+      <div className="bg-background border-b border-border shadow-lg pt-[30px]">
+        <div className="px-5 pt-4 pb-4">
           <div className="flex justify-between items-start mb-5">
             <div>
               <h1 className="text-xl font-bold text-foreground">Welcome Back</h1>

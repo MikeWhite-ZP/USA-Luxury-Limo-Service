@@ -174,8 +174,8 @@ export default function MobileDispatcher() {
 
   return (
     <div className="min-h-screen bg-muted">
-      {/* Header */}
-      <div className="bg-background border-b border-border sticky top-0 z-10 shadow-sm">
+      {/* Header with safe area for phone notch/camera */}
+      <div className="bg-background border-b border-border sticky top-0 z-10 shadow-sm pt-[30px]">
         <div className="p-3 sm:p-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Button

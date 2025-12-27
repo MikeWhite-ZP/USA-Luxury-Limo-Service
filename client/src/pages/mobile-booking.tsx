@@ -10,8 +10,8 @@ export default function MobileBooking() {
 
   return (
     <div className="min-h-screen bg-muted">
-      {/* Mobile Header with Logo and Back Button */}
-      <div className="bg-card border-b border-border shadow-sm sticky top-0 z-50">
+      {/* Mobile Header with Logo and Back Button - includes safe area for phone notch */}
+      <div className="bg-card border-b border-border shadow-sm sticky top-0 z-50 pt-[30px]">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
