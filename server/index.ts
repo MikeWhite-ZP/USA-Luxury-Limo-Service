@@ -8,6 +8,7 @@ import { db } from "./db";
 import path from "path";
 import { fileURLToPath } from "url";
 import { randomBytes } from "crypto";
+import { startBookingMonitor } from "./bookingMonitor";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -158,6 +159,9 @@ app.use((req, res, next) => {
       log(`Server running on http://${HOST}:${PORT}`);
       log(`Environment: ${process.env.NODE_ENV || "development"}`);
       log(`Database: ${process.env.DATABASE_URL ? "Connected" : "Not configured"}`);
+      
+      // Start the booking monitor background worker
+      startBookingMonitor();
     });
 
     process.on("SIGTERM", () => {

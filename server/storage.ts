@@ -80,9 +80,12 @@ import {
   oldInvoices,
   type OldInvoice,
   type InsertOldInvoice,
+  devicePushTokens,
+  type DevicePushToken,
+  type InsertDevicePushToken,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, like, sql } from "drizzle-orm";
+import { eq, and, desc, like, sql, gte, lte, isNull, inArray, or } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { encrypt, decrypt } from './crypto';
 
@@ -325,6 +328,20 @@ export interface IStorage {
   createOldInvoice(invoice: InsertOldInvoice): Promise<OldInvoice>;
   updateOldInvoice(id: string, updates: Partial<InsertOldInvoice>): Promise<OldInvoice | undefined>;
   deleteOldInvoice(id: string): Promise<boolean>;
+  
+  // Device Push Tokens
+  registerPushToken(data: InsertDevicePushToken): Promise<DevicePushToken>;
+  unregisterPushToken(userId: string, deviceId: string): Promise<boolean>;
+  getPushTokensByUser(userId: string): Promise<DevicePushToken[]>;
+  getPushTokensForUsers(userIds: string[]): Promise<DevicePushToken[]>;
+  getActiveAdminAndDispatcherTokens(): Promise<DevicePushToken[]>;
+  
+  // Booking reminder tracking
+  getBookingsNeedingFirstReminder(): Promise<Booking[]>;
+  getBookingsNeedingSecondReminder(): Promise<Booking[]>;
+  getOverdueBookingsForAutoCancellation(): Promise<Booking[]>;
+  markFirstReminderSent(bookingId: string): Promise<void>;
+  markSecondReminderSent(bookingId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2699,6 +2716,178 @@ export class DatabaseStorage implements IStorage {
       .where(eq(oldInvoices.id, id))
       .returning();
     return result.length > 0;
+  }
+  
+  // Device Push Tokens
+  async registerPushToken(data: InsertDevicePushToken): Promise<DevicePushToken> {
+    // Upsert: update if same user+device exists, otherwise insert
+    const [token] = await db
+      .insert(devicePushTokens)
+      .values({
+        ...data,
+        isActive: true,
+        lastSeenAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: [devicePushTokens.userId, devicePushTokens.deviceId],
+        set: {
+          token: data.token,
+          platform: data.platform,
+          isActive: true,
+          lastSeenAt: new Date(),
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return token;
+  }
+  
+  async unregisterPushToken(userId: string, deviceId: string): Promise<boolean> {
+    const result = await db
+      .update(devicePushTokens)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(and(
+        eq(devicePushTokens.userId, userId),
+        eq(devicePushTokens.deviceId, deviceId)
+      ))
+      .returning();
+    return result.length > 0;
+  }
+  
+  async getPushTokensByUser(userId: string): Promise<DevicePushToken[]> {
+    return await db
+      .select()
+      .from(devicePushTokens)
+      .where(and(
+        eq(devicePushTokens.userId, userId),
+        eq(devicePushTokens.isActive, true)
+      ));
+  }
+  
+  async getPushTokensForUsers(userIds: string[]): Promise<DevicePushToken[]> {
+    if (userIds.length === 0) return [];
+    return await db
+      .select()
+      .from(devicePushTokens)
+      .where(and(
+        inArray(devicePushTokens.userId, userIds),
+        eq(devicePushTokens.isActive, true)
+      ));
+  }
+  
+  async getActiveAdminAndDispatcherTokens(): Promise<DevicePushToken[]> {
+    // Get all active tokens for admin and dispatcher users
+    const adminUsers = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(and(
+        or(eq(users.role, 'admin'), eq(users.role, 'dispatcher')),
+        eq(users.isActive, true)
+      ));
+    
+    const adminUserIds = adminUsers.map(u => u.id);
+    if (adminUserIds.length === 0) return [];
+    
+    return await db
+      .select()
+      .from(devicePushTokens)
+      .where(and(
+        inArray(devicePushTokens.userId, adminUserIds),
+        eq(devicePushTokens.isActive, true)
+      ));
+  }
+  
+  // Booking reminder tracking
+  async getBookingsNeedingFirstReminder(): Promise<Booking[]> {
+    // Get bookings that are:
+    // - Status: pending, confirmed, pending_driver_acceptance
+    // - Scheduled time is within 2 hours from now
+    // - First reminder not yet sent (reminderSentAt is null)
+    // - Not already started (startedAt is null)
+    const now = new Date();
+    const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+    
+    return await db
+      .select()
+      .from(bookings)
+      .where(and(
+        or(
+          eq(bookings.status, 'pending'),
+          eq(bookings.status, 'confirmed'),
+          eq(bookings.status, 'pending_driver_acceptance')
+        ),
+        lte(bookings.scheduledDateTime, twoHoursFromNow),
+        gte(bookings.scheduledDateTime, now),
+        isNull(bookings.reminderSentAt),
+        isNull(bookings.startedAt),
+        isNull(bookings.cancelledAt)
+      ));
+  }
+  
+  async getBookingsNeedingSecondReminder(): Promise<Booking[]> {
+    // Get bookings that are:
+    // - Status: pending, confirmed, pending_driver_acceptance  
+    // - Scheduled time is within 1 hour from now
+    // - First reminder already sent (reminderSentAt is not null)
+    // - Second reminder not yet sent (secondReminderSentAt is null)
+    // - Not already started (startedAt is null)
+    const now = new Date();
+    const oneHourFromNow = new Date(now.getTime() + 1 * 60 * 60 * 1000);
+    
+    return await db
+      .select()
+      .from(bookings)
+      .where(and(
+        or(
+          eq(bookings.status, 'pending'),
+          eq(bookings.status, 'confirmed'),
+          eq(bookings.status, 'pending_driver_acceptance')
+        ),
+        lte(bookings.scheduledDateTime, oneHourFromNow),
+        gte(bookings.scheduledDateTime, now),
+        sql`${bookings.reminderSentAt} IS NOT NULL`,
+        isNull(bookings.secondReminderSentAt),
+        isNull(bookings.startedAt),
+        isNull(bookings.cancelledAt)
+      ));
+  }
+  
+  async getOverdueBookingsForAutoCancellation(): Promise<Booking[]> {
+    // Get bookings that are:
+    // - Status: pending, confirmed, pending_driver_acceptance
+    // - Scheduled time has passed (before now)
+    // - Not already cancelled
+    // - Not already started
+    const now = new Date();
+    
+    return await db
+      .select()
+      .from(bookings)
+      .where(and(
+        or(
+          eq(bookings.status, 'pending'),
+          eq(bookings.status, 'confirmed'),
+          eq(bookings.status, 'pending_driver_acceptance')
+        ),
+        lte(bookings.scheduledDateTime, now),
+        isNull(bookings.startedAt),
+        isNull(bookings.cancelledAt),
+        isNull(bookings.autoCancelledAt)
+      ));
+  }
+  
+  async markFirstReminderSent(bookingId: string): Promise<void> {
+    await db
+      .update(bookings)
+      .set({ reminderSentAt: new Date(), updatedAt: new Date() })
+      .where(eq(bookings.id, bookingId));
+  }
+  
+  async markSecondReminderSent(bookingId: string): Promise<void> {
+    await db
+      .update(bookings)
+      .set({ secondReminderSentAt: new Date(), updatedAt: new Date() })
+      .where(eq(bookings.id, bookingId));
   }
 }
 

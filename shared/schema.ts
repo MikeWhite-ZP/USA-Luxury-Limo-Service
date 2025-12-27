@@ -321,7 +321,8 @@ export const bookings = pgTable("bookings", {
     enum: ["timing_conflict", "pricing_issue", "too_far_away", "vehicle_unavailable", "personal_emergency", "other"]
   }),
   declineNotes: text("decline_notes"), // Optional additional notes for decline
-  reminderSentAt: timestamp("reminder_sent_at"), // When 2-hour reminder was sent
+  reminderSentAt: timestamp("reminder_sent_at"), // When 2-hour reminder was sent (first warning)
+  secondReminderSentAt: timestamp("second_reminder_sent_at"), // When 1-hour reminder was sent (second warning)
   onTheWayAt: timestamp("on_the_way_at"), // When driver started journey
   arrivedAt: timestamp("arrived_at"), // When driver arrived at pickup
   onBoardAt: timestamp("on_board_at"), // When passenger boarded
@@ -900,6 +901,25 @@ export const insertOldInvoiceSchema = createInsertSchema(oldInvoices).omit({
   updatedAt: true,
 });
 
+// Device Push Tokens - for mobile push notifications
+export const devicePushTokens = pgTable("device_push_tokens", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  deviceId: varchar("device_id").notNull(), // Unique device identifier
+  platform: varchar("platform", { enum: ["ios", "android", "web"] }).notNull(),
+  token: text("token").notNull(), // FCM/APNs token
+  isActive: boolean("is_active").default(true),
+  lastSeenAt: timestamp("last_seen_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertDevicePushTokenSchema = createInsertSchema(devicePushTokens).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Insert schemas for ride credits
 export const insertRideCreditTransactionSchema = createInsertSchema(rideCreditTransactions).omit({
   id: true,
@@ -965,3 +985,5 @@ export type DeclineReason = typeof declineReasons.$inferSelect;
 export type InsertDeclineReason = z.infer<typeof insertDeclineReasonSchema>;
 export type OldInvoice = typeof oldInvoices.$inferSelect;
 export type InsertOldInvoice = z.infer<typeof insertOldInvoiceSchema>;
+export type DevicePushToken = typeof devicePushTokens.$inferSelect;
+export type InsertDevicePushToken = z.infer<typeof insertDevicePushTokenSchema>;

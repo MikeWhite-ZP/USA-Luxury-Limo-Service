@@ -11497,6 +11497,67 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
     }
   });
 
+  // ============================================
+  // Push Notification Token Management
+  // ============================================
+  
+  // Register device push token
+  app.post('/api/push-tokens/register', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+
+      const { deviceId, platform, token } = req.body;
+      
+      if (!deviceId || !platform || !token) {
+        return res.status(400).json({ message: 'deviceId, platform, and token are required' });
+      }
+
+      if (!['ios', 'android', 'web'].includes(platform)) {
+        return res.status(400).json({ message: 'platform must be ios, android, or web' });
+      }
+
+      const pushToken = await storage.registerPushToken({
+        userId,
+        deviceId,
+        platform,
+        token,
+      });
+
+      console.log(`📱 Push token registered for user ${userId} on ${platform} device`);
+      res.json({ success: true, token: pushToken });
+    } catch (error) {
+      console.error('Error registering push token:', error);
+      res.status(500).json({ message: 'Failed to register push token' });
+    }
+  });
+
+  // Unregister device push token
+  app.post('/api/push-tokens/unregister', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+
+      const { deviceId } = req.body;
+      
+      if (!deviceId) {
+        return res.status(400).json({ message: 'deviceId is required' });
+      }
+
+      const success = await storage.unregisterPushToken(userId, deviceId);
+      
+      console.log(`📱 Push token unregistered for user ${userId}`);
+      res.json({ success });
+    } catch (error) {
+      console.error('Error unregistering push token:', error);
+      res.status(500).json({ message: 'Failed to unregister push token' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
