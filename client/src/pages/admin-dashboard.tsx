@@ -78,7 +78,16 @@ import {
   Wallet,
   Download,
   Shield,
+  MoreVertical,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Switch } from "@/components/ui/switch";
 import { AdminNav } from "@/components/AdminNav";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
@@ -9325,288 +9334,259 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="border border-border rounded-xl overflow-hidden shadow-sm bg-background">
-                    <table className="w-full">
-                      <thead className="bg-gradient-to-r from-slate-50 to-purple-50/20 border-b border-border">
-                        <tr>
-                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
-                            User
-                          </th>
-                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
-                            Email
-                          </th>
-                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
-                            Role
-                          </th>
-                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
-                            Status
-                          </th>
-                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
-                            Star Rating
-                          </th>
-                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
-                            Docs
-                          </th>
-                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
-                            Tax Info
-                          </th>
-                          <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {allUsers
-                          .filter(
-                            (u) =>
-                              selectedUserType === "all" ||
-                              u.role === selectedUserType,
-                          )
-                          .filter((u) => {
-                            if (!userSearchQuery) return true;
-                            const query = userSearchQuery.toLowerCase();
-                            return (
-                              u.firstName?.toLowerCase().includes(query) ||
-                              u.lastName?.toLowerCase().includes(query) ||
-                              u.email?.toLowerCase().includes(query) ||
-                              u.phone?.toLowerCase().includes(query) ||
-                              `${u.firstName} ${u.lastName}`
-                                .toLowerCase()
-                                .includes(query)
-                            );
-                          })
-                          .map((u) => (
-                            <tr
-                              key={u.id}
-                              className="border-t border-border hover:bg-purple-50/20 transition-colors"
-                              data-testid={`user-row-${u.id}`}
-                            >
-                              <td className="p-4">
-                                <div>
-                                  <p
-                                    className="font-semibold text-foreground"
-                                    data-testid={`user-name-${u.id}`}
-                                  >
-                                    {u.firstName} {u.lastName}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground mt-0.5">
-                                    Joined{" "}
-                                    {new Date(u.createdAt).toLocaleDateString()}
-                                  </p>
-                                </div>
-                              </td>
-                              <td className="p-4">
-                                <p
-                                  className="text-sm text-muted-foreground font-medium"
-                                  data-testid={`user-email-${u.id}`}
-                                >
-                                  {u.email}
-                                </p>
-                                {u.phone && (
-                                  <p className="text-xs text-muted-foreground mt-0.5">
-                                    {u.phone}
-                                  </p>
-                                )}
-                              </td>
-                              <td className="p-4">
-                                <Select
-                                  value={u.role}
-                                  onValueChange={(role) =>
-                                    updateUserMutation.mutate({
-                                      id: u.id,
-                                      updates: {
-                                        role: role as
-                                          | "passenger"
-                                          | "driver"
-                                          | "dispatcher"
-                                          | "admin",
-                                      },
-                                    })
-                                  }
-                                  disabled={updateUserMutation.isPending}
-                                >
-                                  <SelectTrigger
-                                    className="w-32 border-border"
-                                    data-testid={`select-role-${u.id}`}
-                                  >
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent className="bg-background">
-                                    <SelectItem value="passenger">
-                                      Passenger
-                                    </SelectItem>
-                                    <SelectItem value="driver">
-                                      Driver
-                                    </SelectItem>
-                                    <SelectItem value="dispatcher">
-                                      Dispatcher
-                                    </SelectItem>
-                                    <SelectItem value="admin">Admin</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </td>
-                              <td className="p-3">
-                                <Select
-                                  value={u.isActive ? "active" : "inactive"}
-                                  onValueChange={(value) =>
-                                    updateUserMutation.mutate({
-                                      id: u.id,
-                                      updates: { isActive: value === "active" },
-                                    })
-                                  }
-                                  disabled={updateUserMutation.isPending}
-                                >
-                                  <SelectTrigger
-                                    className="w-28 border-border"
-                                    data-testid={`select-status-${u.id}`}
-                                  >
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent className="bg-background">
-                                    <SelectItem value="active">
-                                      Active
-                                    </SelectItem>
-                                    <SelectItem value="inactive">
-                                      Inactive
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </td>
-                              <td className="p-3">
-                                {u.role === "driver" &&
-                                (u as any).driverInfo ? (
-                                  <div
-                                    className="flex items-center gap-1"
-                                    data-testid={`driver-rating-${u.id}`}
-                                  >
-                                    <span className="text-sm font-medium text-foreground">
-                                      {parseFloat(
-                                        (u as any).driverInfo.rating || "0",
-                                      ).toFixed(1)}
-                                    </span>
-                                    <div className="flex">
-                                      {[1, 2, 3, 4, 5].map((star) => (
-                                        <svg
-                                          key={star}
-                                          className={`w-4 h-4 ${
-                                            star <=
-                                            Math.round(
-                                              parseFloat(
-                                                (u as any).driverInfo?.rating ||
-                                                  "0",
-                                              ),
-                                            )
-                                              ? "text-amber-400 fill-current"
-                                              : "text-muted-foreground"
-                                          }`}
-                                          fill="none"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth="2"
-                                          viewBox="0 0 24 24"
-                                          stroke="currentColor"
-                                        >
-                                          <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                                        </svg>
-                                      ))}
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <span className="text-sm text-muted-foreground">
-                                    N/A
-                                  </span>
-                                )}
-                              </td>
-                              <td className="p-3">
-                                {u.role === "driver" ? (
-                                  (u as any).documentsComplete ? (
-                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                      <CheckCircle className="w-3 h-3 mr-1" />
-                                      Complete
-                                    </Badge>
-                                  ) : (
-                                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                                      <AlertTriangle className="w-3 h-3 mr-1" />
-                                      Missing
-                                    </Badge>
-                                  )
-                                ) : (
-                                  <span className="text-sm text-muted-foreground">-</span>
-                                )}
-                              </td>
-                              <td className="p-3">
-                                {u.role === "driver" ? (
-                                  (u as any).driverInfo?.taxInfoCompletedAt ? (
-                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                      <CheckCircle className="w-3 h-3 mr-1" />
-                                      Complete
-                                    </Badge>
-                                  ) : (
-                                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                                      <AlertTriangle className="w-3 h-3 mr-1" />
-                                      Missing
-                                    </Badge>
-                                  )
-                                ) : (
-                                  <span className="text-sm text-muted-foreground">-</span>
-                                )}
-                              </td>
-                              <td className="p-4">
-                                <div className="flex items-center gap-2">
-                                  {u.role === "driver" && (
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 dark:hover:border-blue-700"
-                                      onClick={() => {
-                                        setSelectedDriverForDocs(u);
-                                        setDocumentsDialogOpen(true);
-                                      }}
-                                      data-testid={`button-documents-${u.id}`}
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[700px]">
+                        <thead className="bg-gradient-to-r from-slate-50 to-purple-50/20 border-b border-border">
+                          <tr>
+                            <th className="text-left px-3 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                              User
+                            </th>
+                            <th className="text-left px-3 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                              Role
+                            </th>
+                            <th className="text-left px-3 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                              Status
+                            </th>
+                            <th className="text-left px-3 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                              Rating
+                            </th>
+                            <th className="text-left px-3 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                              Compliance
+                            </th>
+                            <th className="text-right px-3 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-16">
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {allUsers
+                            .filter(
+                              (u) =>
+                                selectedUserType === "all" ||
+                                u.role === selectedUserType,
+                            )
+                            .filter((u) => {
+                              if (!userSearchQuery) return true;
+                              const query = userSearchQuery.toLowerCase();
+                              return (
+                                u.firstName?.toLowerCase().includes(query) ||
+                                u.lastName?.toLowerCase().includes(query) ||
+                                u.email?.toLowerCase().includes(query) ||
+                                u.phone?.toLowerCase().includes(query) ||
+                                `${u.firstName} ${u.lastName}`
+                                  .toLowerCase()
+                                  .includes(query)
+                              );
+                            })
+                            .map((u) => (
+                              <tr
+                                key={u.id}
+                                className="border-t border-border hover:bg-purple-50/20 transition-colors"
+                                data-testid={`user-row-${u.id}`}
+                              >
+                                <td className="px-3 py-2.5">
+                                  <div className="min-w-0">
+                                    <p
+                                      className="font-medium text-sm text-foreground truncate"
+                                      data-testid={`user-name-${u.id}`}
                                     >
-                                      <FileText className="w-3.5 h-3.5 mr-1.5" />
-                                      Docs
-                                    </Button>
+                                      {u.firstName} {u.lastName}
+                                    </p>
+                                    <p
+                                      className="text-xs text-muted-foreground truncate"
+                                      data-testid={`user-email-${u.id}`}
+                                    >
+                                      {u.email}
+                                    </p>
+                                    {u.phone && (
+                                      <p className="text-xs text-muted-foreground">
+                                        {u.phone}
+                                      </p>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="px-3 py-2.5">
+                                  <Select
+                                    value={u.role}
+                                    onValueChange={(role) =>
+                                      updateUserMutation.mutate({
+                                        id: u.id,
+                                        updates: {
+                                          role: role as
+                                            | "passenger"
+                                            | "driver"
+                                            | "dispatcher"
+                                            | "admin",
+                                        },
+                                      })
+                                    }
+                                    disabled={updateUserMutation.isPending}
+                                  >
+                                    <SelectTrigger
+                                      className="h-8 w-24 text-xs border-border"
+                                      data-testid={`select-role-${u.id}`}
+                                    >
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-background">
+                                      <SelectItem value="passenger">Passenger</SelectItem>
+                                      <SelectItem value="driver">Driver</SelectItem>
+                                      <SelectItem value="dispatcher">Dispatcher</SelectItem>
+                                      <SelectItem value="admin">Admin</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </td>
+                                <td className="px-3 py-2.5">
+                                  <Select
+                                    value={u.isActive ? "active" : "inactive"}
+                                    onValueChange={(value) =>
+                                      updateUserMutation.mutate({
+                                        id: u.id,
+                                        updates: { isActive: value === "active" },
+                                      })
+                                    }
+                                    disabled={updateUserMutation.isPending}
+                                  >
+                                    <SelectTrigger
+                                      className="h-8 w-20 text-xs border-border"
+                                      data-testid={`select-status-${u.id}`}
+                                    >
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-background">
+                                      <SelectItem value="active">Active</SelectItem>
+                                      <SelectItem value="inactive">Inactive</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </td>
+                                <td className="px-3 py-2.5">
+                                  {u.role === "driver" && (u as any).driverInfo ? (
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <div
+                                            className="flex items-center gap-1 cursor-default"
+                                            data-testid={`driver-rating-${u.id}`}
+                                          >
+                                            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                                            <span className="text-xs font-medium text-foreground">
+                                              {parseFloat((u as any).driverInfo.rating || "0").toFixed(1)}
+                                            </span>
+                                          </div>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Driver rating based on passenger feedback</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">-</span>
                                   )}
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300 dark:hover:border-purple-700"
-                                    onClick={() => openEditUserDialog(u)}
-                                    data-testid={`button-edit-user-${u.id}`}
-                                  >
-                                    <Pencil className="w-3.5 h-3.5 mr-1.5" />
-                                    Edit
-                                  </Button>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-                                    onClick={() => {
-                                      setUserToDelete(u);
-                                      setDeleteUserDialogOpen(true);
-                                    }}
-                                    disabled={deleteUserMutation.isPending}
-                                    data-testid={`button-delete-user-${u.id}`}
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                                    Delete
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className="text-sm text-muted-foreground p-4 bg-purple-50 rounded-xl border border-purple-200">
-                    <div className="flex items-start gap-2">
-                      <Star className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <strong className="font-semibold text-purple-900">About Star Ratings:</strong>{" "}
-                        <span>Driver ratings are calculated from passenger feedback after completed rides. All ratings use a 5-star scale and are only displayed for users with the driver role.</span>
-                      </div>
+                                </td>
+                                <td className="px-3 py-2.5">
+                                  {u.role === "driver" ? (
+                                    <TooltipProvider>
+                                      <div className="flex items-center gap-1.5">
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                                              (u as any).documentsComplete 
+                                                ? "bg-green-100 text-green-600" 
+                                                : "bg-red-100 text-red-600"
+                                            }`}>
+                                              {(u as any).documentsComplete ? (
+                                                <CheckCircle className="w-3 h-3" />
+                                              ) : (
+                                                <AlertTriangle className="w-3 h-3" />
+                                              )}
+                                            </div>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Documents: {(u as any).documentsComplete ? "Complete" : "Missing"}</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                                              (u as any).driverInfo?.taxInfoCompletedAt 
+                                                ? "bg-green-100 text-green-600" 
+                                                : "bg-red-100 text-red-600"
+                                            }`}>
+                                              {(u as any).driverInfo?.taxInfoCompletedAt ? (
+                                                <DollarSign className="w-3 h-3" />
+                                              ) : (
+                                                <DollarSign className="w-3 h-3" />
+                                              )}
+                                            </div>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Tax Info: {(u as any).driverInfo?.taxInfoCompletedAt ? "Complete" : "Missing"}</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </div>
+                                    </TooltipProvider>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">-</span>
+                                  )}
+                                </td>
+                                <td className="px-3 py-2.5 text-right">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 w-8 p-0"
+                                        data-testid={`button-actions-${u.id}`}
+                                      >
+                                        <MoreVertical className="w-4 h-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="bg-background w-40">
+                                      <DropdownMenuItem
+                                        onClick={() => openEditUserDialog(u)}
+                                        data-testid={`button-edit-user-${u.id}`}
+                                      >
+                                        <Pencil className="w-3.5 h-3.5 mr-2" />
+                                        Edit User
+                                      </DropdownMenuItem>
+                                      {u.role === "driver" && (
+                                        <DropdownMenuItem
+                                          onClick={() => {
+                                            setSelectedDriverForDocs(u);
+                                            setDocumentsDialogOpen(true);
+                                          }}
+                                          data-testid={`button-documents-${u.id}`}
+                                        >
+                                          <FileText className="w-3.5 h-3.5 mr-2" />
+                                          Documents
+                                        </DropdownMenuItem>
+                                      )}
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem
+                                        className="text-red-600 focus:text-red-600"
+                                        onClick={() => {
+                                          setUserToDelete(u);
+                                          setDeleteUserDialogOpen(true);
+                                        }}
+                                        disabled={deleteUserMutation.isPending}
+                                        data-testid={`button-delete-user-${u.id}`}
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5 mr-2" />
+                                        Delete
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-2">
+                    <Star className="w-3.5 h-3.5 text-purple-500" />
+                    Ratings are calculated from passenger feedback. Compliance icons show document and tax info status for drivers.
+                  </p>
                 </div>
               ) : (
                 <div
