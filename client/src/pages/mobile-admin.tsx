@@ -852,7 +852,7 @@ export default function MobileAdmin() {
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-0.5">
-                            <p className="font-bold text-sm text-foreground truncate">{booking.passengerName || 'Guest'}</p>
+                            <p className="font-bold text-foreground truncate text-[12px]">{booking.passengerName || 'Guest'}</p>
                             <span className="font-bold text-sm text-foreground">${booking.totalAmount}</span>
                           </div>
                           <div className="flex items-center justify-between">
