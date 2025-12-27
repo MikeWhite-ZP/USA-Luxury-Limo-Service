@@ -940,176 +940,162 @@ export default function MobileAdmin() {
         )}
 
         {activeSection === 'bookings' && (
-          <div className="space-y-4">
-            {/* Header with Add Button */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Bookings</h2>
+          <div className="space-y-2">
+            {/* Compact Header */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-blue-600" />
+                <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Bookings</h2>
+              </div>
               <Button
                 onClick={handleOpenNewBooking}
-                className="bg-blue-600 hover:bg-blue-700"
+                size="sm"
+                className="h-7 px-2 text-[11px] font-bold bg-blue-600 hover:bg-blue-700"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                New Booking
+                <Plus className="w-3.5 h-3.5 mr-1" />
+                NEW
               </Button>
             </div>
 
-            {/* Search and Filter */}
-            <div className="flex gap-2">
+            {/* Compact Search and Filter */}
+            <div className="flex gap-1.5">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                 <Input
-                  placeholder="Search bookings..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
+                  className="pl-8 h-8 text-xs"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-32">
-                  <Filter className="w-4 h-4 mr-2" />
+                <SelectTrigger className="w-24 h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="confirmed">Confirmed</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="in_progress">Active</SelectItem>
+                  <SelectItem value="completed">Done</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Bookings List */}
-            <div className="space-y-3">
-              {bookingsLoading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-                </div>
-              ) : filteredBookings.map((booking) => (
-                <Card key={booking.id} className="overflow-hidden">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold">{booking.passengerName || 'Guest'}</p>
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm text-muted-foreground">{booking.vehicleType || 'Standard'}</p>
+            {/* Ultra-Compact Bookings List */}
+            <Card className="border-0 shadow-sm overflow-hidden">
+              <CardContent className="p-0">
+                {bookingsLoading ? (
+                  <div className="flex justify-center py-6">
+                    <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border">
+                    {filteredBookings.map((booking) => (
+                      <div 
+                        key={booking.id}
+                        className="p-2.5 bg-background hover:bg-muted/30 transition-colors"
+                      >
+                        {/* Row 1: Name, Status, Price */}
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <p className="font-bold text-[11px] text-foreground truncate">{booking.passengerName || 'Guest'}</p>
+                            <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase flex-shrink-0 ${
+                              booking.status === 'pending' || booking.status === 'pending_driver_acceptance' ? 'bg-orange-100 text-orange-700' :
+                              booking.status === 'confirmed' ? 'bg-blue-100 text-blue-700' :
+                              booking.status === 'in_progress' ? 'bg-indigo-100 text-indigo-700' :
+                              booking.status === 'completed' ? 'bg-green-100 text-green-700' :
+                              booking.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                              'bg-muted text-muted-foreground'
+                            }`}>
+                              {booking.status?.replace('pending_driver_acceptance', 'pending').split('_')[0]}
+                            </span>
+                          </div>
+                          <span className="font-bold text-[12px] text-green-600 flex-shrink-0">${booking.totalAmount}</span>
+                        </div>
+                        
+                        {/* Row 2: Route Summary */}
+                        <div className="flex items-center gap-1 text-[10px] text-muted-foreground mb-1.5">
+                          <MapPin className="w-3 h-3 text-green-600 flex-shrink-0" />
+                          <span className="truncate flex-1">{booking.pickupAddress?.split(',')[0]}</span>
+                          <ChevronRight className="w-3 h-3 flex-shrink-0" />
+                          <MapPin className="w-3 h-3 text-red-600 flex-shrink-0" />
+                          <span className="truncate flex-1">{(booking.destinationAddress || booking.dropoffAddress)?.split(',')[0] || 'TBD'}</span>
+                        </div>
+
+                        {/* Row 3: Date/Time and Driver */}
+                        <div className="flex items-center justify-between text-[9px] text-muted-foreground mb-1.5">
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{booking.scheduledDateTime 
+                              ? format(new Date(booking.scheduledDateTime), 'MMM d, h:mm a')
+                              : booking.pickupDate 
+                                ? format(new Date(booking.pickupDate), 'MMM d, h:mm a')
+                                : 'No date'}</span>
+                          </div>
                           {booking.driverName && (
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                              Driver: {booking.driverName}
+                            <span className="text-[8px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded font-medium">
+                              {booking.driverName.split(' ')[0]}
                             </span>
                           )}
                         </div>
-                      </div>
-                      {getStatusBadge(booking.status)}
-                    </div>
-                    
-                    <div className="space-y-2 text-sm mb-3">
-                      {/* Pickup Address */}
-                      <div className="flex items-start gap-2">
-                        <MapPin className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-muted-foreground">{booking.pickupAddress}</span>
-                      </div>
-                      
-                      {/* Via Points */}
-                      {booking.viaPoints && booking.viaPoints.length > 0 && (
-                        booking.viaPoints.map((via, index) => (
-                          <div key={index} className="flex items-start gap-2 pl-2 border-l-2 border-orange-300 ml-1.5">
-                            <Navigation className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-muted-foreground text-xs">{via.address}</span>
-                          </div>
-                        ))
-                      )}
-                      
-                      {/* Destination Address */}
-                      <div className="flex items-start gap-2">
-                        <MapPin className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-muted-foreground">
-                          {booking.destinationAddress || booking.dropoffAddress || 'No destination'}
-                        </span>
-                      </div>
-                    </div>
 
-                    {/* Date/Time and Price */}
-                    <div className="flex items-center justify-between pt-3 border-t">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4" />
-                        {booking.scheduledDateTime 
-                          ? format(new Date(booking.scheduledDateTime), 'MMM d, yyyy h:mm a')
-                          : booking.pickupDate 
-                            ? format(new Date(booking.pickupDate), 'MMM d, yyyy h:mm a')
-                            : 'No date'}
+                        {/* Row 4: Ultra-Compact Action Icons */}
+                        <div className="flex items-center gap-1 pt-1.5 border-t border-border/50">
+                          <button
+                            onClick={() => handleEditBooking(booking)}
+                            className="p-1.5 rounded bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          
+                          {!['cancelled', 'completed'].includes(booking.status) && (
+                            <button
+                              onClick={() => handleOpenAssignDriver(booking)}
+                              className={`p-1.5 rounded transition-colors ${
+                                booking.driverId 
+                                  ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' 
+                                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                              }`}
+                            >
+                              <UserCheck className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          
+                          {(booking.status === 'pending' || booking.status === 'pending_driver_acceptance') && (
+                            <>
+                              <button
+                                onClick={() => updateBookingMutation.mutate({ id: booking.id, status: 'confirmed' })}
+                                className="p-1.5 rounded bg-green-600 text-white hover:bg-green-700 transition-colors"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => updateBookingMutation.mutate({ id: booking.id, status: 'cancelled' })}
+                                className="p-1.5 rounded bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          )}
+                          
+                          <button
+                            onClick={() => handleDeleteBooking(booking)}
+                            className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors ml-auto"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                      <span className="font-bold text-lg">${booking.totalAmount}</span>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-2 mt-3 pt-3 border-t">
-                      {/* Edit Button */}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEditBooking(booking)}
-                      >
-                        <Edit2 className="w-4 h-4 mr-1" />
-                        Edit
-                      </Button>
-                      
-                      {/* Assign/Reassign Driver Button (for all non-cancelled/completed bookings) */}
-                      {!['cancelled', 'completed'].includes(booking.status) && (
-                        <Button
-                          size="sm"
-                          variant={booking.driverId ? "outline" : "default"}
-                          className={booking.driverId ? "text-blue-600 border-blue-200" : "bg-blue-600 hover:bg-blue-700"}
-                          onClick={() => handleOpenAssignDriver(booking)}
-                        >
-                          <UserCheck className="w-4 h-4 mr-1" />
-                          {booking.driverId ? 'Reassign' : 'Assign'}
-                        </Button>
-                      )}
-                      
-                      {/* Status Actions */}
-                      {booking.status === 'pending' && (
-                        <>
-                          <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700"
-                            onClick={() => updateBookingMutation.mutate({ id: booking.id, status: 'confirmed' })}
-                          >
-                            <Check className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-orange-600 border-orange-200"
-                            onClick={() => updateBookingMutation.mutate({ id: booking.id, status: 'cancelled' })}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </>
-                      )}
-                      
-                      {/* Delete Button */}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-red-600 border-red-200"
-                        onClick={() => handleDeleteBooking(booking)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-              {!bookingsLoading && filteredBookings.length === 0 && (
-                <Card>
-                  <CardContent className="py-8 text-center text-muted-foreground">
-                    No bookings found
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+                    ))}
+                  </div>
+                )}
+                {!bookingsLoading && filteredBookings.length === 0 && (
+                  <p className="text-center text-xs text-muted-foreground py-6">No bookings found</p>
+                )}
+              </CardContent>
+            </Card>
           </div>
         )}
 
