@@ -7579,7 +7579,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">From:</span>
                   <Input
-                    className="h-8 w-32 text-sm border-border bg-background"
+                    className="h-8 w-32 text-sm border-border bg-background px-1"
                     type="date"
                     value={bookingDateFrom}
                     onChange={(e) => setBookingDateFrom(e.target.value)}
@@ -7589,7 +7589,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">To:</span>
                   <Input
-                    className="h-8 w-32 text-sm border-border bg-background"
+                    className="h-8 w-32 text-sm border-border bg-background px-1"
                     type="date"
                     value={bookingDateTo}
                     onChange={(e) => setBookingDateTo(e.target.value)}
