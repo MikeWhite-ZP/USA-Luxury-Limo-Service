@@ -7980,29 +7980,41 @@ export default function AdminDashboard() {
                               disabled={updateBookingStatusMutation.isPending}
                             >
                               <SelectTrigger
-                                className={`w-28 h-7 text-xs font-semibold border ${
+                                className={`w-32 h-7 text-xs font-semibold border ${
                                   booking.status === "pending"
                                     ? "bg-amber-100 text-amber-800 border-amber-400"
-                                    : booking.status === "confirmed"
-                                      ? "bg-blue-100 text-blue-800 border-blue-400"
-                                      : booking.status === "in_progress"
-                                        ? "bg-purple-100 text-purple-800 border-purple-400"
-                                        : booking.status === "completed"
-                                          ? "bg-green-100 text-green-800 border-green-400"
-                                          : "bg-red-100 text-red-800 border-red-400"
+                                    : booking.status === "pending_driver_acceptance"
+                                      ? "bg-orange-100 text-orange-800 border-orange-400"
+                                      : booking.status === "driver_accepted"
+                                        ? "bg-cyan-100 text-cyan-800 border-cyan-400"
+                                        : booking.status === "confirmed"
+                                          ? "bg-blue-100 text-blue-800 border-blue-400"
+                                          : booking.status === "in_progress"
+                                            ? "bg-purple-100 text-purple-800 border-purple-400"
+                                            : booking.status === "completed"
+                                              ? "bg-green-100 text-green-800 border-green-400"
+                                              : booking.status === "cancelled"
+                                                ? "bg-red-100 text-red-800 border-red-400"
+                                                : "bg-gray-100 text-gray-800 border-gray-400"
                                 }`}
                                 data-testid={`select-status-${booking.id}`}
                               >
                                 <span className="truncate">
                                   {booking.status === "pending" && "Pending"}
+                                  {booking.status === "pending_driver_acceptance" && "Driver Pending"}
+                                  {booking.status === "driver_accepted" && "Driver Accepted"}
                                   {booking.status === "confirmed" && "Confirmed"}
                                   {booking.status === "in_progress" && "In Progress"}
                                   {booking.status === "completed" && "Completed"}
                                   {booking.status === "cancelled" && "Cancelled"}
+                                  {!["pending", "pending_driver_acceptance", "driver_accepted", "confirmed", "in_progress", "completed", "cancelled"].includes(booking.status) && 
+                                    booking.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                                 </span>
                               </SelectTrigger>
                               <SelectContent position="popper" side="bottom" align="start" sideOffset={4}>
                                 <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="pending_driver_acceptance">Driver Pending</SelectItem>
+                                <SelectItem value="driver_accepted">Driver Accepted</SelectItem>
                                 <SelectItem value="confirmed">Confirmed</SelectItem>
                                 <SelectItem value="in_progress">In Progress</SelectItem>
                                 <SelectItem value="completed">Completed</SelectItem>
