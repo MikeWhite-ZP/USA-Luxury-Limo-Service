@@ -831,7 +831,7 @@ export default function MobileAdmin() {
                     variant="ghost" 
                     size="sm"
                     onClick={() => setActiveSection('bookings')}
-                    className="h-7 px-2 text-[11px] font-bold text-blue-600 hover:bg-blue-50"
+                    className="h-7 px-2 text-[11px] font-bold text-[#1d06c7] bg-[#d1ddeb] hover:bg-blue-50"
                   >
                     VIEW ALL
                   </Button>
@@ -853,7 +853,7 @@ export default function MobileAdmin() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-0.5">
                             <p className="font-bold text-foreground truncate text-[10px]">{booking.passengerName || 'Guest'}</p>
-                            <span className="font-bold text-sm text-foreground">${booking.totalAmount}</span>
+                            <span className="font-bold text-[12px] text-[#1fa308]">${booking.totalAmount}</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1 text-muted-foreground">
