@@ -1035,7 +1035,7 @@ export function BookingDetailsDialog({
                           className="w-4 h-4 rounded border-border"
                         data-testid="checkbox-baby-seat"
                       />
-                      <Label htmlFor="baby-seat">Baby Seat</Label>
+                      <Label htmlFor="baby-seat">Car Seat</Label>
                     </div>
                   </div>
 
