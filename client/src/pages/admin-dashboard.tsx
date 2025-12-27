@@ -7794,145 +7794,181 @@ export default function AdminDashboard() {
                   <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
                 </div>
               ) : filteredBookings && filteredBookings.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {filteredBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="border border-border rounded-lg bg-background hover:shadow-md transition-all"
+                      className="border border-border rounded-lg bg-background hover:shadow-sm transition-all"
                       data-testid={`booking-${booking.id}`}
                     >
-                      {/* Header Bar */}
-                      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/30">
-                        <div className="flex items-center gap-3">
+                      {/* Compact Header */}
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/20">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span
-                            className="font-mono font-bold text-sm text-foreground"
+                            className="font-mono font-bold text-xs text-foreground"
                             data-testid={`booking-id-${booking.id}`}
                           >
                             #{booking.id.substring(0, 8).toUpperCase()}
                           </span>
                           <Badge
                             variant="outline"
-                            className={
+                            className={`text-[10px] px-1.5 py-0 h-5 ${
                               booking.status === "pending"
-                                ? "bg-amber-50 text-amber-700 border-amber-200 text-xs font-semibold"
+                                ? "bg-amber-50 text-amber-700 border-amber-200"
                                 : booking.status === "confirmed"
-                                  ? "bg-blue-50 text-blue-700 border-blue-200 text-xs font-semibold"
+                                  ? "bg-blue-50 text-blue-700 border-blue-200"
                                   : booking.status === "in_progress"
-                                    ? "bg-purple-50 text-purple-700 border-purple-200 text-xs font-semibold"
+                                    ? "bg-purple-50 text-purple-700 border-purple-200"
                                     : booking.status === "completed"
-                                      ? "bg-green-50 text-green-700 border-green-200 text-xs font-semibold"
-                                      : "bg-red-50 text-red-700 border-red-200 text-xs font-semibold"
-                            }
+                                      ? "bg-green-50 text-green-700 border-green-200"
+                                      : "bg-red-50 text-red-700 border-red-200"
+                            }`}
                             data-testid={`booking-status-${booking.id}`}
                           >
-                            {booking.status.replace('_', ' ').toUpperCase()}
+                            {booking.status.replace(/_/g, ' ').toUpperCase()}
                           </Badge>
                           <Badge
                             variant="outline"
-                            className="bg-muted text-muted-foreground border-border text-xs"
+                            className="bg-muted/50 text-muted-foreground border-border text-[10px] px-1.5 py-0 h-5"
                             data-testid={`booking-type-${booking.id}`}
                           >
                             {booking.bookingType.toUpperCase()}
                           </Badge>
                         </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <span className="text-[10px] text-muted-foreground">Total</span>
+                            <p
+                              className="font-bold text-base text-blue-700 leading-none"
+                              data-testid={`booking-amount-${booking.id}`}
+                            >
+                              ${booking.totalAmount}
+                            </p>
+                          </div>
+                          {booking.driverId && booking.driverPayment && (
+                            <div className="text-right">
+                              <span className="text-[10px] text-muted-foreground">Driver</span>
+                              <p
+                                className="font-bold text-base text-green-700 leading-none"
+                                data-testid={`booking-driver-payment-${booking.id}`}
+                              >
+                                ${booking.driverPayment}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Content */}
-                      <div className="p-4">
-                        <div className="grid grid-cols-[1fr_180px] gap-5">
+                      {/* Compact Content */}
+                      <div className="px-3 py-2.5">
+                        <div className="flex gap-4">
                           {/* Left: Booking Details */}
-                          <div className="space-y-3">
-                            {/* Passenger & Time Row */}
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <p className="text-xs font-semibold text-muted-foreground mb-1">Passenger</p>
-                                <p
+                          <div className="flex-1 min-w-0 space-y-2">
+                            {/* Row 1: Passenger & Time */}
+                            <div className="flex items-center gap-6 text-sm">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-muted-foreground text-xs">Passenger:</span>
+                                <span
                                   className="font-semibold text-foreground"
                                   data-testid={`booking-passenger-${booking.id}`}
                                 >
                                   {booking.passengerName || "Not assigned"}
-                                </p>
+                                </span>
                               </div>
-                              <div>
-                                <p className="text-xs font-semibold text-muted-foreground mb-1">Scheduled Time</p>
-                                <p
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-muted-foreground text-xs">Time:</span>
+                                <span
                                   className="font-semibold text-foreground"
                                   data-testid={`booking-schedule-${booking.id}`}
                                 >
                                   {new Date(booking.scheduledDateTime).toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Row 2: Route - inline */}
+                            <div className="flex items-start gap-4 text-sm">
+                              <div className="flex items-start gap-1.5 flex-1 min-w-0">
+                                <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></div>
+                                <p
+                                  className="text-foreground truncate"
+                                  data-testid={`booking-pickup-${booking.id}`}
+                                  title={booking.pickupAddress}
+                                >
+                                  {booking.pickupAddress}
+                                </p>
+                              </div>
+                              <span className="text-muted-foreground flex-shrink-0">→</span>
+                              <div className="flex items-start gap-1.5 flex-1 min-w-0">
+                                <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0"></div>
+                                <p
+                                  className="text-foreground truncate"
+                                  data-testid={`booking-destination-${booking.id}`}
+                                  title={booking.destinationAddress || "Hourly Service"}
+                                >
+                                  {booking.destinationAddress || "Hourly Service"}
                                 </p>
                               </div>
                             </div>
 
-                            {/* Route */}
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="flex items-start gap-2">
-                                <div className="w-2.5 h-2.5 rounded-full bg-green-500 mt-1 flex-shrink-0"></div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-muted-foreground mb-0.5">Pickup</p>
-                                  <p
-                                    className="text-sm text-foreground leading-snug"
-                                    data-testid={`booking-pickup-${booking.id}`}
-                                  >
-                                    {booking.pickupAddress}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-start gap-2">
-                                <div className="w-2.5 h-2.5 rounded-full bg-red-500 mt-1 flex-shrink-0"></div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-muted-foreground mb-0.5">Destination</p>
-                                  <p
-                                    className="text-sm text-foreground leading-snug"
-                                    data-testid={`booking-destination-${booking.id}`}
-                                  >
-                                    {booking.destinationAddress || "Hourly Service"}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Special Instructions */}
+                            {/* Row 3: Special Instructions (if any) */}
                             {booking.specialInstructions && (
-                              <div className="p-2.5 bg-blue-50 rounded-md border border-blue-200">
-                                <p className="text-xs font-semibold text-blue-700 mb-1">Special Instructions</p>
+                              <div className="flex items-start gap-1.5 text-sm bg-blue-50/50 rounded px-2 py-1 border-l-2 border-blue-400">
+                                <span className="text-blue-700 text-xs font-medium flex-shrink-0">Note:</span>
                                 <p
-                                  className="text-sm text-foreground"
+                                  className="text-foreground text-xs"
                                   data-testid={`booking-instructions-${booking.id}`}
                                 >
                                   {booking.specialInstructions}
                                 </p>
                               </div>
                             )}
-
-                            {/* Financial Summary */}
-                            <div className="flex items-center gap-3 pt-1">
-                              <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
-                                <p className="text-xs font-semibold text-muted-foreground">Total Amount</p>
-                                <p
-                                  className="font-bold text-xl text-blue-700"
-                                  data-testid={`booking-amount-${booking.id}`}
-                                >
-                                  ${booking.totalAmount}
-                                </p>
-                              </div>
-                              {booking.driverId && booking.driverPayment && (
-                                <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-                                  <p className="text-xs font-semibold text-muted-foreground">Driver Payment</p>
-                                  <p
-                                    className="font-bold text-xl text-green-700"
-                                    data-testid={`booking-driver-payment-${booking.id}`}
-                                  >
-                                    ${booking.driverPayment}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
                           </div>
 
-                          {/* Right: Driver & Actions - Vertical Column */}
-                          <div className="flex flex-col gap-2">
-                            {/* Status Selector */}
+                          {/* Right: Driver & Actions */}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {/* Driver Info - Compact */}
+                            <div className="w-32 bg-muted/30 border border-border rounded px-2 py-1.5">
+                              {booking.driverId ? (
+                                <div
+                                  className="flex items-center gap-1.5"
+                                  data-testid={`booking-driver-${booking.id}`}
+                                >
+                                  {booking.driverProfileImageUrl ? (
+                                    <img
+                                      src={booking.driverProfileImageUrl}
+                                      alt="Driver"
+                                      className="w-6 h-6 rounded-full object-cover border border-border flex-shrink-0"
+                                    />
+                                  ) : (
+                                    <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-semibold text-[10px] flex-shrink-0">
+                                      {booking.driverFirstName?.[0]}{booking.driverLastName?.[0]}
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-foreground text-xs truncate leading-tight">
+                                      {booking.driverFirstName} {booking.driverLastName}
+                                    </p>
+                                    {booking.driverVehiclePlate && (
+                                      <p className="text-[10px] font-mono text-muted-foreground leading-tight">{booking.driverVehiclePlate}</p>
+                                    )}
+                                  </div>
+                                  <button
+                                    onClick={() => unassignDriverMutation.mutate(booking.id)}
+                                    disabled={unassignDriverMutation.isPending}
+                                    className="w-4 h-4 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center text-red-600 transition-colors flex-shrink-0"
+                                    title="Unassign"
+                                    data-testid={`button-unassign-driver-${booking.id}`}
+                                  >
+                                    <X className="w-2.5 h-2.5" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <p className="text-[10px] text-muted-foreground text-center">No driver</p>
+                              )}
+                            </div>
+
+                            {/* Status Dropdown - Compact */}
                             <Select
                               value={booking.status}
                               onValueChange={(value) =>
@@ -7944,7 +7980,7 @@ export default function AdminDashboard() {
                               disabled={updateBookingStatusMutation.isPending}
                             >
                               <SelectTrigger
-                                className="w-full h-9 text-sm bg-background border-border"
+                                className="w-28 h-7 text-xs bg-background border-border"
                                 data-testid={`select-status-${booking.id}`}
                               >
                                 <SelectValue />
@@ -7958,107 +7994,64 @@ export default function AdminDashboard() {
                               </SelectContent>
                             </Select>
 
-                            {/* Driver Info */}
-                            <div className="bg-muted/40 border border-border rounded-lg p-2">
-                              {booking.driverId ? (
-                                <div
-                                  className="flex items-center gap-2"
-                                  data-testid={`booking-driver-${booking.id}`}
-                                >
-                                  {booking.driverProfileImageUrl ? (
-                                    <img
-                                      src={booking.driverProfileImageUrl}
-                                      alt="Driver"
-                                      className="w-8 h-8 rounded-full object-cover border border-border"
-                                    />
-                                  ) : (
-                                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-semibold text-xs">
-                                      {booking.driverFirstName?.[0]}{booking.driverLastName?.[0]}
-                                    </div>
-                                  )}
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-semibold text-foreground text-sm truncate">
-                                      {booking.driverFirstName} {booking.driverLastName}
-                                    </p>
-                                    {booking.driverVehiclePlate && (
-                                      <p className="text-xs font-mono text-muted-foreground">{booking.driverVehiclePlate}</p>
-                                    )}
-                                  </div>
-                                  <button
-                                    onClick={() => unassignDriverMutation.mutate(booking.id)}
-                                    disabled={unassignDriverMutation.isPending}
-                                    className="w-5 h-5 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center text-red-600 transition-colors flex-shrink-0"
-                                    title="Unassign driver"
-                                    data-testid={`button-unassign-driver-${booking.id}`}
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <p className="text-xs text-muted-foreground text-center py-0.5">No driver assigned</p>
-                              )}
-                            </div>
-
-                            {/* Action Buttons - Vertical Stack */}
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setAssigningBookingId(booking.id);
-                                if (booking.driverId) {
-                                  setSelectedDriverForAssignment(booking.driverId);
-                                  setManualDriverPayment(booking.driverPayment || "");
-                                  setCalculatedDriverPayment(booking.driverPayment || "");
-                                }
-                                setAssignDriverDialogOpen(true);
-                              }}
-                              data-testid={`button-assign-driver-${booking.id}`}
-                              className="w-full h-8 text-xs text-indigo-700 border-indigo-300 bg-indigo-50 hover:bg-indigo-100 font-semibold"
-                            >
-                              <Car className="w-3.5 h-3.5 mr-1" />
-                              {booking.driverId ? "Change" : "Assign"}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => openEditBookingDialog(booking)}
-                              data-testid={`button-edit-booking-${booking.id}`}
-                              className="w-full h-8 text-xs text-green-700 border-green-300 bg-green-50 hover:bg-green-100 font-semibold"
-                            >
-                              <Edit2 className="w-3.5 h-3.5 mr-1" />
-                              Edit
-                            </Button>
-                            {booking.status !== "cancelled" && booking.status !== "completed" && (
+                            {/* Action Buttons - Horizontal Compact */}
+                            <div className="flex items-center gap-1">
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => {
-                                  setBookingToCancel(booking.id);
-                                  setCancellationReason("");
-                                  setCancelDialogOpen(true);
+                                  setAssigningBookingId(booking.id);
+                                  if (booking.driverId) {
+                                    setSelectedDriverForAssignment(booking.driverId);
+                                    setManualDriverPayment(booking.driverPayment || "");
+                                    setCalculatedDriverPayment(booking.driverPayment || "");
+                                  }
+                                  setAssignDriverDialogOpen(true);
                                 }}
-                                data-testid={`button-cancel-booking-${booking.id}`}
-                                className="w-full h-8 text-xs text-orange-700 border-orange-300 bg-orange-50 hover:bg-orange-100 font-semibold"
+                                data-testid={`button-assign-driver-${booking.id}`}
+                                className="h-7 px-2 text-[10px] text-indigo-700 border-indigo-200 bg-indigo-50 hover:bg-indigo-100"
                               >
-                                <X className="w-3.5 h-3.5 mr-1" />
-                                Cancel
+                                <Car className="w-3 h-3" />
                               </Button>
-                            )}
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                console.log('🗑️ Delete button clicked for booking:', booking.id);
-                                setBookingToDelete(booking.id);
-                                setDeleteConfirmDialogOpen(true);
-                              }}
-                              disabled={deleteBookingMutation.isPending}
-                              data-testid={`button-delete-booking-${booking.id}`}
-                              className="w-full h-8 text-xs text-red-700 border-red-300 bg-red-50 hover:bg-red-100 font-semibold"
-                            >
-                              <Trash2 className="w-3.5 h-3.5 mr-1" />
-                              Delete
-                            </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openEditBookingDialog(booking)}
+                                data-testid={`button-edit-booking-${booking.id}`}
+                                className="h-7 px-2 text-[10px] text-green-700 border-green-200 bg-green-50 hover:bg-green-100"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                              </Button>
+                              {booking.status !== "cancelled" && booking.status !== "completed" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setBookingToCancel(booking.id);
+                                    setCancellationReason("");
+                                    setCancelDialogOpen(true);
+                                  }}
+                                  data-testid={`button-cancel-booking-${booking.id}`}
+                                  className="h-7 px-2 text-[10px] text-orange-700 border-orange-200 bg-orange-50 hover:bg-orange-100"
+                                >
+                                  <X className="w-3 h-3" />
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  console.log('🗑️ Delete button clicked for booking:', booking.id);
+                                  setBookingToDelete(booking.id);
+                                  setDeleteConfirmDialogOpen(true);
+                                }}
+                                disabled={deleteBookingMutation.isPending}
+                                data-testid={`button-delete-booking-${booking.id}`}
+                                className="h-7 px-2 text-[10px] text-red-700 border-red-200 bg-red-50 hover:bg-red-100"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -8067,14 +8060,14 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <div
-                  className="text-center p-12 bg-muted/30 border border-border rounded-lg"
+                  className="text-center p-8 bg-muted/30 border border-border rounded-lg"
                   data-testid="no-bookings"
                 >
-                  <div className="bg-muted w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MessageSquare className="w-6 h-6 text-muted-foreground" />
+                  <div className="bg-muted w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <MessageSquare className="w-5 h-5 text-muted-foreground" />
                   </div>
-                  <p className="text-foreground font-medium text-base mb-1">No bookings found</p>
-                  <p className="text-muted-foreground text-sm">Bookings matching your filters will appear here</p>
+                  <p className="text-foreground font-medium text-sm mb-1">No bookings found</p>
+                  <p className="text-muted-foreground text-xs">Bookings matching your filters will appear here</p>
                 </div>
               )}
             </CardContent>
