@@ -7980,20 +7980,26 @@ export default function AdminDashboard() {
                               disabled={updateBookingStatusMutation.isPending}
                             >
                               <SelectTrigger
-                                className={`w-28 h-7 text-xs font-medium border ${
+                                className={`w-28 h-7 text-xs font-semibold border ${
                                   booking.status === "pending"
-                                    ? "bg-amber-50 text-amber-700 border-amber-300"
+                                    ? "bg-amber-100 text-amber-800 border-amber-400"
                                     : booking.status === "confirmed"
-                                      ? "bg-blue-50 text-blue-700 border-blue-300"
+                                      ? "bg-blue-100 text-blue-800 border-blue-400"
                                       : booking.status === "in_progress"
-                                        ? "bg-purple-50 text-purple-700 border-purple-300"
+                                        ? "bg-purple-100 text-purple-800 border-purple-400"
                                         : booking.status === "completed"
-                                          ? "bg-green-50 text-green-700 border-green-300"
-                                          : "bg-red-50 text-red-700 border-red-300"
+                                          ? "bg-green-100 text-green-800 border-green-400"
+                                          : "bg-red-100 text-red-800 border-red-400"
                                 }`}
                                 data-testid={`select-status-${booking.id}`}
                               >
-                                <SelectValue placeholder={booking.status.replace(/_/g, ' ').charAt(0).toUpperCase() + booking.status.replace(/_/g, ' ').slice(1)} />
+                                <span className="truncate">
+                                  {booking.status === "pending" && "Pending"}
+                                  {booking.status === "confirmed" && "Confirmed"}
+                                  {booking.status === "in_progress" && "In Progress"}
+                                  {booking.status === "completed" && "Completed"}
+                                  {booking.status === "cancelled" && "Cancelled"}
+                                </span>
                               </SelectTrigger>
                               <SelectContent position="popper" side="bottom" align="start" sideOffset={4}>
                                 <SelectItem value="pending">Pending</SelectItem>
