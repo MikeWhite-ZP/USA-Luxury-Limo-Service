@@ -852,13 +852,13 @@ export default function MobileAdmin() {
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-0.5">
-                            <p className="font-bold text-foreground truncate text-[12px]">{booking.passengerName || 'Guest'}</p>
+                            <p className="font-bold text-foreground truncate text-[10px]">{booking.passengerName || 'Guest'}</p>
                             <span className="font-bold text-sm text-foreground">${booking.totalAmount}</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1 text-muted-foreground">
                               <MapPin className="w-3 h-3 flex-shrink-0" />
-                              <p className="text-[11px] truncate">{booking.pickupAddress}</p>
+                              <p className="truncate text-[#0000f7] text-[12px] font-extralight">{booking.pickupAddress}</p>
                             </div>
                             <div className="flex items-center gap-1.5 ml-2">
                               <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase ${
