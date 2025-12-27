@@ -2696,6 +2696,11 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
       // Validate and parse the booking data, allowing passengerId to be specified
       const bookingData = insertBookingSchema.parse(req.body);
 
+      // Sanitize passengerId - convert empty string to null to avoid FK constraint violation
+      if (bookingData.passengerId === '' || bookingData.passengerId === undefined) {
+        bookingData.passengerId = null as any;
+      }
+
       // Set journey tracking fields for admin-created bookings
       const bookingWithTracking = {
         ...bookingData,
