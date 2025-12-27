@@ -7968,7 +7968,7 @@ export default function AdminDashboard() {
                               )}
                             </div>
 
-                            {/* Status Dropdown - Compact */}
+                            {/* Status Dropdown - Compact with colored background */}
                             <Select
                               value={booking.status}
                               onValueChange={(value) =>
@@ -7980,10 +7980,20 @@ export default function AdminDashboard() {
                               disabled={updateBookingStatusMutation.isPending}
                             >
                               <SelectTrigger
-                                className="w-28 h-7 text-xs bg-background border-border"
+                                className={`w-28 h-7 text-xs font-medium border ${
+                                  booking.status === "pending"
+                                    ? "bg-amber-50 text-amber-700 border-amber-300"
+                                    : booking.status === "confirmed"
+                                      ? "bg-blue-50 text-blue-700 border-blue-300"
+                                      : booking.status === "in_progress"
+                                        ? "bg-purple-50 text-purple-700 border-purple-300"
+                                        : booking.status === "completed"
+                                          ? "bg-green-50 text-green-700 border-green-300"
+                                          : "bg-red-50 text-red-700 border-red-300"
+                                }`}
                                 data-testid={`select-status-${booking.id}`}
                               >
-                                <SelectValue />
+                                <SelectValue placeholder={booking.status.replace(/_/g, ' ').charAt(0).toUpperCase() + booking.status.replace(/_/g, ' ').slice(1)} />
                               </SelectTrigger>
                               <SelectContent position="popper" side="bottom" align="start" sideOffset={4}>
                                 <SelectItem value="pending">Pending</SelectItem>
