@@ -474,8 +474,8 @@ export function BookingDetailsDialog({
           <DialogDescription>Create or edit a booking with passenger, journey, and pricing details</DialogDescription>
         </VisuallyHidden>
         
-        {/* Mobile Header - Sticky */}
-        <div className="sticky top-0 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between shadow-md">
+        {/* Mobile Header - Sticky with safe area padding for phone sensors */}
+        <div className="sticky top-0 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 px-4 pt-[30px] pb-3 sm:px-6 sm:pt-4 sm:pb-4 flex items-center justify-between shadow-md">
           <div className="flex items-center gap-3">
             <div className="bg-white/20 p-2 rounded-lg">
               <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -499,8 +499,8 @@ export function BookingDetailsDialog({
           </Button>
         </div>
 
-        {/* Mobile Tab Navigation */}
-        <div className="lg:hidden sticky top-[60px] sm:top-[68px] z-40 bg-background border-b">
+        {/* Mobile Tab Navigation - adjusted for safe area padding */}
+        <div className="lg:hidden sticky top-[84px] sm:top-[68px] z-40 bg-background border-b">
           <div className="flex overflow-x-auto scrollbar-hide">
             <button
               onClick={() => setActiveTab('passenger')}
