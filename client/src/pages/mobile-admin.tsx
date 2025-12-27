@@ -858,7 +858,7 @@ export default function MobileAdmin() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1 text-muted-foreground">
                               <MapPin className="w-3 h-3 flex-shrink-0" />
-                              <p className="truncate text-[#0000f7] text-[12px] font-extralight">{booking.pickupAddress}</p>
+                              <p className="truncate text-[#0000f7] text-[12px] text-left font-thin">{booking.pickupAddress}</p>
                             </div>
                             <div className="flex items-center gap-1.5 ml-2">
                               <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase ${
