@@ -1528,600 +1528,608 @@ export function BookingDetailsDialog({
           }`}>
             
 
-            {/* Invoice Section (Bottom) */}
-            <div>
-              <Card className="border-blue-200 dark:border-blue-700 shadow-sm">
-                <CardHeader className="bg-gradient-to-r from-blue-100 dark:from-blue-900/40 to-cyan-100 dark:to-cyan-900/40 border-b border-blue-200 dark:border-blue-700">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-2">
-                      <div className="bg-blue-600 p-2 rounded-lg">
-                        <FileText className="w-4 h-4 text-white" />
-                      </div>
-                      <CardTitle className="text-lg font-semibold text-blue-900 dark:text-blue-200">Invoice</CardTitle>
-                    </div>
-                    {editingBooking && (
-                      <Badge variant={editingBooking.status === 'completed' ? 'default' : 'secondary'}>
-                        {editingBooking.status === 'pending' ? 'UNPAID' : 
-                         editingBooking.status === 'completed' ? 'PAID' : 'IN PROGRESS'}
-                      </Badge>
-                    )}
+            {/* Invoice Section - Clean Professional Design */}
+            <div className="space-y-5 pb-32 lg:pb-6">
+              {/* Invoice Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-border">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Invoice Number */}
-                  {editingBooking && (
-                    <div className="pb-3 border-b">
-                      <p className="text-sm text-muted-foreground">Invoice Number</p>
-                      <p className="text-lg font-mono font-bold">#{editingBooking.id.substring(0, 8).toUpperCase()}</p>
-                    </div>
-                  )}
+                  <h3 className="text-base font-semibold text-foreground">Invoice</h3>
+                </div>
+                {editingBooking && (
+                  <Badge variant={editingBooking.status === 'completed' ? 'default' : 'secondary'} className="text-xs">
+                    {editingBooking.status === 'pending' ? 'UNPAID' : 
+                     editingBooking.status === 'completed' ? 'PAID' : 'IN PROGRESS'}
+                  </Badge>
+                )}
+              </div>
 
-                  {/* Payment Method */}
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">Payment Method</h4>
-                    <Select
-                      value={formData.paymentMethod}
-                      onValueChange={(value: 'pay_now' | 'pay_later' | 'cash') => setFormData({ ...formData, paymentMethod: value })}
-                    >
-                      <SelectTrigger className="bg-background border-blue-200 dark:border-blue-700" data-testid="select-payment-method">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-blue-100 dark:bg-blue-900/30 p-1.5 rounded-full">
-                            <DollarSign className="w-3.5 h-3.5 text-blue-600" />
-                          </div>
-                          <SelectValue placeholder="Select payment method" />
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pay_now">
-                          <span className="font-medium">Pay with Card Now</span>
-                        </SelectItem>
-                        <SelectItem value="pay_later">
-                          <span className="font-medium">Pay Later with Card</span>
-                        </SelectItem>
-                        <SelectItem value="cash">
-                          <span className="font-medium">Pay with Cash</span>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+              {/* Invoice Number */}
+              {editingBooking && (
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Invoice Number</Label>
+                  <p className="text-lg font-mono font-bold text-foreground">#{editingBooking.id.substring(0, 8).toUpperCase()}</p>
+                </div>
+              )}
+
+              {/* Payment Method Section */}
+              <div className="space-y-3 pt-2 border-t border-border">
+                <div className="flex items-center gap-3 pb-2">
+                  <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
+                    <DollarSign className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   </div>
+                  <h3 className="text-base font-semibold text-foreground">Payment Method</h3>
+                </div>
+                <Select
+                  value={formData.paymentMethod}
+                  onValueChange={(value: 'pay_now' | 'pay_later' | 'cash') => setFormData({ ...formData, paymentMethod: value })}
+                >
+                  <SelectTrigger className="h-10 bg-background border-border" data-testid="select-payment-method">
+                    <SelectValue placeholder="Select payment method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pay_now">
+                      <span className="font-medium">Pay with Card Now</span>
+                    </SelectItem>
+                    <SelectItem value="pay_later">
+                      <span className="font-medium">Pay Later with Card</span>
+                    </SelectItem>
+                    <SelectItem value="cash">
+                      <span className="font-medium">Pay with Cash</span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                  {/* Account Credits Section - Show when passenger is selected */}
-                  {formData.passengerId && (
-                    <div className={`p-4 rounded-lg border ${hasPassengerCredits ? 'bg-gradient-to-r from-green-50 dark:from-green-900/30 to-emerald-50 dark:to-emerald-900/30 border-green-200 dark:border-green-700' : 'bg-muted border-border'}`} data-testid="admin-use-credits-section">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            id="admin-use-credits"
-                            checked={useCredits}
-                            onChange={(e) => handleUseCreditsToggle(e.target.checked)}
-                            disabled={!hasPassengerCredits}
-                            className={`w-5 h-5 rounded focus:ring-green-500 ${hasPassengerCredits ? 'text-green-600 border-green-300' : 'text-muted-foreground border-border cursor-not-allowed'}`}
-                            data-testid="checkbox-admin-use-credits"
-                          />
-                          <label htmlFor="admin-use-credits" className={`font-semibold cursor-pointer ${hasPassengerCredits ? 'text-green-800' : 'text-muted-foreground'}`}>
-                            Use Passenger's Account Credits
-                          </label>
-                        </div>
-                        <span className={`text-sm font-medium px-3 py-1 rounded-full ${hasPassengerCredits ? 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30' : 'text-muted-foreground bg-muted-foreground/20'}`}>
-                          Balance: ${passengerCreditsBalance.toFixed(2)}
-                        </span>
-                      </div>
-                      
-                      {!hasPassengerCredits && (
-                        <p className="text-sm text-muted-foreground">
-                          This passenger doesn't have any account credits available.
-                        </p>
-                      )}
-                      
-                      {useCredits && hasPassengerCredits && (
-                        <div className="mt-3 space-y-2">
-                          <label htmlFor="admin-credit-amount" className="text-sm font-medium text-muted-foreground">
-                            Amount to use (max ${maxUsableCredits.toFixed(2)}):
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-muted-foreground">$</span>
-                            <input
-                              type="number"
-                              id="admin-credit-amount"
-                              value={creditAmount}
-                              onChange={(e) => handleCreditAmountChange(e.target.value)}
-                              onBlur={() => {
-                                const numValue = parseFloat(creditAmount);
-                                if (!isNaN(numValue)) {
-                                  setCreditAmount(Math.min(numValue, maxUsableCredits).toFixed(2));
-                                }
-                              }}
-                              min="0"
-                              max={maxUsableCredits}
-                              step="0.01"
-                              className="flex-1 p-3 border-2 border-green-300 rounded-lg focus:border-green-500 focus:ring-green-500 text-lg font-semibold"
-                              data-testid="input-admin-credit-amount"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setCreditAmount(maxUsableCredits.toFixed(2))}
-                              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                              data-testid="button-admin-use-max-credits"
-                            >
-                              Use Max
-                            </button>
-                          </div>
-                          {creditsApplied > 0 && (
-                            <div className="mt-2 p-2 bg-green-100 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-700">
-                              <div className="flex justify-between text-sm">
-                                <span className="text-green-800">Credits to Apply:</span>
-                                <span className="font-semibold text-green-700 dark:text-green-300">-${creditsApplied.toFixed(2)}</span>
-                              </div>
-                              <div className="flex justify-between text-sm mt-1">
-                                <span className="text-green-800 font-medium">Remaining to Pay:</span>
-                                <span className="font-bold text-green-700 dark:text-green-300">${remainingAmount.toFixed(2)}</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
+              {/* Account Credits Section - Show when passenger is selected */}
+              {formData.passengerId && (
+                <div className="space-y-3 pt-2 border-t border-border" data-testid="admin-use-credits-section">
+                  <div className="flex items-center gap-3 pb-2">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${hasPassengerCredits ? 'bg-green-100 dark:bg-green-900/30' : 'bg-muted'}`}>
+                      <DollarSign className={`w-4 h-4 ${hasPassengerCredits ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`} />
                     </div>
+                    <h3 className="text-base font-semibold text-foreground">Account Credits</h3>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${hasPassengerCredits ? 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30' : 'text-muted-foreground bg-muted'}`}>
+                      ${passengerCreditsBalance.toFixed(2)}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="admin-use-credits"
+                      checked={useCredits}
+                      onChange={(e) => handleUseCreditsToggle(e.target.checked)}
+                      disabled={!hasPassengerCredits}
+                      className={`w-4 h-4 rounded ${hasPassengerCredits ? 'text-green-600 border-green-300' : 'text-muted-foreground border-border cursor-not-allowed'}`}
+                      data-testid="checkbox-admin-use-credits"
+                    />
+                    <label htmlFor="admin-use-credits" className={`text-sm cursor-pointer ${hasPassengerCredits ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      Use Passenger's Account Credits
+                    </label>
+                  </div>
+                  
+                  {!hasPassengerCredits && (
+                    <p className="text-xs text-muted-foreground">
+                      This passenger doesn't have any account credits available.
+                    </p>
                   )}
-
-                  {/* Journey Fare */}
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">Journey Fare</h4>
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
+                  
+                  {useCredits && hasPassengerCredits && (
+                    <div className="space-y-2 pl-7">
+                      <Label className="text-xs text-muted-foreground">
+                        Amount to use (max ${maxUsableCredits.toFixed(2)}):
+                      </Label>
+                      <div className="flex items-center gap-2">
                         <div className="relative flex-1">
-                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600" />
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600" />
                           <Input
                             type="number"
+                            id="admin-credit-amount"
+                            value={creditAmount}
+                            onChange={(e) => handleCreditAmountChange(e.target.value)}
+                            onBlur={() => {
+                              const numValue = parseFloat(creditAmount);
+                              if (!isNaN(numValue)) {
+                                setCreditAmount(Math.min(numValue, maxUsableCredits).toFixed(2));
+                              }
+                            }}
+                            min="0"
+                            max={maxUsableCredits}
                             step="0.01"
-                            value={formData.totalAmount}
-                            onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
-                            placeholder="0.00"
-                            className="pl-9 border-blue-300 focus:border-blue-500 focus:ring-blue-500 bg-background"
-                            data-testid="input-total-amount"
+                            className="h-9 pl-9 bg-background border-border"
+                            data-testid="input-admin-credit-amount"
                           />
                         </div>
                         <Button
                           type="button"
-                          onClick={onCalculatePrice}
-                          disabled={
-                            isCalculatingPrice ||
-                            !formData.vehicleTypeId ||
-                            !formData.pickupAddress ||
-                            (formData.bookingType === 'transfer' && !formData.destinationAddress)
-                          }
-                          className="bg-blue-600 hover:bg-blue-700 text-white"
-                          data-testid="button-calculate-price"
+                          size="sm"
+                          onClick={() => setCreditAmount(maxUsableCredits.toFixed(2))}
+                          className="h-9 bg-green-600 hover:bg-green-700 text-white text-xs"
+                          data-testid="button-admin-use-max-credits"
                         >
-                          {isCalculatingPrice ? 'Calculating...' : 'Calculate'}
+                          Use Max
                         </Button>
                       </div>
-                      {calculatedPrice && (
-                        <div className="flex items-center gap-2 p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700">
-                          <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
-                          <p className="text-xs text-blue-900 dark:text-blue-200 font-medium">
-                            Calculated: ${calculatedPrice} (editable)
-                          </p>
+                      {creditsApplied > 0 && (
+                        <div className="bg-background rounded-lg border border-border p-2 space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Credits to Apply:</span>
+                            <span className="font-semibold text-green-600">-${creditsApplied.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground font-medium">Remaining to Pay:</span>
+                            <span className="font-bold text-foreground">${remainingAmount.toFixed(2)}</span>
+                          </div>
                         </div>
                       )}
                     </div>
-                  </div>
+                  )}
+                </div>
+              )}
 
-                  {/* Admin Discount Input (Admin/Dispatcher only) */}
-                  {canManageCharges && (
-                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold text-green-900 dark:text-green-200 mb-3">Admin Discount</h4>
-                      <div className="space-y-2">
-                        <Label className="text-xs text-muted-foreground">Fixed discount amount (subtracts from total)</Label>
+              {/* Journey Fare Section */}
+              <div className="space-y-3 pt-2 border-t border-border">
+                <div className="flex items-center gap-3 pb-2">
+                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                    <DollarSign className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground">Journey Fare</h3>
+                </div>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={formData.totalAmount}
+                      onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
+                      placeholder="0.00"
+                      className="h-10 pl-9 bg-background border-border"
+                      data-testid="input-total-amount"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={onCalculatePrice}
+                    disabled={
+                      isCalculatingPrice ||
+                      !formData.vehicleTypeId ||
+                      !formData.pickupAddress ||
+                      (formData.bookingType === 'transfer' && !formData.destinationAddress)
+                    }
+                    className="h-10 bg-blue-600 hover:bg-blue-700 text-white"
+                    data-testid="button-calculate-price"
+                  >
+                    {isCalculatingPrice ? 'Calculating...' : 'Calculate'}
+                  </Button>
+                </div>
+                {calculatedPrice && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+                    <span>Calculated: ${calculatedPrice} (editable)</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Admin Discount Section (Admin/Dispatcher only) */}
+              {canManageCharges && (
+                <div className="space-y-3 pt-2 border-t border-border">
+                  <div className="flex items-center gap-3 pb-2">
+                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                      <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h3 className="text-base font-semibold text-foreground">Admin Discount</h3>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Fixed discount amount (subtracts from total)</Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600" />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.adminDiscount}
+                        onChange={(e) => setFormData({ ...formData, adminDiscount: e.target.value })}
+                        placeholder="0.00"
+                        className="h-10 pl-9 bg-background border-border"
+                        data-testid="input-admin-discount"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Custom Price Items Section (Admin/Dispatcher only) */}
+              {canManageCharges && (
+                <div className="space-y-3 pt-2 border-t border-border">
+                  <div className="flex items-center gap-3 pb-2">
+                    <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                      <Plus className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <h3 className="text-base font-semibold text-foreground">Custom Price Items</h3>
+                  </div>
+                  
+                  {/* Display existing custom items */}
+                  {formData.customPriceItems && formData.customPriceItems.length > 0 && (
+                    <div className="space-y-2">
+                      {formData.customPriceItems.map((item, index) => (
+                        <div key={index} className="flex justify-between items-center text-sm p-2 bg-background rounded-lg border border-border">
+                          <span className="text-muted-foreground">{item.description}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-purple-600">+${item.amount.toFixed(2)}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const newItems = formData.customPriceItems.filter((_, i) => i !== index);
+                                setFormData({ ...formData, customPriceItems: newItems });
+                              }}
+                              className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                              data-testid={`button-remove-custom-item-${index}`}
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Add Custom Item Button/Form */}
+                  {!showCustomItemForm ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowCustomItemForm(true)}
+                      className="w-full h-9 border-border text-muted-foreground hover:bg-muted"
+                      data-testid="button-show-custom-item-form"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Custom Item
+                    </Button>
+                  ) : (
+                    <div className="space-y-3 p-3 bg-background rounded-lg border border-border">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground uppercase tracking-wide">Description</Label>
+                        <Input
+                          type="text"
+                          value={customItemDescription}
+                          onChange={(e) => setCustomItemDescription(e.target.value)}
+                          placeholder="e.g., Special service, Premium upgrade, etc."
+                          className="h-9 bg-background border-border"
+                          data-testid="input-custom-item-description"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground uppercase tracking-wide">Amount (adds to total)</Label>
                         <div className="relative">
-                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600" />
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-600" />
                           <Input
                             type="number"
                             step="0.01"
                             min="0"
-                            value={formData.adminDiscount}
-                            onChange={(e) => setFormData({ ...formData, adminDiscount: e.target.value })}
+                            value={customItemAmount}
+                            onChange={(e) => setCustomItemAmount(e.target.value)}
                             placeholder="0.00"
-                            className="pl-9 border-green-300 focus:border-green-500 focus:ring-green-500 bg-background"
-                            data-testid="input-admin-discount"
+                            className="h-9 pl-9 bg-background border-border"
+                            data-testid="input-custom-item-amount"
                           />
                         </div>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Custom Price Items (Admin/Dispatcher only) */}
-                  {canManageCharges && (
-                    <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold text-purple-900 dark:text-purple-200 mb-3">Custom Price Items</h4>
-                      
-                      {/* Display existing custom items */}
-                      {formData.customPriceItems && formData.customPriceItems.length > 0 && (
-                        <div className="space-y-2 mb-3">
-                          {formData.customPriceItems.map((item, index) => (
-                            <div key={index} className="flex justify-between items-center text-sm p-3 bg-background rounded-lg border border-purple-100 dark:border-purple-700">
-                              <span className="text-muted-foreground font-medium">{item.description}</span>
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold text-purple-700 dark:text-purple-300">+${item.amount.toFixed(2)}</span>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => {
-                                    const newItems = formData.customPriceItems.filter((_, i) => i !== index);
-                                    setFormData({ ...formData, customPriceItems: newItems });
-                                  }}
-                                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                                  data-testid={`button-remove-custom-item-${index}`}
-                                >
-                                  <X className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      
-                      {/* Add Custom Item Button/Form */}
-                      {!showCustomItemForm ? (
+                      <div className="flex gap-2">
                         <Button
                           type="button"
                           variant="outline"
-                          onClick={() => setShowCustomItemForm(true)}
-                          className="w-full border-purple-300 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:bg-purple-900/20 hover:border-purple-400 font-medium py-2"
-                          data-testid="button-show-custom-item-form"
+                          size="sm"
+                          onClick={() => {
+                            setShowCustomItemForm(false);
+                            setCustomItemDescription('');
+                            setCustomItemAmount('');
+                          }}
+                          className="flex-1 h-9 border-border"
+                          data-testid="button-cancel-custom-item"
                         >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Custom Item
+                          Cancel
                         </Button>
-                      ) : (
-                        <div className="space-y-3 p-3 bg-background rounded-lg border border-purple-200 dark:border-purple-700">
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Description</Label>
-                            <Input
-                              type="text"
-                              value={customItemDescription}
-                              onChange={(e) => setCustomItemDescription(e.target.value)}
-                              placeholder="e.g., Special service, Premium upgrade, etc."
-                              className="mt-1.5 border-purple-300 focus:border-purple-500 focus:ring-purple-500 bg-background"
-                              data-testid="input-custom-item-description"
-                            />
-                          </div>
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Amount (adds to total)</Label>
-                            <div className="relative mt-1.5">
-                              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-600" />
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={customItemAmount}
-                                onChange={(e) => setCustomItemAmount(e.target.value)}
-                                placeholder="0.00"
-                                className="pl-9 border-purple-300 focus:border-purple-500 focus:ring-purple-500 bg-background"
-                                data-testid="input-custom-item-amount"
-                              />
-                            </div>
-                          </div>
-                          <div className="flex gap-2 pt-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => {
-                                setShowCustomItemForm(false);
-                                setCustomItemDescription('');
-                                setCustomItemAmount('');
-                              }}
-                              className="flex-1 border-border hover:bg-muted"
-                              data-testid="button-cancel-custom-item"
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              type="button"
-                              onClick={() => {
-                                if (customItemDescription && customItemAmount && parseFloat(customItemAmount) > 0) {
-                                  const newItem = {
-                                    description: customItemDescription,
-                                    amount: parseFloat(customItemAmount),
-                                    addedBy: user?.username || 'admin',
-                                    addedAt: new Date().toISOString()
-                                  };
-                                  setFormData({
-                                    ...formData,
-                                    customPriceItems: [...(formData.customPriceItems || []), newItem]
-                                  });
-                                  setShowCustomItemForm(false);
-                                  setCustomItemDescription('');
-                                  setCustomItemAmount('');
-                                  toast({
-                                    title: "Custom item added",
-                                    description: `Added ${customItemDescription}: $${parseFloat(customItemAmount).toFixed(2)}`
-                                  });
-                                }
-                              }}
-                              disabled={!customItemDescription || !customItemAmount || parseFloat(customItemAmount) <= 0}
-                              className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
-                              data-testid="button-add-custom-item"
-                            >
-                              Add Item
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Detailed Pricing Breakdown - Show when calculation has pricing details OR editing booking has pricing details */}
-                  {((formData.baseFare && calculatedPrice) || (editingBooking && editingBooking.baseFare)) && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">Fare Breakdown</h4>
-                      
-                      <div className="space-y-2.5">
-                        {/* Base Fare */}
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Base Fare:</span>
-                          <span className="text-sm font-semibold text-foreground">${formData.baseFare || editingBooking?.baseFare}</span>
-                        </div>
-
-                        {/* Surge Pricing */}
-                        {((formData.surgePricingMultiplier && parseFloat(formData.surgePricingMultiplier) > 1) || 
-                          (editingBooking?.surgePricingMultiplier && parseFloat(editingBooking.surgePricingMultiplier) > 1)) && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">
-                              Surge Pricing ({formData.surgePricingMultiplier || editingBooking?.surgePricingMultiplier}x):
-                            </span>
-                            <span className="text-sm font-semibold text-orange-600">+${formData.surgePricingAmount || editingBooking?.surgePricingAmount}</span>
-                          </div>
-                        )}
-
-                        {/* Gratuity */}
-                        {((formData.gratuityAmount && parseFloat(formData.gratuityAmount) > 0) ||
-                          (editingBooking?.gratuityAmount && parseFloat(editingBooking.gratuityAmount) > 0)) && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Gratuity:</span>
-                            <span className="text-sm font-semibold text-foreground">+${formData.gratuityAmount || editingBooking?.gratuityAmount}</span>
-                          </div>
-                        )}
-
-                        {/* Airport Fee */}
-                        {((formData.airportFeeAmount && parseFloat(formData.airportFeeAmount) > 0) ||
-                          (editingBooking?.airportFeeAmount && parseFloat(editingBooking.airportFeeAmount) > 0)) && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Airport Fee:</span>
-                            <span className="text-sm font-semibold text-foreground">+${formData.airportFeeAmount || editingBooking?.airportFeeAmount}</span>
-                          </div>
-                        )}
-
-                        {/* Custom Price Items in breakdown */}
-                        {formData.customPriceItems && formData.customPriceItems.length > 0 && (
-                          <>
-                            {formData.customPriceItems.map((item, index) => (
-                              <div key={index} className="flex justify-between items-center">
-                                <span className="text-sm text-muted-foreground">{item.description}:</span>
-                                <span className="text-sm font-semibold text-purple-600">+${item.amount.toFixed(2)}</span>
-                              </div>
-                            ))}
-                          </>
-                        )}
-
-                        {/* Subtotal before discount */}
-                        <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-blue-700">
-                          <span className="text-sm font-semibold text-foreground">Subtotal:</span>
-                          <span className="text-sm font-bold text-foreground">${formData.regularPrice || editingBooking?.regularPrice || formData.totalAmount || editingBooking?.totalAmount}</span>
-                        </div>
-
-                        {/* Discount if applicable */}
-                        {(parseFloat(formData.discountAmount || editingBooking?.discountAmount || '0') > 0) && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-semibold text-green-700 dark:text-green-300">
-                              Discount ({formData.discountPercentage || editingBooking?.discountPercentage}%):
-                            </span>
-                            <span className="text-sm font-bold text-green-600">-${formData.discountAmount || editingBooking?.discountAmount}</span>
-                          </div>
-                        )}
-
-                        {/* Admin Discount in breakdown */}
-                        {parseFloat(formData.adminDiscount || editingBooking?.adminDiscount || '0') > 0 && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-semibold text-green-700 dark:text-green-300">Admin Discount:</span>
-                            <span className="text-sm font-bold text-green-600">-${formData.adminDiscount || editingBooking?.adminDiscount}</span>
-                          </div>
-                        )}
-
-                        {/* Total with all adjustments */}
-                        <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-blue-700">
-                          <span className="font-bold text-blue-900 dark:text-blue-200">Total Amount:</span>
-                          <span className="font-bold text-blue-700 dark:text-blue-300 text-xl">${formData.totalAmount || editingBooking?.totalAmount}</span>
-                        </div>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => {
+                            if (customItemDescription && customItemAmount && parseFloat(customItemAmount) > 0) {
+                              const newItem = {
+                                description: customItemDescription,
+                                amount: parseFloat(customItemAmount),
+                                addedBy: user?.username || 'admin',
+                                addedAt: new Date().toISOString()
+                              };
+                              setFormData({
+                                ...formData,
+                                customPriceItems: [...(formData.customPriceItems || []), newItem]
+                              });
+                              setShowCustomItemForm(false);
+                              setCustomItemDescription('');
+                              setCustomItemAmount('');
+                              toast({
+                                title: "Custom item added",
+                                description: `Added ${customItemDescription}: $${parseFloat(customItemAmount).toFixed(2)}`
+                              });
+                            }
+                          }}
+                          disabled={!customItemDescription || !customItemAmount || parseFloat(customItemAmount) <= 0}
+                          className="flex-1 h-9 bg-purple-600 hover:bg-purple-700 text-white"
+                          data-testid="button-add-custom-item"
+                        >
+                          Add Item
+                        </Button>
                       </div>
                     </div>
                   )}
+                </div>
+              )}
 
-                  {/* Legacy Discount Breakdown - Show when discount exists but no detailed breakdown */}
-                  {editingBooking && !editingBooking.baseFare && (editingBooking.discountPercentage || editingBooking.regularPrice) && parseFloat(editingBooking.discountAmount || '0') > 0 && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">Pricing Details</h4>
-                      <div className="space-y-2.5">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Regular Price:</span>
-                          <span className="text-sm font-semibold text-foreground">${editingBooking.regularPrice || editingBooking.totalAmount}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm font-semibold text-green-700 dark:text-green-300">
-                            Discount ({editingBooking.discountPercentage}%):
-                          </span>
-                          <span className="text-sm font-bold text-green-600">-${editingBooking.discountAmount}</span>
-                        </div>
-                        <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-blue-700">
-                          <span className="font-bold text-blue-900 dark:text-blue-200">Discounted Price:</span>
-                          <span className="font-bold text-blue-700 dark:text-blue-300 text-xl">${editingBooking.totalAmount}</span>
-                        </div>
-                      </div>
+              {/* Fare Breakdown Section */}
+              {((formData.baseFare && calculatedPrice) || (editingBooking && editingBooking.baseFare)) && (
+                <div className="space-y-3 pt-2 border-t border-border">
+                  <div className="flex items-center gap-3 pb-2">
+                    <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                     </div>
-                  )}
+                    <h3 className="text-base font-semibold text-foreground">Fare Breakdown</h3>
+                  </div>
+                  
+                  <div className="space-y-2 text-sm">
+                    {/* Base Fare */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Base Fare:</span>
+                      <span className="font-semibold text-foreground">${formData.baseFare || editingBooking?.baseFare}</span>
+                    </div>
 
-                  {/* Additional Charges Section */}
-                  {editingBooking && editingBooking.surcharges && (editingBooking.surcharges as any[]).length > 0 && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">Additional Charges</h4>
-                      <div className="space-y-2">
-                        {((editingBooking.surcharges as any[]) || []).map((charge: any, index: number) => (
-                          <div key={index} className="flex justify-between items-center text-sm p-3 bg-background rounded-lg border border-blue-100">
-                            <span className="text-muted-foreground font-medium">{charge.description}</span>
-                            <span className="font-semibold text-foreground">+${charge.amount.toFixed(2)}</span>
+                    {/* Surge Pricing */}
+                    {((formData.surgePricingMultiplier && parseFloat(formData.surgePricingMultiplier) > 1) || 
+                      (editingBooking?.surgePricingMultiplier && parseFloat(editingBooking.surgePricingMultiplier) > 1)) && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">
+                          Surge ({formData.surgePricingMultiplier || editingBooking?.surgePricingMultiplier}x):
+                        </span>
+                        <span className="font-semibold text-orange-600">+${formData.surgePricingAmount || editingBooking?.surgePricingAmount}</span>
+                      </div>
+                    )}
+
+                    {/* Gratuity */}
+                    {((formData.gratuityAmount && parseFloat(formData.gratuityAmount) > 0) ||
+                      (editingBooking?.gratuityAmount && parseFloat(editingBooking.gratuityAmount) > 0)) && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Gratuity:</span>
+                        <span className="font-semibold text-foreground">+${formData.gratuityAmount || editingBooking?.gratuityAmount}</span>
+                      </div>
+                    )}
+
+                    {/* Airport Fee */}
+                    {((formData.airportFeeAmount && parseFloat(formData.airportFeeAmount) > 0) ||
+                      (editingBooking?.airportFeeAmount && parseFloat(editingBooking.airportFeeAmount) > 0)) && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Airport Fee:</span>
+                        <span className="font-semibold text-foreground">+${formData.airportFeeAmount || editingBooking?.airportFeeAmount}</span>
+                      </div>
+                    )}
+
+                    {/* Custom Price Items in breakdown */}
+                    {formData.customPriceItems && formData.customPriceItems.length > 0 && (
+                      <>
+                        {formData.customPriceItems.map((item, index) => (
+                          <div key={index} className="flex justify-between items-center">
+                            <span className="text-muted-foreground">{item.description}:</span>
+                            <span className="font-semibold text-purple-600">+${item.amount.toFixed(2)}</span>
                           </div>
                         ))}
+                      </>
+                    )}
+
+                    {/* Subtotal */}
+                    <div className="flex justify-between items-center pt-2 border-t border-border">
+                      <span className="font-semibold text-foreground">Subtotal:</span>
+                      <span className="font-bold text-foreground">${formData.regularPrice || editingBooking?.regularPrice || formData.totalAmount || editingBooking?.totalAmount}</span>
+                    </div>
+
+                    {/* Discount if applicable */}
+                    {(parseFloat(formData.discountAmount || editingBooking?.discountAmount || '0') > 0) && (
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-green-600">
+                          Discount ({formData.discountPercentage || editingBooking?.discountPercentage}%):
+                        </span>
+                        <span className="font-bold text-green-600">-${formData.discountAmount || editingBooking?.discountAmount}</span>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Add Additional Charge Button & Form (Admin/Dispatcher only) */}
-                  {editingBooking && canManageCharges && (
-                    <div>
-                      {!showAdditionalChargeForm ? (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setShowAdditionalChargeForm(true)}
-                          className="w-full border-blue-300 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:bg-blue-900/20 hover:border-blue-400 font-medium py-3"
-                          data-testid="button-show-additional-charge-form"
-                        >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Additional Charge
-                        </Button>
-                      ) : (
-                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-                          <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">Add Additional Charge</h4>
-                          <div className="space-y-3">
-                            <div>
-                              <Label className="text-sm font-medium text-muted-foreground">Description</Label>
-                              <Input
-                                type="text"
-                                value={chargeDescription}
-                                onChange={(e) => setChargeDescription(e.target.value)}
-                                placeholder="e.g., Airport fee, Wait time, etc."
-                                className="mt-1.5 border-blue-300 focus:border-blue-500 focus:ring-blue-500 bg-background"
-                                data-testid="input-charge-description"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-sm font-medium text-muted-foreground">Amount</Label>
-                              <div className="relative mt-1.5">
-                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600" />
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  min="0"
-                                  value={chargeAmount}
-                                  onChange={(e) => setChargeAmount(e.target.value)}
-                                  placeholder="0.00"
-                                  className="pl-9 border-blue-300 focus:border-blue-500 focus:ring-blue-500 bg-background"
-                                  data-testid="input-charge-amount"
-                                />
-                              </div>
-                            </div>
-                            <div className="flex gap-2 pt-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => {
-                                  setShowAdditionalChargeForm(false);
-                                  setChargeDescription('');
-                                  setChargeAmount('');
-                                }}
-                                className="flex-1 border-border hover:bg-muted"
-                                data-testid="button-cancel-charge"
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                type="button"
-                                onClick={handleAddCharge}
-                                disabled={addChargeMutation.isPending}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                                data-testid="button-add-charge"
-                              >
-                                {addChargeMutation.isPending ? 'Adding...' : 'Add Charge'}
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Total Fare */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:to-indigo-900/30 border-2 border-blue-300 rounded-lg p-5">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-blue-900 dark:text-blue-200">Total Fare</span>
-                      <span className="text-3xl font-bold text-blue-700 dark:text-blue-300">
-                        ${(() => {
-                          const baseAmount = parseFloat(formData.totalAmount) || 0;
-                          const customItemsTotal = (formData.customPriceItems || []).reduce((sum, item) => sum + item.amount, 0);
-                          const adminDiscountAmount = parseFloat(formData.adminDiscount) || 0;
-                          const finalTotal = Math.max(0, baseAmount + customItemsTotal - adminDiscountAmount);
-                          return finalTotal.toFixed(2);
-                        })()}
-                      </span>
-                    </div>
-                    {/* Show breakdown if there are adjustments */}
-                    {((formData.customPriceItems && formData.customPriceItems.length > 0) || parseFloat(formData.adminDiscount) > 0) && (
-                      <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-600 space-y-1">
-                        {parseFloat(formData.totalAmount) > 0 && (
-                          <div className="flex justify-between text-sm">
-                            <span className="text-blue-700 dark:text-blue-300">Base fare:</span>
-                            <span className="text-blue-700 dark:text-blue-300">${formData.totalAmount}</span>
-                          </div>
-                        )}
-                        {formData.customPriceItems && formData.customPriceItems.length > 0 && (
-                          <div className="flex justify-between text-sm">
-                            <span className="text-purple-700 dark:text-purple-300">+ Custom items:</span>
-                            <span className="text-purple-700 dark:text-purple-300">+${(formData.customPriceItems || []).reduce((sum, item) => sum + item.amount, 0).toFixed(2)}</span>
-                          </div>
-                        )}
-                        {parseFloat(formData.adminDiscount) > 0 && (
-                          <div className="flex justify-between text-sm">
-                            <span className="text-green-700 dark:text-green-300">- Admin discount:</span>
-                            <span className="text-green-700 dark:text-green-300">-${formData.adminDiscount}</span>
-                          </div>
-                        )}
+                    {/* Admin Discount in breakdown */}
+                    {parseFloat(formData.adminDiscount || editingBooking?.adminDiscount || '0') > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-green-600">Admin Discount:</span>
+                        <span className="font-bold text-green-600">-${formData.adminDiscount || editingBooking?.adminDiscount}</span>
                       </div>
                     )}
                   </div>
+                </div>
+              )}
 
-                  {/* Submit to Driver Button */}
-                  <Button
-                    onClick={onSave}
-                    disabled={isSaving}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 text-lg"
-                    data-testid="button-submit-driver"
-                  >
-                    {isSaving ? 'Submitting...' : (editingBooking ? 'Update the booking' : 'CREATE BOOKING')}
-                  </Button>
+              {/* Legacy Discount Breakdown */}
+              {editingBooking && !editingBooking.baseFare && (editingBooking.discountPercentage || editingBooking.regularPrice) && parseFloat(editingBooking.discountAmount || '0') > 0 && (
+                <div className="space-y-3 pt-2 border-t border-border">
+                  <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Pricing Details</Label>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Regular Price:</span>
+                      <span className="font-semibold text-foreground">${editingBooking.regularPrice || editingBooking.totalAmount}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-green-600">
+                        Discount ({editingBooking.discountPercentage}%):
+                      </span>
+                      <span className="font-bold text-green-600">-${editingBooking.discountAmount}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-                  {/* Payment Actions (Admin/Dispatcher only) */}
-                  {editingBooking && canManageCharges && (
-                    <div className="space-y-3">
-                      <Button 
-                        onClick={handleAuthorizePayment}
-                        disabled={authorizePaymentMutation.isPending}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3"
-                        data-testid="button-authorize-payment"
-                      >
-                        {authorizePaymentMutation.isPending ? 'Processing...' : 'Authorize & Capture Payment'}
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        className="w-full border-blue-300 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:bg-blue-900/20 hover:border-blue-400 font-semibold py-3"
-                        data-testid="button-send-proforma"
-                      >
-                        Send Proforma Invoice
-                      </Button>
+              {/* Additional Charges Section */}
+              {editingBooking && editingBooking.surcharges && (editingBooking.surcharges as any[]).length > 0 && (
+                <div className="space-y-3 pt-2 border-t border-border">
+                  <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Additional Charges</Label>
+                  <div className="space-y-2">
+                    {((editingBooking.surcharges as any[]) || []).map((charge: any, index: number) => (
+                      <div key={index} className="flex justify-between items-center text-sm p-2 bg-background rounded-lg border border-border">
+                        <span className="text-muted-foreground">{charge.description}</span>
+                        <span className="font-semibold text-foreground">+${charge.amount.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Add Additional Charge (Admin/Dispatcher only) */}
+              {editingBooking && canManageCharges && (
+                <div className="pt-2 border-t border-border">
+                  {!showAdditionalChargeForm ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowAdditionalChargeForm(true)}
+                      className="w-full h-9 border-border text-muted-foreground hover:bg-muted"
+                      data-testid="button-show-additional-charge-form"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Additional Charge
+                    </Button>
+                  ) : (
+                    <div className="space-y-3 p-3 bg-background rounded-lg border border-border">
+                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Add Additional Charge</Label>
+                      <div className="space-y-2">
+                        <Input
+                          type="text"
+                          value={chargeDescription}
+                          onChange={(e) => setChargeDescription(e.target.value)}
+                          placeholder="e.g., Airport fee, Wait time, etc."
+                          className="h-9 bg-background border-border"
+                          data-testid="input-charge-description"
+                        />
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={chargeAmount}
+                            onChange={(e) => setChargeAmount(e.target.value)}
+                            placeholder="0.00"
+                            className="h-9 pl-9 bg-background border-border"
+                            data-testid="input-charge-amount"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setShowAdditionalChargeForm(false);
+                            setChargeDescription('');
+                            setChargeAmount('');
+                          }}
+                          className="flex-1 h-9 border-border"
+                          data-testid="button-cancel-charge"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={handleAddCharge}
+                          disabled={addChargeMutation.isPending}
+                          className="flex-1 h-9 bg-blue-600 hover:bg-blue-700 text-white"
+                          data-testid="button-add-charge"
+                        >
+                          {addChargeMutation.isPending ? 'Adding...' : 'Add Charge'}
+                        </Button>
+                      </div>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              )}
+
+              {/* Total Fare Section */}
+              <div className="space-y-3 pt-3 border-t-2 border-border">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold text-foreground">Total Fare</span>
+                  <span className="text-2xl font-bold text-primary">
+                    ${(() => {
+                      const baseAmount = parseFloat(formData.totalAmount) || 0;
+                      const customItemsTotal = (formData.customPriceItems || []).reduce((sum, item) => sum + item.amount, 0);
+                      const adminDiscountAmount = parseFloat(formData.adminDiscount) || 0;
+                      const finalTotal = Math.max(0, baseAmount + customItemsTotal - adminDiscountAmount);
+                      return finalTotal.toFixed(2);
+                    })()}
+                  </span>
+                </div>
+                {/* Show breakdown if there are adjustments */}
+                {((formData.customPriceItems && formData.customPriceItems.length > 0) || parseFloat(formData.adminDiscount) > 0) && (
+                  <div className="space-y-1 text-xs text-muted-foreground">
+                    {parseFloat(formData.totalAmount) > 0 && (
+                      <div className="flex justify-between">
+                        <span>Base fare:</span>
+                        <span>${formData.totalAmount}</span>
+                      </div>
+                    )}
+                    {formData.customPriceItems && formData.customPriceItems.length > 0 && (
+                      <div className="flex justify-between text-purple-600">
+                        <span>+ Custom items:</span>
+                        <span>+${(formData.customPriceItems || []).reduce((sum, item) => sum + item.amount, 0).toFixed(2)}</span>
+                      </div>
+                    )}
+                    {parseFloat(formData.adminDiscount) > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>- Admin discount:</span>
+                        <span>-${formData.adminDiscount}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                onClick={onSave}
+                disabled={isSaving}
+                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base"
+                data-testid="button-submit-driver"
+              >
+                {isSaving ? 'Submitting...' : (editingBooking ? 'Update the booking' : 'CREATE BOOKING')}
+              </Button>
+
+              {/* Payment Actions (Admin/Dispatcher only) */}
+              {editingBooking && canManageCharges && (
+                <div className="space-y-2 pt-2 border-t border-border">
+                  <Button 
+                    onClick={handleAuthorizePayment}
+                    disabled={authorizePaymentMutation.isPending}
+                    className="w-full h-10 bg-red-600 hover:bg-red-700 text-white font-semibold"
+                    data-testid="button-authorize-payment"
+                  >
+                    {authorizePaymentMutation.isPending ? 'Processing...' : 'Authorize & Capture Payment'}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-10 border-border text-muted-foreground hover:bg-muted"
+                    data-testid="button-send-proforma"
+                  >
+                    Send Proforma Invoice
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
