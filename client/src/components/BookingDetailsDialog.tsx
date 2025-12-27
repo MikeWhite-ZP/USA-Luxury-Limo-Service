@@ -500,7 +500,7 @@ export function BookingDetailsDialog({
         </div>
 
         {/* Mobile Tab Navigation - adjusted for safe area padding */}
-        <div className="lg:hidden sticky top-[84px] sm:top-[68px] z-40 bg-background border-b">
+        <div className="lg:hidden sticky top-[84px] sm:top-[68px] z-40 bg-background border-b text-[12px]">
           <div className="flex overflow-x-auto scrollbar-hide">
             <button
               onClick={() => setActiveTab('passenger')}
