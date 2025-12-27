@@ -468,14 +468,14 @@ export function BookingDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-full sm:max-w-[95vw] md:max-w-[900px] lg:max-w-[1100px] h-[100dvh] sm:h-[95vh] sm:max-h-[95vh] overflow-hidden p-0 bg-background sm:rounded-xl rounded-none">
+      <DialogContent className="w-full max-w-[95vw] sm:max-w-[600px] md:max-w-[700px] max-h-[85vh] overflow-hidden p-0 bg-background rounded-lg">
         <VisuallyHidden>
           <DialogTitle>{editingBooking ? 'Edit Booking' : 'New Booking'}</DialogTitle>
           <DialogDescription>Create or edit a booking with passenger, journey, and pricing details</DialogDescription>
         </VisuallyHidden>
         
-        {/* Mobile Header - Sticky with safe area padding for phone sensors */}
-        <div className="sticky top-0 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 px-4 pt-[30px] pb-3 sm:px-6 sm:pt-4 sm:pb-4 flex items-center justify-between shadow-md">
+        {/* Header */}
+        <div className="sticky top-0 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 flex items-center justify-between shadow-md">
           <div className="flex items-center gap-3">
             <div className="bg-white/20 p-2 rounded-lg">
               <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -499,8 +499,8 @@ export function BookingDetailsDialog({
           </Button>
         </div>
 
-        {/* Mobile Tab Navigation - Ultra Compact 2-Tab Design */}
-        <div className="lg:hidden sticky top-[84px] sm:top-[68px] z-40 bg-background border-b">
+        {/* Mobile Tab Navigation - Compact 2-Tab Design */}
+        <div className="lg:hidden sticky top-[52px] z-40 bg-background border-b">
           <div className="grid grid-cols-2">
             <button
               onClick={() => setActiveTab('passenger')}
@@ -529,14 +529,14 @@ export function BookingDetailsDialog({
         
         {/* Main Content Area */}
         <div className="flex-1 overflow-y-auto">
-          {/* Desktop: Two Column Layout / Mobile: Tab Content */}
-          <div className="lg:grid lg:grid-cols-[1.2fr_1fr] h-full">
+          {/* Tab Content */}
+          <div className="h-full">
             
-            {/* LEFT PANEL - Journey Details (Desktop always visible, Mobile tab-based) */}
-            <div className={`lg:block lg:overflow-y-auto lg:border-r bg-background ${
-              activeTab === 'pricing' ? 'hidden' : 'block'
+            {/* Details Panel */}
+            <div className={`bg-background ${
+              activeTab === 'pricing' ? 'hidden lg:block' : 'block'
             }`}>
-              <div className="p-2.5 sm:p-4 space-y-2 pb-28 lg:pb-4">
+              <div className="p-3 sm:p-4 space-y-2 pb-20 lg:pb-4">
 
             {/* Ultra Compact Professional Form */}
             <div className="space-y-2">
