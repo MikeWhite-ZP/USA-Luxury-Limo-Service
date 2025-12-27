@@ -110,10 +110,21 @@ interface BookingFormData {
   flightAirline: string;
   flightDepartureAirport: string;
   flightArrivalAirport: string;
+  flightDepartureTerminal: string;
+  flightArrivalTerminal: string;
+  flightBaggageClaim: string;
   specialInstructions: string;
   billReference: string;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
   paymentMethod: 'pay_now' | 'pay_later' | 'cash' | 'ride_credit';
+  creditAmountApplied?: string;
+  adminDiscount: string;
+  customPriceItems: Array<{
+    description: string;
+    amount: number;
+    addedBy?: string;
+    addedAt?: string;
+  }>;
 }
 
 const defaultFormData: BookingFormData = {
@@ -154,6 +165,8 @@ const defaultFormData: BookingFormData = {
   billReference: '',
   status: 'pending',
   paymentMethod: 'pay_now',
+  adminDiscount: '',
+  customPriceItems: [],
 };
 
 interface DashboardStats {
@@ -204,8 +217,13 @@ interface Booking {
   flightAirline?: string;
   flightDepartureAirport?: string;
   flightArrivalAirport?: string;
+  flightDepartureTerminal?: string;
+  flightArrivalTerminal?: string;
+  flightBaggageClaim?: string;
   paymentMethod?: string;
   regularPrice?: string;
+  adminDiscount?: string;
+  customPriceItems?: Array<{ description: string; amount: number; addedBy?: string; addedAt?: string; }>;
   discountPercentage?: string;
   discountAmount?: string;
   baseFare?: string;
@@ -607,6 +625,8 @@ export default function MobileAdmin() {
       billReference: booking.billReference || '',
       status: (booking.status as any) || 'pending',
       paymentMethod: (booking.paymentMethod as any) || 'pay_now',
+      adminDiscount: booking.adminDiscount || '',
+      customPriceItems: booking.customPriceItems || [],
     });
     setSelectedDriverId(booking.driverId || '');
     setCalculatedPrice(booking.totalAmount || '');
