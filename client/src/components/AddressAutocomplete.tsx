@@ -247,7 +247,7 @@ export function AddressAutocomplete({
             disabled={disabled}
             autoComplete="off"
             data-testid={testId}
-            className="bg-background p-[5px]"
+            className="bg-background h-6 text-[10px] px-1.5 py-0.5"
           />
 
         {/* Saved Addresses Dropdown */}
