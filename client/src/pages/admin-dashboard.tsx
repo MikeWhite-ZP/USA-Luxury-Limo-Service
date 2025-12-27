@@ -77,6 +77,7 @@ import {
   Banknote,
   Wallet,
   Download,
+  Shield,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { AdminNav } from "@/components/AdminNav";
@@ -3682,6 +3683,7 @@ export default function AdminDashboard() {
   const [userFormData, setUserFormData] = useState({
     firstName: "",
     lastName: "",
+    companyName: "",
     email: "",
     phone: "",
     username: "",
@@ -5621,6 +5623,7 @@ export default function AdminDashboard() {
     setUserFormData({
       firstName: "",
       lastName: "",
+      companyName: "",
       email: "",
       phone: "",
       username: "",
@@ -5642,6 +5645,7 @@ export default function AdminDashboard() {
     setUserFormData({
       firstName: user.firstName,
       lastName: user.lastName,
+      companyName: (user as any).companyName || "",
       email: user.email,
       phone: user.phone || "",
       username: user.username || "",
@@ -10608,270 +10612,317 @@ export default function AdminDashboard() {
               </TabsContent>
             </Tabs>
           ) : (
-            <div className="space-y-4 py-4 overflow-y-auto max-h-[60vh]">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="user-first-name">First Name *</Label>
-                  <Input
-                    id="user-first-name"
-                    placeholder="John"
-                    value={userFormData.firstName}
-                    onChange={(e) =>
-                      setUserFormData({
-                        ...userFormData,
-                        firstName: e.target.value,
-                      })
-                    }
-                    data-testid="input-user-first-name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="user-last-name">Last Name</Label>
-                  <Input
-                    id="user-last-name"
-                    placeholder="Doe"
-                    value={userFormData.lastName}
-                    onChange={(e) =>
-                      setUserFormData({
-                        ...userFormData,
-                        lastName: e.target.value,
-                      })
-                    }
-                    data-testid="input-user-last-name"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="user-email">Email *</Label>
-                <Input
-                  id="user-email"
-                  type="email"
-                  placeholder="user@example.com"
-                  value={userFormData.email}
-                  onChange={(e) =>
-                    setUserFormData({ ...userFormData, email: e.target.value })
-                  }
-                  data-testid="input-user-email"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="user-phone">Phone Number</Label>
-                <Input
-                  id="user-phone"
-                  placeholder="+1 234 567 8900"
-                  value={userFormData.phone}
-                  onChange={(e) =>
-                    setUserFormData({ ...userFormData, phone: e.target.value })
-                  }
-                  data-testid="input-user-phone"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="user-username">Username</Label>
-                <Input
-                  id="user-username"
-                  placeholder="johndoe123"
-                  value={userFormData.username}
-                  onChange={(e) =>
-                    setUserFormData({ ...userFormData, username: e.target.value })
-                  }
-                  data-testid="input-user-username"
-                />
-                {userFormData.username && userFormData.username !== editingUser?.username && (
-                  <p className={`text-xs ${
-                    usernameStatus === 'checking' ? 'text-muted-foreground' :
-                    usernameStatus === 'available' ? 'text-green-600' :
-                    usernameStatus === 'taken' ? 'text-red-600' :
-                    'text-muted-foreground'
-                  }`}>
-                    {usernameStatus === 'checking' && 'Checking availability...'}
-                    {usernameStatus === 'available' && 'Username is available'}
-                    {usernameStatus === 'taken' && 'Username is already taken'}
-                    {usernameStatus === 'idle' && 'Username must be 3-30 characters (letters, numbers, -, _)'}
-                  </p>
-                )}
-              </div>
-
-              {userFormData.role === "driver" && (
-                <div className="space-y-2">
-                  <Label htmlFor="user-vehicle-plate">Vehicle Plate Number</Label>
-                  <Input
-                    id="user-vehicle-plate"
-                    placeholder="ABC123"
-                    value={userFormData.vehiclePlate}
-                    onChange={(e) =>
-                      setUserFormData({
-                        ...userFormData,
-                        vehiclePlate: e.target.value,
-                      })
-                    }
-                    data-testid="input-user-vehicle-plate"
-                  />
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="user-role">Role *</Label>
-                <Select
-                  value={userFormData.role}
-                  onValueChange={(value) =>
-                    setUserFormData({
-                      ...userFormData,
-                      role: value as typeof userFormData.role,
-                    })
-                  }
-                >
-                  <SelectTrigger id="user-role" data-testid="select-user-role">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="passenger">Passenger</SelectItem>
-                    <SelectItem value="driver">Driver</SelectItem>
-                    <SelectItem value="dispatcher">Dispatcher</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="user-status">Status</Label>
-                <Select
-                  value={userFormData.isActive ? "active" : "inactive"}
-                  onValueChange={(value) =>
-                    setUserFormData({
-                      ...userFormData,
-                      isActive: value === "active",
-                    })
-                  }
-                >
-                  <SelectTrigger id="user-status" data-testid="select-user-status">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {userFormData.role === "passenger" && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="user-paylater">Pay Later Ability</Label>
-                    <Select
-                      value={userFormData.payLaterEnabled ? "enabled" : "disabled"}
-                      onValueChange={(value) =>
-                        setUserFormData({
-                          ...userFormData,
-                          payLaterEnabled: value === "enabled",
-                        })
-                      }
-                    >
-                      <SelectTrigger id="user-paylater" data-testid="select-user-paylater">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="enabled">Enabled</SelectItem>
-                        <SelectItem value="disabled">Disabled</SelectItem>
-                      </SelectContent>
-                    </Select>
+            <div className="overflow-y-auto max-h-[60vh] pr-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Personal Information Section */}
+                <div className="space-y-4">
+                  <div className="pb-2 border-b">
+                    <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
+                      <UserIcon className="w-4 h-4" />
+                      Personal Information
+                    </h3>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="user-cashpayment">Cash Payment Ability</Label>
-                    <Select
-                      value={userFormData.cashPaymentEnabled ? "enabled" : "disabled"}
-                      onValueChange={(value) =>
-                        setUserFormData({
-                          ...userFormData,
-                          cashPaymentEnabled: value === "enabled",
-                        })
-                      }
-                    >
-                      <SelectTrigger id="user-cashpayment" data-testid="select-user-cashpayment">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="enabled">Enabled</SelectItem>
-                        <SelectItem value="disabled">Disabled</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="user-discount-type">Discount Type</Label>
-                    <Select
-                      value={userFormData.discountType || "none"}
-                      onValueChange={(value) =>
-                        setUserFormData({
-                          ...userFormData,
-                          discountType:
-                            value === "none" ? null : (value as "percentage" | "fixed"),
-                          discountValue: value === "none" ? "0" : userFormData.discountValue,
-                        })
-                      }
-                    >
-                      <SelectTrigger id="user-discount-type" data-testid="select-user-discount-type">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">No Discount</SelectItem>
-                        <SelectItem value="percentage">Percentage (%)</SelectItem>
-                        <SelectItem value="fixed">Fixed Amount ($)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {userFormData.discountType && (
-                    <div className="space-y-2">
-                      <Label htmlFor="user-discount-value">
-                        Discount Value {userFormData.discountType === "percentage" ? "(%)" : "($)"}
-                      </Label>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="user-first-name" className="text-xs font-medium">First Name *</Label>
                       <Input
-                        id="user-discount-value"
-                        type="number"
-                        min="0"
-                        max={userFormData.discountType === "percentage" ? "100" : undefined}
-                        step={userFormData.discountType === "percentage" ? "1" : "0.01"}
-                        placeholder={userFormData.discountType === "percentage" ? "10" : "5.00"}
-                        value={userFormData.discountValue}
+                        id="user-first-name"
+                        placeholder="John"
+                        value={userFormData.firstName}
                         onChange={(e) =>
                           setUserFormData({
                             ...userFormData,
-                            discountValue: e.target.value,
+                            firstName: e.target.value,
                           })
                         }
-                        data-testid="input-user-discount-value"
+                        className="h-9"
+                        data-testid="input-user-first-name"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="user-last-name" className="text-xs font-medium">Last Name</Label>
+                      <Input
+                        id="user-last-name"
+                        placeholder="Doe"
+                        value={userFormData.lastName}
+                        onChange={(e) =>
+                          setUserFormData({
+                            ...userFormData,
+                            lastName: e.target.value,
+                          })
+                        }
+                        className="h-9"
+                        data-testid="input-user-last-name"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="user-company-name" className="text-xs font-medium">Company Name</Label>
+                    <Input
+                      id="user-company-name"
+                      placeholder="Acme Corporation"
+                      value={userFormData.companyName}
+                      onChange={(e) =>
+                        setUserFormData({ ...userFormData, companyName: e.target.value })
+                      }
+                      className="h-9"
+                      data-testid="input-user-company-name"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="user-email" className="text-xs font-medium">Email Address *</Label>
+                    <Input
+                      id="user-email"
+                      type="email"
+                      placeholder="user@example.com"
+                      value={userFormData.email}
+                      onChange={(e) =>
+                        setUserFormData({ ...userFormData, email: e.target.value })
+                      }
+                      className="h-9"
+                      data-testid="input-user-email"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="user-phone" className="text-xs font-medium">Phone Number</Label>
+                    <Input
+                      id="user-phone"
+                      placeholder="+1 234 567 8900"
+                      value={userFormData.phone}
+                      onChange={(e) =>
+                        setUserFormData({ ...userFormData, phone: e.target.value })
+                      }
+                      className="h-9"
+                      data-testid="input-user-phone"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="user-username" className="text-xs font-medium">Username</Label>
+                    <Input
+                      id="user-username"
+                      placeholder="johndoe123"
+                      value={userFormData.username}
+                      onChange={(e) =>
+                        setUserFormData({ ...userFormData, username: e.target.value })
+                      }
+                      className="h-9"
+                      data-testid="input-user-username"
+                    />
+                    {userFormData.username && userFormData.username !== editingUser?.username && (
+                      <p className={`text-xs ${
+                        usernameStatus === 'checking' ? 'text-muted-foreground' :
+                        usernameStatus === 'available' ? 'text-green-600' :
+                        usernameStatus === 'taken' ? 'text-red-600' :
+                        'text-muted-foreground'
+                      }`}>
+                        {usernameStatus === 'checking' && 'Checking availability...'}
+                        {usernameStatus === 'available' && 'Username is available'}
+                        {usernameStatus === 'taken' && 'Username is already taken'}
+                        {usernameStatus === 'idle' && 'Username must be 3-30 characters'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Access & Permissions Section */}
+                <div className="space-y-4">
+                  <div className="pb-2 border-b">
+                    <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
+                      <Shield className="w-4 h-4" />
+                      Access & Permissions
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="user-role" className="text-xs font-medium">Role *</Label>
+                      <Select
+                        value={userFormData.role}
+                        onValueChange={(value) =>
+                          setUserFormData({
+                            ...userFormData,
+                            role: value as typeof userFormData.role,
+                          })
+                        }
+                      >
+                        <SelectTrigger id="user-role" className="h-9" data-testid="select-user-role">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="passenger">Passenger</SelectItem>
+                          <SelectItem value="driver">Driver</SelectItem>
+                          <SelectItem value="dispatcher">Dispatcher</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="user-status" className="text-xs font-medium">Status</Label>
+                      <Select
+                        value={userFormData.isActive ? "active" : "inactive"}
+                        onValueChange={(value) =>
+                          setUserFormData({
+                            ...userFormData,
+                            isActive: value === "active",
+                          })
+                        }
+                      >
+                        <SelectTrigger id="user-status" className="h-9" data-testid="select-user-status">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {userFormData.role === "driver" && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="user-vehicle-plate" className="text-xs font-medium">Vehicle Plate Number</Label>
+                      <Input
+                        id="user-vehicle-plate"
+                        placeholder="ABC123"
+                        value={userFormData.vehiclePlate}
+                        onChange={(e) =>
+                          setUserFormData({
+                            ...userFormData,
+                            vehiclePlate: e.target.value,
+                          })
+                        }
+                        className="h-9"
+                        data-testid="input-user-vehicle-plate"
                       />
                     </div>
                   )}
-                </>
-              )}
 
-              {editingUser && editingUser.id !== user?.id && (
-                <div className="space-y-2 pt-4 border-t border-border">
-                  <Label htmlFor="user-temp-password">Set Temporary Password (Optional)</Label>
-                  <Input
-                    id="user-temp-password"
-                    type="password"
-                    placeholder="Leave blank to keep current password"
-                    value={userFormData.temporaryPassword}
-                    onChange={(e) =>
-                      setUserFormData({
-                        ...userFormData,
-                        temporaryPassword: e.target.value,
-                      })
-                    }
-                    data-testid="input-temp-password"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    If set, user will receive this password via email/SMS. Minimum 6 characters.
-                  </p>
+                  {userFormData.role === "passenger" && (
+                    <>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="user-paylater" className="text-xs font-medium">Pay Later</Label>
+                          <Select
+                            value={userFormData.payLaterEnabled ? "enabled" : "disabled"}
+                            onValueChange={(value) =>
+                              setUserFormData({
+                                ...userFormData,
+                                payLaterEnabled: value === "enabled",
+                              })
+                            }
+                          >
+                            <SelectTrigger id="user-paylater" className="h-9" data-testid="select-user-paylater">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="enabled">Enabled</SelectItem>
+                              <SelectItem value="disabled">Disabled</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="user-cashpayment" className="text-xs font-medium">Cash Payment</Label>
+                          <Select
+                            value={userFormData.cashPaymentEnabled ? "enabled" : "disabled"}
+                            onValueChange={(value) =>
+                              setUserFormData({
+                                ...userFormData,
+                                cashPaymentEnabled: value === "enabled",
+                              })
+                            }
+                          >
+                            <SelectTrigger id="user-cashpayment" className="h-9" data-testid="select-user-cashpayment">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="enabled">Enabled</SelectItem>
+                              <SelectItem value="disabled">Disabled</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="user-discount-type" className="text-xs font-medium">Discount Type</Label>
+                          <Select
+                            value={userFormData.discountType || "none"}
+                            onValueChange={(value) =>
+                              setUserFormData({
+                                ...userFormData,
+                                discountType:
+                                  value === "none" ? null : (value as "percentage" | "fixed"),
+                                discountValue: value === "none" ? "0" : userFormData.discountValue,
+                              })
+                            }
+                          >
+                            <SelectTrigger id="user-discount-type" className="h-9" data-testid="select-user-discount-type">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">No Discount</SelectItem>
+                              <SelectItem value="percentage">Percentage (%)</SelectItem>
+                              <SelectItem value="fixed">Fixed Amount ($)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        {userFormData.discountType && (
+                          <div className="space-y-1.5">
+                            <Label htmlFor="user-discount-value" className="text-xs font-medium">
+                              Discount {userFormData.discountType === "percentage" ? "(%)" : "($)"}
+                            </Label>
+                            <Input
+                              id="user-discount-value"
+                              type="number"
+                              min="0"
+                              max={userFormData.discountType === "percentage" ? "100" : undefined}
+                              step={userFormData.discountType === "percentage" ? "1" : "0.01"}
+                              placeholder={userFormData.discountType === "percentage" ? "10" : "5.00"}
+                              value={userFormData.discountValue}
+                              onChange={(e) =>
+                                setUserFormData({
+                                  ...userFormData,
+                                  discountValue: e.target.value,
+                                })
+                              }
+                              className="h-9"
+                              data-testid="input-user-discount-value"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {editingUser && editingUser.id !== user?.id && (
+                    <div className="space-y-1.5 pt-3 border-t border-border">
+                      <Label htmlFor="user-temp-password" className="text-xs font-medium">Set Temporary Password</Label>
+                      <Input
+                        id="user-temp-password"
+                        type="password"
+                        placeholder="Leave blank to keep current"
+                        value={userFormData.temporaryPassword}
+                        onChange={(e) =>
+                          setUserFormData({
+                            ...userFormData,
+                            temporaryPassword: e.target.value,
+                          })
+                        }
+                        className="h-9"
+                        data-testid="input-temp-password"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Minimum 6 characters. User will receive via email/SMS.
+                      </p>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           )}
 
@@ -10886,6 +10937,7 @@ export default function AdminDashboard() {
                 setUserFormData({
                   firstName: "",
                   lastName: "",
+                  companyName: "",
                   email: "",
                   phone: "",
                   username: "",

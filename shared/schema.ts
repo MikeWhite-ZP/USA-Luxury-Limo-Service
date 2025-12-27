@@ -43,6 +43,7 @@ export const users = pgTable("users", {
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
+  companyName: varchar("company_name"),
   profileImageUrl: varchar("profile_image_url"),
   phone: varchar("phone"),
   role: varchar("role", { enum: userRoles }).default("passenger"),
