@@ -7839,9 +7839,9 @@ export default function AdminDashboard() {
 
                       {/* Content */}
                       <div className="p-4">
-                        <div className="flex gap-6">
+                        <div className="grid grid-cols-[1fr_180px] gap-5">
                           {/* Left: Booking Details */}
-                          <div className="flex-1 space-y-4">
+                          <div className="space-y-3">
                             {/* Passenger & Time Row */}
                             <div className="grid grid-cols-2 gap-4">
                               <div>
@@ -7865,13 +7865,13 @@ export default function AdminDashboard() {
                             </div>
 
                             {/* Route */}
-                            <div className="space-y-2">
+                            <div className="grid grid-cols-2 gap-4">
                               <div className="flex items-start gap-2">
-                                <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></div>
-                                <div className="flex-1">
+                                <div className="w-2.5 h-2.5 rounded-full bg-green-500 mt-1 flex-shrink-0"></div>
+                                <div className="flex-1 min-w-0">
                                   <p className="text-xs font-semibold text-muted-foreground mb-0.5">Pickup</p>
                                   <p
-                                    className="text-sm font-medium text-foreground leading-snug"
+                                    className="text-sm text-foreground leading-snug"
                                     data-testid={`booking-pickup-${booking.id}`}
                                   >
                                     {booking.pickupAddress}
@@ -7879,11 +7879,11 @@ export default function AdminDashboard() {
                                 </div>
                               </div>
                               <div className="flex items-start gap-2">
-                                <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0"></div>
-                                <div className="flex-1">
+                                <div className="w-2.5 h-2.5 rounded-full bg-red-500 mt-1 flex-shrink-0"></div>
+                                <div className="flex-1 min-w-0">
                                   <p className="text-xs font-semibold text-muted-foreground mb-0.5">Destination</p>
                                   <p
-                                    className="text-sm font-medium text-foreground leading-snug"
+                                    className="text-sm text-foreground leading-snug"
                                     data-testid={`booking-destination-${booking.id}`}
                                   >
                                     {booking.destinationAddress || "Hourly Service"}
@@ -7894,7 +7894,7 @@ export default function AdminDashboard() {
 
                             {/* Special Instructions */}
                             {booking.specialInstructions && (
-                              <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
+                              <div className="p-2.5 bg-blue-50 rounded-md border border-blue-200">
                                 <p className="text-xs font-semibold text-blue-700 mb-1">Special Instructions</p>
                                 <p
                                   className="text-sm text-foreground"
@@ -7906,21 +7906,21 @@ export default function AdminDashboard() {
                             )}
 
                             {/* Financial Summary */}
-                            <div className="flex items-center gap-4">
-                              <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5">
-                                <p className="text-xs font-semibold text-muted-foreground mb-0.5">Total Amount</p>
+                            <div className="flex items-center gap-3 pt-1">
+                              <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+                                <p className="text-xs font-semibold text-muted-foreground">Total Amount</p>
                                 <p
-                                  className="font-bold text-2xl text-blue-700"
+                                  className="font-bold text-xl text-blue-700"
                                   data-testid={`booking-amount-${booking.id}`}
                                 >
                                   ${booking.totalAmount}
                                 </p>
                               </div>
                               {booking.driverId && booking.driverPayment && (
-                                <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2.5">
-                                  <p className="text-xs font-semibold text-muted-foreground mb-0.5">Driver Payment</p>
+                                <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                                  <p className="text-xs font-semibold text-muted-foreground">Driver Payment</p>
                                   <p
-                                    className="font-bold text-2xl text-green-700"
+                                    className="font-bold text-xl text-green-700"
                                     data-testid={`booking-driver-payment-${booking.id}`}
                                   >
                                     ${booking.driverPayment}
@@ -7931,7 +7931,7 @@ export default function AdminDashboard() {
                           </div>
 
                           {/* Right: Driver & Actions - Vertical Column */}
-                          <div className="w-44 flex flex-col gap-2.5">
+                          <div className="flex flex-col gap-2">
                             {/* Status Selector */}
                             <Select
                               value={booking.status}
@@ -7959,7 +7959,7 @@ export default function AdminDashboard() {
                             </Select>
 
                             {/* Driver Info */}
-                            <div className="bg-background border border-border rounded-lg p-2.5">
+                            <div className="bg-muted/40 border border-border rounded-lg p-2">
                               {booking.driverId ? (
                                 <div
                                   className="flex items-center gap-2"
@@ -7969,10 +7969,10 @@ export default function AdminDashboard() {
                                     <img
                                       src={booking.driverProfileImageUrl}
                                       alt="Driver"
-                                      className="w-9 h-9 rounded-full object-cover border border-border"
+                                      className="w-8 h-8 rounded-full object-cover border border-border"
                                     />
                                   ) : (
-                                    <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-semibold text-xs">
+                                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-semibold text-xs">
                                       {booking.driverFirstName?.[0]}{booking.driverLastName?.[0]}
                                     </div>
                                   )}
@@ -7987,7 +7987,7 @@ export default function AdminDashboard() {
                                   <button
                                     onClick={() => unassignDriverMutation.mutate(booking.id)}
                                     disabled={unassignDriverMutation.isPending}
-                                    className="w-5 h-5 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center text-red-600 transition-colors"
+                                    className="w-5 h-5 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center text-red-600 transition-colors flex-shrink-0"
                                     title="Unassign driver"
                                     data-testid={`button-unassign-driver-${booking.id}`}
                                   >
@@ -7995,7 +7995,7 @@ export default function AdminDashboard() {
                                   </button>
                                 </div>
                               ) : (
-                                <p className="text-xs text-muted-foreground text-center py-1">No driver assigned</p>
+                                <p className="text-xs text-muted-foreground text-center py-0.5">No driver assigned</p>
                               )}
                             </div>
 
@@ -8013,20 +8013,20 @@ export default function AdminDashboard() {
                                 setAssignDriverDialogOpen(true);
                               }}
                               data-testid={`button-assign-driver-${booking.id}`}
-                              className="w-full h-9 text-indigo-700 border-indigo-300 bg-indigo-50 hover:bg-indigo-100 font-semibold"
+                              className="w-full h-8 text-xs text-indigo-700 border-indigo-300 bg-indigo-50 hover:bg-indigo-100 font-semibold"
                             >
-                              <Car className="w-3.5 h-3.5 mr-1.5" />
-                              {booking.driverId ? "Change Driver" : "Assign Driver"}
+                              <Car className="w-3.5 h-3.5 mr-1" />
+                              {booking.driverId ? "Change" : "Assign"}
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => openEditBookingDialog(booking)}
                               data-testid={`button-edit-booking-${booking.id}`}
-                              className="w-full h-9 text-green-700 border-green-300 bg-green-50 hover:bg-green-100 font-semibold"
+                              className="w-full h-8 text-xs text-green-700 border-green-300 bg-green-50 hover:bg-green-100 font-semibold"
                             >
-                              <Edit2 className="w-3.5 h-3.5 mr-1.5" />
-                              Edit Booking
+                              <Edit2 className="w-3.5 h-3.5 mr-1" />
+                              Edit
                             </Button>
                             {booking.status !== "cancelled" && booking.status !== "completed" && (
                               <Button
@@ -8038,9 +8038,9 @@ export default function AdminDashboard() {
                                   setCancelDialogOpen(true);
                                 }}
                                 data-testid={`button-cancel-booking-${booking.id}`}
-                                className="w-full h-9 text-orange-700 border-orange-300 bg-orange-50 hover:bg-orange-100 font-semibold"
+                                className="w-full h-8 text-xs text-orange-700 border-orange-300 bg-orange-50 hover:bg-orange-100 font-semibold"
                               >
-                                <X className="w-3.5 h-3.5 mr-1.5" />
+                                <X className="w-3.5 h-3.5 mr-1" />
                                 Cancel
                               </Button>
                             )}
@@ -8054,9 +8054,9 @@ export default function AdminDashboard() {
                               }}
                               disabled={deleteBookingMutation.isPending}
                               data-testid={`button-delete-booking-${booking.id}`}
-                              className="w-full h-9 text-red-700 border-red-300 bg-red-50 hover:bg-red-100 font-semibold"
+                              className="w-full h-8 text-xs text-red-700 border-red-300 bg-red-50 hover:bg-red-100 font-semibold"
                             >
-                              <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                              <Trash2 className="w-3.5 h-3.5 mr-1" />
                               Delete
                             </Button>
                           </div>
