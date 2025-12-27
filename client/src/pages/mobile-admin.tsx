@@ -697,7 +697,7 @@ export default function MobileAdmin() {
   return (
     <div className="min-h-screen bg-muted pb-20">
       {/* Header with safe area for phone notch/camera */}
-      <header className="bg-gradient-to-r from-slate-900 to-blue-900 text-white px-4 pb-4 pt-[calc(30px+1rem)] sticky top-0 z-40">
+      <header className="bg-gradient-to-r from-slate-900 to-blue-900 text-white px-4 pb-4 pt-[54px] sticky top-0 z-40">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {brandingLogoUrl ? (

@@ -143,7 +143,7 @@ export default function MobileProfile() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-background dark:from-background">
       {/* Header with safe area for phone notch/camera */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 pt-[calc(30px+1.5rem)] shadow-lg sticky top-0 z-10">
+      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 pt-[54px] shadow-lg sticky top-0 z-10">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"

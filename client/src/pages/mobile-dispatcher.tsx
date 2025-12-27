@@ -175,28 +175,28 @@ export default function MobileDispatcher() {
   return (
     <div className="min-h-screen bg-muted">
       {/* Header with safe area for phone notch/camera */}
-      <div className="bg-background border-b border-border sticky top-0 z-10 shadow-sm pt-[30px]">
-        <div className="p-3 sm:p-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+      <header className="bg-gradient-to-r from-slate-900 to-blue-900 text-white px-4 pb-4 pt-[54px] sticky top-0 z-40">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setLocation('/')}
-              className="text-muted-foreground hover:bg-muted"
+              className="text-white hover:bg-white/10"
               data-testid="button-back"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold text-foreground">Dispatch Center</h1>
-              <p className="text-xs text-muted-foreground">Fleet Management</p>
+              <h1 className="text-xl font-bold">Dispatch Center</h1>
+              <p className="text-xs text-blue-200">Fleet Management</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <ThemeToggleMobile />
+            <ThemeToggleMobile className="bg-white/10 hover:bg-white/20" />
             <Button
               onClick={() => setFleetDialogOpen(true)}
-              className="text-white" style={{ backgroundColor: 'var(--brand-button-primary-hex)' }}
+              className="bg-white/10 hover:bg-white/20 text-white border-0"
               size="sm"
               data-testid="button-fleet-monitor"
             >
@@ -205,7 +205,7 @@ export default function MobileDispatcher() {
             </Button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Stats Grid */}
       <div className="p-3 grid grid-cols-2 gap-2 sm:gap-3 sm:p-4">

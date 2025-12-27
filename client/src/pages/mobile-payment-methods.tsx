@@ -302,7 +302,7 @@ export default function MobilePaymentMethods() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-background to-blue-50 dark:from-background dark:via-background dark:to-background pb-20">
         {/* Header with safe area for phone notch/camera */}
-        <div className="bg-card border-b-2 border-blue-100 dark:border-border p-6 pt-[calc(30px+1.5rem)] pb-6 shadow-sm">
+        <div className="bg-card border-b-2 border-blue-100 dark:border-border p-6 pt-[54px] pb-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <Button
               variant="ghost"
@@ -386,7 +386,7 @@ export default function MobilePaymentMethods() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-background to-blue-50 dark:from-background dark:via-background dark:to-background pb-20">
       {/* Header with safe area for phone notch/camera */}
-      <div className="bg-card border-b-2 border-blue-100 dark:border-border p-6 pt-[calc(30px+1.5rem)] pb-6 shadow-sm">
+      <div className="bg-card border-b-2 border-blue-100 dark:border-border p-6 pt-[54px] pb-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"

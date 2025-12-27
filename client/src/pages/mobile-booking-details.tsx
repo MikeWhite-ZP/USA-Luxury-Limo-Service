@@ -353,7 +353,7 @@ export default function MobileBookingDetails() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-background dark:from-background pb-20">
       {/* Header with safe area for phone notch/camera */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 pt-[calc(30px+1.5rem)] pb-8 rounded-b-3xl shadow-lg">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 pt-[54px] pb-8 rounded-b-3xl shadow-lg">
         <div className="flex justify-between items-center mb-4">
           <Button
             variant="ghost"

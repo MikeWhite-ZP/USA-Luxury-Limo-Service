@@ -522,7 +522,7 @@ export default function MobileDriverRideDetails() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5 pb-6">
       {/* Header with safe area for phone notch/camera */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-primary-foreground p-6 pt-[calc(30px+1.5rem)] shadow-lg">
+      <div className="bg-gradient-to-r from-green-600 to-green-700 text-primary-foreground p-6 pt-[54px] shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"

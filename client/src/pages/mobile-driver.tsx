@@ -387,7 +387,7 @@ export default function MobileDriver() {
   return (
     <div className="min-h-screen bg-muted">
       {/* Header with safe area for phone notch/camera */}
-      <div className="bg-background border-b border-border p-6 pt-[calc(30px+1.5rem)] shadow-sm">
+      <div className="bg-background border-b border-border p-6 pt-[54px] shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"
