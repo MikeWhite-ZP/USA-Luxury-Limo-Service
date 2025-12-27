@@ -711,7 +711,7 @@ export default function MobileAdmin() {
               <Shield className="w-8 h-8" />
             )}
             <div>
-              <h1 className="font-bold text-lg">Admin Panel</h1>
+              <h1 className="font-bold text-[16px]">Admin Panel</h1>
               <p className="text-xs text-blue-200">Welcome, {user.firstName}</p>
             </div>
           </div>
@@ -736,7 +736,6 @@ export default function MobileAdmin() {
           </div>
         </div>
       </header>
-
       {/* Menu Drawer */}
       {menuOpen && (
         <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setMenuOpen(false)}>
@@ -765,7 +764,6 @@ export default function MobileAdmin() {
           </div>
         </div>
       )}
-
       {/* Main Content */}
       <main className="px-4 py-4">
         {activeSection === 'dashboard' && (
@@ -1320,7 +1318,6 @@ export default function MobileAdmin() {
           </div>
         )}
       </main>
-
       {/* Bottom Navigation - Ultra Compact for iPhone SE */}
       <nav className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50 safe-area-pb">
         <div className="flex items-center justify-evenly py-1.5 px-1">
@@ -1371,7 +1368,6 @@ export default function MobileAdmin() {
           </button>
         </div>
       </nav>
-
       {/* Booking Details Dialog */}
       <BookingDetailsDialog
         open={bookingDialogOpen}
@@ -1400,7 +1396,6 @@ export default function MobileAdmin() {
         onFlightSearch={handleFlightSearch}
         isSearchingFlight={isSearchingFlight}
       />
-
       {/* User Edit Dialog */}
       <Dialog open={showUserDialog} onOpenChange={setShowUserDialog}>
         <DialogContent className="max-w-sm mx-4">
@@ -1506,7 +1501,6 @@ export default function MobileAdmin() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
@@ -1537,7 +1531,6 @@ export default function MobileAdmin() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
       {/* Assign Driver Dialog */}
       <Dialog open={assignDriverDialogOpen} onOpenChange={setAssignDriverDialogOpen}>
         <DialogContent className="max-w-sm mx-4">
