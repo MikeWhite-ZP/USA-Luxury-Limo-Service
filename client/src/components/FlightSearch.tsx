@@ -270,12 +270,15 @@ export default function FlightSearch({
             <div className="px-2 py-1">
               <p className="text-[7px] text-slate-500 uppercase font-semibold">Dep</p>
               <p className="text-[9px] font-medium text-slate-900 dark:text-slate-100 truncate">{selectedFlight.departureIata}</p>
+              {selectedFlight.departureTerminal && <p className="text-[8px] text-slate-500">T{selectedFlight.departureTerminal}</p>}
               {depDateTime.time !== '--:--' && <p className="text-[10px] font-bold text-slate-900 dark:text-slate-100">{depDateTime.time}</p>}
             </div>
             <div className="px-2 py-1">
               <p className="text-[7px] text-slate-500 uppercase font-semibold">Arr</p>
               <p className="text-[9px] font-medium text-slate-900 dark:text-slate-100 truncate">{selectedFlight.arrivalIata}</p>
+              {selectedFlight.arrivalTerminal && <p className="text-[8px] text-slate-500">T{selectedFlight.arrivalTerminal}</p>}
               {arrDateTime.time !== '--:--' && <p className="text-[10px] font-bold text-slate-900 dark:text-slate-100">{arrDateTime.time}</p>}
+              {selectedFlight.baggageClaim && <p className="text-[8px] text-amber-600 font-medium">Bag: {selectedFlight.baggageClaim}</p>}
             </div>
           </div>
         </div>
