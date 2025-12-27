@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -27,7 +29,10 @@ import {
   CheckCircle2,
   AlertCircle,
   XCircle,
-  Plus
+  Plus,
+  X,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
 import L from 'leaflet';
@@ -192,6 +197,9 @@ export function BookingDetailsDialog({
   const [isChangingDriver, setIsChangingDriver] = useState(false);
   const [tempSelectedDriverId, setTempSelectedDriverId] = useState('');
   const [tempDriverPayment, setTempDriverPayment] = useState('');
+  
+  // Tab navigation for mobile
+  const [activeTab, setActiveTab] = useState<'passenger' | 'journey' | 'schedule' | 'pricing'>('passenger');
   
   // State for additional charges
   const [showAdditionalChargeForm, setShowAdditionalChargeForm] = useState(false);
@@ -448,22 +456,97 @@ export function BookingDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] w-[1400px] max-h-[95vh] overflow-hidden p-0 bg-background">
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] h-[95vh] overflow-hidden">
-          
-          {/* LEFT PANEL - Journey Visualization */}
-          <div className="overflow-y-auto p-6 bg-muted border-r">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-4 mb-6 shadow-md">
-              <div className="flex items-center gap-3">
-                <div className="bg-background/20 p-2.5 rounded-lg">
-                  <MapPin className="w-6 h-6 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold text-white">
-                  {editingBooking ? `Booking ID: ${editingBooking.id.substring(0, 8)}` : 'New Booking'}
-                </h2>
-              </div>
+      <DialogContent className="w-full max-w-full sm:max-w-[95vw] md:max-w-[900px] lg:max-w-[1100px] h-[100dvh] sm:h-[95vh] sm:max-h-[95vh] overflow-hidden p-0 bg-background sm:rounded-xl rounded-none">
+        <VisuallyHidden>
+          <DialogTitle>{editingBooking ? 'Edit Booking' : 'New Booking'}</DialogTitle>
+          <DialogDescription>Create or edit a booking with passenger, journey, and pricing details</DialogDescription>
+        </VisuallyHidden>
+        
+        {/* Mobile Header - Sticky */}
+        <div className="sticky top-0 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 p-2 rounded-lg">
+              <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-white">
+                {editingBooking ? 'Edit Booking' : 'New Booking'}
+              </h2>
+              {editingBooking && (
+                <p className="text-xs text-white/80 font-mono">#{editingBooking.id.substring(0, 8)}</p>
+              )}
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onOpenChange(false)}
+            className="text-white hover:bg-white/20 p-2 h-auto"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* Mobile Tab Navigation */}
+        <div className="lg:hidden sticky top-[60px] sm:top-[68px] z-40 bg-background border-b">
+          <div className="flex overflow-x-auto scrollbar-hide">
+            <button
+              onClick={() => setActiveTab('passenger')}
+              className={`flex-1 min-w-[80px] px-3 py-3 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                activeTab === 'passenger' 
+                  ? 'border-blue-600 text-blue-600 bg-blue-50' 
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <User className="w-4 h-4 mx-auto mb-1" />
+              Passenger
+            </button>
+            <button
+              onClick={() => setActiveTab('journey')}
+              className={`flex-1 min-w-[80px] px-3 py-3 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                activeTab === 'journey' 
+                  ? 'border-blue-600 text-blue-600 bg-blue-50' 
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <MapPin className="w-4 h-4 mx-auto mb-1" />
+              Journey
+            </button>
+            <button
+              onClick={() => setActiveTab('schedule')}
+              className={`flex-1 min-w-[80px] px-3 py-3 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                activeTab === 'schedule' 
+                  ? 'border-blue-600 text-blue-600 bg-blue-50' 
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Clock className="w-4 h-4 mx-auto mb-1" />
+              Schedule
+            </button>
+            <button
+              onClick={() => setActiveTab('pricing')}
+              className={`flex-1 min-w-[80px] px-3 py-3 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                activeTab === 'pricing' 
+                  ? 'border-blue-600 text-blue-600 bg-blue-50' 
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <DollarSign className="w-4 h-4 mx-auto mb-1" />
+              Pricing
+            </button>
+          </div>
+        </div>
+        
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Desktop: Two Column Layout / Mobile: Tab Content */}
+          <div className="lg:grid lg:grid-cols-[1.2fr_1fr] h-full">
+            
+            {/* LEFT PANEL - Journey Details (Desktop always visible, Mobile tab-based) */}
+            <div className={`lg:block lg:overflow-y-auto lg:border-r bg-muted/50 ${
+              activeTab === 'pricing' ? 'hidden' : 'block'
+            }`}>
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 pb-32 lg:pb-6">
 
             {/* Address Input Section with Saved Addresses */}
             <div className="space-y-4 mb-6">
@@ -1454,10 +1537,13 @@ export function BookingDetailsDialog({
                 </CardContent>
               </Card>
             </div>
-          </div>
+              </div>
+            </div>
 
-          {/* RIGHT PANEL - Dispatch & Invoice */}
-          <div className="overflow-y-auto p-6 bg-background">
+          {/* RIGHT PANEL - Dispatch & Invoice (Desktop always visible, Mobile only on pricing tab) */}
+          <div className={`lg:block lg:overflow-y-auto p-4 sm:p-6 bg-background ${
+            activeTab === 'pricing' ? 'block' : 'hidden'
+          }`}>
             
 
             {/* Invoice Section (Bottom) */}
@@ -1871,6 +1957,55 @@ export function BookingDetailsDialog({
             </div>
           </div>
 
+          </div>
+        </div>
+
+        {/* Mobile Sticky Footer with Navigation and Save */}
+        <div className="lg:hidden sticky bottom-0 left-0 right-0 bg-background border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-3 safe-area-inset-bottom">
+          <div className="flex items-center gap-2">
+            {/* Navigation buttons */}
+            <div className="flex gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const tabs: ('passenger' | 'journey' | 'schedule' | 'pricing')[] = ['passenger', 'journey', 'schedule', 'pricing'];
+                  const currentIndex = tabs.indexOf(activeTab);
+                  if (currentIndex > 0) {
+                    setActiveTab(tabs[currentIndex - 1]);
+                  }
+                }}
+                disabled={activeTab === 'passenger'}
+                className="px-3"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const tabs: ('passenger' | 'journey' | 'schedule' | 'pricing')[] = ['passenger', 'journey', 'schedule', 'pricing'];
+                  const currentIndex = tabs.indexOf(activeTab);
+                  if (currentIndex < tabs.length - 1) {
+                    setActiveTab(tabs[currentIndex + 1]);
+                  }
+                }}
+                disabled={activeTab === 'pricing'}
+                className="px-3"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            {/* Save Button */}
+            <Button
+              onClick={onSave}
+              disabled={isSaving}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3"
+            >
+              {isSaving ? 'Saving...' : (editingBooking ? 'Update Booking' : 'Create Booking')}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
