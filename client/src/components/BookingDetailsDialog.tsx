@@ -555,64 +555,57 @@ export function BookingDetailsDialog({
           <div className="lg:grid lg:grid-cols-[1.2fr_1fr] h-full">
             
             {/* LEFT PANEL - Journey Details (Desktop always visible, Mobile tab-based) */}
-            <div className={`lg:block lg:overflow-y-auto lg:border-r bg-muted/50 ${
+            <div className={`lg:block lg:overflow-y-auto lg:border-r bg-background ${
               activeTab === 'pricing' ? 'hidden' : 'block'
             }`}>
-              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 pb-32 lg:pb-6">
+              <div className="p-4 sm:p-5 space-y-5 pb-32 lg:pb-6">
 
-            {/* Address Input Section with Saved Addresses */}
-            <div className="space-y-4 mb-6">
-              <Card className="border-blue-200 dark:border-blue-700 shadow-sm">
-                <CardHeader className="bg-gradient-to-r from-blue-100 dark:from-blue-900/40 to-indigo-100 dark:to-indigo-900/40 border-b border-blue-200 dark:border-blue-700">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-blue-600 p-2 rounded-lg">
-                      <MapPin className="w-4 h-4 text-white" />
-                    </div>
-                    <CardTitle className="text-lg font-semibold text-blue-900 dark:text-blue-200">Journey Details</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6 space-y-6">
+            {/* Journey Details Section - Clean Professional Design */}
+            <div className="space-y-5">
+              {/* Section Header */}
+              <div className="flex items-center gap-3 pb-2 border-b border-border">
+                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <MapPin className="w-4 h-4 text-primary" />
+                </div>
+                <h3 className="text-base font-semibold text-foreground">Journey Details</h3>
+              </div>
+              
+              <div className="space-y-4">
                   {/* Passenger Selection */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                      <User className="w-4 h-4 text-blue-600" />
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       Passenger *
                     </Label>
                     <div className="relative">
                       <Input
                         placeholder="Search by name, email, or phone..."
                         value={(() => {
-                          // If user is actively typing/searching, show the search query
                           if (userSearchQuery && userSearchQuery.trim()) return userSearchQuery;
-                          // If passenger is selected, show their name
                           if (formData.passengerId) {
                             const selectedPassenger = allUsers?.find(u => u.id === formData.passengerId);
                             if (selectedPassenger) {
                               return `${selectedPassenger.firstName} ${selectedPassenger.lastName} (${selectedPassenger.email})`;
                             }
                           }
-                          // Show empty string for placeholder
                           return '';
                         })()}
                         onChange={(e) => {
                           const searchQuery = e.target.value;
-                          // Clear passenger selection when user starts typing
                           if (formData.passengerId) {
                             setFormData({ ...formData, passengerId: '' });
                           }
                           setUserSearchQuery(searchQuery);
                         }}
                         onFocus={() => {
-                          // Show dropdown on focus if no passenger selected
                           if (!formData.passengerId && !userSearchQuery) {
                             setUserSearchQuery(' ');
                           }
                         }}
-                        className="bg-background border-border focus:border-blue-500 focus:ring-blue-500"
+                        className="h-10"
                         data-testid="input-passenger-search"
                       />
                       {userSearchQuery && allUsers && (
-                        <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                        <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
                           {(() => {
                             const query = userSearchQuery.trim().toLowerCase();
                             const filteredPassengers = allUsers
@@ -627,12 +620,12 @@ export function BookingDetailsDialog({
                                   `${u.firstName} ${u.lastName}`.toLowerCase().includes(query)
                                 );
                               })
-                              .slice(0, 10);
+                              .slice(0, 8);
                             
                             if (filteredPassengers.length === 0) {
                               return (
-                                <div className="px-4 py-3 text-sm text-muted-foreground text-center">
-                                  No passengers found matching "{userSearchQuery.trim()}"
+                                <div className="px-3 py-2 text-sm text-muted-foreground text-center">
+                                  No passengers found
                                 </div>
                               );
                             }
@@ -641,15 +634,15 @@ export function BookingDetailsDialog({
                               <button
                                 key={passenger.id}
                                 type="button"
-                                className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 border-b border-border last:border-0 text-sm transition-colors"
+                                className="w-full text-left px-3 py-2 hover:bg-muted border-b border-border last:border-0 text-sm transition-colors"
                                 onClick={() => {
                                   setFormData({ ...formData, passengerId: passenger.id });
                                   setUserSearchQuery('');
                                 }}
                                 data-testid={`passenger-option-${passenger.id}`}
                               >
-                                <div className="font-medium text-foreground">{passenger.firstName} {passenger.lastName}</div>
-                                <div className="text-xs text-muted-foreground">{passenger.email} • {passenger.phone || 'N/A'}</div>
+                                <div className="font-medium text-foreground text-sm">{passenger.firstName} {passenger.lastName}</div>
+                                <div className="text-xs text-muted-foreground">{passenger.email} {passenger.phone && `• ${passenger.phone}`}</div>
                               </button>
                             ));
                           })()}
@@ -658,18 +651,17 @@ export function BookingDetailsDialog({
                     </div>
                   </div>
 
-                  {/* Booking Type & Vehicle */}
-                  <div className="grid grid-cols-2 gap-4 bg-muted p-4 rounded-lg border border-border">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                        <Car className="w-4 h-4 text-blue-600" />
+                  {/* Booking Type & Vehicle - Compact Row */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                         Booking Type *
                       </Label>
                       <Select
                         value={formData.bookingType}
                         onValueChange={(value) => setFormData({ ...formData, bookingType: value as 'transfer' | 'hourly' })}
                       >
-                        <SelectTrigger data-testid="select-booking-type" className="bg-background border-border">
+                        <SelectTrigger data-testid="select-booking-type" className="h-10">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -679,17 +671,16 @@ export function BookingDetailsDialog({
                       </Select>
                     </div>
                     
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                        <Car className="w-4 h-4 text-blue-600" />
-                        Vehicle Type *
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Vehicle *
                       </Label>
                       <Select
                         value={formData.vehicleTypeId}
                         onValueChange={(value) => setFormData({ ...formData, vehicleTypeId: value })}
                       >
-                        <SelectTrigger data-testid="select-vehicle-type" className="bg-background border-border">
-                          <SelectValue placeholder="Select vehicle" />
+                        <SelectTrigger data-testid="select-vehicle-type" className="h-10">
+                          <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
                           {vehicleTypes?.map((vt) => (
@@ -703,10 +694,10 @@ export function BookingDetailsDialog({
                   </div>
 
                   {/* Addresses Section */}
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-green-600" />
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
                         Pickup Address *
                       </Label>
                       <AddressAutocomplete
@@ -725,35 +716,35 @@ export function BookingDetailsDialog({
 
                     {/* Via Points Section - Hidden for Hourly Service */}
                     {formData.bookingType !== 'hourly' && (
-                      <div className="space-y-3 bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700">
+                      <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                            <Navigation className="w-4 h-4 text-amber-600" />
-                            Via Points (Optional)
+                          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                            <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                            Via Points
                           </Label>
                           <Button
                             type="button"
                             size="sm"
-                            variant="outline"
+                            variant="ghost"
                             onClick={() => {
                               const newViaPoints = [...(formData.viaPoints || []), { address: '', lat: 0, lon: 0 }];
                               setFormData({ ...formData, viaPoints: newViaPoints });
                             }}
                             data-testid="button-add-via-point"
-                            className="border-amber-400 bg-background text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 dark:bg-amber-900/30 hover:border-amber-500 shadow-sm"
+                            className="h-7 text-xs text-primary hover:text-primary"
                           >
                             <Plus className="w-3 h-3 mr-1" />
-                            Add Via Point
+                            Add Stop
                           </Button>
                         </div>
                         
                         {formData.viaPoints && formData.viaPoints.length > 0 && (
-                          <div className="space-y-3">
+                          <div className="space-y-2 pl-3 border-l-2 border-amber-200 dark:border-amber-800">
                             {formData.viaPoints.map((viaPoint, index) => (
-                              <div key={index} className="relative bg-background p-3 rounded-md border border-amber-200 dark:border-amber-700">
+                              <div key={index} className="relative">
                                 <AddressAutocomplete
                                   id={`via-point-${index}`}
-                                  label={`Stop ${index + 1}`}
+                                  label=""
                                   value={viaPoint.address}
                                   onChange={(value, coords) => {
                                     const newViaPoints = [...(formData.viaPoints || [])];
@@ -764,7 +755,7 @@ export function BookingDetailsDialog({
                                     };
                                     setFormData({ ...formData, viaPoints: newViaPoints });
                                   }}
-                                  placeholder="Enter via point address"
+                                  placeholder={`Stop ${index + 1}`}
                                   userId={formData.passengerId}
                                   required={false}
                                   data-testid={`input-via-point-${index}`}
@@ -777,7 +768,7 @@ export function BookingDetailsDialog({
                                     const newViaPoints = (formData.viaPoints || []).filter((_, i) => i !== index);
                                     setFormData({ ...formData, viaPoints: newViaPoints });
                                   }}
-                                  className="absolute top-1 right-1 text-red-600 dark:text-red-400 hover:text-red-800 hover:bg-red-50 dark:bg-red-900/20"
+                                  className="absolute top-1/2 -translate-y-1/2 right-1 h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
                                   data-testid={`button-remove-via-point-${index}`}
                                 >
                                   <XCircle className="w-4 h-4" />
@@ -791,9 +782,9 @@ export function BookingDetailsDialog({
 
                     {/* Destination Address - Hidden for Hourly Service */}
                     {formData.bookingType !== 'hourly' && (
-                      <div className="space-y-2">
-                        <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-red-500"></div>
                           Destination Address *
                         </Label>
                         <AddressAutocomplete
@@ -813,16 +804,15 @@ export function BookingDetailsDialog({
 
                     {/* Duration for Hourly */}
                     {formData.bookingType === 'hourly' && (
-                      <div className="space-y-2">
-                        <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-blue-600" />
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                           Duration (Hours) *
                         </Label>
                         <Select
                           value={formData.requestedHours}
                           onValueChange={(value) => setFormData({ ...formData, requestedHours: value })}
                         >
-                          <SelectTrigger data-testid="select-requested-hours" className="bg-background border-border">
+                          <SelectTrigger data-testid="select-requested-hours" className="h-10">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -841,11 +831,10 @@ export function BookingDetailsDialog({
                   </div>
 
                   {/* Schedule Section */}
-                  <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-indigo-600" />
-                        Scheduled Date *
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Scheduled Date & Time *
                       </Label>
                       <DatePicker
                         selected={formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : null}
@@ -1002,61 +991,56 @@ export function BookingDetailsDialog({
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
 
-            {/* Passenger Details Section */}
-            <div className="mb-6">
-              <Card className="border-purple-200 shadow-sm">
-                <CardHeader className="bg-gradient-to-r from-purple-100 to-pink-100 border-b border-purple-200">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-purple-600 p-2 rounded-lg">
-                      <User className="w-4 h-4 text-white" />
-                    </div>
-                    <CardTitle className="text-lg font-semibold text-purple-900">Passenger & Luggage Details</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <Label>Passengers *</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={formData.passengerCount}
-                        onChange={(e) => setFormData({ ...formData, passengerCount: parseInt(e.target.value) || 1 })}
-                        data-testid="input-passenger-count"
-                      />
+                  {/* Passenger & Luggage Section */}
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <div className="flex items-center gap-3 pb-2">
+                      <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                        <User className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <h3 className="text-base font-semibold text-foreground">Passenger Details</h3>
                     </div>
                     
-                    <div>
-                      <Label>Luggage</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        value={formData.luggageCount}
-                        onChange={(e) => setFormData({ ...formData, luggageCount: parseInt(e.target.value) || 0 })}
-                        data-testid="input-luggage-count"
-                      />
-                    </div>
-                    
-                    <div className="flex items-center gap-2 pt-6">
-                      <input
-                        id="baby-seat"
-                        type="checkbox"
-                        checked={formData.babySeat}
-                        onChange={(e) => setFormData({ ...formData, babySeat: e.target.checked })}
-                        className="w-4 h-4"
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Passengers *</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={formData.passengerCount}
+                          onChange={(e) => setFormData({ ...formData, passengerCount: parseInt(e.target.value) || 1 })}
+                          className="h-10"
+                          data-testid="input-passenger-count"
+                        />
+                      </div>
+                      
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Luggage</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={formData.luggageCount}
+                          onChange={(e) => setFormData({ ...formData, luggageCount: parseInt(e.target.value) || 0 })}
+                          className="h-10"
+                          data-testid="input-luggage-count"
+                        />
+                      </div>
+                      
+                      <div className="flex items-center gap-2 pt-6">
+                        <input
+                          id="baby-seat"
+                          type="checkbox"
+                          checked={formData.babySeat}
+                          onChange={(e) => setFormData({ ...formData, babySeat: e.target.checked })}
+                          className="w-4 h-4 rounded border-border"
                         data-testid="checkbox-baby-seat"
                       />
                       <Label htmlFor="baby-seat">Baby Seat</Label>
                     </div>
                   </div>
 
-                  {/* Book for Another Person */}
-                  <div className="pt-4 border-t">
-                    <div className="flex items-center gap-2 mb-3">
+                    {/* Book for Another Person */}
+                    <div className="flex items-center gap-2 mt-3">
                       <input
                         id="booking-for-toggle"
                         type="checkbox"
@@ -1065,18 +1049,19 @@ export function BookingDetailsDialog({
                           ...formData, 
                           bookingFor: e.target.checked ? 'someone_else' : 'self' 
                         })}
-                        className="w-4 h-4"
+                        className="w-4 h-4 rounded border-border"
                         data-testid="checkbox-booking-for"
                       />
-                      <Label htmlFor="booking-for-toggle">Book for Another Person</Label>
+                      <Label htmlFor="booking-for-toggle" className="text-sm">Book for another person</Label>
                     </div>
                     
                     {formData.bookingFor === 'someone_else' && (
-                      <div className="space-y-3 pl-6">
+                      <div className="space-y-2 mt-2 pl-6 border-l-2 border-purple-200 dark:border-purple-800">
                         <Input
                           placeholder="Passenger Name"
                           value={formData.passengerName}
                           onChange={(e) => setFormData({ ...formData, passengerName: e.target.value })}
+                          className="h-9"
                           data-testid="input-passenger-name"
                         />
                         <div className="grid grid-cols-2 gap-2">
@@ -1085,6 +1070,7 @@ export function BookingDetailsDialog({
                             placeholder="Email"
                             value={formData.passengerEmail}
                             onChange={(e) => setFormData({ ...formData, passengerEmail: e.target.value })}
+                            className="h-9"
                             data-testid="input-passenger-email"
                           />
                           <Input
@@ -1092,28 +1078,23 @@ export function BookingDetailsDialog({
                             placeholder="Phone"
                             value={formData.passengerPhone}
                             onChange={(e) => setFormData({ ...formData, passengerPhone: e.target.value })}
+                            className="h-9"
                             data-testid="input-passenger-phone"
                           />
                         </div>
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            </div>
 
-            {/* Flight Search Section - Premium Executive Design */}
-            <div className="mb-6">
-              <Card className="border-slate-200 dark:border-slate-700 shadow-sm">
-                <CardHeader className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-slate-700 p-2 rounded-lg">
-                      <Plane className="w-4 h-4 text-white" />
+                  {/* Flight Information Section */}
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <div className="flex items-center gap-3 pb-2">
+                      <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
+                        <Plane className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                      </div>
+                      <h3 className="text-base font-semibold text-foreground">Flight Information</h3>
+                      <span className="text-xs text-muted-foreground">(Optional)</span>
                     </div>
-                    <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-100">Flight Information (Optional)</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-4">
                   <FlightSearch
                     selectedFlight={selectedFlight as FlightInfo | null}
                     onFlightSelect={(flight) => {
@@ -1146,24 +1127,18 @@ export function BookingDetailsDialog({
                     }}
                     bookingDate={formData.scheduledDateTime ? formData.scheduledDateTime.split('T')[0] : undefined}
                   />
-                </CardContent>
-              </Card>
-            </div>
+                  </div>
 
-            {/* Journey Log Timeline */}
-            {editingBooking && (
-              <div className="mb-6">
-                <Card className="border-amber-200 dark:border-amber-700 shadow-sm">
-                  <CardHeader className="bg-gradient-to-r from-amber-100 dark:from-amber-900/40 to-orange-100 dark:to-orange-900/40 border-b border-amber-200 dark:border-amber-700">
-                    <div className="flex items-center gap-2">
-                      <div className="bg-amber-600 p-2 rounded-lg">
-                        <Clock className="w-4 h-4 text-white" />
+                  {/* Journey Log Timeline */}
+                  {editingBooking && (
+                    <div className="space-y-3 pt-2 border-t border-border">
+                      <div className="flex items-center gap-3 pb-2">
+                        <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+                          <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <h3 className="text-base font-semibold text-foreground">Journey Log</h3>
                       </div>
-                      <CardTitle className="text-lg font-semibold text-amber-900">Journey Log</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-xs">
+                      <div className="space-y-2 text-xs pl-2 border-l-2 border-amber-200 dark:border-amber-800">
                       {/* Booked By */}
                       {editingBooking.bookedBy && (
                         <div>
@@ -1504,52 +1479,47 @@ export function BookingDetailsDialog({
                           {editingBooking.markedCompletedAt ? 'Already Marked Completed' : 'Mark Completed'}
                         </Button>
                       </div>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+                  )}
 
-            {/* Special Instructions & Bill Reference Section */}
-            <div className="mb-6">
-              <Card className="border-amber-200 dark:border-amber-700 shadow-sm">
-                <CardHeader className="bg-gradient-to-r from-amber-100 dark:from-amber-900/40 to-yellow-100 dark:to-yellow-900/40 border-b border-amber-200 dark:border-amber-700">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-amber-600 p-2 rounded-lg">
-                      <FileText className="w-4 h-4 text-white" />
+                  {/* Special Instructions & Bill Reference Section */}
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <div className="flex items-center gap-3 pb-2">
+                      <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                      </div>
+                      <h3 className="text-base font-semibold text-foreground">Additional Info</h3>
                     </div>
-                    <CardTitle className="text-lg font-semibold text-amber-900">Additional Information</CardTitle>
+                    
+                    <div className="space-y-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Special Instructions</Label>
+                        <Textarea
+                          value={formData.specialInstructions}
+                          onChange={(e) => setFormData({ ...formData, specialInstructions: e.target.value })}
+                          placeholder="Any special requests or notes..."
+                          className="min-h-[60px] resize-none"
+                          data-testid="textarea-special-instructions"
+                        />
+                      </div>
+                      
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Bill Reference</Label>
+                        <Input
+                          value={formData.billReference}
+                          onChange={(e) => setFormData({ ...formData, billReference: e.target.value })}
+                          placeholder="PO#, Job#, etc."
+                          className="h-9"
+                          maxLength={100}
+                          data-testid="input-bill-reference"
+                        />
+                      </div>
+                    </div>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Special Instructions */}
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Special Instructions / Notes</Label>
-                    <Textarea
-                      value={formData.specialInstructions}
-                      onChange={(e) => setFormData({ ...formData, specialInstructions: e.target.value })}
-                      placeholder="Any special requests, dietary requirements, or accessibility needs..."
-                      className="mt-1.5 min-h-[80px] border-amber-300 focus:border-amber-500 focus:ring-amber-500"
-                      data-testid="textarea-special-instructions"
-                    />
-                  </div>
-                  
-                  {/* Bill Reference */}
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Bill Reference (Optional)</Label>
-                    <Input
-                      value={formData.billReference}
-                      onChange={(e) => setFormData({ ...formData, billReference: e.target.value })}
-                      placeholder="Your reference number for invoicing (e.g., PO#, Job#)"
-                      className="mt-1.5 border-amber-300 focus:border-amber-500 focus:ring-amber-500"
-                      maxLength={100}
-                      data-testid="input-bill-reference"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
               </div>
+            </div>
             </div>
 
           {/* RIGHT PANEL - Dispatch & Invoice (Desktop always visible, Mobile only on pricing tab) */}
