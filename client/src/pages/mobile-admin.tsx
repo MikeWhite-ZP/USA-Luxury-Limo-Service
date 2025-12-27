@@ -820,48 +820,66 @@ export default function MobileAdmin() {
               </Card>
             </div>
 
-            {/* Recent Bookings */}
-            <Card>
-              <CardHeader className="pb-3">
+            {/* Recent Bookings - Professional Compact List */}
+            <Card className="border-0 shadow-sm overflow-hidden">
+              <CardHeader className="pb-2 pt-4 px-4 bg-muted/30">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Recent Bookings</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-blue-600" />
+                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Recent Activity</CardTitle>
+                  </div>
                   <Button 
                     variant="ghost" 
                     size="sm"
                     onClick={() => setActiveSection('bookings')}
-                    className="text-blue-600"
+                    className="h-7 px-2 text-[11px] font-bold text-blue-600 hover:bg-blue-50"
                   >
-                    View All
-                    <ChevronRight className="w-4 h-4 ml-1" />
+                    VIEW ALL
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="p-0">
                 {bookingsLoading ? (
-                  <div className="flex justify-center py-4">
-                    <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                  <div className="flex justify-center py-6">
+                    <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
                   </div>
-                ) : filteredBookings.slice(0, 5).map((booking) => (
-                  <div 
-                    key={booking.id}
-                    className="p-3 bg-muted rounded-lg"
-                    onClick={() => setSelectedBooking(booking)}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">{booking.passengerName || 'Guest'}</p>
-                        <p className="text-xs text-muted-foreground truncate">{booking.pickupAddress}</p>
+                ) : (
+                  <div className="divide-y divide-border">
+                    {filteredBookings.slice(0, 5).map((booking) => (
+                      <div 
+                        key={booking.id}
+                        className="p-3 bg-background hover:bg-muted/30 transition-colors flex items-center gap-3 active:bg-muted/50 touch-manipulation"
+                        onClick={() => setSelectedBooking(booking)}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-0.5">
+                            <p className="font-bold text-sm text-foreground truncate">{booking.passengerName || 'Guest'}</p>
+                            <span className="font-bold text-sm text-foreground">${booking.totalAmount}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <MapPin className="w-3 h-3 flex-shrink-0" />
+                              <p className="text-[11px] truncate">{booking.pickupAddress}</p>
+                            </div>
+                            <div className="flex items-center gap-1.5 ml-2">
+                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase ${
+                                booking.status === 'pending' ? 'bg-orange-100 text-orange-700' :
+                                booking.status === 'confirmed' ? 'bg-blue-100 text-blue-700' :
+                                booking.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                'bg-muted text-muted-foreground'
+                              }`}>
+                                {booking.status?.split('_')[0]}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground/50 flex-shrink-0" />
                       </div>
-                      {getStatusBadge(booking.status)}
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{booking.pickupDate ? format(new Date(booking.pickupDate), 'MMM d, h:mm a') : 'No date'}</span>
-                      <span className="font-medium text-foreground">${booking.totalAmount}</span>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                )}
                 {!bookingsLoading && filteredBookings.length === 0 && (
-                  <p className="text-center text-muted-foreground py-4">No bookings found</p>
+                  <p className="text-center text-xs text-muted-foreground py-6">No recent activity</p>
                 )}
               </CardContent>
             </Card>
