@@ -769,57 +769,53 @@ export default function MobileAdmin() {
       <main className="px-4 py-4">
         {activeSection === 'dashboard' && (
           <div className="space-y-4">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <DollarSign className="w-5 h-5 opacity-80" />
-                    <span className="text-xs opacity-80">Revenue</span>
-                  </div>
-                  <p className="text-2xl font-bold">
-                    {statsLoading ? '...' : `$${parseFloat(stats?.monthlyRevenue || '0').toLocaleString()}`}
-                  </p>
-                  <p className="text-xs opacity-70 mt-1">This Month</p>
+            {/* Stats Grid - Professional Ultra-Compact 6-Column */}
+            <div className="grid grid-cols-6 gap-1 mb-4">
+              <Card className="col-span-1 border-0 shadow-sm bg-background p-0">
+                <CardContent className="p-1.5 flex flex-col items-center justify-center text-center">
+                  <DollarSign className="h-3.5 w-3.5 text-blue-600 mb-0.5" />
+                  <p className="text-[10px] font-medium text-muted-foreground leading-none">Rev</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">${statsLoading ? '...' : Math.round(parseFloat(stats?.monthlyRevenue || '0') / 1000) + 'k'}</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="w-5 h-5 opacity-80" />
-                    <span className="text-xs opacity-80">Bookings</span>
-                  </div>
-                  <p className="text-2xl font-bold">
-                    {statsLoading ? '...' : stats?.activeBookings || 0}
-                  </p>
-                  <p className="text-xs opacity-70 mt-1">Active</p>
+              <Card className="col-span-1 border-0 shadow-sm bg-background p-0">
+                <CardContent className="p-1.5 flex flex-col items-center justify-center text-center">
+                  <Calendar className="h-3.5 w-3.5 text-green-600 mb-0.5" />
+                  <p className="text-[10px] font-medium text-muted-foreground leading-none">Rides</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">{statsLoading ? '...' : stats?.activeBookings || 0}</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Users className="w-5 h-5 opacity-80" />
-                    <span className="text-xs opacity-80">Drivers</span>
-                  </div>
-                  <p className="text-2xl font-bold">
-                    {statsLoading ? '...' : stats?.activeDrivers || 0}
-                  </p>
-                  <p className="text-xs opacity-70 mt-1">Active</p>
+              <Card className="col-span-1 border-0 shadow-sm bg-background p-0">
+                <CardContent className="p-1.5 flex flex-col items-center justify-center text-center">
+                  <Users className="h-3.5 w-3.5 text-purple-600 mb-0.5" />
+                  <p className="text-[10px] font-medium text-muted-foreground leading-none">Driv</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">{statsLoading ? '...' : stats?.activeDrivers || 0}</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertCircle className="w-5 h-5 opacity-80" />
-                    <span className="text-xs opacity-80">Pending</span>
-                  </div>
-                  <p className="text-2xl font-bold">
-                    {statsLoading ? '...' : stats?.pendingBookings || 0}
-                  </p>
-                  <p className="text-xs opacity-70 mt-1">Needs Action</p>
+              <Card className="col-span-1 border-0 shadow-sm bg-background p-0">
+                <CardContent className="p-1.5 flex flex-col items-center justify-center text-center">
+                  <AlertCircle className="h-3.5 w-3.5 text-orange-600 mb-0.5" />
+                  <p className="text-[10px] font-medium text-muted-foreground leading-none">Pend</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5 text-orange-600">{statsLoading ? '...' : stats?.pendingBookings || 0}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="col-span-1 border-0 shadow-sm bg-background p-0">
+                <CardContent className="p-1.5 flex flex-col items-center justify-center text-center">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 mb-0.5" />
+                  <p className="text-[10px] font-medium text-muted-foreground leading-none">Done</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">24</p>
+                </CardContent>
+              </Card>
+
+              <Card className="col-span-1 border-0 shadow-sm bg-background p-0">
+                <CardContent className="p-1.5 flex flex-col items-center justify-center text-center">
+                  <Clock className="h-3.5 w-3.5 text-indigo-600 mb-0.5" />
+                  <p className="text-[10px] font-medium text-muted-foreground leading-none">Soon</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">3</p>
                 </CardContent>
               </Card>
             </div>
