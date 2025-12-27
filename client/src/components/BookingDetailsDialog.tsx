@@ -123,6 +123,13 @@ interface BookingFormData {
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
   paymentMethod: 'pay_now' | 'pay_later' | 'cash' | 'ride_credit';
   creditAmountApplied?: string;
+  adminDiscount: string;
+  customPriceItems: Array<{
+    description: string;
+    amount: number;
+    addedBy?: string;
+    addedAt?: string;
+  }>;
 }
 
 interface BookingDetailsDialogProps {
@@ -205,6 +212,11 @@ export function BookingDetailsDialog({
   const [showAdditionalChargeForm, setShowAdditionalChargeForm] = useState(false);
   const [chargeDescription, setChargeDescription] = useState('');
   const [chargeAmount, setChargeAmount] = useState('');
+  
+  // State for custom price items
+  const [showCustomItemForm, setShowCustomItemForm] = useState(false);
+  const [customItemDescription, setCustomItemDescription] = useState('');
+  const [customItemAmount, setCustomItemAmount] = useState('');
   
   // State for account credits
   const [useCredits, setUseCredits] = useState(false);
@@ -1725,6 +1737,151 @@ export function BookingDetailsDialog({
                     </div>
                   </div>
 
+                  {/* Admin Discount Input (Admin/Dispatcher only) */}
+                  {canManageCharges && (
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-green-900 dark:text-green-200 mb-3">Admin Discount</h4>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Fixed discount amount (subtracts from total)</Label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600" />
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={formData.adminDiscount}
+                            onChange={(e) => setFormData({ ...formData, adminDiscount: e.target.value })}
+                            placeholder="0.00"
+                            className="pl-9 border-green-300 focus:border-green-500 focus:ring-green-500 bg-background"
+                            data-testid="input-admin-discount"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Custom Price Items (Admin/Dispatcher only) */}
+                  {canManageCharges && (
+                    <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-purple-900 dark:text-purple-200 mb-3">Custom Price Items</h4>
+                      
+                      {/* Display existing custom items */}
+                      {formData.customPriceItems && formData.customPriceItems.length > 0 && (
+                        <div className="space-y-2 mb-3">
+                          {formData.customPriceItems.map((item, index) => (
+                            <div key={index} className="flex justify-between items-center text-sm p-3 bg-background rounded-lg border border-purple-100 dark:border-purple-700">
+                              <span className="text-muted-foreground font-medium">{item.description}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-purple-700 dark:text-purple-300">+${item.amount.toFixed(2)}</span>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    const newItems = formData.customPriceItems.filter((_, i) => i !== index);
+                                    setFormData({ ...formData, customPriceItems: newItems });
+                                  }}
+                                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                  data-testid={`button-remove-custom-item-${index}`}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Add Custom Item Button/Form */}
+                      {!showCustomItemForm ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowCustomItemForm(true)}
+                          className="w-full border-purple-300 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:bg-purple-900/20 hover:border-purple-400 font-medium py-2"
+                          data-testid="button-show-custom-item-form"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Custom Item
+                        </Button>
+                      ) : (
+                        <div className="space-y-3 p-3 bg-background rounded-lg border border-purple-200 dark:border-purple-700">
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">Description</Label>
+                            <Input
+                              type="text"
+                              value={customItemDescription}
+                              onChange={(e) => setCustomItemDescription(e.target.value)}
+                              placeholder="e.g., Special service, Premium upgrade, etc."
+                              className="mt-1.5 border-purple-300 focus:border-purple-500 focus:ring-purple-500 bg-background"
+                              data-testid="input-custom-item-description"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">Amount (adds to total)</Label>
+                            <div className="relative mt-1.5">
+                              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-600" />
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={customItemAmount}
+                                onChange={(e) => setCustomItemAmount(e.target.value)}
+                                placeholder="0.00"
+                                className="pl-9 border-purple-300 focus:border-purple-500 focus:ring-purple-500 bg-background"
+                                data-testid="input-custom-item-amount"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex gap-2 pt-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                setShowCustomItemForm(false);
+                                setCustomItemDescription('');
+                                setCustomItemAmount('');
+                              }}
+                              className="flex-1 border-border hover:bg-muted"
+                              data-testid="button-cancel-custom-item"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                if (customItemDescription && customItemAmount && parseFloat(customItemAmount) > 0) {
+                                  const newItem = {
+                                    description: customItemDescription,
+                                    amount: parseFloat(customItemAmount),
+                                    addedBy: user?.username || 'admin',
+                                    addedAt: new Date().toISOString()
+                                  };
+                                  setFormData({
+                                    ...formData,
+                                    customPriceItems: [...(formData.customPriceItems || []), newItem]
+                                  });
+                                  setShowCustomItemForm(false);
+                                  setCustomItemDescription('');
+                                  setCustomItemAmount('');
+                                  toast({
+                                    title: "Custom item added",
+                                    description: `Added ${customItemDescription}: $${parseFloat(customItemAmount).toFixed(2)}`
+                                  });
+                                }
+                              }}
+                              disabled={!customItemDescription || !customItemAmount || parseFloat(customItemAmount) <= 0}
+                              className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                              data-testid="button-add-custom-item"
+                            >
+                              Add Item
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Detailed Pricing Breakdown - Show when calculation has pricing details OR editing booking has pricing details */}
                   {((formData.baseFare && calculatedPrice) || (editingBooking && editingBooking.baseFare)) && (
                     <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
@@ -1766,6 +1923,18 @@ export function BookingDetailsDialog({
                           </div>
                         )}
 
+                        {/* Custom Price Items in breakdown */}
+                        {formData.customPriceItems && formData.customPriceItems.length > 0 && (
+                          <>
+                            {formData.customPriceItems.map((item, index) => (
+                              <div key={index} className="flex justify-between items-center">
+                                <span className="text-sm text-muted-foreground">{item.description}:</span>
+                                <span className="text-sm font-semibold text-purple-600">+${item.amount.toFixed(2)}</span>
+                              </div>
+                            ))}
+                          </>
+                        )}
+
                         {/* Subtotal before discount */}
                         <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-blue-700">
                           <span className="text-sm font-semibold text-foreground">Subtotal:</span>
@@ -1774,27 +1943,27 @@ export function BookingDetailsDialog({
 
                         {/* Discount if applicable */}
                         {(parseFloat(formData.discountAmount || editingBooking?.discountAmount || '0') > 0) && (
-                          <>
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm font-semibold text-green-700 dark:text-green-300">
-                                Discount ({formData.discountPercentage || editingBooking?.discountPercentage}%):
-                              </span>
-                              <span className="text-sm font-bold text-green-600">-${formData.discountAmount || editingBooking?.discountAmount}</span>
-                            </div>
-                            <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-blue-700">
-                              <span className="font-bold text-blue-900 dark:text-blue-200">Total Amount:</span>
-                              <span className="font-bold text-blue-700 dark:text-blue-300 text-xl">${formData.totalAmount || editingBooking?.totalAmount}</span>
-                            </div>
-                          </>
-                        )}
-
-                        {/* If no discount, show total directly */}
-                        {parseFloat(formData.discountAmount || editingBooking?.discountAmount || '0') === 0 && (
-                          <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-blue-700">
-                            <span className="font-bold text-blue-900 dark:text-blue-200">Total Amount:</span>
-                            <span className="font-bold text-blue-700 dark:text-blue-300 text-xl">${formData.totalAmount || editingBooking?.totalAmount}</span>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-semibold text-green-700 dark:text-green-300">
+                              Discount ({formData.discountPercentage || editingBooking?.discountPercentage}%):
+                            </span>
+                            <span className="text-sm font-bold text-green-600">-${formData.discountAmount || editingBooking?.discountAmount}</span>
                           </div>
                         )}
+
+                        {/* Admin Discount in breakdown */}
+                        {parseFloat(formData.adminDiscount || editingBooking?.adminDiscount || '0') > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-semibold text-green-700 dark:text-green-300">Admin Discount:</span>
+                            <span className="text-sm font-bold text-green-600">-${formData.adminDiscount || editingBooking?.adminDiscount}</span>
+                          </div>
+                        )}
+
+                        {/* Total with all adjustments */}
+                        <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-blue-700">
+                          <span className="font-bold text-blue-900 dark:text-blue-200">Total Amount:</span>
+                          <span className="font-bold text-blue-700 dark:text-blue-300 text-xl">${formData.totalAmount || editingBooking?.totalAmount}</span>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1917,9 +2086,38 @@ export function BookingDetailsDialog({
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-bold text-blue-900 dark:text-blue-200">Total Fare</span>
                       <span className="text-3xl font-bold text-blue-700 dark:text-blue-300">
-                        ${formData.totalAmount || '0.00'}
+                        ${(() => {
+                          const baseAmount = parseFloat(formData.totalAmount) || 0;
+                          const customItemsTotal = (formData.customPriceItems || []).reduce((sum, item) => sum + item.amount, 0);
+                          const adminDiscountAmount = parseFloat(formData.adminDiscount) || 0;
+                          const finalTotal = Math.max(0, baseAmount + customItemsTotal - adminDiscountAmount);
+                          return finalTotal.toFixed(2);
+                        })()}
                       </span>
                     </div>
+                    {/* Show breakdown if there are adjustments */}
+                    {((formData.customPriceItems && formData.customPriceItems.length > 0) || parseFloat(formData.adminDiscount) > 0) && (
+                      <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-600 space-y-1">
+                        {parseFloat(formData.totalAmount) > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-blue-700 dark:text-blue-300">Base fare:</span>
+                            <span className="text-blue-700 dark:text-blue-300">${formData.totalAmount}</span>
+                          </div>
+                        )}
+                        {formData.customPriceItems && formData.customPriceItems.length > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-purple-700 dark:text-purple-300">+ Custom items:</span>
+                            <span className="text-purple-700 dark:text-purple-300">+${(formData.customPriceItems || []).reduce((sum, item) => sum + item.amount, 0).toFixed(2)}</span>
+                          </div>
+                        )}
+                        {parseFloat(formData.adminDiscount) > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-green-700 dark:text-green-300">- Admin discount:</span>
+                            <span className="text-green-700 dark:text-green-300">-${formData.adminDiscount}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Submit to Driver Button */}

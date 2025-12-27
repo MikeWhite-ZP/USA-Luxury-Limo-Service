@@ -3814,6 +3814,9 @@ export default function AdminDashboard() {
     flightBaggageClaim: "",
     // Payment method
     paymentMethod: "pay_now" as "pay_now" | "pay_later" | "cash" | "ride_credit",
+    // Admin pricing adjustments
+    adminDiscount: "",
+    customPriceItems: [] as Array<{ description: string; amount: number; addedBy?: string; addedAt?: string }>,
   });
   const [calculatedPrice, setCalculatedPrice] = useState<string>("");
   const [calculatingPrice, setCalculatingPrice] = useState(false);
@@ -4975,6 +4978,8 @@ export default function AdminDashboard() {
         flightArrivalTerminal: "",
         flightBaggageClaim: "",
         paymentMethod: "pay_now",
+        adminDiscount: "",
+        customPriceItems: [],
       });
       setCalculatedPrice("");
       setFlightSearchInput("");
@@ -5472,6 +5477,8 @@ export default function AdminDashboard() {
       flightArrivalTerminal: "",
       flightBaggageClaim: "",
       paymentMethod: "pay_now",
+      adminDiscount: "",
+      customPriceItems: [],
     });
     setCalculatedPrice("");
     setFlightSearchInput("");
@@ -5566,6 +5573,8 @@ export default function AdminDashboard() {
       flightBaggageClaim:
         booking.flightBaggageClaim || booking.flight_baggage_claim || "",
       paymentMethod: booking.paymentMethod || "pay_now",
+      adminDiscount: booking.adminDiscount?.toString() || "",
+      customPriceItems: booking.customPriceItems || [],
     });
     setCalculatedPrice("");
 

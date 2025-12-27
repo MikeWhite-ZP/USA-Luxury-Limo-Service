@@ -264,6 +264,13 @@ export const bookings = pgTable("bookings", {
     addedBy?: string;
     addedAt?: string;
   }>>().default(sql`'[]'::jsonb`), // Additional charges array
+  adminDiscount: decimal("admin_discount", { precision: 10, scale: 2 }), // Admin-applied discount amount (subtracts from total)
+  customPriceItems: jsonb("custom_price_items").$type<Array<{
+    description: string;
+    amount: number;
+    addedBy?: string;
+    addedAt?: string;
+  }>>().default(sql`'[]'::jsonb`), // Custom price items (adds to total)
   regularPrice: decimal("regular_price", { precision: 10, scale: 2 }), // Price before discount
   discountPercentage: decimal("discount_percentage", { precision: 5, scale: 2 }), // User's discount %
   discountAmount: decimal("discount_amount", { precision: 10, scale: 2 }), // Calculated discount

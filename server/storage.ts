@@ -1010,6 +1010,7 @@ export class DatabaseStorage implements IStorage {
       discountAmount: updates.discountAmount === '' ? null : updates.discountAmount,
       totalAmount: updates.totalAmount === '' ? null : updates.totalAmount,
       driverPayment: updates.driverPayment === '' ? null : updates.driverPayment,
+      adminDiscount: updates.adminDiscount === '' ? null : updates.adminDiscount,
       estimatedDistance: updates.estimatedDistance === '' ? null : updates.estimatedDistance,
       pickupLat: updates.pickupLat === '' ? null : updates.pickupLat,
       pickupLon: updates.pickupLon === '' ? null : updates.pickupLon,
