@@ -7794,105 +7794,110 @@ export default function AdminDashboard() {
                   <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
                 </div>
               ) : filteredBookings && filteredBookings.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {filteredBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="border-2 border-border rounded-xl p-6 space-y-5 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:border-border transition-all"
+                      className="border border-border rounded-lg bg-background hover:shadow-md transition-all"
                       data-testid={`booking-${booking.id}`}
                     >
-                      <div className="flex justify-between items-start gap-6">
-                        <div className="flex-1 space-y-4">
-                          {/* Header Row */}
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h4
-                              className="font-bold text-foreground text-base"
-                              data-testid={`booking-id-${booking.id}`}
-                            >
-                              #{booking.id.substring(0, 8).toUpperCase()}
-                            </h4>
-                            <Badge
-                              className={
-                                booking.status === "pending"
-                                  ? "bg-amber-100 text-amber-800 border-amber-300 font-semibold"
-                                  : booking.status === "confirmed"
-                                    ? "bg-blue-100 text-blue-800 border-blue-300 font-semibold"
-                                    : booking.status === "in_progress"
-                                      ? "bg-purple-100 text-purple-800 border-purple-300 font-semibold"
-                                      : booking.status === "completed"
-                                        ? "bg-green-100 text-green-800 border-green-300 font-semibold"
-                                        : "bg-red-100 text-red-800 border-red-300 font-semibold"
-                              }
-                              data-testid={`booking-status-${booking.id}`}
-                            >
-                              {booking.status.replace('_', ' ').toUpperCase()}
-                            </Badge>
-                            <Badge
-                              className="bg-muted text-foreground border-border font-semibold"
-                              data-testid={`booking-type-${booking.id}`}
-                            >
-                              {booking.bookingType.toUpperCase()}
-                            </Badge>
-                          </div>
+                      {/* Header Bar */}
+                      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/30">
+                        <div className="flex items-center gap-3">
+                          <span
+                            className="font-mono font-bold text-sm text-foreground"
+                            data-testid={`booking-id-${booking.id}`}
+                          >
+                            #{booking.id.substring(0, 8).toUpperCase()}
+                          </span>
+                          <Badge
+                            variant="outline"
+                            className={
+                              booking.status === "pending"
+                                ? "bg-amber-50 text-amber-700 border-amber-200 text-xs font-semibold"
+                                : booking.status === "confirmed"
+                                  ? "bg-blue-50 text-blue-700 border-blue-200 text-xs font-semibold"
+                                  : booking.status === "in_progress"
+                                    ? "bg-purple-50 text-purple-700 border-purple-200 text-xs font-semibold"
+                                    : booking.status === "completed"
+                                      ? "bg-green-50 text-green-700 border-green-200 text-xs font-semibold"
+                                      : "bg-red-50 text-red-700 border-red-200 text-xs font-semibold"
+                            }
+                            data-testid={`booking-status-${booking.id}`}
+                          >
+                            {booking.status.replace('_', ' ').toUpperCase()}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className="bg-muted text-muted-foreground border-border text-xs"
+                            data-testid={`booking-type-${booking.id}`}
+                          >
+                            {booking.bookingType.toUpperCase()}
+                          </Badge>
+                        </div>
+                      </div>
 
-                          {/* Booking Details Grid */}
-                          <div className="grid md:grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">Passenger</p>
-                              <p
-                                className="font-bold text-foreground"
-                                data-testid={`booking-passenger-${booking.id}`}
-                              >
-                                {booking.passengerName || "Not assigned"}
-                              </p>
-                            </div>
-
-                            <div className="space-y-1">
-                              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">Pickup</p>
-                              <p
-                                className="font-semibold text-foreground leading-tight"
-                                data-testid={`booking-pickup-${booking.id}`}
-                              >
-                                {booking.pickupAddress}
-                              </p>
-                            </div>
-
-                            <div className="space-y-1">
-                              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
-                                Scheduled Time
-                              </p>
-                              <p
-                                className="font-semibold text-foreground"
-                                data-testid={`booking-schedule-${booking.id}`}
-                              >
-                                {new Date(
-                                  booking.scheduledDateTime,
-                                ).toLocaleString()}
-                              </p>
-                            </div>
-
-                            <div className="space-y-1">
-                              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
-                                Destination
-                              </p>
-                              <p
-                                className="font-semibold text-foreground leading-tight"
-                                data-testid={`booking-destination-${booking.id}`}
-                              >
-                                {booking.destinationAddress || "Hourly Service"}
-                              </p>
-                            </div>
-
-                            {booking.specialInstructions && (
-                              <div className="md:col-span-2 bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
-                                <p className="text-blue-900 font-bold text-sm mb-1.5 flex items-center gap-2">
-                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                  </svg>
-                                  Special Instructions
-                                </p>
+                      {/* Content */}
+                      <div className="p-4">
+                        <div className="flex gap-6">
+                          {/* Left: Booking Details */}
+                          <div className="flex-1 space-y-4">
+                            {/* Passenger & Time Row */}
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-xs font-semibold text-muted-foreground mb-1">Passenger</p>
                                 <p
-                                  className="text-muted-foreground leading-relaxed"
+                                  className="font-semibold text-foreground"
+                                  data-testid={`booking-passenger-${booking.id}`}
+                                >
+                                  {booking.passengerName || "Not assigned"}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xs font-semibold text-muted-foreground mb-1">Scheduled Time</p>
+                                <p
+                                  className="font-semibold text-foreground"
+                                  data-testid={`booking-schedule-${booking.id}`}
+                                >
+                                  {new Date(booking.scheduledDateTime).toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Route */}
+                            <div className="space-y-2">
+                              <div className="flex items-start gap-2">
+                                <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></div>
+                                <div className="flex-1">
+                                  <p className="text-xs font-semibold text-muted-foreground mb-0.5">Pickup</p>
+                                  <p
+                                    className="text-sm font-medium text-foreground leading-snug"
+                                    data-testid={`booking-pickup-${booking.id}`}
+                                  >
+                                    {booking.pickupAddress}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0"></div>
+                                <div className="flex-1">
+                                  <p className="text-xs font-semibold text-muted-foreground mb-0.5">Destination</p>
+                                  <p
+                                    className="text-sm font-medium text-foreground leading-snug"
+                                    data-testid={`booking-destination-${booking.id}`}
+                                  >
+                                    {booking.destinationAddress || "Hourly Service"}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Special Instructions */}
+                            {booking.specialInstructions && (
+                              <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
+                                <p className="text-xs font-semibold text-blue-700 mb-1">Special Instructions</p>
+                                <p
+                                  className="text-sm text-foreground"
                                   data-testid={`booking-instructions-${booking.id}`}
                                 >
                                   {booking.specialInstructions}
@@ -7900,188 +7905,161 @@ export default function AdminDashboard() {
                               </div>
                             )}
 
-                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 p-3 rounded-lg border border-blue-200">
-                              <p className="text-muted-foreground text-xs font-semibold mb-1">
-                                Total Amount
-                              </p>
-                              <p
-                                className="font-bold text-2xl text-blue-700"
-                                data-testid={`booking-amount-${booking.id}`}
+                            {/* Financial Summary */}
+                            <div className="flex items-center gap-4">
+                              <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5">
+                                <p className="text-xs font-semibold text-muted-foreground mb-0.5">Total Amount</p>
+                                <p
+                                  className="font-bold text-2xl text-blue-700"
+                                  data-testid={`booking-amount-${booking.id}`}
+                                >
+                                  ${booking.totalAmount}
+                                </p>
+                              </div>
+                              {booking.driverId && booking.driverPayment && (
+                                <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2.5">
+                                  <p className="text-xs font-semibold text-muted-foreground mb-0.5">Driver Payment</p>
+                                  <p
+                                    className="font-bold text-2xl text-green-700"
+                                    data-testid={`booking-driver-payment-${booking.id}`}
+                                  >
+                                    ${booking.driverPayment}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Right: Driver & Actions - Vertical Column */}
+                          <div className="w-44 flex flex-col gap-2.5">
+                            {/* Status Selector */}
+                            <Select
+                              value={booking.status}
+                              onValueChange={(value) =>
+                                updateBookingStatusMutation.mutate({
+                                  bookingId: booking.id,
+                                  status: value,
+                                })
+                              }
+                              disabled={updateBookingStatusMutation.isPending}
+                            >
+                              <SelectTrigger
+                                className="w-full h-9 text-sm bg-background border-border"
+                                data-testid={`select-status-${booking.id}`}
                               >
-                                ${booking.totalAmount}
-                              </p>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent position="popper" side="bottom" align="start" sideOffset={4}>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="confirmed">Confirmed</SelectItem>
+                                <SelectItem value="in_progress">In Progress</SelectItem>
+                                <SelectItem value="completed">Completed</SelectItem>
+                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                              </SelectContent>
+                            </Select>
+
+                            {/* Driver Info */}
+                            <div className="bg-background border border-border rounded-lg p-2.5">
+                              {booking.driverId ? (
+                                <div
+                                  className="flex items-center gap-2"
+                                  data-testid={`booking-driver-${booking.id}`}
+                                >
+                                  {booking.driverProfileImageUrl ? (
+                                    <img
+                                      src={booking.driverProfileImageUrl}
+                                      alt="Driver"
+                                      className="w-9 h-9 rounded-full object-cover border border-border"
+                                    />
+                                  ) : (
+                                    <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-semibold text-xs">
+                                      {booking.driverFirstName?.[0]}{booking.driverLastName?.[0]}
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-semibold text-foreground text-sm truncate">
+                                      {booking.driverFirstName} {booking.driverLastName}
+                                    </p>
+                                    {booking.driverVehiclePlate && (
+                                      <p className="text-xs font-mono text-muted-foreground">{booking.driverVehiclePlate}</p>
+                                    )}
+                                  </div>
+                                  <button
+                                    onClick={() => unassignDriverMutation.mutate(booking.id)}
+                                    disabled={unassignDriverMutation.isPending}
+                                    className="w-5 h-5 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center text-red-600 transition-colors"
+                                    title="Unassign driver"
+                                    data-testid={`button-unassign-driver-${booking.id}`}
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <p className="text-xs text-muted-foreground text-center py-1">No driver assigned</p>
+                              )}
                             </div>
 
-                            {booking.driverId && (
-                              <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-3 rounded-lg border border-green-200">
-                                <p className="text-muted-foreground text-xs font-semibold mb-1">
-                                  Driver Payment
-                                </p>
-                                <p
-                                  className="font-bold text-2xl text-green-700"
-                                  data-testid={`booking-driver-payment-${booking.id}`}
-                                >
-                                  ${booking.driverPayment || "Not set"}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Actions Sidebar */}
-                        <div className="flex flex-col gap-2.5 min-w-[180px]">
-                          <Select
-                            value={booking.status}
-                            onValueChange={(value) =>
-                              updateBookingStatusMutation.mutate({
-                                bookingId: booking.id,
-                                status: value,
-                              })
-                            }
-                            disabled={updateBookingStatusMutation.isPending}
-                          >
-                            <SelectTrigger
-                              className="w-full bg-background border-border focus:border-blue-500 focus:ring-blue-500"
-                              data-testid={`select-status-${booking.id}`}
-                            >
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent
-                              position="popper"
-                              side="bottom"
-                              align="start"
-                              sideOffset={4}
-                            >
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="confirmed">
-                                Confirmed
-                              </SelectItem>
-                              <SelectItem value="in_progress">
-                                In Progress
-                              </SelectItem>
-                              <SelectItem value="completed">
-                                Completed
-                              </SelectItem>
-                              <SelectItem value="cancelled">
-                                Cancelled
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-
-                          {/* Driver Information */}
-                          <div className="bg-background border-2 border-border rounded-lg p-3">
-                            {booking.driverId ? (
-                              <div
-                                className="flex items-start gap-2"
-                                data-testid={`booking-driver-${booking.id}`}
-                              >
-                                {booking.driverProfileImageUrl ? (
-                                  <img
-                                    src={booking.driverProfileImageUrl}
-                                    alt="Driver"
-                                    className="w-10 h-10 rounded-full object-cover border-2 border-border"
-                                  />
-                                ) : (
-                                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-bold text-sm">
-                                    {booking.driverFirstName?.[0]}
-                                    {booking.driverLastName?.[0]}
-                                  </div>
-                                )}
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-semibold text-foreground text-sm leading-tight">
-                                    {booking.driverFirstName}{" "}
-                                    {booking.driverLastName}
-                                  </p>
-                                  {booking.driverPhone && (
-                                    <p className="text-xs text-muted-foreground mt-0.5">
-                                      {booking.driverPhone}
-                                    </p>
-                                  )}
-                                  {booking.driverVehiclePlate && (
-                                    <p className="text-xs font-mono bg-muted text-foreground px-1.5 py-0.5 rounded inline-block mt-1">
-                                      {booking.driverVehiclePlate}
-                                    </p>
-                                  )}
-                                </div>
-                                <button
-                                  onClick={() => unassignDriverMutation.mutate(booking.id)}
-                                  disabled={unassignDriverMutation.isPending}
-                                  className="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 hover:bg-red-200 border border-red-300 flex items-center justify-center text-red-600 hover:text-red-700 transition-colors disabled:opacity-50"
-                                  title="Unassign driver"
-                                  data-testid={`button-unassign-driver-${booking.id}`}
-                                >
-                                  <X className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            ) : (
-                              <p className="text-sm text-muted-foreground text-center py-1">
-                                No driver assigned
-                              </p>
-                            )}
-                          </div>
-
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              setAssigningBookingId(booking.id);
-                              if (booking.driverId) {
-                                setSelectedDriverForAssignment(booking.driverId);
-                                setManualDriverPayment(booking.driverPayment || "");
-                                setCalculatedDriverPayment(booking.driverPayment || "");
-                              }
-                              setAssignDriverDialogOpen(true);
-                            }}
-                            data-testid={`button-assign-driver-${booking.id}`}
-                            className="w-full h-9 text-indigo-700 border-indigo-300 bg-indigo-50 hover:bg-indigo-100 font-semibold"
-                            variant="outline"
-                          >
-                            <Car className="w-3.5 h-3.5 mr-1.5" />
-                            {booking.driverId ? "Change" : "Assign"}
-                          </Button>
-
-                          <Button
-                            size="sm"
-                            onClick={() => openEditBookingDialog(booking)}
-                            data-testid={`button-edit-booking-${booking.id}`}
-                            className="w-full h-9 text-green-700 border-green-300 bg-green-50 hover:bg-green-100 font-semibold"
-                            variant="outline"
-                          >
-                            <Edit2 className="w-3.5 h-3.5 mr-1.5" />
-                            Edit
-                          </Button>
-
-                          {booking.status !== "cancelled" && booking.status !== "completed" && (
+                            {/* Action Buttons - Vertical Stack */}
                             <Button
                               size="sm"
-                              onClick={() => {
-                                setBookingToCancel(booking.id);
-                                setCancellationReason("");
-                                setCancelDialogOpen(true);
-                              }}
-                              data-testid={`button-cancel-booking-${booking.id}`}
-                              className="w-full h-9 text-orange-700 border-orange-300 bg-orange-50 hover:bg-orange-100 font-semibold"
                               variant="outline"
+                              onClick={() => {
+                                setAssigningBookingId(booking.id);
+                                if (booking.driverId) {
+                                  setSelectedDriverForAssignment(booking.driverId);
+                                  setManualDriverPayment(booking.driverPayment || "");
+                                  setCalculatedDriverPayment(booking.driverPayment || "");
+                                }
+                                setAssignDriverDialogOpen(true);
+                              }}
+                              data-testid={`button-assign-driver-${booking.id}`}
+                              className="w-full h-9 text-indigo-700 border-indigo-300 bg-indigo-50 hover:bg-indigo-100 font-semibold"
                             >
-                              <X className="w-3.5 h-3.5 mr-1.5" />
-                              Cancel
+                              <Car className="w-3.5 h-3.5 mr-1.5" />
+                              {booking.driverId ? "Change Driver" : "Assign Driver"}
                             </Button>
-                          )}
-
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              console.log('🗑️ Delete button clicked for booking:', booking.id);
-                              setBookingToDelete(booking.id);
-                              setDeleteConfirmDialogOpen(true);
-                            }}
-                            disabled={deleteBookingMutation.isPending}
-                            data-testid={`button-delete-booking-${booking.id}`}
-                            className="w-full h-9 text-red-700 border-red-300 bg-red-50 hover:bg-red-100 font-semibold"
-                            variant="outline"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                            Delete
-                          </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openEditBookingDialog(booking)}
+                              data-testid={`button-edit-booking-${booking.id}`}
+                              className="w-full h-9 text-green-700 border-green-300 bg-green-50 hover:bg-green-100 font-semibold"
+                            >
+                              <Edit2 className="w-3.5 h-3.5 mr-1.5" />
+                              Edit Booking
+                            </Button>
+                            {booking.status !== "cancelled" && booking.status !== "completed" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setBookingToCancel(booking.id);
+                                  setCancellationReason("");
+                                  setCancelDialogOpen(true);
+                                }}
+                                data-testid={`button-cancel-booking-${booking.id}`}
+                                className="w-full h-9 text-orange-700 border-orange-300 bg-orange-50 hover:bg-orange-100 font-semibold"
+                              >
+                                <X className="w-3.5 h-3.5 mr-1.5" />
+                                Cancel
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                console.log('🗑️ Delete button clicked for booking:', booking.id);
+                                setBookingToDelete(booking.id);
+                                setDeleteConfirmDialogOpen(true);
+                              }}
+                              disabled={deleteBookingMutation.isPending}
+                              data-testid={`button-delete-booking-${booking.id}`}
+                              className="w-full h-9 text-red-700 border-red-300 bg-red-50 hover:bg-red-100 font-semibold"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                              Delete
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -8089,14 +8067,14 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <div
-                  className="text-center p-12 bg-gradient-to-br from-slate-50 to-white border-2 border-border rounded-xl"
+                  className="text-center p-12 bg-muted/30 border border-border rounded-lg"
                   data-testid="no-bookings"
                 >
-                  <div className="bg-muted w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MessageSquare className="w-8 h-8 text-muted-foreground" />
+                  <div className="bg-muted w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MessageSquare className="w-6 h-6 text-muted-foreground" />
                   </div>
-                  <p className="text-foreground font-semibold text-lg mb-1">No bookings found</p>
-                  <p className="text-muted-foreground">Bookings matching your filters will appear here</p>
+                  <p className="text-foreground font-medium text-base mb-1">No bookings found</p>
+                  <p className="text-muted-foreground text-sm">Bookings matching your filters will appear here</p>
                 </div>
               )}
             </CardContent>
