@@ -1703,10 +1703,10 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           </div>
         </div>
 
-        {/* Baby Seat */}
+        {/* Car Seat */}
         <div data-testid="baby-seat-section">
           <div className="flex justify-between items-center">
-            <span className="font-semibold">Baby Seat (optional)</span>
+            <span className="font-semibold">Car Seat (optional)</span>
             <label className="relative inline-block w-12 h-6">
               <input
                 type="checkbox"

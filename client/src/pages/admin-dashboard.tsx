@@ -8762,7 +8762,7 @@ export default function AdminDashboard() {
                         className="w-4 h-4"
                         data-testid="checkbox-baby-seat"
                       />
-                      Baby Seat
+                      Car Seat
                     </Label>
                   </div>
                 </div>

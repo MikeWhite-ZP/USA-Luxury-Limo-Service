@@ -1613,7 +1613,7 @@ export default function MobileBookingForm() {
                 />
                 <Label htmlFor="baby-seat" className="text-sm font-medium flex items-center gap-2 cursor-pointer">
                   <Baby className="w-4 h-4 text-blue-600" />
-                  Baby Seat Required
+                  Car Seat Required
                 </Label>
               </div>
 

@@ -626,7 +626,7 @@ export default function MobileBookingDetails() {
                 </div>
                 {booking.babySeat && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Baby Seat</span>
+                    <span className="text-muted-foreground">Car Seat</span>
                     <Baby className="w-5 h-5 text-blue-600" data-testid="icon-baby-seat" />
                   </div>
                 )}
