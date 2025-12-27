@@ -536,22 +536,15 @@ export function BookingDetailsDialog({
             <div className={`lg:block lg:overflow-y-auto lg:border-r bg-background ${
               activeTab === 'pricing' ? 'hidden' : 'block'
             }`}>
-              <div className="p-3 sm:p-4 space-y-3 pb-28 lg:pb-4">
+              <div className="p-2.5 sm:p-4 space-y-2 pb-28 lg:pb-4">
 
-            {/* Journey Details Section - Ultra Compact Professional Design */}
-            <div className="space-y-3">
-              {/* Section Header - Compact */}
-              <div className="flex items-center gap-2 pb-1.5 border-b border-border">
-                <div className="w-6 h-6 bg-primary/10 rounded flex items-center justify-center">
-                  <MapPin className="w-3.5 h-3.5 text-primary" />
-                </div>
-                <h3 className="text-sm font-bold text-foreground">Journey Details</h3>
-              </div>
+            {/* Ultra Compact Professional Form */}
+            <div className="space-y-2">
               
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                   {/* Passenger Selection */}
-                  <div className="space-y-1">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  <div className="space-y-0.5">
+                    <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
                       Passenger *
                     </Label>
                     <div className="relative">
@@ -579,7 +572,7 @@ export function BookingDetailsDialog({
                             setUserSearchQuery(' ');
                           }
                         }}
-                        className="h-8 text-sm"
+                        className="h-7 text-xs"
                         data-testid="input-passenger-search"
                       />
                       {userSearchQuery && allUsers && (
@@ -629,17 +622,15 @@ export function BookingDetailsDialog({
                     </div>
                   </div>
 
-                  {/* Booking Type & Vehicle - Ultra Compact Row */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                        Type *
-                      </Label>
+                  {/* Type, Vehicle, Pax, Bags - Single Compact Row */}
+                  <div className="grid grid-cols-4 gap-1.5">
+                    <div className="space-y-0.5">
+                      <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Type</Label>
                       <Select
                         value={formData.bookingType}
                         onValueChange={(value) => setFormData({ ...formData, bookingType: value as 'transfer' | 'hourly' })}
                       >
-                        <SelectTrigger data-testid="select-booking-type" className="h-8 text-sm">
+                        <SelectTrigger data-testid="select-booking-type" className="h-7 text-xs">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -649,15 +640,13 @@ export function BookingDetailsDialog({
                       </Select>
                     </div>
                     
-                    <div className="space-y-1">
-                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                        Vehicle *
-                      </Label>
+                    <div className="space-y-0.5">
+                      <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Vehicle</Label>
                       <Select
                         value={formData.vehicleTypeId}
                         onValueChange={(value) => setFormData({ ...formData, vehicleTypeId: value })}
                       >
-                        <SelectTrigger data-testid="select-vehicle-type" className="h-8 text-sm">
+                        <SelectTrigger data-testid="select-vehicle-type" className="h-7 text-xs">
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
@@ -669,14 +658,38 @@ export function BookingDetailsDialog({
                         </SelectContent>
                       </Select>
                     </div>
+                    
+                    <div className="space-y-0.5">
+                      <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Pax</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={formData.passengerCount}
+                        onChange={(e) => setFormData({ ...formData, passengerCount: parseInt(e.target.value) || 1 })}
+                        className="h-7 text-xs"
+                        data-testid="input-passenger-count"
+                      />
+                    </div>
+                    
+                    <div className="space-y-0.5">
+                      <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Bags</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={formData.luggageCount}
+                        onChange={(e) => setFormData({ ...formData, luggageCount: parseInt(e.target.value) || 0 })}
+                        className="h-7 text-xs"
+                        data-testid="input-luggage-count"
+                      />
+                    </div>
                   </div>
 
                   {/* Addresses Section */}
-                  <div className="space-y-2">
-                    <div className="space-y-1">
-                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                  <div className="space-y-1.5">
+                    <div className="space-y-0.5">
+                      <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                         <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                        Pickup *
+                        Pickup
                       </Label>
                       <AddressAutocomplete
                         id="pickup-address"
@@ -694,9 +707,9 @@ export function BookingDetailsDialog({
 
                     {/* Via Points Section - Hidden for Hourly Service */}
                     {formData.bookingType !== 'hourly' && (
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                          <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                          <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                             <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
                             Stops
                           </Label>
@@ -709,9 +722,9 @@ export function BookingDetailsDialog({
                               setFormData({ ...formData, viaPoints: newViaPoints });
                             }}
                             data-testid="button-add-via-point"
-                            className="h-6 text-[10px] text-primary hover:text-primary px-1.5"
+                            className="h-5 text-[9px] text-primary hover:text-primary px-1"
                           >
-                            <Plus className="w-3 h-3 mr-0.5" />
+                            <Plus className="w-2.5 h-2.5 mr-0.5" />
                             Add
                           </Button>
                         </div>
@@ -760,10 +773,10 @@ export function BookingDetailsDialog({
 
                     {/* Destination Address - Hidden for Hourly Service */}
                     {formData.bookingType !== 'hourly' && (
-                      <div className="space-y-1">
-                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                      <div className="space-y-0.5">
+                        <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                           <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                          Destination *
+                          Destination
                         </Label>
                         <AddressAutocomplete
                           id="destination-address"
@@ -782,43 +795,44 @@ export function BookingDetailsDialog({
 
                     {/* Duration for Hourly */}
                     {formData.bookingType === 'hourly' && (
-                      <div className="space-y-1">
-                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                          Duration *
+                      <div className="space-y-0.5">
+                        <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+                          Duration
                         </Label>
                         <Select
                           value={formData.requestedHours}
                           onValueChange={(value) => setFormData({ ...formData, requestedHours: value })}
                         >
-                          <SelectTrigger data-testid="select-requested-hours" className="h-8 text-sm">
+                          <SelectTrigger data-testid="select-requested-hours" className="h-7 text-xs">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="2">2 hours</SelectItem>
-                            <SelectItem value="3">3 hours</SelectItem>
-                            <SelectItem value="4">4 hours</SelectItem>
-                            <SelectItem value="5">5 hours</SelectItem>
-                            <SelectItem value="6">6 hours</SelectItem>
-                            <SelectItem value="8">8 hours</SelectItem>
-                            <SelectItem value="10">10 hours</SelectItem>
-                            <SelectItem value="12">12 hours</SelectItem>
+                            <SelectItem value="2">2 hrs</SelectItem>
+                            <SelectItem value="3">3 hrs</SelectItem>
+                            <SelectItem value="4">4 hrs</SelectItem>
+                            <SelectItem value="5">5 hrs</SelectItem>
+                            <SelectItem value="6">6 hrs</SelectItem>
+                            <SelectItem value="8">8 hrs</SelectItem>
+                            <SelectItem value="10">10 hrs</SelectItem>
+                            <SelectItem value="12">12 hrs</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     )}
                   </div>
 
-                  {/* Schedule Section - Compact */}
-                  <div className="space-y-2 pt-2 border-t border-border">
-                    <div className="space-y-1">
-                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                        Date *
-                      </Label>
+                  {/* Schedule Section - Ultra Compact Single Row */}
+                  <div className="space-y-1.5 pt-1.5 border-t border-border">
+                    <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                      <Clock className="w-2.5 h-2.5 text-blue-600" />
+                      Schedule
+                    </Label>
+                    <div className="grid grid-cols-[1fr_auto_auto_auto] gap-1">
+                      {/* Date */}
                       <DatePicker
                         selected={formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : null}
                         onChange={(date: Date | null) => {
                           if (date) {
-                            // Extract existing time or use default
                             let hour = 9;
                             let minute = 0;
                             let period = 'AM';
@@ -831,7 +845,6 @@ export function BookingDetailsDialog({
                               period = existingHours >= 12 ? 'PM' : 'AM';
                             }
                             
-                            // Convert to 24-hour format
                             let hours24 = hour;
                             if (period === 'AM' && hour === 12) hours24 = 0;
                             else if (period === 'PM' && hour !== 12) hours24 = hour + 12;
@@ -843,179 +856,124 @@ export function BookingDetailsDialog({
                             setFormData({ ...formData, scheduledDateTime: formattedDateTime });
                           }
                         }}
-                        dateFormat="MMMM d, yyyy"
+                        dateFormat="MMM d, yyyy"
                         minDate={new Date()}
-                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
-                        placeholderText="Select date"
+                        className="w-full h-7 px-2 text-xs border border-border rounded-md bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                        placeholderText="Date"
                         wrapperClassName="w-full"
                         data-testid="input-scheduled-date"
                       />
-                    </div>
-
-                    {/* Time Selection - Compact */}
-                    <div className="space-y-1">
-                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-indigo-600" />
-                        Time *
-                      </Label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {/* Hour */}
-                        <div>
-                          <Select
-                            value={(() => {
-                              if (!formData.scheduledDateTime) return "9";
-                              const date = new Date(formData.scheduledDateTime);
-                              const hours = date.getHours();
-                              return String(hours === 0 ? 12 : hours > 12 ? hours - 12 : hours);
-                            })()}
-                            onValueChange={(value) => {
-                              const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
-                              const currentMinute = date.getMinutes();
-                              const currentHours = date.getHours();
-                              const period = currentHours >= 12 ? 'PM' : 'AM';
-                              
-                              let hours24 = parseInt(value);
-                              if (period === 'AM' && hours24 === 12) hours24 = 0;
-                              else if (period === 'PM' && hours24 !== 12) hours24 = hours24 + 12;
-                              
-                              const year = date.getFullYear();
-                              const month = String(date.getMonth() + 1).padStart(2, '0');
-                              const day = String(date.getDate()).padStart(2, '0');
-                              const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
-                              setFormData({ ...formData, scheduledDateTime: formattedDateTime });
-                            }}
-                          >
-                            <SelectTrigger data-testid="select-hour" className="h-8 text-sm bg-background border-border">
-                              <SelectValue placeholder="Hr" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(hour => (
-                                <SelectItem key={hour} value={String(hour)}>{String(hour).padStart(2, '0')}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {/* Minute */}
-                        <div>
-                          <Select
-                            value={(() => {
-                              if (!formData.scheduledDateTime) return "00";
-                              const date = new Date(formData.scheduledDateTime);
-                              return String(date.getMinutes()).padStart(2, '0');
-                            })()}
-                            onValueChange={(value) => {
-                              const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
-                              const currentHours = date.getHours();
-                              
-                              const year = date.getFullYear();
-                              const month = String(date.getMonth() + 1).padStart(2, '0');
-                              const day = String(date.getDate()).padStart(2, '0');
-                              const formattedDateTime = `${year}-${month}-${day}T${String(currentHours).padStart(2, '0')}:${value}`;
-                              setFormData({ ...formData, scheduledDateTime: formattedDateTime });
-                            }}
-                          >
-                            <SelectTrigger data-testid="select-minute" className="h-8 text-sm bg-background border-border">
-                              <SelectValue placeholder="Min" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map(min => (
-                                <SelectItem key={min} value={min}>{min}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {/* AM/PM */}
-                        <div>
-                          <Select
-                            value={(() => {
-                              if (!formData.scheduledDateTime) return "AM";
-                              const date = new Date(formData.scheduledDateTime);
-                              return date.getHours() >= 12 ? 'PM' : 'AM';
-                            })()}
-                            onValueChange={(value) => {
-                              const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
-                              const currentHours = date.getHours();
-                              const currentMinute = date.getMinutes();
-                              
-                              // Get 12-hour format hour
-                              const hour12 = currentHours === 0 ? 12 : currentHours > 12 ? currentHours - 12 : currentHours;
-                              
-                              // Convert to 24-hour based on new AM/PM
-                              let hours24 = hour12;
-                              if (value === 'AM' && hour12 === 12) hours24 = 0;
-                              else if (value === 'PM' && hour12 !== 12) hours24 = hour12 + 12;
-                              
-                              const year = date.getFullYear();
-                              const month = String(date.getMonth() + 1).padStart(2, '0');
-                              const day = String(date.getDate()).padStart(2, '0');
-                              const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
-                              setFormData({ ...formData, scheduledDateTime: formattedDateTime });
-                            }}
-                          >
-                            <SelectTrigger data-testid="select-period" className="h-8 text-sm bg-background border-border">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="AM">AM</SelectItem>
-                              <SelectItem value="PM">PM</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
+                      {/* Hour */}
+                      <Select
+                        value={(() => {
+                          if (!formData.scheduledDateTime) return "9";
+                          const date = new Date(formData.scheduledDateTime);
+                          const hours = date.getHours();
+                          return String(hours === 0 ? 12 : hours > 12 ? hours - 12 : hours);
+                        })()}
+                        onValueChange={(value) => {
+                          const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
+                          const currentMinute = date.getMinutes();
+                          const currentHours = date.getHours();
+                          const period = currentHours >= 12 ? 'PM' : 'AM';
+                          
+                          let hours24 = parseInt(value);
+                          if (period === 'AM' && hours24 === 12) hours24 = 0;
+                          else if (period === 'PM' && hours24 !== 12) hours24 = hours24 + 12;
+                          
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+                          setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                        }}
+                      >
+                        <SelectTrigger data-testid="select-hour" className="h-7 w-12 text-xs px-1.5">
+                          <SelectValue placeholder="Hr" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(hour => (
+                            <SelectItem key={hour} value={String(hour)}>{String(hour).padStart(2, '0')}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {/* Minute */}
+                      <Select
+                        value={(() => {
+                          if (!formData.scheduledDateTime) return "00";
+                          const date = new Date(formData.scheduledDateTime);
+                          return String(date.getMinutes()).padStart(2, '0');
+                        })()}
+                        onValueChange={(value) => {
+                          const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
+                          const currentHours = date.getHours();
+                          
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          const formattedDateTime = `${year}-${month}-${day}T${String(currentHours).padStart(2, '0')}:${value}`;
+                          setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                        }}
+                      >
+                        <SelectTrigger data-testid="select-minute" className="h-7 w-12 text-xs px-1.5">
+                          <SelectValue placeholder="Min" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map(min => (
+                            <SelectItem key={min} value={min}>{min}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {/* AM/PM */}
+                      <Select
+                        value={(() => {
+                          if (!formData.scheduledDateTime) return "AM";
+                          const date = new Date(formData.scheduledDateTime);
+                          return date.getHours() >= 12 ? 'PM' : 'AM';
+                        })()}
+                        onValueChange={(value) => {
+                          const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
+                          const currentHours = date.getHours();
+                          const currentMinute = date.getMinutes();
+                          
+                          const hour12 = currentHours === 0 ? 12 : currentHours > 12 ? currentHours - 12 : currentHours;
+                          
+                          let hours24 = hour12;
+                          if (value === 'AM' && hour12 === 12) hours24 = 0;
+                          else if (value === 'PM' && hour12 !== 12) hours24 = hour12 + 12;
+                          
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          const formattedDateTime = `${year}-${month}-${day}T${String(hours24).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+                          setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                        }}
+                      >
+                        <SelectTrigger data-testid="select-period" className="h-7 w-12 text-xs px-1.5">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="AM">AM</SelectItem>
+                          <SelectItem value="PM">PM</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
-                  {/* Passenger & Luggage Section - Compact */}
-                  <div className="space-y-2 pt-2 border-t border-border">
-                    <div className="flex items-center gap-2 pb-1">
-                      <div className="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded flex items-center justify-center">
-                        <User className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                      </div>
-                      <h3 className="text-sm font-bold text-foreground">Passengers</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="space-y-1">
-                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Pax *</Label>
-                        <Input
-                          type="number"
-                          min="1"
-                          value={formData.passengerCount}
-                          onChange={(e) => setFormData({ ...formData, passengerCount: parseInt(e.target.value) || 1 })}
-                          className="h-8 text-sm"
-                          data-testid="input-passenger-count"
-                        />
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Bags</Label>
-                        <Input
-                          type="number"
-                          min="0"
-                          value={formData.luggageCount}
-                          onChange={(e) => setFormData({ ...formData, luggageCount: parseInt(e.target.value) || 0 })}
-                          className="h-8 text-sm"
-                          data-testid="input-luggage-count"
-                        />
-                      </div>
-                      
-                      <div className="flex items-center gap-1.5 pt-5">
-                        <input
-                          id="baby-seat"
-                          type="checkbox"
-                          checked={formData.babySeat}
-                          onChange={(e) => setFormData({ ...formData, babySeat: e.target.checked })}
-                          className="w-3.5 h-3.5 rounded border-border"
+                  {/* Extra Options - Compact Row */}
+                  <div className="flex items-center gap-3 pt-1.5 border-t border-border">
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        id="baby-seat"
+                        type="checkbox"
+                        checked={formData.babySeat}
+                        onChange={(e) => setFormData({ ...formData, babySeat: e.target.checked })}
+                        className="w-3 h-3 rounded border-border"
                         data-testid="checkbox-baby-seat"
                       />
-                      <Label htmlFor="baby-seat" className="text-xs">Seat</Label>
-                    </div>
-                  </div>
-
-                    {/* Book for Another Person */}
-                    <div className="flex items-center gap-2 mt-3">
+                      <span className="text-[10px] text-muted-foreground">Baby Seat</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
                       <input
                         id="booking-for-toggle"
                         type="checkbox"
@@ -1024,51 +982,51 @@ export function BookingDetailsDialog({
                           ...formData, 
                           bookingFor: e.target.checked ? 'someone_else' : 'self' 
                         })}
-                        className="w-4 h-4 rounded border-border"
+                        className="w-3 h-3 rounded border-border"
                         data-testid="checkbox-booking-for"
                       />
-                      <Label htmlFor="booking-for-toggle" className="text-sm">Book for another person</Label>
-                    </div>
-                    
-                    {formData.bookingFor === 'someone_else' && (
-                      <div className="space-y-2 mt-2 pl-6 border-l-2 border-purple-200 dark:border-purple-800">
-                        <Input
-                          placeholder="Passenger Name"
-                          value={formData.passengerName}
-                          onChange={(e) => setFormData({ ...formData, passengerName: e.target.value })}
-                          className="h-9"
-                          data-testid="input-passenger-name"
-                        />
-                        <div className="grid grid-cols-2 gap-2">
-                          <Input
-                            type="email"
-                            placeholder="Email"
-                            value={formData.passengerEmail}
-                            onChange={(e) => setFormData({ ...formData, passengerEmail: e.target.value })}
-                            className="h-9"
-                            data-testid="input-passenger-email"
-                          />
-                          <Input
-                            type="tel"
-                            placeholder="Phone"
-                            value={formData.passengerPhone}
-                            onChange={(e) => setFormData({ ...formData, passengerPhone: e.target.value })}
-                            className="h-9"
-                            data-testid="input-passenger-phone"
-                          />
-                        </div>
-                      </div>
-                    )}
+                      <span className="text-[10px] text-muted-foreground">Book for other</span>
+                    </label>
                   </div>
+                    
+                  {formData.bookingFor === 'someone_else' && (
+                    <div className="space-y-1.5 pl-4 border-l-2 border-purple-200 dark:border-purple-800">
+                      <Input
+                        placeholder="Passenger Name"
+                        value={formData.passengerName}
+                        onChange={(e) => setFormData({ ...formData, passengerName: e.target.value })}
+                        className="h-7 text-xs"
+                        data-testid="input-passenger-name"
+                      />
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <Input
+                          type="email"
+                          placeholder="Email"
+                          value={formData.passengerEmail}
+                          onChange={(e) => setFormData({ ...formData, passengerEmail: e.target.value })}
+                          className="h-7 text-xs"
+                          data-testid="input-passenger-email"
+                        />
+                        <Input
+                          type="tel"
+                          placeholder="Phone"
+                          value={formData.passengerPhone}
+                          onChange={(e) => setFormData({ ...formData, passengerPhone: e.target.value })}
+                          className="h-7 text-xs"
+                          data-testid="input-passenger-phone"
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   {/* Flight Information Section */}
-                  <div className="space-y-3 pt-2 border-t border-border">
-                    <div className="flex items-center gap-3 pb-2">
-                      <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
-                        <Plane className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                      </div>
-                      <h3 className="text-base font-semibold text-foreground">Flight Information</h3>
-                      <span className="text-xs text-muted-foreground">(Optional)</span>
+                  <div className="space-y-1.5 pt-1.5 border-t border-border">
+                    <div className="flex items-center gap-1.5">
+                      <Plane className="w-2.5 h-2.5 text-slate-500" />
+                      <Label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+                        Flight Info
+                      </Label>
+                      <span className="text-[8px] text-muted-foreground">(Optional)</span>
                     </div>
                   <FlightSearch
                     selectedFlight={selectedFlight as FlightInfo | null}
