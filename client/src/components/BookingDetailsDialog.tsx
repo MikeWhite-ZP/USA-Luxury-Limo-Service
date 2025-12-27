@@ -499,51 +499,29 @@ export function BookingDetailsDialog({
           </Button>
         </div>
 
-        {/* Mobile Tab Navigation - adjusted for safe area padding */}
-        <div className="lg:hidden sticky top-[84px] sm:top-[68px] z-40 bg-background border-b text-[12px]">
-          <div className="flex overflow-x-auto scrollbar-hide">
+        {/* Mobile Tab Navigation - Ultra Compact 2-Tab Design */}
+        <div className="lg:hidden sticky top-[84px] sm:top-[68px] z-40 bg-background border-b">
+          <div className="grid grid-cols-2">
             <button
               onClick={() => setActiveTab('passenger')}
-              className={`flex-1 min-w-[80px] px-3 py-3 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                activeTab === 'passenger' 
-                  ? 'border-blue-600 text-blue-600 bg-blue-50' 
+              className={`flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors ${
+                activeTab !== 'pricing' 
+                  ? 'border-blue-600 text-blue-600 bg-blue-50 dark:bg-blue-950' 
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
-              <User className="w-4 h-4 mx-auto mb-1" />
-              Passenger
-            </button>
-            <button
-              onClick={() => setActiveTab('journey')}
-              className={`flex-1 min-w-[80px] px-3 py-3 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                activeTab === 'journey' 
-                  ? 'border-blue-600 text-blue-600 bg-blue-50' 
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <MapPin className="w-4 h-4 mx-auto mb-1" />
-              Journey
-            </button>
-            <button
-              onClick={() => setActiveTab('schedule')}
-              className={`flex-1 min-w-[80px] px-3 py-3 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                activeTab === 'schedule' 
-                  ? 'border-blue-600 text-blue-600 bg-blue-50' 
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Clock className="w-4 h-4 mx-auto mb-1" />
-              Schedule
+              <MapPin className="w-3.5 h-3.5" />
+              Details
             </button>
             <button
               onClick={() => setActiveTab('pricing')}
-              className={`flex-1 min-w-[80px] px-3 py-3 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              className={`flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors ${
                 activeTab === 'pricing' 
-                  ? 'border-blue-600 text-blue-600 bg-blue-50' 
+                  ? 'border-blue-600 text-blue-600 bg-blue-50 dark:bg-blue-950' 
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
-              <DollarSign className="w-4 h-4 mx-auto mb-1" />
+              <DollarSign className="w-3.5 h-3.5" />
               Pricing
             </button>
           </div>
