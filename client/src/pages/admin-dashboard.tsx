@@ -6311,214 +6311,135 @@ export default function AdminDashboard() {
         }}
       />
       <div className="max-w-7xl mx-auto p-6 space-y-8">
-        {/* Dashboard Stats - Modern Professional Design */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* Dashboard Stats - Compact Professional Design */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {/* Revenue Card */}
-          <Card
-            className="group relative overflow-hidden bg-background border border-border/60 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 hover:-translate-y-1"
+          <div
+            className="bg-background border border-border rounded-lg p-3 hover:shadow-sm transition-all"
             data-testid="stat-revenue"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500/5 to-transparent rounded-full -mr-16 -mt-16" />
-            <CardContent className="p-7 relative">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-2.5 rounded-xl shadow-sm shadow-amber-500/20">
-                    <DollarSign className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Revenue</p>
-                  </div>
-                </div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="bg-amber-500 p-1.5 rounded-md">
+                <DollarSign className="h-3.5 w-3.5 text-white" />
               </div>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">This Month</p>
-                  <p className="text-3xl font-bold text-foreground tracking-tight" data-testid="monthly-revenue">
-                    ${statsLoading ? "..." : parseFloat(stats?.monthlyRevenue || "0").toFixed(2)}
-                  </p>
-                </div>
-                <div className="pt-3 border-t border-border">
-                  <p className="text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">All Time</p>
-                  <p className="text-xl font-semibold text-muted-foreground tracking-tight" data-testid="total-revenue">
-                    ${statsLoading ? "..." : parseFloat(stats?.totalRevenue || "0").toFixed(2)}
-                  </p>
-                </div>
-              </div>
-              {!statsLoading && stats && parseFloat(stats.revenueGrowth) !== 0 && (
-                <div className="mt-4 pt-4 border-t border-border">
-                  <p className={`text-sm font-semibold ${parseFloat(stats.revenueGrowth) > 0 ? "text-emerald-600" : "text-rose-600"}`} data-testid="revenue-growth">
-                    {parseFloat(stats.revenueGrowth) > 0 ? "↑" : "↓"} {Math.abs(parseFloat(stats.revenueGrowth)).toFixed(2)}% <span className="text-muted-foreground font-normal">from last month</span>
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              <span className="text-xs font-medium text-muted-foreground">Revenue</span>
+            </div>
+            <p className="text-xl font-bold text-foreground" data-testid="monthly-revenue">
+              ${statsLoading ? "..." : parseFloat(stats?.monthlyRevenue || "0").toFixed(0)}
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              All: ${statsLoading ? "..." : parseFloat(stats?.totalRevenue || "0").toFixed(0)}
+            </p>
+            {!statsLoading && stats && parseFloat(stats.revenueGrowth) !== 0 && (
+              <p className={`text-[10px] font-medium mt-1 ${parseFloat(stats.revenueGrowth) > 0 ? "text-emerald-600" : "text-rose-600"}`} data-testid="revenue-growth">
+                {parseFloat(stats.revenueGrowth) > 0 ? "↑" : "↓"} {Math.abs(parseFloat(stats.revenueGrowth)).toFixed(1)}%
+              </p>
+            )}
+          </div>
 
           {/* Commission Card */}
-          <Card
-            className="group relative overflow-hidden bg-background border border-border/60 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 hover:-translate-y-1"
+          <div
+            className="bg-background border border-border rounded-lg p-3 hover:shadow-sm transition-all"
             data-testid="stat-commission"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/5 to-transparent rounded-full -mr-16 -mt-16" />
-            <CardContent className="p-7 relative">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-2.5 rounded-xl shadow-sm shadow-purple-500/20">
-                    <DollarSign className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Commission</p>
-                  </div>
-                </div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="bg-purple-500 p-1.5 rounded-md">
+                <DollarSign className="h-3.5 w-3.5 text-white" />
               </div>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">This Month</p>
-                  <p className="text-3xl font-bold text-foreground tracking-tight" data-testid="monthly-commission">
-                    ${statsLoading ? "..." : parseFloat(stats?.monthlyCommission || "0").toFixed(2)}
-                  </p>
-                </div>
-                <div className="pt-3 border-t border-border">
-                  <p className="text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">All Time</p>
-                  <p className="text-xl font-semibold text-muted-foreground tracking-tight" data-testid="total-commission">
-                    ${statsLoading ? "..." : parseFloat(stats?.totalCommission || "0").toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              <span className="text-xs font-medium text-muted-foreground">Commission</span>
+            </div>
+            <p className="text-xl font-bold text-foreground" data-testid="monthly-commission">
+              ${statsLoading ? "..." : parseFloat(stats?.monthlyCommission || "0").toFixed(0)}
+            </p>
+            <p className="text-[10px] text-muted-foreground" data-testid="total-commission">
+              All: ${statsLoading ? "..." : parseFloat(stats?.totalCommission || "0").toFixed(0)}
+            </p>
+          </div>
 
           {/* Active Bookings Card */}
-          <Card
-            className="group relative overflow-hidden bg-background border border-border/60 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 hover:-translate-y-1"
+          <div
+            className="bg-background border border-border rounded-lg p-3 hover:shadow-sm transition-all"
             data-testid="stat-bookings"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-transparent rounded-full -mr-16 -mt-16" />
-            <CardContent className="p-7 relative">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2.5 rounded-xl shadow-sm shadow-blue-500/20">
-                    <TrendingUp className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Active Bookings</p>
-                  </div>
-                </div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="bg-blue-500 p-1.5 rounded-md">
+                <TrendingUp className="h-3.5 w-3.5 text-white" />
               </div>
-              <div>
-                <p className="text-5xl font-bold text-foreground tracking-tight mb-2" data-testid="active-bookings">
-                  {statsLoading ? "..." : stats?.activeBookings || 0}
-                </p>
-                {!statsLoading && stats && stats.pendingBookings > 0 && (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-                    <p className="text-sm font-medium text-blue-700" data-testid="pending-bookings">
-                      {stats.pendingBookings} pending approval{stats.pendingBookings !== 1 ? "s" : ""}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              <span className="text-xs font-medium text-muted-foreground">Active</span>
+            </div>
+            <p className="text-xl font-bold text-foreground" data-testid="active-bookings">
+              {statsLoading ? "..." : stats?.activeBookings || 0}
+            </p>
+            {!statsLoading && stats && stats.pendingBookings > 0 && (
+              <p className="text-[10px] text-blue-600 font-medium" data-testid="pending-bookings">
+                {stats.pendingBookings} pending
+              </p>
+            )}
+          </div>
 
           {/* Drivers Card */}
-          <Card
-            className="group relative overflow-hidden bg-background border border-border/60 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 hover:-translate-y-1"
+          <div
+            className="bg-background border border-border rounded-lg p-3 hover:shadow-sm transition-all"
             data-testid="stat-drivers"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-full -mr-16 -mt-16" />
-            <CardContent className="p-7 relative">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2.5 rounded-xl shadow-sm shadow-emerald-500/20">
-                    <Car className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Drivers</p>
-                  </div>
-                </div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="bg-emerald-500 p-1.5 rounded-md">
+                <Car className="h-3.5 w-3.5 text-white" />
               </div>
-              <div>
-                <p className="text-5xl font-bold text-foreground tracking-tight mb-2" data-testid="active-drivers">
-                  {statsLoading ? "..." : `${stats?.activeDrivers || 0}/${stats?.totalDrivers || 0}`}
-                </p>
-                <p className="text-sm text-muted-foreground font-medium mb-3">Active / Total</p>
-                {!statsLoading && stats && stats.pendingDrivers > 0 && (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                    <p className="text-sm font-medium text-emerald-700" data-testid="pending-drivers">
-                      {stats.pendingDrivers} pending verification
-                    </p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              <span className="text-xs font-medium text-muted-foreground">Drivers</span>
+            </div>
+            <p className="text-xl font-bold text-foreground" data-testid="active-drivers">
+              {statsLoading ? "..." : `${stats?.activeDrivers || 0}/${stats?.totalDrivers || 0}`}
+            </p>
+            {!statsLoading && stats && stats.pendingDrivers > 0 && (
+              <p className="text-[10px] text-emerald-600 font-medium" data-testid="pending-drivers">
+                {stats.pendingDrivers} pending
+              </p>
+            )}
+          </div>
 
           {/* Customer Satisfaction Card */}
-          <Card
-            className="group relative overflow-hidden bg-background border border-border/60 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 hover:-translate-y-1"
+          <div
+            className="bg-background border border-border rounded-lg p-3 hover:shadow-sm transition-all"
             data-testid="stat-satisfaction"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/5 to-transparent rounded-full -mr-16 -mt-16" />
-            <CardContent className="p-7 relative">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-2.5 rounded-xl shadow-sm shadow-orange-500/20">
-                    <Star className="h-5 w-5 text-white fill-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Satisfaction</p>
-                  </div>
-                </div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="bg-orange-500 p-1.5 rounded-md">
+                <Star className="h-3.5 w-3.5 text-white fill-white" />
               </div>
-              <div>
-                <p className="text-5xl font-bold text-foreground tracking-tight mb-2" data-testid="customer-satisfaction">
-                  {statsLoading ? "..." : parseFloat(stats?.averageRating || "0").toFixed(2)}
-                  <span className="text-2xl text-muted-foreground ml-1">/5</span>
-                </p>
-                {!statsLoading && stats && parseFloat(stats.ratingImprovement) !== 0 && (
-                  <p className={`text-sm font-semibold ${parseFloat(stats.ratingImprovement) > 0 ? "text-emerald-600" : "text-rose-600"}`} data-testid="rating-improvement">
-                    {parseFloat(stats.ratingImprovement) > 0 ? "↑" : "↓"} {Math.abs(parseFloat(stats.ratingImprovement)).toFixed(2)} <span className="text-muted-foreground font-normal">this month</span>
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              <span className="text-xs font-medium text-muted-foreground">Rating</span>
+            </div>
+            <p className="text-xl font-bold text-foreground" data-testid="customer-satisfaction">
+              {statsLoading ? "..." : parseFloat(stats?.averageRating || "0").toFixed(1)}
+              <span className="text-sm text-muted-foreground">/5</span>
+            </p>
+            {!statsLoading && stats && parseFloat(stats.ratingImprovement) !== 0 && (
+              <p className={`text-[10px] font-medium ${parseFloat(stats.ratingImprovement) > 0 ? "text-emerald-600" : "text-rose-600"}`} data-testid="rating-improvement">
+                {parseFloat(stats.ratingImprovement) > 0 ? "↑" : "↓"} {Math.abs(parseFloat(stats.ratingImprovement)).toFixed(1)}
+              </p>
+            )}
+          </div>
 
           {/* Awaiting Driver Approval Card */}
-          <Card
-            className="group relative overflow-hidden bg-background border border-border/60 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 hover:-translate-y-1"
+          <div
+            className="bg-background border border-border rounded-lg p-3 hover:shadow-sm transition-all"
             data-testid="stat-awaiting-approval"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-rose-500/5 to-transparent rounded-full -mr-16 -mt-16" />
-            <CardContent className="p-7 relative">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-rose-500 to-rose-600 p-2.5 rounded-xl shadow-sm shadow-rose-500/20">
-                    <Clock className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Awaiting Approval</p>
-                  </div>
-                </div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="bg-rose-500 p-1.5 rounded-md">
+                <Clock className="h-3.5 w-3.5 text-white" />
               </div>
-              <div>
-                <p className="text-5xl font-bold text-foreground tracking-tight mb-2" data-testid="awaiting-driver-approval">
-                  {statsLoading ? "..." : stats?.awaitingDriverApproval || 0}
-                </p>
-                <p className="text-sm text-muted-foreground font-medium mb-3">Jobs waiting for drivers</p>
-                {!statsLoading && stats && stats.awaitingDriverApproval > 0 && (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 border border-rose-200 rounded-lg">
-                    <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
-                    <p className="text-sm font-medium text-rose-700" data-testid="awaiting-approval-notice">
-                      Requires driver acceptance
-                    </p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              <span className="text-xs font-medium text-muted-foreground">Awaiting</span>
+            </div>
+            <p className="text-xl font-bold text-foreground" data-testid="awaiting-driver-approval">
+              {statsLoading ? "..." : stats?.awaitingDriverApproval || 0}
+            </p>
+            {!statsLoading && stats && stats.awaitingDriverApproval > 0 && (
+              <p className="text-[10px] text-rose-600 font-medium" data-testid="awaiting-approval-notice">
+                Needs action
+              </p>
+            )}
+          </div>
         </div>
 
         {/* API Credentials Management */}
