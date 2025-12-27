@@ -249,65 +249,33 @@ export default function FlightSearch({
 
     return (
       <div className={`${className}`}>
-        <div className="bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
-          <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-5 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
-                  <Plane className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Flight number</p>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{selectedFlight.flightNumber.toLowerCase()}</p>
-                </div>
+        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+          <div className="flex items-center justify-between px-2 py-1.5 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex items-center gap-1.5">
+              <div className="w-5 h-5 bg-teal-500 rounded flex items-center justify-center">
+                <Plane className="w-2.5 h-2.5 text-white" />
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center">
-                  <Check className="w-4 h-4 text-white" strokeWidth={3} />
-                </div>
-                <button
-                  onClick={handleClear}
-                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-1"
-                  data-testid="button-clear-flight"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+              <span className="text-[10px] font-semibold text-slate-900 dark:text-slate-100">{selectedFlight.flightNumber}</span>
+              <Check className="w-3 h-3 text-teal-500" strokeWidth={3} />
             </div>
+            <button
+              onClick={handleClear}
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-0.5"
+              data-testid="button-clear-flight"
+            >
+              <X className="w-3 h-3" />
+            </button>
           </div>
-
-          <div className="grid grid-cols-2 divide-x divide-slate-200 dark:divide-slate-700 border-t border-slate-200 dark:border-slate-700">
-            <div className="p-5">
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide mb-2">Departure</p>
-              <div className="space-y-1">
-                <p className="text-slate-900 dark:text-slate-100 font-semibold">{selectedFlight.departureAirport}</p>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  <span className="font-medium">{selectedFlight.departureIata}</span>
-                  {selectedFlight.departureTerminal && <span className="ml-2">Terminal {selectedFlight.departureTerminal}</span>}
-                </p>
-                {depDateTime.date && (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">{depDateTime.date}</p>
-                )}
-                {depDateTime.time !== '--:--' && (
-                  <p className="text-lg font-bold text-slate-900 dark:text-slate-100">{depDateTime.time}</p>
-                )}
-              </div>
+          <div className="grid grid-cols-2 divide-x divide-slate-200 dark:divide-slate-700">
+            <div className="px-2 py-1">
+              <p className="text-[7px] text-slate-500 uppercase font-semibold">Dep</p>
+              <p className="text-[9px] font-medium text-slate-900 dark:text-slate-100 truncate">{selectedFlight.departureIata}</p>
+              {depDateTime.time !== '--:--' && <p className="text-[10px] font-bold text-slate-900 dark:text-slate-100">{depDateTime.time}</p>}
             </div>
-            <div className="p-5">
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide mb-2">Arrival</p>
-              <div className="space-y-1">
-                <p className="text-slate-900 dark:text-slate-100 font-semibold">{selectedFlight.arrivalAirport}</p>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  <span className="font-medium">{selectedFlight.arrivalIata}</span>
-                  {selectedFlight.arrivalTerminal && <span className="ml-2">Terminal {selectedFlight.arrivalTerminal}</span>}
-                </p>
-                {arrDateTime.date && (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">{arrDateTime.date}</p>
-                )}
-                {arrDateTime.time !== '--:--' && (
-                  <p className="text-lg font-bold text-slate-900 dark:text-slate-100">{arrDateTime.time}</p>
-                )}
-              </div>
+            <div className="px-2 py-1">
+              <p className="text-[7px] text-slate-500 uppercase font-semibold">Arr</p>
+              <p className="text-[9px] font-medium text-slate-900 dark:text-slate-100 truncate">{selectedFlight.arrivalIata}</p>
+              {arrDateTime.time !== '--:--' && <p className="text-[10px] font-bold text-slate-900 dark:text-slate-100">{arrDateTime.time}</p>}
             </div>
           </div>
         </div>
@@ -316,39 +284,29 @@ export default function FlightSearch({
   }
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      <div className="flex items-center gap-3">
-        <div className="flex-1 relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-amber-500 rounded flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" />
-            </svg>
-          </div>
-          <Input
-            placeholder="Enter flight number (e.g., UA1797)"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value.toUpperCase())}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            className="pl-14 h-12 text-base border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:border-teal-500 focus:ring-teal-500"
-            data-testid="input-flight-search"
-          />
-        </div>
+    <div className={`space-y-1 ${className}`}>
+      <div className="flex items-center gap-1">
+        <Input
+          placeholder="Flight # (e.g. UA1797)"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value.toUpperCase())}
+          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          className="h-6 text-[10px] px-1.5 flex-1"
+          data-testid="input-flight-search"
+        />
         <Button
           onClick={handleSearch}
           disabled={isSearching || !searchInput.trim()}
-          className="h-12 px-6 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg shadow-sm"
+          size="sm"
+          className="h-6 px-2 text-[9px] bg-amber-500 hover:bg-amber-600"
           data-testid="button-verify-flight"
         >
-          {isSearching ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            "Verify"
-          )}
+          {isSearching ? <Loader2 className="w-3 h-3 animate-spin" /> : "Verify"}
         </Button>
       </div>
 
       {showResults && flightResults.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-1">
           {flightResults.map((flight, index) => {
             const arrDateTime = formatDateTime(flight.arrivalTime);
             const isSelected = selectedIndex === index;
@@ -357,30 +315,27 @@ export default function FlightSearch({
               <button
                 key={flight.id}
                 onClick={() => setSelectedIndex(index)}
-                className={`w-full text-left p-4 border-2 rounded-xl transition-all ${
+                className={`w-full text-left px-2 py-1 border rounded transition-all ${
                   isSelected 
                     ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/20' 
-                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
                 }`}
                 data-testid={`flight-option-${flight.id}`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                      {flight.departureIata} → {flight.arrivalIata} {flight.arrivalAirport}
-                      {flight.arrivalTerminal && <span className="text-slate-600 dark:text-slate-400">, Terminal: {flight.arrivalTerminal}</span>}
-                      {!flight.arrivalTerminal && <span className="text-slate-400">, Terminal: -</span>}
+                <div className="flex items-center justify-between gap-1">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] font-semibold text-slate-900 dark:text-slate-100 truncate">
+                      {flight.departureIata} → {flight.arrivalIata}
+                      {flight.arrivalTerminal && <span className="text-slate-500"> T{flight.arrivalTerminal}</span>}
                     </p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                      Est. Arrival: {arrDateTime.date && `${arrDateTime.date.split(' ')[0]} ${arrDateTime.date.split(' ')[1]},${arrDateTime.date.split(' ')[2]}`} {arrDateTime.time}
+                    <p className="text-[8px] text-slate-500 truncate">
+                      {arrDateTime.time}
                     </p>
                   </div>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                    isSelected 
-                      ? 'border-teal-500 bg-teal-500' 
-                      : 'border-slate-300 dark:border-slate-600'
+                  <div className={`w-3 h-3 rounded-full border flex items-center justify-center ${
+                    isSelected ? 'border-teal-500 bg-teal-500' : 'border-slate-300'
                   }`}>
-                    {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
+                    {isSelected && <div className="w-1 h-1 rounded-full bg-white" />}
                   </div>
                 </div>
               </button>
@@ -390,10 +345,11 @@ export default function FlightSearch({
           {selectedIndex !== null && (
             <Button
               onClick={handleConfirmSelection}
-              className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-lg"
+              size="sm"
+              className="w-full h-5 text-[9px] bg-teal-500 hover:bg-teal-600"
               data-testid="button-confirm-flight"
             >
-              Confirm Selection
+              Confirm
             </Button>
           )}
         </div>
