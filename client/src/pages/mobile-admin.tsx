@@ -1321,53 +1321,53 @@ export default function MobileAdmin() {
         )}
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50">
-        <div className="flex items-center justify-around py-2">
+      {/* Bottom Navigation - Ultra Compact for iPhone SE */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50 safe-area-pb">
+        <div className="flex items-center justify-evenly py-1.5 px-1">
           <button
             onClick={() => { setActiveSection('dashboard'); setSearchQuery(''); }}
-            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
+            className={`flex flex-col items-center gap-0.5 py-1.5 px-1 min-w-0 flex-1 rounded transition-colors ${
               activeSection === 'dashboard' ? 'text-blue-600' : 'text-muted-foreground'
             }`}
           >
-            <LayoutDashboard className="w-6 h-6" />
-            <span className="text-xs font-medium">Dashboard</span>
+            <LayoutDashboard className="w-5 h-5" />
+            <span className="text-[10px] font-medium truncate">Home</span>
           </button>
           <button
             onClick={() => { setActiveSection('bookings'); setSearchQuery(''); }}
-            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
+            className={`flex flex-col items-center gap-0.5 py-1.5 px-1 min-w-0 flex-1 rounded transition-colors ${
               activeSection === 'bookings' ? 'text-blue-600' : 'text-muted-foreground'
             }`}
           >
-            <Calendar className="w-6 h-6" />
-            <span className="text-xs font-medium">Bookings</span>
+            <Calendar className="w-5 h-5" />
+            <span className="text-[10px] font-medium truncate">Rides</span>
           </button>
           <button
             onClick={() => { setActiveSection('users'); setSearchQuery(''); }}
-            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
+            className={`flex flex-col items-center gap-0.5 py-1.5 px-1 min-w-0 flex-1 rounded transition-colors ${
               activeSection === 'users' ? 'text-blue-600' : 'text-muted-foreground'
             }`}
           >
-            <Users className="w-6 h-6" />
-            <span className="text-xs font-medium">Users</span>
+            <Users className="w-5 h-5" />
+            <span className="text-[10px] font-medium truncate">Users</span>
           </button>
           <button
             onClick={() => { setActiveSection('vehicles'); setSearchQuery(''); }}
-            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
+            className={`flex flex-col items-center gap-0.5 py-1.5 px-1 min-w-0 flex-1 rounded transition-colors ${
               activeSection === 'vehicles' ? 'text-blue-600' : 'text-muted-foreground'
             }`}
           >
-            <Car className="w-6 h-6" />
-            <span className="text-xs font-medium">Vehicles</span>
+            <Car className="w-5 h-5" />
+            <span className="text-[10px] font-medium truncate">Fleet</span>
           </button>
           <button
             onClick={() => { setActiveSection('settings'); setSearchQuery(''); }}
-            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
+            className={`flex flex-col items-center gap-0.5 py-1.5 px-1 min-w-0 flex-1 rounded transition-colors ${
               activeSection === 'settings' ? 'text-blue-600' : 'text-muted-foreground'
             }`}
           >
-            <Settings className="w-6 h-6" />
-            <span className="text-xs font-medium">Settings</span>
+            <Settings className="w-5 h-5" />
+            <span className="text-[10px] font-medium truncate">Setup</span>
           </button>
         </div>
       </nav>
