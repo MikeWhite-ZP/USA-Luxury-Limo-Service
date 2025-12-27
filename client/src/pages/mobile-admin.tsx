@@ -884,44 +884,55 @@ export default function MobileAdmin() {
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Quick Actions</CardTitle>
+            {/* Quick Actions - Professional High-Density Grid */}
+            <Card className="border-0 shadow-sm bg-background">
+              <CardHeader className="pb-2 pt-4 px-4 bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <LayoutGrid className="w-4 h-4 text-blue-600" />
+                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Quick Actions</CardTitle>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-3">
+              <CardContent className="p-3">
+                <div className="grid grid-cols-4 gap-2">
                   <Button
                     variant="outline"
-                    className="h-auto py-4 flex flex-col items-center gap-2"
+                    className="h-auto py-3 flex flex-col items-center gap-1 border-muted hover:bg-muted/50 transition-all active:scale-95 px-1"
                     onClick={() => setActiveSection('bookings')}
                   >
-                    <Calendar className="w-6 h-6 text-blue-600" />
-                    <span className="text-sm">Manage Bookings</span>
+                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                      <Calendar className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <span className="text-[10px] font-bold text-foreground uppercase tracking-tight">Rides</span>
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-auto py-4 flex flex-col items-center gap-2"
+                    className="h-auto py-3 flex flex-col items-center gap-1 border-muted hover:bg-muted/50 transition-all active:scale-95 px-1"
                     onClick={() => setActiveSection('users')}
                   >
-                    <Users className="w-6 h-6 text-green-600" />
-                    <span className="text-sm">Manage Users</span>
+                    <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-green-600" />
+                    </div>
+                    <span className="text-[10px] font-bold text-foreground uppercase tracking-tight">Users</span>
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-auto py-4 flex flex-col items-center gap-2"
+                    className="h-auto py-3 flex flex-col items-center gap-1 border-muted hover:bg-muted/50 transition-all active:scale-95 px-1"
                     onClick={() => setActiveSection('vehicles')}
                   >
-                    <Car className="w-6 h-6 text-purple-600" />
-                    <span className="text-sm">Vehicle Types</span>
+                    <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center">
+                      <Car className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <span className="text-[10px] font-bold text-foreground uppercase tracking-tight">Fleet</span>
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-auto py-4 flex flex-col items-center gap-2"
+                    className="h-auto py-3 flex flex-col items-center gap-1 border-muted hover:bg-muted/50 transition-all active:scale-95 px-1"
                     onClick={() => setActiveSection('settings')}
                   >
-                    <Settings className="w-6 h-6 text-orange-600" />
-                    <span className="text-sm">Settings</span>
+                    <div className="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+                      <Settings className="w-4 h-4 text-orange-600" />
+                    </div>
+                    <span className="text-[10px] font-bold text-foreground uppercase tracking-tight">Setup</span>
                   </Button>
                 </div>
               </CardContent>
