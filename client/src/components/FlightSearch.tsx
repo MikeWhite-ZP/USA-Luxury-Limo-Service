@@ -266,25 +266,23 @@ export default function FlightSearch({
               <X className="w-3 h-3" />
             </button>
           </div>
-          <div className="grid grid-cols-4 divide-x divide-slate-200 dark:divide-slate-700">
-            <div className="px-1.5 py-1">
-              <p className="text-[7px] text-slate-500 uppercase font-semibold">Dep</p>
-              <p className="text-[9px] font-medium text-slate-900 dark:text-slate-100">{selectedFlight.departureIata}</p>
-              {depDateTime.time !== '--:--' && <p className="text-[9px] font-bold text-slate-900 dark:text-slate-100">{depDateTime.time}</p>}
+          <div className="grid grid-cols-2 divide-x divide-slate-200 dark:divide-slate-700">
+            <div className="px-2 py-1.5">
+              <p className="text-[7px] text-slate-400 uppercase font-semibold tracking-wide">Dep</p>
+              <p className="text-[10px] text-slate-900 dark:text-slate-100">
+                <span className="font-bold">{selectedFlight.departureIata}</span>
+                {selectedFlight.departureTerminal && <span className="font-normal text-slate-500"> – {selectedFlight.departureTerminal}</span>}
+              </p>
+              {depDateTime.time !== '--:--' && <p className="text-[11px] font-bold text-slate-900 dark:text-slate-100">{depDateTime.time}</p>}
             </div>
-            <div className="px-1.5 py-1">
-              <p className="text-[7px] text-slate-500 uppercase font-semibold">Arr</p>
-              <p className="text-[9px] font-medium text-slate-900 dark:text-slate-100">{selectedFlight.arrivalIata}</p>
-              {arrDateTime.time !== '--:--' && <p className="text-[9px] font-bold text-slate-900 dark:text-slate-100">{arrDateTime.time}</p>}
-            </div>
-            <div className="px-1.5 py-1">
-              <p className="text-[7px] text-slate-500 uppercase font-semibold">Term</p>
-              <p className="text-[9px] font-medium text-slate-900 dark:text-slate-100">{selectedFlight.departureTerminal || '-'}</p>
-              <p className="text-[9px] font-medium text-slate-900 dark:text-slate-100">{selectedFlight.arrivalTerminal || '-'}</p>
-            </div>
-            <div className="px-1.5 py-1">
-              <p className="text-[7px] text-slate-500 uppercase font-semibold">Bag</p>
-              <p className="text-[9px] font-medium text-amber-600">{selectedFlight.baggageClaim || '-'}</p>
+            <div className="px-2 py-1.5">
+              <p className="text-[7px] text-slate-400 uppercase font-semibold tracking-wide">Arr</p>
+              <p className="text-[10px] text-slate-900 dark:text-slate-100">
+                <span className="font-bold">{selectedFlight.arrivalIata}</span>
+                {selectedFlight.arrivalTerminal && <span className="font-normal text-slate-500"> – {selectedFlight.arrivalTerminal}</span>}
+              </p>
+              {arrDateTime.time !== '--:--' && <p className="text-[11px] font-bold text-slate-900 dark:text-slate-100">{arrDateTime.time}</p>}
+              {selectedFlight.baggageClaim && <p className="text-[8px] text-amber-600 font-medium mt-0.5">Bag: {selectedFlight.baggageClaim}</p>}
             </div>
           </div>
         </div>
