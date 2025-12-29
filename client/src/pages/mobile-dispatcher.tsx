@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Car, MapPin, Clock, Activity, Users, CheckCircle2, AlertCircle, Navigation2, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, Car, MapPin, Clock, Activity, Users, CheckCircle2, AlertCircle, Navigation2, Phone, Mail, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -466,10 +466,23 @@ export default function MobileDispatcher() {
                       {/* Row 2: Phone, Rating, Rides */}
                       <div className="flex items-center gap-2 mt-0.5 pl-3.5 text-[9px] text-muted-foreground">
                         {driver.phone && (
-                          <a href={`tel:${driver.phone}`} className="flex items-center gap-0.5 text-blue-600 hover:underline">
-                            <Phone className="w-2.5 h-2.5" />
-                            <span>{driver.phone}</span>
-                          </a>
+                          <div className="flex items-center gap-1">
+                            <a 
+                              href={`tel:${driver.phone}`} 
+                              className="p-1 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                              title="Call driver"
+                            >
+                              <Phone className="w-3 h-3" />
+                            </a>
+                            <a 
+                              href={`sms:${driver.phone}`} 
+                              className="p-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                              title="Text driver"
+                            >
+                              <MessageSquare className="w-3 h-3" />
+                            </a>
+                            <span className="text-muted-foreground">{driver.phone}</span>
+                          </div>
                         )}
                         <span className="text-yellow-600">★ {driver.rating || '0.0'}</span>
                         <span>{driver.totalRides || 0} rides</span>
