@@ -45,6 +45,7 @@ interface Driver {
   email: string;
   phone?: string;
   isAvailable: boolean;
+  isActive?: boolean;
   verificationStatus: string;
   currentLocation?: string;
   rating?: string;
@@ -91,9 +92,9 @@ export default function MobileDispatcher() {
     return activeStatuses.includes(b.status) && !isPast;
   }) || [];
   
-  // Filter drivers
-  const availableDrivers = drivers?.filter((d) => d.isAvailable && d.verificationStatus === 'verified') || [];
-  const allActiveDrivers = drivers?.filter((d) => d.verificationStatus === 'verified') || [];
+  // Filter drivers - match website behavior using isActive
+  const availableDrivers = drivers?.filter((d) => d.isAvailable && d.isActive !== false) || [];
+  const allActiveDrivers = drivers?.filter((d) => d.isActive !== false) || [];
 
   // Assign driver mutation
   const assignDriverMutation = useMutation({
