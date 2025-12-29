@@ -69,7 +69,7 @@ export default function MobileDriver() {
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
   
   // View state for inline sections (home, documents, profile, account)
-  const [currentView, setCurrentView] = useState<'home' | 'documents'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'documents' | 'profile'>('home');
   
   // Document upload state
   const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
@@ -521,7 +521,7 @@ export default function MobileDriver() {
                 <span className="text-muted-foreground">Documents</span>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => setLocation('/mobile-driver/profile')}
+                onClick={() => setCurrentView('profile')}
                 className="flex items-center gap-2 cursor-pointer hover:bg-muted"
                 data-testid="menu-profile"
               >
