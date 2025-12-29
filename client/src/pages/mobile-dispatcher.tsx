@@ -439,52 +439,47 @@ export default function MobileDispatcher() {
               allActiveDrivers.map((driver) => {
                 const location = parseLocation(driver.currentLocation);
                 return (
-                  <Card key={driver.id} className="border border-border bg-background shadow-sm" data-testid={`driver-card-${driver.id}`}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <div className={`w-2 h-2 rounded-full ${driver.isAvailable ? 'bg-green-500' : 'bg-gray-400'}`} />
-                            <p className="font-semibold text-foreground">{driver.firstName} {driver.lastName}</p>
-                          </div>
-                          <p className="text-xs text-muted-foreground">{driver.email}</p>
-                          {driver.phone && (
-                            <a href={`tel:${driver.phone}`} className="text-xs flex items-center space-x-1 mt-1" style={{ color: 'var(--brand-accent-hex)' }}>
-                              <Phone className="w-3 h-3" />
-                              <span>{driver.phone}</span>
-                            </a>
-                          )}
+                  <Card key={driver.id} className="border-0 shadow-sm" data-testid={`driver-card-${driver.id}`}>
+                    <CardContent className="p-2">
+                      {/* Row 1: Status dot, Name, Badge, Map button */}
+                      <div className="flex items-center justify-between gap-1.5">
+                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${driver.isAvailable ? 'bg-green-500' : 'bg-gray-400'}`} />
+                          <span className="font-bold text-[11px] text-foreground truncate">{driver.firstName} {driver.lastName}</span>
+                          <span className={`text-[7px] px-1 py-0.5 rounded-full font-bold uppercase flex-shrink-0 ${
+                            driver.isAvailable ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            {driver.isAvailable ? 'Free' : 'Busy'}
+                          </span>
                         </div>
-                        <Badge variant={driver.isAvailable ? "default" : "secondary"} className={driver.isAvailable ? "bg-green-100 text-green-700 border border-green-200" : ""}>
-                          {driver.isAvailable ? 'Available' : 'Busy'}
-                        </Badge>
+                        {location && driver.isAvailable && (
+                          <button
+                            onClick={() => openNavigation(driver)}
+                            className="p-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors flex-shrink-0"
+                            data-testid={`button-navigate-${driver.id}`}
+                          >
+                            <Navigation2 className="w-3 h-3" />
+                          </button>
+                        )}
                       </div>
                       
-                      {driver.rating && (
-                        <div className="text-sm text-muted-foreground mb-2">
-                          Rating: {driver.rating}★ • {driver.totalRides || 0} rides
-                        </div>
-                      )}
-
-                      {location && driver.isAvailable && (
-                        <Button
-                          onClick={() => openNavigation(driver)}
-                          variant="outline"
-                          size="sm"
-                          className="w-full mt-2 border-border hover:bg-muted"
-                          data-testid={`button-navigate-${driver.id}`}
-                        >
-                          <Navigation2 className="w-4 h-4 mr-2" />
-                          View on Map
-                        </Button>
-                      )}
-
-                      {!location && driver.isAvailable && (
-                        <div className="flex items-center space-x-1 text-xs text-muted-foreground mt-2">
-                          <AlertCircle className="w-3 h-3" />
-                          <span>Location not available</span>
-                        </div>
-                      )}
+                      {/* Row 2: Phone, Rating, Rides */}
+                      <div className="flex items-center gap-2 mt-0.5 pl-3.5 text-[9px] text-muted-foreground">
+                        {driver.phone && (
+                          <a href={`tel:${driver.phone}`} className="flex items-center gap-0.5 text-blue-600 hover:underline">
+                            <Phone className="w-2.5 h-2.5" />
+                            <span>{driver.phone}</span>
+                          </a>
+                        )}
+                        <span className="text-yellow-600">★ {driver.rating || '0.0'}</span>
+                        <span>{driver.totalRides || 0} rides</span>
+                        {!location && driver.isAvailable && (
+                          <span className="flex items-center gap-0.5 text-orange-500">
+                            <AlertCircle className="w-2.5 h-2.5" />
+                            No GPS
+                          </span>
+                        )}
+                      </div>
                     </CardContent>
                   </Card>
                 );
