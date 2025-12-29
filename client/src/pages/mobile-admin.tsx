@@ -1141,67 +1141,66 @@ export default function MobileAdmin() {
             </div>
 
             {/* Ultra-Compact Users List */}
-            <Card className="border-0 shadow-sm overflow-hidden">
-              <CardContent className="p-0">
-                {usersLoading ? (
-                  <div className="flex justify-center py-6">
-                    <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
-                  </div>
-                ) : (
-                  <div className="divide-y divide-border">
-                    {filteredUsers.map((userItem) => (
-                      <div 
-                        key={userItem.id}
-                        className="p-2.5 bg-background hover:bg-muted/30 transition-colors"
-                      >
-                        {/* Row 1: Name, Role Badge, Edit Button */}
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-2 min-w-0 flex-1">
-                            <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                              <User className="w-3 h-3 text-muted-foreground" />
-                            </div>
-                            <p className="font-bold text-[11px] text-foreground truncate">{userItem.firstName} {userItem.lastName}</p>
-                            <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase flex-shrink-0 ${
-                              userItem.role === 'admin' ? 'bg-purple-100 text-purple-700' :
-                              userItem.role === 'driver' ? 'bg-blue-100 text-blue-700' :
-                              userItem.role === 'dispatcher' ? 'bg-orange-100 text-orange-700' :
-                              'bg-green-100 text-green-700'
-                            }`}>
-                              {userItem.role?.slice(0, 4)}
-                            </span>
+            {usersLoading ? (
+              <div className="flex justify-center py-6">
+                <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                {filteredUsers.map((userItem) => (
+                  <Card key={userItem.id} className="border-0 shadow-sm">
+                    <CardContent className="p-2">
+                      {/* Row 1: Name, Role Badge, Edit Button */}
+                      <div className="flex items-center justify-between mb-0.5">
+                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                          <div className="w-5 h-5 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+                            <User className="w-2.5 h-2.5 text-muted-foreground" />
                           </div>
-                          <button
-                            onClick={() => {
-                              setSelectedUser(userItem);
-                              setShowUserDialog(true);
-                            }}
-                            className="p-1.5 rounded bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                        
-                        {/* Row 2: Email and Phone */}
-                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground pl-8">
-                          <span className="truncate flex-1">{userItem.email}</span>
-                          {userItem.phone && (
-                            <span className="flex-shrink-0 text-[9px]">{userItem.phone}</span>
-                          )}
-                          <span className={`text-[8px] px-1 py-0.5 rounded font-medium flex-shrink-0 ${
-                            userItem.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                          <p className="font-bold text-[11px] text-foreground truncate">{userItem.firstName} {userItem.lastName}</p>
+                          <span className={`text-[7px] px-1 py-0.5 rounded-full font-bold uppercase flex-shrink-0 ${
+                            userItem.role === 'admin' ? 'bg-purple-100 text-purple-700' :
+                            userItem.role === 'driver' ? 'bg-blue-100 text-blue-700' :
+                            userItem.role === 'dispatcher' ? 'bg-orange-100 text-orange-700' :
+                            'bg-green-100 text-green-700'
                           }`}>
-                            {userItem.isActive ? 'Active' : 'Off'}
+                            {userItem.role?.slice(0, 4)}
                           </span>
                         </div>
+                        <button
+                          onClick={() => {
+                            setSelectedUser(userItem);
+                            setShowUserDialog(true);
+                          }}
+                          className="p-1 rounded bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+                        >
+                          <Edit2 className="w-3 h-3" />
+                        </button>
                       </div>
-                    ))}
-                  </div>
-                )}
-                {!usersLoading && filteredUsers.length === 0 && (
-                  <p className="text-center text-xs text-muted-foreground py-6">No users found</p>
-                )}
-              </CardContent>
-            </Card>
+                      
+                      {/* Row 2: Email, Phone, Status */}
+                      <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground pl-6">
+                        <span className="truncate flex-1">{userItem.email}</span>
+                        {userItem.phone && (
+                          <span className="flex-shrink-0">{userItem.phone}</span>
+                        )}
+                        <span className={`text-[7px] px-1 py-0.5 rounded font-medium flex-shrink-0 ${
+                          userItem.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {userItem.isActive ? 'Active' : 'Off'}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+            {!usersLoading && filteredUsers.length === 0 && (
+              <Card className="border-0 shadow-sm">
+                <CardContent className="py-6 text-center text-xs text-muted-foreground">
+                  No users found
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
 
