@@ -398,7 +398,7 @@ export default function MobileDriver() {
           >
             <ArrowLeft className="w-6 h-6" />
           </Button>
-          <h1 className="text-2xl font-bold text-foreground" data-testid="header-title">Driver Dashboard</h1>
+          <h1 className="font-bold text-foreground text-[20px]" data-testid="header-title">Driver Dashboard</h1>
           <div className="flex items-center gap-2">
             <ThemeToggleMobile />
             <DropdownMenu>
@@ -509,7 +509,6 @@ export default function MobileDriver() {
           </CardContent>
         </Card>
       </div>
-
       {/* Stats Cards */}
       <div className="px-6 py-4 grid grid-cols-3 gap-3">
         {/* Earnings Card */}
@@ -560,7 +559,6 @@ export default function MobileDriver() {
           </div>
         </div>
       </div>
-
       {/* Rides Tabs */}
       <div className="px-6 pb-4">
         <Tabs defaultValue="upcoming" className="w-full">
