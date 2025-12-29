@@ -267,6 +267,7 @@ export default function MobileAdmin() {
   const [activeSection, setActiveSection] = useState<AdminSection>('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [userRoleFilter, setUserRoleFilter] = useState<'passenger' | 'driver' | 'dispatcher' | 'admin'>('passenger');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showUserDialog, setShowUserDialog] = useState(false);
@@ -677,7 +678,8 @@ export default function MobileAdmin() {
       user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.lastName?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
+    const matchesRole = user.role?.toLowerCase() === userRoleFilter;
+    return matchesSearch && matchesRole;
   }) || [];
 
   const getStatusBadge = (status: string) => {
@@ -1129,6 +1131,50 @@ export default function MobileAdmin() {
               </div>
             </div>
 
+            {/* Role Filter Tabs */}
+            <div className="grid grid-cols-4 gap-1 bg-muted rounded-lg p-1">
+              <button
+                onClick={() => { setUserRoleFilter('passenger'); setSearchQuery(''); }}
+                className={`py-1.5 px-1 text-[10px] font-bold uppercase rounded transition-colors ${
+                  userRoleFilter === 'passenger' 
+                    ? 'bg-green-600 text-white shadow-sm' 
+                    : 'text-muted-foreground hover:bg-background'
+                }`}
+              >
+                Passengers
+              </button>
+              <button
+                onClick={() => { setUserRoleFilter('driver'); setSearchQuery(''); }}
+                className={`py-1.5 px-1 text-[10px] font-bold uppercase rounded transition-colors ${
+                  userRoleFilter === 'driver' 
+                    ? 'bg-blue-600 text-white shadow-sm' 
+                    : 'text-muted-foreground hover:bg-background'
+                }`}
+              >
+                Drivers
+              </button>
+              <button
+                onClick={() => { setUserRoleFilter('dispatcher'); setSearchQuery(''); }}
+                className={`py-1.5 px-1 text-[10px] font-bold uppercase rounded transition-colors ${
+                  userRoleFilter === 'dispatcher' 
+                    ? 'bg-orange-600 text-white shadow-sm' 
+                    : 'text-muted-foreground hover:bg-background'
+                }`}
+              >
+                Dispatch
+              </button>
+              <button
+                onClick={() => { setUserRoleFilter('admin'); setSearchQuery(''); }}
+                className={`py-1.5 px-1 text-[10px] font-bold uppercase rounded transition-colors ${
+                  userRoleFilter === 'admin' 
+                    ? 'bg-purple-600 text-white shadow-sm' 
+                    : 'text-muted-foreground hover:bg-background'
+                }`}
+              >
+                Admins
+              </button>
+            </div>
+
             {/* Compact Search */}
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
@@ -1197,7 +1243,7 @@ export default function MobileAdmin() {
             {!usersLoading && filteredUsers.length === 0 && (
               <Card className="border-0 shadow-sm">
                 <CardContent className="py-6 text-center text-xs text-muted-foreground">
-                  No users found
+                  No {userRoleFilter}s found
                 </CardContent>
               </Card>
             )}
