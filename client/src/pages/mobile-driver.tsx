@@ -1,17 +1,31 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Car, DollarSign, MapPin, Star, Calendar, User, FileText, Settings, CheckCircle2, Navigation2, Phone, MessageSquare, MoreVertical, Bell, LogOut } from 'lucide-react';
+import { ArrowLeft, Car, DollarSign, MapPin, Star, Calendar, User, FileText, Settings, CheckCircle2, Navigation2, Phone, MessageSquare, MoreVertical, Bell, LogOut, Upload, CheckCircle, XCircle, Clock, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { format } from 'date-fns';
 import { ThemeToggleMobile } from '@/components/ThemeToggle';
+
+interface DriverDocument {
+  id: string;
+  driverId: string;
+  documentType: 'driver_license' | 'limo_license' | 'insurance_certificate' | 'vehicle_image' | 'profile_photo';
+  documentUrl: string;
+  expirationDate: string | null;
+  vehiclePlate?: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  rejectionReason: string | null;
+  uploadedAt: string;
+}
 
 interface DriverData {
   id: number;
@@ -53,6 +67,19 @@ export default function MobileDriver() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const watchIdRef = useRef<number | null>(null);
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // View state for inline sections (home, documents, profile, account)
+  const [currentView, setCurrentView] = useState<'home' | 'documents'>('home');
+  
+  // Document upload state
+  const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
+  const [docFormData, setDocFormData] = useState({
+    driverLicense: { file: null as File | null, expirationDate: '' },
+    limoLicense: { file: null as File | null, expirationDate: '' },
+    insuranceCertificate: { file: null as File | null, expirationDate: '' },
+    vehicleImage: { file: null as File | null, vehiclePlate: '' },
+    profilePhoto: { file: null as File | null },
+  });
 
   // Fetch driver profile
   const { data: driver, isLoading: driverLoading } = useQuery<DriverData>({
@@ -71,6 +98,87 @@ export default function MobileDriver() {
     refetchInterval: 30000, // Auto-refresh every 30 seconds
     refetchIntervalInBackground: false, // Only refresh when tab is visible
   });
+
+  // Fetch driver documents
+  const { data: documents, isLoading: documentsLoading } = useQuery<DriverDocument[]>({
+    queryKey: ['/api/driver/documents'],
+    retry: false,
+    enabled: currentView === 'documents',
+  });
+
+  // Document upload mutation
+  const uploadDocMutation = useMutation({
+    mutationFn: async ({ documentType, file, expirationDate, vehiclePlate }: {
+      documentType: string;
+      file: File;
+      expirationDate?: string;
+      vehiclePlate?: string;
+    }) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('documentType', documentType);
+      if (documentType === 'vehicle_image' && vehiclePlate) {
+        formData.append('vehiclePlate', vehiclePlate);
+      } else if (expirationDate) {
+        formData.append('expirationDate', expirationDate);
+      }
+      const response = await fetch('/api/driver/documents/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Upload failed');
+      }
+      return await response.json();
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/driver/documents'] });
+      if (variables.documentType === 'profile_photo') {
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      }
+      toast({ title: "Document Uploaded", description: "Your document has been uploaded successfully." });
+      setUploadingDoc(null);
+      // Reset form for that document type
+      setDocFormData(prev => ({
+        ...prev,
+        [variables.documentType === 'driver_license' ? 'driverLicense' :
+         variables.documentType === 'limo_license' ? 'limoLicense' :
+         variables.documentType === 'insurance_certificate' ? 'insuranceCertificate' :
+         variables.documentType === 'vehicle_image' ? 'vehicleImage' : 'profilePhoto']: 
+         variables.documentType === 'vehicle_image' ? { file: null, vehiclePlate: '' } : { file: null, expirationDate: '' }
+      }));
+    },
+    onError: (error: Error) => {
+      toast({ title: "Upload Failed", description: error.message, variant: "destructive" });
+      setUploadingDoc(null);
+    },
+  });
+
+  // Helper functions for documents
+  const getDocByType = (type: string) => documents?.find(doc => doc.documentType === type);
+  const getDocStatusBadge = (status: string) => {
+    switch (status) {
+      case 'approved': return <Badge className="bg-green-600 text-white text-[8px] px-1.5 py-0.5"><CheckCircle className="w-2.5 h-2.5 mr-0.5" />OK</Badge>;
+      case 'rejected': return <Badge variant="destructive" className="text-[8px] px-1.5 py-0.5"><XCircle className="w-2.5 h-2.5 mr-0.5" />Rej</Badge>;
+      default: return <Badge variant="secondary" className="text-[8px] px-1.5 py-0.5"><Clock className="w-2.5 h-2.5 mr-0.5" />Pend</Badge>;
+    }
+  };
+  const handleDocUpload = (docType: 'driver_license' | 'limo_license' | 'insurance_certificate' | 'vehicle_image' | 'profile_photo') => {
+    let file: File | null = null;
+    let expirationDate: string | undefined;
+    let vehiclePlate: string | undefined;
+    if (docType === 'driver_license') { file = docFormData.driverLicense.file; expirationDate = docFormData.driverLicense.expirationDate || undefined; }
+    else if (docType === 'limo_license') { file = docFormData.limoLicense.file; expirationDate = docFormData.limoLicense.expirationDate || undefined; }
+    else if (docType === 'insurance_certificate') { file = docFormData.insuranceCertificate.file; expirationDate = docFormData.insuranceCertificate.expirationDate || undefined; }
+    else if (docType === 'vehicle_image') { file = docFormData.vehicleImage.file; vehiclePlate = docFormData.vehicleImage.vehiclePlate || undefined; }
+    else if (docType === 'profile_photo') { file = docFormData.profilePhoto.file; }
+    if (!file) { toast({ title: "No File", description: "Please select a file.", variant: "destructive" }); return; }
+    if (file.size > 2 * 1024 * 1024) { toast({ title: "Too Large", description: "Max 2MB.", variant: "destructive" }); return; }
+    setUploadingDoc(docType);
+    uploadDocMutation.mutate({ documentType: docType, file, expirationDate, vehiclePlate });
+  };
 
   // Detect new job assignments and show notification
   useEffect(() => {
@@ -414,7 +522,7 @@ export default function MobileDriver() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-background">
               <DropdownMenuItem
-                onClick={() => setLocation('/mobile-driver/documents')}
+                onClick={() => setCurrentView('documents')}
                 className="flex items-center gap-2 cursor-pointer hover:bg-muted"
                 data-testid="menu-documents"
               >
@@ -509,6 +617,229 @@ export default function MobileDriver() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Documents View - Inline */}
+      {currentView === 'documents' && (
+        <div className="px-3 py-3 space-y-2">
+          {/* Back to Home Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCurrentView('home')}
+            className="mb-2 text-xs text-muted-foreground hover:bg-muted"
+          >
+            <ArrowLeft className="w-3 h-3 mr-1" />
+            Back to Dashboard
+          </Button>
+
+          <h2 className="text-sm font-bold text-foreground mb-2">My Documents</h2>
+
+          {documentsLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="w-6 h-6 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {/* Driver License */}
+              <Card className="border border-border bg-background">
+                <CardContent className="p-2.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-green-600" />
+                      <span className="text-xs font-semibold text-foreground">Driver License</span>
+                    </div>
+                    {getDocByType('driver_license') && getDocStatusBadge(getDocByType('driver_license')!.status)}
+                  </div>
+                  {getDocByType('driver_license')?.expirationDate && (
+                    <p className="text-[10px] text-muted-foreground">Exp: {new Date(getDocByType('driver_license')!.expirationDate!).toLocaleDateString()}</p>
+                  )}
+                  <div className="flex gap-1.5">
+                    <Input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      capture="environment"
+                      onChange={(e) => setDocFormData(prev => ({ ...prev, driverLicense: { ...prev.driverLicense, file: e.target.files?.[0] || null } }))}
+                      className="h-7 text-[10px] flex-1"
+                    />
+                    <Input
+                      type="date"
+                      placeholder="Exp"
+                      value={docFormData.driverLicense.expirationDate}
+                      onChange={(e) => setDocFormData(prev => ({ ...prev, driverLicense: { ...prev.driverLicense, expirationDate: e.target.value } }))}
+                      className="h-7 text-[10px] w-24"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleDocUpload('driver_license')}
+                    disabled={!docFormData.driverLicense.file || uploadingDoc === 'driver_license'}
+                    size="sm"
+                    className="w-full h-7 text-[10px] bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Upload className="w-3 h-3 mr-1" />
+                    {uploadingDoc === 'driver_license' ? 'Uploading...' : 'Upload'}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Limo License */}
+              <Card className="border border-border bg-background">
+                <CardContent className="p-2.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-green-600" />
+                      <span className="text-xs font-semibold text-foreground">Limo License</span>
+                    </div>
+                    {getDocByType('limo_license') && getDocStatusBadge(getDocByType('limo_license')!.status)}
+                  </div>
+                  {getDocByType('limo_license')?.expirationDate && (
+                    <p className="text-[10px] text-muted-foreground">Exp: {new Date(getDocByType('limo_license')!.expirationDate!).toLocaleDateString()}</p>
+                  )}
+                  <div className="flex gap-1.5">
+                    <Input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      capture="environment"
+                      onChange={(e) => setDocFormData(prev => ({ ...prev, limoLicense: { ...prev.limoLicense, file: e.target.files?.[0] || null } }))}
+                      className="h-7 text-[10px] flex-1"
+                    />
+                    <Input
+                      type="date"
+                      placeholder="Exp"
+                      value={docFormData.limoLicense.expirationDate}
+                      onChange={(e) => setDocFormData(prev => ({ ...prev, limoLicense: { ...prev.limoLicense, expirationDate: e.target.value } }))}
+                      className="h-7 text-[10px] w-24"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleDocUpload('limo_license')}
+                    disabled={!docFormData.limoLicense.file || uploadingDoc === 'limo_license'}
+                    size="sm"
+                    className="w-full h-7 text-[10px] bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Upload className="w-3 h-3 mr-1" />
+                    {uploadingDoc === 'limo_license' ? 'Uploading...' : 'Upload'}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Insurance Certificate */}
+              <Card className="border border-border bg-background">
+                <CardContent className="p-2.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-green-600" />
+                      <span className="text-xs font-semibold text-foreground">Insurance</span>
+                    </div>
+                    {getDocByType('insurance_certificate') && getDocStatusBadge(getDocByType('insurance_certificate')!.status)}
+                  </div>
+                  {getDocByType('insurance_certificate')?.expirationDate && (
+                    <p className="text-[10px] text-muted-foreground">Exp: {new Date(getDocByType('insurance_certificate')!.expirationDate!).toLocaleDateString()}</p>
+                  )}
+                  <div className="flex gap-1.5">
+                    <Input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      capture="environment"
+                      onChange={(e) => setDocFormData(prev => ({ ...prev, insuranceCertificate: { ...prev.insuranceCertificate, file: e.target.files?.[0] || null } }))}
+                      className="h-7 text-[10px] flex-1"
+                    />
+                    <Input
+                      type="date"
+                      placeholder="Exp"
+                      value={docFormData.insuranceCertificate.expirationDate}
+                      onChange={(e) => setDocFormData(prev => ({ ...prev, insuranceCertificate: { ...prev.insuranceCertificate, expirationDate: e.target.value } }))}
+                      className="h-7 text-[10px] w-24"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleDocUpload('insurance_certificate')}
+                    disabled={!docFormData.insuranceCertificate.file || uploadingDoc === 'insurance_certificate'}
+                    size="sm"
+                    className="w-full h-7 text-[10px] bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Upload className="w-3 h-3 mr-1" />
+                    {uploadingDoc === 'insurance_certificate' ? 'Uploading...' : 'Upload'}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Vehicle Image */}
+              <Card className="border border-border bg-background">
+                <CardContent className="p-2.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Car className="w-4 h-4 text-green-600" />
+                      <span className="text-xs font-semibold text-foreground">Vehicle Photo</span>
+                    </div>
+                    {getDocByType('vehicle_image') && getDocStatusBadge(getDocByType('vehicle_image')!.status)}
+                  </div>
+                  {getDocByType('vehicle_image')?.vehiclePlate && (
+                    <p className="text-[10px] text-muted-foreground">Plate: {getDocByType('vehicle_image')!.vehiclePlate}</p>
+                  )}
+                  <div className="flex gap-1.5">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => setDocFormData(prev => ({ ...prev, vehicleImage: { ...prev.vehicleImage, file: e.target.files?.[0] || null } }))}
+                      className="h-7 text-[10px] flex-1"
+                    />
+                    <Input
+                      type="text"
+                      placeholder="Plate#"
+                      value={docFormData.vehicleImage.vehiclePlate}
+                      onChange={(e) => setDocFormData(prev => ({ ...prev, vehicleImage: { ...prev.vehicleImage, vehiclePlate: e.target.value } }))}
+                      className="h-7 text-[10px] w-20"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleDocUpload('vehicle_image')}
+                    disabled={!docFormData.vehicleImage.file || uploadingDoc === 'vehicle_image'}
+                    size="sm"
+                    className="w-full h-7 text-[10px] bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Upload className="w-3 h-3 mr-1" />
+                    {uploadingDoc === 'vehicle_image' ? 'Uploading...' : 'Upload'}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Profile Photo */}
+              <Card className="border border-border bg-background">
+                <CardContent className="p-2.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Camera className="w-4 h-4 text-green-600" />
+                      <span className="text-xs font-semibold text-foreground">Profile Photo</span>
+                    </div>
+                    {getDocByType('profile_photo') && getDocStatusBadge(getDocByType('profile_photo')!.status)}
+                  </div>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    capture="user"
+                    onChange={(e) => setDocFormData(prev => ({ ...prev, profilePhoto: { file: e.target.files?.[0] || null } }))}
+                    className="h-7 text-[10px]"
+                  />
+                  <Button
+                    onClick={() => handleDocUpload('profile_photo')}
+                    disabled={!docFormData.profilePhoto.file || uploadingDoc === 'profile_photo'}
+                    size="sm"
+                    className="w-full h-7 text-[10px] bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Upload className="w-3 h-3 mr-1" />
+                    {uploadingDoc === 'profile_photo' ? 'Uploading...' : 'Upload'}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Main Home View */}
+      {currentView === 'home' && (
+      <>
       {/* Stats Cards */}
       <div className="px-6 py-4 grid grid-cols-3 gap-3">
         {/* Earnings Card */}
@@ -877,6 +1208,8 @@ export default function MobileDriver() {
           </TabsContent>
         </Tabs>
       </div>
+      </>
+      )}
     </div>
   );
 }
