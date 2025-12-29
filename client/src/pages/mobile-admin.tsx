@@ -1120,74 +1120,88 @@ export default function MobileAdmin() {
         )}
 
         {activeSection === 'users' && (
-          <div className="space-y-4">
-            {/* Search */}
+          <div className="space-y-2">
+            {/* Compact Header */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-blue-600" />
+                <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Users</h2>
+              </div>
+            </div>
+
+            {/* Compact Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
               <Input
-                placeholder="Search users..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="pl-8 h-8 text-xs"
               />
             </div>
 
-            {/* Users List */}
-            <div className="space-y-3">
-              {usersLoading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-                </div>
-              ) : filteredUsers.map((userItem) => (
-                <Card key={userItem.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="font-semibold">{userItem.firstName} {userItem.lastName}</p>
-                          <p className="text-sm text-muted-foreground">{userItem.email}</p>
-                        </div>
-                      </div>
-                      {getRoleBadge(userItem.role)}
-                    </div>
-                    
-                    <div className="flex items-center justify-between pt-3 border-t mt-3">
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        {userItem.phone && (
-                          <div className="flex items-center gap-1">
-                            <Phone className="w-3.5 h-3.5" />
-                            <span>{userItem.phone}</span>
-                          </div>
-                        )}
-                        <Badge variant={userItem.isActive ? 'default' : 'secondary'}>
-                          {userItem.isActive ? 'Active' : 'Inactive'}
-                        </Badge>
-                      </div>
-                      <Button 
-                        size="sm" 
-                        variant="ghost"
-                        onClick={() => {
-                          setSelectedUser(userItem);
-                          setShowUserDialog(true);
-                        }}
+            {/* Ultra-Compact Users List */}
+            <Card className="border-0 shadow-sm overflow-hidden">
+              <CardContent className="p-0">
+                {usersLoading ? (
+                  <div className="flex justify-center py-6">
+                    <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border">
+                    {filteredUsers.map((userItem) => (
+                      <div 
+                        key={userItem.id}
+                        className="p-2.5 bg-background hover:bg-muted/30 transition-colors"
                       >
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-              {!usersLoading && filteredUsers.length === 0 && (
-                <Card>
-                  <CardContent className="py-8 text-center text-muted-foreground">
-                    No users found
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+                        {/* Row 1: Name, Role Badge, Edit Button */}
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+                              <User className="w-3 h-3 text-muted-foreground" />
+                            </div>
+                            <p className="font-bold text-[11px] text-foreground truncate">{userItem.firstName} {userItem.lastName}</p>
+                            <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase flex-shrink-0 ${
+                              userItem.role === 'admin' ? 'bg-purple-100 text-purple-700' :
+                              userItem.role === 'driver' ? 'bg-blue-100 text-blue-700' :
+                              userItem.role === 'dispatcher' ? 'bg-orange-100 text-orange-700' :
+                              'bg-green-100 text-green-700'
+                            }`}>
+                              {userItem.role?.slice(0, 4)}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setSelectedUser(userItem);
+                              setShowUserDialog(true);
+                            }}
+                            className="p-1.5 rounded bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        
+                        {/* Row 2: Email and Phone */}
+                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground pl-8">
+                          <span className="truncate flex-1">{userItem.email}</span>
+                          {userItem.phone && (
+                            <span className="flex-shrink-0 text-[9px]">{userItem.phone}</span>
+                          )}
+                          <span className={`text-[8px] px-1 py-0.5 rounded font-medium flex-shrink-0 ${
+                            userItem.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            {userItem.isActive ? 'Active' : 'Off'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {!usersLoading && filteredUsers.length === 0 && (
+                  <p className="text-center text-xs text-muted-foreground py-6">No users found</p>
+                )}
+              </CardContent>
+            </Card>
           </div>
         )}
 
