@@ -497,7 +497,7 @@ export default function MobileDriver() {
       {/* Header with safe area for phone notch/camera */}
       <div className="bg-background border-b border-border p-6 pt-[54px] shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="font-bold text-foreground text-[20px]" data-testid="header-title">Driver Dashboard</h1>
+          <h1 className="font-bold text-foreground text-[22px]" data-testid="header-title">Driver Dashboard</h1>
           <div className="flex items-center gap-2">
             <ThemeToggleMobile />
             <DropdownMenu>
@@ -608,7 +608,6 @@ export default function MobileDriver() {
           </CardContent>
         </Card>
       </div>
-
       {/* Documents View - Inline */}
       {currentView === 'documents' && (
         <div className="px-3 py-3 space-y-2">
@@ -827,7 +826,6 @@ export default function MobileDriver() {
           )}
         </div>
       )}
-
       {/* Main Home View */}
       {currentView === 'home' && (
       <>
