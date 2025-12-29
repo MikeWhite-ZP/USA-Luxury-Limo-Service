@@ -813,6 +813,89 @@ export default function MobileDriver() {
           )}
         </div>
       )}
+      {/* Profile View - Inline Ultra-Compact */}
+      {currentView === 'profile' && (
+        <div className="px-3 py-2 space-y-1.5">
+          {/* Header with back */}
+          <div className="flex items-center gap-2 mb-1">
+            <button
+              onClick={() => setCurrentView('home')}
+              className="p-1 rounded hover:bg-muted transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+            <span className="text-xs font-bold text-foreground">My Profile</span>
+            <Badge className={`text-[7px] px-1 py-0 ml-auto ${driver.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+              {driver.isActive ? 'Active' : 'Inactive'}
+            </Badge>
+          </div>
+
+          {/* Name & Email - Compact Row */}
+          <div className="flex items-center gap-2 p-2 bg-muted/50 rounded border border-border">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <User className="w-4 h-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-foreground truncate">{driver.name || 'Driver'}</p>
+              <p className="text-[9px] text-muted-foreground truncate">{driver.email || 'No email'}</p>
+            </div>
+          </div>
+
+          {/* Contact - Single Row */}
+          <div className="p-2 bg-muted/50 rounded border border-border">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Phone className="w-3 h-3 text-green-600" />
+              <span className="text-[10px] font-semibold text-foreground">Contact</span>
+            </div>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[9px]">
+              <span className="text-muted-foreground">Phone</span>
+              <span className="font-medium text-foreground truncate">{driver.phone || '-'}</span>
+              <span className="text-muted-foreground">License#</span>
+              <span className="font-medium text-foreground truncate">{driver.licenseNumber || '-'}</span>
+            </div>
+          </div>
+
+          {/* Vehicle - Compact Grid */}
+          <div className="p-2 bg-muted/50 rounded border border-border">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Car className="w-3 h-3 text-blue-600" />
+              <span className="text-[10px] font-semibold text-foreground">Vehicle</span>
+            </div>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[9px]">
+              <span className="text-muted-foreground">Make/Model</span>
+              <span className="font-medium text-foreground truncate">{driver.vehicleMake || '-'} {driver.vehicleModel || ''}</span>
+              <span className="text-muted-foreground">Year</span>
+              <span className="font-medium text-foreground">{driver.vehicleYear || '-'}</span>
+              <span className="text-muted-foreground">Color</span>
+              <span className="font-medium text-foreground">{driver.vehicleColor || '-'}</span>
+              <span className="text-muted-foreground">Plate</span>
+              <span className="font-medium text-foreground">{driver.licensePlate || '-'}</span>
+            </div>
+          </div>
+
+          {/* Stats - Ultra Compact Grid */}
+          <div className="p-2 bg-muted/50 rounded border border-border">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+              <span className="text-[10px] font-semibold text-foreground">Stats</span>
+            </div>
+            <div className="grid grid-cols-3 gap-1">
+              <div className="text-center p-1 bg-amber-50 rounded">
+                <p className="text-xs font-bold text-amber-700">{driver.rating || '0'}</p>
+                <p className="text-[7px] text-amber-600 uppercase">Rating</p>
+              </div>
+              <div className="text-center p-1 bg-blue-50 rounded">
+                <p className="text-xs font-bold text-blue-700">{driver.totalRides || '0'}</p>
+                <p className="text-[7px] text-blue-600 uppercase">Rides</p>
+              </div>
+              <div className="text-center p-1 bg-emerald-50 rounded">
+                <p className="text-xs font-bold text-emerald-700">${driver.totalEarnings || '0'}</p>
+                <p className="text-[7px] text-emerald-600 uppercase">Earned</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Main Home View */}
       {currentView === 'home' && (
       <>
