@@ -497,15 +497,6 @@ export default function MobileDriver() {
       {/* Header with safe area for phone notch/camera */}
       <div className="bg-background border-b border-border p-6 pt-[54px] shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setLocation('/mobile-splash')}
-            className="text-muted-foreground hover:bg-muted"
-            data-testid="button-back"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </Button>
           <h1 className="font-bold text-foreground text-[20px]" data-testid="header-title">Driver Dashboard</h1>
           <div className="flex items-center gap-2">
             <ThemeToggleMobile />
