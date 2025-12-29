@@ -1035,11 +1035,21 @@ export default function DriverDashboard() {
                 />
               </div>
               <Badge
-                variant={driver?.isAvailable ? "secondary" : "outline"}
-                className={driver?.isAvailable ? "bg-red-600 text-white px-4 py-2 text-sm font-medium" : "border-border text-muted-foreground px-4 py-2 text-sm"}
+                variant="secondary"
+                className={
+                  acceptedJobs.some(b => b.status === "on_board" || b.status === "in_progress")
+                    ? "bg-red-600 text-white px-4 py-2 text-sm font-medium"
+                    : driver?.isAvailable
+                    ? "bg-green-600 text-white px-4 py-2 text-sm font-medium"
+                    : "bg-gray-500 text-white px-4 py-2 text-sm font-medium"
+                }
                 data-testid="driver-status"
               >
-                {driver?.isAvailable ? "Available" : "Offline"}
+                {acceptedJobs.some(b => b.status === "on_board" || b.status === "in_progress")
+                  ? "On Board"
+                  : driver?.isAvailable
+                  ? "Online"
+                  : "Offline"}
               </Badge>
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-800 rounded-xl opacity-0 group-hover:opacity-75 blur transition-opacity duration-300" />
