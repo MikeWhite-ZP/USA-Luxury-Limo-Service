@@ -551,62 +551,49 @@ export default function MobileDriver() {
           </div>
         </div>
 
-        {/* Availability Toggle */}
-        <Card className="rounded-lg overflow-hidden shadow-sm border border-border bg-background">
-          <CardContent className="p-0">
-            <button
-              onClick={() => {
-                if (!toggleAvailabilityMutation.isPending) {
-                  toggleAvailabilityMutation.mutate(!driver.isAvailable);
-                }
-              }}
-              disabled={toggleAvailabilityMutation.isPending}
-              className="w-full px-4 py-3 text-left transition-all active:scale-[0.98] cursor-pointer hover:bg-muted"
-              data-testid="button-toggle-availability"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2.5">
-                  <div className={`w-3 h-3 rounded-full transition-all ${
-                    toggleAvailabilityMutation.isPending 
-                      ? 'bg-yellow-400 animate-pulse' 
-                      : driver.isAvailable 
-                        ? 'bg-emerald-500 shadow-sm' 
-                        : 'bg-gray-300'
-                  }`}></div>
-                  <span className="font-bold text-base text-foreground">
-                    {toggleAvailabilityMutation.isPending 
-                      ? (driver.isAvailable ? 'Going Offline...' : 'Going Online...') 
-                      : (driver.isAvailable ? 'Go Offline' : 'Go Online')
-                    }
-                  </span>
-                </div>
-                <Switch
-                  checked={driver.isAvailable}
-                  disabled={toggleAvailabilityMutation.isPending}
-                  className="pointer-events-none scale-110"
-                  data-testid="switch-availability"
-                />
-              </div>
-            </button>
-
+        {/* Availability Toggle - Ultra Compact */}
+        <button
+          onClick={() => {
+            if (!toggleAvailabilityMutation.isPending) {
+              toggleAvailabilityMutation.mutate(!driver.isAvailable);
+            }
+          }}
+          disabled={toggleAvailabilityMutation.isPending}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border transition-all active:scale-[0.98] ${
+            driver.isAvailable 
+              ? 'bg-emerald-50 border-emerald-200' 
+              : 'bg-gray-50 border-gray-200'
+          }`}
+          data-testid="button-toggle-availability"
+        >
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${
+              toggleAvailabilityMutation.isPending 
+                ? 'bg-yellow-400 animate-pulse' 
+                : driver.isAvailable 
+                  ? 'bg-emerald-500' 
+                  : 'bg-gray-400'
+            }`} />
+            <span className={`text-xs font-semibold ${driver.isAvailable ? 'text-emerald-700' : 'text-gray-600'}`}>
+              {toggleAvailabilityMutation.isPending 
+                ? (driver.isAvailable ? 'Going Offline...' : 'Going Online...') 
+                : (driver.isAvailable ? 'Online' : 'Offline')
+              }
+            </span>
             {driver.isAvailable && (
-              <div className="flex items-center space-x-1.5 text-xs border-t border-border px-4 py-2 bg-muted">
-                <Navigation2 className={`w-3 h-3 ${currentLocation ? 'text-emerald-600 animate-pulse' : 'text-gray-400'}`} />
-                <span data-testid="text-gps-status">
-                  {locationError ? (
-                    <span className="text-red-600">{locationError}</span>
-                  ) : currentLocation ? (
-                    <span className="font-medium text-muted-foreground">
-                      GPS Active ({hasActiveRide(bookings) ? '30s' : '60s'} updates)
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground">Activating GPS...</span>
-                  )}
-                </span>
-              </div>
+              <span className="flex items-center gap-1 text-[10px] text-emerald-600" data-testid="text-gps-status">
+                <Navigation2 className={`w-2.5 h-2.5 ${currentLocation ? 'animate-pulse' : 'opacity-50'}`} />
+                {locationError ? 'GPS Error' : currentLocation ? `GPS ${hasActiveRide(bookings) ? '30s' : '60s'}` : 'GPS...'}
+              </span>
             )}
-          </CardContent>
-        </Card>
+          </div>
+          <Switch
+            checked={driver.isAvailable}
+            disabled={toggleAvailabilityMutation.isPending}
+            className="pointer-events-none scale-90"
+            data-testid="switch-availability"
+          />
+        </button>
       </div>
       {/* Documents View - Inline */}
       {currentView === 'documents' && (
