@@ -188,7 +188,7 @@ export default function MobileDispatcher() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold">Dispatch Center</h1>
+              <h1 className="font-bold text-[18px]">Dispatch Center</h1>
               <p className="text-xs text-blue-200">Fleet Management</p>
             </div>
           </div>
@@ -206,7 +206,6 @@ export default function MobileDispatcher() {
           </div>
         </div>
       </header>
-
       {/* Stats Grid */}
       <div className="p-3 grid grid-cols-2 gap-2 sm:gap-3 sm:p-4">
         <Card className="bg-background border-green-200 shadow-sm">
@@ -238,7 +237,6 @@ export default function MobileDispatcher() {
           </CardContent>
         </Card>
       </div>
-
       {/* Tabs for Rides */}
       <div className="p-3 sm:p-4">
         <Tabs defaultValue="pending" className="w-full">
@@ -392,7 +390,6 @@ export default function MobileDispatcher() {
           </TabsContent>
         </Tabs>
       </div>
-
       {/* Assign Driver Dialog */}
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
         <DialogContent className="max-w-sm bg-background">
@@ -424,7 +421,6 @@ export default function MobileDispatcher() {
           </div>
         </DialogContent>
       </Dialog>
-
       {/* Fleet Monitor Dialog */}
       <Dialog open={fleetDialogOpen} onOpenChange={setFleetDialogOpen}>
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto bg-background">
