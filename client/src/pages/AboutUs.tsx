@@ -26,7 +26,6 @@ export default function AboutUs() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
       <main className="pt-20">
         {/* Hero Section - Modern with Primary Brand Color */}
         <section className="relative bg-primary text-primary-foreground py-24 overflow-hidden">
@@ -49,7 +48,7 @@ export default function AboutUs() {
               
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 mb-6">
                 <Sparkles className="w-4 h-4 text-accent" />
-                <span className="text-sm font-medium">Luxury Transportation Excellence Since 2018</span>
+                <span className="text-sm font-medium">Luxury Transportation Excellence</span>
               </div>
               
               <h1 className="text-5xl md:text-6xl font-bold mb-6" data-testid="about-page-title">
@@ -352,7 +351,6 @@ export default function AboutUs() {
           </div>
         </section>
       </main>
-
       <Footer />
     </div>
   );
