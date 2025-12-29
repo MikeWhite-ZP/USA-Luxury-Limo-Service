@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Car, MapPin, Clock, Activity, Users, CheckCircle2, AlertCircle, Navigation2, Phone, Mail, MessageSquare } from 'lucide-react';
+import { LogOut, Car, MapPin, Clock, Activity, Users, CheckCircle2, AlertCircle, Navigation2, Phone, Mail, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeToggleMobile } from '@/components/ThemeToggle';
+import { useAuth } from '@/hooks/useAuth';
 
 interface DashboardStats {
   activeDrivers: number;
@@ -55,6 +56,7 @@ interface Driver {
 export default function MobileDispatcher() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { logoutMutation } = useAuth();
   const queryClient = useQueryClient();
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [fleetDialogOpen, setFleetDialogOpen] = useState(false);
@@ -178,20 +180,9 @@ export default function MobileDispatcher() {
       {/* Header with safe area for phone notch/camera */}
       <header className="bg-gradient-to-r from-slate-900 to-blue-900 text-white px-4 pb-4 pt-[54px] sticky top-0 z-40">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLocation('/')}
-              className="text-white hover:bg-white/10"
-              data-testid="button-back"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="font-bold text-[18px]">Dispatch Center</h1>
-              <p className="text-xs text-blue-200">Fleet Management</p>
-            </div>
+          <div>
+            <h1 className="font-bold text-[18px]">Dispatch Center</h1>
+            <p className="text-xs text-blue-200">Fleet Management</p>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggleMobile className="bg-white/10 hover:bg-white/20" />
@@ -203,6 +194,22 @@ export default function MobileDispatcher() {
             >
               <MapPin className="w-4 h-4 mr-1" />
               Fleet
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                try {
+                  await logoutMutation.mutateAsync();
+                  setLocation('/');
+                } catch {
+                  toast({ title: 'Error', description: 'Failed to logout', variant: 'destructive' });
+                }
+              }}
+              className="text-white hover:bg-white/10"
+              data-testid="button-logout"
+            >
+              <LogOut className="w-5 h-5" />
             </Button>
           </div>
         </div>
