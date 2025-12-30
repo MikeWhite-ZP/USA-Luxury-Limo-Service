@@ -909,7 +909,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/services', async (req, res) => {
     try {
       const services = await storage.getActiveServices();
-      res.json(services);
+      
+      // Generate presigned URLs for all service images
+      const servicesWithUrls = await Promise.all(
+        services.map(async (service) => ({
+          ...service,
+          imageUrl: service.imageUrl ? await getPresignedUrl(service.imageUrl) : null
+        }))
+      );
+      
+      res.json(servicesWithUrls);
     } catch (error) {
       console.error("Error fetching services:", error);
       res.status(500).json({ message: "Failed to fetch services" });
@@ -920,7 +929,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/services', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const services = await storage.getAllServices();
-      res.json(services);
+      
+      // Generate presigned URLs for all service images
+      const servicesWithUrls = await Promise.all(
+        services.map(async (service) => ({
+          ...service,
+          imageUrl: service.imageUrl ? await getPresignedUrl(service.imageUrl) : null
+        }))
+      );
+      
+      res.json(servicesWithUrls);
     } catch (error) {
       console.error("Error fetching all services:", error);
       res.status(500).json({ message: "Failed to fetch services" });
@@ -1003,13 +1021,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: `Failed to upload image: ${uploadResult.error}` });
       }
       
-      const urlResult = await objectStorage.getDownloadUrl(fileName);
-      if (!urlResult.ok || !urlResult.url) {
-        return res.status(500).json({ message: `Failed to get download URL: ${urlResult.error}` });
-      }
+      // Store just the file path (object storage key), not the full URL
+      // Presigned URLs will be generated on-the-fly when fetching
+      const updatedService = await storage.updateService(id, { imageUrl: fileName });
       
-      const updatedService = await storage.updateService(id, { imageUrl: urlResult.url });
-      res.json(updatedService);
+      // Generate presigned URL for the response
+      const presignedUrl = await getPresignedUrl(fileName);
+      res.json({ ...updatedService, imageUrl: presignedUrl });
     } catch (error) {
       console.error("Error uploading service image:", error);
       res.status(500).json({ message: "Failed to upload service image" });
