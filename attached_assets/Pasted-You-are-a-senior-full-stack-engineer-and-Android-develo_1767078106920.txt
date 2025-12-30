@@ -1,0 +1,188 @@
+You are a senior full-stack engineer and Android developer with strong experience in legacy-safe system extensions, multi-tenant architectures, and database migrations.
+
+🏗 Existing System Constraints (VERY IMPORTANT)
+
+There is a production-ready full-stack booking application
+
+The system is already live
+
+Twilio SMS provider is already implemented
+
+Existing tenants must NOT be affected
+
+No breaking changes are allowed
+
+You must:
+
+Extend the system safely
+
+Preserve backward compatibility
+
+Apply non-destructive database changes only
+
+🎯 Objective
+
+Add a new optional SMS provider:
+
+ANDROID_SMS (Android native phone SMS)
+
+WITHOUT:
+
+Breaking existing SMS logic
+
+Changing existing Twilio behavior
+
+Requiring existing tenants to reconfigure anything
+
+🧱 SMS Provider Architecture (Backward Compatible)
+Provider Types
+TWILIO (existing – default)
+ANDROID_SMS (new)
+
+Rules
+
+If a tenant has no SMS provider setting, system must:
+→ Default to TWILIO
+
+Existing tenants continue to work without any action
+
+Admin can later switch provider per tenant
+
+📁 New Module (Non-Invasive)
+
+Create a new separate folder only:
+
+/android-sms-gateway/
+
+
+❗ Do NOT modify existing core logic directly
+❗ Only extend via interfaces / strategy pattern
+
+🖥 Admin Panel Changes (Safe Extension)
+
+Add a new menu item:
+
+Admin Settings → SMS Settings
+
+
+Do NOT remove or change existing Twilio UI
+
+Add provider selector:
+
+Twilio
+
+Android Phone (Native SMS)
+
+Provider choice is tenant-specific
+
+📡 Android SMS Flow (Tenant-Based)
+
+Android app only processes messages for:
+
+Its own tenant_id
+
+If provider = ANDROID_SMS
+
+Multiple devices per tenant supported
+
+Each device reports status independently
+
+🗄 Database Migration Requirements (MANDATORY)
+Rules
+
+No existing tables may be dropped
+
+No existing columns may be removed
+
+Only:
+
+New tables
+
+New nullable columns
+
+Safe defaults
+
+You MUST:
+
+Provide SQL migration scripts
+
+Migration must allow existing tenants to keep working
+
+Default provider must be TWILIO
+
+🧾 REQUIRED DATABASE SQL (EXAMPLE TARGET)
+
+You must generate SQL similar to:
+
+1️⃣ Add provider selection (safe default)
+ALTER TABLE tenants
+ADD COLUMN sms_provider ENUM('TWILIO','ANDROID_SMS') 
+DEFAULT 'TWILIO'
+AFTER some_existing_column;
+
+
+✅ Existing tenants automatically continue using Twilio
+
+2️⃣ Android SMS device registry (NEW TABLE)
+CREATE TABLE tenant_android_devices (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id BIGINT NOT NULL,
+    device_uuid VARCHAR(100) NOT NULL,
+    device_name VARCHAR(100),
+    api_token VARCHAR(255) NOT NULL,
+    last_heartbeat DATETIME,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (device_uuid),
+    INDEX (tenant_id)
+);
+
+3️⃣ Android SMS queue (OPTIONAL – SAFE)
+CREATE TABLE android_sms_queue (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id BIGINT NOT NULL,
+    phone_number VARCHAR(30) NOT NULL,
+    message TEXT NOT NULL,
+    status ENUM('PENDING','SENT','FAILED') DEFAULT 'PENDING',
+    device_uuid VARCHAR(100),
+    error_message TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    sent_at DATETIME,
+    INDEX (tenant_id),
+    INDEX (status)
+);
+
+🔐 Security & Compatibility
+
+Existing API keys remain valid
+
+Android devices use new tokens
+
+Tenant isolation enforced everywhere
+
+No shared queues between tenants
+
+📦 Deliverables (MANDATORY)
+
+Android SMS Gateway module
+
+Installable APK
+
+Provider abstraction layer
+
+Admin provider selector
+
+Database migration SQL
+
+Rollback-safe design
+
+Setup documentation
+
+🎯 Final Guarantee
+
+✔ Existing tenants continue to send SMS via Twilio
+✔ No system downtime
+✔ Android SMS is opt-in per tenant
+✔ Admin decides which provider is active
+✔ Database changes are safe and reversible
