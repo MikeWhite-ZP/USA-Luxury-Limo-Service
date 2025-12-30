@@ -4136,6 +4136,64 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
     }
   });
 
+  // Admin: Mark booking as paid (for cash payments only - one-way operation)
+  app.post('/api/admin/bookings/:id/mark-paid', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const booking = await storage.getBooking(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      // Only allow marking cash payments as paid through this endpoint
+      if (booking.paymentMethod !== 'cash') {
+        return res.status(400).json({ message: 'This operation is only available for cash payments. Use the payment authorization flow for card payments.' });
+      }
+
+      // Check if already paid - cannot mark as paid again
+      if (booking.paymentStatus === 'paid') {
+        return res.status(400).json({ message: 'Booking is already marked as paid' });
+      }
+
+      // Update booking payment status
+      const updatedBooking = await storage.updateBooking(req.params.id, {
+        paymentStatus: 'paid',
+      });
+
+      if (!updatedBooking) {
+        return res.status(500).json({ message: 'Failed to update booking' });
+      }
+
+      // Also update the associated invoice if exists
+      try {
+        const invoice = await storage.getInvoiceByBooking(req.params.id);
+        if (invoice && !invoice.paidAt) {
+          await storage.updateInvoice(invoice.id, {
+            paidAt: new Date(),
+          });
+          console.log(`Invoice ${invoice.invoiceNumber} also marked as paid`);
+        }
+      } catch (invoiceError) {
+        console.warn('Could not update invoice payment status:', invoiceError);
+      }
+
+      console.log(`Booking ${booking.id} marked as paid by admin ${user.username}`);
+      res.json({ 
+        message: 'Booking marked as paid successfully',
+        booking: updatedBooking 
+      });
+    } catch (error) {
+      console.error('Mark booking as paid error:', error);
+      res.status(500).json({ message: 'Failed to mark booking as paid' });
+    }
+  });
+
   app.post('/api/invoices/:id/email', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;

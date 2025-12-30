@@ -35,8 +35,20 @@ import {
   ChevronRight,
   CalendarDays,
   Users,
-  CreditCard
+  CreditCard,
+  AlertTriangle,
+  Check
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -215,6 +227,7 @@ export function BookingDetailsDialog({
   const [showAdditionalChargeForm, setShowAdditionalChargeForm] = useState(false);
   const [chargeDescription, setChargeDescription] = useState('');
   const [chargeAmount, setChargeAmount] = useState('');
+  const [showMarkPaidDialog, setShowMarkPaidDialog] = useState(false);
   
   const [showCustomItemForm, setShowCustomItemForm] = useState(false);
   const [customItemDescription, setCustomItemDescription] = useState('');
@@ -359,6 +372,49 @@ export function BookingDetailsDialog({
   const handleAuthorizePayment = () => {
     if (!editingBooking) return;
     authorizePaymentMutation.mutate(editingBooking.id);
+  };
+  
+  // Mark booking as paid mutation (for cash payments)
+  const markBookingPaidMutation = useMutation({
+    mutationFn: async (bookingId: string) => {
+      const response = await apiRequest('POST', `/api/admin/bookings/${bookingId}/mark-paid`);
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Payment Confirmed",
+        description: "The booking has been successfully marked as paid",
+      });
+      setShowMarkPaidDialog(false);
+      // Invalidate all relevant booking and invoice queries
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dispatcher/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      // Invalidate specific booking detail if the query exists
+      if (editingBooking?.id) {
+        queryClient.invalidateQueries({ queryKey: [`/api/bookings/${editingBooking.id}`] });
+        queryClient.invalidateQueries({ queryKey: ['/api/bookings', editingBooking.id] });
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to mark booking as paid",
+        variant: "destructive",
+      });
+      setShowMarkPaidDialog(false);
+    },
+  });
+
+  const handleMarkBookingPaid = () => {
+    if (!editingBooking) return;
+    setShowMarkPaidDialog(true);
+  };
+
+  const confirmMarkBookingPaid = () => {
+    if (!editingBooking) return;
+    markBookingPaidMutation.mutate(editingBooking.id);
   };
   
   const getMapConfig = () => {
@@ -1430,14 +1486,38 @@ export function BookingDetailsDialog({
 
               {editingBooking && canManageCharges && (
                 <div className="space-y-2 pt-2 border-t border-border">
-                  <Button 
-                    onClick={handleAuthorizePayment}
-                    disabled={authorizePaymentMutation.isPending}
-                    className="w-full h-10 bg-red-600 hover:bg-red-700 text-white font-semibold"
-                    data-testid="button-authorize-payment"
-                  >
-                    {authorizePaymentMutation.isPending ? 'Processing...' : 'Authorize & Capture Payment'}
-                  </Button>
+                  {/* Payment Button - shows different states based on payment method and status */}
+                  {editingBooking.paymentStatus === 'paid' ? (
+                    // Already Paid - show non-clickable green PAID button
+                    <Button 
+                      disabled
+                      className="w-full h-10 bg-emerald-600 text-black font-semibold cursor-not-allowed"
+                      data-testid="button-paid-status"
+                    >
+                      <Check className="w-4 h-4 mr-2" />
+                      PAID
+                    </Button>
+                  ) : editingBooking.paymentMethod === 'cash' ? (
+                    // Cash payment - show Mark as Paid button
+                    <Button 
+                      onClick={handleMarkBookingPaid}
+                      disabled={markBookingPaidMutation.isPending}
+                      className="w-full h-10 bg-amber-600 hover:bg-amber-700 text-white font-semibold"
+                      data-testid="button-mark-as-paid"
+                    >
+                      {markBookingPaidMutation.isPending ? 'Processing...' : 'Mark as Paid'}
+                    </Button>
+                  ) : (
+                    // Card payment - show Authorize & Capture button
+                    <Button 
+                      onClick={handleAuthorizePayment}
+                      disabled={authorizePaymentMutation.isPending}
+                      className="w-full h-10 bg-red-600 hover:bg-red-700 text-white font-semibold"
+                      data-testid="button-authorize-payment"
+                    >
+                      {authorizePaymentMutation.isPending ? 'Processing...' : 'Authorize & Capture Payment'}
+                    </Button>
+                  )}
                   <Button 
                     variant="outline" 
                     className="w-full h-10 border-border text-muted-foreground hover:bg-muted"
@@ -1535,6 +1615,64 @@ export function BookingDetailsDialog({
           </Tabs>
         </div>
       </DialogContent>
+
+      {/* Mark as Paid Confirmation Dialog */}
+      <AlertDialog open={showMarkPaidDialog} onOpenChange={setShowMarkPaidDialog}>
+        <AlertDialogContent className="sm:max-w-[500px] bg-background">
+          <AlertDialogHeader className="border-b border-amber-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-2 rounded-lg">
+                <AlertTriangle className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <AlertDialogTitle className="text-xl font-bold text-foreground">Mark Booking as Paid</AlertDialogTitle>
+                <AlertDialogDescription className="text-muted-foreground mt-0.5">
+                  This action cannot be reversed
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+          {editingBooking && (
+            <div className="space-y-4">
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-amber-900">
+                    <p className="font-semibold mb-1">Are you sure you want to mark this booking as paid?</p>
+                    <p className="text-amber-800">
+                      Once marked as paid, this action <strong>cannot be reverted</strong>. 
+                      The payment status will be permanently set to "Paid".
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 bg-muted rounded-lg border border-border">
+                <div className="space-y-2 text-sm">
+                  <p className="text-foreground"><strong className="font-semibold">Booking ID:</strong> #{editingBooking.id?.toUpperCase().substring(0, 8)}</p>
+                  <p className="text-foreground"><strong className="font-semibold">Amount:</strong> ${parseFloat(editingBooking.totalAmount || '0').toFixed(2)}</p>
+                  <p className="text-foreground"><strong className="font-semibold">Payment Method:</strong> Cash</p>
+                </div>
+              </div>
+            </div>
+          )}
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel 
+              onClick={() => setShowMarkPaidDialog(false)}
+              data-testid="button-cancel-mark-paid"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmMarkBookingPaid}
+              disabled={markBookingPaidMutation.isPending}
+              className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white"
+              data-testid="button-confirm-mark-paid"
+            >
+              {markBookingPaidMutation.isPending ? "Processing..." : "Yes, Mark as Paid"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
