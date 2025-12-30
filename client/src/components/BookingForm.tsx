@@ -2607,7 +2607,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               <Label className="text-base font-semibold text-muted-foreground">Time *</Label>
               <div className="grid grid-cols-3 gap-2 mt-2">
                 <Select value={hour} onValueChange={setHour}>
-                  <SelectTrigger className="p-3 text-base border-2 border-border rounded-lg" data-testid="select-hour">
+                  <SelectTrigger className="border-2 border-border rounded-lg text-[12px] pl-[8px] pr-[8px] pt-[8px] pb-[8px]" data-testid="select-hour">
                     <SelectValue placeholder="Hour" />
                   </SelectTrigger>
                   <SelectContent>
@@ -2619,7 +2619,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   </SelectContent>
                 </Select>
                 <Select value={minute} onValueChange={setMinute}>
-                  <SelectTrigger className="p-3 text-base border-2 border-border rounded-lg" data-testid="select-minute">
+                  <SelectTrigger className="border-2 border-border rounded-lg text-[12px] pl-[8px] pr-[8px] pt-[8px] pb-[8px]" data-testid="select-minute">
                     <SelectValue placeholder="Min" />
                   </SelectTrigger>
                   <SelectContent>
@@ -2631,7 +2631,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   </SelectContent>
                 </Select>
                 <Select value={period} onValueChange={(value) => setPeriod(value as 'AM' | 'PM')}>
-                  <SelectTrigger className="p-3 text-base border-2 border-border rounded-lg" data-testid="select-period">
+                  <SelectTrigger className="border-2 border-border rounded-lg text-[12px] pl-[8px] pr-[8px] pt-[8px] pb-[8px]" data-testid="select-period">
                     <SelectValue placeholder="AM/PM" />
                   </SelectTrigger>
                   <SelectContent>
