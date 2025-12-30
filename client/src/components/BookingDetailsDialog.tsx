@@ -602,7 +602,7 @@ export function BookingDetailsDialog({
               </TabsList>
             </div>
 
-            <TabsContent value="trip" className="p-4 space-y-4 pb-24 m-0">
+            <TabsContent value="trip" className="p-4 space-y-4 pb-24 m-0 overflow-y-auto max-h-[calc(85vh-140px)]">
               <div className="space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b">
                   <User className="w-4 h-4 text-blue-600" />
@@ -1031,7 +1031,7 @@ export function BookingDetailsDialog({
               </div>
             </TabsContent>
 
-            <TabsContent value="passenger" className="p-4 space-y-4 pb-24 m-0">
+            <TabsContent value="passenger" className="p-4 space-y-4 pb-24 m-0 overflow-y-auto max-h-[calc(85vh-140px)]">
               <div className="flex items-center gap-4 pb-3 border-b">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -1274,7 +1274,7 @@ export function BookingDetailsDialog({
               )}
             </TabsContent>
 
-            <TabsContent value="pricing" className="p-3 space-y-3 pb-32 m-0">
+            <TabsContent value="pricing" className="p-3 space-y-3 pb-32 m-0 overflow-y-auto max-h-[calc(85vh-140px)]">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-indigo-600" />
