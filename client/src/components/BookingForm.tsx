@@ -2477,7 +2477,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   </SelectContent>
                 </Select>
                 <Select value={minute} onValueChange={setMinute}>
-                  <SelectTrigger className="p-3 text-base border-2 border-border rounded-lg" data-testid="select-minute">
+                  <SelectTrigger className="border-2 border-border rounded-lg ml-[0px] mr-[0px] text-[12px] pl-[8px] pr-[8px] pt-[8px] pb-[8px]" data-testid="select-minute">
                     <SelectValue placeholder="Min" />
                   </SelectTrigger>
                   <SelectContent>
