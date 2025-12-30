@@ -1,0 +1,11 @@
+e: file:///Users/mikewhite/Desktop/android-sms-gateway-app/build.gradle.kts:9:58: Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+public final fun DependencyConstraintHandler.classpath(dependencyConstraintNotation: Any): DependencyConstraint? defined in org.gradle.kotlin.dsl.ScriptHandlerScope
+public final fun DependencyConstraintHandler.classpath(dependencyConstraintNotation: Any, configuration: DependencyConstraint.() -> Unit): DependencyConstraint? defined in org.gradle.kotlin.dsl.ScriptHandlerScope
+public final inline fun <T : ModuleDependency> DependencyHandler.classpath(dependency: TypeVariable(T), dependencyConfiguration: TypeVariable(T).() -> Unit): TypeVariable(T) defined in org.gradle.kotlin.dsl.ScriptHandlerScope
+public final fun DependencyHandler.classpath(dependencyNotation: Any): Dependency? defined in org.gradle.kotlin.dsl.ScriptHandlerScope
+public final fun DependencyHandler.classpath(group: String, name: String, version: String? = ..., configuration: String? = ..., classifier: String? = ..., ext: String? = ...): ExternalModuleDependency defined in org.gradle.kotlin.dsl.ScriptHandlerScope
+public final inline fun DependencyHandler.classpath(group: String, name: String, version: String? = ..., configuration: String? = ..., classifier: String? = ..., ext: String? = ..., dependencyConfiguration: ExternalModuleDependency.() -> Unit): ExternalModuleDependency defined in org.gradle.kotlin.dsl.ScriptHandlerScope
+public final inline fun DependencyHandler.classpath(dependencyNotation: String, dependencyConfiguration: ExternalModuleDependency.() -> Unit): ExternalModuleDependency defined in org.gradle.kotlin.dsl.ScriptHandlerScope
+public final fun DependencyHandler.classpath(dependencyNotation: Provider<MinimalExternalModuleDependency>, dependencyConfiguration: ExternalModuleDependency.() -> Unit): Unit defined in org.gradle.kotlin.dsl.ScriptHandlerScope
+public final fun DependencyHandler.classpath(dependencyNotation: ProviderConvertible<MinimalExternalModuleDependency>, dependencyConfiguration: ExternalModuleDependency.() -> Unit): Unit defined in org.gradle.kotlin.dsl.ScriptHandlerScope
+Explain with AI
