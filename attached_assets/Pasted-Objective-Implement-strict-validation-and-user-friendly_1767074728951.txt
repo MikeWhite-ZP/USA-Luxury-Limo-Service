@@ -1,0 +1,210 @@
+Objective:
+Implement strict validation and user-friendly guidance for the Passenger Count and Baggage Selection fields based on the selected vehicle type.
+
+Requirements:
+
+Passenger Amount Selection
+
+The user must select the Passenger Amount field before interacting with baggage selection.
+
+Vehicle availability and baggage limits must be dynamically calculated based on the selected passenger count and vehicle type.
+
+Baggage Selection Validation
+
+The Baggage input must NOT allow selecting more luggage than the maximum luggage capacity of the selected vehicle type.
+
+If the user attempts to exceed the allowed baggage limit:
+
+Prevent the selection.
+
+Display a clear, polite, and user-friendly warning message.
+
+Warning & Guidance Message (Passengers / Admins / Dispatchers)
+
+Show a contextual warning such as:
+
+“The selected vehicle type has reached its maximum luggage capacity.”
+
+Kindly offer the following options:
+
+Suggest selecting a higher-level vehicle type that supports more luggage.
+
+Allow selecting the maximum permitted luggage and adding extra requests in the Additional Explanation field.
+
+Recommend contacting the tenant company for assistance.
+
+Dynamic Company Name & Contact Link
+
+The company (tenant) name must be dynamically retrieved from branding configuration.
+
+Display the company name as a clickable link that redirects to the Contact Us page.
+
+Example:
+
+“If you require additional luggage capacity, please select a higher vehicle category or contact [{{CompanyName}}].”
+
+Role Awareness
+
+The same validation and messaging logic must apply consistently for:
+
+Passengers
+
+Admin users
+
+Dispatchers (if applicable)
+
+UX Expectations
+
+Messages must be polite, professional, and solution-oriented.
+
+No hard errors unless absolutely necessary — prefer guidance and prevention.
+
+All limits must update dynamically when vehicle type or passenger count changes.
+
+Goal:
+Ensure a smooth booking experience while strictly enforcing vehicle luggage limits, reducing booking errors, and guiding users toward the correct vehicle selection or support channels.
+
+İstersen bir sonraki adımda:
+
+🔹 UI/UX için warning text varyasyonları
+
+🔹 Frontend validation logic (JS / React / Vue)
+
+🔹 Backend rule enforcement
+
+🔹 Replit AI için daha kısa “system prompt” versiyonu
+
+hazırlayabilirim.
+
+buraya if the user selects the passenger amounts or baggage amounts is selected first and any of them amount is greater then any of the vehicle types max amounts block them in the vehicle types list user can not able to select that vehicles. mantelitesini de ekle.
+
+Aşağıya, istediğin “mantality / logic” net bir şekilde eklenmiş, Replit AI için tamamen düzeltilmiş ve genişletilmiş İngilizce promptu koyuyorum.
+Bu versiyon passenger veya baggage hangisi önce seçilirse seçilsin, uyumsuz araçların otomatik olarak bloke edilmesini açıkça tanımlar.
+
+✅ Replit AI – Final Refined Prompt (with Blocking Logic)
+
+Objective:
+Implement intelligent, dynamic validation for Passenger Amount, Baggage Amount, and Vehicle Type selection, ensuring users can only select vehicles that fully support their selected capacity requirements.
+
+Core Logic (Mandatory Mentality)
+
+Order-independent logic:
+It does NOT matter whether the user selects:
+
+Passenger amount first
+
+Baggage amount first
+
+Vehicle type first
+
+The system must always re-evaluate compatibility in real time.
+
+Passenger & Baggage Capacity Rules
+
+Passenger Amount Logic
+
+When the user selects a passenger amount:
+
+Any vehicle type whose maximum passenger capacity is LOWER than the selected passenger amount must be automatically blocked (disabled) in the vehicle type list.
+
+Blocked vehicles must be:
+
+Visually disabled
+
+Not selectable by the user
+
+Baggage Amount Logic
+
+When the user selects a baggage amount:
+
+Any vehicle type whose maximum baggage capacity is LOWER than the selected baggage amount must be automatically blocked (disabled).
+
+Users must not be able to select those vehicles.
+
+Combined Logic
+
+If either the passenger amount OR baggage amount exceeds a vehicle’s capacity:
+
+That vehicle type must be blocked.
+
+Only vehicle types that satisfy both conditions may remain selectable.
+
+Vehicle Type Selection Behavior
+
+The vehicle list must dynamically update whenever:
+
+Passenger amount changes
+
+Baggage amount changes
+
+Blocked vehicles:
+
+Must be disabled (not removed)
+
+Must display a tooltip or inline note explaining why they are unavailable
+
+Baggage Selection Limit Enforcement
+
+The baggage input must NOT allow selecting more luggage than the maximum luggage capacity of the currently selected vehicle type.
+
+If the user attempts to exceed the limit:
+
+Prevent the action
+
+Display a polite warning message
+
+User Guidance & Warning Messages
+
+Display user-friendly, solution-oriented messages such as:
+
+“This vehicle type cannot accommodate the selected number of passengers or luggage.”
+
+Provide clear next-step suggestions:
+
+Select a higher-level vehicle category
+
+Reduce passenger or baggage count
+
+Select the maximum allowed values and add a note in the Additional Explanation field
+
+Dynamic Company Name & Contact Link
+
+The tenant company name must be:
+
+Dynamically retrieved from branding configuration
+
+Displayed as a clickable link
+
+Example message:
+
+“If you need more capacity, please select a higher vehicle category or contact [{{CompanyName}}] for assistance.”
+
+The company name link must redirect to the Contact Us page.
+
+Role Coverage
+
+The same rules and blocking behavior must apply consistently to:
+
+Passengers
+
+Admin users
+
+Dispatchers (if applicable)
+
+UX & System Expectations
+
+All validations must:
+
+Run in real time
+
+Be non-destructive and reversible
+
+Automatically re-evaluate when any input changes
+
+Prefer blocking and guidance over hard error messages.
+
+Maintain a clean, professional, and intuitive booking flow.
+
+Goal
+
+Prevent invalid bookings by proactively blocking incompatible vehicle types while guiding users toward valid selections or support channels.
