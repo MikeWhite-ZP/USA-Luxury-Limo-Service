@@ -205,8 +205,56 @@ export function BookingDetailsDialog({
   const [tempSelectedDriverId, setTempSelectedDriverId] = useState('');
   const [tempDriverPayment, setTempDriverPayment] = useState('');
   
-  // Tab navigation for mobile
-  const [activeTab, setActiveTab] = useState<'passenger' | 'journey' | 'schedule' | 'pricing'>('passenger');
+  // Step-based wizard navigation for mobile (1-4)
+  const [activeStep, setActiveStep] = useState(1);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
+  const TOTAL_STEPS = 4;
+  const STEP_LABELS = ['Passenger', 'Journey', 'Schedule', 'Pricing'];
+  
+  // Navigation functions
+  const goToNextStep = () => {
+    if (activeStep < TOTAL_STEPS) {
+      setActiveStep(activeStep + 1);
+    }
+  };
+  
+  const goToPrevStep = () => {
+    if (activeStep > 1) {
+      setActiveStep(activeStep - 1);
+    }
+  };
+  
+  // Touch handlers for swipe gestures
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+    setTouchEndX(null);
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+  
+  const handleTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return;
+    
+    const swipeDistance = touchStartX - touchEndX;
+    const minSwipeDistance = 50; // minimum swipe distance in pixels
+    
+    if (swipeDistance > minSwipeDistance) {
+      // Swiped left - go to next step
+      goToNextStep();
+    } else if (swipeDistance < -minSwipeDistance) {
+      // Swiped right - go to previous step
+      goToPrevStep();
+    }
+    
+    setTouchStartX(null);
+    setTouchEndX(null);
+  };
+  
+  // Legacy tab compatibility (for existing code that uses activeTab)
+  const activeTab = activeStep === 4 ? 'pricing' : 'passenger';
   
   // State for additional charges
   const [showAdditionalChargeForm, setShowAdditionalChargeForm] = useState(false);
@@ -499,43 +547,721 @@ export function BookingDetailsDialog({
           </Button>
         </div>
 
-        {/* Mobile Tab Navigation - Compact 2-Tab Design */}
-        <div className="lg:hidden sticky top-[52px] z-40 bg-background border-b">
-          <div className="grid grid-cols-2">
-            <button
-              onClick={() => setActiveTab('passenger')}
-              className={`flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors ${
-                activeTab !== 'pricing' 
-                  ? 'border-blue-600 text-blue-600 bg-blue-50 dark:bg-blue-950' 
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <MapPin className="w-3.5 h-3.5" />
-              Details
-            </button>
-            <button
-              onClick={() => setActiveTab('pricing')}
-              className={`flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors ${
-                activeTab === 'pricing' 
-                  ? 'border-blue-600 text-blue-600 bg-blue-50 dark:bg-blue-950' 
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <DollarSign className="w-3.5 h-3.5" />
-              Pricing
-            </button>
+        {/* Mobile Step Navigation - 4-Step Wizard */}
+        <div className="lg:hidden sticky top-[52px] z-40 bg-background border-b px-2 py-2">
+          {/* Step indicators */}
+          <div className="flex items-center justify-between gap-1">
+            {STEP_LABELS.map((label, index) => {
+              const stepNum = index + 1;
+              const isActive = activeStep === stepNum;
+              const isCompleted = activeStep > stepNum;
+              
+              return (
+                <button
+                  key={stepNum}
+                  onClick={() => setActiveStep(stepNum)}
+                  className={`flex-1 flex flex-col items-center gap-0.5 py-1 px-1 rounded transition-all ${
+                    isActive 
+                      ? 'bg-blue-50 dark:bg-blue-950' 
+                      : 'hover:bg-muted'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold transition-all ${
+                    isActive 
+                      ? 'bg-blue-600 text-white' 
+                      : isCompleted 
+                        ? 'bg-green-500 text-white' 
+                        : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {isCompleted ? '✓' : stepNum}
+                  </div>
+                  <span className={`text-[8px] font-semibold uppercase tracking-wide ${
+                    isActive ? 'text-blue-600' : 'text-muted-foreground'
+                  }`}>
+                    {label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
+          {/* Swipe hint */}
+          <p className="text-[7px] text-center text-muted-foreground mt-1">Swipe left/right or tap to navigate</p>
         </div>
         
-        {/* Main Content Area */}
-        <div className="flex-1 overflow-y-auto">
-          {/* Tab Content */}
-          <div className="h-full">
+        {/* Main Content Area with Touch Handlers */}
+        <div 
+          className="flex-1 overflow-y-auto"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Mobile Step Content - Show based on activeStep */}
+          <div className="lg:hidden">
+            {/* Step 1: Passenger Selection */}
+            {activeStep === 1 && (
+              <div className="p-3 space-y-2 pb-24 min-h-[60vh]">
+                <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
+                  <User className="w-3.5 h-3.5 text-blue-600" />
+                  Passenger & Service
+                </h3>
+                
+                {/* Passenger Selection */}
+                <div className="space-y-0.5">
+                  <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">
+                    Passenger
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      placeholder="Search passenger..."
+                      value={(() => {
+                        if (userSearchQuery && userSearchQuery.trim()) return userSearchQuery;
+                        if (formData.passengerId) {
+                          const selectedPassenger = allUsers?.find(u => u.id === formData.passengerId);
+                          if (selectedPassenger) {
+                            return `${selectedPassenger.firstName} ${selectedPassenger.lastName}`;
+                          }
+                        }
+                        return '';
+                      })()}
+                      onChange={(e) => {
+                        const searchQuery = e.target.value;
+                        if (formData.passengerId) {
+                          setFormData({ ...formData, passengerId: '' });
+                        }
+                        setUserSearchQuery(searchQuery);
+                      }}
+                      onFocus={() => {
+                        if (!formData.passengerId && !userSearchQuery) {
+                          setUserSearchQuery(' ');
+                        }
+                      }}
+                      className="h-7 text-[10px]"
+                      data-testid="input-passenger-search-mobile"
+                    />
+                    {userSearchQuery && allUsers && (
+                      <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        {(() => {
+                          const query = userSearchQuery.trim().toLowerCase();
+                          const filteredPassengers = allUsers
+                            .filter(u => u.role === 'passenger')
+                            .filter(u => {
+                              if (!query) return true;
+                              return (
+                                u.firstName?.toLowerCase().includes(query) ||
+                                u.lastName?.toLowerCase().includes(query) ||
+                                u.email?.toLowerCase().includes(query) ||
+                                u.phone?.toLowerCase().includes(query) ||
+                                `${u.firstName} ${u.lastName}`.toLowerCase().includes(query)
+                              );
+                            })
+                            .slice(0, 8);
+                          
+                          if (filteredPassengers.length === 0) {
+                            return (
+                              <div className="px-3 py-2 text-sm text-muted-foreground text-center">
+                                No passengers found
+                              </div>
+                            );
+                          }
+                          
+                          return filteredPassengers.map((passenger) => (
+                            <button
+                              key={passenger.id}
+                              type="button"
+                              className="w-full text-left px-3 py-2 hover:bg-muted border-b border-border last:border-0 text-sm transition-colors"
+                              onClick={() => {
+                                setFormData({ ...formData, passengerId: passenger.id });
+                                setUserSearchQuery('');
+                              }}
+                            >
+                              <div className="font-medium text-foreground text-sm">{passenger.firstName} {passenger.lastName}</div>
+                              <div className="text-xs text-muted-foreground">{passenger.email}</div>
+                            </button>
+                          ));
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Type, Vehicle, Pax, Bags */}
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div className="space-y-0.5">
+                    <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Type</Label>
+                    <Select
+                      value={formData.bookingType}
+                      onValueChange={(value) => setFormData({ ...formData, bookingType: value as 'transfer' | 'hourly' })}
+                    >
+                      <SelectTrigger className="h-7 text-[10px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="transfer">Transfer</SelectItem>
+                        <SelectItem value="hourly">Hourly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-0.5">
+                    <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Vehicle</Label>
+                    <Select
+                      value={formData.vehicleTypeId}
+                      onValueChange={(value) => setFormData({ ...formData, vehicleTypeId: value })}
+                    >
+                      <SelectTrigger className="h-7 text-[10px]">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {vehicleTypes?.map((vt) => (
+                          <SelectItem key={vt.id} value={vt.id}>
+                            {vt.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-0.5">
+                    <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Passengers</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={formData.passengerCount}
+                      onChange={(e) => setFormData({ ...formData, passengerCount: parseInt(e.target.value) || 1 })}
+                      className="h-7 text-[10px]"
+                    />
+                  </div>
+                  
+                  <div className="space-y-0.5">
+                    <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Luggage</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formData.luggageCount}
+                      onChange={(e) => setFormData({ ...formData, luggageCount: parseInt(e.target.value) || 0 })}
+                      className="h-7 text-[10px]"
+                    />
+                  </div>
+                </div>
+
+                {/* Extra Options */}
+                <div className="flex items-center gap-3 pt-1">
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.babySeat}
+                      onChange={(e) => setFormData({ ...formData, babySeat: e.target.checked })}
+                      className="w-3 h-3 rounded"
+                    />
+                    <span className="text-[9px] text-muted-foreground">Baby Seat</span>
+                  </label>
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.bookingFor === 'someone_else'}
+                      onChange={(e) => setFormData({ 
+                        ...formData, 
+                        bookingFor: e.target.checked ? 'someone_else' : 'self' 
+                      })}
+                      className="w-3 h-3 rounded"
+                    />
+                    <span className="text-[9px] text-muted-foreground">Book for other</span>
+                  </label>
+                </div>
+                
+                {formData.bookingFor === 'someone_else' && (
+                  <div className="space-y-1.5 p-2 bg-muted/50 rounded border border-border">
+                    <Input
+                      placeholder="Passenger Name"
+                      value={formData.passengerName}
+                      onChange={(e) => setFormData({ ...formData, passengerName: e.target.value })}
+                      className="h-7 text-[10px]"
+                    />
+                    <div className="grid grid-cols-2 gap-1">
+                      <Input
+                        type="email"
+                        placeholder="Email"
+                        value={formData.passengerEmail}
+                        onChange={(e) => setFormData({ ...formData, passengerEmail: e.target.value })}
+                        className="h-7 text-[10px]"
+                      />
+                      <Input
+                        type="tel"
+                        placeholder="Phone"
+                        value={formData.passengerPhone}
+                        onChange={(e) => setFormData({ ...formData, passengerPhone: e.target.value })}
+                        className="h-7 text-[10px]"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Next Step Hint */}
+                <div className="pt-4 text-center">
+                  <Button 
+                    onClick={goToNextStep}
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2"
+                  >
+                    Next: Journey <ChevronRight className="w-3 h-3 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Journey/Addresses */}
+            {activeStep === 2 && (
+              <div className="p-3 space-y-2 pb-24 min-h-[60vh]">
+                <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
+                  <MapPin className="w-3.5 h-3.5 text-green-600" />
+                  Journey Details
+                </h3>
+
+                {/* Pickup */}
+                <div className="space-y-0.5">
+                  <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                    Pickup Address
+                  </Label>
+                  <AddressAutocomplete
+                    id="pickup-address-mobile"
+                    label=""
+                    value={formData.pickupAddress}
+                    onChange={(value, coords) => {
+                      setFormData({ ...formData, pickupAddress: value, pickupCoords: coords || null });
+                    }}
+                    placeholder="Enter pickup address"
+                    userId={formData.passengerId}
+                    required={true}
+                  />
+                </div>
+
+                {/* Destination (for transfer) */}
+                {formData.bookingType !== 'hourly' && (
+                  <div className="space-y-0.5">
+                    <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                      Destination Address
+                    </Label>
+                    <AddressAutocomplete
+                      id="destination-address-mobile"
+                      label=""
+                      value={formData.destinationAddress}
+                      onChange={(value, coords) => {
+                        setFormData({ ...formData, destinationAddress: value, destinationCoords: coords || null });
+                      }}
+                      placeholder="Enter destination address"
+                      userId={formData.passengerId}
+                      required={true}
+                    />
+                  </div>
+                )}
+
+                {/* Duration for hourly */}
+                {formData.bookingType === 'hourly' && (
+                  <div className="space-y-0.5">
+                    <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Duration</Label>
+                    <Select
+                      value={formData.requestedHours}
+                      onValueChange={(value) => setFormData({ ...formData, requestedHours: value })}
+                    >
+                      <SelectTrigger className="h-7 text-[10px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[2, 3, 4, 5, 6, 8, 10, 12].map(hours => (
+                          <SelectItem key={hours} value={String(hours)}>{hours} hours</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {/* Via Points */}
+                {formData.bookingType !== 'hourly' && (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                        Stops (Optional)
+                      </Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          const newViaPoints = [...(formData.viaPoints || []), { address: '', lat: 0, lon: 0 }];
+                          setFormData({ ...formData, viaPoints: newViaPoints });
+                        }}
+                        className="h-5 text-[8px] text-primary px-1"
+                      >
+                        <Plus className="w-2.5 h-2.5 mr-0.5" />
+                        Add Stop
+                      </Button>
+                    </div>
+                    
+                    {formData.viaPoints && formData.viaPoints.length > 0 && (
+                      <div className="space-y-1.5 pl-2 border-l-2 border-amber-200">
+                        {formData.viaPoints.map((viaPoint, index) => (
+                          <div key={index} className="relative">
+                            <AddressAutocomplete
+                              id={`via-point-mobile-${index}`}
+                              label=""
+                              value={viaPoint.address}
+                              onChange={(value, coords) => {
+                                const newViaPoints = [...(formData.viaPoints || [])];
+                                newViaPoints[index] = {
+                                  address: value,
+                                  lat: coords?.lat || 0,
+                                  lon: coords?.lon || 0,
+                                };
+                                setFormData({ ...formData, viaPoints: newViaPoints });
+                              }}
+                              placeholder={`Stop ${index + 1}`}
+                              userId={formData.passengerId}
+                              required={false}
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                const newViaPoints = (formData.viaPoints || []).filter((_, i) => i !== index);
+                                setFormData({ ...formData, viaPoints: newViaPoints });
+                              }}
+                              className="absolute top-1/2 -translate-y-1/2 right-1 h-5 w-5 p-0 text-muted-foreground hover:text-destructive"
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Navigation */}
+                <div className="pt-4 flex items-center justify-between">
+                  <Button 
+                    variant="outline"
+                    onClick={goToPrevStep}
+                    className="text-xs px-3 py-2"
+                  >
+                    <ChevronLeft className="w-3 h-3 mr-1" /> Back
+                  </Button>
+                  <Button 
+                    onClick={goToNextStep}
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2"
+                  >
+                    Next: Schedule <ChevronRight className="w-3 h-3 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Schedule & Flight */}
+            {activeStep === 3 && (
+              <div className="p-3 space-y-2 pb-24 min-h-[60vh]">
+                <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
+                  <Clock className="w-3.5 h-3.5 text-blue-600" />
+                  Schedule & Flight
+                </h3>
+
+                {/* Date & Time */}
+                <div className="space-y-1">
+                  <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Date & Time</Label>
+                  <div className="grid grid-cols-[1fr_auto_auto_auto] gap-1">
+                    <DatePicker
+                      selected={formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : null}
+                      onChange={(date: Date | null) => {
+                        if (date) {
+                          let hour = 9, minute = 0, period = 'AM';
+                          if (formData.scheduledDateTime) {
+                            const existingDate = new Date(formData.scheduledDateTime);
+                            const existingHours = existingDate.getHours();
+                            hour = existingHours === 0 ? 12 : existingHours > 12 ? existingHours - 12 : existingHours;
+                            minute = existingDate.getMinutes();
+                            period = existingHours >= 12 ? 'PM' : 'AM';
+                          }
+                          let hours24 = hour;
+                          if (period === 'AM' && hour === 12) hours24 = 0;
+                          else if (period === 'PM' && hour !== 12) hours24 = hour + 12;
+                          
+                          const formattedDateTime = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(hours24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                          setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                        }
+                      }}
+                      dateFormat="MMM d"
+                      minDate={new Date()}
+                      className="w-full h-7 px-2 text-[10px] border border-border rounded-md bg-background"
+                      placeholderText="Date"
+                      wrapperClassName="w-full"
+                    />
+                    <Select
+                      value={(() => {
+                        if (!formData.scheduledDateTime) return "9";
+                        const date = new Date(formData.scheduledDateTime);
+                        const hours = date.getHours();
+                        return String(hours === 0 ? 12 : hours > 12 ? hours - 12 : hours);
+                      })()}
+                      onValueChange={(value) => {
+                        const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
+                        const currentMinute = date.getMinutes();
+                        const currentHours = date.getHours();
+                        const period = currentHours >= 12 ? 'PM' : 'AM';
+                        
+                        let hours24 = parseInt(value);
+                        if (period === 'AM' && hours24 === 12) hours24 = 0;
+                        else if (period === 'PM' && hours24 !== 12) hours24 = hours24 + 12;
+                        
+                        const formattedDateTime = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(hours24).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+                        setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                      }}
+                    >
+                      <SelectTrigger className="h-7 w-11 text-[10px] px-1">
+                        <SelectValue placeholder="Hr" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(hour => (
+                          <SelectItem key={hour} value={String(hour)}>{String(hour).padStart(2, '0')}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={(() => {
+                        if (!formData.scheduledDateTime) return "00";
+                        const date = new Date(formData.scheduledDateTime);
+                        return String(date.getMinutes()).padStart(2, '0');
+                      })()}
+                      onValueChange={(value) => {
+                        const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
+                        const currentHours = date.getHours();
+                        
+                        const formattedDateTime = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(currentHours).padStart(2, '0')}:${value}`;
+                        setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                      }}
+                    >
+                      <SelectTrigger className="h-7 w-11 text-[10px] px-1">
+                        <SelectValue placeholder="Min" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map(min => (
+                          <SelectItem key={min} value={min}>{min}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={(() => {
+                        if (!formData.scheduledDateTime) return "AM";
+                        const date = new Date(formData.scheduledDateTime);
+                        return date.getHours() >= 12 ? 'PM' : 'AM';
+                      })()}
+                      onValueChange={(value) => {
+                        const date = formData.scheduledDateTime ? new Date(formData.scheduledDateTime) : new Date();
+                        const currentHours = date.getHours();
+                        const currentMinute = date.getMinutes();
+                        
+                        const hour12 = currentHours === 0 ? 12 : currentHours > 12 ? currentHours - 12 : currentHours;
+                        
+                        let hours24 = hour12;
+                        if (value === 'AM' && hour12 === 12) hours24 = 0;
+                        else if (value === 'PM' && hour12 !== 12) hours24 = hour12 + 12;
+                        
+                        const formattedDateTime = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(hours24).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+                        setFormData({ ...formData, scheduledDateTime: formattedDateTime });
+                      }}
+                    >
+                      <SelectTrigger className="h-7 w-12 text-[10px] px-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="AM">AM</SelectItem>
+                        <SelectItem value="PM">PM</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Flight Info */}
+                <div className="space-y-1 pt-2 border-t border-border">
+                  <div className="flex items-center gap-1">
+                    <Plane className="w-3 h-3 text-slate-500" />
+                    <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">
+                      Flight (Optional)
+                    </Label>
+                  </div>
+                  <FlightSearch
+                    selectedFlight={selectedFlight as FlightInfo | null}
+                    onFlightSelect={(flight) => {
+                      setSelectedFlight(flight);
+                      if (flight) {
+                        setFormData({
+                          ...formData,
+                          flightNumber: flight.flightNumber,
+                          flightAirline: flight.airline,
+                          flightDepartureAirport: flight.departureAirport,
+                          flightArrivalAirport: flight.arrivalAirport,
+                          flightDepartureTerminal: flight.departureTerminal || '',
+                          flightArrivalTerminal: flight.arrivalTerminal || '',
+                          flightBaggageClaim: flight.baggageClaim || '',
+                        });
+                        setFlightSearchInput(flight.flightNumber);
+                      } else {
+                        setFormData({
+                          ...formData,
+                          flightNumber: '',
+                          flightAirline: '',
+                          flightDepartureAirport: '',
+                          flightArrivalAirport: '',
+                          flightDepartureTerminal: '',
+                          flightArrivalTerminal: '',
+                          flightBaggageClaim: '',
+                        });
+                        setFlightSearchInput('');
+                      }
+                    }}
+                    bookingDate={formData.scheduledDateTime ? formData.scheduledDateTime.split('T')[0] : undefined}
+                  />
+                </div>
+
+                {/* Special Instructions */}
+                <div className="space-y-1 pt-2 border-t border-border">
+                  <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Special Instructions</Label>
+                  <Textarea
+                    value={formData.specialInstructions}
+                    onChange={(e) => setFormData({ ...formData, specialInstructions: e.target.value })}
+                    placeholder="Any special requests..."
+                    className="min-h-[50px] text-[10px] resize-none"
+                  />
+                </div>
+
+                {/* Navigation */}
+                <div className="pt-4 flex items-center justify-between">
+                  <Button 
+                    variant="outline"
+                    onClick={goToPrevStep}
+                    className="text-xs px-3 py-2"
+                  >
+                    <ChevronLeft className="w-3 h-3 mr-1" /> Back
+                  </Button>
+                  <Button 
+                    onClick={goToNextStep}
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2"
+                  >
+                    Next: Pricing <ChevronRight className="w-3 h-3 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Pricing - This uses the existing pricing panel */}
+            {activeStep === 4 && (
+              <div className="p-3 space-y-3 pb-24 min-h-[60vh]">
+                <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
+                  <DollarSign className="w-3.5 h-3.5 text-green-600" />
+                  Pricing & Payment
+                </h3>
+                
+                {/* Payment Method */}
+                <div className="space-y-1">
+                  <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Payment Method</Label>
+                  <Select
+                    value={formData.paymentMethod}
+                    onValueChange={(value: 'pay_now' | 'pay_later' | 'cash') => setFormData({ ...formData, paymentMethod: value })}
+                  >
+                    <SelectTrigger className="h-8 text-[10px]">
+                      <SelectValue placeholder="Select payment method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pay_now">Pay with Card Now</SelectItem>
+                      <SelectItem value="pay_later">Pay Later with Card</SelectItem>
+                      <SelectItem value="cash">Pay with Cash</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Total Amount */}
+                <div className="space-y-1">
+                  <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Total Amount ($)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.totalAmount}
+                    onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
+                    className="h-8 text-sm font-bold"
+                    placeholder="0.00"
+                  />
+                </div>
+
+                {/* Calculate Price Button */}
+                <Button
+                  onClick={onCalculatePrice}
+                  disabled={isCalculatingPrice}
+                  variant="outline"
+                  className="w-full h-8 text-xs"
+                >
+                  {isCalculatingPrice ? 'Calculating...' : 'Calculate Estimated Price'}
+                </Button>
+
+                {calculatedPrice && (
+                  <div className="p-2 bg-green-50 dark:bg-green-950 rounded border border-green-200 dark:border-green-800">
+                    <p className="text-[10px] text-green-700 dark:text-green-300">
+                      Estimated: <span className="font-bold">${calculatedPrice}</span>
+                    </p>
+                  </div>
+                )}
+
+                {/* Discount */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-0.5">
+                    <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Discount %</Label>
+                    <Input
+                      type="number"
+                      step="1"
+                      min="0"
+                      max="100"
+                      value={formData.discountPercentage}
+                      onChange={(e) => setFormData({ ...formData, discountPercentage: e.target.value })}
+                      className="h-7 text-[10px]"
+                    />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide">Gratuity</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={formData.gratuityAmount}
+                      onChange={(e) => setFormData({ ...formData, gratuityAmount: e.target.value })}
+                      className="h-7 text-[10px]"
+                    />
+                  </div>
+                </div>
+
+                {/* Navigation */}
+                <div className="pt-4 flex items-center justify-between">
+                  <Button 
+                    variant="outline"
+                    onClick={goToPrevStep}
+                    className="text-xs px-3 py-2"
+                  >
+                    <ChevronLeft className="w-3 h-3 mr-1" /> Back
+                  </Button>
+                  <Button 
+                    onClick={onSave}
+                    disabled={isSaving}
+                    className="bg-green-600 hover:bg-green-700 text-white text-xs px-4 py-2"
+                  >
+                    {isSaving ? 'Saving...' : (editingBooking ? 'Update Booking' : 'Create Booking')}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Desktop View - Original Layout */}
+          <div className="hidden lg:block h-full">
             
             {/* Details Panel */}
-            <div className={`bg-background ${
-              activeTab === 'pricing' ? 'hidden lg:block' : 'block'
-            }`}>
+            <div className="bg-background">
               <div className="p-3 sm:p-4 space-y-2 pb-20 lg:pb-4">
 
             {/* Ultra Compact Professional Form */}
@@ -2069,51 +2795,44 @@ export function BookingDetailsDialog({
           </div>
         </div>
 
-        {/* Mobile Sticky Footer with Navigation and Save */}
-        <div className="lg:hidden sticky bottom-0 left-0 right-0 bg-background border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-3 safe-area-inset-bottom">
+        {/* Mobile Sticky Footer with Step Navigation */}
+        <div className="lg:hidden sticky bottom-0 left-0 right-0 bg-background border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-2 safe-area-inset-bottom">
           <div className="flex items-center gap-2">
-            {/* Navigation buttons */}
-            <div className="flex gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const tabs: ('passenger' | 'journey' | 'schedule' | 'pricing')[] = ['passenger', 'journey', 'schedule', 'pricing'];
-                  const currentIndex = tabs.indexOf(activeTab);
-                  if (currentIndex > 0) {
-                    setActiveTab(tabs[currentIndex - 1]);
-                  }
-                }}
-                disabled={activeTab === 'passenger'}
-                className="px-3"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const tabs: ('passenger' | 'journey' | 'schedule' | 'pricing')[] = ['passenger', 'journey', 'schedule', 'pricing'];
-                  const currentIndex = tabs.indexOf(activeTab);
-                  if (currentIndex < tabs.length - 1) {
-                    setActiveTab(tabs[currentIndex + 1]);
-                  }
-                }}
-                disabled={activeTab === 'pricing'}
-                className="px-3"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+            {/* Previous Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToPrevStep}
+              disabled={activeStep === 1}
+              className="px-2 h-9"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            
+            {/* Step Indicator */}
+            <div className="flex-1 text-center">
+              <span className="text-[10px] font-semibold text-muted-foreground">
+                Step {activeStep} of {TOTAL_STEPS}: {STEP_LABELS[activeStep - 1]}
+              </span>
             </div>
             
-            {/* Save Button */}
-            <Button
-              onClick={onSave}
-              disabled={isSaving}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3"
-            >
-              {isSaving ? 'Saving...' : (editingBooking ? 'Update Booking' : 'Create Booking')}
-            </Button>
+            {/* Next/Save Button */}
+            {activeStep < TOTAL_STEPS ? (
+              <Button
+                onClick={goToNextStep}
+                className="px-3 h-9 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
+              >
+                Next <ChevronRight className="w-3 h-3 ml-1" />
+              </Button>
+            ) : (
+              <Button
+                onClick={onSave}
+                disabled={isSaving}
+                className="px-3 h-9 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold"
+              >
+                {isSaving ? 'Saving...' : (editingBooking ? 'Update' : 'Create')}
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>

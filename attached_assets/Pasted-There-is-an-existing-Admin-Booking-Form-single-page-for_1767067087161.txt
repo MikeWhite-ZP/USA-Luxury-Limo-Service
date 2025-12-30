@@ -1,0 +1,163 @@
+There is an existing Admin Booking Form (single-page form) similar to the attached screenshots.
+This form is currently working correctly and submits all booking data successfully.
+
+🎯 Objective
+
+Refactor the existing booking form into a 3-tab (step-based) layout while preserving all functionality, data integrity, and submission logic, and improving the UI/UX and visual professionalism.
+
+🧩 Tab Structure (3 Tabs)
+Tab 1 – Trip Details
+
+Include and redesign:
+
+Passenger search / selection
+
+Trip type (Transfer, etc.)
+
+Vehicle selection
+
+Pax & Bags
+
+Pickup address
+
+Stops
+
+Destination address
+
+Date & time scheduling
+
+Design rules:
+
+Clear section headers
+
+Proper spacing and alignment
+
+Readable input sizes
+
+Consistent label typography
+
+Tab 2 – Passenger & Additional Info
+
+Include and redesign:
+
+Book for other (checkbox)
+
+Passenger name
+
+Email
+
+Phone
+
+Flight number + Verify button
+
+Special instructions
+
+Bill reference
+
+Any additional info sections
+
+Design rules:
+
+Group related fields visually
+
+Improve readability and hierarchy
+
+Maintain optional/required indicators
+
+Tab 3 – Pricing & Payment
+
+Include and redesign:
+
+Invoice section
+
+Payment method
+
+Journey fare + calculate button
+
+Admin discount
+
+Custom price items
+
+Total fare summary
+
+CREATE BOOKING button (only on this tab)
+
+🔁 Tab Navigation Behavior
+
+Admin user must be able to freely navigate between tabs
+
+Previously entered data must NOT be lost
+
+All inputs must be stored in temporary state (in-memory state management)
+
+No page reloads between tabs
+
+Tabs must have:
+
+Active state styling
+
+Disabled validation blocking only on final submission (not during navigation)
+
+💾 Data Handling & Submission
+
+Keep one unified booking state object
+
+Each tab updates its related part of the state
+
+When Create Booking is clicked:
+
+Validate required fields
+
+Submit ALL collected data together
+
+Use the same submission logic as the original form
+
+Do NOT break existing backend or API contracts
+
+🎨 UI / UX Redesign Requirements
+
+Redesign layout to look modern, clean, and professional
+
+Improve:
+
+Font sizes
+
+Headings hierarchy
+
+Section spacing
+
+Input alignment
+
+Ensure:
+
+Readable labels
+
+Clear visual grouping
+
+Admin-friendly professional interface
+
+Do not remove any existing fields or features
+
+⚙️ Technical Rules
+
+Preserve all existing business logic
+
+Reuse existing components where possible
+
+No breaking changes
+
+Code must be clean, modular, and maintainable
+
+Tabs should be easily extendable in the future
+
+✅ Final Result
+
+A 3-tab Admin Booking Form where:
+
+Data persists across tabs
+
+UI looks professional and clean
+
+Booking submission works exactly like before
+
+Admin users can confidently create bookings without data loss
