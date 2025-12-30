@@ -1887,6 +1887,7 @@ function InvoiceManagement() {
   const [backfillDialogOpen, setBackfillDialogOpen] = useState(false);
   const [backfillResult, setBackfillResult] = useState<any>(null);
   const [recipientEmail, setRecipientEmail] = useState("");
+  const [markPaidDialogOpen, setMarkPaidDialogOpen] = useState(false);
   const [isLoadingEmail, setIsLoadingEmail] = useState(false);
   const [editFormData, setEditFormData] = useState({
     subtotal: "",
@@ -2003,6 +2004,36 @@ function InvoiceManagement() {
     },
   });
 
+  // Mark invoice as paid mutation (one-way operation)
+  const markPaidMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/admin/invoices/${id}/mark-paid`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to mark invoice as paid");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+      toast({ title: "Invoice marked as paid successfully" });
+      setMarkPaidDialogOpen(false);
+      setSelectedInvoice(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to mark invoice as paid",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Filter invoices
   const filteredInvoices = invoices?.filter((invoice) => {
     const searchLower = searchQuery.toLowerCase();
@@ -2107,6 +2138,11 @@ function InvoiceManagement() {
   const handleDelete = (invoice: any) => {
     setSelectedInvoice(invoice);
     setDeleteDialogOpen(true);
+  };
+
+  const handleMarkPaid = (invoice: any) => {
+    setSelectedInvoice(invoice);
+    setMarkPaidDialogOpen(true);
   };
 
   const handlePrint = async (invoice: any) => {
@@ -2740,6 +2776,18 @@ function InvoiceManagement() {
                         <Edit2 className="w-3.5 h-3.5 mr-1.5" />
                         Edit
                       </Button>
+                      {!invoice.paidAt && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleMarkPaid(invoice)}
+                          className="h-8 text-emerald-700 hover:bg-emerald-50"
+                          data-testid={`button-mark-paid-${invoice.id}`}
+                        >
+                          <Check className="w-3.5 h-3.5 mr-1.5" />
+                          Mark Paid
+                        </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="ghost"
@@ -3325,6 +3373,69 @@ function InvoiceManagement() {
               data-testid="button-confirm-delete"
             >
               {deleteInvoiceMutation.isPending ? "Deleting..." : "Delete Invoice"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Mark as Paid Confirmation Dialog */}
+      <Dialog open={markPaidDialogOpen} onOpenChange={setMarkPaidDialogOpen}>
+        <DialogContent className="sm:max-w-[500px] bg-background">
+          <DialogHeader className="border-b border-amber-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-2 rounded-lg">
+                <AlertTriangle className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold text-foreground">Mark Invoice as Paid</DialogTitle>
+                <DialogDescription className="text-muted-foreground mt-0.5">
+                  This action cannot be reversed
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+          {selectedInvoice && (
+            <div className="space-y-4">
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-amber-900">
+                    <p className="font-semibold mb-1">Are you sure you want to mark this invoice as paid?</p>
+                    <p className="text-amber-800">
+                      Once marked as paid, this action <strong>cannot be reverted</strong>. 
+                      The payment status will be permanently set to "Paid".
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 bg-muted rounded-lg border border-border">
+                <div className="space-y-2 text-sm">
+                  <p className="text-foreground"><strong className="font-semibold">Invoice #:</strong> {selectedInvoice.invoiceNumber}</p>
+                  <p className="text-foreground"><strong className="font-semibold">Amount:</strong> ${parseFloat(selectedInvoice.totalAmount).toFixed(2)}</p>
+                  <p className="text-foreground"><strong className="font-semibold">Booking ID:</strong> #{selectedInvoice.bookingId?.toUpperCase().substring(0, 8)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setMarkPaidDialogOpen(false)}
+              data-testid="button-cancel-mark-paid"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (selectedInvoice) {
+                  markPaidMutation.mutate(selectedInvoice.id);
+                }
+              }}
+              disabled={markPaidMutation.isPending}
+              className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white"
+              data-testid="button-confirm-mark-paid"
+            >
+              {markPaidMutation.isPending ? "Processing..." : "Yes, Mark as Paid"}
             </Button>
           </DialogFooter>
         </DialogContent>
