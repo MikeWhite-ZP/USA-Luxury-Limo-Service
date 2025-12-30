@@ -11,10 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { useAuth } from "@/hooks/useAuth";
+import { useBranding } from "@/hooks/useBranding";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+import { Link } from "wouter";
 import { 
   MapPin, 
   Navigation, 
@@ -238,7 +240,13 @@ export function BookingDetailsDialog({
   
   const { user } = useAuth();
   const { toast } = useToast();
+  const { companyName: brandCompanyName } = useBranding();
   const canManageCharges = user?.role === 'admin' || user?.role === 'dispatcher';
+  
+  const selectedVehicleType = vehicleTypes?.find((vt: any) => vt.id === formData.vehicleTypeId);
+  const maxLuggageCapacity = selectedVehicleType?.luggageCapacity ? parseInt(selectedVehicleType.luggageCapacity) : 99;
+  const isAtMaxLuggage = formData.luggageCount >= maxLuggageCapacity;
+  const companyName = brandCompanyName || 'our company';
   
   const { data: passengerCreditsData } = useQuery<{ balance: string; hasCredits: boolean }>({
     queryKey: ['/api/admin/users', formData.passengerId, 'ride-credits'],
@@ -675,7 +683,12 @@ export function BookingDetailsDialog({
                   <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle</Label>
                   <Select
                     value={formData.vehicleTypeId}
-                    onValueChange={(value) => setFormData({ ...formData, vehicleTypeId: value })}
+                    onValueChange={(value) => {
+                      const newVehicle = vehicleTypes?.find((vt: any) => vt.id === value);
+                      const newMaxLuggage = newVehicle?.luggageCapacity ? parseInt(newVehicle.luggageCapacity) : 99;
+                      const adjustedLuggage = formData.luggageCount > newMaxLuggage ? newMaxLuggage : formData.luggageCount;
+                      setFormData({ ...formData, vehicleTypeId: value, luggageCount: adjustedLuggage });
+                    }}
                   >
                     <SelectTrigger data-testid="select-vehicle-type" className="h-10">
                       <SelectValue placeholder="Select" />
@@ -707,13 +720,44 @@ export function BookingDetailsDialog({
                   <Input
                     type="number"
                     min="0"
+                    max={maxLuggageCapacity}
                     value={formData.luggageCount}
-                    onChange={(e) => setFormData({ ...formData, luggageCount: parseInt(e.target.value) || 0 })}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 0;
+                      const cappedValue = Math.min(value, maxLuggageCapacity);
+                      setFormData({ ...formData, luggageCount: cappedValue });
+                    }}
                     className="h-10"
                     data-testid="input-luggage-count"
                   />
                 </div>
               </div>
+              
+              {isAtMaxLuggage && selectedVehicleType && (
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                    <div className="text-xs text-amber-800 dark:text-amber-200">
+                      <p className="font-medium mb-1">Maximum luggage capacity reached ({maxLuggageCapacity} bags)</p>
+                      <p className="text-amber-700 dark:text-amber-300">
+                        Need more space? Consider selecting a larger vehicle type, or add your special requirements in the{' '}
+                        <button 
+                          type="button"
+                          onClick={() => setActiveTab('passenger')}
+                          className="underline font-medium hover:text-amber-900 dark:hover:text-amber-100"
+                        >
+                          Additional Info
+                        </button>
+                        {' '}section. You can also{' '}
+                        <Link href="/contact" className="underline font-medium hover:text-amber-900 dark:hover:text-amber-100">
+                          contact {companyName}
+                        </Link>
+                        {' '}for assistance.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-3">
                 <div className="flex items-center gap-2 pb-2 border-b">
