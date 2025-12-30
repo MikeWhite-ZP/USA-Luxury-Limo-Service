@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Plane, Briefcase, Heart, Clock, Star, Check, Phone, Car, Users, Shield, Calendar, MapPin, type LucideIcon } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import type { ServiceSelect } from "@shared/schema";
+import type { Service } from "@shared/schema";
 
 const iconMap: Record<string, LucideIcon> = {
   Plane,
@@ -28,7 +28,7 @@ export default function ServiceDetail() {
   const [, setLocation] = useLocation();
   const slug = params?.slug;
 
-  const { data: service, isLoading, isError } = useQuery<ServiceSelect>({
+  const { data: service, isLoading, isError } = useQuery<Service>({
     queryKey: ["/api/services", slug],
     queryFn: async () => {
       const response = await fetch(`/api/services/${slug}`);
@@ -150,7 +150,7 @@ export default function ServiceDetail() {
                     What's Included
                   </h2>
                   <div className="grid gap-3">
-                    {service.features.map((feature, index) => (
+                    {service.features.map((feature: string, index: number) => (
                       <div key={index} className="flex items-start space-x-3">
                         <Check className="w-5 h-5 text-primary mt-0.5" />
                         <span className="text-muted-foreground" data-testid={`benefit-${index}`}>
@@ -180,7 +180,7 @@ export default function ServiceDetail() {
                       <div className="border-t border-border pt-4">
                         <h4 className="font-semibold text-foreground mb-3">Key Features:</h4>
                         <div className="space-y-2">
-                          {service.features.slice(0, 4).map((feature, index) => (
+                          {service.features.slice(0, 4).map((feature: string, index: number) => (
                             <div key={index} className="flex items-center space-x-2">
                               <Check className="w-4 h-4 text-primary" />
                               <span className="text-sm text-muted-foreground">{feature}</span>
