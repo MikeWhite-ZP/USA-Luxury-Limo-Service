@@ -4081,6 +4081,58 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
     }
   });
 
+  // Admin: Mark invoice as paid (one-way operation - cannot be reverted)
+  app.post('/api/admin/invoices/:id/mark-paid', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const invoice = await storage.getInvoice(req.params.id);
+      if (!invoice) {
+        return res.status(404).json({ message: 'Invoice not found' });
+      }
+
+      // Check if already paid - cannot mark as paid again
+      if (invoice.paidAt) {
+        return res.status(400).json({ message: 'Invoice is already marked as paid' });
+      }
+
+      // Mark as paid with current timestamp
+      const updated = await storage.updateInvoice(req.params.id, {
+        paidAt: new Date(),
+      });
+
+      if (!updated) {
+        return res.status(500).json({ message: 'Failed to update invoice' });
+      }
+
+      // Also update the associated booking's payment status
+      try {
+        const booking = await storage.getBooking(invoice.bookingId);
+        if (booking) {
+          await storage.updateBooking(invoice.bookingId, {
+            paymentStatus: 'paid',
+          });
+        }
+      } catch (bookingError) {
+        console.warn('Could not update booking payment status:', bookingError);
+      }
+
+      console.log(`Invoice ${invoice.invoiceNumber} marked as paid by admin ${user.username}`);
+      res.json({ 
+        message: 'Invoice marked as paid successfully',
+        invoice: updated 
+      });
+    } catch (error) {
+      console.error('Mark invoice as paid error:', error);
+      res.status(500).json({ message: 'Failed to mark invoice as paid' });
+    }
+  });
+
   app.post('/api/invoices/:id/email', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
