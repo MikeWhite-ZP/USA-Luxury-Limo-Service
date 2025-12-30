@@ -2906,6 +2906,7 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
       console.log('📝 Admin booking update request:', {
         bookingId: id,
         scheduledDateTime: req.body.scheduledDateTime,
+        paymentMethod: req.body.paymentMethod,
         bodyKeys: Object.keys(req.body)
       });
       
@@ -2920,6 +2921,7 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
       
       console.log('✅ Validated updates:', {
         scheduledDateTime: validatedUpdates.scheduledDateTime,
+        paymentMethod: validatedUpdates.paymentMethod,
         validatedKeys: Object.keys(validatedUpdates)
       });
 
@@ -2930,7 +2932,8 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
 
       console.log('💾 Updated booking result:', {
         bookingId: booking.id,
-        newScheduledDateTime: booking.scheduledDateTime
+        newScheduledDateTime: booking.scheduledDateTime,
+        newPaymentMethod: booking.paymentMethod
       });
 
       res.json(booking);

@@ -2078,6 +2078,7 @@ export class DatabaseStorage implements IStorage {
         totalAmount: bookings.totalAmount,
         driverPayment: bookings.driverPayment,
         paymentStatus: bookings.paymentStatus,
+        paymentMethod: bookings.paymentMethod,
         specialInstructions: bookings.specialInstructions,
         createdAt: bookings.createdAt,
         passengerFirstName: users.firstName,
