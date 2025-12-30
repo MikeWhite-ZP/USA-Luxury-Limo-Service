@@ -205,23 +205,31 @@ export function BookingDetailsDialog({
   const [tempSelectedDriverId, setTempSelectedDriverId] = useState('');
   const [tempDriverPayment, setTempDriverPayment] = useState('');
   
-  // Step-based wizard navigation for mobile (1-4)
-  const [activeStep, setActiveStep] = useState(1);
+  // 3-Tab navigation for booking form
+  const [activeTab, setActiveTab] = useState<'trip' | 'passenger' | 'pricing'>('trip');
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
-  const TOTAL_STEPS = 4;
-  const STEP_LABELS = ['Passenger', 'Journey', 'Schedule', 'Pricing'];
+  const TAB_CONFIG = [
+    { id: 'trip' as const, label: 'Trip Details', icon: MapPin },
+    { id: 'passenger' as const, label: 'Passenger & Info', icon: User },
+    { id: 'pricing' as const, label: 'Pricing & Payment', icon: DollarSign }
+  ];
   
-  // Navigation functions
-  const goToNextStep = () => {
-    if (activeStep < TOTAL_STEPS) {
-      setActiveStep(activeStep + 1);
+  // Get current tab index for navigation
+  const getCurrentTabIndex = () => TAB_CONFIG.findIndex(t => t.id === activeTab);
+  
+  // Navigation functions for tabs
+  const goToNextTab = () => {
+    const currentIndex = getCurrentTabIndex();
+    if (currentIndex < TAB_CONFIG.length - 1) {
+      setActiveTab(TAB_CONFIG[currentIndex + 1].id);
     }
   };
   
-  const goToPrevStep = () => {
-    if (activeStep > 1) {
-      setActiveStep(activeStep - 1);
+  const goToPrevTab = () => {
+    const currentIndex = getCurrentTabIndex();
+    if (currentIndex > 0) {
+      setActiveTab(TAB_CONFIG[currentIndex - 1].id);
     }
   };
   
@@ -242,19 +250,16 @@ export function BookingDetailsDialog({
     const minSwipeDistance = 50; // minimum swipe distance in pixels
     
     if (swipeDistance > minSwipeDistance) {
-      // Swiped left - go to next step
-      goToNextStep();
+      // Swiped left - go to next tab
+      goToNextTab();
     } else if (swipeDistance < -minSwipeDistance) {
-      // Swiped right - go to previous step
-      goToPrevStep();
+      // Swiped right - go to previous tab
+      goToPrevTab();
     }
     
     setTouchStartX(null);
     setTouchEndX(null);
   };
-  
-  // Legacy tab compatibility (for existing code that uses activeTab)
-  const activeTab = activeStep === 4 ? 'pricing' : 'passenger';
   
   // State for additional charges
   const [showAdditionalChargeForm, setShowAdditionalChargeForm] = useState(false);
@@ -547,45 +552,30 @@ export function BookingDetailsDialog({
           </Button>
         </div>
 
-        {/* Mobile Step Navigation - 4-Step Wizard */}
-        <div className="lg:hidden sticky top-[52px] z-40 bg-background border-b px-2 py-2">
-          {/* Step indicators */}
-          <div className="flex items-center justify-between gap-1">
-            {STEP_LABELS.map((label, index) => {
-              const stepNum = index + 1;
-              const isActive = activeStep === stepNum;
-              const isCompleted = activeStep > stepNum;
+        {/* 3-Tab Navigation */}
+        <div className="sticky top-[52px] z-40 bg-background border-b">
+          <div className="flex">
+            {TAB_CONFIG.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
               
               return (
                 <button
-                  key={stepNum}
-                  onClick={() => setActiveStep(stepNum)}
-                  className={`flex-1 flex flex-col items-center gap-0.5 py-1 px-1 rounded transition-all ${
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-semibold border-b-2 transition-all ${
                     isActive 
-                      ? 'bg-blue-50 dark:bg-blue-950' 
-                      : 'hover:bg-muted'
+                      ? 'border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-950/30' 
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold transition-all ${
-                    isActive 
-                      ? 'bg-blue-600 text-white' 
-                      : isCompleted 
-                        ? 'bg-green-500 text-white' 
-                        : 'bg-muted text-muted-foreground'
-                  }`}>
-                    {isCompleted ? '✓' : stepNum}
-                  </div>
-                  <span className={`text-[8px] font-semibold uppercase tracking-wide ${
-                    isActive ? 'text-blue-600' : 'text-muted-foreground'
-                  }`}>
-                    {label}
-                  </span>
+                  <Icon className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
                 </button>
               );
             })}
           </div>
-          {/* Swipe hint */}
-          <p className="text-[7px] text-center text-muted-foreground mt-1">Swipe left/right or tap to navigate</p>
         </div>
         
         {/* Main Content Area with Touch Handlers */}
@@ -595,10 +585,11 @@ export function BookingDetailsDialog({
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          {/* Mobile Step Content - Show based on activeStep */}
-          <div className="lg:hidden">
-            {/* Step 1: Passenger Selection */}
-            {activeStep === 1 && (
+          {/* Tab Content - Unified for Mobile and Desktop */}
+          <div className="p-4 sm:p-6 space-y-4 pb-24">
+            
+            {/* Tab 1: Trip Details */}
+            {activeTab === 'trip' && (
               <div className="p-3 space-y-2 pb-24 min-h-[60vh]">
                 <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
                   <User className="w-3.5 h-3.5 text-blue-600" />
@@ -796,27 +787,12 @@ export function BookingDetailsDialog({
                   </div>
                 )}
 
-                {/* Next Step Hint */}
-                <div className="pt-4 text-center">
-                  <Button 
-                    onClick={goToNextStep}
-                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2"
-                  >
-                    Next: Journey <ChevronRight className="w-3 h-3 ml-1" />
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2: Journey/Addresses */}
-            {activeStep === 2 && (
-              <div className="p-3 space-y-2 pb-24 min-h-[60vh]">
-                <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5 text-green-600" />
-                  Journey Details
-                </h3>
-
-                {/* Pickup */}
+                {/* Pickup Address Section */}
+                <div className="pt-3 border-t border-border">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    Pickup
+                  </Label>
                 <div className="space-y-0.5">
                   <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
@@ -943,13 +919,13 @@ export function BookingDetailsDialog({
                 <div className="pt-4 flex items-center justify-between">
                   <Button 
                     variant="outline"
-                    onClick={goToPrevStep}
+                    onClick={goToPrevTab}
                     className="text-xs px-3 py-2"
                   >
                     <ChevronLeft className="w-3 h-3 mr-1" /> Back
                   </Button>
                   <Button 
-                    onClick={goToNextStep}
+                    onClick={goToNextTab}
                     className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2"
                   >
                     Next: Schedule <ChevronRight className="w-3 h-3 ml-1" />
@@ -959,7 +935,7 @@ export function BookingDetailsDialog({
             )}
 
             {/* Step 3: Schedule & Flight */}
-            {activeStep === 3 && (
+            {activeTab === 'passenger' && (
               <div className="p-3 space-y-2 pb-24 min-h-[60vh]">
                 <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
                   <Clock className="w-3.5 h-3.5 text-blue-600" />
@@ -1138,13 +1114,13 @@ export function BookingDetailsDialog({
                 <div className="pt-4 flex items-center justify-between">
                   <Button 
                     variant="outline"
-                    onClick={goToPrevStep}
+                    onClick={goToPrevTab}
                     className="text-xs px-3 py-2"
                   >
                     <ChevronLeft className="w-3 h-3 mr-1" /> Back
                   </Button>
                   <Button 
-                    onClick={goToNextStep}
+                    onClick={goToNextTab}
                     className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2"
                   >
                     Next: Pricing <ChevronRight className="w-3 h-3 ml-1" />
@@ -1154,7 +1130,7 @@ export function BookingDetailsDialog({
             )}
 
             {/* Step 4: Pricing - This uses the existing pricing panel */}
-            {activeStep === 4 && (
+            {activeTab === 'pricing' && (
               <div className="p-3 space-y-3 pb-24 min-h-[60vh]">
                 <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
                   <DollarSign className="w-3.5 h-3.5 text-green-600" />
@@ -1240,7 +1216,7 @@ export function BookingDetailsDialog({
                 <div className="pt-4 flex items-center justify-between">
                   <Button 
                     variant="outline"
-                    onClick={goToPrevStep}
+                    onClick={goToPrevTab}
                     className="text-xs px-3 py-2"
                   >
                     <ChevronLeft className="w-3 h-3 mr-1" /> Back
@@ -2795,46 +2771,18 @@ export function BookingDetailsDialog({
           </div>
         </div>
 
-        {/* Mobile Sticky Footer with Step Navigation */}
-        <div className="lg:hidden sticky bottom-0 left-0 right-0 bg-background border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-2 safe-area-inset-bottom">
-          <div className="flex items-center gap-2">
-            {/* Previous Button */}
+        {/* Mobile Sticky Footer - Only show Create Booking on Pricing tab */}
+        {activeTab === 'pricing' && (
+          <div className="lg:hidden sticky bottom-0 left-0 right-0 bg-background border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-3 safe-area-inset-bottom">
             <Button
-              variant="outline"
-              size="sm"
-              onClick={goToPrevStep}
-              disabled={activeStep === 1}
-              className="px-2 h-9"
+              onClick={onSave}
+              disabled={isSaving}
+              className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm"
             >
-              <ChevronLeft className="w-4 h-4" />
+              {isSaving ? 'Saving...' : (editingBooking ? 'UPDATE BOOKING' : 'CREATE BOOKING')}
             </Button>
-            
-            {/* Step Indicator */}
-            <div className="flex-1 text-center">
-              <span className="text-[10px] font-semibold text-muted-foreground">
-                Step {activeStep} of {TOTAL_STEPS}: {STEP_LABELS[activeStep - 1]}
-              </span>
-            </div>
-            
-            {/* Next/Save Button */}
-            {activeStep < TOTAL_STEPS ? (
-              <Button
-                onClick={goToNextStep}
-                className="px-3 h-9 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
-              >
-                Next <ChevronRight className="w-3 h-3 ml-1" />
-              </Button>
-            ) : (
-              <Button
-                onClick={onSave}
-                disabled={isSaving}
-                className="px-3 h-9 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold"
-              >
-                {isSaving ? 'Saving...' : (editingBooking ? 'Update' : 'Create')}
-              </Button>
-            )}
           </div>
-        </div>
+        )}
       </DialogContent>
     </Dialog>
   );
