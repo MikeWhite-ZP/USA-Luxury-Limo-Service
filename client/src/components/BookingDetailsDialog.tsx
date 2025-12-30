@@ -205,8 +205,8 @@ export function BookingDetailsDialog({
   const [tempSelectedDriverId, setTempSelectedDriverId] = useState('');
   const [tempDriverPayment, setTempDriverPayment] = useState('');
   
-  // Tab navigation for mobile - simplified 3-tab design for small screens
-  const [activeTab, setActiveTab] = useState<'passenger' | 'trip' | 'pricing'>('passenger');
+  // Tab navigation for mobile
+  const [activeTab, setActiveTab] = useState<'passenger' | 'journey' | 'schedule' | 'pricing'>('passenger');
   
   // State for additional charges
   const [showAdditionalChargeForm, setShowAdditionalChargeForm] = useState(false);
@@ -499,40 +499,29 @@ export function BookingDetailsDialog({
           </Button>
         </div>
 
-        {/* Mobile Tab Navigation - Compact 3-Tab Design */}
+        {/* Mobile Tab Navigation - Compact 2-Tab Design */}
         <div className="lg:hidden sticky top-[52px] z-40 bg-background border-b">
-          <div className="grid grid-cols-3">
+          <div className="grid grid-cols-2">
             <button
               onClick={() => setActiveTab('passenger')}
-              className={`flex items-center justify-center gap-1 px-1 py-2 text-[10px] font-bold uppercase tracking-wide border-b-2 transition-colors ${
-                activeTab === 'passenger' 
+              className={`flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors ${
+                activeTab !== 'pricing' 
                   ? 'border-blue-600 text-blue-600 bg-blue-50 dark:bg-blue-950' 
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
-              <User className="w-3 h-3" />
-              Guest
-            </button>
-            <button
-              onClick={() => setActiveTab('trip')}
-              className={`flex items-center justify-center gap-1 px-1 py-2 text-[10px] font-bold uppercase tracking-wide border-b-2 transition-colors ${
-                activeTab === 'trip' 
-                  ? 'border-blue-600 text-blue-600 bg-blue-50 dark:bg-blue-950' 
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <MapPin className="w-3 h-3" />
-              Trip
+              <MapPin className="w-3.5 h-3.5" />
+              Details
             </button>
             <button
               onClick={() => setActiveTab('pricing')}
-              className={`flex items-center justify-center gap-1 px-1 py-2 text-[10px] font-bold uppercase tracking-wide border-b-2 transition-colors ${
+              className={`flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors ${
                 activeTab === 'pricing' 
                   ? 'border-blue-600 text-blue-600 bg-blue-50 dark:bg-blue-950' 
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
-              <DollarSign className="w-3 h-3" />
+              <DollarSign className="w-3.5 h-3.5" />
               Pricing
             </button>
           </div>
@@ -543,14 +532,14 @@ export function BookingDetailsDialog({
           {/* Tab Content */}
           <div className="h-full">
             
-            {/* Passenger & Trip Panels - Combined for mobile, separate tabs */}
+            {/* Details Panel */}
             <div className={`bg-background ${
-              (activeTab === 'passenger' || activeTab === 'trip') ? 'block' : 'hidden lg:block'
+              activeTab === 'pricing' ? 'hidden lg:block' : 'block'
             }`}>
               <div className="p-3 sm:p-4 space-y-2 pb-20 lg:pb-4">
 
-            {/* PASSENGER TAB CONTENT - Only visible on passenger tab (mobile) or always on desktop */}
-            <div className={`space-y-2 ${activeTab === 'passenger' ? 'block' : 'hidden lg:block'}`}>
+            {/* Ultra Compact Professional Form */}
+            <div className="space-y-2">
               
               <div className="space-y-2">
                   {/* Passenger Selection */}
@@ -831,17 +820,9 @@ export function BookingDetailsDialog({
                       </div>
                     )}
                   </div>
-                </div>
-              </div>
-            </div>
-            {/* END PASSENGER TAB CONTENT */}
-
-            {/* TRIP TAB CONTENT - Only visible on trip tab (mobile) or always on desktop */}
-            <div className={`space-y-2 ${activeTab === 'trip' ? 'block' : 'hidden lg:block'}`}>
-              <div className="space-y-2">
 
                   {/* Schedule Section - Ultra Compact Single Row */}
-                  <div className="space-y-1 pt-1 border-t border-border lg:border-0">
+                  <div className="space-y-1 pt-1 border-t border-border">
                     <Label className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
                       <Clock className="w-2 h-2 text-blue-600" />
                       Schedule
@@ -2085,6 +2066,7 @@ export function BookingDetailsDialog({
             </div>
           </div>
 
+          </div>
         </div>
 
         {/* Mobile Sticky Footer with Navigation and Save */}
@@ -2096,7 +2078,7 @@ export function BookingDetailsDialog({
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const tabs: ('passenger' | 'trip' | 'pricing')[] = ['passenger', 'trip', 'pricing'];
+                  const tabs: ('passenger' | 'journey' | 'schedule' | 'pricing')[] = ['passenger', 'journey', 'schedule', 'pricing'];
                   const currentIndex = tabs.indexOf(activeTab);
                   if (currentIndex > 0) {
                     setActiveTab(tabs[currentIndex - 1]);
@@ -2111,7 +2093,7 @@ export function BookingDetailsDialog({
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const tabs: ('passenger' | 'trip' | 'pricing')[] = ['passenger', 'trip', 'pricing'];
+                  const tabs: ('passenger' | 'journey' | 'schedule' | 'pricing')[] = ['passenger', 'journey', 'schedule', 'pricing'];
                   const currentIndex = tabs.indexOf(activeTab);
                   if (currentIndex < tabs.length - 1) {
                     setActiveTab(tabs[currentIndex + 1]);
