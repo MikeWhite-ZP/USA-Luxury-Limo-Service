@@ -925,6 +925,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public: Get single service by slug
+  app.get('/api/services/:slug', async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const service = await storage.getServiceBySlug(slug);
+      
+      if (!service || !service.isActive) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      // Generate presigned URL for service image
+      const serviceWithUrl = {
+        ...service,
+        imageUrl: service.imageUrl ? await getPresignedUrl(service.imageUrl) : null
+      };
+      
+      res.json(serviceWithUrl);
+    } catch (error) {
+      console.error("Error fetching service by slug:", error);
+      res.status(500).json({ message: "Failed to fetch service" });
+    }
+  });
+
   // Admin: Get all services (including inactive)
   app.get('/api/admin/services', isAuthenticated, requireAdmin, async (req, res) => {
     try {

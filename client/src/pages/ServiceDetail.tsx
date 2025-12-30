@@ -1,87 +1,76 @@
 import { useRoute, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Plane, Briefcase, Heart, Clock, Star, Check, Phone } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowLeft, Plane, Briefcase, Heart, Clock, Star, Check, Phone, Car, Users, Shield, Calendar, MapPin, type LucideIcon } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import type { ServiceSelect } from "@shared/schema";
 
-const airportTransferBg = '/images/67dc52e7ef277_1759125789879.webp';
-const corporateTravelBg = '/images/corporate_1759126654203.webp';
-const specialEventsBg = '/images/event_1759126933449.webp';
-
-const serviceData = {
-  "airport-transfer": {
-    icon: Plane,
-    title: "Airport Transfer",
-    description: "Reliable airport pickup and drop-off with flight tracking and meet & greet service.",
-    features: ["Flight tracking", "Meet & greet", "Free waiting time"],
-    backgroundImage: airportTransferBg,
-    detailedDescription: "Our airport transfer service ensures you arrive at your destination on time and in comfort. We monitor your flight status to adjust pickup times automatically, and our professional chauffeurs provide meet and greet service at the terminal.",
-    benefits: [
-      "Real-time flight tracking for pickup adjustments",
-      "Professional meet and greet at arrivals",
-      "Complimentary 30-minute waiting time",
-      "Assistance with luggage handling",
-      "Direct route to your destination",
-      "Child seats available upon request"
-    ]
-  },
-  "corporate-travel": {
-    icon: Briefcase,
-    title: "Corporate Travel",
-    description: "Professional transportation for business meetings, events, and executive travel.",
-    features: ["Business-class vehicles", "Professional chauffeurs", "Corporate billing"],
-    backgroundImage: corporateTravelBg,
-    detailedDescription: "Enhance your business image with our executive transportation services. Perfect for client meetings, corporate events, and executive travel with professional vehicles and experienced chauffeurs.",
-    benefits: [
-      "Fleet of executive-class vehicles",
-      "Experienced professional chauffeurs",
-      "Corporate billing and invoicing",
-      "Confidentiality and discretion assured",
-      "Wi-Fi connectivity available",
-      "Flexible scheduling for business needs"
-    ]
-  },
-  "special-events": {
-    icon: Heart,
-    title: "Special Events",
-    description: "Make your special occasions memorable with our luxury transportation services.",
-    features: ["Wedding packages", "Prom & graduation", "Anniversary celebrations"],
-    backgroundImage: specialEventsBg,
-    detailedDescription: "Celebrate life's special moments with our luxury transportation services. Whether it's your wedding day, prom night, or anniversary celebration, we ensure your transportation is as memorable as the occasion.",
-    benefits: [
-      "Wedding ceremony and reception transportation",
-      "Prom and graduation celebrations",
-      "Anniversary and special occasion packages",
-      "Decorated vehicles available",
-      "Photography coordination",
-      "Multiple stops included"
-    ]
-  },
-  "hourly-service": {
-    icon: Clock,
-    title: "Hourly Service",
-    description: "Flexible hourly transportation for multiple stops, shopping trips, and extended travel needs.",
-    features: ["Flexible scheduling", "Multiple destinations", "Wait time included", "Customizable routes"],
-    backgroundImage: corporateTravelBg,
-    detailedDescription: "Our hourly service provides the ultimate flexibility for your transportation needs. Perfect for shopping trips, multiple business meetings, sightseeing tours, or any occasion requiring transportation with multiple stops.",
-    benefits: [
-      "Minimum 3-hour booking available",
-      "Unlimited stops within the time frame",
-      "Waiting time included in hourly rate",
-      "Customizable routes and schedules",
-      "Same professional chauffeur throughout",
-      "Perfect for shopping, tours, and multiple meetings"
-    ]
-  }
+const iconMap: Record<string, LucideIcon> = {
+  Plane,
+  Briefcase,
+  Heart,
+  Clock,
+  Car,
+  Users,
+  Star,
+  Shield,
+  Calendar,
+  MapPin,
 };
 
-export default function ServiceDetail() {
-  const [, params] = useRoute("/service/:id");
-  const [, setLocation] = useLocation();
-  const serviceId = params?.id as keyof typeof serviceData;
+const defaultGradient = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
 
-  if (!serviceId || !serviceData[serviceId]) {
+export default function ServiceDetail() {
+  const [, params] = useRoute("/service/:slug");
+  const [, setLocation] = useLocation();
+  const slug = params?.slug;
+
+  const { data: service, isLoading, isError } = useQuery<ServiceSelect>({
+    queryKey: ["/api/services", slug],
+    queryFn: async () => {
+      const response = await fetch(`/api/services/${slug}`);
+      if (!response.ok) {
+        throw new Error("Service not found");
+      }
+      return response.json();
+    },
+    enabled: !!slug,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-20 pb-16">
+          <Skeleton className="h-64 w-full" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="grid lg:grid-cols-2 gap-12">
+              <div className="space-y-8">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-8 w-48" />
+                <div className="space-y-3">
+                  {[...Array(6)].map((_, i) => (
+                    <Skeleton key={i} className="h-6 w-full" />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Skeleton className="h-96 w-full rounded-xl" />
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isError || !service) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -100,17 +89,19 @@ export default function ServiceDetail() {
     );
   }
 
-  const service = serviceData[serviceId];
+  const IconComponent = iconMap[service.icon] || Star;
+  const backgroundImage = service.imageUrl 
+    ? `url(${service.imageUrl})` 
+    : defaultGradient;
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       <main className="pt-20 pb-16">
-        {/* Hero Section */}
         <div 
           className="relative h-64 bg-cover bg-center"
-          style={{ backgroundImage: `url('${service.backgroundImage}')` }}
+          style={{ backgroundImage }}
         >
           <div className="absolute inset-0 bg-black/60" />
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
@@ -126,7 +117,7 @@ export default function ServiceDetail() {
               </Button>
               <div className="flex items-center space-x-4 mb-4">
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                  <service.icon className="w-8 h-8 text-white" />
+                  <IconComponent className="w-8 h-8 text-white" />
                 </div>
                 <div>
                   <h1 className="text-4xl font-bold" data-testid="service-title">
@@ -143,36 +134,35 @@ export default function ServiceDetail() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* Service Details */}
             <div className="space-y-8">
               <div>
                 <h2 className="text-2xl font-semibold text-foreground mb-4">
                   Service Overview
                 </h2>
                 <p className="text-muted-foreground text-lg leading-relaxed" data-testid="detailed-description">
-                  {service.detailedDescription}
+                  {service.description}
                 </p>
               </div>
 
-              {/* Benefits */}
-              <div>
-                <h2 className="text-2xl font-semibold text-foreground mb-6">
-                  What's Included
-                </h2>
-                <div className="grid gap-3">
-                  {service.benefits.map((benefit, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <Check className="w-5 h-5 text-primary mt-0.5" />
-                      <span className="text-muted-foreground" data-testid={`benefit-${index}`}>
-                        {benefit}
-                      </span>
-                    </div>
-                  ))}
+              {service.features && service.features.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-semibold text-foreground mb-6">
+                    What's Included
+                  </h2>
+                  <div className="grid gap-3">
+                    {service.features.map((feature, index) => (
+                      <div key={index} className="flex items-start space-x-3">
+                        <Check className="w-5 h-5 text-primary mt-0.5" />
+                        <span className="text-muted-foreground" data-testid={`benefit-${index}`}>
+                          {feature}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
-            {/* Booking Card */}
             <div className="space-y-6">
               <Card>
                 <CardContent className="p-8">
@@ -186,24 +176,25 @@ export default function ServiceDetail() {
                       Ready to experience luxury transportation? Book our {service.title.toLowerCase()} service today.
                     </p>
                     
-                    {/* Service Features */}
-                    <div className="border-t border-border pt-4">
-                      <h4 className="font-semibold text-foreground mb-3">Key Features:</h4>
-                      <div className="space-y-2">
-                        {service.features.map((feature, index) => (
-                          <div key={index} className="flex items-center space-x-2">
-                            <Check className="w-4 h-4 text-primary" />
-                            <span className="text-sm text-muted-foreground">{feature}</span>
-                          </div>
-                        ))}
+                    {service.features && service.features.length > 0 && (
+                      <div className="border-t border-border pt-4">
+                        <h4 className="font-semibold text-foreground mb-3">Key Features:</h4>
+                        <div className="space-y-2">
+                          {service.features.slice(0, 4).map((feature, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <Check className="w-4 h-4 text-primary" />
+                              <span className="text-sm text-muted-foreground">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   <div className="space-y-3">
                     <Button 
                       className="w-full text-lg py-6"
-                      onClick={() => setLocation(`/booking?service=${serviceId}`)}
+                      onClick={() => setLocation(`/booking?service=${service.slug}`)}
                       data-testid="button-book-service"
                     >
                       Book Now
@@ -227,7 +218,6 @@ export default function ServiceDetail() {
                 </CardContent>
               </Card>
 
-              {/* Additional Info */}
               <Card>
                 <CardContent className="p-6">
                   <h4 className="font-semibold text-foreground mb-4">Available 24/7</h4>
