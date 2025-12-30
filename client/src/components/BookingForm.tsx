@@ -9,7 +9,9 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
-import { CreditCard, Clock, Search, Plane, Banknote, MapPin, Building2, Hotel, Utensils, ShoppingBag, Car, Coffee, Hospital, School, Landmark } from "lucide-react";
+import { CreditCard, Clock, Search, Plane, Banknote, MapPin, Building2, Hotel, Utensils, ShoppingBag, Car, Coffee, Hospital, School, Landmark, AlertCircle } from "lucide-react";
+import { useBranding } from "@/hooks/useBranding";
+import { Link } from "wouter";
 
 interface AddressSuggestion {
   id: string;
@@ -122,6 +124,10 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
   const rideCreditsBalance = parseFloat(rideCreditsData?.balance || '0');
   const hasRideCredits = rideCreditsData?.hasCredits === true && rideCreditsBalance > 0;
+
+  // Branding for company name in warning messages
+  const { companyName: brandCompanyName } = useBranding();
+  const companyName = brandCompanyName || 'our company';
 
   // Sync time state from hour, minute, and period
   useEffect(() => {
@@ -311,6 +317,47 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   const { data: vehicleTypes } = useQuery<VehicleType[]>({
     queryKey: ['/api/vehicle-types'],
   });
+
+  // Selected vehicle capacity limits
+  const selectedVehicleType = vehicleTypes?.find(vt => vt.id === selectedVehicle);
+  const maxPassengerCapacity = selectedVehicleType?.passengerCapacity || 99;
+  const maxLuggageCapacity = selectedVehicleType?.luggageCapacity ? parseInt(selectedVehicleType.luggageCapacity) : 99;
+  const isAtMaxPassenger = passengerCount >= maxPassengerCapacity;
+  const isAtMaxLuggage = luggageCount >= maxLuggageCapacity;
+  const hasCapacityWarning = selectedVehicle && (isAtMaxPassenger || isAtMaxLuggage);
+
+  // Auto-clamp passenger/luggage counts when vehicle selection changes
+  useEffect(() => {
+    if (selectedVehicle && selectedVehicleType) {
+      const newMaxPassenger = selectedVehicleType.passengerCapacity || 99;
+      const newMaxLuggage = selectedVehicleType.luggageCapacity ? parseInt(selectedVehicleType.luggageCapacity) : 99;
+      
+      if (passengerCount > newMaxPassenger) {
+        setPassengerCount(newMaxPassenger);
+      }
+      if (luggageCount > newMaxLuggage) {
+        setLuggageCount(newMaxLuggage);
+      }
+    }
+  }, [selectedVehicle, selectedVehicleType]);
+
+  // Check if a vehicle can accommodate current passenger/luggage counts
+  const getVehicleAvailability = (vehicle: VehicleType) => {
+    const vehicleMaxPassengers = vehicle.passengerCapacity || 99;
+    const vehicleMaxLuggage = vehicle.luggageCapacity ? parseInt(vehicle.luggageCapacity) : 99;
+    
+    const passengerExceeds = passengerCount > vehicleMaxPassengers;
+    const luggageExceeds = luggageCount > vehicleMaxLuggage;
+    
+    if (passengerExceeds && luggageExceeds) {
+      return { disabled: true, reason: `Max ${vehicleMaxPassengers} pax, ${vehicleMaxLuggage} bags` };
+    } else if (passengerExceeds) {
+      return { disabled: true, reason: `Max ${vehicleMaxPassengers} passengers` };
+    } else if (luggageExceeds) {
+      return { disabled: true, reason: `Max ${vehicleMaxLuggage} bags` };
+    }
+    return { disabled: false, reason: '' };
+  };
 
   // Fetch available pricing rules for current service type
   const { data: pricingRules } = useQuery<Record<string, any>>({
@@ -1202,6 +1249,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               .map((vehicle) => {
                 const vehicleSlug = getVehicleSlug(vehicle.name);
                 const calculatedPrice = calculatedPrices[vehicleSlug];
+                const availability = getVehicleAvailability(vehicle);
                 
                 // Customize descriptions based on vehicle type
                 let capacityText = `Up to ${vehicle.passengerCapacity} passengers`;
@@ -1218,12 +1266,14 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 return (
                   <div
                     key={vehicle.id}
-                    className={`p-4 rounded-xl cursor-pointer transition-all border-2 flex items-center gap-4 ${
-                      selectedVehicle === vehicle.id 
-                        ? 'border-primary bg-primary/10 shadow-lg' 
-                        : 'border-primary/20 hover:border-primary hover:shadow-md'
+                    className={`p-4 rounded-xl transition-all border-2 flex items-center gap-4 ${
+                      availability.disabled 
+                        ? 'border-muted bg-muted/50 opacity-60 cursor-not-allowed'
+                        : selectedVehicle === vehicle.id 
+                          ? 'border-primary bg-primary/10 shadow-lg cursor-pointer' 
+                          : 'border-primary/20 hover:border-primary hover:shadow-md cursor-pointer'
                     }`}
-                    onClick={() => setSelectedVehicle(vehicle.id)}
+                    onClick={() => !availability.disabled && setSelectedVehicle(vehicle.id)}
                     data-testid={`vehicle-${vehicle.id}`}
                   >
                     {/* Vehicle Image */}
@@ -1239,7 +1289,12 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     
                     {/* Vehicle Info */}
                     <div className="flex-1">
-                      <h4 className="font-bold text-primary text-lg">{vehicle.name}</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className={`font-bold text-lg ${availability.disabled ? 'text-muted-foreground' : 'text-primary'}`}>{vehicle.name}</h4>
+                        {availability.disabled && (
+                          <span className="text-[10px] text-red-500 font-medium">({availability.reason})</span>
+                        )}
+                      </div>
                       <div className="text-sm text-muted-foreground mt-1">
                         {capacityText} • {luggageText}
                       </div>
@@ -1658,7 +1713,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         {/* Passenger Count */}
         <div data-testid="passenger-count-section">
           <div className="flex justify-between items-center">
-            <span className="font-semibold">Passenger</span>
+            <span className="font-semibold">Passenger {selectedVehicle && `(max ${maxPassengerCapacity})`}</span>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setPassengerCount(Math.max(1, passengerCount - 1))}
@@ -1669,8 +1724,13 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               </button>
               <span className="w-8 text-center font-medium" data-testid="text-passenger-count">{passengerCount}</span>
               <button
-                onClick={() => setPassengerCount(passengerCount + 1)}
-                className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700"
+                onClick={() => setPassengerCount(Math.min(passengerCount + 1, maxPassengerCapacity))}
+                disabled={passengerCount >= maxPassengerCapacity}
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  passengerCount >= maxPassengerCapacity 
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed' 
+                    : 'bg-red-600 text-white hover:bg-red-700'
+                }`}
                 data-testid="button-increase-passengers"
               >
                 +
@@ -1682,7 +1742,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         {/* Luggage Count */}
         <div data-testid="luggage-count-section">
           <div className="flex justify-between items-center">
-            <span className="font-semibold">Luggage</span>
+            <span className="font-semibold">Luggage {selectedVehicle && `(max ${maxLuggageCapacity})`}</span>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setLuggageCount(Math.max(0, luggageCount - 1))}
@@ -1693,8 +1753,13 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               </button>
               <span className="w-8 text-center font-medium" data-testid="text-luggage-count">{luggageCount}</span>
               <button
-                onClick={() => setLuggageCount(luggageCount + 1)}
-                className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700"
+                onClick={() => setLuggageCount(Math.min(luggageCount + 1, maxLuggageCapacity))}
+                disabled={luggageCount >= maxLuggageCapacity}
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  luggageCount >= maxLuggageCapacity 
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed' 
+                    : 'bg-red-600 text-white hover:bg-red-700'
+                }`}
                 data-testid="button-increase-luggage"
               >
                 +
@@ -1702,6 +1767,32 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </div>
           </div>
         </div>
+
+        {/* Capacity Warning Message */}
+        {hasCapacityWarning && (
+          <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-800 dark:text-amber-200">
+                <p className="font-medium mb-1">
+                  {isAtMaxPassenger && isAtMaxLuggage 
+                    ? `Maximum capacity reached (${maxPassengerCapacity} passengers, ${maxLuggageCapacity} bags)`
+                    : isAtMaxPassenger 
+                      ? `Maximum passenger capacity reached (${maxPassengerCapacity} passengers)`
+                      : `Maximum luggage capacity reached (${maxLuggageCapacity} bags)`
+                  }
+                </p>
+                <p className="text-amber-700 dark:text-amber-300">
+                  Need more capacity? Go back and select a larger vehicle type, or add your special requirements in the Special Instructions below. You can also{' '}
+                  <Link href="/contact" className="underline font-medium hover:text-amber-900 dark:hover:text-amber-100">
+                    contact {companyName}
+                  </Link>
+                  {' '}for assistance.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Car Seat */}
         <div data-testid="baby-seat-section">
