@@ -915,6 +915,8 @@ export class DatabaseStorage implements IStorage {
       pickupLon: bookingData.pickupLon === '' ? null : bookingData.pickupLon,
       destinationLat: bookingData.destinationLat === '' ? null : bookingData.destinationLat,
       destinationLon: bookingData.destinationLon === '' ? null : bookingData.destinationLon,
+      adminDiscount: bookingData.adminDiscount === '' ? null : bookingData.adminDiscount,
+      creditAmountApplied: bookingData.creditAmountApplied === '' ? null : bookingData.creditAmountApplied,
     };
     
     const [booking] = await db
