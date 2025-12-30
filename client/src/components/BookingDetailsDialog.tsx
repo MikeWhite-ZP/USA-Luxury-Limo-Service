@@ -245,8 +245,29 @@ export function BookingDetailsDialog({
   
   const selectedVehicleType = vehicleTypes?.find((vt: any) => vt.id === formData.vehicleTypeId);
   const maxLuggageCapacity = selectedVehicleType?.luggageCapacity ? parseInt(selectedVehicleType.luggageCapacity) : 99;
+  const maxPassengerCapacity = selectedVehicleType?.passengerCapacity || 99;
   const isAtMaxLuggage = formData.luggageCount >= maxLuggageCapacity;
+  const isAtMaxPassenger = formData.passengerCount >= maxPassengerCapacity;
   const companyName = brandCompanyName || 'our company';
+  
+  const getVehicleAvailability = (vehicle: any) => {
+    const vehicleMaxPassengers = vehicle.passengerCapacity || 99;
+    const vehicleMaxLuggage = vehicle.luggageCapacity ? parseInt(vehicle.luggageCapacity) : 99;
+    
+    const passengerExceeds = formData.passengerCount > vehicleMaxPassengers;
+    const luggageExceeds = formData.luggageCount > vehicleMaxLuggage;
+    
+    if (passengerExceeds && luggageExceeds) {
+      return { disabled: true, reason: `Max ${vehicleMaxPassengers} pax, ${vehicleMaxLuggage} bags` };
+    } else if (passengerExceeds) {
+      return { disabled: true, reason: `Max ${vehicleMaxPassengers} passengers` };
+    } else if (luggageExceeds) {
+      return { disabled: true, reason: `Max ${vehicleMaxLuggage} bags` };
+    }
+    return { disabled: false, reason: '' };
+  };
+  
+  const hasCapacityWarning = isAtMaxLuggage || isAtMaxPassenger;
   
   const { data: passengerCreditsData } = useQuery<{ balance: string; hasCredits: boolean }>({
     queryKey: ['/api/admin/users', formData.passengerId, 'ride-credits'],
@@ -686,19 +707,34 @@ export function BookingDetailsDialog({
                     onValueChange={(value) => {
                       const newVehicle = vehicleTypes?.find((vt: any) => vt.id === value);
                       const newMaxLuggage = newVehicle?.luggageCapacity ? parseInt(newVehicle.luggageCapacity) : 99;
+                      const newMaxPassenger = newVehicle?.passengerCapacity || 99;
                       const adjustedLuggage = formData.luggageCount > newMaxLuggage ? newMaxLuggage : formData.luggageCount;
-                      setFormData({ ...formData, vehicleTypeId: value, luggageCount: adjustedLuggage });
+                      const adjustedPassenger = formData.passengerCount > newMaxPassenger ? newMaxPassenger : formData.passengerCount;
+                      setFormData({ ...formData, vehicleTypeId: value, luggageCount: adjustedLuggage, passengerCount: adjustedPassenger });
                     }}
                   >
                     <SelectTrigger data-testid="select-vehicle-type" className="h-10">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      {vehicleTypes?.map((vt) => (
-                        <SelectItem key={vt.id} value={vt.id}>
-                          {vt.name}
-                        </SelectItem>
-                      ))}
+                      {vehicleTypes?.map((vt) => {
+                        const availability = getVehicleAvailability(vt);
+                        return (
+                          <SelectItem 
+                            key={vt.id} 
+                            value={vt.id}
+                            disabled={availability.disabled}
+                            className={availability.disabled ? 'opacity-50' : ''}
+                          >
+                            <div className="flex items-center justify-between w-full gap-2">
+                              <span>{vt.name}</span>
+                              {availability.disabled && (
+                                <span className="text-[10px] text-muted-foreground ml-1">({availability.reason})</span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>
@@ -708,8 +744,13 @@ export function BookingDetailsDialog({
                   <Input
                     type="number"
                     min="1"
+                    max={maxPassengerCapacity}
                     value={formData.passengerCount}
-                    onChange={(e) => setFormData({ ...formData, passengerCount: parseInt(e.target.value) || 1 })}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 1;
+                      const cappedValue = Math.min(Math.max(value, 1), maxPassengerCapacity);
+                      setFormData({ ...formData, passengerCount: cappedValue });
+                    }}
                     className="h-10"
                     data-testid="input-passenger-count"
                   />
@@ -733,14 +774,21 @@ export function BookingDetailsDialog({
                 </div>
               </div>
               
-              {isAtMaxLuggage && selectedVehicleType && (
+              {hasCapacityWarning && selectedVehicleType && (
                 <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
                   <div className="flex items-start gap-2">
                     <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                     <div className="text-xs text-amber-800 dark:text-amber-200">
-                      <p className="font-medium mb-1">Maximum luggage capacity reached ({maxLuggageCapacity} bags)</p>
+                      <p className="font-medium mb-1">
+                        {isAtMaxPassenger && isAtMaxLuggage 
+                          ? `Maximum capacity reached (${maxPassengerCapacity} passengers, ${maxLuggageCapacity} bags)`
+                          : isAtMaxPassenger 
+                            ? `Maximum passenger capacity reached (${maxPassengerCapacity} passengers)`
+                            : `Maximum luggage capacity reached (${maxLuggageCapacity} bags)`
+                        }
+                      </p>
                       <p className="text-amber-700 dark:text-amber-300">
-                        Need more space? Consider selecting a larger vehicle type, or add your special requirements in the{' '}
+                        Need more capacity? Consider selecting a larger vehicle type, or add your special requirements in the{' '}
                         <button 
                           type="button"
                           onClick={() => setActiveTab('passenger')}
