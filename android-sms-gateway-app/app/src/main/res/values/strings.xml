@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SMS Gateway</string>
+    <string name="server_url_hint">Server URL (e.g., https://yourserver.com)</string>
+    <string name="device_name_hint">Device Name</string>
+    <string name="phone_number_hint">Phone Number (optional)</string>
+    <string name="register_button">Register Device</string>
+    <string name="start_service">Start Service</string>
+    <string name="stop_service">Stop Service</string>
+    <string name="status_registered">Registered</string>
+    <string name="status_not_registered">Not Registered</string>
+    <string name="status_running">Service Running</string>
+    <string name="status_stopped">Service Stopped</string>
+    <string name="messages_sent">Messages Sent</string>
+    <string name="messages_failed">Messages Failed</string>
+    <string name="last_heartbeat">Last Heartbeat</string>
+    <string name="pending_messages">Pending Messages</string>
+    <string name="notification_channel_name">SMS Gateway Service</string>
+    <string name="notification_channel_desc">Background service for sending SMS messages</string>
+    <string name="notification_title">SMS Gateway Active</string>
+    <string name="notification_text">Monitoring for pending SMS messages</string>
+    <string name="permission_required">Permissions Required</string>
+    <string name="permission_sms_rationale">SMS permission is required to send messages on behalf of the server.</string>
+    <string name="grant_permissions">Grant Permissions</string>
+</resources>

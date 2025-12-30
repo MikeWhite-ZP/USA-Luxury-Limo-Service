@@ -1,0 +1,5 @@
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.usaluxurylimo.smsgateway.api.** { *; }
+-keep class retrofit2.** { *; }
+-keep class com.google.gson.** { *; }

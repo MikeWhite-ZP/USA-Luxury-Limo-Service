@@ -155,52 +155,59 @@ All admin endpoints require authentication and admin role.
 **DELETE** `/api/admin/android-sms/queue/:messageId`
 **POST** `/api/admin/android-sms/queue/clear-failed`
 
-## Android App Implementation
+## Android Companion App
 
-The Android app should:
+A complete Android application is provided in the `android-sms-gateway-app/` directory. This app:
 
-1. **Register Device** on first launch
-2. **Store API Token** securely (e.g., EncryptedSharedPreferences)
-3. **Poll for Messages** periodically (recommended: every 5-10 seconds when active)
-4. **Send Heartbeat** to indicate device is online
-5. **Send SMS** using Android's SmsManager
-6. **Report Status** back to server after each send attempt
+1. **Registers Device** on first launch with the server
+2. **Stores API Token** securely using Android's EncryptedSharedPreferences
+3. **Polls for Messages** every 10 seconds via a foreground service
+4. **Sends Heartbeat** to indicate device is online
+5. **Sends SMS** using Android's SmsManager
+6. **Reports Status** back to server after each send attempt
+7. **Auto-starts on Boot** to ensure continuous operation
 
-### Basic Android Code Example
+### Building the App
 
-```kotlin
-// Register device
-suspend fun registerDevice() {
-    val response = api.post("/api/android-sms/register") {
-        json = mapOf(
-            "deviceUuid" to Settings.Secure.ANDROID_ID,
-            "deviceName" to Build.MODEL,
-            "phoneNumber" to getPhoneNumber()
-        )
-    }
-    saveToken(response.apiToken)
-}
+1. Open `android-sms-gateway-app/` in Android Studio
+2. Sync Gradle and build:
+   ```bash
+   cd android-sms-gateway-app
+   ./gradlew assembleDebug
+   ```
+3. Install on your Android device:
+   ```bash
+   adb install app/build/outputs/apk/debug/app-debug.apk
+   ```
 
-// Poll and send messages
-suspend fun pollAndSend() {
-    val messages = api.get("/api/android-sms/messages/pending")
-    
-    for (msg in messages) {
-        try {
-            SmsManager.getDefault().sendTextMessage(
-                msg.phoneNumber, null, msg.message, null, null
-            )
-            api.post("/api/android-sms/messages/${msg.id}/status") {
-                json = mapOf("status" to "SENT")
-            }
-        } catch (e: Exception) {
-            api.post("/api/android-sms/messages/${msg.id}/status") {
-                json = mapOf("status" to "FAILED", "errorMessage" to e.message)
-            }
-        }
-    }
-}
+### Using the App
+
+1. **Grant Permissions**: Allow SMS and notification permissions when prompted
+2. **Enter Server URL**: Your server's URL (e.g., `https://yourcompany.com`)
+3. **Register Device**: Enter a name and tap "Register Device"
+4. **Start Service**: Tap "Start Service" to begin polling for messages
+
+The app displays:
+- Registration status
+- Service running status
+- Pending message count
+- Messages sent/failed counters
+- Last heartbeat time
+
+### App Architecture
+
 ```
+android-sms-gateway-app/
+├── app/src/main/java/com/usaluxurylimo/smsgateway/
+│   ├── api/              # Retrofit API client and models
+│   ├── service/          # Background SMS sender service
+│   ├── ui/               # MainActivity
+│   └── util/             # Secure preferences
+├── app/src/main/res/     # Layouts, strings, colors
+└── README.md             # Full documentation
+```
+
+See `android-sms-gateway-app/README.md` for detailed documentation.
 
 ## Database Tables
 
