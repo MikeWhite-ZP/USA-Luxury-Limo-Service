@@ -1274,38 +1274,17 @@ export function BookingDetailsDialog({
               )}
             </TabsContent>
 
-            <TabsContent value="pricing" className="p-4 space-y-4 pb-32 m-0">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-blue-600" />
-                    <h3 className="text-sm font-bold text-foreground">Invoice</h3>
-                  </div>
-                  {editingBooking && (
-                    <Badge variant={editingBooking.status === 'completed' ? 'default' : 'secondary'} className="text-xs">
-                      {editingBooking.status === 'pending' ? 'UNPAID' : 
-                       editingBooking.status === 'completed' ? 'PAID' : 'IN PROGRESS'}
-                    </Badge>
-                  )}
-                </div>
-                {editingBooking && (
-                  <div className="space-y-1">
-                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Invoice Number</Label>
-                    <p className="text-lg font-mono font-bold text-foreground">#{editingBooking.id.substring(0, 8).toUpperCase()}</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b">
+            <TabsContent value="pricing" className="p-3 space-y-3 pb-32 m-0">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-indigo-600" />
-                  <h3 className="text-sm font-bold text-foreground">Payment Method</h3>
+                  <h3 className="text-xs font-bold text-foreground">Payment Method</h3>
                 </div>
                 <Select
                   value={formData.paymentMethod}
                   onValueChange={(value: 'pay_now' | 'pay_later' | 'cash') => setFormData({ ...formData, paymentMethod: value })}
                 >
-                  <SelectTrigger className="h-10" data-testid="select-payment-method">
+                  <SelectTrigger className="h-9" data-testid="select-payment-method">
                     <SelectValue placeholder="Select payment method" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1316,9 +1295,9 @@ export function BookingDetailsDialog({
                 </Select>
 
                 {hasPassengerCredits && (
-                  <div className="p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+                  <div className="p-2 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                      <span className="text-xs font-medium text-green-700 dark:text-green-300">
                         Use Ride Credits (${passengerCreditsBalance.toFixed(2)} available)
                       </span>
                       <input
@@ -1345,10 +1324,10 @@ export function BookingDetailsDialog({
                 )}
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
                   <DollarSign className="w-4 h-4 text-green-600" />
-                  <h3 className="text-sm font-bold text-foreground">Journey Fare</h3>
+                  <h3 className="text-xs font-bold text-foreground">Journey Fare</h3>
                 </div>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
@@ -1358,7 +1337,7 @@ export function BookingDetailsDialog({
                       step="0.01"
                       value={formData.totalAmount}
                       onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
-                      className="h-10 pl-9 text-lg font-bold"
+                      className="h-9 pl-9 text-base font-bold"
                       placeholder="0.00"
                       data-testid="input-total-amount"
                     />
@@ -1366,7 +1345,7 @@ export function BookingDetailsDialog({
                   <Button
                     onClick={onCalculatePrice}
                     disabled={isCalculatingPrice}
-                    className="h-10 bg-blue-600 hover:bg-blue-700 text-white"
+                    className="h-9 bg-blue-600 hover:bg-blue-700 text-white"
                     data-testid="button-calculate-price"
                   >
                     {isCalculatingPrice ? 'Calculating...' : 'Calculate'}
@@ -1382,12 +1361,12 @@ export function BookingDetailsDialog({
               </div>
 
               {canManageCharges && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 pb-2 border-b">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
                     <DollarSign className="w-4 h-4 text-green-600" />
-                    <h3 className="text-sm font-bold text-foreground">Admin Discount</h3>
+                    <h3 className="text-xs font-bold text-foreground">Admin Discount</h3>
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Fixed discount amount (subtracts from total)</Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600" />
@@ -1398,7 +1377,7 @@ export function BookingDetailsDialog({
                         value={formData.adminDiscount}
                         onChange={(e) => setFormData({ ...formData, adminDiscount: e.target.value })}
                         placeholder="0.00"
-                        className="h-10 pl-9"
+                        className="h-9 pl-9"
                         data-testid="input-admin-discount"
                       />
                     </div>
@@ -1407,16 +1386,16 @@ export function BookingDetailsDialog({
               )}
 
               {canManageCharges && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 pb-2 border-b">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
                     <Plus className="w-4 h-4 text-purple-600" />
-                    <h3 className="text-sm font-bold text-foreground">Custom Price Items</h3>
+                    <h3 className="text-xs font-bold text-foreground">Custom Price Items</h3>
                   </div>
                   
                   {formData.customPriceItems && formData.customPriceItems.length > 0 && (
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       {formData.customPriceItems.map((item, index) => (
-                        <div key={index} className="flex justify-between items-center text-sm p-2 bg-background rounded-lg border border-border">
+                        <div key={index} className="flex justify-between items-center text-xs p-2 bg-background rounded-lg border border-border">
                           <span className="text-muted-foreground">{item.description}</span>
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-purple-600">+${item.amount.toFixed(2)}</span>
@@ -1451,8 +1430,8 @@ export function BookingDetailsDialog({
                       Add Custom Item
                     </Button>
                   ) : (
-                    <div className="space-y-3 p-3 bg-background rounded-lg border border-border">
-                      <div className="space-y-1.5">
+                    <div className="space-y-2 p-2 bg-background rounded-lg border border-border">
+                      <div className="space-y-1">
                         <Label className="text-xs text-muted-foreground uppercase tracking-wide">Description</Label>
                         <Input
                           type="text"
@@ -1463,7 +1442,7 @@ export function BookingDetailsDialog({
                           data-testid="input-custom-item-description"
                         />
                       </div>
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <Label className="text-xs text-muted-foreground uppercase tracking-wide">Amount</Label>
                         <div className="relative">
                           <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-600" />
@@ -1621,11 +1600,11 @@ export function BookingDetailsDialog({
               )}
 
               {editingBooking && editingBooking.surcharges && (editingBooking.surcharges as any[]).length > 0 && (
-                <div className="space-y-3 pt-2 border-t border-border">
+                <div className="space-y-2 pt-2 border-t border-border">
                   <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Additional Charges</Label>
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {((editingBooking.surcharges as any[]) || []).map((charge: any, index: number) => (
-                      <div key={index} className="flex justify-between items-center text-sm p-2 bg-background rounded-lg border border-border">
+                      <div key={index} className="flex justify-between items-center text-xs p-2 bg-background rounded-lg border border-border">
                         <span className="text-muted-foreground">{charge.description}</span>
                         <span className="font-semibold text-foreground">+${charge.amount.toFixed(2)}</span>
                       </div>
@@ -1648,9 +1627,9 @@ export function BookingDetailsDialog({
                       Add Additional Charge
                     </Button>
                   ) : (
-                    <div className="space-y-3 p-3 bg-background rounded-lg border border-border">
+                    <div className="space-y-2 p-2 bg-background rounded-lg border border-border">
                       <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Add Additional Charge</Label>
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                         <Input
                           type="text"
                           value={chargeDescription}
