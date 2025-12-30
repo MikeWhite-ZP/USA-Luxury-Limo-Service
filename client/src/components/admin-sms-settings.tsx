@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquare, Send, CheckCircle, XCircle, Loader2, Eye, EyeOff, Save, Settings, AlertCircle, Check, CheckCircle2, Server, Phone } from 'lucide-react';
+import { MessageSquare, Send, CheckCircle, XCircle, Loader2, Eye, EyeOff, Save, Settings, AlertCircle, Check, CheckCircle2, Server, Phone, Smartphone } from 'lucide-react';
+import { AndroidSmsSettings } from './AndroidSmsSettings';
 
 interface TwilioStatus {
   connected: boolean;
@@ -214,27 +216,40 @@ export function AdminSMSSettings() {
   };
 
   return (
-    <Card id="settings-section" data-testid="sms-settings" className="border-0 shadow-xl bg-gradient-to-br from-card via-muted/30 to-card backdrop-blur-sm overflow-hidden">
-      {/* Premium Header with layered design */}
-      <CardHeader className="relative bg-gradient-to-br from-purple-600 via-pink-600 to-purple-700 border-b-0 pb-8">
-        {/* Subtle pattern overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1)_0%,transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(236,72,153,0.15)_0%,transparent_50%)]" />
-        
-        <CardTitle className="relative flex items-center gap-4">
-          <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-pink-200/30 rounded-2xl blur-md opacity-60 group-hover:opacity-100 transition-opacity" />
-            <div className="relative bg-white/20 backdrop-blur-sm p-3.5 rounded-2xl border border-white/30 shadow-lg">
-              <MessageSquare className="w-6 h-6 text-white" />
+    <div className="space-y-6">
+      <Card id="settings-section" data-testid="sms-settings" className="border-0 shadow-xl bg-gradient-to-br from-card via-muted/30 to-card backdrop-blur-sm overflow-hidden">
+        {/* Premium Header with layered design */}
+        <CardHeader className="relative bg-gradient-to-br from-purple-600 via-pink-600 to-purple-700 border-b-0 pb-8">
+          {/* Subtle pattern overlay */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1)_0%,transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(236,72,153,0.15)_0%,transparent_50%)]" />
+          
+          <CardTitle className="relative flex items-center gap-4">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-pink-200/30 rounded-2xl blur-md opacity-60 group-hover:opacity-100 transition-opacity" />
+              <div className="relative bg-white/20 backdrop-blur-sm p-3.5 rounded-2xl border border-white/30 shadow-lg">
+                <MessageSquare className="w-6 h-6 text-white" />
+              </div>
             </div>
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">SMS Notifications (Twilio)</h2>
-            <p className="text-sm text-purple-100 mt-0.5 font-light">Manage SMS notification settings and Twilio integration</p>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-8 bg-gradient-to-b from-card to-muted/30">
+            <div>
+              <h2 className="text-2xl font-bold text-white tracking-tight">SMS Notifications</h2>
+              <p className="text-sm text-purple-100 mt-0.5 font-light">Manage SMS providers - Twilio or Android SMS Gateway</p>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-8 bg-gradient-to-b from-card to-muted/30">
+          <Tabs defaultValue="twilio" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="twilio" className="gap-2">
+                <Server className="w-4 h-4" />
+                Twilio (Cloud)
+              </TabsTrigger>
+              <TabsTrigger value="android" className="gap-2">
+                <Smartphone className="w-4 h-4" />
+                Android Phone
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="twilio">
         {loading ? (
           <div className="flex items-center justify-center p-16">
             <div className="relative">
@@ -571,7 +586,13 @@ export function AdminSMSSettings() {
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+            </TabsContent>
+            <TabsContent value="android">
+              <AndroidSmsSettings />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

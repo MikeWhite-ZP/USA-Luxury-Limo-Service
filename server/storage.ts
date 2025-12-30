@@ -83,6 +83,12 @@ import {
   devicePushTokens,
   type DevicePushToken,
   type InsertDevicePushToken,
+  androidSmsDevices,
+  type AndroidSmsDevice,
+  type InsertAndroidSmsDevice,
+  androidSmsQueue,
+  type AndroidSmsQueue,
+  type InsertAndroidSmsQueue,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql, gte, lte, isNull, inArray, or } from "drizzle-orm";
@@ -343,6 +349,26 @@ export interface IStorage {
   getOverdueBookingsForAutoCancellation(): Promise<Booking[]>;
   markFirstReminderSent(bookingId: string): Promise<void>;
   markSecondReminderSent(bookingId: string): Promise<void>;
+  
+  // Android SMS Device Operations
+  createAndroidSmsDevice(device: InsertAndroidSmsDevice): Promise<AndroidSmsDevice>;
+  getAndroidSmsDevice(deviceUuid: string): Promise<AndroidSmsDevice | undefined>;
+  updateAndroidSmsDevice(deviceUuid: string, updates: Partial<InsertAndroidSmsDevice>): Promise<AndroidSmsDevice | undefined>;
+  deleteAndroidSmsDevice(deviceUuid: string): Promise<void>;
+  getAllAndroidSmsDevices(): Promise<AndroidSmsDevice[]>;
+  getActiveAndroidSmsDevices(): Promise<AndroidSmsDevice[]>;
+  
+  // Android SMS Queue Operations
+  addToAndroidSmsQueue(item: InsertAndroidSmsQueue): Promise<AndroidSmsQueue>;
+  getAndroidSmsQueueItem(id: string): Promise<AndroidSmsQueue | undefined>;
+  getPendingAndroidSmsCount(): Promise<number>;
+  claimPendingAndroidSms(deviceUuid: string, limit: number): Promise<AndroidSmsQueue[]>;
+  updateAndroidSmsStatus(id: string, updates: { status: string; errorMessage?: string | null; sentAt?: Date | null }): Promise<void>;
+  retryAndroidSms(id: string): Promise<void>;
+  getAndroidSmsQueue(options: { limit: number; status?: string }): Promise<AndroidSmsQueue[]>;
+  getAndroidSmsQueueStats(): Promise<{ pending: number; sent: number; failed: number; total: number }>;
+  deleteAndroidSmsQueueItem(id: string): Promise<void>;
+  clearFailedAndroidSms(): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2895,6 +2921,186 @@ export class DatabaseStorage implements IStorage {
       .update(bookings)
       .set({ secondReminderSentAt: new Date(), updatedAt: new Date() })
       .where(eq(bookings.id, bookingId));
+  }
+
+  // Android SMS Device Operations
+  async createAndroidSmsDevice(device: InsertAndroidSmsDevice): Promise<AndroidSmsDevice> {
+    const [newDevice] = await db
+      .insert(androidSmsDevices)
+      .values(device)
+      .returning();
+    return newDevice;
+  }
+
+  async getAndroidSmsDevice(deviceUuid: string): Promise<AndroidSmsDevice | undefined> {
+    const [device] = await db
+      .select()
+      .from(androidSmsDevices)
+      .where(eq(androidSmsDevices.deviceUuid, deviceUuid));
+    return device;
+  }
+
+  async updateAndroidSmsDevice(deviceUuid: string, updates: Partial<InsertAndroidSmsDevice>): Promise<AndroidSmsDevice | undefined> {
+    const [updated] = await db
+      .update(androidSmsDevices)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(androidSmsDevices.deviceUuid, deviceUuid))
+      .returning();
+    return updated;
+  }
+
+  async deleteAndroidSmsDevice(deviceUuid: string): Promise<void> {
+    await db
+      .delete(androidSmsDevices)
+      .where(eq(androidSmsDevices.deviceUuid, deviceUuid));
+  }
+
+  async getAllAndroidSmsDevices(): Promise<AndroidSmsDevice[]> {
+    return await db
+      .select()
+      .from(androidSmsDevices)
+      .orderBy(desc(androidSmsDevices.createdAt));
+  }
+
+  async getActiveAndroidSmsDevices(): Promise<AndroidSmsDevice[]> {
+    return await db
+      .select()
+      .from(androidSmsDevices)
+      .where(eq(androidSmsDevices.isActive, true))
+      .orderBy(desc(androidSmsDevices.lastHeartbeat));
+  }
+
+  // Android SMS Queue Operations
+  async addToAndroidSmsQueue(item: InsertAndroidSmsQueue): Promise<AndroidSmsQueue> {
+    const [queueItem] = await db
+      .insert(androidSmsQueue)
+      .values(item)
+      .returning();
+    return queueItem;
+  }
+
+  async getAndroidSmsQueueItem(id: string): Promise<AndroidSmsQueue | undefined> {
+    const [item] = await db
+      .select()
+      .from(androidSmsQueue)
+      .where(eq(androidSmsQueue.id, id));
+    return item;
+  }
+
+  async getPendingAndroidSmsCount(): Promise<number> {
+    const [result] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(androidSmsQueue)
+      .where(eq(androidSmsQueue.status, 'PENDING'));
+    return result?.count || 0;
+  }
+
+  async claimPendingAndroidSms(deviceUuid: string, limit: number): Promise<AndroidSmsQueue[]> {
+    const pending = await db
+      .select()
+      .from(androidSmsQueue)
+      .where(and(
+        eq(androidSmsQueue.status, 'PENDING'),
+        isNull(androidSmsQueue.deviceUuid)
+      ))
+      .orderBy(desc(androidSmsQueue.priority), androidSmsQueue.createdAt)
+      .limit(limit);
+
+    if (pending.length === 0) return [];
+
+    const ids = pending.map(p => p.id);
+    await db
+      .update(androidSmsQueue)
+      .set({ deviceUuid, updatedAt: new Date() })
+      .where(inArray(androidSmsQueue.id, ids));
+
+    return pending;
+  }
+
+  async updateAndroidSmsStatus(id: string, updates: { status: string; errorMessage?: string | null; sentAt?: Date | null }): Promise<void> {
+    await db
+      .update(androidSmsQueue)
+      .set({ 
+        status: updates.status as any,
+        errorMessage: updates.errorMessage,
+        sentAt: updates.sentAt,
+        updatedAt: new Date()
+      })
+      .where(eq(androidSmsQueue.id, id));
+  }
+
+  async retryAndroidSms(id: string): Promise<void> {
+    await db
+      .update(androidSmsQueue)
+      .set({ 
+        status: 'PENDING',
+        deviceUuid: null,
+        errorMessage: null,
+        retryCount: sql`COALESCE(${androidSmsQueue.retryCount}, 0) + 1`,
+        updatedAt: new Date()
+      })
+      .where(eq(androidSmsQueue.id, id));
+  }
+
+  async getAndroidSmsQueue(options: { limit: number; status?: string }): Promise<AndroidSmsQueue[]> {
+    let query = db
+      .select()
+      .from(androidSmsQueue)
+      .orderBy(desc(androidSmsQueue.createdAt))
+      .limit(options.limit);
+
+    if (options.status) {
+      return await db
+        .select()
+        .from(androidSmsQueue)
+        .where(eq(androidSmsQueue.status, options.status as any))
+        .orderBy(desc(androidSmsQueue.createdAt))
+        .limit(options.limit);
+    }
+
+    return await query;
+  }
+
+  async getAndroidSmsQueueStats(): Promise<{ pending: number; sent: number; failed: number; total: number }> {
+    const [pending] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(androidSmsQueue)
+      .where(eq(androidSmsQueue.status, 'PENDING'));
+    
+    const [sent] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(androidSmsQueue)
+      .where(eq(androidSmsQueue.status, 'SENT'));
+    
+    const [failed] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(androidSmsQueue)
+      .where(eq(androidSmsQueue.status, 'FAILED'));
+    
+    const [total] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(androidSmsQueue);
+
+    return {
+      pending: pending?.count || 0,
+      sent: sent?.count || 0,
+      failed: failed?.count || 0,
+      total: total?.count || 0
+    };
+  }
+
+  async deleteAndroidSmsQueueItem(id: string): Promise<void> {
+    await db
+      .delete(androidSmsQueue)
+      .where(eq(androidSmsQueue.id, id));
+  }
+
+  async clearFailedAndroidSms(): Promise<number> {
+    const result = await db
+      .delete(androidSmsQueue)
+      .where(eq(androidSmsQueue.status, 'FAILED'))
+      .returning();
+    return result.length;
   }
 }
 

@@ -16,6 +16,8 @@ import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { S3Client, HeadBucketCommand, ListBucketsCommand } from "@aws-sdk/client-s3";
 import { strictAuthRateLimit, moderateAuthRateLimit } from "./authMiddleware";
+import androidSmsGateway from "./android-sms-gateway";
+import androidSmsAdminRoutes from "./android-sms-gateway/adminRoutes";
 
 // Initialize Stripe only if secret key is available
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -10094,6 +10096,16 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
       });
     }
   });
+
+  // ========================================
+  // Android SMS Gateway Routes
+  // ========================================
+  
+  // Mount Android SMS Gateway routes (public API for Android devices)
+  app.use('/api/android-sms', androidSmsGateway);
+  
+  // Mount Android SMS Admin routes (admin-only)
+  app.use('/api/admin/android-sms', isAuthenticated, requireAdmin, androidSmsAdminRoutes);
 
   // ========================================
   // Tenant Tax Information Settings (Admin)

@@ -939,6 +939,62 @@ export const insertBookingCancellationSchema = createInsertSchema(bookingCancell
   createdAt: true,
 });
 
+// SMS Provider Types
+export const smsProviderEnum = ["TWILIO", "ANDROID_SMS"] as const;
+export type SmsProvider = typeof smsProviderEnum[number];
+
+export const smsQueueStatusEnum = ["PENDING", "SENT", "FAILED", "EXPIRED"] as const;
+export type SmsQueueStatus = typeof smsQueueStatusEnum[number];
+
+// Android SMS Device Registry - Devices that can send SMS for the system
+export const androidSmsDevices = pgTable("android_sms_devices", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  deviceUuid: varchar("device_uuid", { length: 100 }).notNull().unique(),
+  deviceName: varchar("device_name", { length: 100 }),
+  apiToken: varchar("api_token", { length: 255 }).notNull(),
+  lastHeartbeat: timestamp("last_heartbeat"),
+  isActive: boolean("is_active").default(true),
+  phoneNumber: varchar("phone_number", { length: 30 }), // Device's phone number for sending
+  metadata: jsonb("metadata"), // Additional device info
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("android_devices_active_idx").on(table.isActive),
+]);
+
+// Android SMS Queue - Messages waiting to be sent by Android devices
+export const androidSmsQueue = pgTable("android_sms_queue", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  phoneNumber: varchar("phone_number", { length: 30 }).notNull(),
+  message: text("message").notNull(),
+  status: varchar("status", { enum: smsQueueStatusEnum }).default("PENDING"),
+  deviceUuid: varchar("device_uuid", { length: 100 }), // Device that claimed/sent this message
+  errorMessage: text("error_message"),
+  priority: integer("priority").default(0), // Higher = more urgent
+  retryCount: integer("retry_count").default(0),
+  maxRetries: integer("max_retries").default(3),
+  scheduledAt: timestamp("scheduled_at"), // For delayed sending
+  sentAt: timestamp("sent_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("sms_queue_status_idx").on(table.status),
+  index("sms_queue_priority_idx").on(table.priority),
+]);
+
+// Insert schemas for Android SMS
+export const insertAndroidSmsDeviceSchema = createInsertSchema(androidSmsDevices).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAndroidSmsQueueSchema = createInsertSchema(androidSmsQueue).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -995,3 +1051,7 @@ export type OldInvoice = typeof oldInvoices.$inferSelect;
 export type InsertOldInvoice = z.infer<typeof insertOldInvoiceSchema>;
 export type DevicePushToken = typeof devicePushTokens.$inferSelect;
 export type InsertDevicePushToken = z.infer<typeof insertDevicePushTokenSchema>;
+export type AndroidSmsDevice = typeof androidSmsDevices.$inferSelect;
+export type InsertAndroidSmsDevice = z.infer<typeof insertAndroidSmsDeviceSchema>;
+export type AndroidSmsQueue = typeof androidSmsQueue.$inferSelect;
+export type InsertAndroidSmsQueue = z.infer<typeof insertAndroidSmsQueueSchema>;

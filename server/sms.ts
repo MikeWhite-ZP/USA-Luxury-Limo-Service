@@ -1,98 +1,32 @@
-import { getTwilioClient, getTwilioFromPhoneNumber, getTwilioConnectionStatus, isTwilioEnabled } from './twilio';
-import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
+import { getTwilioConnectionStatus, isTwilioEnabled } from './twilio';
 import { getBrandingInfo } from './email';
+import { getSmsProvider, getCurrentSmsProviderType, normalizePhoneNumber, sendWithFallback, twilioProvider, type SMSResult } from './smsProvider';
 
-export interface SMSResult {
-  success: boolean;
-  messageId?: string;
-  error?: string;
-}
-
-export function normalizePhoneNumber(phoneNumber: string): string | null {
-  try {
-    // If it's already in E.164 format (starts with +), validate it
-    if (phoneNumber.startsWith('+')) {
-      if (isValidPhoneNumber(phoneNumber)) {
-        const parsed = parsePhoneNumber(phoneNumber);
-        return parsed.format('E.164');
-      }
-      return null;
-    }
-    
-    // Try parsing as US number if no country code
-    const cleaned = phoneNumber.replace(/\D/g, '');
-    
-    // If it's a 10-digit number, assume US
-    if (cleaned.length === 10) {
-      const usNumber = `+1${cleaned}`;
-      if (isValidPhoneNumber(usNumber)) {
-        return usNumber;
-      }
-    }
-    
-    // If it's 11 digits and starts with 1, assume US
-    if (cleaned.length === 11 && cleaned.startsWith('1')) {
-      const usNumber = `+${cleaned}`;
-      if (isValidPhoneNumber(usNumber)) {
-        return usNumber;
-      }
-    }
-    
-    // Try parsing with US as default country
-    if (isValidPhoneNumber(phoneNumber, 'US')) {
-      const parsed = parsePhoneNumber(phoneNumber, 'US');
-      return parsed.format('E.164');
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('Phone number normalization error:', error);
-    return null;
-  }
-}
+export { normalizePhoneNumber, type SMSResult, getCurrentSmsProviderType };
+export { isTwilioEnabled, getTwilioConnectionStatus };
 
 export async function sendSMS(to: string, message: string): Promise<SMSResult> {
   try {
-    // Check if Twilio is enabled
-    const enabled = await isTwilioEnabled();
+    const provider = await getSmsProvider();
+    
+    const enabled = await provider.isEnabled();
     if (!enabled) {
-      console.log('SMS sending skipped: Twilio is disabled in admin settings');
+      if (provider.name === 'ANDROID_SMS') {
+        console.log('[SMS] Android SMS not available, using Twilio fallback');
+        const twilioEnabled = await twilioProvider.isEnabled();
+        if (twilioEnabled) {
+          return twilioProvider.send(to, message);
+        }
+      }
+      console.log(`SMS sending skipped: ${provider.name} is disabled or not available`);
       return {
         success: false,
         error: 'SMS notifications are disabled'
       };
     }
 
-    // Normalize and validate phone number
-    const normalizedPhone = normalizePhoneNumber(to);
-    
-    if (!normalizedPhone) {
-      console.warn(`Invalid phone number format: ${to}`);
-      return {
-        success: false,
-        error: 'Invalid phone number format'
-      };
-    }
-
-    const client = await getTwilioClient();
-    const fromNumber = await getTwilioFromPhoneNumber();
-
-    if (!fromNumber) {
-      throw new Error('Twilio phone number not configured');
-    }
-
-    const result = await client.messages.create({
-      body: message,
-      from: fromNumber,
-      to: normalizedPhone
-    });
-
-    console.log(`SMS sent successfully to ${normalizedPhone}, SID: ${result.sid}`);
-    
-    return {
-      success: true,
-      messageId: result.sid
-    };
+    const result = await sendWithFallback(to, message);
+    return result;
   } catch (error) {
     console.error('Failed to send SMS:', error);
     return {
@@ -235,5 +169,3 @@ export async function sendUsernameReminderSMS(
   
   return sendSMS(phone, message);
 }
-
-export { getTwilioConnectionStatus, isTwilioEnabled };
