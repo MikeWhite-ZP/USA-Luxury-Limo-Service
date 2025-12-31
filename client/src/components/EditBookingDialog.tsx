@@ -171,30 +171,43 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
     
     if (poi.categories && poi.categories.length > 0) {
       categoryName = poi.categories.join(' ').toLowerCase();
+    } else if (poi.classifications && poi.classifications.length > 0) {
+      const classification = poi.classifications[0];
+      if (classification.names && classification.names.length > 0) {
+        categoryName = classification.names.map((n: any) => n.name || n).join(' ').toLowerCase();
+      } else if (classification.code) {
+        categoryName = classification.code.toLowerCase();
+      }
+    } else if (poi.categorySet && poi.categorySet.length > 0) {
+      categoryName = poi.categorySet[0]?.name?.toLowerCase() || '';
     }
     
-    if (poi.categorySet) {
-      categoryName = poi.categorySet.map((cat: any) => cat.name).join(' ').toLowerCase();
-    }
-    
-    if (categoryName.includes('airport') || categoryName.includes('terminal')) {
+    if (categoryName.includes('airport') || categoryName.includes('aviation')) {
       return { icon: 'plane', label: 'Airport' };
-    } else if (categoryName.includes('hotel') || categoryName.includes('motel') || categoryName.includes('lodging')) {
+    }
+    if (categoryName.includes('hotel') || categoryName.includes('motel') || categoryName.includes('lodging') || categoryName.includes('accommodation')) {
       return { icon: 'hotel', label: 'Hotel' };
-    } else if (categoryName.includes('restaurant') || categoryName.includes('food') || categoryName.includes('dining')) {
-      return { icon: 'utensils', label: 'Restaurant' };
-    } else if (categoryName.includes('shopping') || categoryName.includes('store') || categoryName.includes('mall')) {
-      return { icon: 'shopping', label: 'Shopping' };
-    } else if (categoryName.includes('cafe') || categoryName.includes('coffee')) {
+    }
+    if (categoryName.includes('restaurant') || categoryName.includes('food') || categoryName.includes('dining')) {
+      return { icon: 'restaurant', label: 'Restaurant' };
+    }
+    if (categoryName.includes('cafe') || categoryName.includes('coffee')) {
       return { icon: 'coffee', label: 'Cafe' };
-    } else if (categoryName.includes('hospital') || categoryName.includes('medical') || categoryName.includes('health')) {
+    }
+    if (categoryName.includes('hospital') || categoryName.includes('medical') || categoryName.includes('health') || categoryName.includes('clinic')) {
       return { icon: 'hospital', label: 'Medical' };
-    } else if (categoryName.includes('school') || categoryName.includes('university') || categoryName.includes('college')) {
+    }
+    if (categoryName.includes('school') || categoryName.includes('university') || categoryName.includes('college') || categoryName.includes('education')) {
       return { icon: 'school', label: 'Education' };
-    } else if (categoryName.includes('museum') || categoryName.includes('landmark') || categoryName.includes('monument')) {
-      return { icon: 'landmark', label: 'Landmark' };
-    } else if (categoryName.includes('car') || categoryName.includes('parking') || categoryName.includes('automotive')) {
+    }
+    if (categoryName.includes('shop') || categoryName.includes('store') || categoryName.includes('mall') || categoryName.includes('retail') || categoryName.includes('market')) {
+      return { icon: 'shopping', label: 'Shopping' };
+    }
+    if (categoryName.includes('parking') || categoryName.includes('car') || categoryName.includes('automotive') || categoryName.includes('gas') || categoryName.includes('fuel')) {
       return { icon: 'car', label: 'Automotive' };
+    }
+    if (categoryName.includes('government') || categoryName.includes('civic') || categoryName.includes('municipal') || categoryName.includes('city hall') || categoryName.includes('courthouse')) {
+      return { icon: 'landmark', label: 'Government' };
     }
     
     return { icon: 'building', label: 'Place' };
@@ -272,7 +285,7 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
     switch (iconName) {
       case 'plane': return <Plane className={className} />;
       case 'hotel': return <Hotel className={className} />;
-      case 'utensils': return <Utensils className={className} />;
+      case 'restaurant': return <Utensils className={className} />;
       case 'shopping': return <ShoppingBag className={className} />;
       case 'coffee': return <Coffee className={className} />;
       case 'hospital': return <Hospital className={className} />;
