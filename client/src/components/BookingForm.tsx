@@ -1562,12 +1562,17 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               onChange={(e) => setPassengerName(e.target.value)}
               data-testid="input-passenger-name"
             />
-            <Input
-              placeholder="Phone Number"
-              value={passengerPhone}
-              onChange={(e) => setPassengerPhone(e.target.value)}
-              data-testid="input-passenger-phone"
-            />
+            <div className="space-y-1">
+              <Input
+                placeholder="Phone Number"
+                value={passengerPhone}
+                onChange={(e) => setPassengerPhone(e.target.value)}
+                data-testid="input-passenger-phone"
+              />
+              <p className="text-xs text-muted-foreground">
+                By submitting your phone number, you consent to receive SMS messages!
+              </p>
+            </div>
             <Input
               placeholder="Email"
               type="email"
