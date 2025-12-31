@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Polyline } from 'react-leaflet';
-import L from 'leaflet';
 
 interface RouteLayerProps {
   pickup: { lat: number; lon: number } | null;
@@ -8,11 +7,6 @@ interface RouteLayerProps {
   destination: { lat: number; lon: number } | null;
   color?: string;
   weight?: number;
-}
-
-interface RouteCoordinate {
-  lat: number;
-  lon: number;
 }
 
 export function RouteLayer({ 
@@ -27,7 +21,6 @@ export function RouteLayer({
 
   useEffect(() => {
     const fetchRoute = async () => {
-      // Need at least pickup and destination
       if (!pickup || !destination) {
         setRouteCoordinates([]);
         return;
@@ -36,10 +29,8 @@ export function RouteLayer({
       setIsLoading(true);
       
       try {
-        // Build waypoints array: pickup -> via points -> destination
-        const waypoints: RouteCoordinate[] = [pickup];
+        const waypoints: Array<{ lat: number; lon: number }> = [pickup];
         
-        // Filter out invalid via points (with 0,0 coordinates)
         const validViaPoints = viaPoints.filter(
           via => via.lat !== 0 && via.lon !== 0 && via.address.trim() !== ''
         );
@@ -47,15 +38,13 @@ export function RouteLayer({
         waypoints.push(...validViaPoints.map(v => ({ lat: v.lat, lon: v.lon })));
         waypoints.push(destination);
 
-        // Build OSRM API URL
-        // Format: lon,lat;lon,lat;...
-        const coordinates = waypoints
-          .map(point => `${point.lon},${point.lat}`)
-          .join(';');
-        
-        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson`;
-        
-        const response = await fetch(osrmUrl);
+        const response = await fetch('/api/route-geometry', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ waypoints }),
+        });
         
         if (!response.ok) {
           throw new Error('Failed to fetch route');
@@ -63,23 +52,14 @@ export function RouteLayer({
         
         const data = await response.json();
         
-        if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
-          throw new Error('No route found');
-        }
-        
-        // Extract coordinates from GeoJSON
-        const routeGeometry = data.routes[0].geometry;
-        
-        if (routeGeometry.type === 'LineString') {
-          // Convert from [lon, lat] to [lat, lon] for Leaflet
-          const coords: Array<[number, number]> = routeGeometry.coordinates.map(
-            (coord: number[]) => [coord[1], coord[0]]
-          );
-          setRouteCoordinates(coords);
+        if (data.success && data.coordinates && data.coordinates.length >= 2) {
+          setRouteCoordinates(data.coordinates);
+        } else {
+          const fallbackCoords: Array<[number, number]> = waypoints.map(wp => [wp.lat, wp.lon]);
+          setRouteCoordinates(fallbackCoords);
         }
       } catch (error) {
         console.error('Error fetching route:', error);
-        // Fallback to straight lines if routing fails
         const fallbackCoords: Array<[number, number]> = [];
         if (pickup) fallbackCoords.push([pickup.lat, pickup.lon]);
         

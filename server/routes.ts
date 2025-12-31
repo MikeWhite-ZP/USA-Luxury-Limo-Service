@@ -1266,6 +1266,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route geometry endpoint for map visualization
+  app.post('/api/route-geometry', async (req, res) => {
+    const { waypoints } = req.body;
+    
+    // Validate waypoints array
+    if (!waypoints || !Array.isArray(waypoints) || waypoints.length < 2) {
+      return res.status(400).json({ error: 'At least 2 waypoints required' });
+    }
+
+    // Validate each waypoint has lat/lon
+    for (const wp of waypoints) {
+      if (typeof wp.lat !== 'number' || typeof wp.lon !== 'number' ||
+          wp.lat < -90 || wp.lat > 90 || wp.lon < -180 || wp.lon > 180) {
+        return res.status(400).json({ error: 'Invalid waypoint coordinates' });
+      }
+    }
+
+    try {
+      const apiKey = await getTomTomApiKey(storage);
+      
+      if (apiKey) {
+        // Use TomTom Routing API
+        const coordsString = waypoints.map(wp => `${wp.lat},${wp.lon}`).join(':');
+        const routeUrl = `https://api.tomtom.com/routing/1/calculateRoute/${coordsString}/json?key=${apiKey}&routeType=fastest`;
+        
+        const response = await fetch(routeUrl);
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.routes && data.routes.length > 0) {
+            // Extract route geometry from TomTom response
+            const route = data.routes[0];
+            const coordinates: Array<[number, number]> = [];
+            
+            // TomTom returns route points in legs[].points[]
+            for (const leg of route.legs) {
+              for (const point of leg.points) {
+                coordinates.push([point.latitude, point.longitude]);
+              }
+            }
+            
+            return res.json({ 
+              success: true,
+              source: 'tomtom',
+              coordinates 
+            });
+          }
+        }
+      }
+      
+      // Fallback to OSRM (free public router)
+      const osrmCoords = waypoints.map(wp => `${wp.lon},${wp.lat}`).join(';');
+      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${osrmCoords}?overview=full&geometries=geojson`;
+      
+      const osrmResponse = await fetch(osrmUrl);
+      
+      if (osrmResponse.ok) {
+        const osrmData = await osrmResponse.json();
+        
+        if (osrmData.code === 'Ok' && osrmData.routes && osrmData.routes.length > 0) {
+          const routeGeometry = osrmData.routes[0].geometry;
+          
+          if (routeGeometry.type === 'LineString') {
+            // Convert from [lon, lat] to [lat, lon] for Leaflet
+            const coordinates: Array<[number, number]> = routeGeometry.coordinates.map(
+              (coord: number[]) => [coord[1], coord[0]]
+            );
+            
+            return res.json({
+              success: true,
+              source: 'osrm',
+              coordinates
+            });
+          }
+        }
+      }
+      
+      // If both fail, return straight-line fallback
+      const fallbackCoords: Array<[number, number]> = waypoints.map(wp => [wp.lat, wp.lon]);
+      res.json({
+        success: true,
+        source: 'fallback',
+        coordinates: fallbackCoords
+      });
+      
+    } catch (error) {
+      console.error('Route geometry error:', error);
+      // Return straight-line fallback on error
+      const fallbackCoords: Array<[number, number]> = waypoints.map(wp => [wp.lat, wp.lon]);
+      res.json({
+        success: true,
+        source: 'fallback',
+        coordinates: fallbackCoords
+      });
+    }
+  });
+
   // Quote calculation
   app.post('/api/calculate-quote', isAuthenticated, async (req, res) => {
     try {
