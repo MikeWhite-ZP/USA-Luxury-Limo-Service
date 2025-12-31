@@ -9,7 +9,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
-import { CreditCard, Clock, Search, Plane, Banknote, MapPin, Building2, Hotel, Utensils, ShoppingBag, Car, Coffee, Hospital, School, Landmark, AlertCircle, Calendar } from "lucide-react";
+import { CreditCard, Clock, Search, Plane, Banknote, MapPin, Building2, Hotel, Utensils, ShoppingBag, Car, Coffee, Hospital, School, Landmark, AlertCircle, Calendar, Users, Briefcase, Check } from "lucide-react";
 import { useBranding } from "@/hooks/useBranding";
 import { Link } from "wouter";
 import { RouteMap } from "./RouteMap";
@@ -1484,86 +1484,154 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
     return (
       <div className="space-y-6">
-        {/* Trip Summary - Compact */}
-        <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-3 rounded-xl border-2 border-primary/20 text-[10px]" data-testid="trip-summary">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-sm font-bold text-primary">Booking Summary</h3>
-            <p className="text-lg font-bold text-primary">${totalPrice}</p>
+        {/* Booking Summary with Map */}
+        <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-4 rounded-xl border-2 border-primary/20" data-testid="trip-summary">
+          {/* Header with Price */}
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-base font-bold text-primary">Booking Summary</h3>
+            <p className="text-xl font-bold text-primary">${totalPrice}</p>
           </div>
           
-          {/* Compact Grid Layout */}
-          <div className="space-y-1">
-            {/* Service & Vehicle */}
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <p className="text-muted-foreground uppercase">Service</p>
-                <p className="font-semibold text-foreground">{activeTab === 'transfer' ? 'Transfer' : 'Hourly'}</p>
-              </div>
-              {selectedVehicle && vehicleTypes && (
+          {/* Main Content: Details + Map */}
+          <div className="flex gap-4">
+            {/* Left Side - Booking Details */}
+            <div className="flex-1 space-y-3 text-sm">
+              {/* Service & Vehicle Row */}
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-muted-foreground uppercase">Vehicle</p>
-                  <p className="font-semibold text-foreground">{selectedVehicleName}</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Service</p>
+                  <p className="font-semibold text-foreground">{activeTab === 'transfer' ? 'Transfer' : 'Hourly'}</p>
                 </div>
-              )}
-            </div>
+                {selectedVehicle && vehicleTypes && (
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Vehicle</p>
+                    <p className="font-semibold text-foreground">{selectedVehicleName}</p>
+                  </div>
+                )}
+              </div>
 
-            {/* Date & Time */}
-            <div className="border-t border-border pt-1">
-              <p className="text-muted-foreground uppercase">Date & Time</p>
-              <p className="font-semibold text-foreground">
-                {new Date(`${date}T${time}`).toLocaleString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit'
-                })}
-              </p>
-            </div>
+              {/* Date & Time */}
+              <div className="border-t border-border/50 pt-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Date & Time</p>
+                <p className="font-semibold text-foreground">
+                  {new Date(`${date}T${time}`).toLocaleString('en-US', { 
+                    weekday: 'short',
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                  })}
+                </p>
+              </div>
 
-            {/* Route Information */}
-            <div className="border-t border-border pt-1">
-              {activeTab === 'transfer' ? (
-                <>
-                  <p className="text-muted-foreground uppercase mb-1">Route</p>
-                  <div className="space-y-0.5">
-                    <div className="flex items-start gap-1">
-                      <span className="text-green-600">●</span>
-                      <p className="font-medium text-foreground leading-tight">{fromAddress}</p>
+              {/* Route Information */}
+              <div className="border-t border-border/50 pt-2">
+                {activeTab === 'transfer' ? (
+                  <div className="space-y-2">
+                    {/* From Address */}
+                    <div className="flex items-start gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500 mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">From</p>
+                        <p className="font-medium text-foreground text-xs leading-tight">{fromAddress}</p>
+                      </div>
                     </div>
+                    
+                    {/* Via Points */}
                     {viaPoints.filter(point => point.trim()).map((viaPoint, index) => (
-                      <div key={index} className="flex items-start gap-1">
-                        <span className="text-blue-600">●</span>
-                        <p className="font-medium text-foreground leading-tight">{viaPoint}</p>
+                      <div key={index} className="flex items-start gap-2">
+                        <div className="w-3 h-3 rounded-full bg-blue-500 mt-0.5 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground">Via {index + 1}</p>
+                          <p className="font-medium text-foreground text-xs leading-tight">{viaPoint}</p>
+                        </div>
                       </div>
                     ))}
-                    <div className="flex items-start gap-1">
-                      <span className="text-red-600 dark:text-red-400">●</span>
-                      <p className="font-medium text-foreground leading-tight">{toAddress}</p>
+                    
+                    {/* To Address */}
+                    <div className="flex items-start gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500 mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">To</p>
+                        <p className="font-medium text-foreground text-xs leading-tight">{toAddress}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Distance & Duration */}
+                    <div className="flex items-center gap-3 pt-1 text-xs text-muted-foreground">
+                      {quoteData.distanceKm ? (
+                        <>
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            <span>{(quoteData.distanceKm * 0.621371).toFixed(1)} mi</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{Math.round((quoteData.distanceKm / 50) * 60)} mins</span>
+                          </div>
+                        </>
+                      ) : quoteData.distance ? (
+                        <>
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            <span>{parseFloat(quoteData.distance).toFixed(1)} mi</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{Math.round((parseFloat(quoteData.distance) / 31) * 60)} mins</span>
+                          </div>
+                        </>
+                      ) : null}
                     </div>
                   </div>
-                  {quoteData.distanceKm && (
-                    <p className="text-muted-foreground mt-1">
-                      {quoteData.distanceKm} km ({(quoteData.distanceKm * 0.621371).toFixed(1)} mi)
-                    </p>
-                  )}
-                </>
-              ) : (
-                <>
-                  <p className="text-muted-foreground uppercase">Pickup</p>
-                  <p className="font-medium text-foreground">{pickupAddress}</p>
-                  <p className="text-muted-foreground">Duration: {duration} hrs</p>
-                </>
-              )}
-            </div>
+                ) : (
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Pickup Location</p>
+                    <p className="font-medium text-foreground text-sm">{pickupAddress}</p>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground pt-1">
+                      <Clock className="w-3 h-3" />
+                      <span>Duration: {duration} hours</span>
+                    </div>
+                  </div>
+                )}
+              </div>
 
-            {/* Trip Details */}
-            <div className="border-t border-border pt-1">
-              <div className="flex gap-3">
-                <span className="text-muted-foreground">Passengers: <span className="font-semibold text-foreground">{passengerCount}</span></span>
-                <span className="text-muted-foreground">Luggage: <span className="font-semibold text-foreground">{luggageCount}</span></span>
-                {babySeat && <span className="text-muted-foreground">✓ Baby seat</span>}
+              {/* Passengers, Luggage, Baby Seat */}
+              <div className="border-t border-border/50 pt-2">
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                  <div className="flex items-center gap-1">
+                    <Users className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-muted-foreground">Passengers:</span>
+                    <span className="font-semibold text-foreground">{passengerCount}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Briefcase className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-muted-foreground">Luggage:</span>
+                    <span className="font-semibold text-foreground">{luggageCount}</span>
+                  </div>
+                  {babySeat && (
+                    <div className="flex items-center gap-1 text-green-600">
+                      <Check className="w-3 h-3" />
+                      <span>Baby seat</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
+            
+            {/* Right Side - Map */}
+            {activeTab === 'transfer' && (
+              <div className="w-[200px] flex-shrink-0">
+                <RouteMap
+                  fromCoords={fromCoords}
+                  toCoords={toCoords}
+                  viaCoords={viaCoords}
+                  viaPoints={viaPoints}
+                  height="200px"
+                  className="border border-border rounded-lg"
+                />
+              </div>
+            )}
           </div>
         </div>
         {/* Booking For */}
