@@ -1510,14 +1510,6 @@ export default function PassengerDashboard() {
     'Booked by mistake',
     'Other',
   ];
-  const [editFormData, setEditFormData] = useState({
-    scheduledDateTime: '',
-    pickupAddress: '',
-    destinationAddress: '',
-    passengerCount: 1,
-    luggageCount: 0,
-    specialInstructions: '',
-  });
 
   // Helper function to check if booking can be edited (3-hour restriction for non-pending)
   const canEditBooking = (booking: Booking): { canEdit: boolean; reason?: string } => {
@@ -2165,14 +2157,6 @@ export default function PassengerDashboard() {
   const handleCancelBooking = (booking: Booking) => {
     setSelectedBooking(booking);
     setCancelDialogOpen(true);
-  };
-
-  const handleEditSubmit = () => {
-    if (!selectedBooking) return;
-    editBookingMutation.mutate({
-      id: selectedBooking.id,
-      updates: editFormData,
-    });
   };
 
   const handleProfileSubmit = (e: React.FormEvent) => {
@@ -3650,99 +3634,6 @@ export default function PassengerDashboard() {
                 data-testid="button-submit-rating"
               >
                 {submitRatingMutation.isPending ? 'Submitting...' : 'Submit Rating'}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Booking Dialog */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-[#ffffff]">
-          <DialogHeader>
-            <DialogTitle>Edit Booking</DialogTitle>
-            <DialogDescription>
-              Update your booking details. Only pending bookings can be edited.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-datetime">Date & Time</Label>
-              <Input
-                id="edit-datetime"
-                type="datetime-local"
-                value={editFormData.scheduledDateTime}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, scheduledDateTime: e.target.value }))}
-                data-testid="input-edit-datetime"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-pickup">Pickup Address</Label>
-              <Input
-                id="edit-pickup"
-                value={editFormData.pickupAddress}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, pickupAddress: e.target.value }))}
-                data-testid="input-edit-pickup"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-destination">Destination Address</Label>
-              <Input
-                id="edit-destination"
-                value={editFormData.destinationAddress}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, destinationAddress: e.target.value }))}
-                placeholder="Leave empty for hourly service"
-                data-testid="input-edit-destination"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-passengers">Passengers</Label>
-                <Input
-                  id="edit-passengers"
-                  type="number"
-                  min="1"
-                  value={editFormData.passengerCount}
-                  onChange={(e) => setEditFormData(prev => ({ ...prev, passengerCount: parseInt(e.target.value) }))}
-                  data-testid="input-edit-passengers"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-luggage">Luggage</Label>
-                <Input
-                  id="edit-luggage"
-                  type="number"
-                  min="0"
-                  value={editFormData.luggageCount}
-                  onChange={(e) => setEditFormData(prev => ({ ...prev, luggageCount: parseInt(e.target.value) }))}
-                  data-testid="input-edit-luggage"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-instructions">Special Instructions</Label>
-              <Input
-                id="edit-instructions"
-                value={editFormData.specialInstructions}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, specialInstructions: e.target.value }))}
-                placeholder="Any special requests..."
-                data-testid="input-edit-instructions"
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setEditDialogOpen(false)}
-                data-testid="button-cancel-edit"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleEditSubmit}
-                disabled={editBookingMutation.isPending}
-                data-testid="button-save-edit"
-              >
-                {editBookingMutation.isPending ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </div>
