@@ -22,6 +22,11 @@ router.get('/provider', async (req: Request, res: Response) => {
 router.post('/provider', async (req: Request, res: Response) => {
   try {
     const { provider } = req.body;
+    const user = req.user as any;
+    
+    if (!user?.id) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
 
     if (!provider || !['TWILIO', 'ANDROID_SMS'].includes(provider)) {
       return res.status(400).json({ 
@@ -38,7 +43,7 @@ router.post('/provider', async (req: Request, res: Response) => {
       }
     }
 
-    await setSmsProvider(provider as SmsProviderType);
+    await setSmsProvider(provider as SmsProviderType, user.id);
 
     console.log(`[ADMIN_SMS] Provider changed to: ${provider}`);
 

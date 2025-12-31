@@ -195,8 +195,8 @@ export async function getCurrentSmsProviderType(): Promise<SmsProviderType> {
   return (providerSetting?.value as SmsProviderType) || 'TWILIO';
 }
 
-export async function setSmsProvider(providerType: SmsProviderType): Promise<void> {
-  await storage.setSetting('SMS_PROVIDER', providerType, 'system');
+export async function setSmsProvider(providerType: SmsProviderType, userId: string): Promise<void> {
+  await storage.setSetting('SMS_PROVIDER', providerType, userId);
   console.log(`[SMS] Provider changed to: ${providerType}`);
 }
 
