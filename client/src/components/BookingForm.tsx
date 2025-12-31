@@ -9,9 +9,10 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
-import { CreditCard, Clock, Search, Plane, Banknote, MapPin, Building2, Hotel, Utensils, ShoppingBag, Car, Coffee, Hospital, School, Landmark, AlertCircle } from "lucide-react";
+import { CreditCard, Clock, Search, Plane, Banknote, MapPin, Building2, Hotel, Utensils, ShoppingBag, Car, Coffee, Hospital, School, Landmark, AlertCircle, Calendar } from "lucide-react";
 import { useBranding } from "@/hooks/useBranding";
 import { Link } from "wouter";
+import { RouteMap } from "./RouteMap";
 
 interface AddressSuggestion {
   id: string;
@@ -1184,44 +1185,113 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   if (step === 2 && quoteData) {
     return (
       <div className="space-y-6">
-        {/* Trip Details */}
-        <div className="bg-muted p-4 rounded-lg" data-testid="trip-details">
-          <h4 className="font-semibold mb-3">Trip Details</h4>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span>Date & Time:</span>
-              <span data-testid="trip-datetime">{date} at {time}</span>
-            </div>
-            {activeTab === 'transfer' ? (
-              <>
-                <div className="flex justify-between">
-                  <span>From:</span>
-                  <span data-testid="trip-from" className="text-right">{fromAddress}</span>
-                </div>
-                {viaPoints.length > 0 && viaPoints.map((viaPoint, index) => 
-                  viaPoint && (
-                    <div key={index} className="flex justify-between">
-                      <span>Via {index + 1}:</span>
-                      <span data-testid={`trip-via-${index}`} className="text-right">{viaPoint}</span>
+        {/* Trip Details with Map */}
+        <div className="bg-muted p-4 rounded-xl border border-border" data-testid="trip-details">
+          <div className="flex gap-4">
+            {/* Left side - Trip Info */}
+            <div className="flex-1 min-w-0">
+              {/* Date & Time */}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                <Calendar className="w-4 h-4" />
+                <span data-testid="trip-datetime">{date} {time}</span>
+              </div>
+              
+              {activeTab === 'transfer' ? (
+                <div className="space-y-3">
+                  {/* From Address */}
+                  <div className="flex items-start gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500 mt-1 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">From</p>
+                      <p className="text-sm font-medium text-foreground truncate" data-testid="trip-from">{fromAddress}</p>
                     </div>
-                  )
-                )}
-                <div className="flex justify-between">
-                  <span>To:</span>
-                  <span data-testid="trip-to" className="text-right">{toAddress}</span>
+                  </div>
+                  
+                  {/* Via Points */}
+                  {viaPoints.length > 0 && viaPoints.map((viaPoint, index) => 
+                    viaPoint && (
+                      <div key={index} className="flex items-start gap-2">
+                        <div className="w-3 h-3 rounded-full bg-blue-500 mt-1 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground">Via {index + 1}</p>
+                          <p className="text-sm font-medium text-foreground truncate" data-testid={`trip-via-${index}`}>{viaPoint}</p>
+                        </div>
+                      </div>
+                    )
+                  )}
+                  
+                  {/* To Address */}
+                  <div className="flex items-start gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500 mt-1 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">To</p>
+                      <p className="text-sm font-medium text-foreground truncate" data-testid="trip-to">{toAddress}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Distance & Duration */}
+                  <div className="flex items-center gap-4 pt-2 border-t border-border text-xs text-muted-foreground">
+                    {quoteData.distanceKm ? (
+                      <>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          <span>{Math.round((quoteData.distanceKm / 50) * 60)} mins</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          <span>{(quoteData.distanceKm * 0.621371).toFixed(2)} mile</span>
+                        </div>
+                      </>
+                    ) : quoteData.distance ? (
+                      <>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          <span>{Math.round((parseFloat(quoteData.distance) / 31) * 60)} mins</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          <span>{parseFloat(quoteData.distance).toFixed(2)} mile</span>
+                        </div>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground italic">Distance will be calculated</span>
+                    )}
+                  </div>
                 </div>
-              </>
-            ) : (
-              <>
-                <div className="flex justify-between">
-                  <span>Pickup:</span>
-                  <span data-testid="trip-pickup" className="text-right">{pickupAddress}</span>
+              ) : (
+                <div className="space-y-3">
+                  {/* Pickup Address */}
+                  <div className="flex items-start gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500 mt-1 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">Pickup</p>
+                      <p className="text-sm font-medium text-foreground truncate" data-testid="trip-pickup">{pickupAddress}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Duration */}
+                  <div className="flex items-center gap-4 pt-2 border-t border-border text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      <span data-testid="trip-duration">{duration} hours</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span>Duration:</span>
-                  <span data-testid="trip-duration">{duration} hours</span>
-                </div>
-              </>
+              )}
+            </div>
+            
+            {/* Right side - Map */}
+            {activeTab === 'transfer' && (
+              <div className="w-[180px] flex-shrink-0">
+                <RouteMap
+                  fromCoords={fromCoords}
+                  toCoords={toCoords}
+                  viaCoords={viaCoords}
+                  viaPoints={viaPoints}
+                  height="140px"
+                  className="border border-border"
+                />
+              </div>
             )}
           </div>
         </div>
