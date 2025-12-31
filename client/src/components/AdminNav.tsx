@@ -26,6 +26,7 @@ import {
   Navigation,
   Palette,
   CreditCard,
+  Clock,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
@@ -37,7 +38,7 @@ interface AdminNavProps {
   onBookingsClick?: () => void;
   onInvoicesClick?: () => void;
   onVehicleTypesClick?: () => void;
-  onSettingsClick?: (section: 'commission' | 'email' | 'sms' | 'database' | 'branding' | 'stripe') => void;
+  onSettingsClick?: (section: 'commission' | 'email' | 'sms' | 'database' | 'branding' | 'stripe' | 'timezone') => void;
   onCMSClick?: (section: 'pages' | 'media' | 'services') => void;
   onPricingClick?: () => void;
 }
@@ -366,6 +367,20 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 >
                   <CreditCard className="w-4 h-4 mr-3 text-purple-500" />
                   <span className="font-medium">Stripe Customer Sync</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onSettingsClick?.('timezone');
+                    } else {
+                      setLocation('/admin#settings-timezone');
+                    }
+                  }}
+                  className={dropdownItemClass}
+                  data-testid="nav-timezone-settings"
+                >
+                  <Clock className="w-4 h-4 mr-3 text-orange-500" />
+                  <span className="font-medium">System Timezone</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

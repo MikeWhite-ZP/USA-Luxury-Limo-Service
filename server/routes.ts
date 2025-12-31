@@ -2425,6 +2425,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const isAdmin = user?.role === 'admin' || user?.role === 'dispatcher';
       const isPassenger = booking.passengerId === userId && !isAdmin;
 
+      // Get system timezone for accurate time calculations
+      const timezoneSetting = await storage.getSystemSetting('system_timezone');
+      const systemTimezone = timezoneSetting?.value || 'America/Chicago';
+      
+      // Calculate hours until booking in system timezone
+      const now = new Date();
+      const pickupTime = new Date(booking.scheduledDateTime);
+      const hoursUntilBooking = (pickupTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
       // For passengers: check if booking can be edited
       if (isPassenger) {
         // Check if booking status allows editing
@@ -2435,17 +2444,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
 
-        // Check 3-hour restriction for non-pending bookings
-        if (booking.status !== 'pending') {
-          const now = new Date();
-          const pickupTime = new Date(booking.scheduledDateTime);
-          const hoursBeforePickup = (pickupTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-          
-          if (hoursBeforePickup < 3) {
-            return res.status(400).json({ 
-              message: 'Bookings can only be edited at least 3 hours before the scheduled pickup time.' 
-            });
-          }
+        // Check if date/time is being changed
+        const newScheduledDateTime = req.body.scheduledDateTime ? new Date(req.body.scheduledDateTime) : null;
+        const isDateTimeChanged = newScheduledDateTime && 
+          newScheduledDateTime.getTime() !== pickupTime.getTime();
+
+        // Block date/time changes within 3 hours of scheduled pickup
+        if (isDateTimeChanged && hoursUntilBooking < 3) {
+          return res.status(400).json({ 
+            message: 'Date and time changes are not allowed within 3 hours of the scheduled pickup. Please contact dispatch for assistance.',
+            code: 'DATE_TIME_CHANGE_BLOCKED'
+          });
         }
       }
 
@@ -2470,6 +2479,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (validatedUpdates as any).acceptedAt = null;
       }
 
+      // Apply 20% last-minute surcharge for edits within 24 hours (server-side enforcement)
+      // Only apply to passenger edits with address/route changes that affect pricing
+      if (isPassenger && hoursUntilBooking < 24 && hoursUntilBooking >= 3) {
+        const hasRouteChange = 
+          (req.body.pickupAddress && req.body.pickupAddress !== booking.pickupAddress) ||
+          (req.body.destinationAddress && req.body.destinationAddress !== booking.destinationAddress) ||
+          (req.body.pickupLat && req.body.pickupLat !== booking.pickupLat) ||
+          (req.body.destinationLat && req.body.destinationLat !== booking.destinationLat);
+        
+        // If there's a route change and a new totalAmount, verify surcharge is applied
+        if (hasRouteChange && req.body.totalAmount) {
+          const clientTotal = parseFloat(req.body.totalAmount);
+          const clientSurcharge = parseFloat(req.body.lastMinuteSurcharge || '0');
+          
+          // If client didn't send surcharge, apply it server-side
+          if (clientSurcharge === 0 && clientTotal > 0) {
+            const surchargeAmount = clientTotal * 0.20;
+            const totalWithSurcharge = clientTotal + surchargeAmount;
+            (validatedUpdates as any).totalAmount = totalWithSurcharge.toFixed(2);
+            (validatedUpdates as any).notes = `${booking.notes || ''} [Last-minute edit surcharge: $${surchargeAmount.toFixed(2)}]`.trim();
+          }
+        }
+      }
+
       const updatedBooking = await storage.updateBooking(id, validatedUpdates);
 
       // Send notifications to admin/dispatcher if booking was edited by passenger
@@ -2481,9 +2514,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const passengerName = passenger ? `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || passenger.username : 'Unknown';
             
             // Get admin settings for notifications
-            const settings = await storage.getSystemSettings();
-            const adminEmail = settings?.dispatchEmail || settings?.systemEmail;
-            const adminPhone = settings?.adminPhone;
+            const dispatchEmailSetting = await storage.getSystemSetting('DISPATCH_EMAIL');
+            const systemEmailSetting = await storage.getSystemSetting('SYSTEM_ADMIN_EMAIL');
+            const adminPhoneSetting = await storage.getSystemSetting('ADMIN_PHONE');
+            const adminEmail = dispatchEmailSetting?.value || systemEmailSetting?.value;
+            const adminPhone = adminPhoneSetting?.value;
             
             // Prepare notification message
             const notificationSubject = wasConfirmedOrInProgress 
@@ -3278,6 +3313,18 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
     } catch (error) {
       console.error('Contact submission error:', error);
       res.status(500).json({ message: 'Failed to submit contact form' });
+    }
+  });
+
+  // Public endpoint to get system timezone (needed for booking edit restrictions)
+  app.get('/api/public/system-timezone', async (_req: any, res) => {
+    try {
+      const setting = await storage.getSystemSetting('system_timezone');
+      const timezone = setting?.value || 'America/Chicago'; // Default to Central Time
+      res.json({ timezone });
+    } catch (error) {
+      console.error('Get system timezone error:', error);
+      res.json({ timezone: 'America/Chicago' }); // Fallback on error
     }
   });
 

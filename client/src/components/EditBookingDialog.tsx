@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { AlertTriangle, MapPin, Clock, Car, Users, Briefcase, Info, Loader2, Building2, Hotel, Utensils, ShoppingBag, Coffee, Hospital, School, Landmark, Plane } from "lucide-react";
+import { AlertTriangle, MapPin, Clock, Car, Users, Briefcase, Info, Loader2, Building2, Hotel, Utensils, ShoppingBag, Coffee, Hospital, School, Landmark, Plane, DollarSign } from "lucide-react";
 
 interface AddressSuggestion {
   id: string;
@@ -107,7 +108,32 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
   const [quoteData, setQuoteData] = useState<any>(null);
   const [isCalculatingQuote, setIsCalculatingQuote] = useState(false);
   
+  // Price confirmation dialog state
+  const [showPriceConfirmDialog, setShowPriceConfirmDialog] = useState(false);
+  const [pendingUpdateData, setPendingUpdateData] = useState<any>(null);
+  const [isWithin24Hours, setIsWithin24Hours] = useState(false);
+  const [dateTimeChangeBlocked, setDateTimeChangeBlocked] = useState(false);
+  
   const suggestionTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  // Fetch system timezone from public endpoint
+  const { data: timezoneData } = useQuery<{ timezone: string }>({
+    queryKey: ["/api/public/system-timezone"],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/public/system-timezone');
+        if (!response.ok) return { timezone: 'America/Chicago' };
+        return await response.json();
+      } catch (error) {
+        console.warn('Failed to fetch system timezone, using default:', error);
+        return { timezone: 'America/Chicago' };
+      }
+    },
+    enabled: open,
+    staleTime: 1000 * 60 * 60, // Cache for 1 hour
+    retry: false, // Don't retry on failure, use default
+  });
+  const systemTimezone = timezoneData?.timezone || 'America/Chicago';
 
   // Fetch vehicle types
   const { data: vehicleTypes = [] } = useQuery<VehicleType[]>({
@@ -162,6 +188,25 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
     const destChanged = destinationAddress !== originalDestinationAddress;
     setAddressChanged(pickupChanged || destChanged);
   }, [pickupAddress, destinationAddress, originalPickupAddress, originalDestinationAddress]);
+
+  // Get current time in system timezone
+  const getCurrentTimeInTimezone = (): Date => {
+    const now = new Date();
+    const tzString = now.toLocaleString('en-US', { timeZone: systemTimezone });
+    return new Date(tzString);
+  };
+
+  // Check if booking is within 3 hours (block date/time changes) or 24 hours (20% surcharge)
+  useEffect(() => {
+    if (booking && open) {
+      const bookingDate = new Date(booking.scheduledDateTime);
+      const nowInTimezone = getCurrentTimeInTimezone();
+      const hoursUntilBooking = (bookingDate.getTime() - nowInTimezone.getTime()) / (1000 * 60 * 60);
+      
+      setDateTimeChangeBlocked(hoursUntilBooking <= 3);
+      setIsWithin24Hours(hoursUntilBooking <= 24 && hoursUntilBooking > 0);
+    }
+  }, [booking, open, systemTimezone]);
 
   // Get POI category icon based on TomTom POI data
   const getPOICategoryInfo = (poi: any): { icon: string; label: string } => {
@@ -347,6 +392,18 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
       
       if (response.ok) {
         const data = await response.json();
+        
+        // Add 20% surcharge if within 24 hours
+        if (isWithin24Hours && data.totalPrice) {
+          const surchargeAmount = parseFloat(data.totalPrice) * 0.20;
+          const newTotal = parseFloat(data.totalPrice) + surchargeAmount;
+          data.originalPrice = data.totalPrice;
+          data.surchargeAmount = surchargeAmount.toFixed(2);
+          data.surchargePercentage = 20;
+          data.totalPrice = newTotal.toFixed(2);
+          data.hasLastMinuteSurcharge = true;
+        }
+        
         setQuoteData(data);
       }
     } catch (error) {
@@ -400,8 +457,9 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
     },
   });
 
-  const handleSubmit = () => {
-    if (!booking) return;
+  // Build update data object
+  const buildUpdateData = () => {
+    if (!booking) return null;
     
     const updateData: any = {
       pickupAddress,
@@ -437,9 +495,42 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
       updateData.baseFare = quoteData.baseFare?.toString();
       updateData.distanceFare = quoteData.distanceFare?.toString();
       updateData.estimatedDistance = quoteData.distanceKm ? (quoteData.distanceKm * 0.621371).toFixed(2) : null;
+      if (quoteData.hasLastMinuteSurcharge) {
+        updateData.lastMinuteSurcharge = quoteData.surchargeAmount;
+      }
     }
     
+    return updateData;
+  };
+
+  const handleSubmit = () => {
+    if (!booking) return;
+    
+    const updateData = buildUpdateData();
+    if (!updateData) return;
+    
+    // If addresses changed and we have a new price, show confirmation dialog
+    if (addressChanged && quoteData?.totalPrice) {
+      setPendingUpdateData(updateData);
+      setShowPriceConfirmDialog(true);
+      return;
+    }
+    
+    // No price change, submit directly
     updateBookingMutation.mutate(updateData);
+  };
+
+  const handleConfirmPriceChange = () => {
+    if (pendingUpdateData) {
+      updateBookingMutation.mutate(pendingUpdateData);
+    }
+    setShowPriceConfirmDialog(false);
+    setPendingUpdateData(null);
+  };
+
+  const handleCancelPriceChange = () => {
+    setShowPriceConfirmDialog(false);
+    setPendingUpdateData(null);
   };
 
   if (!booking) return null;
@@ -447,6 +538,7 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
   const selectedVehicleInfo = vehicleTypes.find(v => v.id === selectedVehicle);
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card">
         <DialogHeader>
@@ -623,6 +715,18 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
           )}
 
           {/* Date and Time */}
+          {dateTimeChangeBlocked && (
+            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
+              <Clock className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-red-800 dark:text-red-200">Date/Time Changes Blocked</p>
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  Changes to the date and time are not allowed within 3 hours of the scheduled pickup. 
+                  Please contact our dispatch team for assistance.
+                </p>
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
@@ -634,13 +738,15 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
                 value={scheduledDate}
                 onChange={(e) => setScheduledDate(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
+                disabled={dateTimeChangeBlocked}
+                className={dateTimeChangeBlocked ? 'opacity-50 cursor-not-allowed' : ''}
               />
             </div>
             <div className="space-y-2">
               <Label>Time</Label>
               <div className="flex gap-2">
-                <Select value={hour} onValueChange={setHour}>
-                  <SelectTrigger className="w-[70px]">
+                <Select value={hour} onValueChange={setHour} disabled={dateTimeChangeBlocked}>
+                  <SelectTrigger className={`w-[70px] ${dateTimeChangeBlocked ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -650,8 +756,8 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
                   </SelectContent>
                 </Select>
                 <span className="flex items-center">:</span>
-                <Select value={minute} onValueChange={setMinute}>
-                  <SelectTrigger className="w-[70px]">
+                <Select value={minute} onValueChange={setMinute} disabled={dateTimeChangeBlocked}>
+                  <SelectTrigger className={`w-[70px] ${dateTimeChangeBlocked ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -660,8 +766,8 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
                     ))}
                   </SelectContent>
                 </Select>
-                <Select value={period} onValueChange={(v) => setPeriod(v as 'AM' | 'PM')}>
-                  <SelectTrigger className="w-[70px]">
+                <Select value={period} onValueChange={(v) => setPeriod(v as 'AM' | 'PM')} disabled={dateTimeChangeBlocked}>
+                  <SelectTrigger className={`w-[70px] ${dateTimeChangeBlocked ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -821,16 +927,34 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
           )}
 
           {quoteData && addressChanged && !isCalculatingQuote && (
-            <Card className="bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800">
-              <CardContent className="pt-4">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-green-800 dark:text-green-200">New Estimated Price:</span>
-                  <span className="text-2xl font-bold text-green-700 dark:text-green-300">
+            <Card className={`${quoteData.hasLastMinuteSurcharge ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800' : 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800'}`}>
+              <CardContent className="pt-4 space-y-2">
+                {quoteData.hasLastMinuteSurcharge && (
+                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300 mb-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span className="text-sm font-medium">20% Last-Minute Surcharge Applied</span>
+                  </div>
+                )}
+                {quoteData.hasLastMinuteSurcharge && quoteData.originalPrice && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Original Price:</span>
+                    <span className="text-muted-foreground line-through">${parseFloat(quoteData.originalPrice).toFixed(2)}</span>
+                  </div>
+                )}
+                {quoteData.hasLastMinuteSurcharge && quoteData.surchargeAmount && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-amber-700 dark:text-amber-300">Surcharge (20%):</span>
+                    <span className="text-amber-700 dark:text-amber-300">+${parseFloat(quoteData.surchargeAmount).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center pt-1">
+                  <span className={`font-medium ${quoteData.hasLastMinuteSurcharge ? 'text-amber-800 dark:text-amber-200' : 'text-green-800 dark:text-green-200'}`}>New Total:</span>
+                  <span className={`text-2xl font-bold ${quoteData.hasLastMinuteSurcharge ? 'text-amber-700 dark:text-amber-300' : 'text-green-700 dark:text-green-300'}`}>
                     ${parseFloat(quoteData.totalPrice).toFixed(2)}
                   </span>
                 </div>
                 {quoteData.distanceKm && (
-                  <p className="text-sm text-green-600 dark:text-green-400 mt-1">
+                  <p className={`text-sm ${quoteData.hasLastMinuteSurcharge ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`}>
                     Distance: {(quoteData.distanceKm * 0.621371).toFixed(1)} miles
                   </p>
                 )}
@@ -866,5 +990,68 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* Price Confirmation Dialog */}
+    <AlertDialog open={showPriceConfirmDialog} onOpenChange={setShowPriceConfirmDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-primary" />
+            Confirm New Price
+          </AlertDialogTitle>
+          <AlertDialogDescription asChild>
+            <div className="space-y-4">
+              <p>Your address changes will affect the booking price. Please review and confirm:</p>
+              
+              {quoteData && (
+                <div className={`rounded-lg p-4 ${quoteData.hasLastMinuteSurcharge ? 'bg-amber-50 dark:bg-amber-950/30 border border-amber-200' : 'bg-green-50 dark:bg-green-950/30 border border-green-200'}`}>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Previous Price:</span>
+                      <span className="line-through text-muted-foreground">${parseFloat(booking?.totalAmount || '0').toFixed(2)}</span>
+                    </div>
+                    {quoteData.hasLastMinuteSurcharge && (
+                      <>
+                        <div className="flex justify-between text-sm">
+                          <span>Base Price:</span>
+                          <span>${parseFloat(quoteData.originalPrice || '0').toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm text-amber-700">
+                          <span className="flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" />
+                            Last-Minute Surcharge (20%):
+                          </span>
+                          <span>+${parseFloat(quoteData.surchargeAmount || '0').toFixed(2)}</span>
+                        </div>
+                      </>
+                    )}
+                    <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
+                      <span>New Total:</span>
+                      <span className={quoteData.hasLastMinuteSurcharge ? 'text-amber-700' : 'text-green-700'}>
+                        ${parseFloat(quoteData.totalPrice).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {quoteData?.hasLastMinuteSurcharge && (
+                <p className="text-sm text-amber-700 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  A 20% surcharge applies because your booking is within 24 hours.
+                </p>
+              )}
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleCancelPriceChange}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirmPriceChange}>
+            Accept & Update Booking
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

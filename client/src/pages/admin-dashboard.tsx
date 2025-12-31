@@ -95,6 +95,7 @@ import { AdminSMSSettings } from "@/components/admin-sms-settings";
 import { DatabaseURLSettings } from "@/components/DatabaseURLSettings";
 import BrandSettings from "@/components/BrandSettings";
 import { StripeSyncSettings } from "@/components/StripeSyncSettings";
+import { TimezoneSettings } from "@/components/TimezoneSettings";
 import MediaLibrary from "@/components/MediaLibrary";
 import { ServiceCMS } from "@/components/ServiceCMS";
 import { BookingDetailsDialog } from "@/components/BookingDetailsDialog";
@@ -3780,7 +3781,7 @@ export default function AdminDashboard() {
     "api" | "payment" | "minio" | null
   >(null);
   const [visibleSettingsSection, setVisibleSettingsSection] = useState<
-    "commission" | "email" | "sms" | "database" | "branding" | "stripe" | null
+    "commission" | "email" | "sms" | "database" | "branding" | "stripe" | "timezone" | null
   >(null);
   const [visibleCMSSection, setVisibleCMSSection] = useState<
     "pages" | "media" | null
@@ -3998,7 +3999,7 @@ export default function AdminDashboard() {
           document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       } else if (section === 'settings') {
-        setVisibleSettingsSection(subsection as 'commission' | 'email' | 'sms' | 'database' | 'branding' | 'stripe');
+        setVisibleSettingsSection(subsection as 'commission' | 'email' | 'sms' | 'database' | 'branding' | 'stripe' | 'timezone');
         setVisibleCredentialsSection(null);
         setVisibleCMSSection(null);
         setShowUserManager(false);
@@ -7433,6 +7434,11 @@ export default function AdminDashboard() {
         {/* Stripe Sync Settings */}
         {visibleSettingsSection === "stripe" && (
           <StripeSyncSettings />
+        )}
+
+        {/* Timezone Settings */}
+        {visibleSettingsSection === "timezone" && (
+          <TimezoneSettings />
         )}
 
         {/* CMS - Pages Management */}
