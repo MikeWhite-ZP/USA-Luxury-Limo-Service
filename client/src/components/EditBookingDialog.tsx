@@ -10,16 +10,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { AlertTriangle, MapPin, Clock, Car, Users, Briefcase, Info, Loader2 } from "lucide-react";
+import { AlertTriangle, MapPin, Clock, Car, Users, Briefcase, Info, Loader2, Building2, Hotel, Utensils, ShoppingBag, Coffee, Hospital, School, Landmark, Plane } from "lucide-react";
 
 interface AddressSuggestion {
   id: string;
   display_name: string;
+  secondary_text?: string;
   address: any;
   position: {
     lat: number;
     lon: number;
   };
+  isPOI?: boolean;
+  poiCategory?: string;
+  poiCategoryIcon?: string;
 }
 
 interface VehicleType {
@@ -159,9 +163,46 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
     setAddressChanged(pickupChanged || destChanged);
   }, [pickupAddress, destinationAddress, originalPickupAddress, originalDestinationAddress]);
 
+  // Get POI category icon based on TomTom POI data
+  const getPOICategoryInfo = (poi: any): { icon: string; label: string } => {
+    if (!poi) return { icon: 'building', label: 'Place' };
+    
+    let categoryName = '';
+    
+    if (poi.categories && poi.categories.length > 0) {
+      categoryName = poi.categories.join(' ').toLowerCase();
+    }
+    
+    if (poi.categorySet) {
+      categoryName = poi.categorySet.map((cat: any) => cat.name).join(' ').toLowerCase();
+    }
+    
+    if (categoryName.includes('airport') || categoryName.includes('terminal')) {
+      return { icon: 'plane', label: 'Airport' };
+    } else if (categoryName.includes('hotel') || categoryName.includes('motel') || categoryName.includes('lodging')) {
+      return { icon: 'hotel', label: 'Hotel' };
+    } else if (categoryName.includes('restaurant') || categoryName.includes('food') || categoryName.includes('dining')) {
+      return { icon: 'utensils', label: 'Restaurant' };
+    } else if (categoryName.includes('shopping') || categoryName.includes('store') || categoryName.includes('mall')) {
+      return { icon: 'shopping', label: 'Shopping' };
+    } else if (categoryName.includes('cafe') || categoryName.includes('coffee')) {
+      return { icon: 'coffee', label: 'Cafe' };
+    } else if (categoryName.includes('hospital') || categoryName.includes('medical') || categoryName.includes('health')) {
+      return { icon: 'hospital', label: 'Medical' };
+    } else if (categoryName.includes('school') || categoryName.includes('university') || categoryName.includes('college')) {
+      return { icon: 'school', label: 'Education' };
+    } else if (categoryName.includes('museum') || categoryName.includes('landmark') || categoryName.includes('monument')) {
+      return { icon: 'landmark', label: 'Landmark' };
+    } else if (categoryName.includes('car') || categoryName.includes('parking') || categoryName.includes('automotive')) {
+      return { icon: 'car', label: 'Automotive' };
+    }
+    
+    return { icon: 'building', label: 'Place' };
+  };
+
   // Fetch address suggestions
   const fetchAddressSuggestions = async (query: string, type: 'pickup' | 'destination') => {
-    if (query.length < 3) {
+    if (query.length < 2) {
       if (type === 'pickup') setPickupSuggestions([]);
       else setDestinationSuggestions([]);
       return;
@@ -171,14 +212,36 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
     else setIsSearchingDestination(true);
     
     try {
-      const response = await fetch(`/api/geocode?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}&limit=10`);
       if (response.ok) {
         const data = await response.json();
+        const suggestions = data.results?.map((result: any) => {
+          const isPOI = !!result.poi;
+          const categoryInfo = isPOI ? getPOICategoryInfo(result.poi) : { icon: 'mappin', label: '' };
+          const displayName = isPOI && result.poi?.name 
+            ? result.poi.name 
+            : result.address?.freeformAddress || '';
+          const secondaryText = isPOI && result.address?.freeformAddress
+            ? result.address.freeformAddress
+            : '';
+          
+          return {
+            id: result.id || result.address?.freeformAddress || Math.random().toString(),
+            display_name: displayName,
+            secondary_text: secondaryText,
+            address: result.address,
+            position: result.position,
+            isPOI,
+            poiCategory: categoryInfo.label,
+            poiCategoryIcon: categoryInfo.icon,
+          };
+        }) || [];
+        
         if (type === 'pickup') {
-          setPickupSuggestions(data.results || []);
+          setPickupSuggestions(suggestions);
           setShowPickupSuggestions(true);
         } else {
-          setDestinationSuggestions(data.results || []);
+          setDestinationSuggestions(suggestions);
           setShowDestinationSuggestions(true);
         }
       }
@@ -204,15 +267,34 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
     }, 300);
   };
 
+  // Get icon component for POI category
+  const getPOIIcon = (iconName: string, className: string = "w-4 h-4") => {
+    switch (iconName) {
+      case 'plane': return <Plane className={className} />;
+      case 'hotel': return <Hotel className={className} />;
+      case 'utensils': return <Utensils className={className} />;
+      case 'shopping': return <ShoppingBag className={className} />;
+      case 'coffee': return <Coffee className={className} />;
+      case 'hospital': return <Hospital className={className} />;
+      case 'school': return <School className={className} />;
+      case 'landmark': return <Landmark className={className} />;
+      case 'car': return <Car className={className} />;
+      case 'building': return <Building2 className={className} />;
+      default: return <MapPin className={className} />;
+    }
+  };
+
   // Select address from suggestions
   const handleAddressSelect = (suggestion: AddressSuggestion, type: 'pickup' | 'destination') => {
-    const address = suggestion.address.freeformAddress;
+    const addressValue = suggestion.isPOI && suggestion.secondary_text 
+      ? suggestion.secondary_text 
+      : suggestion.display_name;
     if (type === 'pickup') {
-      setPickupAddress(address);
+      setPickupAddress(addressValue);
       setPickupCoords({ lat: suggestion.position.lat, lon: suggestion.position.lon });
       setShowPickupSuggestions(false);
     } else {
-      setDestinationAddress(address);
+      setDestinationAddress(addressValue);
       setDestinationCoords({ lat: suggestion.position.lat, lon: suggestion.position.lon });
       setShowDestinationSuggestions(false);
     }
@@ -427,16 +509,31 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
                 <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
                   {pickupSuggestions.map((suggestion, index) => (
                     <button
-                      key={index}
+                      key={suggestion.id || index}
                       type="button"
                       className="w-full text-left px-4 py-3 hover:bg-muted border-b border-border last:border-0"
                       onClick={() => handleAddressSelect(suggestion, 'pickup')}
                     >
                       <div className="flex items-start gap-2">
-                        <MapPin className="w-4 h-4 mt-1 text-green-600 flex-shrink-0" />
+                        <div className={`mt-0.5 flex-shrink-0 ${suggestion.isPOI ? 'text-primary' : 'text-green-600'}`}>
+                          {suggestion.isPOI && suggestion.poiCategoryIcon 
+                            ? getPOIIcon(suggestion.poiCategoryIcon, "w-4 h-4")
+                            : <MapPin className="w-4 h-4" />
+                          }
+                        </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{suggestion.address.freeformAddress}</p>
-                          {suggestion.address.countrySubdivision && (
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium truncate">{suggestion.display_name}</p>
+                            {suggestion.isPOI && suggestion.poiCategory && (
+                              <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded flex-shrink-0">
+                                {suggestion.poiCategory}
+                              </span>
+                            )}
+                          </div>
+                          {suggestion.secondary_text && (
+                            <p className="text-xs text-muted-foreground truncate">{suggestion.secondary_text}</p>
+                          )}
+                          {!suggestion.secondary_text && suggestion.address?.countrySubdivision && (
                             <p className="text-xs text-muted-foreground truncate">
                               {suggestion.address.countrySubdivision}, {suggestion.address.country}
                             </p>
