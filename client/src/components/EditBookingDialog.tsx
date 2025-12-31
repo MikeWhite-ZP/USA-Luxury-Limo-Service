@@ -135,6 +135,25 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
   });
   const systemTimezone = timezoneData?.timezone || 'America/Chicago';
 
+  // Fetch last-minute surcharge percentage from public endpoint
+  const { data: surchargeData } = useQuery<{ percentage: number }>({
+    queryKey: ["/api/public/last-minute-surcharge"],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/public/last-minute-surcharge');
+        if (!response.ok) return { percentage: 20 };
+        return await response.json();
+      } catch (error) {
+        console.warn('Failed to fetch surcharge percentage, using default:', error);
+        return { percentage: 20 };
+      }
+    },
+    enabled: open,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    retry: false,
+  });
+  const surchargePercentage = surchargeData?.percentage ?? 20;
+
   // Fetch vehicle types
   const { data: vehicleTypes = [] } = useQuery<VehicleType[]>({
     queryKey: ['/api/vehicle-types'],
@@ -393,13 +412,13 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
       if (response.ok) {
         const data = await response.json();
         
-        // Add 20% surcharge if within 24 hours
-        if (isWithin24Hours && data.totalPrice) {
-          const surchargeAmount = parseFloat(data.totalPrice) * 0.20;
+        // Add dynamic surcharge if within 24 hours
+        if (isWithin24Hours && data.totalPrice && surchargePercentage > 0) {
+          const surchargeAmount = parseFloat(data.totalPrice) * (surchargePercentage / 100);
           const newTotal = parseFloat(data.totalPrice) + surchargeAmount;
           data.originalPrice = data.totalPrice;
           data.surchargeAmount = surchargeAmount.toFixed(2);
-          data.surchargePercentage = 20;
+          data.surchargePercentage = surchargePercentage;
           data.totalPrice = newTotal.toFixed(2);
           data.hasLastMinuteSurcharge = true;
         }
@@ -1019,7 +1038,7 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
                         <div className="flex justify-between text-sm text-amber-700">
                           <span className="flex items-center gap-1">
                             <AlertTriangle className="w-3 h-3" />
-                            Last-Minute Surcharge (20%):
+                            Last-Minute Surcharge ({quoteData.surchargePercentage || surchargePercentage}%):
                           </span>
                           <span>+${parseFloat(quoteData.surchargeAmount || '0').toFixed(2)}</span>
                         </div>
@@ -1038,7 +1057,7 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
               {quoteData?.hasLastMinuteSurcharge && (
                 <p className="text-sm text-amber-700 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
-                  A 20% surcharge applies because your booking is within 24 hours.
+                  A {quoteData.surchargePercentage || surchargePercentage}% surcharge applies because your booking is within 24 hours.
                 </p>
               )}
             </div>

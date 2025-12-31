@@ -2479,7 +2479,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (validatedUpdates as any).acceptedAt = null;
       }
 
-      // Apply 20% last-minute surcharge for edits within 24 hours (server-side enforcement)
+      // Apply dynamic last-minute surcharge for edits within 24 hours (server-side enforcement)
       // Only apply to passenger edits with address/route changes that affect pricing
       if (isPassenger && hoursUntilBooking < 24 && hoursUntilBooking >= 3) {
         const hasRouteChange = 
@@ -2495,10 +2495,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // If client didn't send surcharge, apply it server-side
           if (clientSurcharge === 0 && clientTotal > 0) {
-            const surchargeAmount = clientTotal * 0.20;
+            // Fetch dynamic surcharge percentage from system settings
+            const surchargeSetting = await storage.getSystemSetting('LAST_MINUTE_SURCHARGE_PERCENTAGE');
+            const surchargePercentage = surchargeSetting?.value ? parseFloat(surchargeSetting.value) : 20;
+            
+            const surchargeAmount = clientTotal * (surchargePercentage / 100);
             const totalWithSurcharge = clientTotal + surchargeAmount;
             (validatedUpdates as any).totalAmount = totalWithSurcharge.toFixed(2);
-            (validatedUpdates as any).notes = `${booking.notes || ''} [Last-minute edit surcharge: $${surchargeAmount.toFixed(2)}]`.trim();
+            (validatedUpdates as any).notes = `${booking.notes || ''} [Last-minute edit surcharge (${surchargePercentage}%): $${surchargeAmount.toFixed(2)}]`.trim();
           }
         }
       }
@@ -3325,6 +3329,18 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
     } catch (error) {
       console.error('Get system timezone error:', error);
       res.json({ timezone: 'America/Chicago' }); // Fallback on error
+    }
+  });
+
+  // Public endpoint to get last-minute surcharge percentage (needed for booking edit calculations)
+  app.get('/api/public/last-minute-surcharge', async (_req: any, res) => {
+    try {
+      const setting = await storage.getSystemSetting('LAST_MINUTE_SURCHARGE_PERCENTAGE');
+      const percentage = setting?.value ? parseFloat(setting.value) : 20; // Default to 20%
+      res.json({ percentage });
+    } catch (error) {
+      console.error('Get last-minute surcharge error:', error);
+      res.json({ percentage: 20 }); // Fallback on error
     }
   });
 

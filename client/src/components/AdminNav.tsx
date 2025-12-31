@@ -38,7 +38,7 @@ interface AdminNavProps {
   onBookingsClick?: () => void;
   onInvoicesClick?: () => void;
   onVehicleTypesClick?: () => void;
-  onSettingsClick?: (section: 'commission' | 'email' | 'sms' | 'database' | 'branding' | 'stripe' | 'timezone') => void;
+  onSettingsClick?: (section: 'commission' | 'email' | 'sms' | 'database' | 'branding' | 'stripe' | 'timezone' | 'surcharge') => void;
   onCMSClick?: (section: 'pages' | 'media' | 'services') => void;
   onPricingClick?: () => void;
 }
@@ -381,6 +381,20 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 >
                   <Clock className="w-4 h-4 mr-3 text-orange-500" />
                   <span className="font-medium">System Timezone</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onSettingsClick?.('surcharge');
+                    } else {
+                      setLocation('/admin#settings-surcharge');
+                    }
+                  }}
+                  className={dropdownItemClass}
+                  data-testid="nav-surcharge-settings"
+                >
+                  <Percent className="w-4 h-4 mr-3 text-amber-500" />
+                  <span className="font-medium">Last-Minute Surcharge</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
