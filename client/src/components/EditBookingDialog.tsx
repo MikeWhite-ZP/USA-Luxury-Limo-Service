@@ -570,16 +570,31 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
                   <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {destinationSuggestions.map((suggestion, index) => (
                       <button
-                        key={index}
+                        key={suggestion.id || index}
                         type="button"
                         className="w-full text-left px-4 py-3 hover:bg-muted border-b border-border last:border-0"
                         onClick={() => handleAddressSelect(suggestion, 'destination')}
                       >
                         <div className="flex items-start gap-2">
-                          <MapPin className="w-4 h-4 mt-1 text-red-600 flex-shrink-0" />
+                          <div className={`mt-0.5 flex-shrink-0 ${suggestion.isPOI ? 'text-primary' : 'text-red-600'}`}>
+                            {suggestion.isPOI && suggestion.poiCategoryIcon 
+                              ? getPOIIcon(suggestion.poiCategoryIcon, "w-4 h-4")
+                              : <MapPin className="w-4 h-4" />
+                            }
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{suggestion.address.freeformAddress}</p>
-                            {suggestion.address.countrySubdivision && (
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium truncate">{suggestion.display_name}</p>
+                              {suggestion.isPOI && suggestion.poiCategory && (
+                                <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded flex-shrink-0">
+                                  {suggestion.poiCategory}
+                                </span>
+                              )}
+                            </div>
+                            {suggestion.secondary_text && (
+                              <p className="text-xs text-muted-foreground truncate">{suggestion.secondary_text}</p>
+                            )}
+                            {!suggestion.secondary_text && suggestion.address?.countrySubdivision && (
                               <p className="text-xs text-muted-foreground truncate">
                                 {suggestion.address.countrySubdivision}, {suggestion.address.country}
                               </p>
