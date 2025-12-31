@@ -13,10 +13,12 @@ function hashToken(token: string): string {
 }
 
 router.post('/register', async (req: Request, res: Response) => {
+  console.log(`[ANDROID_SMS] Registration request received from ${req.ip}:`, JSON.stringify(req.body));
   try {
     const { deviceUuid, deviceName, phoneNumber, metadata } = req.body;
 
     if (!deviceUuid) {
+      console.log('[ANDROID_SMS] Registration failed: Missing device UUID');
       return res.status(400).json({ error: 'Device UUID is required' });
     }
 
