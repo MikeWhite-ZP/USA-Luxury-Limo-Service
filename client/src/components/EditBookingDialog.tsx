@@ -495,7 +495,7 @@ export default function EditBookingDialog({ booking, open, onOpenChange, onSucce
             <Badge variant="secondary" className="text-sm">
               {booking.bookingType === 'transfer' ? 'Point-to-Point Transfer' : 'Hourly Service'}
             </Badge>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-[#12a805] font-bold text-[16px]">
               Current Price: ${parseFloat(booking.totalAmount).toFixed(2)}
             </span>
           </div>
