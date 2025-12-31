@@ -1578,6 +1578,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               onChange={(e) => setPassengerEmail(e.target.value)}
               data-testid="input-passenger-email"
             />
+            <p className="text-xs text-[#a10000]">
+              By submitting your email address, you consent to receive Email messages!
+            </p>
           </div>
         </div>
         {/* Flight Search */}
