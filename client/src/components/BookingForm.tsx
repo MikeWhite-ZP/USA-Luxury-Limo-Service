@@ -1496,7 +1496,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </div>
           </div>
         </div>
-
         {/* Booking For */}
         <div data-testid="booking-for-section">
           <h4 className="font-semibold mb-3">Are you booking for yourself or someone else?</h4>
@@ -1551,7 +1550,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </button>
           </div>
         </div>
-
         {/* Additional Information */}
         <div data-testid="additional-info-section">
           <h4 className="font-semibold mb-3">Provide additional information</h4>
@@ -1569,7 +1567,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 onChange={(e) => setPassengerPhone(e.target.value)}
                 data-testid="input-passenger-phone"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-[#a10000]">
                 By submitting your phone number, you consent to receive SMS messages!
               </p>
             </div>
@@ -1582,7 +1580,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             />
           </div>
         </div>
-
         {/* Flight Search */}
         <div data-testid="flight-search-section">
           <h4 className="font-semibold mb-3">Flight Information (Optional)</h4>
@@ -1714,7 +1711,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </div>
           )}
         </div>
-
         {/* Passenger Count */}
         <div data-testid="passenger-count-section">
           <div className="flex justify-between items-center">
@@ -1743,7 +1739,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </div>
           </div>
         </div>
-
         {/* Luggage Count */}
         <div data-testid="luggage-count-section">
           <div className="flex justify-between items-center">
@@ -1772,7 +1767,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </div>
           </div>
         </div>
-
         {/* Capacity Warning Message */}
         {hasCapacityWarning && (
           <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
@@ -1798,7 +1792,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </div>
           </div>
         )}
-
         {/* Car Seat */}
         <div data-testid="baby-seat-section">
           <div className="flex justify-between items-center">
@@ -1816,7 +1809,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </label>
           </div>
         </div>
-
         {/* Bill Reference (Optional) */}
         <div data-testid="bill-reference-section">
           <h4 className="font-semibold mb-2">Bill Reference (Optional)</h4>
@@ -1830,7 +1822,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             data-testid="input-bill-reference"
           />
         </div>
-
         {/* Special Instructions */}
         <div data-testid="special-instructions-section">
           <h4 className="font-semibold mb-2">Special Instructions</h4>
@@ -1842,7 +1833,6 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             data-testid="textarea-special-instructions"
           />
         </div>
-
         {/* Action Buttons */}
         <div className="flex gap-3">
           <Button 
