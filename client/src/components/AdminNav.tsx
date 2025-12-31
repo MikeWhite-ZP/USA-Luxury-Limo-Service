@@ -57,7 +57,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
   };
 
   const navButtonClass = "text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200 rounded-lg px-4 py-2.5";
-  const dropdownItemClass = "cursor-pointer text-muted-foreground hover:bg-muted focus:bg-muted py-2.5 px-3";
+  const dropdownItemClass = "cursor-pointer text-muted-foreground hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-foreground focus:bg-gray-200 dark:focus:bg-gray-700 py-2.5 px-3";
   const dropdownContentClass = "w-56 bg-card border border-border shadow-lg rounded-xl";
 
   return (
