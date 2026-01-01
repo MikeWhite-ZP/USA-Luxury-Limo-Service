@@ -995,6 +995,42 @@ export const insertAndroidSmsQueueSchema = createInsertSchema(androidSmsQueue).o
   updatedAt: true,
 });
 
+// Notification Templates - Dynamic email and SMS notification management
+export const notificationTypeEnum = ["email", "sms"] as const;
+export type NotificationType = typeof notificationTypeEnum[number];
+
+export const notificationRecipientEnum = ["passenger", "driver", "admin", "user"] as const;
+export type NotificationRecipient = typeof notificationRecipientEnum[number];
+
+export const notificationStatusEnum = ["active", "inactive"] as const;
+export type NotificationStatus = typeof notificationStatusEnum[number];
+
+export const notificationTemplates = pgTable("notification_templates", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  type: varchar("type", { enum: notificationTypeEnum }).notNull(),
+  code: varchar("code", { length: 100 }).notNull().unique(),
+  name: varchar("name", { length: 255 }).notNull(),
+  recipientType: varchar("recipient_type", { enum: notificationRecipientEnum }).notNull(),
+  purpose: text("purpose").notNull(),
+  subject: varchar("subject", { length: 255 }), // For email templates only
+  content: text("content"), // HTML content for email templates
+  smsContent: text("sms_content"), // Plain text for SMS templates
+  status: varchar("status", { enum: notificationStatusEnum }).default("active"),
+  availableShortcodes: text("available_shortcodes"), // Comma-separated list of shortcodes
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("notification_templates_type_idx").on(table.type),
+  index("notification_templates_code_idx").on(table.code),
+  index("notification_templates_status_idx").on(table.status),
+]);
+
+export const insertNotificationTemplateSchema = createInsertSchema(notificationTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -1055,3 +1091,5 @@ export type AndroidSmsDevice = typeof androidSmsDevices.$inferSelect;
 export type InsertAndroidSmsDevice = z.infer<typeof insertAndroidSmsDeviceSchema>;
 export type AndroidSmsQueue = typeof androidSmsQueue.$inferSelect;
 export type InsertAndroidSmsQueue = z.infer<typeof insertAndroidSmsQueueSchema>;
+export type NotificationTemplate = typeof notificationTemplates.$inferSelect;
+export type InsertNotificationTemplate = z.infer<typeof insertNotificationTemplateSchema>;
