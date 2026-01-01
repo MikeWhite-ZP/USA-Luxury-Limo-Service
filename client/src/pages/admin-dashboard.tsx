@@ -10690,14 +10690,15 @@ export default function AdminDashboard() {
                         {driverEarningsData.earnings.map((earning) => (
                           <div key={earning.bookingId} className="flex items-center justify-between p-3 bg-muted rounded-lg border">
                             <div className="flex-1 min-w-0 mr-3">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 {earning.paid ? (
                                   <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">Paid</Badge>
                                 ) : (
                                   <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">Unpaid</Badge>
                                 )}
+                                <span className="text-sm font-semibold text-green-700">Booking ID</span>
                                 <button
-                                  className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer truncate"
+                                  className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                                   onClick={() => {
                                     const fullBooking = bookings?.find(b => b.id === earning.bookingId);
                                     if (fullBooking) {
@@ -10716,7 +10717,7 @@ export default function AdminDashboard() {
                                   {earning.confirmationNumber}
                                 </button>
                               </div>
-                              <p className="text-xs text-muted-foreground truncate">
+                              <p className="text-xs text-muted-foreground truncate mt-1">
                                 {extractCityState(earning.pickupAddress)}
                                 {earning.destinationAddress && ` → ${extractCityState(earning.destinationAddress)}`}
                               </p>
