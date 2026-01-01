@@ -6435,10 +6435,15 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
         return res.status(403).json({ message: 'Admin access required' });
       }
 
-      const { firstName, lastName, email, phone, role, isActive, payLaterEnabled, cashPaymentEnabled, vehiclePlate } = req.body;
+      const { firstName, lastName, email, phone, role, isActive, payLaterEnabled, cashPaymentEnabled, vehiclePlate, password, companyName, username, discountType, discountValue } = req.body;
       
       if (!firstName || !email) {
         return res.status(400).json({ message: 'First name and email are required' });
+      }
+
+      // Validate password is provided and meets minimum requirements
+      if (!password || password.length < 6) {
+        return res.status(400).json({ message: 'Password is required and must be at least 6 characters' });
       }
 
       // Check if user with this email already exists
@@ -6447,8 +6452,16 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
         return res.status(400).json({ message: 'User with this email already exists' });
       }
 
-      // Create temporary password (user should reset)
-      const tempPassword = Math.random().toString(36).slice(-10);
+      // Check if username is taken (if provided)
+      if (username && username.trim()) {
+        const existingUsername = await storage.getUserByUsername(username.trim());
+        if (existingUsername) {
+          return res.status(400).json({ message: 'Username is already taken' });
+        }
+      }
+
+      // Use provided password
+      const tempPassword = password;
       
       // Determine default isActive based on role
       // Admin accounts start as inactive and must be activated by existing admins
@@ -6467,6 +6480,10 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
         isActive: isActive !== undefined ? isActive : defaultIsActive,
         payLaterEnabled: payLaterEnabled || false,
         cashPaymentEnabled: cashPaymentEnabled || false,
+        companyName: companyName || '',
+        username: username?.trim() || undefined,
+        discountType: discountType || null,
+        discountValue: discountValue || '0',
       });
 
       // If creating a user with 'driver' role, create driver record

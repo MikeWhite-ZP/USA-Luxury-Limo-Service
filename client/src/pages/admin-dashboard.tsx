@@ -6100,8 +6100,18 @@ export default function AdminDashboard() {
       return;
     }
 
-    // Validate temporary password if provided
-    if (userFormData.temporaryPassword && userFormData.temporaryPassword.length > 0 && userFormData.temporaryPassword.length < 6) {
+    // Require password for new users
+    if (!editingUser && (!userFormData.temporaryPassword || userFormData.temporaryPassword.length < 6)) {
+      toast({
+        title: "Password Required",
+        description: "Please provide an initial password (minimum 6 characters) for the new user",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate temporary password if provided (for editing users)
+    if (editingUser && userFormData.temporaryPassword && userFormData.temporaryPassword.length > 0 && userFormData.temporaryPassword.length < 6) {
       toast({
         title: "Invalid Password",
         description: "Temporary password must be at least 6 characters long",
@@ -6135,11 +6145,12 @@ export default function AdminDashboard() {
       
       setUserDialogOpen(false);
     } else {
-      // Create new user (excluding temporaryPassword)
-      const { temporaryPassword, username, ...userData } = userFormData;
+      // Create new user (including password for new user)
+      const { username, ...userData } = userFormData;
       createUserMutation.mutate({
         ...userData,
         username: normalizedUsername,
+        password: userFormData.temporaryPassword,
       });
     }
   };
@@ -10978,13 +10989,18 @@ export default function AdminDashboard() {
                     </>
                   )}
 
-                  {editingUser && editingUser.id !== user?.id && (
+                  {/* Temporary Password Section - show for new users or when editing other users */}
+                  {(!editingUser || editingUser.id !== user?.id) && (
                     <div className="space-y-1.5 pt-3 border-t border-border">
-                      <Label htmlFor="user-temp-password" className="text-xs font-medium">Set Temporary Password</Label>
+                      <Label htmlFor="user-temp-password" className="text-xs font-medium flex items-center gap-2">
+                        <Key className="w-3 h-3" />
+                        {editingUser ? "Set Temporary Password" : "Initial Password"}
+                        {!editingUser && <span className="text-destructive">*</span>}
+                      </Label>
                       <Input
                         id="user-temp-password"
                         type="password"
-                        placeholder="Leave blank to keep current"
+                        placeholder={editingUser ? "Leave blank to keep current" : "Enter initial password"}
                         value={userFormData.temporaryPassword}
                         onChange={(e) =>
                           setUserFormData({
@@ -10996,7 +11012,9 @@ export default function AdminDashboard() {
                         data-testid="input-temp-password"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Minimum 6 characters. User will receive via email/SMS.
+                        {editingUser 
+                          ? "Minimum 6 characters. User will receive via email/SMS."
+                          : "Minimum 6 characters. User can change this after first login."}
                       </p>
                     </div>
                   )}
