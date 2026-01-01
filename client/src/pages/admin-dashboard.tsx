@@ -3813,6 +3813,32 @@ function OldInvoicesAdminTab({ userId }: { userId: string }) {
   );
 }
 
+// Helper function to extract city and state from a full address
+function extractCityState(address: string | null | undefined): string {
+  if (!address) return '';
+  
+  // Typical US address: "123 Street Name, City, ST 12345" or "City, ST 12345"
+  const parts = address.split(',').map(p => p.trim());
+  
+  if (parts.length >= 2) {
+    // Get the last part (should contain state and zip) and second-to-last (city)
+    const lastPart = parts[parts.length - 1];
+    const cityPart = parts[parts.length - 2];
+    
+    // Extract state code (2 letters before optional zip)
+    const stateMatch = lastPart.match(/^([A-Z]{2})\s*\d{0,5}/);
+    if (stateMatch) {
+      return `${cityPart}, ${stateMatch[1]}`;
+    }
+    
+    // If no state code found, just return last two parts
+    return `${cityPart}, ${lastPart}`;
+  }
+  
+  // Fallback: return first 30 chars if no commas
+  return address.length > 30 ? address.substring(0, 30) + '...' : address;
+}
+
 export default function AdminDashboard() {
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -10665,14 +10691,35 @@ export default function AdminDashboard() {
                           <div key={earning.bookingId} className="flex items-center justify-between p-3 bg-muted rounded-lg border">
                             <div className="flex-1 min-w-0 mr-3">
                               <div className="flex items-center gap-2">
-                                <p className="text-sm font-medium truncate">{earning.confirmationNumber}</p>
                                 {earning.paid ? (
                                   <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">Paid</Badge>
                                 ) : (
                                   <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">Unpaid</Badge>
                                 )}
+                                <button
+                                  className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer truncate"
+                                  onClick={() => {
+                                    const fullBooking = bookings?.find(b => b.id === earning.bookingId);
+                                    if (fullBooking) {
+                                      setUserDialogOpen(false);
+                                      setEditingBooking(fullBooking);
+                                      setBookingDialogOpen(true);
+                                    } else {
+                                      toast({
+                                        title: "Booking not found",
+                                        description: "Unable to load booking details.",
+                                        variant: "destructive",
+                                      });
+                                    }
+                                  }}
+                                >
+                                  {earning.confirmationNumber}
+                                </button>
                               </div>
-                              <p className="text-xs text-muted-foreground truncate">{earning.pickupAddress}</p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {extractCityState(earning.pickupAddress)}
+                                {earning.destinationAddress && ` → ${extractCityState(earning.destinationAddress)}`}
+                              </p>
                               <p className="text-xs text-muted-foreground">
                                 {new Date(earning.scheduledDateTime).toLocaleDateString()}
                               </p>
