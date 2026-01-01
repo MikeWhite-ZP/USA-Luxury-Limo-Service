@@ -100,6 +100,8 @@ import { SurchargeSettings } from "@/components/SurchargeSettings";
 import MediaLibrary from "@/components/MediaLibrary";
 import { ServiceCMS } from "@/components/ServiceCMS";
 import { BookingDetailsDialog } from "@/components/BookingDetailsDialog";
+import { EmailNotificationsSettings } from "@/components/EmailNotificationsSettings";
+import { SmsNotificationsSettings } from "@/components/SmsNotificationsSettings";
 
 interface DashboardStats {
   totalRevenue: string;
@@ -3832,10 +3834,10 @@ export default function AdminDashboard() {
     "api" | "payment" | "minio" | null
   >(null);
   const [visibleSettingsSection, setVisibleSettingsSection] = useState<
-    "commission" | "email" | "sms" | "database" | "branding" | "stripe" | "timezone" | "surcharge" | null
+    "commission" | "email" | "sms" | "database" | "branding" | "stripe" | "timezone" | "surcharge" | "email-notifications" | "sms-notifications" | null
   >(null);
   const [visibleCMSSection, setVisibleCMSSection] = useState<
-    "pages" | "media" | null
+    "pages" | "media" | "services" | null
   >(null);
   const [showBookings, setShowBookings] = useState(false);
   const [showInvoices, setShowInvoices] = useState(false);
@@ -7506,6 +7508,24 @@ export default function AdminDashboard() {
         {/* Surcharge Settings */}
         {visibleSettingsSection === "surcharge" && (
           <SurchargeSettings />
+        )}
+
+        {/* Email Notifications Templates */}
+        {visibleSettingsSection === "email-notifications" && (
+          <Card id="settings-section" className="border-border shadow-md">
+            <CardContent className="pt-6">
+              <EmailNotificationsSettings />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* SMS Notifications Templates */}
+        {visibleSettingsSection === "sms-notifications" && (
+          <Card id="settings-section" className="border-border shadow-md">
+            <CardContent className="pt-6">
+              <SmsNotificationsSettings />
+            </CardContent>
+          </Card>
         )}
 
         {/* CMS - Pages Management */}

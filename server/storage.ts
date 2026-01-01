@@ -89,6 +89,9 @@ import {
   androidSmsQueue,
   type AndroidSmsQueue,
   type InsertAndroidSmsQueue,
+  notificationTemplates,
+  type NotificationTemplate,
+  type InsertNotificationTemplate,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, sql, gte, lte, isNull, inArray, or } from "drizzle-orm";
@@ -369,6 +372,14 @@ export interface IStorage {
   getAndroidSmsQueueStats(): Promise<{ pending: number; sent: number; failed: number; total: number }>;
   deleteAndroidSmsQueueItem(id: string): Promise<void>;
   clearFailedAndroidSms(): Promise<number>;
+  
+  // Notification Templates
+  getNotificationTemplates(type?: string): Promise<NotificationTemplate[]>;
+  getNotificationTemplate(id: string): Promise<NotificationTemplate | undefined>;
+  getNotificationTemplateByCode(code: string): Promise<NotificationTemplate | undefined>;
+  createNotificationTemplate(template: InsertNotificationTemplate): Promise<NotificationTemplate>;
+  updateNotificationTemplate(id: string, updates: Partial<InsertNotificationTemplate>): Promise<NotificationTemplate | undefined>;
+  deleteNotificationTemplate(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -3103,6 +3114,60 @@ export class DatabaseStorage implements IStorage {
       .where(eq(androidSmsQueue.status, 'FAILED'))
       .returning();
     return result.length;
+  }
+
+  // Notification Templates Implementation
+  async getNotificationTemplates(type?: string): Promise<NotificationTemplate[]> {
+    if (type) {
+      return await db
+        .select()
+        .from(notificationTemplates)
+        .where(eq(notificationTemplates.type, type as any))
+        .orderBy(notificationTemplates.name);
+    }
+    return await db
+      .select()
+      .from(notificationTemplates)
+      .orderBy(notificationTemplates.name);
+  }
+
+  async getNotificationTemplate(id: string): Promise<NotificationTemplate | undefined> {
+    const [template] = await db
+      .select()
+      .from(notificationTemplates)
+      .where(eq(notificationTemplates.id, id));
+    return template;
+  }
+
+  async getNotificationTemplateByCode(code: string): Promise<NotificationTemplate | undefined> {
+    const [template] = await db
+      .select()
+      .from(notificationTemplates)
+      .where(eq(notificationTemplates.code, code));
+    return template;
+  }
+
+  async createNotificationTemplate(template: InsertNotificationTemplate): Promise<NotificationTemplate> {
+    const [created] = await db
+      .insert(notificationTemplates)
+      .values(template)
+      .returning();
+    return created;
+  }
+
+  async updateNotificationTemplate(id: string, updates: Partial<InsertNotificationTemplate>): Promise<NotificationTemplate | undefined> {
+    const [updated] = await db
+      .update(notificationTemplates)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(notificationTemplates.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteNotificationTemplate(id: string): Promise<void> {
+    await db
+      .delete(notificationTemplates)
+      .where(eq(notificationTemplates.id, id));
   }
 }
 

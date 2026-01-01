@@ -10276,6 +10276,168 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
   });
 
   // ========================================
+  // Notification Templates Management (Admin)
+  // ========================================
+
+  // Get all notification templates (optionally filtered by type)
+  app.get('/api/admin/notification-templates', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { type } = req.query;
+      const templates = await storage.getNotificationTemplates(type as string);
+      res.json(templates);
+    } catch (error) {
+      console.error('Get notification templates error:', error);
+      res.status(500).json({ message: 'Failed to fetch notification templates' });
+    }
+  });
+
+  // Get a single notification template by ID
+  app.get('/api/admin/notification-templates/:id', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const template = await storage.getNotificationTemplate(req.params.id);
+      if (!template) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+      res.json(template);
+    } catch (error) {
+      console.error('Get notification template error:', error);
+      res.status(500).json({ message: 'Failed to fetch notification template' });
+    }
+  });
+
+  // Create a new notification template
+  app.post('/api/admin/notification-templates', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const template = await storage.createNotificationTemplate(req.body);
+      res.status(201).json(template);
+    } catch (error: any) {
+      console.error('Create notification template error:', error);
+      if (error.code === '23505') { // Unique constraint violation
+        return res.status(400).json({ message: 'Template with this code already exists' });
+      }
+      res.status(500).json({ message: 'Failed to create notification template' });
+    }
+  });
+
+  // Update a notification template
+  app.put('/api/admin/notification-templates/:id', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const template = await storage.updateNotificationTemplate(req.params.id, req.body);
+      if (!template) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+      res.json(template);
+    } catch (error: any) {
+      console.error('Update notification template error:', error);
+      if (error.code === '23505') {
+        return res.status(400).json({ message: 'Template with this code already exists' });
+      }
+      res.status(500).json({ message: 'Failed to update notification template' });
+    }
+  });
+
+  // Delete a notification template
+  app.delete('/api/admin/notification-templates/:id', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      await storage.deleteNotificationTemplate(req.params.id);
+      res.json({ message: 'Template deleted successfully' });
+    } catch (error) {
+      console.error('Delete notification template error:', error);
+      res.status(500).json({ message: 'Failed to delete notification template' });
+    }
+  });
+
+  // Send test email using a notification template
+  app.post('/api/admin/notification-templates/:id/test-email', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { recipientEmail, testData } = req.body;
+      
+      if (!recipientEmail) {
+        return res.status(400).json({ message: 'Recipient email is required' });
+      }
+
+      const template = await storage.getNotificationTemplate(req.params.id);
+      if (!template) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+
+      if (template.type !== 'email') {
+        return res.status(400).json({ message: 'This is not an email template' });
+      }
+
+      // Replace shortcodes with test data
+      let subject = template.subject || 'Test Email';
+      let content = template.content || '';
+      
+      if (testData && typeof testData === 'object') {
+        Object.entries(testData).forEach(([key, value]) => {
+          const regex = new RegExp(`\\{${key}\\}`, 'g');
+          subject = subject.replace(regex, String(value));
+          content = content.replace(regex, String(value));
+        });
+      }
+
+      // Send the test email
+      const result = await sendEmail({
+        to: recipientEmail,
+        subject: `[TEST] ${subject}`,
+        html: content,
+      });
+
+      if (result.success) {
+        res.json({ success: true, message: `Test email sent to ${recipientEmail}` });
+      } else {
+        res.status(500).json({ success: false, message: result.error || 'Failed to send test email' });
+      }
+    } catch (error) {
+      console.error('Test email error:', error);
+      res.status(500).json({ message: 'Failed to send test email' });
+    }
+  });
+
+  // Send test SMS using a notification template
+  app.post('/api/admin/notification-templates/:id/test-sms', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { phoneNumber, testData } = req.body;
+      
+      if (!phoneNumber) {
+        return res.status(400).json({ message: 'Phone number is required' });
+      }
+
+      const template = await storage.getNotificationTemplate(req.params.id);
+      if (!template) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+
+      if (template.type !== 'sms') {
+        return res.status(400).json({ message: 'This is not an SMS template' });
+      }
+
+      // Replace shortcodes with test data
+      let content = template.smsContent || '';
+      
+      if (testData && typeof testData === 'object') {
+        Object.entries(testData).forEach(([key, value]) => {
+          const regex = new RegExp(`\\{${key}\\}`, 'g');
+          content = content.replace(regex, String(value));
+        });
+      }
+
+      // Send the test SMS
+      const result = await sendSMS(phoneNumber, `[TEST] ${content}`);
+
+      if (result.success) {
+        res.json({ success: true, message: `Test SMS sent to ${phoneNumber}` });
+      } else {
+        res.status(500).json({ success: false, message: result.error || 'Failed to send test SMS' });
+      }
+    } catch (error) {
+      console.error('Test SMS error:', error);
+      res.status(500).json({ message: 'Failed to send test SMS' });
+    }
+  });
+
+  // ========================================
   // Android SMS Gateway Routes
   // ========================================
   

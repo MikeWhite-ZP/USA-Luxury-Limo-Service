@@ -27,6 +27,7 @@ import {
   Palette,
   CreditCard,
   Clock,
+  Bell,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
@@ -38,7 +39,7 @@ interface AdminNavProps {
   onBookingsClick?: () => void;
   onInvoicesClick?: () => void;
   onVehicleTypesClick?: () => void;
-  onSettingsClick?: (section: 'commission' | 'email' | 'sms' | 'database' | 'branding' | 'stripe' | 'timezone' | 'surcharge') => void;
+  onSettingsClick?: (section: 'commission' | 'email' | 'sms' | 'database' | 'branding' | 'stripe' | 'timezone' | 'surcharge' | 'email-notifications' | 'sms-notifications') => void;
   onCMSClick?: (section: 'pages' | 'media' | 'services') => void;
   onPricingClick?: () => void;
 }
@@ -337,7 +338,36 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-sms-settings"
                 >
                   <MessageSquare className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">SMS Notifications</span>
+                  <span className="font-medium">SMS Providers</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onSettingsClick?.('email-notifications');
+                    } else {
+                      setLocation('/admin#settings-email-notifications');
+                    }
+                  }}
+                  className={dropdownItemClass}
+                  data-testid="nav-email-notifications"
+                >
+                  <Bell className="w-4 h-4 mr-3 text-blue-500" />
+                  <span className="font-medium">Email Notifications</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onSettingsClick?.('sms-notifications');
+                    } else {
+                      setLocation('/admin#settings-sms-notifications');
+                    }
+                  }}
+                  className={dropdownItemClass}
+                  data-testid="nav-sms-notifications"
+                >
+                  <Bell className="w-4 h-4 mr-3 text-green-500" />
+                  <span className="font-medium">SMS Templates</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem 
