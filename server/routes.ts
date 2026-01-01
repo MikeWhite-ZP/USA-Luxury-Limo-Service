@@ -5767,7 +5767,7 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
       
       // Get driver's completed bookings with payment (using the driver table's ID)
       const driverBookings = allBookings.filter((b: Booking) => 
-        b.assignedDriverId === driverRecord.id && 
+        b.driverId === driverRecord.id && 
         b.status === 'completed' && 
         b.driverPayment
       );
