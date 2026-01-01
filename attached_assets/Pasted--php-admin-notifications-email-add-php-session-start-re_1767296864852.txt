@@ -1,0 +1,239 @@
+<?php
+// admin/notifications-email-add.php
+session_start();
+require_once '../config/database.php';
+require_once '../includes/functions.php';
+
+// Check if user is admin
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header('Location: ../login.php');
+    exit;
+}
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_notification'])) {
+    $code = strtolower(str_replace(' ', '_', trim($_POST['code'])));
+    $name = trim($_POST['name']);
+    $recipient_type = $_POST['recipient_type'];
+    $purpose = trim($_POST['purpose']);
+    $subject = trim($_POST['subject']);
+    $content = $_POST['content'];
+    $status = $_POST['status'];
+    $available_shortcodes = trim($_POST['available_shortcodes']);
+    
+    // Check if code already exists
+    $check = $pdo->prepare("SELECT id FROM notification_templates WHERE code = ?");
+    $check->execute([$code]);
+    
+    if ($check->rowCount() > 0) {
+        $error = "A notification with this code already exists!";
+    } else {
+        $stmt = $pdo->prepare("INSERT INTO notification_templates 
+            (type, code, name, recipient_type, purpose, subject, content, status, available_shortcodes) 
+            VALUES ('email', ?, ?, ?, ?, ?, ?, ?, ?)");
+        
+        if ($stmt->execute([$code, $name, $recipient_type, $purpose, $subject, $content, $status, $available_shortcodes])) {
+            $_SESSION['success_message'] = "Email notification created successfully!";
+            header('Location: notifications-email.php');
+            exit;
+        } else {
+            $error = "Failed to create notification.";
+        }
+    }
+}
+
+include 'includes/header.php';
+?>
+
+<script src="https://cdn.tiny.mce.com/1/tinymce.min.js" referrerpolicy="origin"></script>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-plus"></i> Add New Email Notification
+        </h1>
+        <a href="notifications-email.php" class="btn btn-secondary btn-icon-split">
+            <span class="icon text-white-50">
+                <i class="fas fa-arrow-left"></i>
+            </span>
+            <span class="text">Back to List</span>
+        </a>
+    </div>
+
+    <?php if (isset($error)): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <?php echo $error; ?>
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    <?php endif; ?>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Notification Details</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        <div class="form-group">
+                            <label for="code">Code (Unique Identifier) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="code" name="code" required
+                                   pattern="[a-z0-9_]+" placeholder="e.g., booking_reminder">
+                            <small class="form-text text-muted">Lowercase letters, numbers, and underscores only. Must be unique.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name">Notification Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required
+                                   placeholder="e.g., Booking Reminder">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipient_type">Recipient Type <span class="text-danger">*</span></label>
+                            <select class="form-control" id="recipient_type" name="recipient_type" required>
+                                <option value="">-- Select Recipient --</option>
+                                <option value="passenger">Passenger</option>
+                                <option value="driver">Driver</option>
+                                <option value="admin">Admin</option>
+                                <option value="user">User (General)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="purpose">Purpose/Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="purpose" name="purpose" rows="2" required
+                                      placeholder="Describe when this notification is sent"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject">Email Subject <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="subject" name="subject" required
+                                   placeholder="e.g., Booking Reminder - {booking_id}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="content">Email Content (HTML) <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="content" name="content" rows="15" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="available_shortcodes">Available Shortcodes</label>
+                            <input type="text" class="form-control" id="available_shortcodes" name="available_shortcodes"
+                                   placeholder="{booking_id},{passenger_name},{pickup_location}">
+                            <small class="form-text text-muted">Comma-separated list of shortcodes available for this template</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select class="form-control" id="status" name="status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" name="add_notification" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create Notification
+                            </button>
+                            <a href="notifications-email.php" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-success text-white">
+                    <h6 class="m-0 font-weight-bold">Common Shortcodes</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Booking Related:</strong>
+                        <div class="mt-2">
+                            <code class="d-block mb-1">{booking_id}</code>
+                            <code class="d-block mb-1">{pickup_location}</code>
+                            <code class="d-block mb-1">{dropoff_location}</code>
+                            <code class="d-block mb-1">{pickup_datetime}</code>
+                            <code class="d-block mb-1">{vehicle_type}</code>
+                            <code class="d-block mb-1">{estimated_fare}</code>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <strong>User Related:</strong>
+                        <div class="mt-2">
+                            <code class="d-block mb-1">{passenger_name}</code>
+                            <code class="d-block mb-1">{passenger_email}</code>
+                            <code class="d-block mb-1">{passenger_phone}</code>
+                            <code class="d-block mb-1">{driver_name}</code>
+                            <code class="d-block mb-1">{driver_phone}</code>
+                        </div>
+                    </div>
+                    <hr>
+                    <div>
+                        <strong>Other:</strong>
+                        <div class="mt-2">
+                            <code class="d-block mb-1">{site_name}</code>
+                            <code class="d-block mb-1">{site_url}</code>
+                            <code class="d-block mb-1">{current_date}</code>
+                            <code class="d-block mb-1">{support_email}</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4 border-left-info">
+                <div class="card-body">
+                    <h6 class="font-weight-bold text-info">Tips</h6>
+                    <ul class="mb-0 small">
+                        <li>Use descriptive codes for easy identification</li>
+                        <li>Test emails before activating</li>
+                        <li>Keep content clear and professional</li>
+                        <li>Use shortcodes for dynamic data</li>
+                        <li>Include unsubscribe links where appropriate</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+tinymce.init({
+    selector: '#content',
+    height: 500,
+    menubar: true,
+    plugins: [
+        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+        'insertdatetime', 'media', 'table', 'help', 'wordcount'
+    ],
+    toolbar: 'undo redo | blocks | bold italic forecolor backcolor | ' +
+             'alignleft aligncenter alignright alignjustify | ' +
+             'bullist numlist outdent indent | removeformat | help | code',
+    content_style: 'body { font-family:Arial,sans-serif; font-size:14px }',
+    setup: function(editor) {
+        editor.on('init', function() {
+            // Set default template
+            editor.setContent('<p>Dear {passenger_name},</p><p><br></p><p>Your content here...</p><p><br></p><p>Best regards,<br>{site_name}</p>');
+        });
+    }
+});
+
+// Auto-generate code from name
+$('#name').on('blur', function() {
+    if ($('#code').val() === '') {
+        var code = $(this).val().toLowerCase()
+            .replace(/[^a-z0-9\s]/g, '')
+            .replace(/\s+/g, '_');
+        $('#code').val(code);
+    }
+});
+</script>
+
+<?php include 'includes/footer.php'; ?>

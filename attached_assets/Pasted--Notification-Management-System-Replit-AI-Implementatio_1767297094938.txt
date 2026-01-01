@@ -1,0 +1,603 @@
+# Notification Management System - Replit AI Implementation Guide
+
+## 📋 Overview
+This guide will help Replit AI implement a complete notification management system for your application, allowing admins to dynamically control email and SMS notifications through an intuitive dashboard.
+
+---
+
+## 🎯 Features to Implement
+
+### 1. **Admin Dashboard Integration**
+- Add "Notification Management" submenu under CMS dropdown
+- Two separate pages: Email Notifications & SMS Notifications
+- Full CRUD operations (Create, Read, Update, Delete)
+
+### 2. **Email Notification System**
+- WYSIWYG editor (TinyMCE) for HTML email templates
+- Dynamic shortcode system for variable insertion
+- Preview functionality before sending
+- Test email sending capability
+- 12 default email templates pre-configured
+
+### 3. **SMS Notification System**
+- Character counter (160 chars = 1 SMS)
+- Real-time preview
+- Multi-part SMS detection
+- Test SMS sending capability
+- 10 default SMS templates pre-configured
+
+### 4. **Dynamic Content Management**
+- Shortcode replacement system (e.g., {booking_id}, {passenger_name})
+- Template activation/deactivation toggle
+- Recipient type categorization (Passenger, Driver, Admin, User)
+- Purpose description for each notification
+
+---
+
+## 📁 File Structure
+
+```
+your-project/
+├── admin/
+│   ├── notifications-email.php          # Email notifications list
+│   ├── notifications-email-add.php      # Add new email template
+│   ├── notifications-email-edit.php     # Edit email template (with WYSIWYG)
+│   ├── notifications-sms.php            # SMS notifications list
+│   ├── notifications-sms-add.php        # Add new SMS template
+│   ├── notifications-sms-edit.php       # Edit SMS template
+│   ├── ajax/
+│   │   ├── send-test-email.php         # Test email handler
+│   │   └── send-test-sms.php           # Test SMS handler
+│   └── includes/
+│       └── sidebar.php                  # Update with new menu items
+├── includes/
+│   └── NotificationHelper.php           # Core notification class
+└── config/
+    └── database.sql                     # Database schema
+```
+
+---
+
+## 🗄️ Database Setup
+
+### Step 1: Create Notification Templates Table
+
+Run the SQL from `notification_db_schema` artifact to create the `notification_templates` table with all 22 default notifications (12 email + 10 SMS).
+
+**Key Fields:**
+- `type`: 'email' or 'sms'
+- `code`: Unique identifier (e.g., 'booking_confirmation')
+- `name`: Display name
+- `recipient_type`: 'passenger', 'driver', 'admin', or 'user'
+- `subject`: Email subject line (email only)
+- `content`: HTML email body (email only)
+- `sms_content`: SMS text message (SMS only)
+- `available_shortcodes`: Comma-separated list of variables
+- `status`: 'active' or 'inactive'
+
+---
+
+## 🔧 Implementation Steps for Replit AI
+
+### Phase 1: Database & Core Setup
+
+**Prompt for Replit AI:**
+```
+Create the database schema for notification management:
+1. Create a table called notification_templates with these fields:
+   - id (INT, PRIMARY KEY, AUTO_INCREMENT)
+   - type (ENUM: 'email', 'sms')
+   - code (VARCHAR 100, UNIQUE)
+   - name (VARCHAR 255)
+   - recipient_type (ENUM: 'passenger', 'driver', 'admin', 'user')
+   - purpose (TEXT)
+   - subject (VARCHAR 255, nullable)
+   - content (TEXT, nullable)
+   - sms_content (TEXT, nullable)
+   - status (ENUM: 'active', 'inactive', default 'active')
+   - available_shortcodes (TEXT)
+   - created_at, updated_at (TIMESTAMP)
+
+2. Insert the 22 default notification templates provided in the SQL artifact.
+
+3. Create NotificationHelper.php class in /includes/ with methods:
+   - getTemplate($code, $type)
+   - replaceShortcodes($content, $data)
+   - sendEmail($code, $recipientEmail, $recipientName, $data)
+   - sendSMS($code, $recipientPhone, $data)
+   - sendBookingConfirmation($booking)
+   - notifyDriverAssignment($booking, $driver)
+```
+
+### Phase 2: Admin Menu Integration
+
+**Prompt for Replit AI:**
+```
+Update the admin sidebar navigation (admin/includes/sidebar.php or equivalent):
+
+Add under the CMS dropdown menu:
+- Divider
+- Header: "Notification Management"
+- Link: "Email Notifications" → notifications-email.php (icon: fa-envelope)
+- Link: "SMS Notifications" → notifications-sms.php (icon: fa-sms)
+
+Use the menu structure from the "notification_admin_menu" artifact.
+```
+
+### Phase 3: Email Notifications Pages
+
+**Prompt for Replit AI:**
+```
+Create three pages for email notification management:
+
+1. admin/notifications-email.php (List page)
+   - DataTable showing all email templates
+   - Columns: #, Name, Recipient, Purpose, Status, Updated, Actions
+   - Toggle status button (active/inactive)
+   - Edit and Delete buttons
+   - "Add New" button in header
+   - Use the code from "notification_email_list" artifact
+
+2. admin/notifications-email-add.php (Add new)
+   - Form with fields: code, name, recipient_type, purpose, subject, content, shortcodes, status
+   - Use the code from "notification_email_add" artifact
+
+3. admin/notifications-email-edit.php (Edit with WYSIWYG)
+   - Same form as add, but pre-filled
+   - Include TinyMCE editor for HTML content
+   - Shortcode helper sidebar
+   - Character counter
+   - Preview modal
+   - Test email button
+   - Use the code from "notification_email_edit" artifact
+
+All pages should include:
+- Admin authentication check
+- Success/error message display
+- Back to list button
+- Responsive design
+```
+
+### Phase 4: SMS Notifications Pages
+
+**Prompt for Replit AI:**
+```
+Create three pages for SMS notification management:
+
+1. admin/notifications-sms.php (List page)
+   - DataTable showing all SMS templates
+   - Additional column: Character length (with multi-part warning)
+   - SMS preview truncated to 60 chars
+   - Use the code from "notification_sms_list" artifact
+
+2. admin/notifications-sms-add.php (Add new)
+   - Form optimized for SMS (no subject field)
+   - Real-time character counter
+   - SMS part calculator (160 chars = 1 SMS)
+   - Live preview panel
+   - Use the code from "notification_sms_add" artifact
+
+3. admin/notifications-sms-edit.php (Edit)
+   - Pre-filled SMS form
+   - Character analysis card
+   - Shortcode insertion buttons
+   - Test SMS functionality
+   - Use the code from "notification_sms_edit" artifact
+```
+
+### Phase 5: AJAX Test Handlers
+
+**Prompt for Replit AI:**
+```
+Create AJAX endpoints for testing notifications:
+
+1. admin/ajax/send-test-email.php
+   - Accepts: notification_id, subject, content
+   - Sends test email to logged-in admin
+   - Uses sample shortcode values
+   - Returns JSON response
+   - Use the code from "notification_ajax_handlers" artifact
+
+2. admin/ajax/send-test-sms.php
+   - Accepts: notification_id, phone, content
+   - Validates phone number format
+   - Sends test SMS with [TEST] prefix
+   - Uses sample shortcode values
+   - Returns JSON response
+   - Use the code from "notification_ajax_handlers" artifact
+
+Both should check admin authentication.
+```
+
+### Phase 6: Integration with Existing Code
+
+**Prompt for Replit AI:**
+```
+Integrate the notification system into existing application events:
+
+1. In your booking creation code, add:
+   require_once 'includes/NotificationHelper.php';
+   $notifier = new NotificationHelper($pdo);
+   $notifier->sendBookingConfirmation($bookingData);
+
+2. When assigning a driver:
+   $notifier->notifyDriverAssignment($bookingData, $driverData);
+
+3. When driver is en route:
+   $notifier->notifyDriverOnTheWay($bookingData, $driverData, $eta);
+
+4. When driver arrives:
+   $notifier->sendEmail('driver_arrived', $passenger['email'], $passenger['name'], $data);
+   $notifier->sendSMS('sms_driver_arrived', $passenger['phone'], $data);
+
+5. For password resets:
+   $notifier->sendEmail('password_reset', $user['email'], $user['name'], [
+       'user_name' => $user['name'],
+       'reset_link' => $resetLink,
+       'expiry_time' => '1 hour'
+   ]);
+
+Apply this pattern to all 12 email and 10 SMS notification types.
+```
+
+---
+
+## 🎨 WYSIWYG Editor Setup
+
+### TinyMCE Integration
+
+**Add to your HTML head or page:**
+```html
+<script src="https://cdn.tiny.mce.com/1/tinymce.min.js" referrerpolicy="origin"></script>
+```
+
+**Initialize on content textarea:**
+```javascript
+tinymce.init({
+    selector: '#content',
+    height: 500,
+    plugins: [
+        'advlist', 'autolink', 'lists', 'link', 'image', 'preview',
+        'code', 'fullscreen', 'table', 'wordcount'
+    ],
+    toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | code',
+    content_style: 'body { font-family:Arial,sans-serif; font-size:14px }'
+});
+```
+
+---
+
+## 🔑 Shortcode System
+
+### Available Shortcodes by Category
+
+**Booking Related:**
+- `{booking_id}` - Booking ID number
+- `{pickup_location}` - Full pickup address
+- `{dropoff_location}` - Full dropoff address
+- `{pickup_datetime}` - Full date and time
+- `{pickup_time}` - Time only
+- `{vehicle_type}` - Vehicle type/category
+- `{estimated_fare}` - Price with currency
+
+**User Related:**
+- `{passenger_name}` - Passenger full name
+- `{passenger_email}` - Passenger email
+- `{passenger_phone}` - Passenger phone
+- `{driver_name}` - Driver full name
+- `{driver_phone}` - Driver phone
+- `{user_name}` - Generic user name
+
+**Driver/Vehicle:**
+- `{vehicle_model}` - Car model
+- `{license_plate}` - License plate number
+- `{estimated_arrival}` - ETA text
+
+**System:**
+- `{site_name}` - Your site name
+- `{site_url}` - Your website URL
+- `{current_date}` - Current date
+- `{support_email}` - Support email address
+
+### How Shortcodes Work
+
+When sending a notification:
+```php
+$data = [
+    'booking_id' => $booking['id'],
+    'passenger_name' => $booking['passenger_name'],
+    'pickup_location' => $booking['pickup_address']
+];
+
+$notifier->sendEmail('booking_confirmation', $email, $name, $data);
+```
+
+The system automatically replaces `{booking_id}` with the actual ID, `{passenger_name}` with the name, etc.
+
+---
+
+## 🧪 Testing Notifications
+
+### Testing Workflow
+
+1. **Create/Edit Template**
+   - Add shortcodes as needed
+   - Preview in the preview pane
+
+2. **Test Send**
+   - Click "Send Test Email" or "Send Test SMS"
+   - Uses sample data for all shortcodes
+   - Sends to admin email or specified phone
+
+3. **Verify Receipt**
+   - Check formatting and content
+   - Verify all shortcodes replaced correctly
+
+4. **Activate Template**
+   - Toggle status to "Active"
+   - Template now used in production
+
+---
+
+## 🔒 Security Considerations
+
+### Implement These Safeguards
+
+1. **Admin Authentication**
+   ```php
+   if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+       header('Location: ../login.php');
+       exit;
+   }
+   ```
+
+2. **Input Validation**
+   - Validate email addresses
+   - Validate phone numbers (international format)
+   - Sanitize all user inputs
+   - Validate code uniqueness
+
+3. **SQL Injection Prevention**
+   - Use prepared statements (PDO)
+   - Never concatenate user input into queries
+
+4. **XSS Prevention**
+   - Use `htmlspecialchars()` when displaying user data
+   - Sanitize WYSIWYG content (TinyMCE does this automatically)
+
+5. **CSRF Protection**
+   - Add CSRF tokens to forms
+   - Validate tokens on submission
+
+---
+
+## 📧 Email Configuration
+
+### SMTP Settings Required
+
+Update your config file with:
+```php
+define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_PORT', 587);
+define('SMTP_USERNAME', 'your-email@gmail.com');
+define('SMTP_PASSWORD', 'your-app-password');
+define('SMTP_ENCRYPTION', 'tls');
+define('SMTP_FROM_EMAIL', 'noreply@yoursite.com');
+define('SMTP_FROM_NAME', 'Your Site Name');
+```
+
+### Using PHPMailer
+
+Install via Composer:
+```bash
+composer require phpmailer/phpmailer
+```
+
+Or download manually and include files.
+
+---
+
+## 📱 SMS Configuration
+
+### Twilio Setup (Recommended)
+
+1. Sign up at https://www.twilio.com
+2. Get Account SID and Auth Token
+3. Purchase a phone number
+
+**Config:**
+```php
+define('TWILIO_SID', 'your_account_sid');
+define('TWILIO_TOKEN', 'your_auth_token');
+define('TWILIO_FROM_NUMBER', '+1234567890');
+```
+
+**Install Twilio SDK:**
+```bash
+composer require twilio/sdk
+```
+
+### Alternative: Nexmo, MessageBird, etc.
+
+The `NotificationHelper` class can be adapted for any SMS provider by modifying the `sendSMSViaProvider()` method.
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**Email not sending:**
+- Check SMTP credentials
+- Verify firewall allows SMTP port
+- Test with a simple script first
+- Check error logs
+
+**SMS not sending:**
+- Verify phone number format (+country code)
+- Check Twilio account balance
+- Verify phone number is verified (sandbox mode)
+- Check API credentials
+
+**Shortcodes not replacing:**
+- Ensure exact match: `{booking_id}` not `{ booking_id }`
+- Verify data array has correct keys
+- Check for typos in shortcode names
+
+**WYSIWYG not loading:**
+- Check internet connection (CDN)
+- Verify script tag is in `<head>` or before init
+- Check browser console for errors
+
+---
+
+## 📚 Usage Examples
+
+### Sending Booking Confirmation
+
+```php
+require_once 'includes/NotificationHelper.php';
+$notifier = new NotificationHelper($pdo);
+
+// Prepare booking data
+$bookingData = [
+    'id' => $bookingId,
+    'passenger_name' => $passenger['name'],
+    'passenger_email' => $passenger['email'],
+    'passenger_phone' => $passenger['phone'],
+    'pickup_location' => $booking['pickup_address'],
+    'dropoff_location' => $booking['dropoff_address'],
+    'pickup_datetime' => $booking['pickup_time'],
+    'vehicle_type' => $booking['vehicle_type'],
+    'estimated_fare' => $booking['fare']
+];
+
+// Send both email and SMS
+$notifier->sendBookingConfirmation($bookingData);
+```
+
+### Sending Custom Notification
+
+```php
+// Custom email
+$notifier->sendEmail('booking_reminder', 'user@example.com', 'John Doe', [
+    'booking_id' => 12345,
+    'pickup_time' => '10:00 AM',
+    'pickup_location' => '123 Main St'
+]);
+
+// Custom SMS
+$notifier->sendSMS('sms_booking_reminder', '+1234567890', [
+    'booking_id' => 12345,
+    'pickup_time' => '10:00 AM'
+]);
+```
+
+### Driver Assignment Flow
+
+```php
+// When assigning driver to booking
+$notifier->notifyDriverAssignment($bookingData, $driverData);
+
+// When driver accepts and starts heading
+$notifier->notifyDriverOnTheWay($bookingData, $driverData, '5 mins');
+
+// When driver arrives
+$data = [
+    'passenger_name' => $booking['passenger_name'],
+    'driver_name' => $driver['name'],
+    'driver_phone' => $driver['phone'],
+    'vehicle_model' => $driver['vehicle'],
+    'license_plate' => $driver['plate']
+];
+$notifier->sendEmail('driver_arrived', $passenger['email'], $passenger['name'], $data);
+$notifier->sendSMS('sms_driver_arrived', $passenger['phone'], $data);
+```
+
+---
+
+## ✅ Implementation Checklist
+
+### Before Going Live
+
+- [ ] Database table created with all default templates
+- [ ] NotificationHelper class implemented
+- [ ] Admin menu updated with notification links
+- [ ] All 6 admin pages created and tested
+- [ ] SMTP configured and test email sent successfully
+- [ ] SMS provider configured and test SMS sent
+- [ ] Shortcode system tested with sample data
+- [ ] WYSIWYG editor working correctly
+- [ ] Character counter accurate for SMS
+- [ ] Test notifications sent for all 22 types
+- [ ] Integrated into existing booking flow
+- [ ] Security measures implemented
+- [ ] Error logging configured
+- [ ] Backup of database taken
+
+### Post-Launch Monitoring
+
+- [ ] Monitor email delivery rates
+- [ ] Track SMS sending costs
+- [ ] Check for failed notifications
+- [ ] Review notification open rates (if tracked)
+- [ ] Gather user feedback
+- [ ] Optimize templates based on analytics
+
+---
+
+## 🚀 Future Enhancements
+
+### Possible Additions
+
+1. **Notification Logs**
+   - Track all sent notifications
+   - View delivery status
+   - Resend failed notifications
+
+2. **Scheduling**
+   - Schedule notifications for specific times
+   - Recurring reminders
+
+3. **A/B Testing**
+   - Test different message variations
+   - Track which performs better
+
+4. **Multi-language Support**
+   - Template translations
+   - Language-specific shortcodes
+
+5. **Analytics Dashboard**
+   - Open rates, click rates
+   - Delivery success metrics
+   - User engagement stats
+
+6. **Advanced Personalization**
+   - Conditional content blocks
+   - Dynamic image insertion
+   - User preference handling
+
+---
+
+## 📞 Support & Resources
+
+- **TinyMCE Documentation:** https://www.tiny.cloud/docs/
+- **Twilio Documentation:** https://www.twilio.com/docs
+- **PHPMailer Guide:** https://github.com/PHPMailer/PHPMailer
+- **SMS Character Counter:** https://www.smsbroadcast.com.au/sms-character-counter
+
+---
+
+## 🎉 Conclusion
+
+This notification management system provides a powerful, flexible way for admins to control all email and SMS communications from one central location. By using dynamic shortcodes and a WYSIWYG editor, non-technical admins can easily customize notifications without coding knowledge.
+
+**Key Benefits:**
+- Centralized notification management
+- Easy content updates without code changes
+- Test before deploying to users
+- Professional-looking emails with HTML
+- Cost-effective SMS with character optimization
+- Complete audit trail of all templates
+
+Follow this guide step-by-step with Replit AI, and you'll have a production-ready notification system integrated into your application!

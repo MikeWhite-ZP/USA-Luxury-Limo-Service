@@ -1,0 +1,141 @@
+<?php
+// admin/ajax/send-test-email.php
+session_start();
+require_once '../../config/database.php';
+require_once '../../includes/NotificationHelper.php';
+
+// Check if user is admin
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    http_response_code(403);
+    echo json_encode(['error' => 'Unauthorized']);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['error' => 'Method not allowed']);
+    exit;
+}
+
+$notification_id = isset($_POST['notification_id']) ? intval($_POST['notification_id']) : 0;
+$subject = $_POST['subject'] ?? '';
+$content = $_POST['content'] ?? '';
+
+// Get admin email from session or database
+$stmt = $pdo->prepare("SELECT email, name FROM users WHERE id = ? LIMIT 1");
+$stmt->execute([$_SESSION['user_id']]);
+$admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$admin) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Admin email not found']);
+    exit;
+}
+
+// Replace sample shortcodes for testing
+$testData = [
+    'booking_id' => '12345',
+    'passenger_name' => 'John Doe',
+    'driver_name' => 'Jane Smith',
+    'pickup_location' => '123 Main Street, City',
+    'dropoff_location' => '456 Oak Avenue, City',
+    'pickup_datetime' => date('F j, Y g:i A', strtotime('+1 day')),
+    'pickup_time' => date('g:i A', strtotime('+1 day')),
+    'vehicle_type' => 'Sedan',
+    'vehicle_model' => 'Toyota Camry',
+    'license_plate' => 'ABC-1234',
+    'estimated_fare' => '$45.00',
+    'driver_phone' => '+1-555-0123',
+    'passenger_phone' => '+1-555-0456',
+    'tracking_link' => SITE_URL . '/track-booking.php?id=12345',
+    'site_name' => SITE_NAME ?? 'Our Service',
+    'site_url' => SITE_URL ?? 'https://example.com',
+    'current_date' => date('F j, Y'),
+    'support_email' => SUPPORT_EMAIL ?? 'support@example.com'
+];
+
+// Replace shortcodes
+foreach ($testData as $key => $value) {
+    $subject = str_replace('{' . $key . '}', $value, $subject);
+    $content = str_replace('{' . $key . '}', $value, $content);
+}
+
+// Send test email
+$notificationHelper = new NotificationHelper($pdo);
+$result = $notificationHelper->sendEmailViaMailer($admin['email'], $admin['name'], 
+    '[TEST] ' . $subject, $content);
+
+if ($result) {
+    echo json_encode(['success' => true, 'message' => 'Test email sent to ' . $admin['email']]);
+} else {
+    http_response_code(500);
+    echo json_encode(['error' => 'Failed to send test email']);
+}
+?>
+
+---
+
+<?php
+// admin/ajax/send-test-sms.php
+session_start();
+require_once '../../config/database.php';
+require_once '../../includes/NotificationHelper.php';
+
+// Check if user is admin
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    http_response_code(403);
+    echo json_encode(['error' => 'Unauthorized']);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['error' => 'Method not allowed']);
+    exit;
+}
+
+$notification_id = isset($_POST['notification_id']) ? intval($_POST['notification_id']) : 0;
+$phone = $_POST['phone'] ?? '';
+$content = $_POST['content'] ?? '';
+
+// Validate phone number
+if (empty($phone) || !preg_match('/^\+?[1-9]\d{1,14}$/', $phone)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid phone number format. Use international format with country code.']);
+    exit;
+}
+
+// Replace sample shortcodes for testing
+$testData = [
+    'booking_id' => '12345',
+    'passenger_name' => 'John Doe',
+    'driver_name' => 'Jane Smith',
+    'pickup_location' => '123 Main St',
+    'dropoff_location' => '456 Oak Ave',
+    'pickup_time' => date('g:i A', strtotime('+1 day')),
+    'vehicle_model' => 'Toyota Camry',
+    'license_plate' => 'ABC-1234',
+    'estimated_arrival' => '5 mins',
+    'driver_phone' => '+1-555-0123',
+    'tracking_link' => SITE_URL . '/track.php?id=12345'
+];
+
+// Replace shortcodes
+foreach ($testData as $key => $value) {
+    $content = str_replace('{' . $key . '}', $value, $content);
+}
+
+// Add test prefix
+$content = '[TEST] ' . $content;
+
+// Send test SMS
+$notificationHelper = new NotificationHelper($pdo);
+$result = $notificationHelper->sendSMSViaProvider($phone, $content);
+
+if ($result) {
+    echo json_encode(['success' => true, 'message' => 'Test SMS sent to ' . $phone]);
+} else {
+    http_response_code(500);
+    echo json_encode(['error' => 'Failed to send test SMS. Check your SMS provider configuration.']);
+}
+?>

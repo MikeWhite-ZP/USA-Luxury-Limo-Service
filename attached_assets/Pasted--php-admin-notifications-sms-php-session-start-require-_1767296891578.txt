@@ -1,0 +1,196 @@
+<?php
+// admin/notifications-sms.php
+session_start();
+require_once '../config/database.php';
+require_once '../includes/functions.php';
+
+// Check if user is admin
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header('Location: ../login.php');
+    exit;
+}
+
+// Handle delete request
+if (isset($_POST['delete_notification'])) {
+    $id = intval($_POST['notification_id']);
+    $stmt = $pdo->prepare("DELETE FROM notification_templates WHERE id = ? AND type = 'sms'");
+    $stmt->execute([$id]);
+    $_SESSION['success_message'] = "SMS notification deleted successfully!";
+    header('Location: notifications-sms.php');
+    exit;
+}
+
+// Handle status toggle
+if (isset($_POST['toggle_status'])) {
+    $id = intval($_POST['notification_id']);
+    $stmt = $pdo->prepare("UPDATE notification_templates SET status = IF(status = 'active', 'inactive', 'active') WHERE id = ? AND type = 'sms'");
+    $stmt->execute([$id]);
+    $_SESSION['success_message'] = "Notification status updated!";
+    header('Location: notifications-sms.php');
+    exit;
+}
+
+// Fetch all SMS notifications
+$stmt = $pdo->prepare("SELECT * FROM notification_templates WHERE type = 'sms' ORDER BY recipient_type, name");
+$stmt->execute();
+$notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+include 'includes/header.php';
+?>
+
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-sms"></i> SMS Notification Templates
+        </h1>
+        <a href="notifications-sms-add.php" class="btn btn-primary btn-icon-split">
+            <span class="icon text-white-50">
+                <i class="fas fa-plus"></i>
+            </span>
+            <span class="text">Add New SMS Template</span>
+        </a>
+    </div>
+
+    <!-- Success Message -->
+    <?php if (isset($_SESSION['success_message'])): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <?php echo $_SESSION['success_message']; ?>
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+        <?php unset($_SESSION['success_message']); ?>
+    <?php endif; ?>
+
+    <!-- SMS Character Counter Info -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> <strong>SMS Guidelines:</strong>
+                Standard SMS messages are limited to 160 characters. Messages exceeding this will be split into multiple SMS.
+                Use shortcodes efficiently to keep messages concise.
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">SMS Notifications (<?php echo count($notifications); ?>)</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="20%">Name</th>
+                            <th width="10%">Recipient</th>
+                            <th width="25%">Purpose</th>
+                            <th width="20%">SMS Preview</th>
+                            <th width="8%">Length</th>
+                            <th width="8%">Status</th>
+                            <th width="4%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($notifications as $index => $notification): 
+                            $sms_length = strlen($notification['sms_content']);
+                            $sms_parts = ceil($sms_length / 160);
+                        ?>
+                            <tr>
+                                <td><?php echo $index + 1; ?></td>
+                                <td>
+                                    <strong><?php echo htmlspecialchars($notification['name']); ?></strong><br>
+                                    <small class="text-muted">Code: <?php echo htmlspecialchars($notification['code']); ?></small>
+                                </td>
+                                <td>
+                                    <span class="badge badge-<?php 
+                                        echo $notification['recipient_type'] === 'admin' ? 'danger' : 
+                                            ($notification['recipient_type'] === 'driver' ? 'warning' : 'info'); 
+                                    ?>">
+                                        <?php echo ucfirst($notification['recipient_type']); ?>
+                                    </span>
+                                </td>
+                                <td><?php echo htmlspecialchars($notification['purpose']); ?></td>
+                                <td>
+                                    <small class="text-muted">
+                                        <?php echo htmlspecialchars(substr($notification['sms_content'], 0, 60)); ?>
+                                        <?php echo strlen($notification['sms_content']) > 60 ? '...' : ''; ?>
+                                    </small>
+                                </td>
+                                <td>
+                                    <span class="badge badge-<?php echo $sms_parts > 1 ? 'warning' : 'success'; ?>">
+                                        <?php echo $sms_length; ?> chars
+                                    </span>
+                                    <?php if ($sms_parts > 1): ?>
+                                        <br><small class="text-muted"><?php echo $sms_parts; ?> parts</small>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <form method="POST" style="display: inline;">
+                                        <input type="hidden" name="notification_id" value="<?php echo $notification['id']; ?>">
+                                        <button type="submit" name="toggle_status" class="btn btn-sm btn-<?php echo $notification['status'] === 'active' ? 'success' : 'secondary'; ?>" onclick="return confirm('Toggle notification status?')">
+                                            <i class="fas fa-<?php echo $notification['status'] === 'active' ? 'check' : 'times'; ?>"></i>
+                                            <?php echo ucfirst($notification['status']); ?>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <a href="notifications-sms-edit.php?id=<?php echo $notification['id']; ?>" class="btn btn-sm btn-primary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="POST" style="display: inline;">
+                                        <input type="hidden" name="notification_id" value="<?php echo $notification['id']; ?>">
+                                        <button type="submit" name="delete_notification" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this SMS template?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Information Card -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card border-left-warning shadow mb-4">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">SMS Best Practices</div>
+                            <div class="mb-0 text-gray-800">
+                                <ul class="mb-0">
+                                    <li><strong>Keep it concise:</strong> Aim for under 160 characters to avoid multi-part messages</li>
+                                    <li><strong>Be clear:</strong> Include essential information only (booking ID, time, location)</li>
+                                    <li><strong>Use shortcodes:</strong> Dynamic variables help personalize messages</li>
+                                    <li><strong>Test first:</strong> Send test messages to verify formatting and length</li>
+                                    <li><strong>Avoid special characters:</strong> Some characters count as 2 (e.g., {, }, [, ], ~, |, €)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-mobile-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#dataTable').DataTable({
+        "pageLength": 25,
+        "order": [[1, "asc"]]
+    });
+});
+</script>
+
+<?php include 'includes/footer.php'; ?>

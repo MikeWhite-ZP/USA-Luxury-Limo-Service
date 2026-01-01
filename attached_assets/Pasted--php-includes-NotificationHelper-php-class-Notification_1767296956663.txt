@@ -1,0 +1,257 @@
+<?php
+// includes/NotificationHelper.php
+
+class NotificationHelper {
+    private $pdo;
+    
+    public function __construct($pdo) {
+        $this->pdo = $pdo;
+    }
+    
+    /**
+     * Get notification template by code
+     */
+    public function getTemplate($code, $type = 'email') {
+        $stmt = $this->pdo->prepare("SELECT * FROM notification_templates 
+                                     WHERE code = ? AND type = ? AND status = 'active' LIMIT 1");
+        $stmt->execute([$code, $type]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Replace shortcodes in content
+     */
+    public function replaceShortcodes($content, $data) {
+        foreach ($data as $key => $value) {
+            $shortcode = '{' . $key . '}';
+            $content = str_replace($shortcode, $value, $content);
+        }
+        return $content;
+    }
+    
+    /**
+     * Send email notification
+     */
+    public function sendEmail($code, $recipientEmail, $recipientName, $data = []) {
+        $template = $this->getTemplate($code, 'email');
+        
+        if (!$template) {
+            error_log("Email template not found: " . $code);
+            return false;
+        }
+        
+        // Add default data
+        $data['recipient_name'] = $recipientName;
+        $data['site_name'] = SITE_NAME ?? 'Our Service';
+        $data['site_url'] = SITE_URL ?? 'https://example.com';
+        $data['current_date'] = date('F j, Y');
+        $data['current_time'] = date('g:i A');
+        $data['support_email'] = SUPPORT_EMAIL ?? 'support@example.com';
+        
+        // Replace shortcodes
+        $subject = $this->replaceShortcodes($template['subject'], $data);
+        $body = $this->replaceShortcodes($template['content'], $data);
+        
+        // Send email using your existing email function
+        return $this->sendEmailViaMailer($recipientEmail, $recipientName, $subject, $body);
+    }
+    
+    /**
+     * Send SMS notification
+     */
+    public function sendSMS($code, $recipientPhone, $data = []) {
+        $template = $this->getTemplate($code, 'sms');
+        
+        if (!$template) {
+            error_log("SMS template not found: " . $code);
+            return false;
+        }
+        
+        // Add default data
+        $data['site_name'] = SITE_NAME ?? 'Our Service';
+        $data['current_date'] = date('M j, Y');
+        $data['current_time'] = date('g:i A');
+        
+        // Replace shortcodes
+        $message = $this->replaceShortcodes($template['sms_content'], $data);
+        
+        // Send SMS using your existing SMS function
+        return $this->sendSMSViaProvider($recipientPhone, $message);
+    }
+    
+    /**
+     * Send email via mail server (PHPMailer or similar)
+     */
+    private function sendEmailViaMailer($to, $toName, $subject, $body) {
+        // This should integrate with your existing email sending logic
+        // Using PHPMailer, mail(), or other email service
+        
+        require_once 'PHPMailer/PHPMailer.php';
+        require_once 'PHPMailer/SMTP.php';
+        require_once 'PHPMailer/Exception.php';
+        
+        try {
+            $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+            
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = SMTP_HOST;
+            $mail->SMTPAuth = true;
+            $mail->Username = SMTP_USERNAME;
+            $mail->Password = SMTP_PASSWORD;
+            $mail->SMTPSecure = SMTP_ENCRYPTION;
+            $mail->Port = SMTP_PORT;
+            
+            // Recipients
+            $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+            $mail->addAddress($to, $toName);
+            
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body = $body;
+            $mail->AltBody = strip_tags($body);
+            
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            error_log("Email sending failed: " . $mail->ErrorInfo);
+            return false;
+        }
+    }
+    
+    /**
+     * Send SMS via provider (Twilio, Nexmo, etc.)
+     */
+    private function sendSMSViaProvider($to, $message) {
+        // This should integrate with your existing SMS sending logic
+        // Example with Twilio:
+        
+        require_once 'twilio-php/autoload.php';
+        
+        try {
+            $client = new Twilio\Rest\Client(TWILIO_SID, TWILIO_TOKEN);
+            
+            $client->messages->create(
+                $to,
+                [
+                    'from' => TWILIO_FROM_NUMBER,
+                    'body' => $message
+                ]
+            );
+            
+            return true;
+        } catch (Exception $e) {
+            error_log("SMS sending failed: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Send booking confirmation (Email + SMS)
+     */
+    public function sendBookingConfirmation($booking) {
+        $data = [
+            'booking_id' => $booking['id'],
+            'passenger_name' => $booking['passenger_name'],
+            'pickup_location' => $booking['pickup_location'],
+            'dropoff_location' => $booking['dropoff_location'],
+            'pickup_datetime' => date('F j, Y g:i A', strtotime($booking['pickup_datetime'])),
+            'pickup_time' => date('g:i A', strtotime($booking['pickup_datetime'])),
+            'vehicle_type' => $booking['vehicle_type'],
+            'estimated_fare' => '$' . number_format($booking['estimated_fare'], 2),
+            'tracking_link' => SITE_URL . '/track-booking.php?id=' . $booking['id']
+        ];
+        
+        // Send email
+        $this->sendEmail('booking_confirmation', $booking['passenger_email'], $booking['passenger_name'], $data);
+        
+        // Send SMS
+        $this->sendSMS('sms_booking_confirmation', $booking['passenger_phone'], $data);
+    }
+    
+    /**
+     * Notify driver of new assignment
+     */
+    public function notifyDriverAssignment($booking, $driver) {
+        $data = [
+            'booking_id' => $booking['id'],
+            'driver_name' => $driver['name'],
+            'passenger_name' => $booking['passenger_name'],
+            'passenger_phone' => $booking['passenger_phone'],
+            'pickup_location' => $booking['pickup_location'],
+            'dropoff_location' => $booking['dropoff_location'],
+            'pickup_datetime' => date('F j, Y g:i A', strtotime($booking['pickup_datetime'])),
+            'pickup_time' => date('g:i A', strtotime($booking['pickup_datetime']))
+        ];
+        
+        // Send email
+        $this->sendEmail('driver_assignment', $driver['email'], $driver['name'], $data);
+        
+        // Send SMS
+        $this->sendSMS('sms_driver_assignment', $driver['phone'], $data);
+    }
+    
+    /**
+     * Notify passenger driver is on the way
+     */
+    public function notifyDriverOnTheWay($booking, $driver, $eta) {
+        $data = [
+            'passenger_name' => $booking['passenger_name'],
+            'driver_name' => $driver['name'],
+            'driver_phone' => $driver['phone'],
+            'vehicle_model' => $driver['vehicle_model'],
+            'license_plate' => $driver['license_plate'],
+            'estimated_arrival' => $eta
+        ];
+        
+        // Send email
+        $this->sendEmail('driver_on_the_way', $booking['passenger_email'], $booking['passenger_name'], $data);
+        
+        // Send SMS
+        $this->sendSMS('sms_driver_on_the_way', $booking['passenger_phone'], $data);
+    }
+    
+    /**
+     * Get all active notification codes
+     */
+    public function getActiveNotifications($type = null) {
+        $sql = "SELECT code, name, type FROM notification_templates WHERE status = 'active'";
+        if ($type) {
+            $sql .= " AND type = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$type]);
+        } else {
+            $stmt = $this->pdo->query($sql);
+        }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+}
+
+// Usage example:
+/*
+require_once 'includes/NotificationHelper.php';
+
+// Initialize
+$notificationHelper = new NotificationHelper($pdo);
+
+// Send booking confirmation
+$notificationHelper->sendBookingConfirmation($bookingData);
+
+// Send driver assignment
+$notificationHelper->notifyDriverAssignment($bookingData, $driverData);
+
+// Send custom email
+$notificationHelper->sendEmail('booking_confirmation', 'user@example.com', 'John Doe', [
+    'booking_id' => 12345,
+    'pickup_location' => '123 Main St',
+    'dropoff_location' => '456 Oak Ave'
+]);
+
+// Send custom SMS
+$notificationHelper->sendSMS('sms_booking_confirmation', '+1234567890', [
+    'booking_id' => 12345,
+    'pickup_location' => '123 Main St'
+]);
+*/
+?>

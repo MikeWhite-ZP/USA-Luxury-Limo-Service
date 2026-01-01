@@ -1,0 +1,181 @@
+-- Create notifications management table
+CREATE TABLE IF NOT EXISTS notification_templates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    type ENUM('email', 'sms') NOT NULL,
+    code VARCHAR(100) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    recipient_type ENUM('passenger', 'driver', 'admin', 'user') NOT NULL,
+    purpose TEXT NOT NULL,
+    subject VARCHAR(255) DEFAULT NULL,
+    content TEXT NOT NULL,
+    sms_content TEXT DEFAULT NULL,
+    status ENUM('active', 'inactive') DEFAULT 'active',
+    available_shortcodes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_type (type),
+    INDEX idx_code (code),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Insert default email notifications
+INSERT INTO notification_templates (type, code, name, recipient_type, purpose, subject, content, available_shortcodes) VALUES
+('email', 'contact_form_submission', 'Contact Form Submission', 'admin', 'New contact form inquiry from website', 'New Contact Form Submission', 
+'<p>New contact form submission received:</p>
+<p><strong>Name:</strong> {contact_name}<br>
+<strong>Email:</strong> {contact_email}<br>
+<strong>Phone:</strong> {contact_phone}<br>
+<strong>Message:</strong><br>{contact_message}</p>
+<p><strong>Submitted:</strong> {submission_date}</p>',
+'{contact_name},{contact_email},{contact_phone},{contact_message},{submission_date}'),
+
+('email', 'booking_confirmation', 'Booking Confirmation', 'passenger', 'Confirms a new booking with details', 'Booking Confirmation - #{booking_id}',
+'<p>Dear {passenger_name},</p>
+<p>Your booking has been confirmed!</p>
+<p><strong>Booking Details:</strong><br>
+Booking ID: #{booking_id}<br>
+Pickup: {pickup_location}<br>
+Drop-off: {dropoff_location}<br>
+Date & Time: {pickup_datetime}<br>
+Vehicle Type: {vehicle_type}<br>
+Estimated Fare: {estimated_fare}</p>
+<p>We will notify you when a driver is assigned.</p>',
+'{passenger_name},{booking_id},{pickup_location},{dropoff_location},{pickup_datetime},{vehicle_type},{estimated_fare}'),
+
+('email', 'booking_status_update', 'Booking Status Update', 'passenger', 'When booking status changes', 'Booking Status Updated - #{booking_id}',
+'<p>Dear {passenger_name},</p>
+<p>Your booking #{booking_id} status has been updated to: <strong>{new_status}</strong></p>
+<p><strong>Booking Details:</strong><br>
+Pickup: {pickup_location}<br>
+Drop-off: {dropoff_location}<br>
+Date & Time: {pickup_datetime}</p>',
+'{passenger_name},{booking_id},{new_status},{pickup_location},{dropoff_location},{pickup_datetime}'),
+
+('email', 'driver_assignment', 'Driver Assignment', 'driver', 'New ride assigned with passenger & trip details', 'New Ride Assignment - #{booking_id}',
+'<p>Dear {driver_name},</p>
+<p>You have been assigned a new ride!</p>
+<p><strong>Ride Details:</strong><br>
+Booking ID: #{booking_id}<br>
+Passenger: {passenger_name}<br>
+Phone: {passenger_phone}<br>
+Pickup: {pickup_location}<br>
+Drop-off: {dropoff_location}<br>
+Pickup Time: {pickup_datetime}</p>
+<p>Please confirm your availability.</p>',
+'{driver_name},{booking_id},{passenger_name},{passenger_phone},{pickup_location},{dropoff_location},{pickup_datetime}'),
+
+('email', 'password_reset', 'Password Reset', 'user', 'Reset password link (1 hour expiry)', 'Password Reset Request',
+'<p>Dear {user_name},</p>
+<p>You requested to reset your password. Click the link below to reset:</p>
+<p><a href="{reset_link}">{reset_link}</a></p>
+<p>This link will expire in 1 hour.</p>
+<p>If you did not request this, please ignore this email.</p>',
+'{user_name},{reset_link},{expiry_time}'),
+
+('email', 'temporary_password', 'Temporary Password', 'user', 'Admin-set temporary password notification', 'Temporary Password',
+'<p>Dear {user_name},</p>
+<p>A temporary password has been set for your account:</p>
+<p><strong>Temporary Password:</strong> {temp_password}</p>
+<p>Please login and change your password immediately.</p>
+<p><a href="{login_link}">Login Now</a></p>',
+'{user_name},{temp_password},{login_link}'),
+
+('email', 'username_reminder', 'Username Reminder', 'user', 'Forgot username recovery', 'Username Reminder',
+'<p>Dear {user_name},</p>
+<p>Your username is: <strong>{username}</strong></p>
+<p>Use this username to login to your account.</p>
+<p><a href="{login_link}">Login Now</a></p>',
+'{user_name},{username},{login_link}'),
+
+('email', 'payment_confirmation', 'Payment Confirmation', 'passenger', 'Successful payment receipt', 'Payment Confirmation - #{booking_id}',
+'<p>Dear {passenger_name},</p>
+<p>Your payment has been successfully processed.</p>
+<p><strong>Payment Details:</strong><br>
+Booking ID: #{booking_id}<br>
+Amount: {payment_amount}<br>
+Payment Method: {payment_method}<br>
+Transaction ID: {transaction_id}<br>
+Date: {payment_date}</p>
+<p>Thank you for your payment!</p>',
+'{passenger_name},{booking_id},{payment_amount},{payment_method},{transaction_id},{payment_date}'),
+
+('email', 'driver_on_the_way', 'Driver On The Way', 'passenger', 'Driver is heading to pickup location', 'Your Driver is On The Way!',
+'<p>Dear {passenger_name},</p>
+<p>Your driver is on the way to pick you up!</p>
+<p><strong>Driver Details:</strong><br>
+Name: {driver_name}<br>
+Phone: {driver_phone}<br>
+Vehicle: {vehicle_model}<br>
+License Plate: {license_plate}<br>
+ETA: {estimated_arrival}</p>',
+'{passenger_name},{driver_name},{driver_phone},{vehicle_model},{license_plate},{estimated_arrival}'),
+
+('email', 'driver_arrived', 'Driver Arrived', 'passenger', 'Driver has arrived at pickup', 'Your Driver Has Arrived!',
+'<p>Dear {passenger_name},</p>
+<p>Your driver has arrived at the pickup location.</p>
+<p><strong>Driver Details:</strong><br>
+Name: {driver_name}<br>
+Phone: {driver_phone}<br>
+Vehicle: {vehicle_model}<br>
+License Plate: {license_plate}</p>
+<p>Please proceed to your vehicle.</p>',
+'{passenger_name},{driver_name},{driver_phone},{vehicle_model},{license_plate}'),
+
+('email', 'booking_cancelled', 'Booking Cancelled', 'passenger', 'Booking cancellation notice', 'Booking Cancelled - #{booking_id}',
+'<p>Dear {passenger_name},</p>
+<p>Your booking #{booking_id} has been cancelled.</p>
+<p><strong>Cancellation Details:</strong><br>
+Reason: {cancellation_reason}<br>
+Cancelled By: {cancelled_by}<br>
+Date: {cancellation_date}</p>
+<p>If you have any questions, please contact support.</p>',
+'{passenger_name},{booking_id},{cancellation_reason},{cancelled_by},{cancellation_date}'),
+
+('email', 'test_email', 'Test Email (SMTP)', 'admin', 'Verifies SMTP configuration', 'SMTP Test Email',
+'<p>This is a test email to verify SMTP configuration.</p>
+<p><strong>Server:</strong> {smtp_server}<br>
+<strong>Time:</strong> {test_time}</p>
+<p>If you received this, your email configuration is working correctly!</p>',
+'{smtp_server},{test_time}');
+
+-- Insert default SMS notifications
+INSERT INTO notification_templates (type, code, name, recipient_type, purpose, sms_content, available_shortcodes) VALUES
+('sms', 'sms_booking_confirmation', 'SMS Booking Confirmation', 'passenger', 'Confirms booking with pickup time/location',
+'Booking confirmed! ID: {booking_id}. Pickup: {pickup_location} at {pickup_time}. Track: {tracking_link}',
+'{booking_id},{pickup_location},{pickup_time},{tracking_link}'),
+
+('sms', 'sms_booking_status_update', 'SMS Booking Status Update', 'passenger', 'Status change notifications',
+'Booking #{booking_id} status: {new_status}. Details: {status_details}',
+'{booking_id},{new_status},{status_details}'),
+
+('sms', 'sms_driver_assignment', 'SMS Driver Assignment', 'driver', 'New ride notification',
+'New ride assigned! Booking #{booking_id}. Passenger: {passenger_name}. Pickup: {pickup_location} at {pickup_time}.',
+'{booking_id},{passenger_name},{pickup_location},{pickup_time}'),
+
+('sms', 'sms_driver_on_the_way', 'SMS Driver On The Way', 'passenger', 'Driver en route with ETA',
+'Your driver {driver_name} is on the way! Vehicle: {vehicle_model} {license_plate}. ETA: {estimated_arrival}',
+'{driver_name},{vehicle_model},{license_plate},{estimated_arrival}'),
+
+('sms', 'sms_driver_arrived', 'SMS Driver Arrived', 'passenger', 'Driver at pickup location',
+'Your driver {driver_name} has arrived! Vehicle: {vehicle_model} {license_plate}. Phone: {driver_phone}',
+'{driver_name},{vehicle_model},{license_plate},{driver_phone}'),
+
+('sms', 'sms_booking_cancelled', 'SMS Booking Cancelled', 'passenger', 'Cancellation notification',
+'Booking #{booking_id} cancelled. Reason: {cancellation_reason}. Contact support if needed.',
+'{booking_id},{cancellation_reason}'),
+
+('sms', 'sms_admin_new_booking', 'SMS Admin New Booking Alert', 'admin', 'New booking notification',
+'New booking received! ID: #{booking_id}. Passenger: {passenger_name}. Route: {pickup_location} to {dropoff_location}',
+'{booking_id},{passenger_name},{pickup_location},{dropoff_location}'),
+
+('sms', 'sms_password_reset', 'SMS Password Reset', 'user', 'Reset link via SMS',
+'Password reset requested. Click: {reset_link} (expires in 1 hour)',
+'{reset_link}'),
+
+('sms', 'sms_temporary_password', 'SMS Temporary Password', 'user', 'Temp password sent by SMS',
+'Your temporary password: {temp_password}. Login at {login_link} and change immediately.',
+'{temp_password},{login_link}'),
+
+('sms', 'sms_username_reminder', 'SMS Username Reminder', 'user', 'Username recovery via SMS',
+'Your username is: {username}. Login at {login_link}',
+'{username},{login_link}');

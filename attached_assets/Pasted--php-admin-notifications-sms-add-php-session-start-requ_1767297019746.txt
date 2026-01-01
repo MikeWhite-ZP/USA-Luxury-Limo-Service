@@ -1,0 +1,269 @@
+<?php
+// admin/notifications-sms-add.php
+session_start();
+require_once '../config/database.php';
+require_once '../includes/functions.php';
+
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header('Location: ../login.php');
+    exit;
+}
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_notification'])) {
+    $code = strtolower(str_replace(' ', '_', trim($_POST['code'])));
+    $name = trim($_POST['name']);
+    $recipient_type = $_POST['recipient_type'];
+    $purpose = trim($_POST['purpose']);
+    $sms_content = trim($_POST['sms_content']);
+    $status = $_POST['status'];
+    $available_shortcodes = trim($_POST['available_shortcodes']);
+    
+    // Check if code already exists
+    $check = $pdo->prepare("SELECT id FROM notification_templates WHERE code = ?");
+    $check->execute([$code]);
+    
+    if ($check->rowCount() > 0) {
+        $error = "A notification with this code already exists!";
+    } else {
+        $stmt = $pdo->prepare("INSERT INTO notification_templates 
+            (type, code, name, recipient_type, purpose, sms_content, status, available_shortcodes) 
+            VALUES ('sms', ?, ?, ?, ?, ?, ?, ?)");
+        
+        if ($stmt->execute([$code, $name, $recipient_type, $purpose, $sms_content, $status, $available_shortcodes])) {
+            $_SESSION['success_message'] = "SMS notification created successfully!";
+            header('Location: notifications-sms.php');
+            exit;
+        } else {
+            $error = "Failed to create notification.";
+        }
+    }
+}
+
+include 'includes/header.php';
+?>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-plus"></i> Add New SMS Notification
+        </h1>
+        <a href="notifications-sms.php" class="btn btn-secondary btn-icon-split">
+            <span class="icon text-white-50">
+                <i class="fas fa-arrow-left"></i>
+            </span>
+            <span class="text">Back to List</span>
+        </a>
+    </div>
+
+    <?php if (isset($error)): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <?php echo $error; ?>
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    <?php endif; ?>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">SMS Details</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        <div class="form-group">
+                            <label for="code">Code (Unique Identifier) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="code" name="code" required
+                                   pattern="[a-z0-9_]+" placeholder="e.g., sms_booking_reminder">
+                            <small class="form-text text-muted">Use 'sms_' prefix, lowercase, numbers, underscores only.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name">Notification Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required
+                                   placeholder="e.g., SMS Booking Reminder">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipient_type">Recipient Type <span class="text-danger">*</span></label>
+                            <select class="form-control" id="recipient_type" name="recipient_type" required>
+                                <option value="">-- Select Recipient --</option>
+                                <option value="passenger">Passenger</option>
+                                <option value="driver">Driver</option>
+                                <option value="admin">Admin</option>
+                                <option value="user">User (General)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="purpose">Purpose/Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="purpose" name="purpose" rows="2" required
+                                      placeholder="When is this SMS sent?"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sms_content">SMS Message Content <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="sms_content" name="sms_content" rows="6" required
+                                      placeholder="Your ride #{booking_id} is confirmed. Pickup: {pickup_location} at {pickup_time}"></textarea>
+                            <div class="mt-2">
+                                <span class="badge badge-info" id="char-count">0 characters</span>
+                                <span class="badge badge-warning" id="sms-parts">1 SMS</span>
+                                <span class="text-muted small ml-2">
+                                    <i class="fas fa-exclamation-circle"></i> Keep under 160 characters
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="available_shortcodes">Available Shortcodes</label>
+                            <input type="text" class="form-control" id="available_shortcodes" name="available_shortcodes"
+                                   placeholder="{booking_id},{passenger_name},{pickup_location}">
+                            <small class="form-text text-muted">Comma-separated list</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select class="form-control" id="status" name="status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" name="add_notification" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create SMS Notification
+                            </button>
+                            <a href="notifications-sms.php" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Character Counter -->
+            <div class="card shadow mb-4 border-left-warning">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">Character Counter</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h3 class="text-warning" id="current-length">0</h3>
+                        <p class="mb-1">Characters</p>
+                        <div class="progress" style="height: 15px;">
+                            <div class="progress-bar bg-warning" id="char-progress" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <h6 id="sms-count">1 SMS Message</h6>
+                        <p class="text-muted small mb-0">
+                            <span id="remaining-chars">160</span> characters remaining
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shortcodes -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-success text-white">
+                    <h6 class="m-0 font-weight-bold">Quick Shortcodes</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small mb-2">Click to insert:</p>
+                    <button type="button" class="btn btn-sm btn-outline-success mb-2 insert-shortcode" data-value="{booking_id}">{booking_id}</button>
+                    <button type="button" class="btn btn-sm btn-outline-success mb-2 insert-shortcode" data-value="{passenger_name}">{passenger_name}</button>
+                    <button type="button" class="btn btn-sm btn-outline-success mb-2 insert-shortcode" data-value="{driver_name}">{driver_name}</button>
+                    <button type="button" class="btn btn-sm btn-outline-success mb-2 insert-shortcode" data-value="{pickup_location}">{pickup_location}</button>
+                    <button type="button" class="btn btn-sm btn-outline-success mb-2 insert-shortcode" data-value="{pickup_time}">{pickup_time}</button>
+                    <button type="button" class="btn btn-sm btn-outline-success mb-2 insert-shortcode" data-value="{vehicle_model}">{vehicle_model}</button>
+                </div>
+            </div>
+
+            <!-- SMS Preview -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-info text-white">
+                    <h6 class="m-0 font-weight-bold">Live Preview</h6>
+                </div>
+                <div class="card-body">
+                    <div class="p-3 bg-light rounded border">
+                        <div id="sms-preview" class="text-dark" style="font-family: monospace; font-size: 13px; white-space: pre-wrap;">
+                            Your SMS message will appear here...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="card shadow mb-4 border-left-info">
+                <div class="card-body">
+                    <h6 class="font-weight-bold text-info"><i class="fas fa-lightbulb"></i> SMS Tips</h6>
+                    <ul class="mb-0 small">
+                        <li>Be concise and clear</li>
+                        <li>Include key info only</li>
+                        <li>Avoid special characters</li>
+                        <li>Test before activating</li>
+                        <li>Use shortcodes for data</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Character counter
+    function updateCharacterCount() {
+        var content = $('#sms_content').val();
+        var length = content.length;
+        var parts = Math.ceil(length / 160) || 1;
+        var remaining = (parts * 160) - length;
+        var percentage = Math.min((length / 160) * 100, 100);
+        
+        $('#char-count').text(length + ' characters');
+        $('#current-length').text(length);
+        $('#sms-parts').text(parts + ' SMS').removeClass('badge-success badge-warning badge-danger')
+            .addClass(parts === 1 ? 'badge-success' : (parts === 2 ? 'badge-warning' : 'badge-danger'));
+        $('#sms-count').text(parts + ' SMS Message' + (parts > 1 ? 's' : ''));
+        $('#remaining-chars').text(remaining);
+        $('#char-progress').css('width', percentage + '%');
+        $('#sms-preview').text(content || 'Your SMS message will appear here...');
+    }
+    
+    updateCharacterCount();
+    $('#sms_content').on('input', updateCharacterCount);
+    
+    // Insert shortcode
+    $('.insert-shortcode').click(function() {
+        var shortcode = $(this).data('value');
+        var textarea = $('#sms_content');
+        var cursorPos = textarea[0].selectionStart;
+        var content = textarea.val();
+        var newContent = content.substring(0, cursorPos) + shortcode + content.substring(cursorPos);
+        textarea.val(newContent);
+        updateCharacterCount();
+        
+        $(this).text('Added!').removeClass('btn-outline-success').addClass('btn-success');
+        setTimeout(() => {
+            $(this).text(shortcode).removeClass('btn-success').addClass('btn-outline-success');
+        }, 800);
+    });
+    
+    // Auto-generate code from name
+    $('#name').on('blur', function() {
+        if ($('#code').val() === '') {
+            var code = 'sms_' + $(this).val().toLowerCase()
+                .replace(/[^a-z0-9\s]/g, '')
+                .replace(/\s+/g, '_');
+            $('#code').val(code);
+        }
+    });
+});
+</script>
+
+<?php include 'includes/footer.php'; ?>

@@ -1,0 +1,319 @@
+<?php
+// admin/notifications-sms-edit.php
+session_start();
+require_once '../config/database.php';
+require_once '../includes/functions.php';
+
+// Check if user is admin
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header('Location: ../login.php');
+    exit;
+}
+
+$notification_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notification'])) {
+    $name = trim($_POST['name']);
+    $recipient_type = $_POST['recipient_type'];
+    $purpose = trim($_POST['purpose']);
+    $sms_content = trim($_POST['sms_content']);
+    $status = $_POST['status'];
+    $available_shortcodes = trim($_POST['available_shortcodes']);
+    
+    $stmt = $pdo->prepare("UPDATE notification_templates SET 
+        name = ?, recipient_type = ?, purpose = ?, sms_content = ?, 
+        status = ?, available_shortcodes = ?
+        WHERE id = ? AND type = 'sms'");
+    
+    if ($stmt->execute([$name, $recipient_type, $purpose, $sms_content, $status, $available_shortcodes, $notification_id])) {
+        $_SESSION['success_message'] = "SMS notification updated successfully!";
+        header('Location: notifications-sms.php');
+        exit;
+    } else {
+        $error = "Failed to update notification.";
+    }
+}
+
+// Fetch notification data
+$stmt = $pdo->prepare("SELECT * FROM notification_templates WHERE id = ? AND type = 'sms'");
+$stmt->execute([$notification_id]);
+$notification = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$notification) {
+    $_SESSION['error_message'] = "Notification not found!";
+    header('Location: notifications-sms.php');
+    exit;
+}
+
+include 'includes/header.php';
+?>
+
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-edit"></i> Edit SMS Notification
+        </h1>
+        <a href="notifications-sms.php" class="btn btn-secondary btn-icon-split">
+            <span class="icon text-white-50">
+                <i class="fas fa-arrow-left"></i>
+            </span>
+            <span class="text">Back to List</span>
+        </a>
+    </div>
+
+    <?php if (isset($error)): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <?php echo $error; ?>
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    <?php endif; ?>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Main Form Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">SMS Details</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        <!-- Notification Name -->
+                        <div class="form-group">
+                            <label for="name">Notification Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="<?php echo htmlspecialchars($notification['name']); ?>" required>
+                        </div>
+
+                        <!-- Code (Read-only) -->
+                        <div class="form-group">
+                            <label for="code">Code (System Identifier)</label>
+                            <input type="text" class="form-control" id="code" 
+                                   value="<?php echo htmlspecialchars($notification['code']); ?>" readonly>
+                            <small class="form-text text-muted">This is the system identifier and cannot be changed.</small>
+                        </div>
+
+                        <!-- Recipient Type -->
+                        <div class="form-group">
+                            <label for="recipient_type">Recipient Type <span class="text-danger">*</span></label>
+                            <select class="form-control" id="recipient_type" name="recipient_type" required>
+                                <option value="passenger" <?php echo $notification['recipient_type'] === 'passenger' ? 'selected' : ''; ?>>Passenger</option>
+                                <option value="driver" <?php echo $notification['recipient_type'] === 'driver' ? 'selected' : ''; ?>>Driver</option>
+                                <option value="admin" <?php echo $notification['recipient_type'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
+                                <option value="user" <?php echo $notification['recipient_type'] === 'user' ? 'selected' : ''; ?>>User (General)</option>
+                            </select>
+                        </div>
+
+                        <!-- Purpose -->
+                        <div class="form-group">
+                            <label for="purpose">Purpose/Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="purpose" name="purpose" rows="2" required><?php echo htmlspecialchars($notification['purpose']); ?></textarea>
+                        </div>
+
+                        <!-- SMS Content -->
+                        <div class="form-group">
+                            <label for="sms_content">SMS Message Content <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="sms_content" name="sms_content" rows="6" required><?php echo htmlspecialchars($notification['sms_content']); ?></textarea>
+                            <div class="mt-2">
+                                <span class="badge badge-info" id="char-count">0 characters</span>
+                                <span class="badge badge-warning" id="sms-parts">1 SMS</span>
+                                <span class="text-muted small ml-2">Keep under 160 characters for single SMS</span>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select class="form-control" id="status" name="status">
+                                <option value="active" <?php echo $notification['status'] === 'active' ? 'selected' : ''; ?>>Active</option>
+                                <option value="inactive" <?php echo $notification['status'] === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Available Shortcodes -->
+                        <div class="form-group">
+                            <label for="available_shortcodes">Available Shortcodes</label>
+                            <input type="text" class="form-control" id="available_shortcodes" name="available_shortcodes" 
+                                   value="<?php echo htmlspecialchars($notification['available_shortcodes']); ?>">
+                            <small class="form-text text-muted">Comma-separated: {booking_id},{passenger_name},{pickup_location}</small>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="form-group">
+                            <button type="submit" name="save_notification" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a href="notifications-sms.php" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Character Counter Card -->
+            <div class="card shadow mb-4 border-left-primary">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Character Analysis</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5 class="text-primary" id="current-length">0</h5>
+                        <p class="mb-1">Characters used</p>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar" id="char-progress" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <h6 id="sms-count">1 SMS Message</h6>
+                        <p class="text-muted small mb-0">
+                            <span id="remaining-chars">160</span> characters remaining
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shortcode Helper Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">Available Shortcodes</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2 small">Click to insert:</p>
+                    <div id="shortcode-list">
+                        <?php 
+                        $shortcodes = explode(',', $notification['available_shortcodes']);
+                        foreach ($shortcodes as $shortcode): 
+                            $shortcode = trim($shortcode);
+                            if (!empty($shortcode)):
+                        ?>
+                            <button type="button" class="btn btn-sm btn-outline-success mb-2 shortcode-btn" 
+                                    data-shortcode="<?php echo htmlspecialchars($shortcode); ?>">
+                                <?php echo htmlspecialchars($shortcode); ?>
+                            </button>
+                        <?php 
+                            endif;
+                        endforeach; 
+                        ?>
+                    </div>
+                    <hr>
+                    <small class="text-muted">
+                        <strong>Common:</strong><br>
+                        {booking_id}<br>
+                        {passenger_name}<br>
+                        {driver_name}<br>
+                        {pickup_location}<br>
+                        {pickup_time}
+                    </small>
+                </div>
+            </div>
+
+            <!-- Preview Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-info text-white">
+                    <h6 class="m-0 font-weight-bold">SMS Preview</h6>
+                </div>
+                <div class="card-body">
+                    <div class="p-3 bg-light rounded" style="font-family: monospace; font-size: 14px; border: 2px solid #ddd;">
+                        <div id="sms-preview" class="text-dark"></div>
+                    </div>
+                    <hr>
+                    <button type="button" class="btn btn-info btn-block" id="test-sms-btn">
+                        <i class="fas fa-paper-plane"></i> Send Test SMS
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Character counter and SMS calculator
+    function updateCharacterCount() {
+        var content = $('#sms_content').val();
+        var length = content.length;
+        var parts = Math.ceil(length / 160);
+        var remaining = (parts * 160) - length;
+        var percentage = (length / 160) * 100;
+        
+        // Update displays
+        $('#char-count').text(length + ' characters');
+        $('#current-length').text(length);
+        $('#sms-parts').text(parts + ' SMS').removeClass('badge-success badge-warning badge-danger')
+            .addClass(parts === 1 ? 'badge-success' : (parts === 2 ? 'badge-warning' : 'badge-danger'));
+        $('#sms-count').text(parts + ' SMS Message' + (parts > 1 ? 's' : ''));
+        $('#remaining-chars').text(remaining);
+        
+        // Update progress bar
+        $('#char-progress').css('width', Math.min(percentage, 100) + '%')
+            .removeClass('bg-success bg-warning bg-danger')
+            .addClass(length <= 160 ? 'bg-success' : (length <= 320 ? 'bg-warning' : 'bg-danger'));
+        
+        // Update preview
+        $('#sms-preview').text(content || 'Your SMS message preview will appear here...');
+    }
+    
+    // Initial update
+    updateCharacterCount();
+    
+    // Update on input
+    $('#sms_content').on('input', updateCharacterCount);
+    
+    // Insert shortcode
+    $('.shortcode-btn').click(function() {
+        var shortcode = $(this).data('shortcode');
+        var textarea = $('#sms_content');
+        var cursorPos = textarea[0].selectionStart;
+        var content = textarea.val();
+        
+        // Insert at cursor position
+        var newContent = content.substring(0, cursorPos) + shortcode + content.substring(cursorPos);
+        textarea.val(newContent);
+        
+        // Update character count
+        updateCharacterCount();
+        
+        // Show copied feedback
+        $(this).text('Inserted!').removeClass('btn-outline-success').addClass('btn-success');
+        setTimeout(() => {
+            $(this).text(shortcode).removeClass('btn-success').addClass('btn-outline-success');
+        }, 1000);
+    });
+    
+    // Test SMS
+    $('#test-sms-btn').click(function() {
+        var phone = prompt('Enter phone number for test SMS (with country code):');
+        if (phone) {
+            var btn = $(this);
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+            
+            $.ajax({
+                url: 'ajax/send-test-sms.php',
+                method: 'POST',
+                data: {
+                    notification_id: <?php echo $notification_id; ?>,
+                    phone: phone,
+                    content: $('#sms_content').val()
+                },
+                success: function(response) {
+                    alert('Test SMS sent successfully!');
+                    btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Test SMS');
+                },
+                error: function() {
+                    alert('Failed to send test SMS.');
+                    btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Test SMS');
+                }
+            });
+        }
+    });
+});
+</script>
+
+<?php include 'includes/footer.php'; ?>
