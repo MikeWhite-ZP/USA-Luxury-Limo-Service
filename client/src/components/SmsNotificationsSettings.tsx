@@ -30,6 +30,7 @@ import {
   Loader2, 
   AlertCircle,
   Code,
+  Plus,
 } from "lucide-react";
 
 interface NotificationTemplate {
@@ -56,11 +57,20 @@ export function SmsNotificationsSettings() {
   const queryClient = useQueryClient();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [testDialogOpen, setTestDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<NotificationTemplate | null>(null);
   const [editForm, setEditForm] = useState({
     name: "",
     smsContent: "",
     status: "active" as "active" | "inactive",
+  });
+  const [createForm, setCreateForm] = useState({
+    code: "",
+    name: "",
+    recipientType: "passenger" as "passenger" | "driver" | "admin" | "user",
+    purpose: "",
+    smsContent: "",
+    availableShortcodes: "",
   });
   const [testPhone, setTestPhone] = useState("");
 
@@ -81,6 +91,29 @@ export function SmsNotificationsSettings() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/notification-templates"] });
       toast({ title: "Template Updated", description: "SMS notification template saved successfully." });
       setEditDialogOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({ variant: "destructive", title: "Error", description: error.message });
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: Partial<NotificationTemplate>) => {
+      const response = await apiRequest("POST", "/api/admin/notification-templates", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/notification-templates"] });
+      toast({ title: "Template Created", description: "New SMS notification template created successfully." });
+      setCreateDialogOpen(false);
+      setCreateForm({
+        code: "",
+        name: "",
+        recipientType: "passenger",
+        purpose: "",
+        smsContent: "",
+        availableShortcodes: "",
+      });
     },
     onError: (error: Error) => {
       toast({ variant: "destructive", title: "Error", description: error.message });
@@ -149,6 +182,20 @@ export function SmsNotificationsSettings() {
     testSmsMutation.mutate({ id: selectedTemplate.id, phoneNumber: testPhone });
   };
 
+  const handleCreate = () => {
+    if (!createForm.code || !createForm.name || !createForm.purpose) return;
+    createMutation.mutate({
+      type: "sms",
+      code: createForm.code,
+      name: createForm.name,
+      recipientType: createForm.recipientType,
+      purpose: createForm.purpose,
+      smsContent: createForm.smsContent,
+      availableShortcodes: createForm.availableShortcodes,
+      status: "active",
+    });
+  };
+
   const getRecipientBadgeColor = (type: string) => {
     switch (type) {
       case "passenger": return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
@@ -178,14 +225,21 @@ export function SmsNotificationsSettings() {
   }
 
   const charInfo = getCharacterCountInfo(editForm.smsContent);
+  const createCharInfo = getCharacterCountInfo(createForm.smsContent);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">SMS Notification Templates</h2>
-        <p className="text-muted-foreground">
-          Customize the SMS templates sent to passengers, drivers, and admins. Keep messages concise for better delivery.
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">SMS Notification Templates</h2>
+          <p className="text-muted-foreground">
+            Customize the SMS templates sent to passengers, drivers, and admins. Keep messages concise for better delivery.
+          </p>
+        </div>
+        <Button onClick={() => setCreateDialogOpen(true)} className="bg-green-600 hover:bg-green-700">
+          <Plus className="h-4 w-4 mr-2" />
+          Add New Template
+        </Button>
       </div>
 
       <div className="grid gap-4">
@@ -391,6 +445,129 @@ export function SmsNotificationsSettings() {
             <Button onClick={handleSendTest} disabled={!testPhone || testSmsMutation.isPending}>
               {testSmsMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Send Test SMS
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New SMS Template</DialogTitle>
+            <DialogDescription>
+              Create a new SMS notification template. Keep messages concise for better delivery rates.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="createSmsCode">Template Code <span className="text-red-500">*</span></Label>
+                <Input
+                  id="createSmsCode"
+                  value={createForm.code}
+                  onChange={(e) => setCreateForm({ ...createForm, code: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
+                  placeholder="sms_custom_notification"
+                />
+                <p className="text-xs text-muted-foreground">Unique identifier (lowercase, underscores only)</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="createSmsName">Template Name <span className="text-red-500">*</span></Label>
+                <Input
+                  id="createSmsName"
+                  value={createForm.name}
+                  onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
+                  placeholder="Custom SMS Notification"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="createSmsRecipient">Recipient Type</Label>
+                <Select
+                  value={createForm.recipientType}
+                  onValueChange={(value: "passenger" | "driver" | "admin" | "user") => setCreateForm({ ...createForm, recipientType: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="passenger">Passenger</SelectItem>
+                    <SelectItem value="driver">Driver</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="user">User</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="createSmsPurpose">Purpose <span className="text-red-500">*</span></Label>
+                <Input
+                  id="createSmsPurpose"
+                  value={createForm.purpose}
+                  onChange={(e) => setCreateForm({ ...createForm, purpose: e.target.value })}
+                  placeholder="Brief description of when this SMS is sent"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="createSmsContent">SMS Content</Label>
+                <div className="text-sm space-x-2">
+                  <span className={createCharInfo.length > SMS_MAX_LENGTH ? "text-amber-600" : "text-muted-foreground"}>
+                    {createCharInfo.length} characters
+                  </span>
+                  <span className="text-muted-foreground">|</span>
+                  <span className={createCharInfo.segments > 1 ? "text-amber-600 font-medium" : "text-muted-foreground"}>
+                    {createCharInfo.segments} segment{createCharInfo.segments > 1 ? "s" : ""}
+                  </span>
+                </div>
+              </div>
+              <Textarea
+                id="createSmsContent"
+                value={createForm.smsContent}
+                onChange={(e) => setCreateForm({ ...createForm, smsContent: e.target.value })}
+                placeholder="Enter SMS content"
+                className="min-h-[120px] font-mono text-sm resize-none"
+              />
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full transition-all ${
+                      createCharInfo.length > SMS_MAX_LENGTH * 2 ? "bg-red-500" :
+                      createCharInfo.length > SMS_MAX_LENGTH ? "bg-amber-500" :
+                      createCharInfo.length > SMS_MAX_LENGTH * 0.8 ? "bg-yellow-500" : "bg-green-500"
+                    }`}
+                    style={{ width: `${Math.min((createCharInfo.length / (SMS_MAX_LENGTH * 2)) * 100, 100)}%` }}
+                  />
+                </div>
+                <span className="text-xs text-muted-foreground">{createCharInfo.remaining} left</span>
+              </div>
+              {createCharInfo.segments > 1 && (
+                <p className="text-xs text-amber-600">
+                  This message will be sent as {createCharInfo.segments} SMS segments, which may increase costs.
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="createSmsShortcodes">Available Shortcodes</Label>
+              <Input
+                id="createSmsShortcodes"
+                value={createForm.availableShortcodes}
+                onChange={(e) => setCreateForm({ ...createForm, availableShortcodes: e.target.value })}
+                placeholder="company_name, passenger_name, booking_id"
+              />
+              <p className="text-xs text-muted-foreground">Comma-separated list of shortcodes that can be used in this template</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreate} 
+              disabled={!createForm.code || !createForm.name || !createForm.purpose || createMutation.isPending}
+            >
+              {createMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Create Template
             </Button>
           </DialogFooter>
         </DialogContent>

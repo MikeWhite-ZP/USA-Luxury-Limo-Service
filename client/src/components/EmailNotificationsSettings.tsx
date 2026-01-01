@@ -33,6 +33,7 @@ import {
   Code,
   Eye,
   EyeOff,
+  Plus,
 } from "lucide-react";
 
 interface NotificationTemplate {
@@ -56,12 +57,22 @@ export function EmailNotificationsSettings() {
   const queryClient = useQueryClient();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [testDialogOpen, setTestDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<NotificationTemplate | null>(null);
   const [editForm, setEditForm] = useState({
     name: "",
     subject: "",
     content: "",
     status: "active" as "active" | "inactive",
+  });
+  const [createForm, setCreateForm] = useState({
+    code: "",
+    name: "",
+    recipientType: "passenger" as "passenger" | "driver" | "admin" | "user",
+    purpose: "",
+    subject: "",
+    content: "",
+    availableShortcodes: "",
   });
   const [testEmail, setTestEmail] = useState("");
   const [showPreview, setShowPreview] = useState(false);
@@ -83,6 +94,30 @@ export function EmailNotificationsSettings() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/notification-templates"] });
       toast({ title: "Template Updated", description: "Email notification template saved successfully." });
       setEditDialogOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({ variant: "destructive", title: "Error", description: error.message });
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: Partial<NotificationTemplate>) => {
+      const response = await apiRequest("POST", "/api/admin/notification-templates", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/notification-templates"] });
+      toast({ title: "Template Created", description: "New email notification template created successfully." });
+      setCreateDialogOpen(false);
+      setCreateForm({
+        code: "",
+        name: "",
+        recipientType: "passenger",
+        purpose: "",
+        subject: "",
+        content: "",
+        availableShortcodes: "",
+      });
     },
     onError: (error: Error) => {
       toast({ variant: "destructive", title: "Error", description: error.message });
@@ -153,6 +188,21 @@ export function EmailNotificationsSettings() {
     testEmailMutation.mutate({ id: selectedTemplate.id, recipientEmail: testEmail });
   };
 
+  const handleCreate = () => {
+    if (!createForm.code || !createForm.name || !createForm.purpose) return;
+    createMutation.mutate({
+      type: "email",
+      code: createForm.code,
+      name: createForm.name,
+      recipientType: createForm.recipientType,
+      purpose: createForm.purpose,
+      subject: createForm.subject,
+      content: createForm.content,
+      availableShortcodes: createForm.availableShortcodes,
+      status: "active",
+    });
+  };
+
   const getRecipientBadgeColor = (type: string) => {
     switch (type) {
       case "passenger": return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
@@ -173,11 +223,17 @@ export function EmailNotificationsSettings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">Email Notification Templates</h2>
-        <p className="text-muted-foreground">
-          Customize the email templates sent to passengers, drivers, and admins. Use shortcodes to personalize messages.
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Email Notification Templates</h2>
+          <p className="text-muted-foreground">
+            Customize the email templates sent to passengers, drivers, and admins. Use shortcodes to personalize messages.
+          </p>
+        </div>
+        <Button onClick={() => setCreateDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+          <Plus className="h-4 w-4 mr-2" />
+          Add New Template
+        </Button>
       </div>
 
       <div className="grid gap-4">
@@ -385,6 +441,109 @@ export function EmailNotificationsSettings() {
             <Button onClick={handleSendTest} disabled={!testEmail || testEmailMutation.isPending}>
               {testEmailMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Send Test Email
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Email Template</DialogTitle>
+            <DialogDescription>
+              Create a new email notification template. Use shortcodes like {"{passenger_name}"} to personalize messages.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="createCode">Template Code <span className="text-red-500">*</span></Label>
+                <Input
+                  id="createCode"
+                  value={createForm.code}
+                  onChange={(e) => setCreateForm({ ...createForm, code: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
+                  placeholder="email_custom_notification"
+                />
+                <p className="text-xs text-muted-foreground">Unique identifier (lowercase, underscores only)</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="createName">Template Name <span className="text-red-500">*</span></Label>
+                <Input
+                  id="createName"
+                  value={createForm.name}
+                  onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
+                  placeholder="Custom Notification"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="createRecipient">Recipient Type</Label>
+                <Select
+                  value={createForm.recipientType}
+                  onValueChange={(value: "passenger" | "driver" | "admin" | "user") => setCreateForm({ ...createForm, recipientType: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="passenger">Passenger</SelectItem>
+                    <SelectItem value="driver">Driver</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="user">User</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="createPurpose">Purpose <span className="text-red-500">*</span></Label>
+                <Input
+                  id="createPurpose"
+                  value={createForm.purpose}
+                  onChange={(e) => setCreateForm({ ...createForm, purpose: e.target.value })}
+                  placeholder="Brief description of when this email is sent"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="createSubject">Email Subject</Label>
+              <Input
+                id="createSubject"
+                value={createForm.subject}
+                onChange={(e) => setCreateForm({ ...createForm, subject: e.target.value })}
+                placeholder="Enter email subject line"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="createContent">Email Content (HTML)</Label>
+              <Textarea
+                id="createContent"
+                value={createForm.content}
+                onChange={(e) => setCreateForm({ ...createForm, content: e.target.value })}
+                placeholder="Enter email content in HTML format"
+                className="min-h-[200px] font-mono text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="createShortcodes">Available Shortcodes</Label>
+              <Input
+                id="createShortcodes"
+                value={createForm.availableShortcodes}
+                onChange={(e) => setCreateForm({ ...createForm, availableShortcodes: e.target.value })}
+                placeholder="passenger_name, booking_id, pickup_location"
+              />
+              <p className="text-xs text-muted-foreground">Comma-separated list of shortcodes that can be used in this template</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreate} 
+              disabled={!createForm.code || !createForm.name || !createForm.purpose || createMutation.isPending}
+            >
+              {createMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Create Template
             </Button>
           </DialogFooter>
         </DialogContent>
