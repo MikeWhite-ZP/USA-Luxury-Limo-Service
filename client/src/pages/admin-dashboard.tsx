@@ -10696,9 +10696,8 @@ export default function AdminDashboard() {
                                 ) : (
                                   <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">Unpaid</Badge>
                                 )}
-                                <span className="text-sm font-semibold text-green-700">Booking ID</span>
                                 <button
-                                  className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                                  className="text-sm font-semibold text-green-700 hover:text-green-800 hover:underline cursor-pointer"
                                   onClick={() => {
                                     const fullBooking = bookings?.find(b => b.id === earning.bookingId);
                                     if (fullBooking) {
