@@ -1895,7 +1895,30 @@ function InvoiceManagement() {
     subtotal: "",
     taxAmount: "",
     totalAmount: "",
+    surgeMultiplier: "",
+    surgeAmount: "",
+    gratuity: "",
+    airportFee: "",
+    discountPercentage: "",
+    discountAmount: "",
   });
+
+  // Auto-calculate total when pricing components change
+  useEffect(() => {
+    const baseFare = parseFloat(editFormData.subtotal) || 0;
+    const surgeAmount = parseFloat(editFormData.surgeAmount) || 0;
+    const gratuity = parseFloat(editFormData.gratuity) || 0;
+    const airportFee = parseFloat(editFormData.airportFee) || 0;
+    const discountAmount = parseFloat(editFormData.discountAmount) || 0;
+    
+    const calculatedTotal = baseFare + surgeAmount + gratuity + airportFee - discountAmount;
+    const finalTotal = Math.max(0, calculatedTotal);
+    
+    setEditFormData(prev => ({
+      ...prev,
+      totalAmount: finalTotal.toFixed(2)
+    }));
+  }, [editFormData.subtotal, editFormData.surgeAmount, editFormData.gratuity, editFormData.airportFee, editFormData.discountAmount]);
 
   // Fetch all invoices
   const { data: invoices, isLoading } = useQuery<any[]>({
@@ -2068,9 +2091,15 @@ function InvoiceManagement() {
   const handleEdit = (invoice: any) => {
     setSelectedInvoice(invoice);
     setEditFormData({
-      subtotal: invoice.subtotal,
-      taxAmount: invoice.taxAmount,
-      totalAmount: invoice.totalAmount,
+      subtotal: invoice.subtotal || "",
+      taxAmount: invoice.taxAmount || "",
+      totalAmount: invoice.totalAmount || "",
+      surgeMultiplier: invoice.surgeMultiplier || "",
+      surgeAmount: invoice.surgeAmount || "",
+      gratuity: invoice.gratuity || "",
+      airportFee: invoice.airportFee || "",
+      discountPercentage: invoice.discountPercentage || "",
+      discountAmount: invoice.discountAmount || "",
     });
     setEditDialogOpen(true);
   };
@@ -3111,6 +3140,8 @@ function InvoiceManagement() {
                           step="0.1"
                           min="1"
                           placeholder="1.0"
+                          value={editFormData.surgeMultiplier}
+                          onChange={(e) => setEditFormData({ ...editFormData, surgeMultiplier: e.target.value })}
                           className="h-10 border-orange-300 focus:border-orange-500 focus:ring-orange-500 bg-background"
                           data-testid="input-edit-surge-multiplier"
                         />
@@ -3127,6 +3158,8 @@ function InvoiceManagement() {
                             step="0.01"
                             min="0"
                             placeholder="0.00"
+                            value={editFormData.surgeAmount}
+                            onChange={(e) => setEditFormData({ ...editFormData, surgeAmount: e.target.value })}
                             className="pl-7 h-10 border-orange-300 focus:border-orange-500 focus:ring-orange-500 bg-background text-orange-600 font-semibold"
                             data-testid="input-edit-surge-amount"
                           />
@@ -3151,6 +3184,8 @@ function InvoiceManagement() {
                         step="0.01"
                         min="0"
                         placeholder="0.00"
+                        value={editFormData.gratuity}
+                        onChange={(e) => setEditFormData({ ...editFormData, gratuity: e.target.value })}
                         className="pl-7 h-11 border-border focus:border-primary focus:ring-primary bg-background text-foreground font-semibold"
                         data-testid="input-edit-gratuity"
                       />
@@ -3173,6 +3208,8 @@ function InvoiceManagement() {
                         step="0.01"
                         min="0"
                         placeholder="0.00"
+                        value={editFormData.airportFee}
+                        onChange={(e) => setEditFormData({ ...editFormData, airportFee: e.target.value })}
                         className="pl-7 h-11 border-border focus:border-primary focus:ring-primary bg-background text-foreground font-semibold"
                         data-testid="input-edit-airport-fee"
                       />
@@ -3199,6 +3236,17 @@ function InvoiceManagement() {
                           min="0"
                           max="100"
                           placeholder="0"
+                          value={editFormData.discountPercentage}
+                          onChange={(e) => {
+                            const percentage = parseFloat(e.target.value) || 0;
+                            const baseFare = parseFloat(editFormData.subtotal) || 0;
+                            const calculatedDiscount = (baseFare * percentage / 100).toFixed(2);
+                            setEditFormData({ 
+                              ...editFormData, 
+                              discountPercentage: e.target.value,
+                              discountAmount: calculatedDiscount
+                            });
+                          }}
                           className="h-10 border-green-300 focus:border-green-500 focus:ring-green-500 bg-background"
                           data-testid="input-edit-discount-percentage"
                         />
@@ -3215,6 +3263,8 @@ function InvoiceManagement() {
                             step="0.01"
                             min="0"
                             placeholder="0.00"
+                            value={editFormData.discountAmount}
+                            onChange={(e) => setEditFormData({ ...editFormData, discountAmount: e.target.value, discountPercentage: "" })}
                             className="pl-7 h-10 border-green-300 focus:border-green-500 focus:ring-green-500 bg-background text-green-600 font-semibold"
                             data-testid="input-edit-discount-amount"
                           />
@@ -3254,8 +3304,8 @@ function InvoiceManagement() {
                     </svg>
                   </div>
                   <p className="text-sm text-blue-900 leading-relaxed">
-                    <strong className="font-semibold">Pro Tip:</strong> Enter detailed pricing components for transparent invoicing. 
-                    The total will be calculated automatically or can be adjusted manually if needed.
+                    <strong className="font-semibold">Pro Tip:</strong> The total is calculated automatically when you change any pricing component. 
+                    You can also manually override the total if needed.
                   </p>
                 </div>
               </div>
