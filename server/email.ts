@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import { storage } from './storage';
+import { getEmailTemplate } from './templateUtils';
 
 function getAppBaseUrl(): string {
   if (process.env.ALLOWED_ORIGINS) {
@@ -354,6 +355,24 @@ export async function getBookingConfirmationEmailHTML(data: {
   const company = branding.companyName;
   const logoUrl = branding.logoUrl;
   
+  const templateData = {
+    passenger_name: data.passengerName,
+    booking_id: data.bookingId,
+    pickup_location: data.pickupAddress,
+    destination: data.destinationAddress,
+    scheduled_time: data.scheduledDateTime,
+    vehicle_type: data.vehicleType,
+    total_amount: data.totalAmount,
+    status: data.status.toUpperCase(),
+    company_name: company,
+    logo_url: logoUrl || '',
+  };
+  
+  const dbTemplate = await getEmailTemplate('email_booking_confirmation', templateData);
+  if (dbTemplate.found && dbTemplate.content) {
+    return dbTemplate.content;
+  }
+  
   return `
     <!DOCTYPE html>
     <html>
@@ -446,6 +465,21 @@ export async function getBookingStatusUpdateEmailHTML(data: {
     cancelled: '✕',
   };
 
+  const templateData = {
+    passenger_name: data.passengerName,
+    booking_id: data.bookingId,
+    old_status: data.oldStatus.toUpperCase(),
+    new_status: data.newStatus.toUpperCase(),
+    pickup_location: data.pickupAddress,
+    scheduled_time: data.scheduledDateTime,
+    company_name: company,
+  };
+  
+  const dbTemplate = await getEmailTemplate('email_booking_status_update', templateData);
+  if (dbTemplate.found && dbTemplate.content) {
+    return dbTemplate.content;
+  }
+
   return `
     <!DOCTYPE html>
     <html>
@@ -511,6 +545,24 @@ export async function getDriverAssignmentEmailHTML(data: {
   const branding = await getBrandingInfo();
   const company = branding.companyName;
   const logoUrl = branding.logoUrl;
+  
+  const templateData = {
+    driver_name: data.driverName,
+    booking_id: data.bookingId,
+    passenger_name: data.passengerName,
+    passenger_phone: data.passengerPhone,
+    pickup_location: data.pickupAddress,
+    destination: data.destinationAddress,
+    scheduled_time: data.scheduledDateTime,
+    vehicle_type: data.vehicleType,
+    driver_payment: data.driverPayment || '',
+    company_name: company,
+  };
+  
+  const dbTemplate = await getEmailTemplate('email_driver_assignment', templateData);
+  if (dbTemplate.found && dbTemplate.content) {
+    return dbTemplate.content;
+  }
   
   return `
     <!DOCTYPE html>
