@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 
@@ -19,6 +20,7 @@ interface VehicleType {
 }
 
 export default function FleetSection() {
+  const { t } = useTranslation();
   const { data: vehicleTypes, isLoading } = useQuery<VehicleType[]>({
     queryKey: ['/api/vehicle-types'],
   });
@@ -66,10 +68,10 @@ export default function FleetSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4" data-testid="fleet-title">
-            Our Luxury Fleet
+            {t('fleet.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto" data-testid="fleet-description">
-            Choose from our premium selection of vehicles, each maintained to the highest standards of luxury and safety.
+            {t('fleet.description')}
           </p>
         </div>
 
@@ -94,7 +96,7 @@ export default function FleetSection() {
                   {vehicle.name}
                 </h3>
                 <div className="flex gap-4 text-sm text-muted-foreground">
-                  <span data-testid={`vehicle-passengers-${index}`}>Up to {vehicle.passengerCapacity} passengers</span>
+                  <span data-testid={`vehicle-passengers-${index}`}>{t('fleet.upToPassengers', { count: vehicle.passengerCapacity })}</span>
                   <span>•</span>
                   <span data-testid={`vehicle-luggage-${index}`}>{vehicle.luggageCapacity}</span>
                 </div>
@@ -106,7 +108,7 @@ export default function FleetSection() {
                 onClick={() => setLocation(`/vehicle/${vehicle.id}`)}
                 data-testid={`button-select-vehicle-${index}`}
               >
-                View Details
+                {t('fleet.viewDetails')}
               </Button>
             </div>
           ))}

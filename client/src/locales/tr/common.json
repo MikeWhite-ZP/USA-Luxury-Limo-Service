@@ -11,6 +11,12 @@
     "description": "Havalimanı transferlerinden özel etkinliklere kadar, ihtiyaçlarınıza uygun lüks ulaşım çözümleri sunuyoruz.",
     "loadError": "Hizmetler yüklenemedi. Lütfen tekrar deneyin."
   },
+  "fleet": {
+    "title": "Lüks Filomuz",
+    "description": "En yüksek lüks ve güvenlik standartlarında bakımı yapılan premium araç seçeneklerimiz arasından seçim yapın.",
+    "upToPassengers": "{{count}} yolcuya kadar",
+    "viewDetails": "Detayları Görüntüle"
+  },
   "nav": {
     "home": "Ana Sayfa",
     "book": "Yolculuk Rezervasyonu",

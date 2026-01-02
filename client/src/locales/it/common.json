@@ -11,6 +11,12 @@
     "description": "Dai trasferimenti aeroportuali agli eventi speciali, offriamo soluzioni di trasporto di lusso su misura per le tue esigenze.",
     "loadError": "Impossibile caricare i servizi. Per favore riprova."
   },
+  "fleet": {
+    "title": "La Nostra Flotta di Lusso",
+    "description": "Scegli dalla nostra selezione premium di veicoli, ognuno mantenuto ai più alti standard di lusso e sicurezza.",
+    "upToPassengers": "Fino a {{count}} passeggeri",
+    "viewDetails": "Vedi Dettagli"
+  },
   "nav": {
     "home": "Home",
     "book": "Prenota un Viaggio",

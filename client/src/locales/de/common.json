@@ -11,6 +11,12 @@
     "description": "Von Flughafentransfers bis zu besonderen Veranstaltungen bieten wir luxuriöse Transportlösungen, die auf Ihre Bedürfnisse zugeschnitten sind.",
     "loadError": "Dienste konnten nicht geladen werden. Bitte versuchen Sie es erneut."
   },
+  "fleet": {
+    "title": "Unsere Luxus-Flotte",
+    "description": "Wählen Sie aus unserer Premium-Auswahl an Fahrzeugen, die alle nach höchsten Standards für Luxus und Sicherheit gewartet werden.",
+    "upToPassengers": "Bis zu {{count}} Passagiere",
+    "viewDetails": "Details ansehen"
+  },
   "nav": {
     "home": "Startseite",
     "book": "Fahrt Buchen",

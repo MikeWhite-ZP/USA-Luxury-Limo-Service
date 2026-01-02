@@ -11,6 +11,12 @@
     "description": "From airport transfers to special events, we provide luxury transportation solutions tailored to your needs.",
     "loadError": "Unable to load services. Please try again."
   },
+  "fleet": {
+    "title": "Our Luxury Fleet",
+    "description": "Choose from our premium selection of vehicles, each maintained to the highest standards of luxury and safety.",
+    "upToPassengers": "Up to {{count}} passengers",
+    "viewDetails": "View Details"
+  },
   "nav": {
     "home": "Home",
     "book": "Book a Ride",
