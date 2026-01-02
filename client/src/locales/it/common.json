@@ -17,6 +17,26 @@
     "upToPassengers": "Fino a {{count}} passeggeri",
     "viewDetails": "Vedi Dettagli"
   },
+  "features": {
+    "title": "Perché scegliere {{companyName}}?",
+    "description": "Vivi la differenza con il nostro impegno per l'eccellenza, l'affidabilità e il lusso in ogni viaggio.",
+    "availability": {
+      "title": "Disponibilità 24/7",
+      "description": "Servizio disponibile 24 ore su 24 per tutte le tue esigenze di trasporto, ogni volta che hai bisogno di noi."
+    },
+    "drivers": {
+      "title": "Autisti Professionali",
+      "description": "Autisti esperti, con licenza e verificati, impegnati per la tua sicurezza."
+    },
+    "payments": {
+      "title": "Pagamenti Sicuri",
+      "description": "Elaborazione dei pagamenti sicura con tecnologia di crittografia leader del settore."
+    },
+    "amenities": {
+      "title": "Comfort Premium",
+      "description": "WiFi gratuito, rinfreschi e comfort di lusso in ogni veicolo."
+    }
+  },
   "nav": {
     "home": "Home",
     "book": "Prenota un Viaggio",

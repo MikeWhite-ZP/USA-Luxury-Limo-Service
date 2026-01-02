@@ -17,6 +17,26 @@
     "upToPassengers": "Bis zu {{count}} Passagiere",
     "viewDetails": "Details ansehen"
   },
+  "features": {
+    "title": "Warum {{companyName}} wählen?",
+    "description": "Erleben Sie den Unterschied mit unserem Engagement für Exzellenz, Zuverlässigkeit und Luxus bei jeder Fahrt.",
+    "availability": {
+      "title": "24/7 Verfügbarkeit",
+      "description": "Rund-um-die-Uhr-Service für alle Ihre Transportbedürfnisse, wann immer Sie uns brauchen."
+    },
+    "drivers": {
+      "title": "Professionelle Fahrer",
+      "description": "Erfahrene, lizenzierte und überprüfte Chauffeure, die sich Ihrer Sicherheit verschrieben haben."
+    },
+    "payments": {
+      "title": "Sichere Zahlungen",
+      "description": "Sichere Zahlungsabwicklung mit branchenführender Verschlüsselungstechnologie."
+    },
+    "amenities": {
+      "title": "Premium-Ausstattung",
+      "description": "Kostenloses WLAN, Erfrischungen und Luxus-Annehmlichkeiten in jedem Fahrzeug."
+    }
+  },
   "nav": {
     "home": "Startseite",
     "book": "Fahrt Buchen",

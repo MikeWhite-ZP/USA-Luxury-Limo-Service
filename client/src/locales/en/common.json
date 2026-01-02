@@ -17,6 +17,26 @@
     "upToPassengers": "Up to {{count}} passengers",
     "viewDetails": "View Details"
   },
+  "features": {
+    "title": "Why Choose {{companyName}}?",
+    "description": "Experience the difference with our commitment to excellence, reliability, and luxury in every journey.",
+    "availability": {
+      "title": "24/7 Availability",
+      "description": "Round-the-clock service for all your transportation needs, whenever you need us."
+    },
+    "drivers": {
+      "title": "Professional Drivers",
+      "description": "Experienced, licensed, and background-checked chauffeurs committed to your safety."
+    },
+    "payments": {
+      "title": "Secure Payments",
+      "description": "Safe and secure payment processing with industry-leading encryption technology."
+    },
+    "amenities": {
+      "title": "Premium Amenities",
+      "description": "Complimentary WiFi, refreshments, and luxury amenities in every vehicle."
+    }
+  },
   "nav": {
     "home": "Home",
     "book": "Book a Ride",

@@ -17,6 +17,26 @@
     "upToPassengers": "Hasta {{count}} pasajeros",
     "viewDetails": "Ver Detalles"
   },
+  "features": {
+    "title": "¿Por qué elegir {{companyName}}?",
+    "description": "Experimente la diferencia con nuestro compromiso con la excelencia, confiabilidad y lujo en cada viaje.",
+    "availability": {
+      "title": "Disponibilidad 24/7",
+      "description": "Servicio las 24 horas para todas sus necesidades de transporte, cuando nos necesite."
+    },
+    "drivers": {
+      "title": "Conductores Profesionales",
+      "description": "Chóferes experimentados, con licencia y verificación de antecedentes, comprometidos con su seguridad."
+    },
+    "payments": {
+      "title": "Pagos Seguros",
+      "description": "Procesamiento de pagos seguro con tecnología de encriptación líder en la industria."
+    },
+    "amenities": {
+      "title": "Comodidades Premium",
+      "description": "WiFi gratuito, refrescos y comodidades de lujo en cada vehículo."
+    }
+  },
   "nav": {
     "home": "Inicio",
     "book": "Reservar un Viaje",

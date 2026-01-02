@@ -1,28 +1,30 @@
 import { Clock, Shield, CreditCard, Heart } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useBranding } from "@/hooks/useBranding";
 
 export default function FeaturesSection() {
+  const { t } = useTranslation();
   const { companyName } = useBranding();
   const features = [
     {
       icon: Clock,
-      title: "24/7 Availability",
-      description: "Round-the-clock service for all your transportation needs, whenever you need us."
+      titleKey: "features.availability.title",
+      descriptionKey: "features.availability.description"
     },
     {
       icon: Shield,
-      title: "Professional Drivers",
-      description: "Experienced, licensed, and background-checked chauffeurs committed to your safety."
+      titleKey: "features.drivers.title",
+      descriptionKey: "features.drivers.description"
     },
     {
       icon: CreditCard,
-      title: "Secure Payments",
-      description: "Safe and secure payment processing with industry-leading encryption technology."
+      titleKey: "features.payments.title",
+      descriptionKey: "features.payments.description"
     },
     {
       icon: Heart,
-      title: "Premium Amenities",
-      description: "Complimentary WiFi, refreshments, and luxury amenities in every vehicle."
+      titleKey: "features.amenities.title",
+      descriptionKey: "features.amenities.description"
     }
   ];
 
@@ -31,10 +33,10 @@ export default function FeaturesSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4" data-testid="features-title">
-            Why Choose {companyName}?
+            {t('features.title', { companyName })}
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto" data-testid="features-description">
-            Experience the difference with our commitment to excellence, reliability, and luxury in every journey.
+            {t('features.description')}
           </p>
         </div>
 
@@ -45,10 +47,10 @@ export default function FeaturesSection() {
                 <feature.icon className="w-8 h-8 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2" data-testid={`feature-title-${index}`}>
-                {feature.title}
+                {t(feature.titleKey)}
               </h3>
               <p className="text-muted-foreground" data-testid={`feature-description-${index}`}>
-                {feature.description}
+                {t(feature.descriptionKey)}
               </p>
             </div>
           ))}

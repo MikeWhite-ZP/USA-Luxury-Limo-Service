@@ -17,6 +17,26 @@
     "upToPassengers": "{{count}} yolcuya kadar",
     "viewDetails": "Detayları Görüntüle"
   },
+  "features": {
+    "title": "Neden {{companyName}}?",
+    "description": "Her yolculukta mükemmellik, güvenilirlik ve lükse olan bağlılığımızla farkı yaşayın.",
+    "availability": {
+      "title": "7/24 Hizmet",
+      "description": "Tüm ulaşım ihtiyaçlarınız için bize ihtiyaç duyduğunuz her an kesintisiz hizmet."
+    },
+    "drivers": {
+      "title": "Profesyonel Sürücüler",
+      "description": "Güvenliğinize adanmış deneyimli, lisanslı ve geçmiş kontrolünden geçmiş şoförler."
+    },
+    "payments": {
+      "title": "Güvenli Ödemeler",
+      "description": "Sektör lideri şifreleme teknolojisi ile güvenli ödeme işlemleri."
+    },
+    "amenities": {
+      "title": "Premium Olanaklar",
+      "description": "Her araçta ücretsiz WiFi, içecekler ve lüks olanaklar."
+    }
+  },
   "nav": {
     "home": "Ana Sayfa",
     "book": "Yolculuk Rezervasyonu",
