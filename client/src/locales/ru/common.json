@@ -301,10 +301,18 @@
   },
   "footer": {
     "copyright": "Все права защищены",
+    "allRightsReserved": "Все права защищены.",
     "privacyPolicy": "Политика Конфиденциальности",
     "termsOfService": "Условия Использования",
     "contactUs": "Свяжитесь с Нами",
-    "followUs": "Подписывайтесь"
+    "followUs": "Подписывайтесь",
+    "quickLinks": "Быстрые Ссылки",
+    "support": "Поддержка",
+    "helpCenter": "Центр Помощи",
+    "safety": "Безопасность",
+    "poweredByStripe": "Работает на Stripe",
+    "tomtomNavigation": "Навигация TomTom",
+    "mobileVersion": "Мобильная Версия"
   },
   "errors": {
     "somethingWentWrong": "Что-то пошло не так",

@@ -3,8 +3,10 @@ import { useLocation } from "wouter";
 import { setDevicePreference } from "@/lib/deviceDetection";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
 import { useBranding } from "@/hooks/useBranding";
+import { useTranslation } from "react-i18next";
 
 export default function Footer() {
+  const { t } = useTranslation();
   const [location, setLocation] = useLocation();
   const { logoUrl, logoAltText } = useSiteLogo();
   const { companyName, description } = useBranding();
@@ -63,7 +65,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-semibold mb-4" data-testid="footer-quick-links-title">Quick Links</h4>
+            <h4 className="text-lg font-semibold mb-4" data-testid="footer-quick-links-title">{t('footer.quickLinks')}</h4>
             <ul className="space-y-2 text-primary-foreground/80">
               <li>
                 <button 
@@ -71,7 +73,7 @@ export default function Footer() {
                   className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-home"
                 >
-                  Home
+                  {t('nav.home')}
                 </button>
               </li>
               <li>
@@ -80,7 +82,7 @@ export default function Footer() {
                   className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-about"
                 >
-                  About
+                  {t('nav.about')}
                 </button>
               </li>
               <li>
@@ -89,7 +91,7 @@ export default function Footer() {
                   className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-services"
                 >
-                  Services
+                  {t('nav.services')}
                 </button>
               </li>
               <li>
@@ -98,7 +100,7 @@ export default function Footer() {
                   className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-fleet"
                 >
-                  Fleet
+                  {t('nav.fleet')}
                 </button>
               </li>
               <li>
@@ -107,7 +109,7 @@ export default function Footer() {
                   className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-contact"
                 >
-                  Contact
+                  {t('nav.contact')}
                 </button>
               </li>
             </ul>
@@ -115,7 +117,7 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h4 className="text-lg font-semibold mb-4" data-testid="footer-support-title">Support</h4>
+            <h4 className="text-lg font-semibold mb-4" data-testid="footer-support-title">{t('footer.support')}</h4>
             <ul className="space-y-2 text-primary-foreground/80">
               <li>
                 <button 
@@ -123,7 +125,7 @@ export default function Footer() {
                   className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-help"
                 >
-                  Help Center
+                  {t('footer.helpCenter')}
                 </button>
               </li>
               <li>
@@ -132,7 +134,7 @@ export default function Footer() {
                   className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-privacy"
                 >
-                  Privacy Policy
+                  {t('footer.privacyPolicy')}
                 </button>
               </li>
               <li>
@@ -141,7 +143,7 @@ export default function Footer() {
                   className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-terms"
                 >
-                  Terms of Service
+                  {t('footer.termsOfService')}
                 </button>
               </li>
               <li>
@@ -150,7 +152,7 @@ export default function Footer() {
                   className="hover:text-primary-foreground transition-colors"
                   data-testid="footer-link-safety"
                 >
-                  Safety
+                  {t('footer.safety')}
                 </button>
               </li>
             </ul>
@@ -160,12 +162,12 @@ export default function Footer() {
         <div className="border-t border-primary-foreground/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center mb-4">
             <p className="text-primary-foreground/80 text-sm" data-testid="footer-copyright">
-              © {new Date().getFullYear()} {companyName}. All rights reserved.
+              © {new Date().getFullYear()} {companyName}. {t('footer.allRightsReserved')}
             </p>
             <div className="flex items-center space-x-4 mt-4 md:mt-0">
-              <span className="text-primary-foreground/80 text-sm" data-testid="footer-powered-stripe">Powered by Stripe</span>
+              <span className="text-primary-foreground/80 text-sm" data-testid="footer-powered-stripe">{t('footer.poweredByStripe')}</span>
               <span className="text-primary-foreground/80 text-sm">•</span>
-              <span className="text-primary-foreground/80 text-sm" data-testid="footer-powered-tomtom">TomTom Navigation</span>
+              <span className="text-primary-foreground/80 text-sm" data-testid="footer-powered-tomtom">{t('footer.tomtomNavigation')}</span>
             </div>
           </div>
           
@@ -179,7 +181,7 @@ export default function Footer() {
               data-testid="footer-mobile-version"
             >
               <Smartphone className="w-4 h-4" />
-              <span>Mobile Version</span>
+              <span>{t('footer.mobileVersion')}</span>
             </button>
           </div>
         </div>

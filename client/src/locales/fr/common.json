@@ -301,10 +301,18 @@
   },
   "footer": {
     "copyright": "Tous droits réservés",
+    "allRightsReserved": "Tous droits réservés.",
     "privacyPolicy": "Politique de Confidentialité",
     "termsOfService": "Conditions d'Utilisation",
     "contactUs": "Nous Contacter",
-    "followUs": "Suivez-nous"
+    "followUs": "Suivez-nous",
+    "quickLinks": "Liens Rapides",
+    "support": "Support",
+    "helpCenter": "Centre d'Aide",
+    "safety": "Sécurité",
+    "poweredByStripe": "Propulsé par Stripe",
+    "tomtomNavigation": "Navigation TomTom",
+    "mobileVersion": "Version Mobile"
   },
   "errors": {
     "somethingWentWrong": "Une erreur s'est produite",

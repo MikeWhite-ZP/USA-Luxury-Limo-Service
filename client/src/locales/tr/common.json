@@ -301,10 +301,18 @@
   },
   "footer": {
     "copyright": "Tüm hakları saklıdır",
+    "allRightsReserved": "Tüm hakları saklıdır.",
     "privacyPolicy": "Gizlilik Politikası",
     "termsOfService": "Hizmet Şartları",
     "contactUs": "Bize Ulaşın",
-    "followUs": "Bizi Takip Edin"
+    "followUs": "Bizi Takip Edin",
+    "quickLinks": "Hızlı Bağlantılar",
+    "support": "Destek",
+    "helpCenter": "Yardım Merkezi",
+    "safety": "Güvenlik",
+    "poweredByStripe": "Stripe ile Desteklenmektedir",
+    "tomtomNavigation": "TomTom Navigasyon",
+    "mobileVersion": "Mobil Sürüm"
   },
   "errors": {
     "somethingWentWrong": "Bir şeyler yanlış gitti",
