@@ -4035,12 +4035,9 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
   });
 
   // Manual invoice payment endpoint for authenticated passengers
+  // Supports both Stripe and Square based on active payment system
   app.post('/api/passenger/invoices/:id/pay', isAuthenticated, async (req: any, res) => {
     try {
-      if (!stripe) {
-        return res.status(503).json({ message: 'Payment service not configured' });
-      }
-
       const userId = req.user.id;
       const user = await storage.getUser(userId);
       
@@ -4073,75 +4070,90 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
         return res.status(400).json({ message: 'Cannot pay for a cancelled booking' });
       }
 
-      // Create Stripe payment intent
       const amount = Math.round(parseFloat(invoice.totalAmount) * 100); // Convert to cents
 
       if (amount <= 0) {
         return res.status(400).json({ message: 'Invoice amount must be greater than zero' });
       }
 
-      const paymentIntentData: any = {
-        amount,
-        currency: 'usd',
-        metadata: {
-          invoiceId: invoice.id,
-          bookingId: invoice.bookingId,
-          passengerId: userId,
-          paymentType: 'manual_invoice_payment',
-        },
-        automatic_payment_methods: {
-          enabled: true,
-        },
-      };
-
-      // If user has a Stripe customer ID, attach it to enable saved cards
-      if (user.stripeCustomerId) {
-        paymentIntentData.customer = user.stripeCustomerId;
-        paymentIntentData.setup_future_usage = 'off_session';
-      } else if (user.email) {
-        // Create a Stripe customer for this user
-        try {
-          const customer = await stripe.customers.create({
-            email: user.email,
-            name: `${user.firstName} ${user.lastName}`,
-            metadata: {
-              userId: user.id,
-            },
-          });
-          await storage.updateStripeCustomerId(user.id, customer.id);
-          paymentIntentData.customer = customer.id;
-        } catch (customerError) {
-          console.error('Failed to create Stripe customer:', customerError);
-          // Continue without customer ID - payment will still work
+      // Check which payment system is active
+      const activeSystem = await storage.getActivePaymentSystem();
+      
+      if (activeSystem?.provider === 'square' && isSquareConfigured()) {
+        // Return Square config for frontend to render Square payment form
+        const squareConfig = getSquareConfig();
+        if (!squareConfig) {
+          return res.status(503).json({ message: 'Square payment is not properly configured' });
         }
+        
+        return res.json({
+          provider: 'square',
+          invoiceId: invoice.id,
+          amount: invoice.totalAmount,
+          applicationId: squareConfig.applicationId,
+          locationId: squareConfig.locationId,
+          environment: squareConfig.environment,
+        });
+      } else if (stripe) {
+        // Create Stripe payment intent
+        const paymentIntentData: any = {
+          amount,
+          currency: 'usd',
+          metadata: {
+            invoiceId: invoice.id,
+            bookingId: invoice.bookingId,
+            passengerId: userId,
+            paymentType: 'manual_invoice_payment',
+          },
+          automatic_payment_methods: {
+            enabled: true,
+          },
+        };
+
+        // If user has a Stripe customer ID, attach it to enable saved cards
+        if (user.stripeCustomerId) {
+          paymentIntentData.customer = user.stripeCustomerId;
+          paymentIntentData.setup_future_usage = 'off_session';
+        } else if (user.email) {
+          // Create a Stripe customer for this user
+          try {
+            const customer = await stripe.customers.create({
+              email: user.email,
+              name: `${user.firstName} ${user.lastName}`,
+              metadata: {
+                userId: user.id,
+              },
+            });
+            await storage.updateStripeCustomerId(user.id, customer.id);
+            paymentIntentData.customer = customer.id;
+          } catch (customerError) {
+            console.error('Failed to create Stripe customer:', customerError);
+            // Continue without customer ID - payment will still work
+          }
+        }
+
+        const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+
+        return res.json({
+          provider: 'stripe',
+          clientSecret: paymentIntent.client_secret,
+          invoiceId: invoice.id,
+          amount: invoice.totalAmount,
+        });
+      } else {
+        return res.status(503).json({ message: 'No payment service is configured' });
       }
-
-      const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
-
-      res.json({
-        clientSecret: paymentIntent.client_secret,
-        invoiceId: invoice.id,
-        amount: invoice.totalAmount,
-      });
     } catch (error) {
       console.error('Manual invoice payment error:', error);
       res.status(500).json({ message: 'Failed to create payment intent' });
     }
   });
 
-  // Confirm manual invoice payment (called after Stripe payment succeeds)
+  // Confirm manual invoice payment - supports both Stripe and Square
   app.post('/api/passenger/invoices/:id/confirm-payment', isAuthenticated, async (req: any, res) => {
     try {
-      if (!stripe) {
-        return res.status(503).json({ message: 'Payment service not configured' });
-      }
-
       const userId = req.user.id;
-      const { paymentIntentId } = req.body;
-      
-      if (!paymentIntentId) {
-        return res.status(400).json({ message: 'Payment intent ID is required' });
-      }
+      const { paymentIntentId, sourceId, provider } = req.body;
 
       const invoice = await storage.getInvoice(req.params.id);
       if (!invoice) {
@@ -4161,6 +4173,69 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
       // Check if already paid
       if (invoice.paidAt) {
         return res.json({ message: 'Invoice already marked as paid', invoice });
+      }
+
+      const amount = Math.round(parseFloat(invoice.totalAmount) * 100);
+
+      // Handle Square payment
+      if (provider === 'square' || sourceId) {
+        if (!sourceId) {
+          return res.status(400).json({ message: 'Source ID is required for Square payment' });
+        }
+
+        if (!isSquareConfigured()) {
+          return res.status(503).json({ message: 'Square payment is not configured' });
+        }
+
+        try {
+          const result = await createSquarePayment(
+            sourceId,
+            amount,
+            'USD',
+            {
+              invoiceId: invoice.id,
+              bookingId: invoice.bookingId,
+              passengerId: userId,
+            }
+          );
+
+          if (result.status === 'COMPLETED') {
+            // Update invoice as paid
+            const updatedInvoice = await storage.updateInvoice(invoice.id, {
+              paidAt: new Date(),
+            });
+
+            // Update booking payment status
+            await storage.updateBookingPayment(
+              invoice.bookingId,
+              result.paymentId,
+              'paid'
+            );
+
+            return res.json({ 
+              message: 'Payment confirmed successfully', 
+              invoice: updatedInvoice,
+              receiptUrl: result.receiptUrl,
+            });
+          } else {
+            return res.status(400).json({ 
+              message: `Payment status: ${result.status}. Please try again.`,
+              paymentId: result.paymentId,
+            });
+          }
+        } catch (squareError: any) {
+          console.error('Square payment error:', squareError);
+          return res.status(400).json({ message: squareError.message || 'Square payment failed' });
+        }
+      }
+
+      // Handle Stripe payment (existing flow)
+      if (!paymentIntentId) {
+        return res.status(400).json({ message: 'Payment intent ID is required' });
+      }
+
+      if (!stripe) {
+        return res.status(503).json({ message: 'Stripe payment service not configured' });
       }
 
       // CRITICAL: Verify payment with Stripe before marking as paid
