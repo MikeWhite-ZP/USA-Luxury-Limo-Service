@@ -38,6 +38,12 @@
     }
   },
   "booking": {
+    "page": {
+      "title": "Réservez Votre",
+      "luxury": "Luxueux",
+      "titleEnd": "Transport",
+      "description": "Découvrez un confort premium et une fiabilité exceptionnelle avec nos services de chauffeur professionnel. Complétez les détails de votre réservation ci-dessous."
+    },
     "tabs": {
       "transfer": "Transfert Uniquement",
       "hourly": "À l'Heure"

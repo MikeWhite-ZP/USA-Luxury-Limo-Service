@@ -38,6 +38,12 @@
     }
   },
   "booking": {
+    "page": {
+      "title": "Prenota il Tuo",
+      "luxury": "Lussuoso",
+      "titleEnd": "Trasporto",
+      "description": "Sperimenta comfort premium e affidabilità con i nostri servizi di autista professionale. Completa i dettagli della tua prenotazione qui sotto."
+    },
     "tabs": {
       "transfer": "Solo Trasferimento",
       "hourly": "A Ore"

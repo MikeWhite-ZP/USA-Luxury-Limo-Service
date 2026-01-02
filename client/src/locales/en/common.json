@@ -39,6 +39,12 @@
   },
   "booking": {
     "title": "Book Your Ride",
+    "page": {
+      "title": "Book Your",
+      "luxury": "Luxury",
+      "titleEnd": "Transportation",
+      "description": "Experience premium comfort and reliability with our professional chauffeur services. Complete your booking details below."
+    },
     "newBooking": "New Booking",
     "myBookings": "My Bookings",
     "bookingDetails": "Booking Details",

@@ -38,6 +38,12 @@
     }
   },
   "booking": {
+    "page": {
+      "title": "Reserve su",
+      "luxury": "Lujoso",
+      "titleEnd": "Transporte",
+      "description": "Experimente comodidad premium y confiabilidad con nuestros servicios profesionales de chófer. Complete los detalles de su reserva a continuación."
+    },
     "tabs": {
       "transfer": "Solo Traslado",
       "hourly": "Por Hora"

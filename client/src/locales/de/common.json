@@ -38,6 +38,12 @@
     }
   },
   "booking": {
+    "page": {
+      "title": "Buchen Sie Ihren",
+      "luxury": "Luxuriösen",
+      "titleEnd": "Transport",
+      "description": "Erleben Sie Premium-Komfort und Zuverlässigkeit mit unseren professionellen Chauffeur-Services. Vervollständigen Sie Ihre Buchungsdetails unten."
+    },
     "tabs": {
       "transfer": "Nur Transfer",
       "hourly": "Stundenweise"

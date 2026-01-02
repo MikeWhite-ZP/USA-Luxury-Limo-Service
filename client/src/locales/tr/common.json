@@ -38,6 +38,12 @@
     }
   },
   "booking": {
+    "page": {
+      "title": "Rezerve Edin",
+      "luxury": "Lüks",
+      "titleEnd": "Ulaşımınızı",
+      "description": "Profesyonel şoför hizmetlerimizle premium konfor ve güvenilirliği deneyimleyin. Rezervasyon detaylarınızı aşağıdan tamamlayın."
+    },
     "tabs": {
       "transfer": "Sadece Transfer",
       "hourly": "Saatlik"
