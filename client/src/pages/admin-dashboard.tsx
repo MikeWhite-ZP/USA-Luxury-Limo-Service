@@ -10046,6 +10046,20 @@ export default function AdminDashboard() {
                     flightArrivalAirport:
                       bookingFormData.flightArrivalAirport || undefined,
                     paymentMethod: bookingFormData.paymentMethod,
+                    adminDiscount: bookingFormData.adminDiscount || undefined,
+                    discountPercentage: bookingFormData.discountPercentage || undefined,
+                    discountAmount: bookingFormData.discountAmount || undefined,
+                    regularPrice: bookingFormData.regularPrice || undefined,
+                    baseFare: bookingFormData.baseFare || undefined,
+                    gratuityAmount: bookingFormData.gratuityAmount || undefined,
+                    airportFeeAmount: bookingFormData.airportFeeAmount || undefined,
+                    surgePricingMultiplier: bookingFormData.surgePricingMultiplier || undefined,
+                    surgePricingAmount: bookingFormData.surgePricingAmount || undefined,
+                    requestedHours: bookingFormData.bookingType === "hourly" ? bookingFormData.requestedHours : undefined,
+                    viaPoints: bookingFormData.viaPoints?.length > 0 ? bookingFormData.viaPoints : undefined,
+                    pickupCoords: bookingFormData.pickupCoords || undefined,
+                    destinationCoords: bookingFormData.destinationCoords || undefined,
+                    customPriceItems: bookingFormData.customPriceItems?.length > 0 ? bookingFormData.customPriceItems : undefined,
                   };
                   saveBookingMutation.mutate(bookingData);
                 }}
