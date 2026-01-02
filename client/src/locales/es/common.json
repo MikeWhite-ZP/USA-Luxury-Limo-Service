@@ -6,6 +6,11 @@
     "description": "Experimente una comodidad y confiabilidad incomparables con nuestros servicios profesionales de chófer. Disponible 24/7 para todas sus necesidades de transporte.",
     "viewFleet": "Ver Flota"
   },
+  "services": {
+    "title": "Nuestros Servicios Premium",
+    "description": "Desde traslados al aeropuerto hasta eventos especiales, ofrecemos soluciones de transporte de lujo adaptadas a sus necesidades.",
+    "loadError": "No se pudieron cargar los servicios. Por favor, inténtelo de nuevo."
+  },
   "nav": {
     "home": "Inicio",
     "book": "Reservar un Viaje",
@@ -23,6 +28,7 @@
   },
   "common": {
     "loading": "Cargando...",
+    "retry": "Reintentar",
     "error": "Error",
     "success": "Éxito",
     "save": "Guardar",

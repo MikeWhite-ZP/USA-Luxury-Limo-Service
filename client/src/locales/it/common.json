@@ -6,6 +6,11 @@
     "description": "Sperimenta comfort e affidabilità senza pari con i nostri servizi di autista professionali. Disponibile 24 ore su 24, 7 giorni su 7 per tutte le tue esigenze di trasporto.",
     "viewFleet": "Vedi Flotta"
   },
+  "services": {
+    "title": "I Nostri Servizi Premium",
+    "description": "Dai trasferimenti aeroportuali agli eventi speciali, offriamo soluzioni di trasporto di lusso su misura per le tue esigenze.",
+    "loadError": "Impossibile caricare i servizi. Per favore riprova."
+  },
   "nav": {
     "home": "Home",
     "book": "Prenota un Viaggio",
@@ -23,6 +28,7 @@
   },
   "common": {
     "loading": "Caricamento...",
+    "retry": "Riprova",
     "error": "Errore",
     "success": "Successo",
     "save": "Salva",

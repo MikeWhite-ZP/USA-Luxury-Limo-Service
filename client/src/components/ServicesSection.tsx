@@ -1,6 +1,7 @@
 import { Plane, Briefcase, Heart, Clock, Car, Users, Star, Shield, Calendar, MapPin, type LucideIcon } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ServiceSelect } from "@shared/schema";
@@ -23,6 +24,7 @@ const iconMap: Record<string, LucideIcon> = {
 const defaultGradient = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
 
 export default function ServicesSection() {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   
   // Fetch services from API
@@ -36,10 +38,10 @@ export default function ServicesSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4" data-testid="services-title">
-            Our Premium Services
+            {t('services.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto" data-testid="services-description">
-            From airport transfers to special events, we provide luxury transportation solutions tailored to your needs.
+            {t('services.description')}
           </p>
         </div>
 
@@ -59,14 +61,14 @@ export default function ServicesSection() {
           <div className="max-w-md mx-auto text-center">
             <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6">
               <p className="text-destructive font-medium mb-4" data-testid="services-error">
-                Unable to load services. Please try again.
+                {t('services.loadError')}
               </p>
               <Button 
                 onClick={() => refetch()} 
                 variant="outline"
                 data-testid="button-retry-services"
               >
-                Retry
+                {t('common.retry')}
               </Button>
             </div>
           </div>

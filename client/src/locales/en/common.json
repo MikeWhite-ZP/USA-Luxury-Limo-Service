@@ -6,6 +6,11 @@
     "description": "Experience unparalleled comfort and reliability with our professional chauffeur services. Available 24/7 for all your transportation needs.",
     "viewFleet": "View Fleet"
   },
+  "services": {
+    "title": "Our Premium Services",
+    "description": "From airport transfers to special events, we provide luxury transportation solutions tailored to your needs.",
+    "loadError": "Unable to load services. Please try again."
+  },
   "nav": {
     "home": "Home",
     "book": "Book a Ride",
@@ -23,6 +28,7 @@
   },
   "common": {
     "loading": "Loading...",
+    "retry": "Retry",
     "error": "Error",
     "success": "Success",
     "save": "Save",

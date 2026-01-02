@@ -6,6 +6,11 @@
     "description": "Découvrez un confort et une fiabilité inégalés avec nos services de chauffeur professionnel. Disponible 24h/24 et 7j/7 pour tous vos besoins de transport.",
     "viewFleet": "Voir la Flotte"
   },
+  "services": {
+    "title": "Nos Services Premium",
+    "description": "Des transferts aéroport aux événements spéciaux, nous proposons des solutions de transport de luxe adaptées à vos besoins.",
+    "loadError": "Impossible de charger les services. Veuillez réessayer."
+  },
   "nav": {
     "home": "Accueil",
     "book": "Réserver un Trajet",
@@ -23,6 +28,7 @@
   },
   "common": {
     "loading": "Chargement...",
+    "retry": "Réessayer",
     "error": "Erreur",
     "success": "Succès",
     "save": "Enregistrer",

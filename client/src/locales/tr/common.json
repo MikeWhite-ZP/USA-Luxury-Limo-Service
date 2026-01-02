@@ -6,6 +6,11 @@
     "description": "Profesyonel şoför hizmetlerimizle eşsiz konfor ve güvenilirliği deneyimleyin. Tüm ulaşım ihtiyaçlarınız için 7/24 hizmetinizdeyiz.",
     "viewFleet": "Filoyu Görüntüle"
   },
+  "services": {
+    "title": "Premium Hizmetlerimiz",
+    "description": "Havalimanı transferlerinden özel etkinliklere kadar, ihtiyaçlarınıza uygun lüks ulaşım çözümleri sunuyoruz.",
+    "loadError": "Hizmetler yüklenemedi. Lütfen tekrar deneyin."
+  },
   "nav": {
     "home": "Ana Sayfa",
     "book": "Yolculuk Rezervasyonu",
@@ -23,6 +28,7 @@
   },
   "common": {
     "loading": "Yükleniyor...",
+    "retry": "Tekrar Dene",
     "error": "Hata",
     "success": "Başarılı",
     "save": "Kaydet",

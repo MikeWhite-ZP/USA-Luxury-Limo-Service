@@ -6,6 +6,11 @@
     "description": "Erleben Sie unvergleichlichen Komfort und Zuverlässigkeit mit unseren professionellen Chauffeur-Services. 24/7 für alle Ihre Transportbedürfnisse verfügbar.",
     "viewFleet": "Flotte ansehen"
   },
+  "services": {
+    "title": "Unsere Premium-Dienste",
+    "description": "Von Flughafentransfers bis zu besonderen Veranstaltungen bieten wir luxuriöse Transportlösungen, die auf Ihre Bedürfnisse zugeschnitten sind.",
+    "loadError": "Dienste konnten nicht geladen werden. Bitte versuchen Sie es erneut."
+  },
   "nav": {
     "home": "Startseite",
     "book": "Fahrt Buchen",
@@ -23,6 +28,7 @@
   },
   "common": {
     "loading": "Laden...",
+    "retry": "Erneut versuchen",
     "error": "Fehler",
     "success": "Erfolg",
     "save": "Speichern",
