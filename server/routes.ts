@@ -18,6 +18,7 @@ import { S3Client, HeadBucketCommand, ListBucketsCommand } from "@aws-sdk/client
 import { strictAuthRateLimit, moderateAuthRateLimit } from "./authMiddleware";
 import androidSmsGateway from "./android-sms-gateway";
 import androidSmsAdminRoutes from "./android-sms-gateway/adminRoutes";
+import { initializeSquare, isSquareConfigured, getSquareConfig, createSquarePayment, getSquarePayment, clearSquareClient } from "./square";
 
 // Initialize Stripe only if secret key is available
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -26,6 +27,49 @@ const stripe = process.env.STRIPE_SECRET_KEY
 
 if (!stripe) {
   console.warn('[STRIPE] Warning: STRIPE_SECRET_KEY not configured. Payment features will be disabled.');
+}
+
+// Track active payment provider
+let activePaymentProvider: 'stripe' | 'square' | 'paypal' | null = null;
+
+/**
+ * Initialize the active payment provider from database
+ */
+async function initializeActivePaymentProvider(): Promise<void> {
+  try {
+    const activeSystem = await storage.getActivePaymentSystem();
+    if (!activeSystem) {
+      console.log('[PAYMENT] No active payment system configured');
+      return;
+    }
+
+    activePaymentProvider = activeSystem.provider as 'stripe' | 'square' | 'paypal';
+    console.log(`[PAYMENT] Active payment provider: ${activePaymentProvider}`);
+
+    if (activePaymentProvider === 'square' && activeSystem.secretKey) {
+      // For Square: publicKey = applicationId, secretKey = accessToken, config.locationId = locationId
+      const config = activeSystem.config as { locationId?: string } | null;
+      const locationId = config?.locationId || '';
+      const applicationId = activeSystem.publicKey || '';
+      
+      if (activeSystem.secretKey && locationId && applicationId) {
+        initializeSquare(activeSystem.secretKey, locationId, applicationId, false);
+      } else {
+        console.warn('[SQUARE] Missing required credentials (accessToken, locationId, or applicationId)');
+      }
+    }
+  } catch (error) {
+    console.error('[PAYMENT] Failed to initialize payment provider:', error);
+  }
+}
+
+/**
+ * Refresh payment provider when credentials are updated
+ */
+async function refreshPaymentProvider(): Promise<void> {
+  clearSquareClient();
+  activePaymentProvider = null;
+  await initializeActivePaymentProvider();
 }
 
 // Initialize Object Storage adapter lazily (on first use) to avoid startup errors
@@ -373,6 +417,9 @@ async function calculateRoute(fromCoords: {lat: number, lon: number}, toCoords: 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+
+  // Initialize active payment provider from database
+  await initializeActivePaymentProvider();
 
   // Admin hostname validation - restrict admin panel to specific subdomains
   // This applies to ALL /api/admin/* routes for security
@@ -8477,6 +8524,11 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
         return res.status(404).json({ message: 'Payment system not found' });
       }
       
+      // Refresh payment provider if the updated system is the active one
+      if (updatedSystem.isActive) {
+        await refreshPaymentProvider();
+      }
+      
       // Sanitize response - never return raw credentials
       const sanitizedSystem = {
         ...updatedSystem,
@@ -8502,10 +8554,51 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
       }
 
       await storage.setActivePaymentSystem(req.params.provider);
+      
+      // Refresh the payment provider to use the new active system
+      await refreshPaymentProvider();
+      
       res.json({ success: true });
     } catch (error) {
       console.error('Set active payment system error:', error);
       res.status(500).json({ message: 'Failed to set active payment system' });
+    }
+  });
+
+  // Get payment configuration for frontend (public endpoint)
+  app.get('/api/payment-config', async (req, res) => {
+    try {
+      const activeSystem = await storage.getActivePaymentSystem();
+      
+      if (!activeSystem) {
+        return res.json({ provider: null, configured: false });
+      }
+
+      const provider = activeSystem.provider;
+      
+      if (provider === 'stripe') {
+        // Return Stripe publishable key
+        res.json({
+          provider: 'stripe',
+          configured: !!activeSystem.publicKey,
+          publishableKey: activeSystem.publicKey || null,
+        });
+      } else if (provider === 'square') {
+        // Return Square application ID and location ID for Web Payments SDK
+        const config = activeSystem.config as { locationId?: string } | null;
+        res.json({
+          provider: 'square',
+          configured: !!(activeSystem.publicKey && activeSystem.secretKey && config?.locationId),
+          applicationId: activeSystem.publicKey || null,
+          locationId: config?.locationId || null,
+          environment: 'sandbox', // TODO: Add production flag to config
+        });
+      } else {
+        res.json({ provider, configured: false });
+      }
+    } catch (error) {
+      console.error('Get payment config error:', error);
+      res.status(500).json({ message: 'Failed to get payment config' });
     }
   });
 
@@ -9316,34 +9409,120 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
   // Stripe payment routes
   app.post("/api/create-payment-intent", isAuthenticated, async (req: any, res) => {
     try {
-      if (!stripe) {
-        return res.status(503).json({ message: 'Payment service not configured' });
-      }
-      
       const { amount, bookingId } = req.body;
       
       if (!amount || amount <= 0) {
         return res.status(400).json({ error: 'Valid amount is required' });
       }
 
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: "usd",
-        metadata: {
-          bookingId: bookingId || '',
-          userId: req.user.id,
-        },
-      });
-
-      // Update booking with payment intent if bookingId provided
-      if (bookingId) {
-        await storage.updateBookingPayment(bookingId, paymentIntent.id, 'pending');
+      // Get the active payment system
+      const activeSystem = await storage.getActivePaymentSystem();
+      
+      if (!activeSystem) {
+        return res.status(503).json({ message: 'No payment system configured' });
       }
 
-      res.json({ clientSecret: paymentIntent.client_secret });
+      const provider = activeSystem.provider;
+
+      if (provider === 'stripe') {
+        if (!stripe) {
+          return res.status(503).json({ message: 'Stripe is not properly configured' });
+        }
+
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: Math.round(amount * 100), // Convert to cents
+          currency: "usd",
+          metadata: {
+            bookingId: bookingId || '',
+            userId: req.user.id,
+          },
+        });
+
+        // Update booking with payment intent if bookingId provided
+        if (bookingId) {
+          await storage.updateBookingPayment(bookingId, paymentIntent.id, 'pending');
+        }
+
+        res.json({ 
+          provider: 'stripe',
+          clientSecret: paymentIntent.client_secret 
+        });
+
+      } else if (provider === 'square') {
+        if (!isSquareConfigured()) {
+          return res.status(503).json({ message: 'Square is not properly configured' });
+        }
+
+        // For Square, we return configuration for the frontend to complete payment
+        // The actual payment is created when the frontend sends the source token
+        const squareConfig = getSquareConfig();
+        res.json({ 
+          provider: 'square',
+          applicationId: squareConfig?.applicationId,
+          locationId: squareConfig?.locationId,
+          environment: squareConfig?.environment,
+          amount: Math.round(amount * 100),
+          bookingId: bookingId || '',
+        });
+
+      } else {
+        return res.status(503).json({ message: `Payment provider '${provider}' is not supported` });
+      }
     } catch (error: any) {
       console.error('Payment intent error:', error);
       res.status(500).json({ message: "Error creating payment intent: " + error.message });
+    }
+  });
+
+  // Square payment completion endpoint
+  app.post("/api/square-payment", isAuthenticated, async (req: any, res) => {
+    try {
+      const { sourceId, amount, bookingId } = req.body;
+      
+      if (!sourceId) {
+        return res.status(400).json({ error: 'Payment source token is required' });
+      }
+      
+      if (!amount || amount <= 0) {
+        return res.status(400).json({ error: 'Valid amount is required' });
+      }
+
+      if (!isSquareConfigured()) {
+        return res.status(503).json({ message: 'Square payment is not configured' });
+      }
+
+      const result = await createSquarePayment(
+        sourceId,
+        Math.round(amount * 100), // Convert to cents
+        'USD',
+        {
+          bookingId: bookingId || '',
+          userId: req.user.id,
+        }
+      );
+
+      if (result.status === 'COMPLETED') {
+        // Update booking with payment info
+        if (bookingId) {
+          await storage.updateBookingPayment(bookingId, result.paymentId, 'paid');
+        }
+
+        res.json({ 
+          success: true,
+          paymentId: result.paymentId,
+          status: result.status,
+          receiptUrl: result.receiptUrl,
+        });
+      } else {
+        res.status(400).json({ 
+          success: false,
+          message: `Payment status: ${result.status}`,
+          paymentId: result.paymentId,
+        });
+      }
+    } catch (error: any) {
+      console.error('Square payment error:', error);
+      res.status(500).json({ message: error.message || 'Square payment failed' });
     }
   });
 
