@@ -121,7 +121,7 @@ export function CompletedRideSummaryDialog({
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 text-right">
               <h3 className="font-semibold text-sm flex items-center gap-2 text-foreground">
                 <Car className="w-4 h-4 text-purple-600" />
                 Driver & Vehicle
