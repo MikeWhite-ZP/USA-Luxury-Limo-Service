@@ -37,6 +37,49 @@
       "description": "Complimentary WiFi, refreshments, and luxury amenities in every vehicle."
     }
   },
+  "contact": {
+    "title": "Get in Touch",
+    "description": "Have questions about our services? Need a custom transportation solution? We're here to help.",
+    "info": {
+      "title": "Contact Information",
+      "phone": "Phone",
+      "email": "Email",
+      "contactForDetails": "Contact us for details",
+      "phoneAvailability": "Available 24/7 for bookings and support",
+      "emailResponse": "We'll respond within 12 hours"
+    },
+    "form": {
+      "title": "Send us a Message",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "John",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "Doe",
+      "email": "Email",
+      "emailPlaceholder": "john@example.com",
+      "phone": "Phone",
+      "phonePlaceholder": "+1 (555) 123-4567",
+      "serviceType": "Service Type",
+      "selectService": "Select a service",
+      "services": {
+        "airport": "Airport Transfer",
+        "corporate": "Corporate Travel",
+        "events": "Special Events",
+        "hourly": "Hourly Service",
+        "other": "Other"
+      },
+      "message": "Message",
+      "messagePlaceholder": "Tell us about your transportation needs...",
+      "sending": "Sending...",
+      "sendMessage": "Send Message"
+    },
+    "toast": {
+      "successTitle": "Message Sent",
+      "successDescription": "Thank you for your message! We'll get back to you within 12 hours.",
+      "errorDescription": "Failed to send message. Please try again.",
+      "missingTitle": "Missing Information",
+      "missingDescription": "Please fill in all required fields."
+    }
+  },
   "nav": {
     "home": "Home",
     "book": "Book a Ride",

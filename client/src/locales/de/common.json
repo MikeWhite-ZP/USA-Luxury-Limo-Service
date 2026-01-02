@@ -37,6 +37,49 @@
       "description": "Kostenloses WLAN, Erfrischungen und Luxus-Annehmlichkeiten in jedem Fahrzeug."
     }
   },
+  "contact": {
+    "title": "Kontaktieren Sie uns",
+    "description": "Haben Sie Fragen zu unseren Dienstleistungen? Benötigen Sie eine maßgeschneiderte Transportlösung? Wir sind hier, um zu helfen.",
+    "info": {
+      "title": "Kontaktinformationen",
+      "phone": "Telefon",
+      "email": "E-Mail",
+      "contactForDetails": "Kontaktieren Sie uns für Details",
+      "phoneAvailability": "24/7 für Buchungen und Support erreichbar",
+      "emailResponse": "Wir antworten innerhalb von 12 Stunden"
+    },
+    "form": {
+      "title": "Senden Sie uns eine Nachricht",
+      "firstName": "Vorname",
+      "firstNamePlaceholder": "Max",
+      "lastName": "Nachname",
+      "lastNamePlaceholder": "Mustermann",
+      "email": "E-Mail",
+      "emailPlaceholder": "max@beispiel.de",
+      "phone": "Telefon",
+      "phonePlaceholder": "+49 30 12345678",
+      "serviceType": "Dienstleistungsart",
+      "selectService": "Wählen Sie einen Service",
+      "services": {
+        "airport": "Flughafentransfer",
+        "corporate": "Geschäftsreisen",
+        "events": "Besondere Veranstaltungen",
+        "hourly": "Stundenservice",
+        "other": "Sonstiges"
+      },
+      "message": "Nachricht",
+      "messagePlaceholder": "Erzählen Sie uns von Ihren Transportbedürfnissen...",
+      "sending": "Wird gesendet...",
+      "sendMessage": "Nachricht senden"
+    },
+    "toast": {
+      "successTitle": "Nachricht gesendet",
+      "successDescription": "Vielen Dank für Ihre Nachricht! Wir melden uns innerhalb von 12 Stunden bei Ihnen.",
+      "errorDescription": "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+      "missingTitle": "Fehlende Informationen",
+      "missingDescription": "Bitte füllen Sie alle Pflichtfelder aus."
+    }
+  },
   "nav": {
     "home": "Startseite",
     "book": "Fahrt Buchen",

@@ -37,6 +37,49 @@
       "description": "Her araçta ücretsiz WiFi, içecekler ve lüks olanaklar."
     }
   },
+  "contact": {
+    "title": "Bize Ulaşın",
+    "description": "Hizmetlerimiz hakkında sorularınız mı var? Özel bir ulaşım çözümüne mi ihtiyacınız var? Size yardımcı olmak için buradayız.",
+    "info": {
+      "title": "İletişim Bilgileri",
+      "phone": "Telefon",
+      "email": "E-posta",
+      "contactForDetails": "Detaylar için bizimle iletişime geçin",
+      "phoneAvailability": "Rezervasyon ve destek için 7/24 hizmetinizdeyiz",
+      "emailResponse": "12 saat içinde yanıt vereceğiz"
+    },
+    "form": {
+      "title": "Bize Mesaj Gönderin",
+      "firstName": "Ad",
+      "firstNamePlaceholder": "Ahmet",
+      "lastName": "Soyad",
+      "lastNamePlaceholder": "Yılmaz",
+      "email": "E-posta",
+      "emailPlaceholder": "ahmet@ornek.com",
+      "phone": "Telefon",
+      "phonePlaceholder": "+90 (555) 123-4567",
+      "serviceType": "Hizmet Türü",
+      "selectService": "Bir hizmet seçin",
+      "services": {
+        "airport": "Havalimanı Transferi",
+        "corporate": "Kurumsal Seyahat",
+        "events": "Özel Etkinlikler",
+        "hourly": "Saatlik Hizmet",
+        "other": "Diğer"
+      },
+      "message": "Mesaj",
+      "messagePlaceholder": "Ulaşım ihtiyaçlarınızı bize anlatın...",
+      "sending": "Gönderiliyor...",
+      "sendMessage": "Mesaj Gönder"
+    },
+    "toast": {
+      "successTitle": "Mesaj Gönderildi",
+      "successDescription": "Mesajınız için teşekkürler! 12 saat içinde size geri döneceğiz.",
+      "errorDescription": "Mesaj gönderilemedi. Lütfen tekrar deneyin.",
+      "missingTitle": "Eksik Bilgi",
+      "missingDescription": "Lütfen tüm gerekli alanları doldurun."
+    }
+  },
   "nav": {
     "home": "Ana Sayfa",
     "book": "Yolculuk Rezervasyonu",

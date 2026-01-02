@@ -37,6 +37,49 @@
       "description": "WiFi gratuito, refrescos y comodidades de lujo en cada vehículo."
     }
   },
+  "contact": {
+    "title": "Contáctenos",
+    "description": "¿Tiene preguntas sobre nuestros servicios? ¿Necesita una solución de transporte personalizada? Estamos aquí para ayudarle.",
+    "info": {
+      "title": "Información de Contacto",
+      "phone": "Teléfono",
+      "email": "Correo Electrónico",
+      "contactForDetails": "Contáctenos para más detalles",
+      "phoneAvailability": "Disponible 24/7 para reservas y soporte",
+      "emailResponse": "Responderemos en 12 horas"
+    },
+    "form": {
+      "title": "Envíenos un Mensaje",
+      "firstName": "Nombre",
+      "firstNamePlaceholder": "Juan",
+      "lastName": "Apellido",
+      "lastNamePlaceholder": "García",
+      "email": "Correo Electrónico",
+      "emailPlaceholder": "juan@ejemplo.com",
+      "phone": "Teléfono",
+      "phonePlaceholder": "+1 (555) 123-4567",
+      "serviceType": "Tipo de Servicio",
+      "selectService": "Seleccione un servicio",
+      "services": {
+        "airport": "Traslado al Aeropuerto",
+        "corporate": "Viajes Corporativos",
+        "events": "Eventos Especiales",
+        "hourly": "Servicio por Hora",
+        "other": "Otro"
+      },
+      "message": "Mensaje",
+      "messagePlaceholder": "Cuéntenos sobre sus necesidades de transporte...",
+      "sending": "Enviando...",
+      "sendMessage": "Enviar Mensaje"
+    },
+    "toast": {
+      "successTitle": "Mensaje Enviado",
+      "successDescription": "¡Gracias por su mensaje! Le responderemos en 12 horas.",
+      "errorDescription": "Error al enviar el mensaje. Por favor, inténtelo de nuevo.",
+      "missingTitle": "Información Faltante",
+      "missingDescription": "Por favor, complete todos los campos requeridos."
+    }
+  },
   "nav": {
     "home": "Inicio",
     "book": "Reservar un Viaje",

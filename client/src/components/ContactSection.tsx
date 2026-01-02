@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,7 @@ import { Phone, Mail } from "lucide-react";
 import { useBranding } from "@/hooks/useBranding";
 
 export default function ContactSection() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { contactEmail, contactPhone } = useBranding();
   const [formData, setFormData] = useState({
@@ -29,8 +31,8 @@ export default function ContactSection() {
     },
     onSuccess: () => {
       toast({
-        title: "Message Sent",
-        description: "Thank you for your message! We'll get back to you within 12 hours.",
+        title: t('contact.toast.successTitle'),
+        description: t('contact.toast.successDescription'),
       });
       setFormData({
         firstName: '',
@@ -43,8 +45,8 @@ export default function ContactSection() {
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to send message. Please try again.",
+        title: t('common.error'),
+        description: error.message || t('contact.toast.errorDescription'),
         variant: "destructive",
       });
     },
@@ -55,8 +57,8 @@ export default function ContactSection() {
     
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.message) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
+        title: t('contact.toast.missingTitle'),
+        description: t('contact.toast.missingDescription'),
         variant: "destructive",
       });
       return;
@@ -74,10 +76,10 @@ export default function ContactSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4" data-testid="contact-title">
-            Get in Touch
+            {t('contact.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto" data-testid="contact-description">
-            Have questions about our services? Need a custom transportation solution? We're here to help.
+            {t('contact.description')}
           </p>
         </div>
 
@@ -85,7 +87,7 @@ export default function ContactSection() {
           {/* Contact Information - On Top */}
           <div>
             <h3 className="text-2xl font-semibold text-foreground mb-8 text-center" data-testid="contact-info-title">
-              Contact Information
+              {t('contact.info.title')}
             </h3>
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <div className="flex items-start space-x-4" data-testid="contact-phone">
@@ -93,13 +95,13 @@ export default function ContactSection() {
                   <Phone className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground">Phone</h4>
+                  <h4 className="font-semibold text-foreground">{t('contact.info.phone')}</h4>
                   {contactPhone ? (
                     <a href={`tel:${contactPhone.replace(/[^\d+]/g, '')}`} className="text-muted-foreground hover:text-primary">{contactPhone}</a>
                   ) : (
-                    <p className="text-muted-foreground">Contact us for details</p>
+                    <p className="text-muted-foreground">{t('contact.info.contactForDetails')}</p>
                   )}
-                  <p className="text-sm text-muted-foreground">Available 24/7 for bookings and support</p>
+                  <p className="text-sm text-muted-foreground">{t('contact.info.phoneAvailability')}</p>
                 </div>
               </div>
 
@@ -108,13 +110,13 @@ export default function ContactSection() {
                   <Mail className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground">Email</h4>
+                  <h4 className="font-semibold text-foreground">{t('contact.info.email')}</h4>
                   {contactEmail ? (
                     <a href={`mailto:${contactEmail}`} className="text-muted-foreground hover:text-primary">{contactEmail}</a>
                   ) : (
-                    <p className="text-muted-foreground">Contact us for details</p>
+                    <p className="text-muted-foreground">{t('contact.info.contactForDetails')}</p>
                   )}
-                  <p className="text-sm text-muted-foreground">We'll respond within 12 hours</p>
+                  <p className="text-sm text-muted-foreground">{t('contact.info.emailResponse')}</p>
                 </div>
               </div>
             </div>
@@ -123,80 +125,80 @@ export default function ContactSection() {
           {/* Contact Form - Below */}
           <div className="bg-card rounded-xl p-8 shadow-lg border border-border max-w-4xl mx-auto">
             <h3 className="text-2xl font-semibold text-card-foreground mb-6" data-testid="contact-form-title">
-              Send us a Message
+              {t('contact.form.title')}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName">First Name *</Label>
+                  <Label htmlFor="firstName">{t('contact.form.firstName')} *</Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
                     onChange={(e) => handleInputChange('firstName', e.target.value)}
-                    placeholder="John"
+                    placeholder={t('contact.form.firstNamePlaceholder')}
                     data-testid="input-first-name"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Label htmlFor="lastName">{t('contact.form.lastName')} *</Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
                     onChange={(e) => handleInputChange('lastName', e.target.value)}
-                    placeholder="Doe"
+                    placeholder={t('contact.form.lastNamePlaceholder')}
                     data-testid="input-last-name"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="email">Email *</Label>
+                <Label htmlFor="email">{t('contact.form.email')} *</Label>
                 <Input
                   id="email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="john@example.com"
+                  placeholder={t('contact.form.emailPlaceholder')}
                   data-testid="input-email"
                 />
               </div>
 
               <div>
-                <Label htmlFor="phone">Phone</Label>
+                <Label htmlFor="phone">{t('contact.form.phone')}</Label>
                 <Input
                   id="phone"
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="+1 (555) 123-4567"
+                  placeholder={t('contact.form.phonePlaceholder')}
                   data-testid="input-phone"
                 />
               </div>
 
               <div>
-                <Label htmlFor="serviceType">Service Type</Label>
+                <Label htmlFor="serviceType">{t('contact.form.serviceType')}</Label>
                 <Select value={formData.serviceType} onValueChange={(value) => handleInputChange('serviceType', value)}>
                   <SelectTrigger data-testid="select-service-type">
-                    <SelectValue placeholder="Select a service" />
+                    <SelectValue placeholder={t('contact.form.selectService')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="airport">Airport Transfer</SelectItem>
-                    <SelectItem value="corporate">Corporate Travel</SelectItem>
-                    <SelectItem value="events">Special Events</SelectItem>
-                    <SelectItem value="hourly">Hourly Service</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="airport">{t('contact.form.services.airport')}</SelectItem>
+                    <SelectItem value="corporate">{t('contact.form.services.corporate')}</SelectItem>
+                    <SelectItem value="events">{t('contact.form.services.events')}</SelectItem>
+                    <SelectItem value="hourly">{t('contact.form.services.hourly')}</SelectItem>
+                    <SelectItem value="other">{t('contact.form.services.other')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="message">Message *</Label>
+                <Label htmlFor="message">{t('contact.form.message')} *</Label>
                 <Textarea
                   id="message"
                   rows={4}
                   value={formData.message}
                   onChange={(e) => handleInputChange('message', e.target.value)}
-                  placeholder="Tell us about your transportation needs..."
+                  placeholder={t('contact.form.messagePlaceholder')}
                   data-testid="input-message"
                 />
               </div>
@@ -207,7 +209,7 @@ export default function ContactSection() {
                 className="w-full"
                 data-testid="button-submit-contact"
               >
-                {contactMutation.isPending ? 'Sending...' : 'Send Message'}
+                {contactMutation.isPending ? t('contact.form.sending') : t('contact.form.sendMessage')}
               </Button>
             </form>
           </div>

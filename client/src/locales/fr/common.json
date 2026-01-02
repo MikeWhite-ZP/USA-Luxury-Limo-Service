@@ -37,6 +37,49 @@
       "description": "WiFi gratuit, rafraîchissements et équipements de luxe dans chaque véhicule."
     }
   },
+  "contact": {
+    "title": "Contactez-nous",
+    "description": "Vous avez des questions sur nos services ? Besoin d'une solution de transport personnalisée ? Nous sommes là pour vous aider.",
+    "info": {
+      "title": "Informations de Contact",
+      "phone": "Téléphone",
+      "email": "E-mail",
+      "contactForDetails": "Contactez-nous pour plus de détails",
+      "phoneAvailability": "Disponible 24h/24 pour les réservations et le support",
+      "emailResponse": "Nous répondrons sous 12 heures"
+    },
+    "form": {
+      "title": "Envoyez-nous un Message",
+      "firstName": "Prénom",
+      "firstNamePlaceholder": "Jean",
+      "lastName": "Nom",
+      "lastNamePlaceholder": "Dupont",
+      "email": "E-mail",
+      "emailPlaceholder": "jean@exemple.com",
+      "phone": "Téléphone",
+      "phonePlaceholder": "+33 1 23 45 67 89",
+      "serviceType": "Type de Service",
+      "selectService": "Sélectionnez un service",
+      "services": {
+        "airport": "Transfert Aéroport",
+        "corporate": "Voyage d'Affaires",
+        "events": "Événements Spéciaux",
+        "hourly": "Service à l'Heure",
+        "other": "Autre"
+      },
+      "message": "Message",
+      "messagePlaceholder": "Parlez-nous de vos besoins de transport...",
+      "sending": "Envoi en cours...",
+      "sendMessage": "Envoyer le Message"
+    },
+    "toast": {
+      "successTitle": "Message Envoyé",
+      "successDescription": "Merci pour votre message ! Nous vous répondrons sous 12 heures.",
+      "errorDescription": "Échec de l'envoi du message. Veuillez réessayer.",
+      "missingTitle": "Informations Manquantes",
+      "missingDescription": "Veuillez remplir tous les champs obligatoires."
+    }
+  },
   "nav": {
     "home": "Accueil",
     "book": "Réserver un Trajet",

@@ -37,6 +37,49 @@
       "description": "WiFi gratuito, rinfreschi e comfort di lusso in ogni veicolo."
     }
   },
+  "contact": {
+    "title": "Contattaci",
+    "description": "Hai domande sui nostri servizi? Hai bisogno di una soluzione di trasporto personalizzata? Siamo qui per aiutarti.",
+    "info": {
+      "title": "Informazioni di Contatto",
+      "phone": "Telefono",
+      "email": "E-mail",
+      "contactForDetails": "Contattaci per i dettagli",
+      "phoneAvailability": "Disponibile 24/7 per prenotazioni e supporto",
+      "emailResponse": "Risponderemo entro 12 ore"
+    },
+    "form": {
+      "title": "Inviaci un Messaggio",
+      "firstName": "Nome",
+      "firstNamePlaceholder": "Mario",
+      "lastName": "Cognome",
+      "lastNamePlaceholder": "Rossi",
+      "email": "E-mail",
+      "emailPlaceholder": "mario@esempio.com",
+      "phone": "Telefono",
+      "phonePlaceholder": "+39 02 1234567",
+      "serviceType": "Tipo di Servizio",
+      "selectService": "Seleziona un servizio",
+      "services": {
+        "airport": "Trasferimento Aeroporto",
+        "corporate": "Viaggi Aziendali",
+        "events": "Eventi Speciali",
+        "hourly": "Servizio Orario",
+        "other": "Altro"
+      },
+      "message": "Messaggio",
+      "messagePlaceholder": "Parlaci delle tue esigenze di trasporto...",
+      "sending": "Invio in corso...",
+      "sendMessage": "Invia Messaggio"
+    },
+    "toast": {
+      "successTitle": "Messaggio Inviato",
+      "successDescription": "Grazie per il tuo messaggio! Ti risponderemo entro 12 ore.",
+      "errorDescription": "Impossibile inviare il messaggio. Per favore riprova.",
+      "missingTitle": "Informazioni Mancanti",
+      "missingDescription": "Per favore compila tutti i campi obbligatori."
+    }
+  },
   "nav": {
     "home": "Home",
     "book": "Prenota un Viaggio",
