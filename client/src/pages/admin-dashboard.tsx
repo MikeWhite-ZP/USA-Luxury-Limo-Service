@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -3845,6 +3846,7 @@ function extractCityState(address: string | null | undefined): string {
 }
 
 export default function AdminDashboard() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
@@ -6611,13 +6613,13 @@ export default function AdminDashboard() {
               <div className="bg-amber-500 p-1.5 rounded-md">
                 <DollarSign className="h-3.5 w-3.5 text-white" />
               </div>
-              <span className="text-xs font-medium text-muted-foreground">Revenue</span>
+              <span className="text-xs font-medium text-muted-foreground">{t('dashboard.revenue')}</span>
             </div>
             <p className="text-xl font-bold text-foreground" data-testid="monthly-revenue">
               ${statsLoading ? "..." : parseFloat(stats?.monthlyRevenue || "0").toFixed(0)}
             </p>
             <p className="text-[10px] text-muted-foreground">
-              All: ${statsLoading ? "..." : parseFloat(stats?.totalRevenue || "0").toFixed(0)}
+              {t('dashboard.all')}: ${statsLoading ? "..." : parseFloat(stats?.totalRevenue || "0").toFixed(0)}
             </p>
             {!statsLoading && stats && parseFloat(stats.revenueGrowth) !== 0 && (
               <p className={`text-[10px] font-medium mt-1 ${parseFloat(stats.revenueGrowth) > 0 ? "text-emerald-600" : "text-rose-600"}`} data-testid="revenue-growth">
@@ -6635,13 +6637,13 @@ export default function AdminDashboard() {
               <div className="bg-purple-500 p-1.5 rounded-md">
                 <DollarSign className="h-3.5 w-3.5 text-white" />
               </div>
-              <span className="text-xs font-medium text-muted-foreground">Commission</span>
+              <span className="text-xs font-medium text-muted-foreground">{t('dashboard.commission')}</span>
             </div>
             <p className="text-xl font-bold text-foreground" data-testid="monthly-commission">
               ${statsLoading ? "..." : parseFloat(stats?.monthlyCommission || "0").toFixed(0)}
             </p>
             <p className="text-[10px] text-muted-foreground" data-testid="total-commission">
-              All: ${statsLoading ? "..." : parseFloat(stats?.totalCommission || "0").toFixed(0)}
+              {t('dashboard.all')}: ${statsLoading ? "..." : parseFloat(stats?.totalCommission || "0").toFixed(0)}
             </p>
           </div>
 
@@ -6654,14 +6656,14 @@ export default function AdminDashboard() {
               <div className="bg-blue-500 p-1.5 rounded-md">
                 <TrendingUp className="h-3.5 w-3.5 text-white" />
               </div>
-              <span className="text-xs font-medium text-muted-foreground">Active</span>
+              <span className="text-xs font-medium text-muted-foreground">{t('dashboard.active')}</span>
             </div>
             <p className="text-xl font-bold text-foreground" data-testid="active-bookings">
               {statsLoading ? "..." : stats?.activeBookings || 0}
             </p>
             {!statsLoading && stats && stats.pendingBookings > 0 && (
               <p className="text-[10px] text-blue-600 font-medium" data-testid="pending-bookings">
-                {stats.pendingBookings} pending
+                {stats.pendingBookings} {t('dashboard.pending')}
               </p>
             )}
           </div>
@@ -6675,14 +6677,14 @@ export default function AdminDashboard() {
               <div className="bg-emerald-500 p-1.5 rounded-md">
                 <Car className="h-3.5 w-3.5 text-white" />
               </div>
-              <span className="text-xs font-medium text-muted-foreground">Drivers</span>
+              <span className="text-xs font-medium text-muted-foreground">{t('admin.drivers')}</span>
             </div>
             <p className="text-xl font-bold text-foreground" data-testid="active-drivers">
               {statsLoading ? "..." : `${stats?.activeDrivers || 0}/${stats?.totalDrivers || 0}`}
             </p>
             {!statsLoading && stats && stats.pendingDrivers > 0 && (
               <p className="text-[10px] text-emerald-600 font-medium" data-testid="pending-drivers">
-                {stats.pendingDrivers} pending
+                {stats.pendingDrivers} {t('dashboard.pending')}
               </p>
             )}
           </div>
@@ -6696,7 +6698,7 @@ export default function AdminDashboard() {
               <div className="bg-orange-500 p-1.5 rounded-md">
                 <Star className="h-3.5 w-3.5 text-white fill-white" />
               </div>
-              <span className="text-xs font-medium text-muted-foreground">Rating</span>
+              <span className="text-xs font-medium text-muted-foreground">{t('dashboard.rating')}</span>
             </div>
             <p className="text-xl font-bold text-foreground" data-testid="customer-satisfaction">
               {statsLoading ? "..." : parseFloat(stats?.averageRating || "0").toFixed(1)}
@@ -6718,14 +6720,14 @@ export default function AdminDashboard() {
               <div className="bg-rose-500 p-1.5 rounded-md">
                 <Clock className="h-3.5 w-3.5 text-white" />
               </div>
-              <span className="text-xs font-medium text-muted-foreground">Awaiting</span>
+              <span className="text-xs font-medium text-muted-foreground">{t('dashboard.awaiting')}</span>
             </div>
             <p className="text-xl font-bold text-foreground" data-testid="awaiting-driver-approval">
               {statsLoading ? "..." : stats?.awaitingDriverApproval || 0}
             </p>
             {!statsLoading && stats && stats.awaitingDriverApproval > 0 && (
               <p className="text-[10px] text-rose-600 font-medium" data-testid="awaiting-approval-notice">
-                Needs action
+                {t('dashboard.needsAction')}
               </p>
             )}
           </div>
@@ -6740,7 +6742,7 @@ export default function AdminDashboard() {
                   <div className="bg-indigo-600 p-2 rounded-lg">
                     <Key className="w-5 h-5 text-white" />
                   </div>
-                  <span>API Credentials</span>
+                  <span>{t('admin.apiCredentials')}</span>
                 </CardTitle>
                 <Button
                   onClick={() => setIsAddingNew(true)}
@@ -6749,13 +6751,13 @@ export default function AdminDashboard() {
                   data-testid="button-add-credential"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Credential
+                  {t('dashboard.addCredential')}
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               <p className="text-sm text-muted-foreground mb-4">
-                Manage API keys and external service credentials for your application.
+                {t('dashboard.apiCredentialsDescription')}
               </p>
 
               {/* Existing Credentials (excluding Stripe, SMTP, and MinIO - moved to their respective sections) */}
@@ -6861,12 +6863,12 @@ export default function AdminDashboard() {
                               {credential.hasValue ? (
                                 <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 bg-green-50 text-green-700 rounded-md border border-green-200">
                                   <CheckCircle2 className="w-3.5 h-3.5" />
-                                  <span>Configured {credential.usesEnv ? "(from environment)" : "(from database)"}</span>
+                                  <span>{t('dashboard.configured')} {credential.usesEnv ? t('dashboard.fromEnvironment') : t('dashboard.fromDatabase')}</span>
                                 </div>
                               ) : (
                                 <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 bg-muted text-muted-foreground rounded-md border border-border">
                                   <AlertCircle className="w-3.5 h-3.5" />
-                                  <span>Not configured</span>
+                                  <span>{t('dashboard.notConfigured')}</span>
                                 </div>
                               )}
                             </div>
@@ -6917,11 +6919,11 @@ export default function AdminDashboard() {
                     <div className="bg-indigo-600 p-1.5 rounded-lg">
                       <Plus className="w-4 h-4 text-white" />
                     </div>
-                    <h4 className="font-semibold text-lg text-foreground">Add New Credential</h4>
+                    <h4 className="font-semibold text-lg text-foreground">{t('dashboard.addNewCredential')}</h4>
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <Label htmlFor="new-key-name" className="text-sm text-muted-foreground font-medium">Credential Name</Label>
+                      <Label htmlFor="new-key-name" className="text-sm text-muted-foreground font-medium">{t('dashboard.credentialName')}</Label>
                       <Input
                         id="new-key-name"
                         placeholder="e.g., MAILGUN_API_KEY"
@@ -6932,7 +6934,7 @@ export default function AdminDashboard() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="new-key-value" className="text-sm text-muted-foreground font-medium">Credential Value</Label>
+                      <Label htmlFor="new-key-value" className="text-sm text-muted-foreground font-medium">{t('dashboard.credentialValue')}</Label>
                       <Input
                         id="new-key-value"
                         type="password"
@@ -6985,7 +6987,7 @@ export default function AdminDashboard() {
                   <div className="bg-cyan-600 p-2 rounded-lg">
                     <Key className="w-5 h-5 text-white" />
                   </div>
-                  <span>MinIO Object Storage</span>
+                  <span>{t('admin.minioStorage')}</span>
                 </CardTitle>
                 <div className="flex gap-2">
                   <Link href="/admin/minio-browser">
@@ -6995,7 +6997,7 @@ export default function AdminDashboard() {
                       data-testid="button-browse-images"
                     >
                       <FileImage className="w-4 h-4 mr-2" />
-                      Browse Images
+                      {t('admin.browseImages')}
                     </Button>
                   </Link>
                   <Button
@@ -7008,12 +7010,12 @@ export default function AdminDashboard() {
                     {testingMinIO ? (
                       <>
                         <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                        Testing...
+                        {t('dashboard.testing')}
                       </>
                     ) : (
                       <>
                         <CheckCircle2 className="w-4 h-4 mr-2" />
-                        Test Connection
+                        {t('dashboard.testConnection')}
                       </>
                     )}
                   </Button>
@@ -7022,7 +7024,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               <p className="text-sm text-muted-foreground mb-4">
-                Configure MinIO or S3-compatible object storage for storing driver documents, invoices, and CMS media files.
+                {t('dashboard.minioDescription')}
               </p>
 
               {/* MinIO Credentials Grid */}
