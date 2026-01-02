@@ -5101,10 +5101,6 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
   // Create payment intent for invoice payment (public - token-based auth)
   app.post('/api/payment-intents/invoice', async (req: any, res) => {
     try {
-      if (!stripe) {
-        return res.status(503).json({ message: 'Payment service not configured' });
-      }
-      
       const { token, invoiceId } = req.body;
 
       if (!token || !invoiceId) {
@@ -5148,59 +5144,173 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
 
       const passenger = await storage.getUser(booking.passengerId);
       
-      // Create Stripe payment intent
-      const amount = Math.round(parseFloat(invoice.totalAmount) * 100); // Convert to cents
-
-      const paymentIntentData: any = {
-        amount,
-        currency: 'usd',
-        metadata: {
-          invoiceId: invoice.id,
-          bookingId: invoice.bookingId,
-          paymentToken: token,
-          passengerId: booking.passengerId,
-        },
-        automatic_payment_methods: {
-          enabled: true,
-        },
-      };
-
-      // If user is authenticated and has a Stripe customer ID, attach it to enable saved cards
-      if (req.user?.id && passenger?.stripeCustomerId) {
-        // Verify the authenticated user matches the passenger
-        if (req.user.id === booking.passengerId) {
-          paymentIntentData.customer = passenger.stripeCustomerId;
-          paymentIntentData.setup_future_usage = 'off_session'; // Allow saving card for future use
-        }
-      } else if (passenger?.email && !passenger.stripeCustomerId) {
-        // Create a Stripe customer for guest payments (for receipt emails)
-        try {
-          const customer = await stripe.customers.create({
-            email: passenger.email,
-            name: `${passenger.firstName} ${passenger.lastName}`,
-            metadata: {
-              userId: passenger.id,
-            },
-          });
-
-          // Save customer ID to user profile
-          await storage.updateStripeCustomerId(passenger.id, customer.id);
-          
-          paymentIntentData.customer = customer.id;
-        } catch (customerError) {
-          console.error('Failed to create Stripe customer:', customerError);
-          // Continue without customer ID - payment will still work
-        }
+      // Get the active payment system
+      const activeSystem = await storage.getActivePaymentSystem();
+      
+      if (!activeSystem) {
+        return res.status(503).json({ message: 'No payment system configured' });
       }
 
-      const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+      const provider = activeSystem.provider;
+      const amount = Math.round(parseFloat(invoice.totalAmount) * 100); // Convert to cents
 
-      res.json({
-        clientSecret: paymentIntent.client_secret,
-      });
+      if (provider === 'stripe') {
+        if (!stripe) {
+          return res.status(503).json({ message: 'Stripe is not properly configured' });
+        }
+
+        const paymentIntentData: any = {
+          amount,
+          currency: 'usd',
+          metadata: {
+            invoiceId: invoice.id,
+            bookingId: invoice.bookingId,
+            paymentToken: token,
+            passengerId: booking.passengerId,
+          },
+          automatic_payment_methods: {
+            enabled: true,
+          },
+        };
+
+        // If user is authenticated and has a Stripe customer ID, attach it to enable saved cards
+        if (req.user?.id && passenger?.stripeCustomerId) {
+          // Verify the authenticated user matches the passenger
+          if (req.user.id === booking.passengerId) {
+            paymentIntentData.customer = passenger.stripeCustomerId;
+            paymentIntentData.setup_future_usage = 'off_session'; // Allow saving card for future use
+          }
+        } else if (passenger?.email && !passenger.stripeCustomerId) {
+          // Create a Stripe customer for guest payments (for receipt emails)
+          try {
+            const customer = await stripe.customers.create({
+              email: passenger.email,
+              name: `${passenger.firstName} ${passenger.lastName}`,
+              metadata: {
+                userId: passenger.id,
+              },
+            });
+
+            // Save customer ID to user profile
+            await storage.updateStripeCustomerId(passenger.id, customer.id);
+            
+            paymentIntentData.customer = customer.id;
+          } catch (customerError) {
+            console.error('Failed to create Stripe customer:', customerError);
+            // Continue without customer ID - payment will still work
+          }
+        }
+
+        const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+
+        res.json({
+          provider: 'stripe',
+          clientSecret: paymentIntent.client_secret,
+        });
+      } else if (provider === 'square') {
+        if (!isSquareConfigured()) {
+          return res.status(503).json({ message: 'Square is not properly configured' });
+        }
+
+        // For Square, return configuration for the frontend to complete payment
+        const squareConfig = getSquareConfig();
+        res.json({ 
+          provider: 'square',
+          applicationId: squareConfig?.applicationId,
+          locationId: squareConfig?.locationId,
+          environment: squareConfig?.environment,
+          amount,
+          invoiceId: invoice.id,
+          token,
+        });
+      } else {
+        return res.status(503).json({ message: `Payment provider '${provider}' is not supported` });
+      }
     } catch (error) {
       console.error('Create invoice payment intent error:', error);
       res.status(500).json({ message: 'Failed to create payment intent' });
+    }
+  });
+
+  // Square invoice payment completion endpoint
+  app.post("/api/square-payment/invoice", async (req: any, res) => {
+    try {
+      const { sourceId, token, invoiceId } = req.body;
+      
+      if (!sourceId) {
+        return res.status(400).json({ error: 'Payment source token is required' });
+      }
+      
+      if (!token || !invoiceId) {
+        return res.status(400).json({ error: 'Token and invoice ID are required' });
+      }
+
+      // Validate payment token
+      const paymentToken = await storage.getPaymentToken(token);
+      
+      if (!paymentToken || paymentToken.invoiceId !== invoiceId) {
+        return res.status(400).json({ message: 'Invalid payment token' });
+      }
+
+      if (paymentToken.used) {
+        return res.status(400).json({ message: 'Payment link has already been used' });
+      }
+
+      // Get invoice details
+      const invoice = await storage.getInvoice(invoiceId);
+      if (!invoice) {
+        return res.status(404).json({ message: 'Invoice not found' });
+      }
+
+      if (invoice.paidAt) {
+        return res.status(400).json({ message: 'Invoice already paid' });
+      }
+
+      if (!isSquareConfigured()) {
+        return res.status(503).json({ message: 'Square payment is not configured' });
+      }
+
+      const amount = Math.round(parseFloat(invoice.totalAmount) * 100);
+
+      const result = await createSquarePayment(
+        sourceId,
+        amount,
+        'USD',
+        {
+          invoiceId: invoice.id,
+          bookingId: invoice.bookingId,
+          paymentToken: token,
+        }
+      );
+
+      if (result.status === 'COMPLETED') {
+        // Update invoice as paid
+        await storage.updateInvoice(invoiceId, {
+          paidAt: new Date().toISOString(),
+        });
+
+        // Mark payment token as used
+        await storage.markPaymentTokenAsUsed(token);
+
+        // Update booking payment status
+        await storage.updateBookingPayment(invoice.bookingId, result.paymentId, 'paid');
+
+        res.json({ 
+          success: true,
+          paymentId: result.paymentId,
+          status: result.status,
+          receiptUrl: result.receiptUrl,
+        });
+      } else {
+        res.status(400).json({ 
+          success: false,
+          message: `Payment status: ${result.status}`,
+          paymentId: result.paymentId,
+        });
+      }
+    } catch (error: any) {
+      console.error('Square invoice payment error:', error);
+      res.status(500).json({ message: error.message || 'Square payment failed' });
     }
   });
 
