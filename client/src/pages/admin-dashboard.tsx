@@ -10696,7 +10696,6 @@ export default function AdminDashboard() {
                                 ) : (
                                   <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">Unpaid</Badge>
                                 )}
-                                <span className="text-sm font-medium text-muted-foreground">Booking ID:</span>
                                 <button
                                   className="text-sm font-semibold text-green-700 hover:text-green-800 hover:underline cursor-pointer"
                                   onClick={() => {
@@ -10714,7 +10713,7 @@ export default function AdminDashboard() {
                                     }
                                   }}
                                 >
-                                  {earning.confirmationNumber}
+                                  Booking ID #{earning.bookingId.substring(0, 8)}
                                 </button>
                               </div>
                               <p className="text-xs text-muted-foreground truncate mt-1">
