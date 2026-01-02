@@ -38,8 +38,12 @@ export function CompletedRideSummaryDialog({
   if (!booking) return null;
 
   const passenger = allUsers?.find(u => u.id === booking.passengerId);
-  const driver = allUsers?.find(u => u.id === booking.driverId);
   const vehicleType = vehicleTypes?.find(vt => vt.id === booking.vehicleTypeId);
+  
+  const hasDriverInfo = booking.driverFirstName || booking.driverLastName;
+  const driverFullName = hasDriverInfo 
+    ? `${booking.driverFirstName || ''} ${booking.driverLastName || ''}`.trim() 
+    : null;
 
   const formatDateTime = (dateStr: string) => {
     if (!dateStr) return "N/A";
@@ -124,13 +128,19 @@ export function CompletedRideSummaryDialog({
               </h3>
               <div className="bg-muted/30 rounded-lg p-4 space-y-1">
                 <p className="font-semibold text-foreground">
-                  {driver ? `${driver.firstName} ${driver.lastName}` : "Unassigned"}
+                  {driverFullName || "Unassigned"}
                 </p>
                 {vehicleType && (
                   <p className="text-sm text-muted-foreground">{vehicleType.name}</p>
                 )}
-                {driver?.vehiclePlate && (
-                  <p className="text-sm text-muted-foreground">Plate: {driver.vehiclePlate}</p>
+                {booking.driverPhone && (
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Phone className="w-3 h-3" />
+                    {booking.driverPhone}
+                  </p>
+                )}
+                {booking.driverVehiclePlate && (
+                  <p className="text-sm text-muted-foreground">Plate: {booking.driverVehiclePlate}</p>
                 )}
               </div>
             </div>
