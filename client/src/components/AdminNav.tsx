@@ -34,6 +34,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSwitcherCompact } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 interface AdminNavProps {
   onCredentialsClick?: (section: 'api' | 'payment' | 'minio') => void;
@@ -48,6 +49,7 @@ interface AdminNavProps {
 }
 
 export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onVehicleTypesClick, onSettingsClick, onCMSClick, onPricingClick, onAccountingClick }: AdminNavProps) {
+  const { t } = useTranslation();
   const [location, setLocation] = useLocation();
   const { logoutMutation } = useAuth();
   const { logoUrl, logoAltText } = useSiteLogo();
@@ -82,7 +84,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               </div>
             </Link>
             <div className="hidden sm:block">
-              <span className="text-xl font-bold text-foreground">Admin Portal</span>
+              <span className="text-xl font-bold text-foreground">{t('admin.portal')}</span>
             </div>
           </div>
           
@@ -98,7 +100,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               data-testid="nav-logout"
             >
               <LogOut className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">{logoutMutation.isPending ? '...' : 'Logout'}</span>
+              <span className="hidden sm:inline">{logoutMutation.isPending ? '...' : t('auth.logout')}</span>
             </Button>
           </div>
         </div>
@@ -114,7 +116,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-user-manager"
                 >
                   <Users className="w-4 h-4 mr-2 text-muted-foreground" />
-                  Users
+                  {t('admin.users')}
                   <ChevronDown className="w-3.5 h-3.5 ml-1.5 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
@@ -131,7 +133,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-all-users"
                 >
                   <Users className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">All Users</span>
+                  <span className="font-medium">{t('admin.allUsers')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem 
@@ -146,7 +148,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-passengers"
                 >
                   <Users className="w-4 h-4 mr-3 text-blue-500" />
-                  <span className="font-medium">Passengers</span>
+                  <span className="font-medium">{t('admin.passengers')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -160,7 +162,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-drivers"
                 >
                   <Car className="w-4 h-4 mr-3 text-green-500" />
-                  <span className="font-medium">Drivers</span>
+                  <span className="font-medium">{t('admin.drivers')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -174,7 +176,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-dispatchers"
                 >
                   <SettingsIcon className="w-4 h-4 mr-3 text-purple-500" />
-                  <span className="font-medium">Dispatchers</span>
+                  <span className="font-medium">{t('admin.dispatchers')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -188,7 +190,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-admins"
                 >
                   <Star className="w-4 h-4 mr-3 text-amber-500" />
-                  <span className="font-medium">Admins</span>
+                  <span className="font-medium">{t('admin.admins')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -202,7 +204,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-settings"
                 >
                   <SettingsIcon className="w-4 h-4 mr-2 text-muted-foreground" />
-                  Settings
+                  {t('admin.settings')}
                   <ChevronDown className="w-3.5 h-3.5 ml-1.5 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
@@ -219,7 +221,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-pricing"
                 >
                   <DollarSign className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">Pricing</span>
+                  <span className="font-medium">{t('admin.pricing')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem 
@@ -234,7 +236,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-branding"
                 >
                   <Palette className="w-4 h-4 mr-3 text-pink-500" />
-                  <span className="font-medium">Branding</span>
+                  <span className="font-medium">{t('admin.branding')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem 
@@ -249,7 +251,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-api-credentials"
                 >
                   <Key className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">API Credentials</span>
+                  <span className="font-medium">{t('admin.apiCredentials')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -263,7 +265,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-payment-systems"
                 >
                   <DollarSign className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">Payment Systems</span>
+                  <span className="font-medium">{t('admin.paymentSystems')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -277,7 +279,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-minio-storage"
                 >
                   <Key className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">MinIO Storage</span>
+                  <span className="font-medium">{t('admin.minioStorage')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLocation('/admin/minio-browser')}
@@ -285,7 +287,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-minio-browser"
                 >
                   <Image className="w-4 h-4 mr-3 text-cyan-500" />
-                  <span className="font-medium">Browse Images</span>
+                  <span className="font-medium">{t('admin.browseImages')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -299,7 +301,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-vehicle-types"
                 >
                   <Car className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">Vehicle Types</span>
+                  <span className="font-medium">{t('admin.vehicleTypes')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem 
@@ -314,7 +316,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-system-commission"
                 >
                   <Percent className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">System Commission</span>
+                  <span className="font-medium">{t('admin.systemCommission')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -328,7 +330,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-email-settings"
                 >
                   <Mail className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">Email Settings</span>
+                  <span className="font-medium">{t('admin.emailSettings')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -342,7 +344,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-sms-settings"
                 >
                   <MessageSquare className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">SMS Providers</span>
+                  <span className="font-medium">{t('admin.smsProviders')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem 
@@ -357,7 +359,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-email-notifications"
                 >
                   <Bell className="w-4 h-4 mr-3 text-blue-500" />
-                  <span className="font-medium">Email Notifications</span>
+                  <span className="font-medium">{t('admin.emailNotifications')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -371,7 +373,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-sms-notifications"
                 >
                   <Bell className="w-4 h-4 mr-3 text-green-500" />
-                  <span className="font-medium">SMS Templates</span>
+                  <span className="font-medium">{t('admin.smsTemplates')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem 
@@ -386,7 +388,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-database-settings"
                 >
                   <Database className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">Database URL</span>
+                  <span className="font-medium">{t('admin.databaseUrl')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -400,7 +402,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-stripe-sync"
                 >
                   <CreditCard className="w-4 h-4 mr-3 text-purple-500" />
-                  <span className="font-medium">Stripe Customer Sync</span>
+                  <span className="font-medium">{t('admin.stripeSync')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -414,7 +416,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-timezone-settings"
                 >
                   <Clock className="w-4 h-4 mr-3 text-orange-500" />
-                  <span className="font-medium">System Timezone</span>
+                  <span className="font-medium">{t('admin.systemTimezone')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -428,7 +430,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-surcharge-settings"
                 >
                   <Percent className="w-4 h-4 mr-3 text-amber-500" />
-                  <span className="font-medium">Last-Minute Surcharge</span>
+                  <span className="font-medium">{t('admin.lastMinuteSurcharge')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -442,7 +444,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-cms"
                 >
                   <FileText className="w-4 h-4 mr-2 text-muted-foreground" />
-                  CMS
+                  {t('admin.cms')}
                   <ChevronDown className="w-3.5 h-3.5 ml-1.5 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
@@ -459,7 +461,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-cms-media"
                 >
                   <Image className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">Media & Images</span>
+                  <span className="font-medium">{t('admin.cmsMedia')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
@@ -473,7 +475,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-cms-services"
                 >
                   <FileText className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="font-medium">Services</span>
+                  <span className="font-medium">{t('admin.cmsServices')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -487,7 +489,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-accounting"
                 >
                   <Calculator className="w-4 h-4 mr-2 text-muted-foreground" />
-                  Accounting
+                  {t('admin.accounting')}
                   <ChevronDown className="w-3.5 h-3.5 ml-1.5 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
@@ -504,7 +506,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-accounting-passengers"
                 >
                   <Users className="w-4 h-4 mr-3 text-blue-500" />
-                  <span className="font-medium">Passengers Accounts</span>
+                  <span className="font-medium">{t('admin.passengersAccounts')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem 
@@ -519,7 +521,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                   data-testid="nav-accounting-drivers"
                 >
                   <Car className="w-4 h-4 mr-3 text-green-500" />
-                  <span className="font-medium">Drivers Accounts</span>
+                  <span className="font-medium">{t('admin.driversAccounts')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -538,7 +540,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               data-testid="nav-bookings"
             >
               <MessageSquare className="w-4 h-4 mr-2 text-muted-foreground" />
-              Bookings
+              {t('admin.bookings')}
             </Button>
             
             <Button 
@@ -555,7 +557,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               data-testid="nav-invoices"
             >
               <Receipt className="w-4 h-4 mr-2 text-muted-foreground" />
-              Invoices
+              {t('admin.invoices')}
             </Button>
             
             <Button 
@@ -566,7 +568,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               data-testid="nav-drivers-map"
             >
               <Navigation className="w-4 h-4 mr-2 text-muted-foreground" />
-              Drivers Map
+              {t('admin.driversMap')}
             </Button>
           </nav>
         </div>
