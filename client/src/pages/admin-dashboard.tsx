@@ -5169,36 +5169,38 @@ export default function AdminDashboard() {
           ? parseInt(data.requestedHours)
           : undefined,
         // Convert numeric values to strings for schema validation
-        surgePricingMultiplier: data.surgePricingMultiplier 
+        // Simple approach: send the form value as-is, preserving precision
+        // For empty strings, send null when editing (to explicitly clear) or undefined when creating
+        surgePricingMultiplier: data.surgePricingMultiplier && data.surgePricingMultiplier !== ''
           ? String(data.surgePricingMultiplier)
           : undefined,
-        discountPercentage: data.discountPercentage
+        discountPercentage: data.discountPercentage && data.discountPercentage !== ''
           ? String(data.discountPercentage)
           : undefined,
-        // Ensure adminDiscount is properly converted (critical for edit mode)
-        adminDiscount: data.adminDiscount 
-          ? String(data.adminDiscount)
-          : undefined,
-        // Ensure other pricing fields are properly converted
-        discountAmount: data.discountAmount
+        // adminDiscount: Send verbatim to preserve precision, null to clear on edit
+        adminDiscount: data.adminDiscount && data.adminDiscount !== '' 
+          ? String(data.adminDiscount)  // Preserve the string as-is for precision
+          : (editingBooking ? null : undefined), // null clears on edit, undefined skips on create
+        // discountAmount: Same pattern
+        discountAmount: data.discountAmount && data.discountAmount !== ''
           ? String(data.discountAmount)
-          : undefined,
-        regularPrice: data.regularPrice
+          : (editingBooking ? null : undefined),
+        regularPrice: data.regularPrice && data.regularPrice !== ''
           ? String(data.regularPrice)
           : undefined,
-        baseFare: data.baseFare
+        baseFare: data.baseFare && data.baseFare !== ''
           ? String(data.baseFare)
           : undefined,
-        gratuityAmount: data.gratuityAmount
+        gratuityAmount: data.gratuityAmount && data.gratuityAmount !== ''
           ? String(data.gratuityAmount)
           : undefined,
-        airportFeeAmount: data.airportFeeAmount
+        airportFeeAmount: data.airportFeeAmount && data.airportFeeAmount !== ''
           ? String(data.airportFeeAmount)
           : undefined,
-        surgePricingAmount: data.surgePricingAmount
+        surgePricingAmount: data.surgePricingAmount && data.surgePricingAmount !== ''
           ? String(data.surgePricingAmount)
           : undefined,
-        // Ensure customPriceItems is passed through
+        // customPriceItems: Always include 
         customPriceItems: data.customPriceItems || undefined,
       };
 
