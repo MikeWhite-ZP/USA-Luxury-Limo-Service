@@ -1211,7 +1211,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   <div className="flex items-start gap-2">
                     <div className="w-3 h-3 rounded-full bg-green-500 mt-1 flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-xs text-muted-foreground">From</p>
+                      <p className="text-xs text-muted-foreground">{t('booking.form.from')}</p>
                       <p className="text-sm font-medium text-foreground truncate" data-testid="trip-from">{fromAddress}</p>
                     </div>
                   </div>
@@ -1222,7 +1222,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                       <div key={index} className="flex items-start gap-2">
                         <div className="w-3 h-3 rounded-full bg-blue-500 mt-1 flex-shrink-0" />
                         <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground">Via {index + 1}</p>
+                          <p className="text-xs text-muted-foreground">{t('booking.form.via', { number: index + 1 })}</p>
                           <p className="text-sm font-medium text-foreground truncate" data-testid={`trip-via-${index}`}>{viaPoint}</p>
                         </div>
                       </div>
@@ -1233,7 +1233,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   <div className="flex items-start gap-2">
                     <div className="w-3 h-3 rounded-full bg-red-500 mt-1 flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-xs text-muted-foreground">To</p>
+                      <p className="text-xs text-muted-foreground">{t('booking.form.to')}</p>
                       <p className="text-sm font-medium text-foreground truncate" data-testid="trip-to">{toAddress}</p>
                     </div>
                   </div>
@@ -1244,26 +1244,26 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                       <>
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          <span>{Math.round((quoteData.distanceKm / 50) * 60)} mins</span>
+                          <span>{t('booking.form.duration', { duration: Math.round((quoteData.distanceKm / 50) * 60) })}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
-                          <span>{(quoteData.distanceKm * 0.621371).toFixed(2)} mile</span>
+                          <span>{t('booking.form.distance', { distance: (quoteData.distanceKm * 0.621371).toFixed(2) })}</span>
                         </div>
                       </>
                     ) : quoteData.distance ? (
                       <>
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          <span>{Math.round((parseFloat(quoteData.distance) / 31) * 60)} mins</span>
+                          <span>{t('booking.form.duration', { duration: Math.round((parseFloat(quoteData.distance) / 31) * 60) })}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
-                          <span>{parseFloat(quoteData.distance).toFixed(2)} mile</span>
+                          <span>{t('booking.form.distance', { distance: parseFloat(quoteData.distance).toFixed(2) })}</span>
                         </div>
                       </>
                     ) : (
-                      <span className="text-muted-foreground italic">Distance will be calculated</span>
+                      <span className="text-muted-foreground italic">{t('booking.form.distanceCalculating')}</span>
                     )}
                   </div>
                 </div>
@@ -1273,7 +1273,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   <div className="flex items-start gap-2">
                     <div className="w-3 h-3 rounded-full bg-green-500 mt-1 flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-xs text-muted-foreground">Pickup</p>
+                      <p className="text-xs text-muted-foreground">{t('booking.form.pickup')}</p>
                       <p className="text-sm font-medium text-foreground truncate" data-testid="trip-pickup">{pickupAddress}</p>
                     </div>
                   </div>
@@ -1282,7 +1282,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   <div className="flex items-center gap-4 pt-2 border-t border-border text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      <span data-testid="trip-duration">{duration} hours</span>
+                      <span data-testid="trip-duration">{t('booking.form.durationHours', { hours: duration })}</span>
                     </div>
                   </div>
                 </div>
@@ -1331,15 +1331,15 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 const availability = getVehicleAvailability(vehicle);
                 
                 // Customize descriptions based on vehicle type
-                let capacityText = `Up to ${vehicle.passengerCapacity} passengers`;
+                let capacityText = t('booking.form.upToPassengers', { count: vehicle.passengerCapacity });
                 let luggageText = vehicle.luggageCapacity;
                 
                 if (vehicle.name.toLowerCase().includes('sedan')) {
-                  capacityText = '3 passengers';
-                  luggageText = '2 large bags';
+                  capacityText = t('booking.form.passengersCount', { count: 3 });
+                  luggageText = t('booking.form.largeBags', { count: 2 });
                 } else if (vehicle.name.toLowerCase().includes('suv')) {
-                  capacityText = '6 passengers';
-                  luggageText = '4-5 bags';
+                  capacityText = t('booking.form.passengersCount', { count: 6 });
+                  luggageText = t('booking.form.bagsRange', { min: 4, max: 5 });
                 }
                 
                 return (
