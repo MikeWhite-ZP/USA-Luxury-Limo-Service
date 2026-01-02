@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useBranding } from "@/hooks/useBranding";
@@ -314,6 +314,12 @@ function InvoicesList() {
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [paymentInvoice, setPaymentInvoice] = useState<any>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [paymentProvider, setPaymentProvider] = useState<'stripe' | 'square' | null>(null);
+  const [squareConfig, setSquareConfig] = useState<{
+    applicationId: string;
+    locationId: string;
+    environment: string;
+  } | null>(null);
 
   // Effect to handle printing when branding is ready
   useEffect(() => {
@@ -332,7 +338,7 @@ function InvoicesList() {
     queryKey: ['/api/passenger/invoices'],
   });
 
-  // Create payment intent mutation
+  // Create payment intent mutation (handles both Stripe and Square)
   const createPaymentIntentMutation = useMutation({
     mutationFn: async ({ invoiceId }: { invoiceId: string }) => {
       const response = await fetch(`/api/passenger/invoices/${invoiceId}/pay`, {
@@ -347,7 +353,18 @@ function InvoicesList() {
       return response.json();
     },
     onSuccess: (data) => {
-      setClientSecret(data.clientSecret);
+      setPaymentProvider(data.provider);
+      if (data.provider === 'stripe') {
+        setClientSecret(data.clientSecret);
+        setSquareConfig(null);
+      } else if (data.provider === 'square') {
+        setClientSecret(null);
+        setSquareConfig({
+          applicationId: data.applicationId,
+          locationId: data.locationId,
+          environment: data.environment,
+        });
+      }
     },
     onError: (error: any) => {
       toast({
@@ -357,6 +374,8 @@ function InvoicesList() {
       });
       setPaymentDialogOpen(false);
       setPaymentInvoice(null);
+      setPaymentProvider(null);
+      setSquareConfig(null);
     },
   });
 
@@ -1009,6 +1028,8 @@ function InvoicesList() {
           setPaymentDialogOpen(false);
           setPaymentInvoice(null);
           setClientSecret(null);
+          setPaymentProvider(null);
+          setSquareConfig(null);
         }
       }}>
         <DialogContent className="sm:max-w-[450px] bg-card p-5">
@@ -1026,7 +1047,7 @@ function InvoicesList() {
               <div className="animate-spin w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full" />
               <span className="ml-3 text-sm text-muted-foreground">Preparing payment...</span>
             </div>
-          ) : clientSecret ? (
+          ) : paymentProvider === 'stripe' && clientSecret ? (
             <Elements stripe={stripePromise} options={{ clientSecret }}>
               <InvoicePaymentForm 
                 invoiceId={paymentInvoice?.id}
@@ -1041,9 +1062,31 @@ function InvoicesList() {
                   setPaymentDialogOpen(false);
                   setPaymentInvoice(null);
                   setClientSecret(null);
+                  setPaymentProvider(null);
                 }}
               />
             </Elements>
+          ) : paymentProvider === 'square' && squareConfig ? (
+            <SquareInvoicePaymentForm 
+              invoiceId={paymentInvoice?.id}
+              amount={paymentInvoice?.totalAmount}
+              applicationId={squareConfig.applicationId}
+              locationId={squareConfig.locationId}
+              environment={squareConfig.environment}
+              onSuccess={() => {
+                queryClient.invalidateQueries({ queryKey: ['/api/passenger/invoices'] });
+                setPaymentDialogOpen(false);
+                setPaymentInvoice(null);
+                setSquareConfig(null);
+                setPaymentProvider(null);
+              }}
+              onCancel={() => {
+                setPaymentDialogOpen(false);
+                setPaymentInvoice(null);
+                setSquareConfig(null);
+                setPaymentProvider(null);
+              }}
+            />
           ) : null}
         </DialogContent>
       </Dialog>
@@ -1231,6 +1274,195 @@ function InvoicePaymentForm({
         <Button
           type="submit"
           disabled={!stripe || isProcessing}
+          className="flex-1 btn-brand-primary"
+        >
+          {isProcessing ? (
+            <>
+              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+              Processing...
+            </>
+          ) : (
+            'Pay Now'
+          )}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+// Square Payment Form for Invoice
+function SquareInvoicePaymentForm({ 
+  invoiceId, 
+  amount, 
+  applicationId,
+  locationId,
+  environment,
+  onSuccess, 
+  onCancel 
+}: { 
+  invoiceId: string;
+  amount: string;
+  applicationId: string;
+  locationId: string;
+  environment: string;
+  onSuccess: () => void;
+  onCancel: () => void;
+}) {
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isSquareLoaded, setIsSquareLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const cardRef = useRef<any>(null);
+  const paymentsRef = useRef<any>(null);
+
+  useEffect(() => {
+    const loadSquareSDK = async () => {
+      if ((window as any).Square) {
+        await initializeSquarePayments();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = environment === 'production' 
+        ? 'https://web.squarecdn.com/v1/square.js'
+        : 'https://sandbox.web.squarecdn.com/v1/square.js';
+      script.async = true;
+      script.onload = async () => {
+        await initializeSquarePayments();
+      };
+      script.onerror = () => {
+        setError('Failed to load payment system. Please try again.');
+      };
+      document.body.appendChild(script);
+    };
+
+    const initializeSquarePayments = async () => {
+      try {
+        const Square = (window as any).Square;
+        if (!Square) {
+          throw new Error('Square SDK not loaded');
+        }
+
+        const payments = Square.payments(applicationId, locationId);
+        paymentsRef.current = payments;
+
+        const card = await payments.card();
+        await card.attach('#square-card-container-dashboard');
+        cardRef.current = card;
+        setIsSquareLoaded(true);
+      } catch (err: any) {
+        console.error('Square initialization error:', err);
+        setError(err.message || 'Failed to initialize payment form.');
+      }
+    };
+
+    loadSquareSDK();
+
+    return () => {
+      if (cardRef.current) {
+        cardRef.current.destroy?.();
+      }
+    };
+  }, [applicationId, locationId, environment]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!cardRef.current || !isSquareLoaded) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      const tokenResult = await cardRef.current.tokenize();
+      
+      if (tokenResult.status === 'OK') {
+        const response = await fetch(`/api/passenger/invoices/${invoiceId}/confirm-payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            sourceId: tokenResult.token,
+            provider: 'square',
+          }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          toast({
+            title: 'Payment Successful',
+            description: 'Your invoice has been paid successfully.',
+          });
+          onSuccess();
+        } else {
+          setError(result.message || 'Payment failed');
+          toast({
+            title: 'Payment Failed',
+            description: result.message || 'Please try again',
+            variant: 'destructive',
+          });
+        }
+      } else {
+        const errorMessage = tokenResult.errors?.[0]?.message || 'Failed to process card';
+        setError(errorMessage);
+        toast({
+          title: 'Card Error',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
+    } catch (err: any) {
+      setError(err.message || 'Payment failed');
+      toast({
+        title: 'Payment Error',
+        description: err.message || 'An unexpected error occurred',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="bg-muted/50 p-3 rounded-lg border border-border">
+        <p className="text-xs text-muted-foreground mb-1">Amount to Pay</p>
+        <p className="text-2xl font-bold text-brand-accent">${parseFloat(amount).toFixed(2)}</p>
+      </div>
+      
+      {!isSquareLoaded ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full" />
+          <span className="ml-3 text-sm text-muted-foreground">Loading payment form...</span>
+        </div>
+      ) : (
+        <div className="border border-border rounded-lg p-3">
+          <div id="square-card-container-dashboard" style={{ minHeight: '89px' }} />
+        </div>
+      )}
+      
+      {error && (
+        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+          {error}
+        </div>
+      )}
+      
+      <div className="flex gap-3 pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isProcessing}
+          className="flex-1"
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={!isSquareLoaded || isProcessing}
           className="flex-1 btn-brand-primary"
         >
           {isProcessing ? (
