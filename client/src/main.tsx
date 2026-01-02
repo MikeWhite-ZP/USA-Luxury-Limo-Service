@@ -1,9 +1,11 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import "./lib/i18n";
+import { i18nInitPromise } from "./lib/i18n";
 
-createRoot(document.getElementById("root")!).render(<App />);
+i18nInitPromise.then(() => {
+  createRoot(document.getElementById("root")!).render(<App />);
+});
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

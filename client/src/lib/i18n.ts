@@ -38,7 +38,7 @@ const resources = {
 
 const savedLanguage = Cookies.get(LANGUAGE_COOKIE_KEY);
 
-i18n
+export const i18nInitPromise = i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
