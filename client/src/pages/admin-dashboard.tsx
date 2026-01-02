@@ -7742,6 +7742,73 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
+                  {/* Summary Stats - At Top */}
+                  {(() => {
+                    const now = new Date();
+                    const startOfWeek = new Date(now);
+                    startOfWeek.setDate(now.getDate() - now.getDay());
+                    startOfWeek.setHours(0, 0, 0, 0);
+                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+                    const relevantBookings = bookings?.filter((b: any) => {
+                      if (b.status !== 'completed' || !b.driverId || !b.driverPayment) return false;
+                      const bookingDate = new Date(b.scheduledDateTime);
+                      if (accountingPeriod === "weekly" && bookingDate < startOfWeek) return false;
+                      if (accountingPeriod === "monthly" && bookingDate < startOfMonth) return false;
+                      if (accountingPeriod === "yearly" && bookingDate < startOfYear) return false;
+                      return true;
+                    }) || [];
+
+                    const totalPaid = relevantBookings
+                      .filter((b: any) => b.driverPaymentPaid)
+                      .reduce((sum: number, b: any) => sum + parseFloat(b.driverPayment || '0'), 0);
+                    const totalUnpaid = relevantBookings
+                      .filter((b: any) => !b.driverPaymentPaid)
+                      .reduce((sum: number, b: any) => sum + parseFloat(b.driverPayment || '0'), 0);
+                    const paidCount = relevantBookings.filter((b: any) => b.driverPaymentPaid).length;
+                    const unpaidCount = relevantBookings.filter((b: any) => !b.driverPaymentPaid).length;
+
+                    return (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-emerald-50 dark:bg-emerald-950/30 rounded-lg p-4 border border-emerald-200 dark:border-emerald-800">
+                          <div className="flex items-center gap-2 mb-1">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Total Paid</span>
+                          </div>
+                          <p className="text-2xl font-bold text-emerald-800 dark:text-emerald-300">${totalPaid.toFixed(2)}</p>
+                          <p className="text-xs text-emerald-600 dark:text-emerald-500">{paidCount} rides</p>
+                        </div>
+                        <div className="bg-amber-50 dark:bg-amber-950/30 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Clock className="w-4 h-4 text-amber-600" />
+                            <span className="text-sm font-medium text-amber-700 dark:text-amber-400">Total Unpaid</span>
+                          </div>
+                          <p className="text-2xl font-bold text-amber-800 dark:text-amber-300">${totalUnpaid.toFixed(2)}</p>
+                          <p className="text-xs text-amber-600 dark:text-amber-500">{unpaidCount} rides</p>
+                        </div>
+                        <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center gap-2 mb-1">
+                            <DollarSign className="w-4 h-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-700 dark:text-blue-400">Grand Total</span>
+                          </div>
+                          <p className="text-2xl font-bold text-blue-800 dark:text-blue-300">${(totalPaid + totalUnpaid).toFixed(2)}</p>
+                          <p className="text-xs text-blue-600 dark:text-blue-500">{paidCount + unpaidCount} rides</p>
+                        </div>
+                        <div className="bg-purple-50 dark:bg-purple-950/30 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Car className="w-4 h-4 text-purple-600" />
+                            <span className="text-sm font-medium text-purple-700 dark:text-purple-400">Avg per Ride</span>
+                          </div>
+                          <p className="text-2xl font-bold text-purple-800 dark:text-purple-300">
+                            ${(paidCount + unpaidCount > 0 ? (totalPaid + totalUnpaid) / (paidCount + unpaidCount) : 0).toFixed(2)}
+                          </p>
+                          <p className="text-xs text-purple-600 dark:text-purple-500">driver payment</p>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   {/* Driver Accounts Table */}
                   <div className="border rounded-lg overflow-hidden">
                     <div className="overflow-x-auto">
@@ -7866,73 +7933,6 @@ export default function AdminDashboard() {
                       </table>
                     </div>
                   </div>
-
-                  {/* Summary Stats */}
-                  {(() => {
-                    const now = new Date();
-                    const startOfWeek = new Date(now);
-                    startOfWeek.setDate(now.getDate() - now.getDay());
-                    startOfWeek.setHours(0, 0, 0, 0);
-                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                    const startOfYear = new Date(now.getFullYear(), 0, 1);
-
-                    const relevantBookings = bookings?.filter((b: any) => {
-                      if (b.status !== 'completed' || !b.driverId || !b.driverPayment) return false;
-                      const bookingDate = new Date(b.scheduledDateTime);
-                      if (accountingPeriod === "weekly" && bookingDate < startOfWeek) return false;
-                      if (accountingPeriod === "monthly" && bookingDate < startOfMonth) return false;
-                      if (accountingPeriod === "yearly" && bookingDate < startOfYear) return false;
-                      return true;
-                    }) || [];
-
-                    const totalPaid = relevantBookings
-                      .filter((b: any) => b.driverPaymentPaid)
-                      .reduce((sum: number, b: any) => sum + parseFloat(b.driverPayment || '0'), 0);
-                    const totalUnpaid = relevantBookings
-                      .filter((b: any) => !b.driverPaymentPaid)
-                      .reduce((sum: number, b: any) => sum + parseFloat(b.driverPayment || '0'), 0);
-                    const paidCount = relevantBookings.filter((b: any) => b.driverPaymentPaid).length;
-                    const unpaidCount = relevantBookings.filter((b: any) => !b.driverPaymentPaid).length;
-
-                    return (
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                        <div className="bg-emerald-50 dark:bg-emerald-950/30 rounded-lg p-4 border border-emerald-200 dark:border-emerald-800">
-                          <div className="flex items-center gap-2 mb-1">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                            <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Total Paid</span>
-                          </div>
-                          <p className="text-2xl font-bold text-emerald-800 dark:text-emerald-300">${totalPaid.toFixed(2)}</p>
-                          <p className="text-xs text-emerald-600 dark:text-emerald-500">{paidCount} rides</p>
-                        </div>
-                        <div className="bg-amber-50 dark:bg-amber-950/30 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Clock className="w-4 h-4 text-amber-600" />
-                            <span className="text-sm font-medium text-amber-700 dark:text-amber-400">Total Unpaid</span>
-                          </div>
-                          <p className="text-2xl font-bold text-amber-800 dark:text-amber-300">${totalUnpaid.toFixed(2)}</p>
-                          <p className="text-xs text-amber-600 dark:text-amber-500">{unpaidCount} rides</p>
-                        </div>
-                        <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                          <div className="flex items-center gap-2 mb-1">
-                            <DollarSign className="w-4 h-4 text-blue-600" />
-                            <span className="text-sm font-medium text-blue-700 dark:text-blue-400">Grand Total</span>
-                          </div>
-                          <p className="text-2xl font-bold text-blue-800 dark:text-blue-300">${(totalPaid + totalUnpaid).toFixed(2)}</p>
-                          <p className="text-xs text-blue-600 dark:text-blue-500">{paidCount + unpaidCount} rides</p>
-                        </div>
-                        <div className="bg-purple-50 dark:bg-purple-950/30 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Car className="w-4 h-4 text-purple-600" />
-                            <span className="text-sm font-medium text-purple-700 dark:text-purple-400">Avg per Ride</span>
-                          </div>
-                          <p className="text-2xl font-bold text-purple-800 dark:text-purple-300">
-                            ${(paidCount + unpaidCount > 0 ? (totalPaid + totalUnpaid) / (paidCount + unpaidCount) : 0).toFixed(2)}
-                          </p>
-                          <p className="text-xs text-purple-600 dark:text-purple-500">driver payment</p>
-                        </div>
-                      </div>
-                    );
-                  })()}
                 </div>
               ) : (
                 <div className="text-center py-12">
