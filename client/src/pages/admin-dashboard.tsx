@@ -5656,14 +5656,29 @@ export default function AdminDashboard() {
       if (paymentCredentials.webhookSecret)
         systemData.webhookSecret = paymentCredentials.webhookSecret;
     } else if (selectedProvider === "square") {
+      // Get existing locationId with proper null-guard
+      const existingLocationId = existingSystem?.config && typeof existingSystem.config === 'object' 
+        ? (existingSystem.config as { locationId?: string }).locationId 
+        : undefined;
+      
       if (
         !existingSystem &&
-        (!paymentCredentials.applicationId || !paymentCredentials.accessToken)
+        (!paymentCredentials.applicationId || !paymentCredentials.accessToken || !paymentCredentials.locationId)
       ) {
         toast({
           title: "Missing Credentials",
           description:
-            "Please provide both Application ID and Access Token for Square.",
+            "Please provide Application ID, Access Token, and Location ID for Square.",
+          variant: "destructive",
+        });
+        return;
+      }
+      // For existing system updates, locationId is still required
+      if (existingSystem && !paymentCredentials.locationId && !existingLocationId) {
+        toast({
+          title: "Missing Location ID",
+          description:
+            "Location ID is required for Square payments to work.",
           variant: "destructive",
         });
         return;
@@ -5672,8 +5687,10 @@ export default function AdminDashboard() {
         systemData.publicKey = paymentCredentials.applicationId;
       if (paymentCredentials.accessToken)
         systemData.secretKey = paymentCredentials.accessToken;
-      if (paymentCredentials.locationId) {
-        systemData.config = { locationId: paymentCredentials.locationId };
+      // Always include config with locationId (use new value or preserve existing)
+      const locationId = paymentCredentials.locationId || existingLocationId || "";
+      if (locationId) {
+        systemData.config = { locationId };
       }
     }
 
@@ -10675,11 +10692,11 @@ export default function AdminDashboard() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="square-location-id">
-                    Location ID (Optional)
+                    Location ID <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="square-location-id"
-                    placeholder="Enter location ID..."
+                    placeholder="Enter location ID (required)..."
                     value={paymentCredentials.locationId}
                     onChange={(e) =>
                       setPaymentCredentials({
