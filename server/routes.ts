@@ -4194,7 +4194,7 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
 
       // All verifications passed - update invoice as paid
       const updatedInvoice = await storage.updateInvoice(invoice.id, {
-        paidAt: new Date().toISOString(),
+        paidAt: new Date(),
       });
 
       // Update booking payment status with verified payment intent ID
@@ -5286,7 +5286,7 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
       if (result.status === 'COMPLETED') {
         // Update invoice as paid
         await storage.updateInvoice(invoiceId, {
-          paidAt: new Date().toISOString(),
+          paidAt: new Date(),
         });
 
         // Mark payment token as used
@@ -5334,7 +5334,7 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
 
           // Update invoice as paid
           await storage.updateInvoice(invoiceId, {
-            paidAt: new Date().toISOString(),
+            paidAt: new Date(),
           });
 
           // Mark payment token as used
