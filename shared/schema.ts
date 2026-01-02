@@ -61,6 +61,11 @@ export const users = pgTable("users", {
   // Password reset fields
   passwordResetToken: varchar("password_reset_token"),
   passwordResetExpires: timestamp("password_reset_expires"),
+  // Partner fields (job sources like Uber, Sixt, Blacklane, other drivers)
+  isPartner: boolean("is_partner").default(false),
+  partnerCompanyName: varchar("partner_company_name"),
+  partnerCommissionRate: decimal("partner_commission_rate", { precision: 5, scale: 2 }).default("0"),
+  partnerNotes: text("partner_notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -314,6 +319,9 @@ export const bookings = pgTable("bookings", {
   flightDeparture: varchar("flight_departure"),
   flightArrival: varchar("flight_arrival"),
   noFlightInfo: boolean("no_flight_info").default(false),
+  
+  // Partner attribution (when booking is sourced by a Partner account)
+  sourcePartnerId: varchar("source_partner_id").references(() => users.id),
   
   // Journey tracking fields
   bookedBy: varchar("booked_by", { enum: ["admin", "passenger"] }),
