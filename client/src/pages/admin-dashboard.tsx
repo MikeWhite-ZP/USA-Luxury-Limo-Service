@@ -10702,8 +10702,7 @@ export default function AdminDashboard() {
                                     const fullBooking = bookings?.find(b => b.id === earning.bookingId);
                                     if (fullBooking) {
                                       setUserDialogOpen(false);
-                                      setEditingBooking(fullBooking);
-                                      setBookingDialogOpen(true);
+                                      openEditBookingDialog(fullBooking);
                                     } else {
                                       toast({
                                         title: "Booking not found",
