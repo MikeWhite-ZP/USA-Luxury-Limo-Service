@@ -121,12 +121,12 @@ export function CompletedRideSummaryDialog({
               </div>
             </div>
 
-            <div className="space-y-4 text-right">
-              <h3 className="font-semibold text-sm flex items-center gap-2 text-foreground">
-                <Car className="w-4 h-4 text-purple-600" />
+            <div className="space-y-4">
+              <h3 className="font-semibold text-sm flex items-center justify-end gap-2 text-foreground">
                 Driver & Vehicle
+                <Car className="w-4 h-4 text-purple-600" />
               </h3>
-              <div className="bg-muted/30 rounded-lg p-4 space-y-1">
+              <div className="bg-muted/30 rounded-lg p-4 space-y-1 text-right">
                 <p className="font-semibold text-foreground">
                   {driverFullName || "Unassigned"}
                 </p>
@@ -134,9 +134,9 @@ export function CompletedRideSummaryDialog({
                   <p className="text-sm text-muted-foreground">{vehicleType.name}</p>
                 )}
                 {booking.driverPhone && (
-                  <p className="text-sm text-muted-foreground flex items-center gap-1">
-                    <Phone className="w-3 h-3" />
+                  <p className="text-sm text-muted-foreground flex items-center justify-end gap-1">
                     {booking.driverPhone}
+                    <Phone className="w-3 h-3" />
                   </p>
                 )}
                 {booking.driverVehiclePlate && (
