@@ -3876,6 +3876,7 @@ export default function AdminDashboard() {
   const [accountingSection, setAccountingSection] = useState<"passengers" | "drivers">("drivers");
   const [accountingTab, setAccountingTab] = useState<"paid" | "unpaid">("unpaid");
   const [accountingPeriod, setAccountingPeriod] = useState<"weekly" | "monthly" | "yearly" | "all">("monthly");
+  const [passengerAccountingTab, setPassengerAccountingTab] = useState<"paid_card" | "paid_cash" | "unpaid_card" | "unpaid_cash">("unpaid_card");
   const [selectedUserType, setSelectedUserType] = useState<
     "all" | "passenger" | "driver" | "dispatcher" | "admin"
   >("all");
@@ -4391,6 +4392,28 @@ export default function AdminDashboard() {
       toast({
         title: "Payment Updated",
         description: "Driver payment status has been updated.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update payment status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation for marking passenger payment as paid
+  const markPassengerPaymentPaidMutation = useMutation({
+    mutationFn: async ({ bookingId, paid }: { bookingId: string; paid: boolean }) => {
+      const response = await apiRequest('PATCH', `/api/admin/bookings/${bookingId}/passenger-payment-paid`, { paid });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+      toast({
+        title: "Payment Updated",
+        description: "Passenger payment status has been updated.",
       });
     },
     onError: (error: Error) => {
@@ -7935,10 +7958,281 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-12">
-                  <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4 opacity-50" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">Passengers Accounts</h3>
-                  <p className="text-muted-foreground">Coming soon - Track passenger payment history and balances</p>
+                <div className="space-y-4">
+                  {/* Period Filter & Tabs */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        onClick={() => setPassengerAccountingTab("unpaid_card")}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 ${
+                          passengerAccountingTab === "unpaid_card"
+                            ? "bg-amber-500 text-white shadow-md"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        }`}
+                      >
+                        <CreditCard className="w-3 h-3" />
+                        Unpaid (Card)
+                      </button>
+                      <button
+                        onClick={() => setPassengerAccountingTab("unpaid_cash")}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 ${
+                          passengerAccountingTab === "unpaid_cash"
+                            ? "bg-amber-500 text-white shadow-md"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        }`}
+                      >
+                        <Banknote className="w-3 h-3" />
+                        Unpaid (Cash)
+                      </button>
+                      <button
+                        onClick={() => setPassengerAccountingTab("paid_card")}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 ${
+                          passengerAccountingTab === "paid_card"
+                            ? "bg-emerald-500 text-white shadow-md"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        }`}
+                      >
+                        <CreditCard className="w-3 h-3" />
+                        Paid (Card)
+                      </button>
+                      <button
+                        onClick={() => setPassengerAccountingTab("paid_cash")}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 ${
+                          passengerAccountingTab === "paid_cash"
+                            ? "bg-emerald-500 text-white shadow-md"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        }`}
+                      >
+                        <Banknote className="w-3 h-3" />
+                        Paid (Cash)
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Filter className="w-4 h-4 text-muted-foreground" />
+                      <Select value={accountingPeriod} onValueChange={(v) => setAccountingPeriod(v as "weekly" | "monthly" | "yearly" | "all")}>
+                        <SelectTrigger className="w-[130px] h-9">
+                          <SelectValue placeholder="Period" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="weekly">This Week</SelectItem>
+                          <SelectItem value="monthly">This Month</SelectItem>
+                          <SelectItem value="yearly">This Year</SelectItem>
+                          <SelectItem value="all">All Time</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Summary Stats */}
+                  {(() => {
+                    const now = new Date();
+                    const startOfWeek = new Date(now);
+                    startOfWeek.setDate(now.getDate() - now.getDay());
+                    startOfWeek.setHours(0, 0, 0, 0);
+                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+                    const relevantBookings = bookings?.filter((b: any) => {
+                      if (b.status !== 'completed' || !b.totalAmount) return false;
+                      const bookingDate = new Date(b.scheduledDateTime);
+                      if (accountingPeriod === "weekly" && bookingDate < startOfWeek) return false;
+                      if (accountingPeriod === "monthly" && bookingDate < startOfMonth) return false;
+                      if (accountingPeriod === "yearly" && bookingDate < startOfYear) return false;
+                      return true;
+                    }) || [];
+
+                    const cardPayments = relevantBookings.filter((b: any) => b.paymentMethod === 'pay_now' || b.paymentMethod === 'pay_later');
+                    const cashPayments = relevantBookings.filter((b: any) => b.paymentMethod === 'cash');
+
+                    const paidCardTotal = cardPayments
+                      .filter((b: any) => b.paymentStatus === 'paid')
+                      .reduce((sum: number, b: any) => sum + parseFloat(b.totalAmount || '0'), 0);
+                    const paidCashTotal = cashPayments
+                      .filter((b: any) => b.paymentStatus === 'paid')
+                      .reduce((sum: number, b: any) => sum + parseFloat(b.totalAmount || '0'), 0);
+                    const unpaidTotal = relevantBookings
+                      .filter((b: any) => b.paymentStatus !== 'paid')
+                      .reduce((sum: number, b: any) => sum + parseFloat(b.totalAmount || '0'), 0);
+                    const grandTotal = paidCardTotal + paidCashTotal + unpaidTotal;
+
+                    return (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <CreditCard className="w-3.5 h-3.5 text-blue-600" />
+                            <span className="text-xs font-medium text-blue-700 dark:text-blue-400">Card Revenue</span>
+                          </div>
+                          <p className="text-xl font-bold text-blue-800 dark:text-blue-300">${paidCardTotal.toFixed(2)}</p>
+                        </div>
+                        <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <Banknote className="w-3.5 h-3.5 text-green-600" />
+                            <span className="text-xs font-medium text-green-700 dark:text-green-400">Cash Revenue</span>
+                          </div>
+                          <p className="text-xl font-bold text-green-800 dark:text-green-300">${paidCashTotal.toFixed(2)}</p>
+                        </div>
+                        <div className="bg-amber-50 dark:bg-amber-950/30 rounded-lg p-3 border border-amber-200 dark:border-amber-800">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <Clock className="w-3.5 h-3.5 text-amber-600" />
+                            <span className="text-xs font-medium text-amber-700 dark:text-amber-400">Outstanding</span>
+                          </div>
+                          <p className="text-xl font-bold text-amber-800 dark:text-amber-300">${unpaidTotal.toFixed(2)}</p>
+                        </div>
+                        <div className="bg-purple-50 dark:bg-purple-950/30 rounded-lg p-3 border border-purple-200 dark:border-purple-800">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <DollarSign className="w-3.5 h-3.5 text-purple-600" />
+                            <span className="text-xs font-medium text-purple-700 dark:text-purple-400">Grand Total</span>
+                          </div>
+                          <p className="text-xl font-bold text-purple-800 dark:text-purple-300">${grandTotal.toFixed(2)}</p>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Passenger Accounts Table */}
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted/50">
+                          <tr>
+                            <th className="text-left py-2.5 px-3 font-medium text-muted-foreground text-xs">Passenger</th>
+                            <th className="text-left py-2.5 px-3 font-medium text-muted-foreground text-xs">Booking</th>
+                            <th className="text-left py-2.5 px-3 font-medium text-muted-foreground text-xs">Route</th>
+                            <th className="text-left py-2.5 px-3 font-medium text-muted-foreground text-xs">Date</th>
+                            <th className="text-right py-2.5 px-3 font-medium text-muted-foreground text-xs">Amount</th>
+                            <th className="text-center py-2.5 px-3 font-medium text-muted-foreground text-xs">Method</th>
+                            <th className="text-center py-2.5 px-3 font-medium text-muted-foreground text-xs">Status</th>
+                            <th className="text-center py-2.5 px-3 font-medium text-muted-foreground text-xs">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {(() => {
+                            const now = new Date();
+                            const startOfWeek = new Date(now);
+                            startOfWeek.setDate(now.getDate() - now.getDay());
+                            startOfWeek.setHours(0, 0, 0, 0);
+                            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                            const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+                            const filteredBookings = bookings?.filter((b: any) => {
+                              if (b.status !== 'completed' || !b.totalAmount) return false;
+                              
+                              const isPaid = b.paymentStatus === 'paid';
+                              const isCardPayment = b.paymentMethod === 'pay_now' || b.paymentMethod === 'pay_later';
+                              const isCashPayment = b.paymentMethod === 'cash';
+
+                              if (passengerAccountingTab === "paid_card" && (!isPaid || !isCardPayment)) return false;
+                              if (passengerAccountingTab === "paid_cash" && (!isPaid || !isCashPayment)) return false;
+                              if (passengerAccountingTab === "unpaid_card" && (isPaid || !isCardPayment)) return false;
+                              if (passengerAccountingTab === "unpaid_cash" && (isPaid || !isCashPayment)) return false;
+
+                              const bookingDate = new Date(b.scheduledDateTime);
+                              if (accountingPeriod === "weekly" && bookingDate < startOfWeek) return false;
+                              if (accountingPeriod === "monthly" && bookingDate < startOfMonth) return false;
+                              if (accountingPeriod === "yearly" && bookingDate < startOfYear) return false;
+                              return true;
+                            }) || [];
+
+                            if (filteredBookings.length === 0) {
+                              return (
+                                <tr>
+                                  <td colSpan={8} className="text-center py-10">
+                                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                                      <Users className="w-8 h-8 opacity-50" />
+                                      <p className="font-medium text-sm">No bookings found</p>
+                                      <p className="text-xs">Try adjusting the filters</p>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            }
+
+                            return filteredBookings.map((booking: any) => (
+                              <tr key={booking.id} className="hover:bg-muted/30 transition-colors">
+                                <td className="py-2.5 px-3">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                                      <Users className="w-3.5 h-3.5 text-blue-600" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="font-medium text-foreground text-xs truncate">
+                                        {booking.passengerName || `${booking.passengerFirstName || ''} ${booking.passengerLastName || ''}`.trim() || 'Unknown'}
+                                      </p>
+                                      {booking.passengerPhone && (
+                                        <p className="text-[10px] text-muted-foreground truncate">{booking.passengerPhone}</p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="py-2.5 px-3">
+                                  <button
+                                    className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                                    onClick={() => {
+                                      setViewingCompletedBooking(booking);
+                                      setCompletedRideSummaryOpen(true);
+                                    }}
+                                  >
+                                    #{booking.id.substring(0, 8)}
+                                  </button>
+                                </td>
+                                <td className="py-2.5 px-3">
+                                  <p className="text-xs text-foreground truncate max-w-[150px]">
+                                    {extractCityState(booking.pickupAddress)} → {extractCityState(booking.destinationAddress)}
+                                  </p>
+                                </td>
+                                <td className="py-2.5 px-3 text-xs text-muted-foreground whitespace-nowrap">
+                                  {new Date(booking.scheduledDateTime).toLocaleDateString()}
+                                </td>
+                                <td className="py-2.5 px-3 text-right">
+                                  <span className="font-semibold text-foreground text-xs">
+                                    ${parseFloat(booking.totalAmount || '0').toFixed(2)}
+                                  </span>
+                                </td>
+                                <td className="py-2.5 px-3 text-center">
+                                  {booking.paymentMethod === 'cash' ? (
+                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950/50 dark:text-green-400 text-[10px] px-1.5 py-0">
+                                      <Banknote className="w-3 h-3 mr-1" />
+                                      Cash
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-400 text-[10px] px-1.5 py-0">
+                                      <CreditCard className="w-3 h-3 mr-1" />
+                                      Card
+                                    </Badge>
+                                  )}
+                                </td>
+                                <td className="py-2.5 px-3 text-center">
+                                  {booking.paymentStatus === 'paid' ? (
+                                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-400 text-[10px] px-1.5 py-0">
+                                      Paid
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-400 text-[10px] px-1.5 py-0">
+                                      Pending
+                                    </Badge>
+                                  )}
+                                </td>
+                                <td className="py-2.5 px-3 text-center">
+                                  <Button
+                                    size="sm"
+                                    variant={booking.paymentStatus === 'paid' ? "outline" : "default"}
+                                    className={`h-7 text-xs ${booking.paymentStatus === 'paid' ? "" : "bg-emerald-600 hover:bg-emerald-700"}`}
+                                    onClick={() => markPassengerPaymentPaidMutation.mutate({
+                                      bookingId: booking.id,
+                                      paid: booking.paymentStatus !== 'paid'
+                                    })}
+                                    disabled={markPassengerPaymentPaidMutation.isPending}
+                                  >
+                                    {booking.paymentStatus === 'paid' ? 'Unmark' : 'Mark Paid'}
+                                  </Button>
+                                </td>
+                              </tr>
+                            ));
+                          })()}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               )}
             </CardContent>

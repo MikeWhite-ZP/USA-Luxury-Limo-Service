@@ -5731,6 +5731,36 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
     }
   });
 
+  // Mark passenger payment as paid (for cash payments)
+  app.patch('/api/admin/bookings/:id/passenger-payment-paid', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const { paid } = req.body;
+      
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+
+      // Update payment status
+      const updatedBooking = await storage.updateBooking(id, {
+        paymentStatus: paid === true ? 'paid' : 'pending',
+      });
+      
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Mark passenger payment paid error:', error);
+      res.status(500).json({ error: 'Failed to update passenger payment status' });
+    }
+  });
+
   // Get driver earnings summary (accepts userId, looks up corresponding driver record)
   app.get('/api/admin/drivers/:driverId/earnings', isAuthenticated, async (req: any, res) => {
     try {
