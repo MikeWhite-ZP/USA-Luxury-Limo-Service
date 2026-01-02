@@ -5175,6 +5175,31 @@ export default function AdminDashboard() {
         discountPercentage: data.discountPercentage
           ? String(data.discountPercentage)
           : undefined,
+        // Ensure adminDiscount is properly converted (critical for edit mode)
+        adminDiscount: data.adminDiscount 
+          ? String(data.adminDiscount)
+          : undefined,
+        // Ensure other pricing fields are properly converted
+        discountAmount: data.discountAmount
+          ? String(data.discountAmount)
+          : undefined,
+        regularPrice: data.regularPrice
+          ? String(data.regularPrice)
+          : undefined,
+        baseFare: data.baseFare
+          ? String(data.baseFare)
+          : undefined,
+        gratuityAmount: data.gratuityAmount
+          ? String(data.gratuityAmount)
+          : undefined,
+        airportFeeAmount: data.airportFeeAmount
+          ? String(data.airportFeeAmount)
+          : undefined,
+        surgePricingAmount: data.surgePricingAmount
+          ? String(data.surgePricingAmount)
+          : undefined,
+        // Ensure customPriceItems is passed through
+        customPriceItems: data.customPriceItems || undefined,
       };
 
       const method = editingBooking ? "PATCH" : "POST";
