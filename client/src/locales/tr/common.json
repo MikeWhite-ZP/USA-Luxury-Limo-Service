@@ -37,6 +37,28 @@
       "description": "Her araçta ücretsiz WiFi, içecekler ve lüks olanaklar."
     }
   },
+  "pwa": {
+    "downloadButton": "Mobil Uygulamayı İndir",
+    "dialogTitle": "{{companyName}} Uygulamasını Kur",
+    "ios": {
+      "title": "iPhone/iPad için:",
+      "step1": "Safari'nin altındaki Paylaş düğmesine dokunun",
+      "step2": "Aşağı kaydırın ve \"Ana Ekrana Ekle\"ye dokunun",
+      "step3": "Sağ üst köşedeki \"Ekle\"ye dokunun",
+      "step4": "Uygulama ana ekranınızda görünecek"
+    },
+    "android": {
+      "title": "Android için:",
+      "step1": "Bu web sitesini Chrome tarayıcısında açın",
+      "step2": "Sağ üstteki menüye (⋮) dokunun",
+      "step3": "\"Ana ekrana ekle\" veya \"Uygulamayı yükle\"yi seçin",
+      "step4": "Yüklemek için talimatları izleyin"
+    },
+    "benefits": {
+      "title": "Avantajlar:",
+      "description": "Çevrimdışı çalışır, daha hızlı yükleme, yerel uygulama deneyimi, ana ekran erişimi"
+    }
+  },
   "contact": {
     "title": "Bize Ulaşın",
     "description": "Hizmetlerimiz hakkında sorularınız mı var? Özel bir ulaşım çözümüne mi ihtiyacınız var? Size yardımcı olmak için buradayız.",

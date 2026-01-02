@@ -37,6 +37,28 @@
       "description": "WiFi gratuito, rinfreschi e comfort di lusso in ogni veicolo."
     }
   },
+  "pwa": {
+    "downloadButton": "Scarica l'App Mobile",
+    "dialogTitle": "Installa {{companyName}}",
+    "ios": {
+      "title": "Per iPhone/iPad:",
+      "step1": "Tocca il pulsante Condividi in fondo a Safari",
+      "step2": "Scorri verso il basso e tocca \"Aggiungi alla schermata Home\"",
+      "step3": "Tocca \"Aggiungi\" nell'angolo in alto a destra",
+      "step4": "L'app apparirà sulla tua schermata Home"
+    },
+    "android": {
+      "title": "Per Android:",
+      "step1": "Apri questo sito web nel browser Chrome",
+      "step2": "Tocca il menu (⋮) in alto a destra",
+      "step3": "Seleziona \"Aggiungi a schermata Home\" o \"Installa app\"",
+      "step4": "Segui le istruzioni per installare"
+    },
+    "benefits": {
+      "title": "Vantaggi:",
+      "description": "Funziona offline, caricamento più veloce, esperienza app nativa, accesso dalla schermata Home"
+    }
+  },
   "contact": {
     "title": "Contattaci",
     "description": "Hai domande sui nostri servizi? Hai bisogno di una soluzione di trasporto personalizzata? Siamo qui per aiutarti.",

@@ -37,6 +37,28 @@
       "description": "Kostenloses WLAN, Erfrischungen und Luxus-Annehmlichkeiten in jedem Fahrzeug."
     }
   },
+  "pwa": {
+    "downloadButton": "Mobile App herunterladen",
+    "dialogTitle": "{{companyName}} App installieren",
+    "ios": {
+      "title": "Für iPhone/iPad:",
+      "step1": "Tippen Sie auf die Teilen-Schaltfläche unten in Safari",
+      "step2": "Scrollen Sie nach unten und tippen Sie auf \"Zum Home-Bildschirm\"",
+      "step3": "Tippen Sie oben rechts auf \"Hinzufügen\"",
+      "step4": "Die App erscheint auf Ihrem Home-Bildschirm"
+    },
+    "android": {
+      "title": "Für Android:",
+      "step1": "Öffnen Sie diese Website im Chrome-Browser",
+      "step2": "Tippen Sie auf das Menü (⋮) oben rechts",
+      "step3": "Wählen Sie \"Zum Startbildschirm hinzufügen\" oder \"App installieren\"",
+      "step4": "Folgen Sie den Anweisungen zur Installation"
+    },
+    "benefits": {
+      "title": "Vorteile:",
+      "description": "Funktioniert offline, schnelleres Laden, native App-Erfahrung, Zugriff vom Startbildschirm"
+    }
+  },
   "contact": {
     "title": "Kontaktieren Sie uns",
     "description": "Haben Sie Fragen zu unseren Dienstleistungen? Benötigen Sie eine maßgeschneiderte Transportlösung? Wir sind hier, um zu helfen.",

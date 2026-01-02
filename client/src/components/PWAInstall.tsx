@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Download, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBranding } from "@/hooks/useBranding";
@@ -16,6 +17,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function PWAInstall() {
+  const { t } = useTranslation();
   const { companyName } = useBranding();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallDialog, setShowInstallDialog] = useState(false);
@@ -79,7 +81,7 @@ export default function PWAInstall() {
           data-testid="button-install-pwa"
         >
           <Smartphone className="w-5 h-5" />
-          Download Mobile App
+          {t('pwa.downloadButton')}
         </Button>
       </div>
 
@@ -89,33 +91,33 @@ export default function PWAInstall() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Download className="w-5 h-5" />
-              Install {companyName} App
+              {t('pwa.dialogTitle', { companyName })}
             </DialogTitle>
             <DialogDescription className="text-left pt-4">
               {isIOS ? (
                 <div className="space-y-3">
-                  <p className="font-semibold">For iPhone/iPad:</p>
+                  <p className="font-semibold">{t('pwa.ios.title')}</p>
                   <ol className="list-decimal ml-5 space-y-2">
-                    <li>Tap the Share button <span className="inline-block">📤</span> at the bottom of Safari</li>
-                    <li>Scroll down and tap "Add to Home Screen"</li>
-                    <li>Tap "Add" in the top right corner</li>
-                    <li>The app will appear on your home screen</li>
+                    <li>{t('pwa.ios.step1')} <span className="inline-block">📤</span></li>
+                    <li>{t('pwa.ios.step2')}</li>
+                    <li>{t('pwa.ios.step3')}</li>
+                    <li>{t('pwa.ios.step4')}</li>
                   </ol>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <p className="font-semibold">For Android:</p>
+                  <p className="font-semibold">{t('pwa.android.title')}</p>
                   <ol className="list-decimal ml-5 space-y-2">
-                    <li>Open this website in Chrome browser</li>
-                    <li>Tap the menu (⋮) in the top right</li>
-                    <li>Select "Add to Home screen" or "Install app"</li>
-                    <li>Follow the prompts to install</li>
+                    <li>{t('pwa.android.step1')}</li>
+                    <li>{t('pwa.android.step2')}</li>
+                    <li>{t('pwa.android.step3')}</li>
+                    <li>{t('pwa.android.step4')}</li>
                   </ol>
                 </div>
               )}
               <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-900">
-                  <strong>Benefits:</strong> Works offline, faster loading, native app experience, home screen access
+                  <strong>{t('pwa.benefits.title')}</strong> {t('pwa.benefits.description')}
                 </p>
               </div>
             </DialogDescription>

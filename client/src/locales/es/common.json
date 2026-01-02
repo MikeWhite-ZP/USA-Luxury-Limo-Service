@@ -37,6 +37,28 @@
       "description": "WiFi gratuito, refrescos y comodidades de lujo en cada vehículo."
     }
   },
+  "pwa": {
+    "downloadButton": "Descargar Aplicación Móvil",
+    "dialogTitle": "Instalar {{companyName}}",
+    "ios": {
+      "title": "Para iPhone/iPad:",
+      "step1": "Toca el botón Compartir en la parte inferior de Safari",
+      "step2": "Desplázate hacia abajo y toca \"Añadir a pantalla de inicio\"",
+      "step3": "Toca \"Añadir\" en la esquina superior derecha",
+      "step4": "La aplicación aparecerá en tu pantalla de inicio"
+    },
+    "android": {
+      "title": "Para Android:",
+      "step1": "Abre este sitio web en el navegador Chrome",
+      "step2": "Toca el menú (⋮) en la parte superior derecha",
+      "step3": "Selecciona \"Añadir a pantalla de inicio\" o \"Instalar aplicación\"",
+      "step4": "Sigue las instrucciones para instalar"
+    },
+    "benefits": {
+      "title": "Beneficios:",
+      "description": "Funciona sin conexión, carga más rápida, experiencia de aplicación nativa, acceso desde la pantalla de inicio"
+    }
+  },
   "contact": {
     "title": "Contáctenos",
     "description": "¿Tiene preguntas sobre nuestros servicios? ¿Necesita una solución de transporte personalizada? Estamos aquí para ayudarle.",
