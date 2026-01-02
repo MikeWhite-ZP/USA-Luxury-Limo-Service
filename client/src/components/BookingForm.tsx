@@ -2660,7 +2660,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       {/* Hourly Form */}
       {activeTab === 'hourly' && (
         <div className="space-y-4">
-          <h3 className="text-lg font-bold text-primary mb-4">{t('booking.hourly.title')}</h3>
+          <h3 className="text-lg font-bold text-primary mb-4">{t('booking.hourlyDetails.title')}</h3>
           
           {/* Pickup Address */}
           <div className="relative">
@@ -2727,7 +2727,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               <SelectContent>
                 {Array.from({ length: 23 }, (_, i) => i + 2).map((hours) => (
                   <SelectItem key={hours} value={hours.toString()}>
-                    {t('booking.hourly.hoursCount', { count: hours })}
+                    {t('booking.hourlyDetails.hoursCount', { count: hours })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -2947,19 +2947,19 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       <Dialog open={showPaymentMethodRequired} onOpenChange={setShowPaymentMethodRequired}>
         <DialogContent className="sm:max-w-md bg-background" data-testid="payment-method-required-dialog">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-amber-600">{t('booking.payment.requiredTitle')}</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-amber-600">{t('booking.paymentDialog.requiredTitle')}</DialogTitle>
             <DialogDescription>
-              {t('booking.payment.requiredDescription')}
+              {t('booking.paymentDialog.requiredDescription')}
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 mt-4">
             <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
               <p className="text-sm text-muted-foreground">
-                <strong>{t('booking.payment.whyRequired')}</strong>
+                <strong>{t('booking.paymentDialog.whyRequired')}</strong>
               </p>
               <p className="text-sm text-muted-foreground mt-2">
-                {t('booking.payment.whyRequiredDescription')}
+                {t('booking.paymentDialog.whyRequiredDescription')}
               </p>
             </div>
             
@@ -2973,7 +2973,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 data-testid="button-add-payment-method"
               >
                 <CreditCard className="w-5 h-5 mr-2" />
-                {t('booking.payment.addPaymentMethod')}
+                {t('booking.paymentDialog.addPaymentMethod')}
               </Button>
               
               <Button
@@ -2989,7 +2989,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             </div>
             
             <p className="text-xs text-muted-foreground text-center mt-2">
-              {t('booking.payment.payNowAlternative')}
+              {t('booking.paymentDialog.payNowAlternative')}
             </p>
           </div>
         </DialogContent>
