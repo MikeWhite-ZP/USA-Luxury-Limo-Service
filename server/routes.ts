@@ -3178,10 +3178,6 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
   // Authorize & Capture payment (Admin/Dispatcher only)
   app.post('/api/bookings/:id/authorize-payment', isAuthenticated, async (req: any, res) => {
     try {
-      if (!stripe) {
-        return res.status(503).json({ message: 'Payment service not configured' });
-      }
-      
       const { id } = req.params;
       const userId = req.user.id;
       
@@ -3195,48 +3191,71 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
         return res.status(404).json({ message: 'Booking not found' });
       }
 
-      // Get passenger details
-      const passenger = await storage.getUser(booking.passengerId);
-      if (!passenger?.stripeCustomerId) {
-        return res.status(400).json({ message: 'Passenger does not have a payment method on file' });
-      }
-
-      // Get passenger's default payment method
-      const customer = await stripe.customers.retrieve(passenger.stripeCustomerId);
+      // Check which payment system is active - respect the selected provider
+      const activeSystem = await storage.getActivePaymentSystem();
       
-      if (!customer || customer.deleted) {
-        return res.status(400).json({ message: 'Customer not found in payment system' });
+      if (!activeSystem) {
+        return res.status(503).json({ message: 'No payment system configured. Please configure a payment provider in settings.' });
       }
 
-      const defaultPaymentMethod = (customer as any).invoice_settings?.default_payment_method;
-      
-      if (!defaultPaymentMethod) {
-        return res.status(400).json({ message: 'No default payment method found for passenger' });
+      const provider = activeSystem.provider;
+
+      if (provider === 'stripe') {
+        if (!stripe) {
+          return res.status(503).json({ message: 'Stripe is selected as the payment provider but is not properly configured.' });
+        }
+
+        // Get passenger details
+        const passenger = await storage.getUser(booking.passengerId);
+        if (!passenger?.stripeCustomerId) {
+          return res.status(400).json({ message: 'Passenger does not have a payment method on file' });
+        }
+
+        // Get passenger's default payment method
+        const customer = await stripe.customers.retrieve(passenger.stripeCustomerId);
+        
+        if (!customer || customer.deleted) {
+          return res.status(400).json({ message: 'Customer not found in payment system' });
+        }
+
+        const defaultPaymentMethod = (customer as any).invoice_settings?.default_payment_method;
+        
+        if (!defaultPaymentMethod) {
+          return res.status(400).json({ message: 'No default payment method found for passenger' });
+        }
+
+        // Create payment intent with automatic payment method
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: Math.round(parseFloat(booking.totalAmount || '0') * 100), // Convert to cents
+          currency: 'usd',
+          customer: passenger.stripeCustomerId,
+          payment_method: defaultPaymentMethod,
+          off_session: true,
+          confirm: true,
+          metadata: {
+            bookingId: booking.id,
+            passengerId: booking.passengerId,
+            authorizedBy: userId
+          },
+        });
+
+        // Update booking payment status
+        await storage.updateBookingPayment(id, paymentIntent.id, 'paid');
+
+        res.json({ 
+          success: true, 
+          paymentIntent: paymentIntent.id,
+          amount: booking.totalAmount 
+        });
+      } else if (provider === 'square') {
+        // Square doesn't support charging saved cards in the same way as Stripe
+        // For Square, stored cards require a different flow using the Cards API
+        return res.status(400).json({ 
+          message: 'Saved card payments are not available with Square. Please use the invoice payment feature or have the passenger pay directly.' 
+        });
+      } else {
+        return res.status(503).json({ message: `Payment provider '${provider}' is not supported for this operation` });
       }
-
-      // Create payment intent with automatic payment method
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(parseFloat(booking.totalAmount || '0') * 100), // Convert to cents
-        currency: 'usd',
-        customer: passenger.stripeCustomerId,
-        payment_method: defaultPaymentMethod,
-        off_session: true,
-        confirm: true,
-        metadata: {
-          bookingId: booking.id,
-          passengerId: booking.passengerId,
-          authorizedBy: userId
-        },
-      });
-
-      // Update booking payment status
-      await storage.updateBookingPayment(id, paymentIntent.id, 'paid');
-
-      res.json({ 
-        success: true, 
-        paymentIntent: paymentIntent.id,
-        amount: booking.totalAmount 
-      });
     } catch (error: any) {
       console.error('Authorize payment error:', error);
       
@@ -4076,14 +4095,24 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
         return res.status(400).json({ message: 'Invoice amount must be greater than zero' });
       }
 
-      // Check which payment system is active
+      // Check which payment system is active - respect the selected provider
       const activeSystem = await storage.getActivePaymentSystem();
       
-      if (activeSystem?.provider === 'square' && isSquareConfigured()) {
-        // Return Square config for frontend to render Square payment form
+      if (!activeSystem) {
+        return res.status(503).json({ message: 'No payment system configured. Please configure a payment provider in settings.' });
+      }
+
+      const provider = activeSystem.provider;
+
+      // Use the active provider - do NOT fall back to another provider
+      if (provider === 'square') {
+        if (!isSquareConfigured()) {
+          return res.status(503).json({ message: 'Square is selected as the payment provider but is not properly configured. Please check Square credentials in settings.' });
+        }
+        
         const squareConfig = getSquareConfig();
         if (!squareConfig) {
-          return res.status(503).json({ message: 'Square payment is not properly configured' });
+          return res.status(503).json({ message: 'Square payment configuration is missing' });
         }
         
         return res.json({
@@ -4094,7 +4123,11 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
           locationId: squareConfig.locationId,
           environment: squareConfig.environment,
         });
-      } else if (stripe) {
+      } else if (provider === 'stripe') {
+        if (!stripe) {
+          return res.status(503).json({ message: 'Stripe is selected as the payment provider but is not properly configured. Please check Stripe credentials in settings.' });
+        }
+        
         // Create Stripe payment intent
         const paymentIntentData: any = {
           amount,
@@ -4141,7 +4174,7 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
           amount: invoice.totalAmount,
         });
       } else {
-        return res.status(503).json({ message: 'No payment service is configured' });
+        return res.status(503).json({ message: `Payment provider '${provider}' is not supported` });
       }
     } catch (error) {
       console.error('Manual invoice payment error:', error);
