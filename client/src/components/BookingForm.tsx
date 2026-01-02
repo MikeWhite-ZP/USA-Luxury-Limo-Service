@@ -1307,7 +1307,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
         {/* Vehicle Selection Grid */}
         <div>
-          <h3 className="text-xl font-bold text-primary mb-6">Select Your Vehicle</h3>
+          <h3 className="text-xl font-bold text-primary mb-6">{t('booking.form.selectYourVehicle')}</h3>
           <div className="space-y-3 mb-6">
             {vehicleTypes
               ?.filter(vehicle => {
@@ -1391,19 +1391,19 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                               ${breakdown.regularPrice}
                             </p>
                             <p className="text-xs text-green-600 font-semibold">
-                              - ${breakdown.discountAmount} discount
+                              {t('booking.form.discountAmount', { amount: breakdown.discountAmount })}
                             </p>
                             <p className="text-2xl font-bold text-primary" data-testid={`price-${vehicle.id}`}>
                               ${breakdown.finalPrice}
                             </p>
-                            <p className="text-xs text-muted-foreground">Your Price</p>
+                            <p className="text-xs text-muted-foreground">{t('booking.form.yourPrice')}</p>
                           </div>
                         ) : (
                           <div>
                             <p className="text-2xl font-bold text-primary" data-testid={`price-${vehicle.id}`}>
                               ${calculatedPrice}
                             </p>
-                            <p className="text-xs text-muted-foreground">Total Price</p>
+                            <p className="text-xs text-muted-foreground">{t('booking.form.totalPrice')}</p>
                           </div>
                         );
                       })()}
@@ -1416,48 +1416,48 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
         {/* Service Includes Section */}
         <div className="bg-muted border border-border rounded-xl p-6">
-          <h4 className="text-lg font-bold text-primary mb-4">All Classes Include:</h4>
+          <h4 className="text-lg font-bold text-primary mb-4">{t('booking.form.allClassesInclude')}</h4>
           <ul className="space-y-2 text-sm">
             <li className="flex items-center">
               <span className="text-primary mr-2 font-bold">✓</span>
-              Free cancellation up until 2 hours before pickup
+              {t('booking.form.amenities.freeCancellation')}
             </li>
             <li className="flex items-center">
               <span className="text-primary mr-2 font-bold">✓</span>
-              Free 15 minutes of wait time in city pickups
+              {t('booking.form.amenities.freeWaitCity')}
             </li>
             <li className="flex items-center">
               <span className="text-primary mr-2 font-bold">✓</span>
-              Free 1 hour of wait time in airport pickups
+              {t('booking.form.amenities.freeWaitAirport')}
             </li>
             <li className="flex items-center">
               <span className="text-primary mr-2 font-bold">✓</span>
-              Meet & Greet service
+              {t('booking.form.amenities.meetAndGreet')}
             </li>
             <li className="flex items-center">
               <span className="text-primary mr-2 font-bold">✓</span>
-              Complimentary bottle of water
+              {t('booking.form.amenities.bottleWater')}
             </li>
             <li className="flex items-center">
               <span className="text-primary mr-2 font-bold">✓</span>
-              Complimentary in-vehicle WiFi
+              {t('booking.form.amenities.inVehicleWifi')}
             </li>
             <li className="flex items-center">
               <span className="text-primary mr-2 font-bold">✓</span>
-              Tissues and sanitizer
+              {t('booking.form.amenities.tissuesSanitizer')}
             </li>
             <li className="flex items-center">
               <span className="text-primary mr-2 font-bold">✓</span>
-              Android and iPhone chargers
+              {t('booking.form.amenities.phoneChargers')}
             </li>
           </ul>
           
           <div className="mt-6 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg">
             <p className="text-sm text-orange-800 font-medium mb-2">
-              <strong>Guest/luggage capacities must be abided by for safety reasons. If you are unsure, select a larger class as chauffeurs may turn down service when they are exceeded.</strong>
+              <strong>{t('booking.form.capacityWarning')}</strong>
             </p>
             <p className="text-sm text-orange-800">
-              <strong>The vehicle images above are examples. You may get a different vehicle of similar quality.</strong>
+              <strong>{t('booking.form.vehicleImageNotice')}</strong>
             </p>
           </div>
         </div>
@@ -1470,7 +1470,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             className="flex-1"
             data-testid="button-back"
           >
-            Back
+            {t('booking.form.back')}
           </Button>
           <Button 
             onClick={handleContinueBooking}
@@ -1478,7 +1478,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             className="flex-1"
             data-testid="button-continue-booking"
           >
-            {bookingMutation.isPending ? 'Processing...' : 'Continue'}
+            {bookingMutation.isPending ? t('booking.form.processing') : t('booking.form.continue')}
           </Button>
         </div>
       </div>
@@ -1497,7 +1497,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-4 rounded-xl border-2 border-primary/20" data-testid="trip-summary">
           {/* Header with Price */}
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-base font-bold text-primary">Booking Summary</h3>
+            <h3 className="text-base font-bold text-primary">{t('booking.form.bookingSummary')}</h3>
             <p className="text-xl font-bold text-primary">${totalPrice}</p>
           </div>
           
@@ -1508,12 +1508,12 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               {/* Service & Vehicle Row */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Service</p>
-                  <p className="font-semibold text-foreground">{activeTab === 'transfer' ? 'Transfer' : 'Hourly'}</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('booking.form.service')}</p>
+                  <p className="font-semibold text-foreground">{activeTab === 'transfer' ? t('booking.form.transfer') : t('booking.form.hourly')}</p>
                 </div>
                 {selectedVehicle && vehicleTypes && (
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Vehicle</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('booking.form.vehicle')}</p>
                     <p className="font-semibold text-foreground">{selectedVehicleName}</p>
                   </div>
                 )}
@@ -1521,7 +1521,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
               {/* Date & Time */}
               <div className="border-t border-border/50 pt-2">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">Date & Time</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('booking.form.dateTime')}</p>
                 <p className="font-semibold text-foreground">
                   {new Date(`${date}T${time}`).toLocaleString('en-US', { 
                     weekday: 'short',
@@ -1541,7 +1541,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     <div className="flex items-start gap-2">
                       <div className="w-3 h-3 rounded-full bg-green-500 mt-0.5 flex-shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-xs text-muted-foreground">From</p>
+                        <p className="text-xs text-muted-foreground">{t('booking.form.from')}</p>
                         <p className="font-medium text-foreground text-xs leading-tight">{fromAddress}</p>
                       </div>
                     </div>
@@ -1551,7 +1551,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                       <div key={index} className="flex items-start gap-2">
                         <div className="w-3 h-3 rounded-full bg-blue-500 mt-0.5 flex-shrink-0" />
                         <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground">Via {index + 1}</p>
+                          <p className="text-xs text-muted-foreground">{t('booking.form.via', { number: index + 1 })}</p>
                           <p className="font-medium text-foreground text-xs leading-tight">{viaPoint}</p>
                         </div>
                       </div>
@@ -1561,7 +1561,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     <div className="flex items-start gap-2">
                       <div className="w-3 h-3 rounded-full bg-red-500 mt-0.5 flex-shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-xs text-muted-foreground">To</p>
+                        <p className="text-xs text-muted-foreground">{t('booking.form.to')}</p>
                         <p className="font-medium text-foreground text-xs leading-tight">{toAddress}</p>
                       </div>
                     </div>
@@ -1595,11 +1595,11 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   </div>
                 ) : (
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Pickup Location</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('booking.form.pickupLocationLabel')}</p>
                     <p className="font-medium text-foreground text-sm">{pickupAddress}</p>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground pt-1">
                       <Clock className="w-3 h-3" />
-                      <span>Duration: {duration} hours</span>
+                      <span>{t('booking.form.durationHours', { hours: duration })}</span>
                     </div>
                   </div>
                 )}
@@ -1610,18 +1610,18 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
                   <div className="flex items-center gap-1">
                     <Users className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Passengers:</span>
+                    <span className="text-muted-foreground">{t('booking.form.passengersLabel')}</span>
                     <span className="font-semibold text-foreground">{passengerCount}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Briefcase className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Luggage:</span>
+                    <span className="text-muted-foreground">{t('booking.form.luggageLabel')}</span>
                     <span className="font-semibold text-foreground">{luggageCount}</span>
                   </div>
                   {babySeat && (
                     <div className="flex items-center gap-1 text-green-600">
                       <Check className="w-3 h-3" />
-                      <span>Baby seat</span>
+                      <span>{t('booking.form.babySeatIncluded')}</span>
                     </div>
                   )}
                 </div>
@@ -1645,7 +1645,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         </div>
         {/* Booking For */}
         <div data-testid="booking-for-section">
-          <h4 className="font-semibold mb-3">Are you booking for yourself or someone else?</h4>
+          <h4 className="font-semibold mb-3">{t('booking.form.bookingForQuestion')}</h4>
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => {
@@ -1669,7 +1669,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 }`}>
                   {bookingFor === 'self' && <div className="w-3 h-3 rounded-full bg-primary" />}
                 </div>
-                <span className="font-medium">I am booking for myself</span>
+                <span className="font-medium">{t('booking.form.bookingForSelf')}</span>
               </div>
             </button>
             <button
@@ -1692,51 +1692,51 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 }`}>
                   {bookingFor === 'someone_else' && <div className="w-3 h-3 rounded-full bg-primary" />}
                 </div>
-                <span className="font-medium">I am booking for someone else</span>
+                <span className="font-medium">{t('booking.form.bookingForOther')}</span>
               </div>
             </button>
           </div>
         </div>
         {/* Additional Information */}
         <div data-testid="additional-info-section">
-          <h4 className="font-semibold mb-3">Provide additional information</h4>
+          <h4 className="font-semibold mb-3">{t('booking.form.additionalInfo')}</h4>
           <div className="space-y-3">
             <Input
-              placeholder="Passenger Name"
+              placeholder={t('booking.form.passengerNamePlaceholder')}
               value={passengerName}
               onChange={(e) => setPassengerName(e.target.value)}
               data-testid="input-passenger-name"
             />
             <div className="space-y-1">
               <Input
-                placeholder="Phone Number"
+                placeholder={t('booking.form.phonePlaceholder')}
                 value={passengerPhone}
                 onChange={(e) => setPassengerPhone(e.target.value)}
                 data-testid="input-passenger-phone"
               />
               <p className="text-xs text-[#a10000]">
-                By submitting your phone number, you consent to receive SMS messages!
+                {t('booking.form.smsConsent')}
               </p>
             </div>
             <Input
-              placeholder="Email"
+              placeholder={t('booking.form.emailPlaceholder')}
               type="email"
               value={passengerEmail}
               onChange={(e) => setPassengerEmail(e.target.value)}
               data-testid="input-passenger-email"
             />
             <p className="text-xs text-[#a10000]">
-              By submitting your email address, you consent to receive Email messages!
+              {t('booking.form.emailConsent')}
             </p>
           </div>
         </div>
         {/* Flight Search */}
         <div data-testid="flight-search-section">
-          <h4 className="font-semibold mb-3">Flight Information (Optional)</h4>
+          <h4 className="font-semibold mb-3">{t('booking.form.flightInfoOptional')}</h4>
           <div className="flex gap-3">
             <div className="flex-1">
               <Input
-                placeholder="Enter flight number (e.g., UA2346, DL3427)"
+                placeholder={t('booking.form.flightPlaceholder')}
                 value={flightSearchInput}
                 onChange={(e) => setFlightSearchInput(e.target.value.toUpperCase())}
                 onKeyPress={(e) => {
@@ -1755,11 +1755,11 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               data-testid="button-find-flight"
             >
               {isSearchingFlight ? (
-                <>Searching...</>
+                <>{t('booking.form.searching')}</>
               ) : (
                 <>
                   <Search className="w-4 h-4 mr-2" />
-                  Find Flight
+                  {t('booking.form.findFlight')}
                 </>
               )}
             </Button>
@@ -1787,7 +1787,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   className="text-green-600 hover:text-green-800 text-sm font-medium"
                   data-testid="button-clear-flight"
                 >
-                  Clear
+                  {t('booking.form.clear')}
                 </button>
               </div>
               
@@ -1864,7 +1864,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         {/* Passenger Count */}
         <div data-testid="passenger-count-section">
           <div className="flex justify-between items-center">
-            <span className="font-semibold">Passenger {selectedVehicle && `(max ${maxPassengerCapacity})`}</span>
+            <span className="font-semibold">{t('booking.form.passengerMax')} {selectedVehicle && `(${t('booking.form.maxCapacity', { max: maxPassengerCapacity })})`}</span>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setPassengerCount(Math.max(1, passengerCount - 1))}
@@ -1892,7 +1892,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         {/* Luggage Count */}
         <div data-testid="luggage-count-section">
           <div className="flex justify-between items-center">
-            <span className="font-semibold">Luggage {selectedVehicle && `(max ${maxLuggageCapacity})`}</span>
+            <span className="font-semibold">{t('booking.form.luggageMax')} {selectedVehicle && `(${t('booking.form.maxCapacity', { max: maxLuggageCapacity })})`}</span>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setLuggageCount(Math.max(0, luggageCount - 1))}
@@ -1925,18 +1925,18 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               <div className="text-xs text-amber-800 dark:text-amber-200">
                 <p className="font-medium mb-1">
                   {isAtMaxPassenger && isAtMaxLuggage 
-                    ? `Maximum capacity reached (${maxPassengerCapacity} passengers, ${maxLuggageCapacity} bags)`
+                    ? t('booking.form.capacityReached', { passengers: maxPassengerCapacity, bags: maxLuggageCapacity })
                     : isAtMaxPassenger 
-                      ? `Maximum passenger capacity reached (${maxPassengerCapacity} passengers)`
-                      : `Maximum luggage capacity reached (${maxLuggageCapacity} bags)`
+                      ? t('booking.form.passengerCapacityReached', { max: maxPassengerCapacity })
+                      : t('booking.form.luggageCapacityReached', { max: maxLuggageCapacity })
                   }
                 </p>
                 <p className="text-amber-700 dark:text-amber-300">
-                  Need more capacity? Go back and select a larger vehicle type, or add your special requirements in the Special Instructions below. You can also{' '}
+                  {t('booking.form.capacityNeedMore')}{' '}
                   <Link href="/contact" className="underline font-medium hover:text-amber-900 dark:hover:text-amber-100">
-                    contact {companyName}
+                    {t('booking.form.contactUs', { company: companyName })}
                   </Link>
-                  {' '}for assistance.
+                  {' '}{t('booking.form.forAssistance')}
                 </p>
               </div>
             </div>
@@ -1945,7 +1945,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         {/* Car Seat */}
         <div data-testid="baby-seat-section">
           <div className="flex justify-between items-center">
-            <span className="font-semibold">Car Seat (optional)</span>
+            <span className="font-semibold">{t('booking.form.carSeatOptional')}</span>
             <label className="relative inline-block w-12 h-6">
               <input
                 type="checkbox"
@@ -1961,10 +1961,10 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         </div>
         {/* Bill Reference (Optional) */}
         <div data-testid="bill-reference-section">
-          <h4 className="font-semibold mb-2">Bill Reference (Optional)</h4>
+          <h4 className="font-semibold mb-2">{t('booking.form.billReference')}</h4>
           <input
             type="text"
-            placeholder="Your reference number for invoicing (e.g., PO#, Job#)"
+            placeholder={t('booking.form.billReferencePlaceholder')}
             value={billReference}
             onChange={(e) => setBillReference(e.target.value)}
             className="w-full p-3 border border-border rounded-lg"
@@ -1974,9 +1974,9 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         </div>
         {/* Special Instructions */}
         <div data-testid="special-instructions-section">
-          <h4 className="font-semibold mb-2">Special Instructions</h4>
+          <h4 className="font-semibold mb-2">{t('booking.form.specialInstructionsTitle')}</h4>
           <textarea
-            placeholder="Is there anything else we need to know?"
+            placeholder={t('booking.form.specialInstructionsPlaceholder')}
             value={specialInstructions}
             onChange={(e) => setSpecialInstructions(e.target.value)}
             className="w-full p-3 border border-border rounded-lg resize-none h-24"
@@ -1991,7 +1991,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             className="flex-1"
             data-testid="button-back-step3"
           >
-            Back
+            {t('booking.form.back')}
           </Button>
           <Button 
             onClick={handleProceedToPayment}
@@ -1999,7 +1999,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             className="flex-1 bg-red-600 hover:bg-red-700"
             data-testid="button-proceed-payment"
           >
-            {bookingMutation.isPending ? 'Processing...' : 'PROCEED TO PAYMENT'}
+            {bookingMutation.isPending ? t('booking.form.processing') : t('booking.form.proceedToPayment')}
           </Button>
         </div>
       </div>
@@ -2052,8 +2052,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
         {/* Step Indicator */}
         <div className="bg-background p-4 rounded-lg border-2 border-primary/20">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-muted-foreground">Step 4 of 4</span>
-            <span className="text-sm font-bold text-primary">Payment</span>
+            <span className="text-sm font-medium text-muted-foreground">{t('booking.form.stepIndicator', { current: 4, total: 4 })}</span>
+            <span className="text-sm font-bold text-primary">{t('booking.form.payment')}</span>
           </div>
           <div className="w-full bg-muted-foreground/20 rounded-full h-2">
             <div className="bg-primary h-2 rounded-full" style={{ width: '100%' }}></div>
@@ -2062,67 +2062,67 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
         {/* Booking Summary */}
         <div className="bg-muted p-4 rounded-lg" data-testid="payment-booking-summary">
-          <h4 className="font-semibold mb-3">Booking Summary</h4>
+          <h4 className="font-semibold mb-3">{t('booking.form.bookingSummary')}</h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span>Service:</span>
-              <span className="font-semibold">{activeTab === 'transfer' ? 'Transfer' : 'Hourly'}</span>
+              <span>{t('booking.form.serviceLabel')}</span>
+              <span className="font-semibold">{activeTab === 'transfer' ? t('booking.form.transfer') : t('booking.form.hourly')}</span>
             </div>
             <div className="flex justify-between">
-              <span>Vehicle:</span>
+              <span>{t('booking.form.vehicleLabel')}</span>
               <span className="font-semibold">{selectedVehicleName}</span>
             </div>
             <div className="flex justify-between">
-              <span>Date & Time:</span>
-              <span className="font-semibold">{date} at {time}</span>
+              <span>{t('booking.form.dateTimeLabel')}</span>
+              <span className="font-semibold">{date} {t('booking.form.at')} {time}</span>
             </div>
             {activeTab === 'transfer' ? (
               <>
                 <div className="flex justify-between">
-                  <span>From:</span>
+                  <span>{t('booking.form.fromLabel')}</span>
                   <span className="font-semibold text-right">{fromAddress}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>To:</span>
+                  <span>{t('booking.form.toLabel')}</span>
                   <span className="font-semibold text-right">{toAddress}</span>
                 </div>
               </>
             ) : (
               <>
                 <div className="flex justify-between">
-                  <span>Pickup:</span>
+                  <span>{t('booking.form.pickupLabel')}</span>
                   <span className="font-semibold text-right">{pickupAddress}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Duration:</span>
-                  <span className="font-semibold">{duration} hours</span>
+                  <span>{t('booking.form.durationLabel')}</span>
+                  <span className="font-semibold">{duration} {t('booking.form.hours')}</span>
                 </div>
               </>
             )}
             <div className="flex justify-between">
-              <span>Passenger:</span>
+              <span>{t('booking.form.passengerLabel')}</span>
               <span className="font-semibold">{passengerName}</span>
             </div>
             <div className="border-t pt-2 mt-2 space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-lg font-bold">Total Price:</span>
+                <span className="text-lg font-bold">{t('booking.form.totalPriceLabel')}</span>
                 <span className="text-xl font-bold text-foreground">${totalPrice}</span>
               </div>
               {useCredits && creditsApplied > 0 && (
                 <>
                   <div className="flex justify-between items-center text-green-600">
-                    <span className="font-medium">Less: Credits Applied</span>
+                    <span className="font-medium">{t('booking.form.creditsApplied')}</span>
                     <span className="font-semibold">-${creditsApplied.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center border-t pt-2">
-                    <span className="text-lg font-bold">Remaining to Pay:</span>
+                    <span className="text-lg font-bold">{t('booking.form.remainingToPay')}</span>
                     <span className="text-2xl font-bold text-primary">${remainingAmount.toFixed(2)}</span>
                   </div>
                 </>
               )}
               {(!useCredits || creditsApplied === 0) && (
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold">Amount to Pay:</span>
+                  <span className="text-lg font-bold">{t('booking.form.amountToPay')}</span>
                   <span className="text-2xl font-bold text-primary">${totalPrice}</span>
                 </div>
               )}
@@ -2145,24 +2145,24 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   data-testid="checkbox-use-credits"
                 />
                 <label htmlFor="use-credits" className={`font-semibold cursor-pointer ${hasRideCredits ? 'text-green-800' : 'text-muted-foreground'}`}>
-                  Use Account Credits
+                  {t('booking.form.useAccountCredits')}
                 </label>
               </div>
               <span className={`text-sm font-medium px-3 py-1 rounded-full ${hasRideCredits ? 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30' : 'text-muted-foreground bg-muted-foreground/20'}`}>
-                Balance: ${rideCreditsBalance.toFixed(2)}
+                {t('booking.form.balance')} ${rideCreditsBalance.toFixed(2)}
               </span>
             </div>
             
             {!hasRideCredits && (
               <p className="text-sm text-muted-foreground">
-                You don't have any account credits. Credits can be added by an administrator or earned through promotions.
+                {t('booking.form.noCreditsMessage')}
               </p>
             )}
             
             {useCredits && hasRideCredits && (
               <div className="mt-3 space-y-2">
                 <label htmlFor="credit-amount" className="text-sm font-medium text-muted-foreground">
-                  Amount to use (max ${maxUsableCredits.toFixed(2)}):
+                  {t('booking.form.amountToUse', { max: maxUsableCredits.toFixed(2) })}
                 </label>
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold text-muted-foreground">$</span>
@@ -2190,12 +2190,12 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
                     data-testid="button-use-max-credits"
                   >
-                    Use Max
+                    {t('booking.form.useMax')}
                   </button>
                 </div>
                 {creditsApplied > 0 && (
                   <p className="text-sm text-green-700 dark:text-green-300">
-                    You'll pay ${remainingAmount.toFixed(2)} {remainingAmount > 0 ? 'with your selected payment method' : '- fully covered by credits!'}
+                    {t('booking.form.creditsPaymentMessage', { amount: remainingAmount.toFixed(2), suffix: remainingAmount > 0 ? t('booking.form.withPaymentMethod') : t('booking.form.fullyCoveredByCredits') })}
                   </p>
                 )}
               </div>
@@ -2205,7 +2205,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
         {/* Payment Options */}
         <div className="space-y-4">
-          <h4 className="font-semibold text-lg">Select Payment Method</h4>
+          <h4 className="font-semibold text-lg">{t('booking.form.selectPaymentMethod')}</h4>
           
           {/* Pay Now Option - Always shown */}
           <button
@@ -2271,8 +2271,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 <CreditCard className="w-6 h-6 text-white" />
               </div>
               <div className="text-left flex-1">
-                <h3 className="text-lg font-bold text-primary">Pay Now</h3>
-                <p className="text-sm text-muted-foreground">Complete payment to confirm your booking</p>
+                <h3 className="text-lg font-bold text-primary">{t('booking.form.payNow')}</h3>
+                <p className="text-sm text-muted-foreground">{t('booking.form.payNowDescription')}</p>
               </div>
             </div>
           </button>
@@ -2301,7 +2301,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 {/* Warning badge for no payment method */}
                 {!hasSavedCards && (
                   <div className="absolute -top-3 left-4 bg-amber-50 dark:bg-amber-900/200 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                    Payment Card Required
+                    {t('booking.form.paymentCardRequired')}
                   </div>
                 )}
                 <div className="flex items-center gap-4">
@@ -2314,18 +2314,18 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   </div>
                   <div className="text-left flex-1">
                     <h3 className={`text-lg font-bold ${hasSavedCards ? 'text-foreground group-hover:text-primary' : 'text-muted-foreground'}`}>
-                      Pay Later
+                      {t('booking.form.payLater')}
                     </h3>
                     <p className={`text-sm ${hasSavedCards ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                       {hasSavedCards 
-                        ? "Pay after your trip is completed" 
-                        : "You must add a payment card first"}
+                        ? t('booking.form.payLaterDescription')
+                        : t('booking.form.payLaterCardRequired')}
                     </p>
                     {!hasSavedCards && (
                       <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-md">
                         <p className="text-xs text-amber-700 dark:text-amber-300 font-medium flex items-center gap-1">
                           <CreditCard className="w-3 h-3" />
-                          Click here to add a payment card to enable Pay Later
+                          {t('booking.form.addPaymentCard')}
                         </p>
                       </div>
                     )}
@@ -2350,8 +2350,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   <Banknote className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="text-left flex-1">
-                  <h3 className="text-lg font-bold text-green-800 group-hover:text-green-900">Pay with Cash</h3>
-                  <p className="text-sm text-muted-foreground">Pay with cash when your trip is completed</p>
+                  <h3 className="text-lg font-bold text-green-800 group-hover:text-green-900">{t('booking.form.payWithCash')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('booking.form.payWithCashDescription')}</p>
                 </div>
               </div>
             </button>
@@ -2366,7 +2366,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             className="flex-1"
             data-testid="button-back-step4"
           >
-            Back
+            {t('booking.form.back')}
           </Button>
         </div>
       </div>
