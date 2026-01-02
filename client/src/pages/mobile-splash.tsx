@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Car, UserCircle, Radio, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { setDevicePreference } from '@/lib/deviceDetection';
 import { useQuery } from '@tanstack/react-query';
 import { useBranding } from '@/hooks/useBranding';
+import { LanguageSwitcherCompact } from '@/components/LanguageSwitcher';
 
 const chauffeurImage = '/images/khalid_1759128435991.webp';
 
@@ -20,6 +22,7 @@ interface User {
 
 export default function MobileSplash() {
   const [, navigate] = useLocation();
+  const { t } = useTranslation();
   const [stage, setStage] = useState<SplashStage>('logo');
   const { companyName, tagline, logoUrl } = useBranding();
 
@@ -126,7 +129,7 @@ export default function MobileSplash() {
             >
               <img
                 src={chauffeurImage}
-                alt="Luxury Chauffeur Service"
+                alt={t('roles.passengerDescription')}
                 className="w-full h-[60vh] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/98 via-background/60 to-transparent" />
@@ -138,9 +141,9 @@ export default function MobileSplash() {
               >
                 <div className="bg-card/95 backdrop-blur-lg rounded-xl p-4 border border-border shadow-md">
                   <h2 className="text-xl font-bold mb-1.5 text-foreground">
-                    Premium Chauffeur Experience
+                    {t('roles.passengerDescription')}
                   </h2>
-                  <p className="text-muted-foreground text-sm font-light">Professional • Reliable • Luxurious</p>
+                  <p className="text-muted-foreground text-sm font-light">{t('roles.driverDescription')}</p>
                 </div>
               </motion.div>
             </motion.div>
@@ -170,12 +173,12 @@ export default function MobileSplash() {
                 className="inline-flex items-center gap-1.5 bg-card/80 backdrop-blur-lg border border-border rounded-full px-4 py-1.5 mb-4 shadow-sm"
               >
                 <Sparkles className="w-3 h-3" style={{ color: 'var(--brand-accent-hex)' }} />
-                <span className="text-muted-foreground text-xs font-medium">Select Your Portal</span>
+                <span className="text-muted-foreground text-xs font-medium">{t('auth.selectRoleDescription')}</span>
               </motion.div>
               <h2 className="text-2xl font-bold text-foreground mb-1.5">
-                Welcome
+                {t('auth.welcomeBack')}
               </h2>
-              <p className="text-muted-foreground text-sm font-light">Choose your role</p>
+              <p className="text-muted-foreground text-sm font-light">{t('auth.accessAccount')}</p>
             </motion.div>
 
             <div className="space-y-2 flex flex-col items-center">
@@ -195,8 +198,8 @@ export default function MobileSplash() {
                       <UserCircle className="w-5 h-5" style={{ color: 'var(--brand-accent-hex)' }} />
                     </div>
                     <div className="text-left">
-                      <div className="text-sm font-semibold text-foreground">Passenger</div>
-                      <div className="text-xs text-muted-foreground font-normal">Book and manage rides</div>
+                      <div className="text-sm font-semibold text-foreground">{t('roles.passenger')}</div>
+                      <div className="text-xs text-muted-foreground font-normal">{t('roles.passengerMobileDescription')}</div>
                     </div>
                   </div>
                 </Button>
@@ -218,8 +221,8 @@ export default function MobileSplash() {
                       <Car className="w-5 h-5" style={{ color: 'var(--brand-accent-hex)' }} />
                     </div>
                     <div className="text-left">
-                      <div className="text-sm font-semibold text-foreground">Driver</div>
-                      <div className="text-xs text-muted-foreground font-normal">Accept and complete rides</div>
+                      <div className="text-sm font-semibold text-foreground">{t('roles.driver')}</div>
+                      <div className="text-xs text-muted-foreground font-normal">{t('roles.driverMobileDescription')}</div>
                     </div>
                   </div>
                 </Button>
@@ -241,8 +244,8 @@ export default function MobileSplash() {
                       <Radio className="w-5 h-5" style={{ color: 'var(--brand-accent-hex)' }} />
                     </div>
                     <div className="text-left">
-                      <div className="text-sm font-semibold text-foreground">Dispatcher</div>
-                      <div className="text-xs text-muted-foreground font-normal">Manage fleet operations</div>
+                      <div className="text-sm font-semibold text-foreground">{t('roles.dispatcher')}</div>
+                      <div className="text-xs text-muted-foreground font-normal">{t('roles.dispatcherMobileDescription')}</div>
                     </div>
                   </div>
                 </Button>
@@ -253,8 +256,9 @@ export default function MobileSplash() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.4 }}
-              className="text-center mt-6"
+              className="text-center mt-6 flex items-center justify-center gap-4"
             >
+              <LanguageSwitcherCompact />
               <button
                 onClick={() => {
                   setDevicePreference('desktop');
@@ -264,7 +268,7 @@ export default function MobileSplash() {
                 data-testid="button-view-desktop-site"
               >
                 <span className="group-hover:-translate-x-0.5 transition-transform">←</span>
-                <span>View Desktop Site</span>
+                <span>{t('auth.backToWebsite')}</span>
               </button>
             </motion.div>
           </motion.div>

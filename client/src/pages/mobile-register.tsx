@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -26,6 +27,7 @@ const registerSchema = z.object({
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function MobileRegister() {
+  const { t } = useTranslation();
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -63,8 +65,8 @@ export default function MobileRegister() {
 
       if (response.ok) {
         toast({
-          title: 'Registration Successful!',
-          description: `Welcome ${data.firstName}! Your ${selectedRole} account has been created.`,
+          title: t('auth.registerSuccess'),
+          description: t('auth.welcomeUser', { name: data.firstName }),
         });
 
         await queryClient.invalidateQueries({ queryKey: ['/api/user'] });
@@ -89,22 +91,22 @@ export default function MobileRegister() {
         } else {
           navigate(`/mobile-login?role=${selectedRole}`);
           toast({
-            title: 'Please Sign In',
-            description: 'Your account was created. Please sign in to continue.',
+            title: t('auth.pleaseSignIn'),
+            description: t('auth.accountCreatedSignIn'),
           });
         }
       } else {
         const error = await response.json();
         toast({
-          title: 'Registration Failed',
-          description: error.message || 'Unable to create account. Please try again.',
+          title: t('auth.registerFailed'),
+          description: error.message || t('auth.unableToCreateAccount'),
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'An error occurred during registration',
+        title: t('common.error'),
+        description: t('auth.errorDuringRegistration'),
         variant: 'destructive',
       });
     } finally {
@@ -124,14 +126,11 @@ export default function MobileRegister() {
   };
 
   const getRoleDescription = () => {
-    switch (selectedRole) {
-      case 'passenger':
-        return 'Book luxury rides';
-      case 'driver':
-        return 'Join our driver team';
-      case 'dispatcher':
-        return 'Manage operations';
-    }
+    return t(`roles.${selectedRole}MobileDescription`);
+  };
+
+  const getRoleTitle = () => {
+    return t(`roles.${selectedRole}`);
   };
 
   return (
@@ -142,7 +141,6 @@ export default function MobileRegister() {
         transition={{ duration: 0.4 }}
         className="w-full max-w-sm relative z-10"
       >
-        {/* Header - Compact */}
         <div className="bg-card border-b border-border rounded-t-xl p-3 text-center shadow-md">
           <motion.div
             initial={{ scale: 0 }}
@@ -153,16 +151,15 @@ export default function MobileRegister() {
           >
             {getRoleIcon()}
           </motion.div>
-          <h1 className="text-lg font-bold capitalize text-foreground">{selectedRole} Registration</h1>
+          <h1 className="text-lg font-bold capitalize text-foreground">{t('roles.registration', { role: getRoleTitle() })}</h1>
           <p className="text-xs text-muted-foreground">{getRoleDescription()}</p>
         </div>
 
-        {/* Form - Compact */}
         <div className="bg-card rounded-b-xl p-4 shadow-lg border-x border-b border-border max-h-[65vh] overflow-y-auto">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5">
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
-                <Label htmlFor="firstName" className="text-xs text-muted-foreground">First Name</Label>
+                <Label htmlFor="firstName" className="text-xs text-muted-foreground">{t('auth.firstName')}</Label>
                 <Input
                   id="firstName"
                   type="text"
@@ -177,7 +174,7 @@ export default function MobileRegister() {
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="lastName" className="text-xs text-muted-foreground">Last Name</Label>
+                <Label htmlFor="lastName" className="text-xs text-muted-foreground">{t('auth.lastName')}</Label>
                 <Input
                   id="lastName"
                   type="text"
@@ -193,11 +190,11 @@ export default function MobileRegister() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="username" className="text-xs text-muted-foreground">Username</Label>
+              <Label htmlFor="username" className="text-xs text-muted-foreground">{t('auth.username')}</Label>
               <Input
                 id="username"
                 type="text"
-                placeholder="Choose username"
+                placeholder={t('auth.username')}
                 {...register('username')}
                 className="h-9 text-sm bg-background border-border touch-manipulation"
                 data-testid="input-mobile-register-username"
@@ -208,7 +205,7 @@ export default function MobileRegister() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="email" className="text-xs text-muted-foreground">Email</Label>
+              <Label htmlFor="email" className="text-xs text-muted-foreground">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -223,12 +220,12 @@ export default function MobileRegister() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="password" className="text-xs text-muted-foreground">Password</Label>
+              <Label htmlFor="password" className="text-xs text-muted-foreground">{t('auth.password')}</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Create password"
+                  placeholder={t('auth.password')}
                   {...register('password')}
                   className="h-9 text-sm pr-9 bg-background border-border touch-manipulation"
                   data-testid="input-mobile-register-password"
@@ -248,12 +245,12 @@ export default function MobileRegister() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="confirmPassword" className="text-xs text-muted-foreground">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-xs text-muted-foreground">{t('auth.confirmPassword')}</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="Confirm password"
+                  placeholder={t('auth.confirmPassword')}
                   {...register('confirmPassword')}
                   className="h-9 text-sm pr-9 bg-background border-border touch-manipulation"
                   data-testid="input-mobile-register-confirm-password"
@@ -282,12 +279,12 @@ export default function MobileRegister() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                  Creating...
+                  {t('auth.signingUp')}
                 </>
               ) : (
                 <>
                   <UserPlus className="w-4 h-4 mr-1.5" />
-                  Create Account
+                  {t('auth.createAccount')}
                 </>
               )}
             </Button>
@@ -295,14 +292,14 @@ export default function MobileRegister() {
 
           <div className="mt-3 text-center space-y-1.5">
             <p className="text-muted-foreground text-xs">
-              Already have an account?{' '}
+              {t('auth.alreadyHaveAccount')}{' '}
               <button
                 onClick={() => navigate(`/mobile-login?role=${selectedRole}`)}
                 className="font-semibold transition-colors touch-manipulation"
                 style={{ color: 'var(--brand-accent-hex)' }}
                 data-testid="button-go-to-login"
               >
-                Sign In
+                {t('auth.signIn')}
               </button>
             </p>
             <button
@@ -310,7 +307,7 @@ export default function MobileRegister() {
               className="text-muted-foreground hover:text-foreground text-xs font-medium transition-colors touch-manipulation py-1 px-2"
               data-testid="button-change-role"
             >
-              Change role
+              {t('auth.changeRole')}
             </button>
             <div>
               <button
@@ -318,7 +315,7 @@ export default function MobileRegister() {
                 className="text-muted-foreground hover:text-foreground text-[10px] transition-colors touch-manipulation py-1 px-2"
                 data-testid="button-back-to-website"
               >
-                Back to website
+                {t('auth.backToWebsite')}
               </button>
             </div>
           </div>

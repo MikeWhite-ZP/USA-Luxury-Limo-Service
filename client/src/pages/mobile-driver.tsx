@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Car, DollarSign, MapPin, Star, Calendar, User, FileText, Settings, CheckCircle2, Navigation2, Phone, MessageSquare, MoreVertical, Bell, LogOut, Upload, CheckCircle, XCircle, Clock, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -62,6 +63,7 @@ interface Booking {
 export default function MobileDriver() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -463,7 +465,7 @@ export default function MobileDriver() {
       <div className="min-h-screen bg-muted flex items-center justify-center">
         <div className="text-center">
           <div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-3" style={{ borderColor: 'var(--brand-accent-hex)', borderTopColor: 'transparent' }}></div>
-          <p className="text-muted-foreground">Loading driver dashboard...</p>
+          <p className="text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -475,16 +477,16 @@ export default function MobileDriver() {
         <Card className="max-w-md w-full bg-background shadow-sm border border-border">
           <CardContent className="p-6 text-center">
             <Car className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--brand-accent-hex)' }} />
-            <h2 className="text-xl font-bold mb-2 text-foreground">Driver Profile Not Found</h2>
+            <h2 className="text-xl font-bold mb-2 text-foreground">{t('driver.title')}</h2>
             <p className="text-muted-foreground mb-4">
-              You need to complete your driver profile to access this dashboard.
+              {t('nav.profile')}
             </p>
             <Button 
               onClick={() => setLocation('/driver-dashboard')}
               className="text-white" style={{ backgroundColor: 'var(--brand-button-primary-hex)' }}
               data-testid="button-setup-profile"
             >
-              Set Up Profile
+              {t('nav.profile')}
             </Button>
           </CardContent>
         </Card>
@@ -497,7 +499,7 @@ export default function MobileDriver() {
       {/* Header with safe area for phone notch/camera */}
       <div className="bg-background border-b border-border p-6 pt-[54px] shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="font-bold text-foreground text-[22px]" data-testid="header-title">Driver Dashboard</h1>
+          <h1 className="font-bold text-foreground text-[22px]" data-testid="header-title">{t('roles.driver')}</h1>
           <div className="flex items-center gap-2">
             <ThemeToggleMobile />
             <DropdownMenu>
@@ -518,7 +520,7 @@ export default function MobileDriver() {
                 data-testid="menu-documents"
               >
                 <FileText className="w-4 h-4" style={{ color: 'var(--brand-accent-hex)' }} />
-                <span className="text-muted-foreground">Documents</span>
+                <span className="text-muted-foreground">{t('driver.documents')}</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setCurrentView('profile')}
@@ -526,7 +528,7 @@ export default function MobileDriver() {
                 data-testid="menu-profile"
               >
                 <User className="w-4 h-4" style={{ color: 'var(--brand-accent-hex)' }} />
-                <span className="text-muted-foreground">Profile</span>
+                <span className="text-muted-foreground">{t('nav.profile')}</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setLocation('/mobile-driver/account')}
@@ -534,7 +536,7 @@ export default function MobileDriver() {
                 data-testid="menu-account"
               >
                 <Settings className="w-4 h-4" style={{ color: 'var(--brand-accent-hex)' }} />
-                <span className="text-muted-foreground">Account</span>
+                <span className="text-muted-foreground">{t('nav.settings')}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -544,7 +546,7 @@ export default function MobileDriver() {
                 disabled={logoutMutation.isPending}
               >
                 <LogOut className="w-4 h-4" />
-                <span>{logoutMutation.isPending ? 'Logging out...' : 'Logout'}</span>
+                <span>{logoutMutation.isPending ? t('common.loading') : t('nav.logout')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -576,8 +578,8 @@ export default function MobileDriver() {
             }`} />
             <span className={`text-xs font-semibold ${driver.isAvailable ? 'text-emerald-700' : 'text-gray-600'}`}>
               {toggleAvailabilityMutation.isPending 
-                ? (driver.isAvailable ? 'Going Offline...' : 'Going Online...') 
-                : (driver.isAvailable ? 'Online' : 'Offline')
+                ? t('common.loading')
+                : (driver.isAvailable ? t('driver.available') : t('driver.unavailable'))
               }
             </span>
             {driver.isAvailable && (
@@ -606,10 +608,10 @@ export default function MobileDriver() {
             className="mb-2 text-xs text-muted-foreground hover:bg-muted"
           >
             <ArrowLeft className="w-3 h-3 mr-1" />
-            Back to Dashboard
+            {t('common.back')}
           </Button>
 
-          <h2 className="text-sm font-bold text-foreground mb-2">My Documents</h2>
+          <h2 className="text-sm font-bold text-foreground mb-2">{t('driver.documents')}</h2>
 
           {documentsLoading ? (
             <div className="flex items-center justify-center py-8">

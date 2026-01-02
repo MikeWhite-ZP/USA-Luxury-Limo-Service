@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -19,6 +20,7 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function MobileLogin() {
+  const { t } = useTranslation();
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -54,8 +56,8 @@ export default function MobileLogin() {
         
         if (user.role !== selectedRole) {
           toast({
-            title: 'Access Denied',
-            description: `This account is not registered as a ${selectedRole}. Please select the correct role.`,
+            title: t('auth.accessDenied'),
+            description: t('auth.notRegisteredAs', { role: t(`roles.${selectedRole}`) }),
             variant: 'destructive',
           });
           setIsLoading(false);
@@ -65,8 +67,8 @@ export default function MobileLogin() {
         queryClient.setQueryData(['/api/user'], user);
 
         toast({
-          title: 'Welcome!',
-          description: `Logged in successfully as ${selectedRole}`,
+          title: t('auth.welcomeBack'),
+          description: t('auth.loggedInAs', { role: t(`roles.${selectedRole}`) }),
         });
 
         switch (selectedRole) {
@@ -83,15 +85,15 @@ export default function MobileLogin() {
       } else {
         const error = await response.json();
         toast({
-          title: 'Login Failed',
-          description: error.message || 'Invalid credentials',
+          title: t('auth.loginFailed'),
+          description: error.message || t('auth.invalidCredentials'),
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'An error occurred during login',
+        title: t('common.error'),
+        description: t('auth.errorDuringLogin'),
         variant: 'destructive',
       });
     } finally {
@@ -110,6 +112,10 @@ export default function MobileLogin() {
     }
   };
 
+  const getRoleTitle = () => {
+    return t(`roles.${selectedRole}`);
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-3 relative overflow-hidden">
       <motion.div
@@ -118,7 +124,6 @@ export default function MobileLogin() {
         transition={{ duration: 0.4 }}
         className="w-full max-w-sm relative z-10"
       >
-        {/* Role Header - Compact */}
         <div className="bg-card border-b border-border rounded-t-xl p-4 text-center shadow-md">
           <motion.div
             initial={{ scale: 0 }}
@@ -129,19 +134,18 @@ export default function MobileLogin() {
           >
             {getRoleIcon()}
           </motion.div>
-          <h1 className="text-xl font-bold capitalize text-foreground">{selectedRole} Login</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Enter your credentials</p>
+          <h1 className="text-xl font-bold capitalize text-foreground">{getRoleTitle()} {t('auth.login')}</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{t('auth.enterYourCredentials')}</p>
         </div>
 
-        {/* Login Form - Compact */}
         <div className="bg-card rounded-b-xl p-5 shadow-lg border-x border-b border-border">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <div className="space-y-1">
-              <Label htmlFor="username" className="text-xs text-muted-foreground">Username</Label>
+              <Label htmlFor="username" className="text-xs text-muted-foreground">{t('auth.username')}</Label>
               <Input
                 id="username"
                 type="text"
-                placeholder="Enter username"
+                placeholder={t('auth.username')}
                 {...register('username')}
                 className="h-10 text-sm bg-background border-border focus:border-[color:var(--brand-accent-hex)] touch-manipulation"
                 data-testid="input-mobile-username"
@@ -152,12 +156,12 @@ export default function MobileLogin() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="password" className="text-xs text-muted-foreground">Password</Label>
+              <Label htmlFor="password" className="text-xs text-muted-foreground">{t('auth.password')}</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter password"
+                  placeholder={t('auth.password')}
                   {...register('password')}
                   className="h-10 text-sm pr-10 bg-background border-border focus:border-[color:var(--brand-accent-hex)] touch-manipulation"
                   data-testid="input-mobile-password"
@@ -186,24 +190,24 @@ export default function MobileLogin() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                  Signing in...
+                  {t('auth.signingIn')}
                 </>
               ) : (
-                'Sign In'
+                t('auth.signIn')
               )}
             </Button>
           </form>
 
           <div className="mt-4 text-center space-y-2">
             <p className="text-muted-foreground text-xs">
-              Don't have an account?{' '}
+              {t('auth.dontHaveAccount')}{' '}
               <button
                 onClick={() => navigate(`/mobile-register?role=${selectedRole}`)}
                 className="font-semibold transition-colors touch-manipulation"
                 style={{ color: 'var(--brand-accent-hex)' }}
                 data-testid="button-go-to-register"
               >
-                Register
+                {t('auth.register')}
               </button>
             </p>
             <button
@@ -211,7 +215,7 @@ export default function MobileLogin() {
               className="text-muted-foreground hover:text-foreground text-xs font-medium transition-colors touch-manipulation py-1.5 px-3"
               data-testid="button-change-role"
             >
-              Change role
+              {t('auth.changeRole')}
             </button>
             <div>
               <button
@@ -219,7 +223,7 @@ export default function MobileLogin() {
                 className="text-muted-foreground hover:text-foreground text-[10px] transition-colors touch-manipulation py-1 px-2"
                 data-testid="button-back-to-website"
               >
-                Back to website
+                {t('auth.backToWebsite')}
               </button>
             </div>
           </div>

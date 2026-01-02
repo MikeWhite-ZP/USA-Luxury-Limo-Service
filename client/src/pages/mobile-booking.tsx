@@ -1,4 +1,5 @@
 import { useLocation } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBranding } from '@/hooks/useBranding';
@@ -6,6 +7,7 @@ import BookingForm from '@/components/BookingForm';
 
 export default function MobileBooking() {
   const [, navigate] = useLocation();
+  const { t } = useTranslation();
   const { companyName, logoUrl } = useBranding();
 
   return (
@@ -33,7 +35,7 @@ export default function MobileBooking() {
               )}
             </div>
             <div className="text-right">
-              <h1 className="text-lg font-semibold text-foreground">Book New Ride</h1>
+              <h1 className="text-lg font-semibold text-foreground">{t('booking.newBooking')}</h1>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useParams } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -70,6 +71,7 @@ interface CancellationPreview {
 
 export default function MobileBookingDetails() {
   const [, navigate] = useLocation();
+  const { t } = useTranslation();
   const { id } = useParams();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
@@ -135,13 +137,13 @@ export default function MobileBookingDetails() {
       setShowPriceApproval(false);
       setPendingUpdate(null);
       toast({
-        title: 'Booking Updated',
-        description: 'Your booking has been successfully updated.',
+        title: t('common.success'),
+        description: t('booking.bookingUpdated'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Update Failed',
+        title: t('common.error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -176,15 +178,15 @@ export default function MobileBookingDetails() {
       } else {
         const error = await response.json();
         toast({
-          title: 'Cannot Cancel',
-          description: error.message || 'Unable to cancel this booking',
+          title: t('common.error'),
+          description: error.message || t('errors.tryAgain'),
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to check cancellation policy',
+        title: t('common.error'),
+        description: t('errors.tryAgain'),
         variant: 'destructive',
       });
     }
@@ -208,22 +210,22 @@ export default function MobileBookingDetails() {
       setCancelPreview(null);
       
       const policy = data.cancellationPolicy;
-      let description = 'Your booking has been cancelled.';
+      let description = t('booking.bookingCancelled');
       if (policy?.creditIssued) {
-        description += ` $${policy.creditAmount} in ride credits have been added to your account.`;
+        description += ` $${policy.creditAmount} ${t('payment.credits')}`;
       } else if (policy?.chargeApplied) {
-        description += ` The full fare of $${policy.chargeAmount} has been charged due to late cancellation.`;
+        description += ` $${policy.chargeAmount} ${t('payment.charged')}`;
       }
       
       toast({
-        title: 'Booking Cancelled',
+        title: t('common.success'),
         description,
       });
       navigate('/mobile-passenger');
     },
     onError: (error: Error) => {
       toast({
-        title: 'Cancellation Failed',
+        title: t('common.error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -310,7 +312,7 @@ export default function MobileBookingDetails() {
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-background dark:from-background p-6 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading booking details...</p>
+          <p className="text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -326,10 +328,10 @@ export default function MobileBookingDetails() {
           data-testid="button-back"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Dashboard
+          {t('common.back')}
         </Button>
         <div className="text-center py-12">
-          <p className="text-muted-foreground">Booking not found</p>
+          <p className="text-muted-foreground">{t('errors.notFound')}</p>
         </div>
       </div>
     );
@@ -362,7 +364,7 @@ export default function MobileBookingDetails() {
             data-testid="button-back"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Back
+            {t('common.back')}
           </Button>
           {canEdit && !isEditing && (
             <Button
@@ -372,11 +374,11 @@ export default function MobileBookingDetails() {
               data-testid="button-edit"
             >
               <Edit className="w-5 h-5 mr-2" />
-              Edit
+              {t('common.edit')}
             </Button>
           )}
         </div>
-        <h1 className="text-2xl font-bold">Booking Details</h1>
+        <h1 className="text-2xl font-bold">{t('booking.bookingDetails')}</h1>
         <p className="text-blue-100 text-sm mt-1">#{booking.id.slice(0, 8)}</p>
       </div>
 
@@ -394,7 +396,7 @@ export default function MobileBookingDetails() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Edit Booking</CardTitle>
+                  <CardTitle className="text-lg">{t('booking.editBooking')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -402,7 +404,7 @@ export default function MobileBookingDetails() {
                     name="scheduledDateTime"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Scheduled Date & Time</FormLabel>
+                        <FormLabel>{t('booking.scheduledDateTime')}</FormLabel>
                         <FormControl>
                           <Input
                             type="datetime-local"
@@ -420,11 +422,11 @@ export default function MobileBookingDetails() {
                     name="pickupAddress"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Pickup Address</FormLabel>
+                        <FormLabel>{t('booking.pickupLocation')}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Enter pickup address"
+                            placeholder={t('booking.pickupLocation')}
                             data-testid="input-pickup-address"
                           />
                         </FormControl>
@@ -439,11 +441,11 @@ export default function MobileBookingDetails() {
                       name="destinationAddress"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Destination Address</FormLabel>
+                          <FormLabel>{t('booking.dropoffLocation')}</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Enter destination address"
+                              placeholder={t('booking.dropoffLocation')}
                               data-testid="input-destination-address"
                             />
                           </FormControl>
@@ -459,7 +461,7 @@ export default function MobileBookingDetails() {
                       name="passengerCount"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Passengers</FormLabel>
+                          <FormLabel>{t('booking.passengers')}</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -478,7 +480,7 @@ export default function MobileBookingDetails() {
                       name="luggageCount"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Luggage</FormLabel>
+                          <FormLabel>{t('booking.luggage')}</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -507,7 +509,7 @@ export default function MobileBookingDetails() {
                             data-testid="input-baby-seat"
                           />
                         </FormControl>
-                        <FormLabel className="!mt-0">Baby seat required</FormLabel>
+                        <FormLabel className="!mt-0">{t('booking.babySeat')}</FormLabel>
                       </FormItem>
                     )}
                   />
@@ -517,11 +519,11 @@ export default function MobileBookingDetails() {
                     name="specialInstructions"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Special Instructions</FormLabel>
+                        <FormLabel>{t('booking.specialInstructions')}</FormLabel>
                         <FormControl>
                           <Textarea
                             {...field}
-                            placeholder="Any special requests or notes"
+                            placeholder={t('booking.specialInstructions')}
                             rows={3}
                             data-testid="input-special-instructions"
                           />
@@ -542,7 +544,7 @@ export default function MobileBookingDetails() {
                   data-testid="button-cancel-edit"
                 >
                   <X className="w-4 h-4 mr-2" />
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="submit"
@@ -551,7 +553,7 @@ export default function MobileBookingDetails() {
                   data-testid="button-save-changes"
                 >
                   <Check className="w-4 h-4 mr-2" />
-                  {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+                  {updateMutation.isPending ? t('common.loading') : t('common.save')}
                 </Button>
               </div>
             </form>
@@ -564,19 +566,19 @@ export default function MobileBookingDetails() {
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
                   <MapPin className="w-5 h-5 mr-2 text-blue-600" />
-                  Trip Details
+                  {t('booking.tripDetails')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="text-sm text-muted-foreground">Pickup</p>
+                  <p className="text-sm text-muted-foreground">{t('booking.pickupLocation')}</p>
                   <p className="font-medium text-foreground" data-testid="text-pickup-address">{booking.pickupAddress}</p>
                 </div>
                 {booking.destinationAddress && (
                   <>
                     <Separator />
                     <div>
-                      <p className="text-sm text-muted-foreground">Destination</p>
+                      <p className="text-sm text-muted-foreground">{t('booking.dropoffLocation')}</p>
                       <p className="font-medium text-foreground" data-testid="text-destination-address">{booking.destinationAddress}</p>
                     </div>
                   </>
@@ -589,7 +591,7 @@ export default function MobileBookingDetails() {
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
                   <Calendar className="w-5 h-5 mr-2 text-blue-600" />
-                  Schedule
+                  {t('booking.schedule')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -612,21 +614,21 @@ export default function MobileBookingDetails() {
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
                   <Users className="w-5 h-5 mr-2 text-blue-600" />
-                  Details
+                  {t('booking.details')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Passengers</span>
+                  <span className="text-muted-foreground">{t('booking.passengers')}</span>
                   <span className="font-medium text-foreground" data-testid="text-passenger-count">{booking.passengerCount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Luggage</span>
+                  <span className="text-muted-foreground">{t('booking.luggage')}</span>
                   <span className="font-medium text-foreground" data-testid="text-luggage-count">{booking.luggageCount}</span>
                 </div>
                 {booking.babySeat && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Car Seat</span>
+                    <span className="text-muted-foreground">{t('booking.babySeat')}</span>
                     <Baby className="w-5 h-5 text-blue-600" data-testid="icon-baby-seat" />
                   </div>
                 )}
@@ -639,17 +641,17 @@ export default function MobileBookingDetails() {
                 <CardHeader>
                   <CardTitle className="flex items-center text-lg">
                     <Plane className="w-5 h-5 mr-2 text-blue-600" />
-                    Flight Information
+                    {t('booking.flightInfo')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Flight Number</span>
+                    <span className="text-muted-foreground">{t('booking.flightNumber')}</span>
                     <span className="font-medium" data-testid="text-flight-number">{booking.flightNumber}</span>
                   </div>
                   {booking.flightAirline && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Airline</span>
+                      <span className="text-muted-foreground">{t('booking.airline')}</span>
                       <span className="font-medium">{booking.flightAirline}</span>
                     </div>
                   )}
@@ -663,7 +665,7 @@ export default function MobileBookingDetails() {
                 <CardHeader>
                   <CardTitle className="flex items-center text-lg">
                     <FileText className="w-5 h-5 mr-2 text-blue-600" />
-                    Special Instructions
+                    {t('booking.specialInstructions')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -676,13 +678,13 @@ export default function MobileBookingDetails() {
             <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
               <CardContent className="pt-6">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-medium text-muted-foreground">Total Amount</span>
+                  <span className="text-lg font-medium text-muted-foreground">{t('booking.totalAmount')}</span>
                   <span className="text-2xl font-bold text-blue-600" data-testid="text-total-amount">
                     ${parseFloat(booking.totalAmount as string).toFixed(2)}
                   </span>
                 </div>
                 <div className="mt-2 text-sm text-muted-foreground">
-                  Payment: <span className="font-medium capitalize">{booking.paymentStatus}</span>
+                  {t('payment.payment')}: <span className="font-medium capitalize">{booking.paymentStatus}</span>
                 </div>
               </CardContent>
             </Card>
@@ -696,7 +698,7 @@ export default function MobileBookingDetails() {
                 data-testid="button-cancel-booking"
               >
                 <Ban className="w-4 h-4 mr-2" />
-                Cancel Booking
+                {t('booking.cancelBooking')}
               </Button>
             )}
           </>
@@ -707,9 +709,9 @@ export default function MobileBookingDetails() {
       <Dialog open={showPriceApproval} onOpenChange={setShowPriceApproval}>
         <DialogContent className="max-w-md" data-testid="dialog-price-approval">
           <DialogHeader>
-            <DialogTitle>Price Change Approval Required</DialogTitle>
+            <DialogTitle>{t('booking.priceApproval')}</DialogTitle>
             <DialogDescription>
-              Your changes have affected the booking price. Please review and approve the new price.
+              {t('booking.priceChangeDescription')}
             </DialogDescription>
           </DialogHeader>
 
@@ -717,14 +719,14 @@ export default function MobileBookingDetails() {
             <div className="space-y-4">
               <div className="bg-muted rounded-lg p-4 space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Original Price</span>
+                  <span className="text-muted-foreground">{t('booking.originalPrice')}</span>
                   <span className="text-lg font-medium line-through text-muted-foreground" data-testid="text-old-price">
                     ${priceComparison.oldPrice.toFixed(2)}
                   </span>
                 </div>
                 <Separator />
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">New Price</span>
+                  <span className="text-muted-foreground">{t('booking.newPrice')}</span>
                   <span className="text-2xl font-bold text-blue-600" data-testid="text-new-price">
                     ${priceComparison.newPrice.toFixed(2)}
                   </span>
@@ -732,7 +734,7 @@ export default function MobileBookingDetails() {
                 <Separator />
                 <div className="flex justify-between items-center">
                   <span className="font-medium">
-                    {priceComparison.newPrice > priceComparison.oldPrice ? 'Increase' : 'Decrease'}
+                    {priceComparison.newPrice > priceComparison.oldPrice ? t('booking.increase') : t('booking.decrease')}
                   </span>
                   <span className={`text-lg font-bold ${
                     priceComparison.newPrice > priceComparison.oldPrice ? 'text-red-600' : 'text-green-600'
@@ -744,21 +746,21 @@ export default function MobileBookingDetails() {
               </div>
 
               <div className="bg-blue-50 rounded-lg p-4 space-y-2">
-                <p className="font-medium text-sm text-blue-900">Price Breakdown</p>
+                <p className="font-medium text-sm text-blue-900">{t('booking.priceBreakdown')}</p>
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Base Fare</span>
+                    <span className="text-muted-foreground">{t('booking.baseFare')}</span>
                     <span>${priceComparison.breakdown.baseFare.toFixed(2)}</span>
                   </div>
                   {priceComparison.breakdown.distanceFare > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Distance Fare</span>
+                      <span className="text-muted-foreground">{t('booking.distanceFare')}</span>
                       <span>${priceComparison.breakdown.distanceFare.toFixed(2)}</span>
                     </div>
                   )}
                   {priceComparison.breakdown.timeFare > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Time Fare</span>
+                      <span className="text-muted-foreground">{t('booking.timeFare')}</span>
                       <span>${priceComparison.breakdown.timeFare.toFixed(2)}</span>
                     </div>
                   )}
@@ -776,7 +778,7 @@ export default function MobileBookingDetails() {
               }}
               data-testid="button-reject-price"
             >
-              Reject Changes
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleApprovePriceChange}
@@ -784,7 +786,7 @@ export default function MobileBookingDetails() {
               disabled={updateMutation.isPending}
               data-testid="button-approve-price"
             >
-              {updateMutation.isPending ? 'Saving...' : 'Approve & Save'}
+              {updateMutation.isPending ? t('common.loading') : t('common.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -796,10 +798,10 @@ export default function MobileBookingDetails() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-500" />
-              Cancel Booking?
+              {t('booking.cancelBooking')}?
             </DialogTitle>
             <DialogDescription>
-              Please review the cancellation policy before proceeding.
+              {t('booking.cancellationPolicy')}
             </DialogDescription>
           </DialogHeader>
 
@@ -817,13 +819,13 @@ export default function MobileBookingDetails() {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-red-700">
                       <AlertTriangle className="w-5 h-5" />
-                      <span className="font-semibold">Cancellation Fee Applies</span>
+                      <span className="font-semibold">{t('booking.cancellationFeeApplies')}</span>
                     </div>
                     <p className="text-sm text-red-600">
                       {cancelPreview.policyMessage}
                     </p>
                     <div className="flex justify-between items-center mt-3 pt-3 border-t border-red-200">
-                      <span className="text-red-700">Fee Amount</span>
+                      <span className="text-red-700">{t('booking.feeAmount')}</span>
                       <span className="text-xl font-bold text-red-700">${cancelPreview.amount}</span>
                     </div>
                   </div>
@@ -831,13 +833,13 @@ export default function MobileBookingDetails() {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-green-700">
                       <Wallet className="w-5 h-5" />
-                      <span className="font-semibold">Ride Credits Refund</span>
+                      <span className="font-semibold">{t('payment.credits')}</span>
                     </div>
                     <p className="text-sm text-green-600">
                       {cancelPreview.policyMessage}
                     </p>
                     <div className="flex justify-between items-center mt-3 pt-3 border-t border-green-200">
-                      <span className="text-green-700">Credit Amount</span>
+                      <span className="text-green-700">{t('booking.creditAmount')}</span>
                       <span className="text-xl font-bold text-green-700">${cancelPreview.amount}</span>
                     </div>
                   </div>
@@ -845,7 +847,7 @@ export default function MobileBookingDetails() {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Check className="w-5 h-5" />
-                      <span className="font-semibold">No Charge</span>
+                      <span className="font-semibold">{t('booking.noCharge')}</span>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {cancelPreview.policyMessage}
@@ -857,13 +859,13 @@ export default function MobileBookingDetails() {
               {/* Time Info */}
               <div className="bg-muted rounded-lg p-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Hours until pickup</span>
-                  <span className="font-medium">{cancelPreview.hoursBeforePickup.toFixed(1)} hours</span>
+                  <span className="text-muted-foreground">{t('booking.hoursUntilPickup')}</span>
+                  <span className="font-medium">{cancelPreview.hoursBeforePickup.toFixed(1)} {t('booking.hours')}</span>
                 </div>
                 {cancelPreview.driverOnTheWay && (
                   <div className="flex justify-between mt-2 text-amber-600">
-                    <span>Driver Status</span>
-                    <span className="font-medium">On the way</span>
+                    <span>{t('status.driverStatus')}</span>
+                    <span className="font-medium">{t('status.onTheWay')}</span>
                   </div>
                 )}
               </div>
@@ -879,7 +881,7 @@ export default function MobileBookingDetails() {
               }}
               data-testid="button-keep-booking"
             >
-              Keep Booking
+              {t('booking.keepBooking')}
             </Button>
             <Button
               onClick={() => cancelMutation.mutate('Cancelled by passenger')}
@@ -887,7 +889,7 @@ export default function MobileBookingDetails() {
               disabled={cancelMutation.isPending}
               data-testid="button-confirm-cancel"
             >
-              {cancelMutation.isPending ? 'Cancelling...' : 'Confirm Cancellation'}
+              {cancelMutation.isPending ? t('common.loading') : t('common.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

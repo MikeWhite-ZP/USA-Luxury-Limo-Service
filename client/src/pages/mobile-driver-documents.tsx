@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, FileText, Upload, CheckCircle, XCircle, Clock, Camera, Trash2, Car } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +31,7 @@ interface DriverDocument {
 export default function MobileDriverDocuments() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
@@ -187,7 +189,7 @@ export default function MobileDriverDocuments() {
       <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading documents...</p>
+          <p className="text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -207,9 +209,9 @@ export default function MobileDriverDocuments() {
           >
             <ArrowLeft className="w-6 h-6" />
           </Button>
-          <h1 className="text-2xl font-bold" data-testid="header-title">My Documents</h1>
+          <h1 className="text-2xl font-bold" data-testid="header-title">{t('driver.documents')}</h1>
         </div>
-        <p className="text-green-50 text-sm mt-2 ml-14">Upload and manage your verification documents</p>
+        <p className="text-green-50 text-sm mt-2 ml-14">{t('common.upload')}</p>
       </div>
 
       {/* Documents */}
@@ -223,8 +225,8 @@ export default function MobileDriverDocuments() {
                   <FileText className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-foreground">Driver License</h3>
-                  <p className="text-xs text-muted-foreground">Required document</p>
+                  <h3 className="font-bold text-foreground">{t('driver.license')}</h3>
+                  <p className="text-xs text-muted-foreground">{t('common.required')}</p>
                 </div>
               </div>
               {getDocumentByType('driver_license') && getStatusBadge(getDocumentByType('driver_license')!.status)}
@@ -307,8 +309,8 @@ export default function MobileDriverDocuments() {
                   <FileText className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-foreground">Limo License</h3>
-                  <p className="text-xs text-muted-foreground">Required document</p>
+                  <h3 className="font-bold text-foreground">{t('driver.license')}</h3>
+                  <p className="text-xs text-muted-foreground">{t('common.required')}</p>
                 </div>
               </div>
               {getDocumentByType('limo_license') && getStatusBadge(getDocumentByType('limo_license')!.status)}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useParams } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, MapPin, User, Phone, Mail, Calendar, DollarSign, Package, Baby, Navigation, CheckCircle2, Clock, Plane, Users, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -72,6 +73,7 @@ export default function MobileDriverRideDetails() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   
   // Decline dialog state
@@ -124,14 +126,14 @@ export default function MobileDriverRideDetails() {
       queryClient.invalidateQueries({ queryKey: ['/api/bookings', id] });
       queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
       toast({
-        title: "Job Accepted",
-        description: "You have accepted this job",
+        title: t('status.driverAccepted'),
+        description: t('common.success'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to accept job. Please enable location access.",
+        title: t('common.error'),
+        description: error.message || t('errors.somethingWentWrong'),
         variant: "destructive",
       });
     },
@@ -154,16 +156,16 @@ export default function MobileDriverRideDetails() {
       setSelectedDeclineReason('');
       setDeclineNotes('');
       toast({
-        title: "Job Declined",
-        description: "You have declined this job",
+        title: t('status.driverDeclined'),
+        description: t('common.success'),
       });
       // Navigate back to dashboard since job is no longer assigned
       setLocation('/mobile-driver');
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to decline job.",
+        title: t('common.error'),
+        description: error.message || t('errors.somethingWentWrong'),
         variant: "destructive",
       });
     },
@@ -198,14 +200,14 @@ export default function MobileDriverRideDetails() {
       queryClient.invalidateQueries({ queryKey: ['/api/bookings', id] });
       queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
       toast({
-        title: "Trip Started",
-        description: "Trip has been started",
+        title: t('status.inProgress'),
+        description: t('common.success'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to start trip. Please enable location access.",
+        title: t('common.error'),
+        description: error.message || t('errors.somethingWentWrong'),
         variant: "destructive",
       });
     },
@@ -279,14 +281,14 @@ export default function MobileDriverRideDetails() {
       queryClient.invalidateQueries({ queryKey: ['/api/bookings', id] });
       queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
       toast({
-        title: "Trip Completed",
-        description: "Trip has been completed successfully",
+        title: t('status.completed'),
+        description: t('common.success'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to end trip. Please enable location access.",
+        title: t('common.error'),
+        description: error.message || t('errors.somethingWentWrong'),
         variant: "destructive",
       });
     },
@@ -460,16 +462,16 @@ export default function MobileDriverRideDetails() {
         <Card className="max-w-md w-full">
           <CardContent className="p-6 text-center">
             <MapPin className="w-12 h-12 text-red-600 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">Invalid Ride</h2>
+            <h2 className="text-xl font-bold mb-2">{t('common.error')}</h2>
             <p className="text-muted-foreground mb-4">
-              No ride ID was provided.
+              {t('errors.somethingWentWrong')}
             </p>
             <Button 
               onClick={() => setLocation('/mobile-driver')}
               className="bg-primary hover:bg-primary/90"
               data-testid="button-back-to-dashboard"
             >
-              Back to Dashboard
+              {t('common.back')}
             </Button>
           </CardContent>
         </Card>
@@ -482,7 +484,7 @@ export default function MobileDriverRideDetails() {
       <div className="min-h-screen bg-gradient-to-b from-background to-accent/5 dark:from-background dark:to-primary/5 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading ride details...</p>
+          <p className="text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -494,22 +496,16 @@ export default function MobileDriverRideDetails() {
         <Card className="max-w-md w-full">
           <CardContent className="p-6 text-center">
             <MapPin className="w-12 h-12 text-red-600 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">Ride Not Found</h2>
+            <h2 className="text-xl font-bold mb-2">{t('errors.pageNotFound')}</h2>
             <p className="text-muted-foreground mb-4">
-              {isError && error instanceof Error 
-                ? error.message.includes('403') 
-                  ? "You don't have access to this ride."
-                  : error.message.includes('404')
-                    ? "This ride could not be found."
-                    : "An error occurred while loading ride details."
-                : "This ride could not be found or you don't have access to it."}
+              {t('errors.somethingWentWrong')}
             </p>
             <Button 
               onClick={() => setLocation('/mobile-driver')}
               className="bg-primary hover:bg-primary/90"
               data-testid="button-back-to-dashboard"
             >
-              Back to Dashboard
+              {t('common.back')}
             </Button>
           </CardContent>
         </Card>
@@ -533,7 +529,7 @@ export default function MobileDriverRideDetails() {
           >
             <ArrowLeft className="w-6 h-6" />
           </Button>
-          <h1 className="text-xl font-bold" data-testid="header-title">Ride Details</h1>
+          <h1 className="text-xl font-bold" data-testid="header-title">{t('booking.bookingDetails')}</h1>
           <div className="w-10"></div>
         </div>
 
@@ -551,7 +547,7 @@ export default function MobileDriverRideDetails() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center">
               <User className="w-5 h-5 mr-2 text-primary" />
-              Passenger Information
+              {t('booking.passengerDetails')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -595,7 +591,7 @@ export default function MobileDriverRideDetails() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center">
               <MapPin className="w-5 h-5 mr-2 text-primary" />
-              Trip Details
+              {t('booking.bookingDetails')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -616,7 +612,7 @@ export default function MobileDriverRideDetails() {
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-xs text-muted-foreground mb-1">Pickup Location</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t('booking.pickupLocation')}</p>
                   <p className="text-sm font-medium text-foreground">{booking.pickupAddress}</p>
                 </div>
                 <Navigation className="w-5 h-5 text-primary ml-2 flex-shrink-0" />

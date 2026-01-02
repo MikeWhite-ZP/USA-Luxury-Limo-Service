@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation, Link } from "wouter";
+import { useTranslation } from 'react-i18next';
 import { useAuth, type LoginData, type RegisterData } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,58 +13,56 @@ import { UserCircle, Car, Users, User, Shield, ArrowLeft, Lock, Mail, UserIcon }
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 
-const roles = [
-  {
-    id: 'passenger' as const,
-    title: 'Passenger',
-    description: 'Book luxury transportation services with ease',
-    icon: <User className="w-10 h-10 text-red-600" />,
-    color: 'from-red-600 via-red-500 to-red-700',
-    bgGradient: 'from-red-500/20 to-red-700/20',
-    borderColor: 'border-red-500/30',
-    iconBg: 'bg-red-500/10',
-  },
-  {
-    id: 'driver' as const,
-    title: 'Driver',
-    description: 'Access your dashboard and manage rides efficiently',
-    icon: <Car className="w-10 h-10 text-red-600" />,
-    color: 'from-red-600 via-red-500 to-red-700',
-    bgGradient: 'from-red-500/20 to-red-700/20',
-    borderColor: 'border-red-500/30',
-    iconBg: 'bg-red-500/10',
-  },
-  {
-    id: 'dispatcher' as const,
-    title: 'Dispatcher',
-    description: 'Coordinate operations and manage the fleet',
-    icon: <Users className="w-10 h-10 text-red-600" />,
-    color: 'from-red-600 via-red-500 to-red-700',
-    bgGradient: 'from-red-500/20 to-red-700/20',
-    borderColor: 'border-red-500/30',
-    iconBg: 'bg-red-500/10',
-  },
-];
-
 export function RoleLogin() {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const { loginMutation, registerMutation, user } = useAuth();
   const { toast } = useToast();
   const [selectedRole, setSelectedRole] = useState<'passenger' | 'driver' | 'dispatcher' | null>(null);
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   
-  // Fetch site logo
+  const roles = [
+    {
+      id: 'passenger' as const,
+      title: t('roles.passenger'),
+      description: t('roles.passengerDescription'),
+      icon: <User className="w-10 h-10 text-red-600" />,
+      color: 'from-red-600 via-red-500 to-red-700',
+      bgGradient: 'from-red-500/20 to-red-700/20',
+      borderColor: 'border-red-500/30',
+      iconBg: 'bg-red-500/10',
+    },
+    {
+      id: 'driver' as const,
+      title: t('roles.driver'),
+      description: t('roles.driverDescription'),
+      icon: <Car className="w-10 h-10 text-red-600" />,
+      color: 'from-red-600 via-red-500 to-red-700',
+      bgGradient: 'from-red-500/20 to-red-700/20',
+      borderColor: 'border-red-500/30',
+      iconBg: 'bg-red-500/10',
+    },
+    {
+      id: 'dispatcher' as const,
+      title: t('roles.dispatcher'),
+      description: t('roles.dispatcherDescription'),
+      icon: <Users className="w-10 h-10 text-red-600" />,
+      color: 'from-red-600 via-red-500 to-red-700',
+      bgGradient: 'from-red-500/20 to-red-700/20',
+      borderColor: 'border-red-500/30',
+      iconBg: 'bg-red-500/10',
+    },
+  ];
+  
   const { data: siteLogoData } = useQuery<{ logo: { url: string; alt: string } | null }>({
     queryKey: ['/api/site-logo'],
   });
   
-  // Login form state
   const [loginForm, setLoginForm] = useState<LoginData>({
     username: '',
     password: '',
   });
 
-  // Signup form state
   const [signupForm, setSignupForm] = useState<RegisterData>({
     username: '',
     password: '',
@@ -73,15 +72,11 @@ export function RoleLogin() {
     role: 'passenger',
   });
 
-  // Redirect if already authenticated
   if (user) {
-    // Check if user has pending booking data
     const pendingBookingData = localStorage.getItem('pendingBookingData');
     if (pendingBookingData) {
-      // Redirect to booking page to complete the booking
       setLocation('/booking');
     } else {
-      // Redirect to role-specific dashboard
       const redirectPath = user.role === 'admin' ? '/admin' :
                           user.role === 'driver' ? '/driver' :
                           user.role === 'dispatcher' ? '/dispatcher' :
@@ -96,8 +91,8 @@ export function RoleLogin() {
     
     if (!loginForm.username || !loginForm.password) {
       toast({
-        title: "Missing Information",
-        description: "Please enter both username and password",
+        title: t('auth.missingInformation'),
+        description: t('auth.enterUsernamePassword'),
         variant: "destructive",
       });
       return;
@@ -106,17 +101,14 @@ export function RoleLogin() {
     try {
       await loginMutation.mutateAsync(loginForm);
       toast({
-        title: "Welcome back!",
-        description: "You have been logged in successfully",
+        title: t('auth.welcomeBack'),
+        description: t('auth.loginSuccess'),
       });
       
-      // Check if user has pending booking data
       const pendingBookingData = localStorage.getItem('pendingBookingData');
       if (pendingBookingData) {
-        // Redirect to booking page to complete the booking
         setLocation('/booking');
       } else {
-        // Redirect to role-specific dashboard
         const redirectPath = selectedRole === 'driver' ? '/driver' :
                             selectedRole === 'dispatcher' ? '/dispatcher' :
                             '/passenger';
@@ -124,8 +116,8 @@ export function RoleLogin() {
       }
     } catch (error: any) {
       toast({
-        title: "Login Failed",
-        description: error.message || "Invalid username or password",
+        title: t('auth.loginFailed'),
+        description: error.message || t('auth.invalidCredentials'),
         variant: "destructive",
       });
     }
@@ -136,8 +128,8 @@ export function RoleLogin() {
     
     if (!signupForm.username || !signupForm.password || !signupForm.email) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
+        title: t('auth.missingInformation'),
+        description: t('auth.fillAllFields'),
         variant: "destructive",
       });
       return;
@@ -145,8 +137,8 @@ export function RoleLogin() {
 
     if (signupForm.password.length < 6) {
       toast({
-        title: "Weak Password",
-        description: "Password must be at least 6 characters long",
+        title: t('auth.weakPassword'),
+        description: t('auth.passwordMinChars'),
         variant: "destructive",
       });
       return;
@@ -159,17 +151,14 @@ export function RoleLogin() {
       });
       
       toast({
-        title: "Account Created!",
-        description: `Welcome, ${signupForm.firstName || signupForm.username}! Your account has been created.`,
+        title: t('auth.accountCreated'),
+        description: t('auth.welcomeUser', { name: signupForm.firstName || signupForm.username }),
       });
       
-      // Check if user has pending booking data
       const pendingBookingData = localStorage.getItem('pendingBookingData');
       if (pendingBookingData) {
-        // Redirect to booking page to complete the booking
         setLocation('/booking');
       } else {
-        // Redirect to role-specific dashboard
         const redirectPath = selectedRole === 'driver' ? '/driver' :
                             selectedRole === 'dispatcher' ? '/dispatcher' :
                             '/passenger';
@@ -177,8 +166,8 @@ export function RoleLogin() {
       }
     } catch (error: any) {
       toast({
-        title: "Registration Failed",
-        description: error.message || "Could not create account",
+        title: t('auth.registerFailed'),
+        description: error.message || t('auth.couldNotCreateAccount'),
         variant: "destructive",
       });
     }
@@ -206,34 +195,30 @@ export function RoleLogin() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Light Background with Subtle Pattern */}
       <div className="fixed inset-0 bg-gradient-to-br from-red-50 via-background to-muted -z-10 dark:from-red-950/20 dark:via-background dark:to-muted" />
       <div className="fixed inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(220 38 38 / 0.03) 1px, transparent 0)', backgroundSize: '48px 48px' }} />
-      {/* Floating orbs for visual interest */}
       <div className="fixed top-0 left-1/4 w-96 h-96 bg-red-200/20 rounded-full blur-3xl -z-10 animate-pulse" />
       <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-red-100/15 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '1s' }} />
       <Header />
       <main className="flex-1 pt-32 pb-20 relative z-0">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
-            {/* Header Section */}
             <div className="text-center mb-16">
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-background border-2 border-red-600 shadow-xl mb-6">
                 <Shield className="w-10 h-10 text-red-600" />
               </div>
               <h1 className="text-5xl md:text-6xl font-bold mb-6 text-foreground" data-testid="page-title">
-                {selectedRole ? `${currentRole?.title} Portal` : 'Welcome Back'}
+                {selectedRole ? t('auth.portalTitle', { role: currentRole?.title }) : t('auth.welcomeBack')}
               </h1>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed" data-testid="page-subtitle">
                 {selectedRole 
-                  ? 'Access your account to continue' 
-                  : 'Select your role to access your personalized dashboard'}
+                  ? t('auth.accessAccount')
+                  : t('auth.selectRoleDescription')}
               </p>
             </div>
 
             {!selectedRole ? (
               <>
-              {/* Role Selection Grid */}
               <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
                 {roles.map((role) => (
                   <div
@@ -242,20 +227,16 @@ export function RoleLogin() {
                     onClick={() => handleRoleSelect(role.id)}
                     data-testid={`role-card-${role.id}`}
                   >
-                    {/* Glow effect on hover */}
                     <div className={`absolute -inset-0.5 bg-gradient-to-r ${role.color} rounded-2xl opacity-10 group-hover:opacity-30 blur transition-all duration-500`} />
                     
                     <Card className="relative h-full bg-card border-border hover:border-border transition-all duration-300 cursor-pointer overflow-hidden group-hover:scale-[1.02] shadow-lg group-hover:shadow-2xl">
-                      {/* Subtle gradient background */}
                       <div className={`absolute inset-0 bg-gradient-to-br ${role.bgGradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
                       
                       <CardHeader className="relative text-center p-10 pb-6">
-                        {/* Icon Container */}
                         <div className="relative mb-8">
                           <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-background border-2 border-red-600 shadow-xl group-hover:scale-110 transition-transform duration-500">
                             {role.icon}
                           </div>
-                          {/* Glow ring */}
                           <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${role.color} blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500`} style={{ transform: 'scale(0.9)' }} />
                         </div>
                         
@@ -272,7 +253,7 @@ export function RoleLogin() {
                           className="w-full bg-transparent border-2 border-transparent text-red-600 hover:bg-red-50 hover:border-red-600 font-semibold py-6 rounded-xl transition-all duration-300 text-base group-hover:scale-[1.02]"
                           data-testid={`role-button-${role.id}`}
                         >
-                          Continue as {role.title}
+                          {t('auth.continueAs', { role: role.title })}
                           <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
                         </Button>
                       </CardContent>
@@ -283,7 +264,6 @@ export function RoleLogin() {
               </>
             ) : (
               <>
-              {/* Auth Form Section */}
               <div className="max-w-xl mx-auto">
                 <Button 
                   variant="ghost" 
@@ -292,16 +272,14 @@ export function RoleLogin() {
                   data-testid="button-back"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to role selection
+                  {t('auth.backToRoleSelection')}
                 </Button>
 
-                {/* Glowing card wrapper */}
                 <div className="relative group">
                   <div className={`absolute -inset-1 bg-gradient-to-r ${currentRole?.color} rounded-3xl opacity-10 group-hover:opacity-20 blur-xl transition-opacity duration-500`} />
                   
                   <Card className="relative bg-card border-border shadow-xl" data-testid="auth-card">
                     <CardHeader className="text-center pb-6 pt-12 px-10">
-                      {/* Role Icon */}
                       <div className="relative inline-flex items-center justify-center mx-auto mb-6">
                         <div className="w-20 h-20 rounded-2xl bg-background border-2 border-red-600 shadow-xl flex items-center justify-center">
                           {currentRole?.icon}
@@ -310,10 +288,10 @@ export function RoleLogin() {
                       </div>
                       
                       <CardTitle className="text-3xl font-bold text-foreground mb-3" data-testid="auth-title">
-                        {currentRole?.title} Account
+                        {t('auth.accountTitle', { role: currentRole?.title })}
                       </CardTitle>
                       <CardDescription className="text-muted-foreground text-base" data-testid="auth-description">
-                        Sign in or create a new account to continue
+                        {t('auth.signInOrCreateAccount')}
                       </CardDescription>
                     </CardHeader>
                     
@@ -325,28 +303,27 @@ export function RoleLogin() {
                             className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground font-medium transition-all duration-200"
                             data-testid="tab-login"
                           >
-                            Sign In
+                            {t('auth.signIn')}
                           </TabsTrigger>
                           <TabsTrigger 
                             value="signup" 
                             className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground font-medium transition-all duration-200"
                             data-testid="tab-signup"
                           >
-                            Sign Up
+                            {t('auth.signUp')}
                           </TabsTrigger>
                         </TabsList>
 
-                        {/* Login Tab */}
                         <TabsContent value="login">
                           <form onSubmit={handleLogin} className="space-y-6" data-testid="login-form">
                             <div className="space-y-2">
-                              <Label htmlFor="login-username" className="text-muted-foreground font-medium">Username</Label>
+                              <Label htmlFor="login-username" className="text-muted-foreground font-medium">{t('auth.username')}</Label>
                               <div className="relative">
                                 <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
                                   id="login-username"
                                   type="text"
-                                  placeholder="Enter your username"
+                                  placeholder={t('auth.username')}
                                   value={loginForm.username}
                                   onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
                                   required
@@ -357,9 +334,9 @@ export function RoleLogin() {
                             </div>
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
-                                <Label htmlFor="login-password" className="text-muted-foreground font-medium">Password</Label>
+                                <Label htmlFor="login-password" className="text-muted-foreground font-medium">{t('auth.password')}</Label>
                                 <Link to="/forgot-password" className="text-sm text-red-600 hover:text-red-500 transition-colors duration-200">
-                                  Forgot Password?
+                                  {t('auth.forgotPassword')}
                                 </Link>
                               </div>
                               <div className="relative">
@@ -367,7 +344,7 @@ export function RoleLogin() {
                                 <Input
                                   id="login-password"
                                   type="password"
-                                  placeholder="Enter your password"
+                                  placeholder={t('auth.password')}
                                   value={loginForm.password}
                                   onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
                                   required
@@ -382,24 +359,23 @@ export function RoleLogin() {
                               disabled={loginMutation.isPending}
                               data-testid="button-login-submit"
                             >
-                              {loginMutation.isPending ? 'Signing in...' : 'Sign In'}
+                              {loginMutation.isPending ? t('auth.signingIn') : t('auth.signIn')}
                             </Button>
                             <div className="text-center mt-4">
                               <Link href="/forgot-password">
                                 <a className="text-sm text-red-600 hover:text-red-700 hover:underline" data-testid="link-forgot-password">
-                                  Forgot Password or Username?
+                                  {t('auth.forgotPasswordOrUsername')}
                                 </a>
                               </Link>
                             </div>
                           </form>
                         </TabsContent>
 
-                        {/* Signup Tab */}
                         <TabsContent value="signup">
                           <form onSubmit={handleSignup} className="space-y-5" data-testid="signup-form">
                             <div className="grid grid-cols-2 gap-4">
                               <div className="space-y-2">
-                                <Label htmlFor="signup-firstname" className="text-muted-foreground font-medium">First Name</Label>
+                                <Label htmlFor="signup-firstname" className="text-muted-foreground font-medium">{t('auth.firstName')}</Label>
                                 <Input
                                   id="signup-firstname"
                                   type="text"
@@ -411,7 +387,7 @@ export function RoleLogin() {
                                 />
                               </div>
                               <div className="space-y-2">
-                                <Label htmlFor="signup-lastname" className="text-muted-foreground font-medium">Last Name</Label>
+                                <Label htmlFor="signup-lastname" className="text-muted-foreground font-medium">{t('auth.lastName')}</Label>
                                 <Input
                                   id="signup-lastname"
                                   type="text"
@@ -424,7 +400,7 @@ export function RoleLogin() {
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="signup-email" className="text-muted-foreground font-medium">Email *</Label>
+                              <Label htmlFor="signup-email" className="text-muted-foreground font-medium">{t('auth.email')} *</Label>
                               <div className="relative">
                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
@@ -440,7 +416,7 @@ export function RoleLogin() {
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="signup-username" className="text-muted-foreground font-medium">Username *</Label>
+                              <Label htmlFor="signup-username" className="text-muted-foreground font-medium">{t('auth.username')} *</Label>
                               <div className="relative">
                                 <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
@@ -456,13 +432,13 @@ export function RoleLogin() {
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="signup-password" className="text-muted-foreground font-medium">Password *</Label>
+                              <Label htmlFor="signup-password" className="text-muted-foreground font-medium">{t('auth.password')} *</Label>
                               <div className="relative">
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
                                   id="signup-password"
                                   type="password"
-                                  placeholder="Min. 6 characters"
+                                  placeholder={t('auth.minPasswordLength')}
                                   value={signupForm.password}
                                   onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
                                   required
@@ -474,11 +450,11 @@ export function RoleLogin() {
                             </div>
                             <Button 
                               type="submit" 
-                              className="w-full h-12 bg-transparent border-2 border-transparent text-red-600 hover:bg-red-50 hover:border-red-600 font-semibold rounded-xl transition-all duration-300 text-base mt-8"
+                              className="w-full h-12 bg-transparent border-2 border-transparent text-red-600 hover:bg-red-50 hover:border-red-600 font-semibold rounded-xl transition-all duration-300 text-base mt-6"
                               disabled={registerMutation.isPending}
                               data-testid="button-signup-submit"
                             >
-                              {registerMutation.isPending ? 'Creating account...' : 'Create Account'}
+                              {registerMutation.isPending ? t('auth.signingUp') : t('auth.createAccount')}
                             </Button>
                           </form>
                         </TabsContent>

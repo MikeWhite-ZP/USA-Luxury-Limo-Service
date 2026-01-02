@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
@@ -261,6 +262,7 @@ export default function MobileAdmin() {
   const [, navigate] = useLocation();
   const { user, isLoading: authLoading, logoutMutation } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { logoUrl: brandingLogoUrl } = useBranding();
   
@@ -733,8 +735,8 @@ export default function MobileAdmin() {
               <Shield className="w-8 h-8" />
             )}
             <div>
-              <h1 className="font-bold text-[16px]">Admin Panel</h1>
-              <p className="text-xs text-blue-200">Welcome, {user.firstName}</p>
+              <h1 className="font-bold text-[16px]">{t('admin.dashboard')}</h1>
+              <p className="text-xs text-blue-200">{t('auth.welcomeBack')}, {user.firstName}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -767,7 +769,7 @@ export default function MobileAdmin() {
           >
             <div className="p-4 border-b bg-muted">
               <div className="flex items-center justify-between">
-                <h2 className="font-semibold">Menu</h2>
+                <h2 className="font-semibold">{t('common.more')}</h2>
                 <Button variant="ghost" size="icon" onClick={() => setMenuOpen(false)}>
                   <X className="w-5 h-5" />
                 </Button>
@@ -780,7 +782,7 @@ export default function MobileAdmin() {
                 onClick={handleLogout}
               >
                 <LogOut className="w-5 h-5 mr-3" />
-                Sign Out
+                {t('auth.signOut')}
               </Button>
             </div>
           </div>
@@ -847,7 +849,7 @@ export default function MobileAdmin() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-blue-600" />
-                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Recent Activity</CardTitle>
+                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{t('admin.bookings')}</CardTitle>
                   </div>
                   <Button 
                     variant="ghost" 
@@ -855,7 +857,7 @@ export default function MobileAdmin() {
                     onClick={() => setActiveSection('bookings')}
                     className="h-7 px-2 text-[11px] font-bold text-[#1d06c7] bg-[#d1ddeb] hover:bg-blue-50"
                   >
-                    VIEW ALL
+                    {t('common.view')}
                   </Button>
                 </div>
               </CardHeader>
@@ -900,7 +902,7 @@ export default function MobileAdmin() {
                   </div>
                 )}
                 {!bookingsLoading && filteredBookings.length === 0 && (
-                  <p className="text-center text-xs text-muted-foreground py-6">No recent activity</p>
+                  <p className="text-center text-xs text-muted-foreground py-6">{t('admin.bookings')}: 0</p>
                 )}
               </CardContent>
             </Card>
@@ -910,7 +912,7 @@ export default function MobileAdmin() {
               <CardHeader className="pb-2 pt-4 px-4 bg-muted/30">
                 <div className="flex items-center gap-2">
                   <LayoutGrid className="w-4 h-4 text-blue-600" />
-                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Quick Actions</CardTitle>
+                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{t('common.actions')}</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="p-3">

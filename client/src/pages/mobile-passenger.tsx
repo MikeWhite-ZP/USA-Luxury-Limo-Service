@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { 
   Car, 
   Calendar, 
-  CreditCard, 
+  CreditCard,
+  Globe, 
   FileText, 
   LogOut, 
   Plus,
@@ -64,11 +66,13 @@ import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ThemeToggleMobile } from '@/components/ThemeToggle';
 import { useBranding } from '@/hooks/useBranding';
 import { generateInvoiceHTML } from '@/lib/invoiceTemplate';
+import { LanguageSwitcherCompact } from '@/components/LanguageSwitcher';
 
 type Section = 'home' | 'new-booking' | 'saved-locations' | 'invoices' | 'payment' | 'account';
 
 export default function MobilePassenger() {
   const [, navigate] = useLocation();
+  const { t } = useTranslation();
   const { user, isLoading: authLoading, logoutMutation } = useAuth();
   const { toast } = useToast();
   const { companyName, logoUrl } = useBranding();
@@ -367,14 +371,14 @@ export default function MobilePassenger() {
       setAddAddressOpen(false);
       setNewAddress({ label: '', address: '', lat: '', lon: '' });
       toast({
-        title: 'Location Saved',
-        description: 'The address has been added to your saved locations.',
+        title: t('common.success'),
+        description: t('locations.locationSaved'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to save address',
+        title: t('common.error'),
+        description: error.message || t('errors.tryAgain'),
         variant: 'destructive',
       });
     },
@@ -393,14 +397,14 @@ export default function MobilePassenger() {
       setEditingAddress(null);
       setEditAddress({ label: '', address: '', lat: '', lon: '' });
       toast({
-        title: 'Location Updated',
-        description: 'The address has been updated successfully.',
+        title: t('common.success'),
+        description: t('locations.locationUpdated'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to update address',
+        title: t('common.error'),
+        description: error.message || t('errors.tryAgain'),
         variant: 'destructive',
       });
     },
@@ -415,14 +419,14 @@ export default function MobilePassenger() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/saved-addresses'] });
       toast({
-        title: 'Location Deleted',
-        description: 'Address has been removed from your saved locations.',
+        title: t('common.success'),
+        description: t('locations.locationDeleted'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to delete address',
+        title: t('common.error'),
+        description: error.message || t('errors.tryAgain'),
         variant: 'destructive',
       });
     },
@@ -438,14 +442,14 @@ export default function MobilePassenger() {
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       setIsEditingProfile(false);
       toast({
-        title: 'Profile Updated',
-        description: 'Your profile has been updated successfully.',
+        title: t('common.success'),
+        description: t('auth.profileUpdated'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to update profile',
+        title: t('common.error'),
+        description: error.message || t('errors.tryAgain'),
         variant: 'destructive',
       });
     },
@@ -460,14 +464,14 @@ export default function MobilePassenger() {
     onSuccess: () => {
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
       toast({
-        title: 'Password Updated',
-        description: 'Your password has been changed successfully.',
+        title: t('common.success'),
+        description: t('auth.passwordUpdated'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to update password',
+        title: t('common.error'),
+        description: error.message || t('errors.tryAgain'),
         variant: 'destructive',
       });
     },
@@ -602,11 +606,11 @@ export default function MobilePassenger() {
   };
 
   const menuItems = [
-    { id: 'home' as Section, label: 'Home', icon: Home },
-    { id: 'saved-locations' as Section, label: 'Saved', icon: MapPin },
-    { id: 'invoices' as Section, label: 'Invoices', icon: FileText },
-    { id: 'payment' as Section, label: 'Payment', icon: CreditCard },
-    { id: 'account' as Section, label: 'Account', icon: User },
+    { id: 'home' as Section, label: t('nav.home'), icon: Home },
+    { id: 'saved-locations' as Section, label: t('locations.saved'), icon: MapPin },
+    { id: 'invoices' as Section, label: t('invoices.title'), icon: FileText },
+    { id: 'payment' as Section, label: t('payment.payment'), icon: CreditCard },
+    { id: 'account' as Section, label: t('nav.account'), icon: User },
   ];
 
   return (
@@ -616,7 +620,7 @@ export default function MobilePassenger() {
         <div className="px-5 pt-4 pb-4">
           <div className="flex justify-between items-start mb-5">
             <div>
-              <h1 className="text-xl font-bold text-foreground">Welcome Back</h1>
+              <h1 className="text-xl font-bold text-foreground">{t('common.welcomeBack')}</h1>
               <p className="text-muted-foreground mt-1.5 text-sm">{user.firstName || ''} {user.lastName || ''}</p>
             </div>
             <div className="flex gap-3 items-center">
@@ -645,21 +649,21 @@ export default function MobilePassenger() {
           {/* Quick Stats */}
           <div className="grid grid-cols-4 gap-2.5">
             <div className="bg-background border rounded-xl p-2.5 shadow-sm" style={{ borderColor: 'var(--brand-primary-hex)' }}>
-              <p className="text-muted-foreground text-[10px]">Active</p>
+              <p className="text-muted-foreground text-[10px]">{t('status.active')}</p>
               <p className="text-lg font-bold mt-1" style={{ color: 'var(--brand-accent-hex)' }}>{upcomingBookings.filter(b => ['confirmed', 'on_the_way', 'arrived', 'on_board'].includes(b.status || '')).length}</p>
             </div>
             <div className="bg-background border border-blue-200 rounded-xl p-2.5 shadow-sm">
-              <p className="text-muted-foreground text-[10px]">Upcoming</p>
+              <p className="text-muted-foreground text-[10px]">{t('status.upcoming')}</p>
               <p className="text-lg font-bold text-blue-600 mt-1">{upcomingBookings.length}</p>
             </div>
             <div className="bg-background border border-border rounded-xl p-2.5 shadow-sm">
-              <p className="text-muted-foreground text-[10px]">Total</p>
+              <p className="text-muted-foreground text-[10px]">{t('common.total')}</p>
               <p className="text-lg font-bold text-foreground mt-1">{bookings?.length || 0}</p>
             </div>
             <div className="bg-background border border-green-200 rounded-xl p-2.5 shadow-sm">
               <p className="text-muted-foreground text-[10px] flex items-center gap-1">
                 <Wallet className="w-3 h-3" />
-                Credits
+                {t('payment.credits')}
               </p>
               <p className="text-lg font-bold text-green-600 mt-1">${rideCredits?.balance || '0.00'}</p>
             </div>
@@ -710,7 +714,7 @@ export default function MobilePassenger() {
               data-testid="button-new-booking-home"
             >
               <Plus className="w-5 h-5 mr-1.5" />
-              Book New Ride
+              {t('booking.bookNewRide')}
             </Button>
 
             {/* Bookings Section */}
@@ -718,34 +722,34 @@ export default function MobilePassenger() {
               <CardHeader className="pb-3 bg-background border-b border-border">
                 <CardTitle className="text-lg flex items-center gap-2 text-foreground">
                   <Car className="w-5 h-5" style={{ color: 'var(--brand-accent-hex)' }} />
-                  My Rides
+                  {t('booking.myRides')}
                 </CardTitle>
               </CardHeader>
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'upcoming' | 'past')} className="w-full">
               <TabsList className="w-full grid grid-cols-2 bg-muted mx-4 mb-3" style={{width: 'calc(100% - 2rem)'}}>
                 <TabsTrigger value="upcoming" className="data-[state=active]:bg-background" style={{ '--tw-text-opacity': 1 } as any} data-testid="tab-upcoming">
-                  Upcoming ({upcomingBookings.length})
+                  {t('status.upcoming')} ({upcomingBookings.length})
                 </TabsTrigger>
                 <TabsTrigger value="past" className="data-[state=active]:bg-background" data-testid="tab-past">
-                  Past ({pastBookings.length})
+                  {t('status.past')} ({pastBookings.length})
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="upcoming" className="mt-0 px-4 pb-4">
                 {bookingsLoading ? (
-                  <div className="text-center py-8 text-muted-foreground">Loading...</div>
+                  <div className="text-center py-8 text-muted-foreground">{t('common.loading')}</div>
                 ) : upcomingBookings.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No upcoming rides</p>
+                    <p>{t('booking.noUpcomingRides')}</p>
                     <Button
                       variant="link"
                       onClick={() => navigate('/mobile-booking')}
                       className="mt-2"
                       data-testid="button-book-first-ride"
                     >
-                      Book your first ride
+                      {t('booking.bookFirstRide')}
                     </Button>
                   </div>
                 ) : (
@@ -788,7 +792,7 @@ export default function MobilePassenger() {
                           {booking.bookingType === 'hourly' && (
                             <div className="flex items-center gap-2 text-muted-foreground">
                               <Clock className="w-4 h-4" />
-                              <span>Hourly Service - {booking.requestedHours}h</span>
+                              <span>{t('booking.hourlyService')} - {booking.requestedHours}h</span>
                             </div>
                           )}
                         </div>
@@ -800,11 +804,11 @@ export default function MobilePassenger() {
 
               <TabsContent value="past" className="mt-0 px-4 pb-4">
                 {bookingsLoading ? (
-                  <div className="text-center py-8 text-muted-foreground">Loading...</div>
+                  <div className="text-center py-8 text-muted-foreground">{t('common.loading')}</div>
                 ) : pastBookings.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <CheckCircle2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No past rides yet</p>
+                    <p>{t('booking.noPastRides')}</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -855,9 +859,9 @@ export default function MobilePassenger() {
                   <div>
                     <CardTitle className="text-sm flex items-center gap-1.5 text-foreground">
                       <MapPin className="w-3.5 h-3.5" style={{ color: 'var(--brand-accent-hex)' }} />
-                      Saved Locations
+                      {t('locations.savedLocations')}
                     </CardTitle>
-                    <CardDescription className="text-xs mt-0.5">Your favorite places</CardDescription>
+                    <CardDescription className="text-xs mt-0.5">{t('locations.favoritePlaces')}</CardDescription>
                   </div>
                   <Dialog open={addAddressOpen} onOpenChange={setAddAddressOpen}>
                     <DialogTrigger asChild>
@@ -867,27 +871,27 @@ export default function MobilePassenger() {
                         data-testid="button-add-location"
                       >
                         <Plus className="w-3 h-3 mr-1" />
-                        Add
+                        {t('common.add')}
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="bg-card max-w-[90vw] sm:max-w-md">
                       <DialogHeader>
-                        <DialogTitle>Add New Location</DialogTitle>
-                        <DialogDescription>Save a location for quick booking</DialogDescription>
+                        <DialogTitle>{t('locations.addNewLocation')}</DialogTitle>
+                        <DialogDescription>{t('locations.saveLocationDescription')}</DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="address-label">Label</Label>
+                          <Label htmlFor="address-label">{t('locations.label')}</Label>
                           <Input
                             id="address-label"
-                            placeholder="Home, Work, Gym, etc."
+                            placeholder={t('locations.labelPlaceholder')}
                             value={newAddress.label}
                             onChange={(e) => setNewAddress(prev => ({ ...prev, label: e.target.value }))}
                             data-testid="input-address-label"
                           />
                         </div>
                         <div className="relative">
-                          <Label htmlFor="address-text">Address</Label>
+                          <Label htmlFor="address-text">{t('locations.address')}</Label>
                           <Input
                             id="address-text"
                             placeholder="123 Main Street, City, State"
@@ -954,7 +958,7 @@ export default function MobilePassenger() {
                           className="w-full bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90"
                           data-testid="button-save-address"
                         >
-                          {addAddressMutation.isPending ? 'Saving...' : 'Save Location'}
+                          {addAddressMutation.isPending ? t('common.loading') : t('locations.saveLocation')}
                         </Button>
                       </div>
                     </DialogContent>
@@ -963,12 +967,12 @@ export default function MobilePassenger() {
               </CardHeader>
               <CardContent className="p-3">
                 {savedAddressesLoading ? (
-                  <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>
+                  <div className="text-center py-6 text-muted-foreground text-sm">{t('common.loading')}</div>
                 ) : !savedAddresses || savedAddresses.length === 0 ? (
                   <div className="text-center py-6 text-muted-foreground">
                     <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No saved locations yet</p>
-                    <p className="text-xs mt-1">Save locations during booking</p>
+                    <p className="text-sm">{t('locations.noSavedLocations')}</p>
+                    <p className="text-xs mt-1">{t('locations.saveLocationsDuringBooking')}</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -987,7 +991,7 @@ export default function MobilePassenger() {
                               <h3 className="font-semibold text-foreground text-xs">{location.label}</h3>
                               {location.isDefault && (
                                 <span className="px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] font-medium rounded-full">
-                                  Default
+                                  {t('common.default')}
                                 </span>
                               )}
                             </div>
@@ -1006,7 +1010,7 @@ export default function MobilePassenger() {
                               data-testid={`button-from-${location.id}`}
                             >
                               <Navigation className="w-2 h-2 mr-0.5" />
-                              From
+                              {t('locations.from')}
                             </Button>
                             <Button
                               size="sm"
@@ -1016,7 +1020,7 @@ export default function MobilePassenger() {
                               data-testid={`button-to-${location.id}`}
                             >
                               <MapPin className="w-2 h-2 mr-0.5" />
-                              To
+                              {t('locations.to')}
                             </Button>
                           </div>
                           <Button
@@ -1053,12 +1057,12 @@ export default function MobilePassenger() {
             <Dialog open={editAddressOpen} onOpenChange={setEditAddressOpen}>
               <DialogContent className="bg-card max-w-[90vw] sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Edit Location</DialogTitle>
-                  <DialogDescription>Update your saved location</DialogDescription>
+                  <DialogTitle>{t('locations.editLocation')}</DialogTitle>
+                  <DialogDescription>{t('locations.updateSavedLocation')}</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="edit-address-label">Label</Label>
+                    <Label htmlFor="edit-address-label">{t('locations.label')}</Label>
                     <Input
                       id="edit-address-label"
                       placeholder="Home, Work, Gym, etc."
@@ -1068,7 +1072,7 @@ export default function MobilePassenger() {
                     />
                   </div>
                   <div className="relative">
-                    <Label htmlFor="edit-address-text">Address</Label>
+                    <Label htmlFor="edit-address-text">{t('locations.address')}</Label>
                     <Input
                       id="edit-address-text"
                       placeholder="123 Main Street, City, State"
@@ -1135,7 +1139,7 @@ export default function MobilePassenger() {
                     className="w-full bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90"
                     data-testid="button-update-address"
                   >
-                    {editAddressMutation.isPending ? 'Updating...' : 'Update Location'}
+                    {editAddressMutation.isPending ? t('common.loading') : t('locations.updateLocation')}
                   </Button>
                 </div>
               </DialogContent>
@@ -1152,9 +1156,9 @@ export default function MobilePassenger() {
                   <div className="bg-primary/10 p-2 rounded-lg">
                     <CreditCard className="w-4 h-4 text-primary" />
                   </div>
-                  Payment Methods
+                  {t('payment.paymentMethods')}
                 </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground mt-1">Manage your payment options</CardDescription>
+                <CardDescription className="text-sm text-muted-foreground mt-1">{t('payment.managePaymentOptions')}</CardDescription>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="text-center py-6">
@@ -1164,7 +1168,7 @@ export default function MobilePassenger() {
                     data-testid="button-manage-payment"
                   >
                     <CreditCard className="w-4 h-4 mr-2" />
-                    Manage Payment Methods
+                    {t('payment.managePaymentMethods')}
                   </Button>
                 </div>
               </CardContent>
@@ -1183,9 +1187,9 @@ export default function MobilePassenger() {
                       <div className="bg-primary/10 p-1.5 rounded-lg">
                         <FileText className="w-3.5 h-3.5 text-primary" />
                       </div>
-                      My Invoices
+                      {t('invoices.myInvoices')}
                     </CardTitle>
-                    <CardDescription className="text-xs mt-0.5">View your ride invoices</CardDescription>
+                    <CardDescription className="text-xs mt-0.5">{t('invoices.viewInvoices')}</CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -1193,21 +1197,21 @@ export default function MobilePassenger() {
                 <Tabs value={invoiceTab} onValueChange={(v) => setInvoiceTab(v as 'current' | 'old')} className="w-full">
                   <TabsList className="w-full grid grid-cols-2 bg-muted mx-3 mt-3" style={{width: 'calc(100% - 1.5rem)'}}>
                     <TabsTrigger value="current" className="data-[state=active]:bg-background text-xs" data-testid="tab-current-invoices">
-                      Current ({filteredInvoices.length})
+                      {t('invoices.current')} ({filteredInvoices.length})
                     </TabsTrigger>
                     <TabsTrigger value="old" className="data-[state=active]:bg-background text-xs" data-testid="tab-old-invoices">
-                      Old Invoices ({oldInvoices?.length || 0})
+                      {t('invoices.old')} ({oldInvoices?.length || 0})
                     </TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="current" className="mt-0 p-3">
                     {invoicesLoading ? (
-                      <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>
+                      <div className="text-center py-6 text-muted-foreground text-sm">{t('common.loading')}</div>
                     ) : filteredInvoices.length === 0 ? (
                       <div className="text-center py-6 text-muted-foreground">
                         <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">No invoices yet</p>
-                        <p className="text-xs mt-1">Invoices appear after completed rides</p>
+                        <p className="text-sm">{t('invoices.noInvoices')}</p>
+                        <p className="text-xs mt-1">{t('invoices.invoicesAppearAfterRides')}</p>
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -1226,7 +1230,7 @@ export default function MobilePassenger() {
                                       ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                                       : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
                                   }`}>
-                                    {invoice.paidAt ? 'Paid' : 'Unpaid'}
+                                    {invoice.paidAt ? t('payment.paid') : t('payment.unpaid')}
                                   </span>
                                 </div>
                                 <p className="text-[10px] text-muted-foreground">
@@ -1252,7 +1256,7 @@ export default function MobilePassenger() {
                                   data-testid={`button-view-${invoice.id}`}
                                 >
                                   <Eye className="w-3 h-3 mr-0.5" />
-                                  View
+                                  {t('common.view')}
                                 </Button>
                               )}
                               <Button
@@ -1263,7 +1267,7 @@ export default function MobilePassenger() {
                                 data-testid={`button-print-${invoice.id}`}
                               >
                                 <Printer className="w-3 h-3 mr-0.5" />
-                                Print
+                                {t('invoices.print')}
                               </Button>
                               <Button
                                 size="sm"
@@ -1274,14 +1278,14 @@ export default function MobilePassenger() {
                                 data-testid={`button-email-${invoice.id}`}
                               >
                                 <Mail className="w-3 h-3 mr-0.5" />
-                                Email
+                                {t('invoices.email')}
                               </Button>
                             </div>
                           </div>
                         ))}
                         {filteredInvoices.length > 10 && (
                           <p className="text-center text-xs text-muted-foreground pt-2">
-                            Showing 10 of {filteredInvoices.length} invoices
+                            {t('invoices.showing', { count: 10, total: filteredInvoices.length })}
                           </p>
                         )}
                       </div>
@@ -1290,12 +1294,12 @@ export default function MobilePassenger() {
 
                   <TabsContent value="old" className="mt-0 p-3">
                     {oldInvoicesLoading ? (
-                      <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>
+                      <div className="text-center py-6 text-muted-foreground text-sm">{t('common.loading')}</div>
                     ) : !oldInvoices || oldInvoices.length === 0 ? (
                       <div className="text-center py-6 text-muted-foreground">
                         <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">No old invoices</p>
-                        <p className="text-xs mt-1">Historical invoices uploaded by admin</p>
+                        <p className="text-sm">{t('invoices.noOldInvoices')}</p>
+                        <p className="text-xs mt-1">{t('invoices.historicalInvoices')}</p>
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -1342,7 +1346,7 @@ export default function MobilePassenger() {
                                 data-testid={`button-download-${oldInvoice.id}`}
                               >
                                 <Download className="w-3 h-3 mr-0.5" />
-                                Download
+                                {t('invoices.download')}
                               </Button>
                               <Button
                                 size="sm"
@@ -1359,7 +1363,7 @@ export default function MobilePassenger() {
                                 data-testid={`button-print-old-${oldInvoice.id}`}
                               >
                                 <Printer className="w-3 h-3 mr-0.5" />
-                                Print
+                                {t('invoices.print')}
                               </Button>
                             </div>
                           </div>
@@ -1385,7 +1389,7 @@ export default function MobilePassenger() {
                       <div className="bg-primary/10 p-1.5 rounded-lg">
                         <User className="w-3.5 h-3.5 text-primary" />
                       </div>
-                      Profile Information
+                      {t('auth.profileInformation')}
                     </CardTitle>
                   </div>
                   {!isEditingProfile ? (
@@ -1397,7 +1401,7 @@ export default function MobilePassenger() {
                       data-testid="button-edit-profile"
                     >
                       <Edit2 className="w-3 h-3 mr-1" />
-                      Edit
+                      {t('common.edit')}
                     </Button>
                   ) : (
                     <div className="flex gap-1">
@@ -1419,7 +1423,7 @@ export default function MobilePassenger() {
                         data-testid="button-cancel-edit"
                       >
                         <X className="w-3 h-3 mr-1" />
-                        Cancel
+                        {t('common.cancel')}
                       </Button>
                       <Button
                         size="sm"
@@ -1429,7 +1433,7 @@ export default function MobilePassenger() {
                         data-testid="button-save-profile"
                       >
                         <Save className="w-3 h-3 mr-1" />
-                        {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
+                        {updateProfileMutation.isPending ? t('common.loading') : t('common.save')}
                       </Button>
                     </div>
                   )}
@@ -1439,19 +1443,19 @@ export default function MobilePassenger() {
                 {!isEditingProfile ? (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between py-2 border-b border-border/50">
-                      <span className="text-sm text-muted-foreground">Name</span>
+                      <span className="text-sm text-muted-foreground">{t('auth.name')}</span>
                       <span className="text-sm font-medium text-foreground" data-testid="text-name">{user.firstName} {user.lastName}</span>
                     </div>
                     <div className="flex items-center justify-between py-2 border-b border-border/50">
-                      <span className="text-sm text-muted-foreground">Email</span>
-                      <span className="text-sm font-medium text-foreground truncate max-w-[180px]" data-testid="text-email">{user.email || 'Not provided'}</span>
+                      <span className="text-sm text-muted-foreground">{t('auth.email')}</span>
+                      <span className="text-sm font-medium text-foreground truncate max-w-[180px]" data-testid="text-email">{user.email || t('common.notProvided')}</span>
                     </div>
                     <div className="flex items-center justify-between py-2 border-b border-border/50">
-                      <span className="text-sm text-muted-foreground">Phone</span>
-                      <span className="text-sm font-medium text-foreground" data-testid="text-phone">{user.phone || 'Not provided'}</span>
+                      <span className="text-sm text-muted-foreground">{t('auth.phone')}</span>
+                      <span className="text-sm font-medium text-foreground" data-testid="text-phone">{user.phone || t('common.notProvided')}</span>
                     </div>
                     <div className="flex items-center justify-between py-2">
-                      <span className="text-sm text-muted-foreground">Username</span>
+                      <span className="text-sm text-muted-foreground">{t('auth.username')}</span>
                       <span className="text-sm font-medium text-foreground" data-testid="text-username">{user.username}</span>
                     </div>
                   </div>
@@ -1459,7 +1463,7 @@ export default function MobilePassenger() {
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="firstName" className="text-sm text-muted-foreground">First Name</Label>
+                        <Label htmlFor="firstName" className="text-sm text-muted-foreground">{t('auth.firstName')}</Label>
                         <Input
                           id="firstName"
                           value={profileForm.firstName}
@@ -1469,7 +1473,7 @@ export default function MobilePassenger() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="lastName" className="text-sm text-muted-foreground">Last Name</Label>
+                        <Label htmlFor="lastName" className="text-sm text-muted-foreground">{t('auth.lastName')}</Label>
                         <Input
                           id="lastName"
                           value={profileForm.lastName}
@@ -1480,7 +1484,7 @@ export default function MobilePassenger() {
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
+                      <Label htmlFor="email" className="text-sm text-muted-foreground">{t('auth.email')}</Label>
                       <Input
                         id="email"
                         type="email"
@@ -1491,7 +1495,7 @@ export default function MobilePassenger() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="phone" className="text-sm text-muted-foreground">Phone</Label>
+                      <Label htmlFor="phone" className="text-sm text-muted-foreground">{t('auth.phone')}</Label>
                       <Input
                         id="phone"
                         type="tel"
@@ -1502,12 +1506,12 @@ export default function MobilePassenger() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="username" className="text-sm text-muted-foreground">Username</Label>
+                      <Label htmlFor="username" className="text-sm text-muted-foreground">{t('auth.username')}</Label>
                       <Input
                         id="username"
                         value={profileForm.username}
                         onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
-                        placeholder="Optional username"
+                        placeholder={t('auth.optionalUsername')}
                         className="h-10 text-sm mt-1.5"
                         data-testid="input-username"
                       />
@@ -1518,14 +1522,14 @@ export default function MobilePassenger() {
                           usernameStatus === 'taken' ? 'text-red-600' :
                           'text-muted-foreground'
                         }`}>
-                          {usernameStatus === 'checking' && 'Checking...'}
-                          {usernameStatus === 'available' && 'Available'}
-                          {usernameStatus === 'taken' && 'Taken'}
-                          {usernameStatus === 'idle' && '3-30 chars, letters, numbers, -, _'}
+                          {usernameStatus === 'checking' && t('auth.checking')}
+                          {usernameStatus === 'available' && t('auth.available')}
+                          {usernameStatus === 'taken' && t('auth.taken')}
+                          {usernameStatus === 'idle' && t('auth.usernameRequirements')}
                         </p>
                       )}
                       {(!profileForm.username || profileForm.username === user?.username) && (
-                        <p className="text-xs text-muted-foreground mt-1">3-30 characters, letters, numbers, -, _</p>
+                        <p className="text-xs text-muted-foreground mt-1">{t('auth.usernameRequirements')}</p>
                       )}
                     </div>
                   </div>
@@ -1540,12 +1544,12 @@ export default function MobilePassenger() {
                   <div className="bg-primary/10 p-1 rounded-md">
                     <Lock className="w-3 h-3 text-primary" />
                   </div>
-                  Change Password
+                  {t('auth.changePassword')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 space-y-2">
                 <div>
-                  <Label htmlFor="currentPassword" className="text-xs text-muted-foreground">Current Password</Label>
+                  <Label htmlFor="currentPassword" className="text-xs text-muted-foreground">{t('auth.currentPassword')}</Label>
                   <div className="relative mt-1">
                     <Input
                       id="currentPassword"
@@ -1567,7 +1571,7 @@ export default function MobilePassenger() {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label htmlFor="newPassword" className="text-xs text-muted-foreground">New Password</Label>
+                    <Label htmlFor="newPassword" className="text-xs text-muted-foreground">{t('auth.newPassword')}</Label>
                     <div className="relative mt-1">
                       <Input
                         id="newPassword"
@@ -1588,7 +1592,7 @@ export default function MobilePassenger() {
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="confirmPassword" className="text-xs text-muted-foreground">Confirm Password</Label>
+                    <Label htmlFor="confirmPassword" className="text-xs text-muted-foreground">{t('auth.confirmPassword')}</Label>
                     <div className="relative mt-1">
                       <Input
                         id="confirmPassword"
@@ -1609,13 +1613,13 @@ export default function MobilePassenger() {
                     </div>
                   </div>
                 </div>
-                <p className="text-[10px] text-muted-foreground">8+ chars with uppercase, lowercase & number</p>
+                <p className="text-[10px] text-muted-foreground">{t('auth.passwordRequirements')}</p>
                 <Button
                   onClick={() => {
                     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
                       toast({
-                        title: 'Error',
-                        description: 'New passwords do not match',
+                        title: t('common.error'),
+                        description: t('auth.passwordMismatch'),
                         variant: 'destructive',
                       });
                       return;
@@ -1630,13 +1634,28 @@ export default function MobilePassenger() {
                   data-testid="button-change-password"
                 >
                   <Lock className="w-3 h-3 mr-1.5" />
-                  {updatePasswordMutation.isPending ? 'Updating...' : 'Update Password'}
+                  {updatePasswordMutation.isPending ? t('common.loading') : t('auth.updatePassword')}
                 </Button>
               </CardContent>
             </Card>
 
             {/* Theme Settings */}
             <ThemeSwitcher />
+
+            {/* Language Settings */}
+            <Card className="shadow-sm border-2 border-border bg-card">
+              <CardHeader className="bg-primary/5/50 border-b border-border p-2.5">
+                <CardTitle className="text-xs flex items-center gap-2 text-foreground">
+                  <div className="bg-primary/10 p-1 rounded-md">
+                    <Globe className="w-3 h-3 text-primary" />
+                  </div>
+                  {t('nav.language')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3">
+                <LanguageSwitcherCompact />
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>

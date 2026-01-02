@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Camera, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { LanguageSwitcherCompact } from '@/components/LanguageSwitcher';
 
 const defaultUserImage = '/images/default-user_1762118764894.png';
 
@@ -30,6 +32,7 @@ interface DriverDocument {
 
 export default function MobileProfile() {
   const [, setLocation] = useLocation();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -37,24 +40,19 @@ export default function MobileProfile() {
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
 
-  // Fetch driver documents to check profile photo approval status
   const { data: documents } = useQuery<DriverDocument[]>({
     queryKey: ['/api/driver/documents'],
     retry: false,
   });
 
-  // Find profile photo document
   const profilePhotoDoc = documents?.find(doc => doc.documentType === 'profile_photo');
   
-  // Show profile picture if it exists (pending or approved)
-  // Format URLs - raw storage paths need /api/uploads/ prefix
   const rawUrl = localPreviewUrl || profilePhotoDoc?.documentUrl || user?.profileImageUrl || null;
   const displayUrl = formatImageUrl(rawUrl);
   const isPending = profilePhotoDoc?.status === 'pending';
   const isApproved = profilePhotoDoc?.status === 'approved';
   const isRejected = profilePhotoDoc?.status === 'rejected';
 
-  // Upload profile picture mutation
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
@@ -68,7 +66,7 @@ export default function MobileProfile() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Upload failed');
+        throw new Error(error.message || t('common.error'));
       }
 
       return await response.json();
@@ -80,13 +78,13 @@ export default function MobileProfile() {
       setProfilePicture(null);
       setLocalPreviewUrl(null);
       toast({
-        title: "Profile Picture Uploaded",
-        description: "Your profile picture has been uploaded and is pending approval",
+        title: t('common.success'),
+        description: t('common.upload') + ' ' + t('status.pending').toLowerCase(),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Upload Failed",
+        title: t('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -97,21 +95,19 @@ export default function MobileProfile() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
-        title: "Invalid File Type",
-        description: "Please select an image file",
+        title: t('common.error'),
+        description: t('validation.required'),
         variant: "destructive",
       });
       return;
     }
 
-    // Validate file size (2MB max)
     if (file.size > 2 * 1024 * 1024) {
       toast({
-        title: "File Too Large",
-        description: "Image size must be less than 2MB",
+        title: t('common.error'),
+        description: t('validation.maxLength', { max: '2MB' }),
         variant: "destructive",
       });
       return;
@@ -119,7 +115,6 @@ export default function MobileProfile() {
 
     setProfilePicture(file);
     
-    // Create preview URL
     const reader = new FileReader();
     reader.onloadend = () => {
       setLocalPreviewUrl(reader.result as string);
@@ -130,8 +125,8 @@ export default function MobileProfile() {
   const handleUpload = () => {
     if (!profilePicture) {
       toast({
-        title: "No File Selected",
-        description: "Please select a profile picture to upload",
+        title: t('common.error'),
+        description: t('validation.required'),
         variant: "destructive",
       });
       return;
@@ -144,19 +139,22 @@ export default function MobileProfile() {
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-background dark:from-background">
       {/* Header with safe area for phone notch/camera */}
       <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 pt-[54px] shadow-lg sticky top-0 z-10">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setLocation('/mobile-driver')}
-            className="text-white hover:bg-primary-foreground/20 dark:bg-primary-foreground/25"
-            data-testid="button-back"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </Button>
-          <h1 className="text-2xl font-bold" data-testid="header-title">My Profile</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setLocation('/mobile-driver')}
+              className="text-white hover:bg-primary-foreground/20 dark:bg-primary-foreground/25"
+              data-testid="button-back"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
+            <h1 className="text-2xl font-bold" data-testid="header-title">{t('nav.profile')}</h1>
+          </div>
+          <LanguageSwitcherCompact className="text-white" />
         </div>
-        <p className="text-green-50 text-sm mt-2 ml-14">Update your profile picture</p>
+        <p className="text-green-50 text-sm mt-2 ml-14">{t('common.update')} {t('nav.profile').toLowerCase()}</p>
       </div>
       {/* Profile Picture Card */}
       <div className="p-4">
@@ -168,8 +166,8 @@ export default function MobileProfile() {
                   <Camera className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-foreground">Profile Picture</h3>
-                  <p className="text-xs text-muted-foreground">Update your photo</p>
+                  <h3 className="font-bold text-foreground">{t('nav.profile')}</h3>
+                  <p className="text-xs text-muted-foreground">{t('common.update')}</p>
                 </div>
               </div>
             </div>
@@ -182,7 +180,7 @@ export default function MobileProfile() {
                 }`}>
                   <img
                     src={displayUrl || defaultUserImage}
-                    alt="Profile"
+                    alt={t('nav.profile')}
                     className="w-full h-full object-cover"
                     data-testid="img-profile-preview"
                   />
@@ -198,20 +196,20 @@ export default function MobileProfile() {
             {/* Status Badge */}
             {isPending && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
-                <p className="text-sm text-yellow-800 font-medium">⏳ Pending Approval</p>
-                <p className="text-xs text-yellow-600 mt-1">Your photo is awaiting admin review</p>
+                <p className="text-sm text-yellow-800 font-medium">⏳ {t('status.pending')}</p>
+                <p className="text-xs text-yellow-600 mt-1">{t('status.pendingDriverAcceptance')}</p>
               </div>
             )}
             {isRejected && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
-                <p className="text-sm text-red-800 font-medium">❌ Rejected</p>
-                <p className="text-xs text-red-600 mt-1">{profilePhotoDoc?.rejectionReason || 'Please upload a new photo'}</p>
+                <p className="text-sm text-red-800 font-medium">❌ {t('status.cancelled')}</p>
+                <p className="text-xs text-red-600 mt-1">{profilePhotoDoc?.rejectionReason || t('errors.tryAgain')}</p>
               </div>
             )}
             {isApproved && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-                <p className="text-sm text-green-800 font-medium">✓ Approved</p>
-                <p className="text-xs text-green-600 mt-1">Your profile picture is active</p>
+                <p className="text-sm text-green-800 font-medium">✓ {t('status.confirmed')}</p>
+                <p className="text-xs text-green-600 mt-1">{t('status.active')}</p>
               </div>
             )}
 
@@ -219,7 +217,7 @@ export default function MobileProfile() {
             <div className="space-y-3">
               <div>
                 <Label htmlFor="profile-picture-file" className="text-muted-foreground font-medium mb-2 block">
-                  {displayUrl ? 'Replace Photo' : 'Upload Photo'}
+                  {displayUrl ? t('common.update') : t('common.upload')}
                 </Label>
                 <Input
                   id="profile-picture-file"
@@ -230,7 +228,7 @@ export default function MobileProfile() {
                   className="bg-card border-border"
                   data-testid="input-profile-picture-file"
                 />
-                <p className="text-xs mt-1 text-muted-foreground">Image only, max 2MB. Photo will be visible immediately but requires admin approval.</p>
+                <p className="text-xs mt-1 text-muted-foreground">{t('validation.required')}</p>
               </div>
               
               <Button
@@ -240,7 +238,7 @@ export default function MobileProfile() {
                 data-testid="button-upload-profile-picture"
               >
                 <Upload className="w-5 h-5 mr-2" />
-                {uploadMutation.isPending ? 'Uploading...' : 'Upload Photo'}
+                {uploadMutation.isPending ? t('common.loading') : t('common.upload')}
               </Button>
             </div>
           </CardContent>

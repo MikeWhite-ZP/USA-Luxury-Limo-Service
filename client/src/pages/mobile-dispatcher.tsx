@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { LogOut, Car, MapPin, Clock, Activity, Users, CheckCircle2, AlertCircle, Navigation2, Phone, Mail, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -56,6 +57,7 @@ interface Driver {
 export default function MobileDispatcher() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const { logoutMutation } = useAuth();
   const queryClient = useQueryClient();
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
@@ -115,13 +117,13 @@ export default function MobileDispatcher() {
       setSelectedBookingId(null);
       setSelectedDriverId("");
       toast({
-        title: "Driver Assigned",
-        description: "Driver successfully assigned to the ride",
+        title: t('notifications.driverAssigned'),
+        description: t('driver.assignDriver'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Assignment Failed",
+        title: t('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -136,8 +138,8 @@ export default function MobileDispatcher() {
   const handleAssignSubmit = () => {
     if (!selectedBookingId || !selectedDriverId) {
       toast({
-        title: "Selection Required",
-        description: "Please select a driver",
+        title: t('common.required'),
+        description: t('common.select'),
         variant: "destructive",
       });
       return;
@@ -169,7 +171,7 @@ export default function MobileDispatcher() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-foreground text-center">
           <Activity className="w-10 h-10 animate-spin mx-auto mb-3" style={{ color: 'var(--brand-accent-hex)' }} />
-          <p>Loading dispatcher dashboard...</p>
+          <p>{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -181,8 +183,8 @@ export default function MobileDispatcher() {
       <header className="bg-gradient-to-r from-slate-900 to-blue-900 text-white px-4 pb-4 pt-[54px] sticky top-0 z-40">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-bold text-[18px]">Dispatch Center</h1>
-            <p className="text-xs text-blue-200">Fleet Management</p>
+            <h1 className="font-bold text-[18px]">{t('roles.dispatcher')}</h1>
+            <p className="text-xs text-blue-200">{t('admin.fleetManagement')}</p>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggleMobile className="bg-white/10 hover:bg-white/20" />
@@ -193,7 +195,7 @@ export default function MobileDispatcher() {
               data-testid="button-fleet-monitor"
             >
               <MapPin className="w-4 h-4 mr-1" />
-              Fleet
+              {t('nav.fleet')}
             </Button>
             <Button
               variant="ghost"
@@ -220,21 +222,21 @@ export default function MobileDispatcher() {
           <CardContent className="p-3 sm:p-4 text-center">
             <Car className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 mx-auto mb-1 sm:mb-2" />
             <p className="text-xl sm:text-2xl font-bold text-foreground" data-testid="stat-active-drivers">{stats?.activeDrivers || 0}</p>
-            <p className="text-xs text-muted-foreground">Active Drivers</p>
+            <p className="text-xs text-muted-foreground">{t('admin.activeDrivers')}</p>
           </CardContent>
         </Card>
         <Card className="bg-background border-blue-200 shadow-sm">
           <CardContent className="p-3 sm:p-4 text-center">
             <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mx-auto mb-1 sm:mb-2" />
             <p className="text-xl sm:text-2xl font-bold text-foreground" data-testid="stat-active-rides">{stats?.activeRides || 0}</p>
-            <p className="text-xs text-muted-foreground">Active Rides</p>
+            <p className="text-xs text-muted-foreground">{t('admin.activeBookings')}</p>
           </CardContent>
         </Card>
         <Card className="bg-background border-orange-200 shadow-sm">
           <CardContent className="p-3 sm:p-4 text-center">
             <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 mx-auto mb-1 sm:mb-2" />
             <p className="text-xl sm:text-2xl font-bold text-foreground" data-testid="stat-pending-requests">{stats?.pendingRequests || 0}</p>
-            <p className="text-xs text-muted-foreground">Pending</p>
+            <p className="text-xs text-muted-foreground">{t('status.pending')}</p>
           </CardContent>
         </Card>
         <Card className="bg-background border-border shadow-sm">
@@ -250,13 +252,13 @@ export default function MobileDispatcher() {
         <Tabs defaultValue="pending" className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-muted">
             <TabsTrigger value="pending" className="data-[state=active]:bg-background data-[state=active]:text-primary" data-testid="tab-pending">
-              Pending ({pendingBookings.length})
+              {t('status.pending')} ({pendingBookings.length})
             </TabsTrigger>
             <TabsTrigger value="assigned" className="data-[state=active]:bg-background data-[state=active]:text-primary" data-testid="tab-assigned">
-              Assigned ({assignedBookings.length})
+              {t('status.confirmed')} ({assignedBookings.length})
             </TabsTrigger>
             <TabsTrigger value="active" className="data-[state=active]:bg-background data-[state=active]:text-primary" data-testid="tab-active">
-              Active ({activeBookings.length})
+              {t('status.active')} ({activeBookings.length})
             </TabsTrigger>
           </TabsList>
 
@@ -265,7 +267,7 @@ export default function MobileDispatcher() {
               <Card className="bg-background border-border shadow-sm">
                 <CardContent className="p-8 text-center">
                   <Clock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-muted-foreground">No pending bookings</p>
+                  <p className="text-muted-foreground">{t('status.pending')}: 0</p>
                 </CardContent>
               </Card>
             ) : (
@@ -302,7 +304,7 @@ export default function MobileDispatcher() {
                       data-testid={`button-assign-${booking.id}`}
                     >
                       <Users className="w-4 h-4 mr-2" />
-                      Assign Driver
+                      {t('driver.assignDriver')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -315,7 +317,7 @@ export default function MobileDispatcher() {
               <Card className="bg-background border-border shadow-sm">
                 <CardContent className="p-8 text-center">
                   <CheckCircle2 className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-muted-foreground">No assigned bookings</p>
+                  <p className="text-muted-foreground">{t('status.confirmed')}: 0</p>
                 </CardContent>
               </Card>
             ) : (
@@ -348,7 +350,7 @@ export default function MobileDispatcher() {
                       size="sm"
                       data-testid={`button-reassign-${booking.id}`}
                     >
-                      Reassign Driver
+                      {t('driver.assignDriver')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -402,8 +404,8 @@ export default function MobileDispatcher() {
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
         <DialogContent className="max-w-sm bg-background">
           <DialogHeader>
-            <DialogTitle className="text-foreground">Assign Driver</DialogTitle>
-            <DialogDescription>Select an available driver for this ride</DialogDescription>
+            <DialogTitle className="text-foreground">{t('driver.assignDriver')}</DialogTitle>
+            <DialogDescription>{t('common.select')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <Select value={selectedDriverId} onValueChange={setSelectedDriverId}>
@@ -424,7 +426,7 @@ export default function MobileDispatcher() {
               className="w-full bg-red-600 hover:bg-red-700 text-white"
               data-testid="button-confirm-assign"
             >
-              {assignDriverMutation.isPending ? 'Assigning...' : 'Confirm Assignment'}
+              {assignDriverMutation.isPending ? t('common.loading') : t('common.confirm')}
             </Button>
           </div>
         </DialogContent>
@@ -433,14 +435,14 @@ export default function MobileDispatcher() {
       <Dialog open={fleetDialogOpen} onOpenChange={setFleetDialogOpen}>
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto bg-background">
           <DialogHeader>
-            <DialogTitle className="text-foreground">Fleet Monitor</DialogTitle>
-            <DialogDescription>Real-time driver locations and status</DialogDescription>
+            <DialogTitle className="text-foreground">{t('admin.fleetManagement')}</DialogTitle>
+            <DialogDescription>{t('admin.drivers')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             {allActiveDrivers.length === 0 ? (
               <div className="text-center p-6">
                 <Car className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-muted-foreground">No drivers available</p>
+                <p className="text-muted-foreground">{t('admin.drivers')}: 0</p>
               </div>
             ) : (
               allActiveDrivers.map((driver) => {

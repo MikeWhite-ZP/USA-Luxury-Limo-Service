@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Loader2, Shield, Eye, EyeOff, Lock, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useBranding } from '@/hooks/useBranding';
+import { LanguageSwitcherCompact } from '@/components/LanguageSwitcher';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -22,6 +24,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function MobileAdminLogin() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { logoUrl, companyName } = useBranding();
@@ -64,8 +67,8 @@ export default function MobileAdminLogin() {
         
         if (user.role !== 'admin') {
           toast({
-            title: 'Access Denied',
-            description: 'This portal is for administrators only.',
+            title: t('auth.accessDenied'),
+            description: t('auth.notRegisteredAs', { role: t('roles.admin') }),
             variant: 'destructive',
           });
           setIsLoading(false);
@@ -75,23 +78,23 @@ export default function MobileAdminLogin() {
         queryClient.setQueryData(['/api/user'], user);
 
         toast({
-          title: 'Welcome!',
-          description: 'Logged in successfully as administrator',
+          title: t('auth.welcomeBack'),
+          description: t('auth.loggedInAs', { role: t('roles.admin') }),
         });
 
         navigate('/mobile-admin');
       } else {
         const error = await response.json();
         toast({
-          title: 'Login Failed',
-          description: error.message || 'Invalid credentials',
+          title: t('auth.loginFailed'),
+          description: error.message || t('auth.invalidCredentials'),
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'An error occurred during login',
+        title: t('common.error'),
+        description: t('auth.errorDuringLogin'),
         variant: 'destructive',
       });
     } finally {
@@ -125,10 +128,10 @@ export default function MobileAdminLogin() {
             </div>
           )}
           <h1 className="text-2xl font-bold text-white mb-2">
-            Admin Portal
+            {t('auth.portalTitle', { role: t('roles.admin') })}
           </h1>
           <p className="text-blue-200 text-sm">
-            Secure access for administrators
+            {t('auth.accessAccount')}
           </p>
         </div>
 
@@ -141,13 +144,13 @@ export default function MobileAdminLogin() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="username" className="text-sm font-medium text-blue-100">
-                Username
+                {t('auth.username')}
               </Label>
               <div className="relative">
                 <Input
                   id="username"
                   type="text"
-                  placeholder="Enter your username"
+                  placeholder={t('auth.username')}
                   {...register('username')}
                   className="bg-white/10 border-white/20 text-white placeholder:text-blue-200/50 focus:border-blue-400 focus:ring-blue-400 h-12 rounded-xl"
                   autoComplete="username"
@@ -160,13 +163,13 @@ export default function MobileAdminLogin() {
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm font-medium text-blue-100">
-                Password
+                {t('auth.password')}
               </Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
+                  placeholder={t('auth.password')}
                   {...register('password')}
                   className="bg-white/10 border-white/20 text-white placeholder:text-blue-200/50 focus:border-blue-400 focus:ring-blue-400 h-12 rounded-xl pr-12"
                   autoComplete="current-password"
@@ -192,12 +195,12 @@ export default function MobileAdminLogin() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Authenticating...
+                  {t('auth.signingIn')}
                 </>
               ) : (
                 <>
                   <Lock className="w-5 h-5 mr-2" />
-                  Sign In
+                  {t('auth.signIn')}
                 </>
               )}
             </Button>
@@ -207,19 +210,16 @@ export default function MobileAdminLogin() {
             <div className="flex items-center justify-center gap-4 text-xs text-blue-200">
               <div className="flex items-center gap-1.5">
                 <Settings className="w-3.5 h-3.5" />
-                <span>System Control</span>
+                <span>{t('admin.systemSettings')}</span>
               </div>
               <div className="w-1 h-1 bg-blue-400 rounded-full" />
-              <div className="flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5" />
-                <span>Secure Access</span>
-              </div>
+              <LanguageSwitcherCompact />
             </div>
           </div>
         </motion.div>
 
         <p className="text-center text-blue-300/60 text-xs mt-6">
-          Administrator access only. All actions are logged.
+          {t('roles.admin')} - {t('admin.dashboard')}
         </p>
       </motion.div>
     </div>

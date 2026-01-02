@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,6 +14,7 @@ import { ArrowLeft, Mail, Phone, KeyRound, User } from 'lucide-react';
 type RequestType = 'password' | 'username';
 
 export default function ForgotPassword() {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [requestType, setRequestType] = useState<RequestType>('password');
@@ -27,14 +29,14 @@ export default function ForgotPassword() {
     onSuccess: () => {
       setIsSubmitted(true);
       toast({
-        title: 'Request Submitted',
-        description: 'If an account exists, a password reset link has been sent.',
+        title: t('auth.requestSubmitted'),
+        description: t('auth.passwordResetSent'),
       });
     },
     onError: () => {
       toast({
-        title: 'Error',
-        description: 'Failed to process request. Please try again.',
+        title: t('common.error'),
+        description: t('auth.failedProcessRequest'),
         variant: 'destructive',
       });
     },
@@ -48,14 +50,14 @@ export default function ForgotPassword() {
     onSuccess: () => {
       setIsSubmitted(true);
       toast({
-        title: 'Request Submitted',
-        description: 'If an account exists, your username has been sent.',
+        title: t('auth.requestSubmitted'),
+        description: t('auth.usernameSent'),
       });
     },
     onError: () => {
       toast({
-        title: 'Error',
-        description: 'Failed to process request. Please try again.',
+        title: t('common.error'),
+        description: t('auth.failedProcessRequest'),
         variant: 'destructive',
       });
     },
@@ -66,8 +68,8 @@ export default function ForgotPassword() {
 
     if (!emailOrPhone.trim()) {
       toast({
-        title: 'Validation Error',
-        description: 'Please enter your email or phone number.',
+        title: t('common.error'),
+        description: t('auth.enterEmailPhoneValidation'),
         variant: 'destructive',
       });
       return;
@@ -92,10 +94,10 @@ export default function ForgotPassword() {
                 <ArrowLeft className="h-5 w-5" />
               </a>
             </Link>
-            <CardTitle className="text-2xl font-bold">Account Recovery</CardTitle>
+            <CardTitle className="text-2xl font-bold">{t('auth.accountRecovery')}</CardTitle>
           </div>
           <CardDescription>
-            {!isSubmitted ? 'Recover your password or username' : 'Check your email or phone'}
+            {!isSubmitted ? t('auth.recoverPasswordOrUsername') : t('auth.checkEmailOrPhone')}
           </CardDescription>
         </CardHeader>
 
@@ -103,7 +105,7 @@ export default function ForgotPassword() {
           {!isSubmitted ? (
             <form onSubmit={handleSubmit} className="space-y-6" data-testid="form-forgot-password">
               <div className="space-y-3">
-                <Label>What do you need help with?</Label>
+                <Label>{t('auth.whatNeedHelp')}</Label>
                 <RadioGroup
                   value={requestType}
                   onValueChange={(value) => setRequestType(value as RequestType)}
@@ -113,26 +115,26 @@ export default function ForgotPassword() {
                     <RadioGroupItem value="password" id="password" data-testid="radio-password" />
                     <Label htmlFor="password" className="flex items-center gap-2 cursor-pointer font-normal">
                       <KeyRound className="h-4 w-4" />
-                      I forgot my password
+                      {t('auth.forgotMyPassword')}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="username" id="username" data-testid="radio-username" />
                     <Label htmlFor="username" className="flex items-center gap-2 cursor-pointer font-normal">
                       <User className="h-4 w-4" />
-                      I forgot my username
+                      {t('auth.forgotMyUsername')}
                     </Label>
                   </div>
                 </RadioGroup>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="emailOrPhone">Email or Phone Number</Label>
+                <Label htmlFor="emailOrPhone">{t('auth.emailOrPhone')}</Label>
                 <div className="relative">
                   <Input
                     id="emailOrPhone"
                     type="text"
-                    placeholder="Enter your email or phone"
+                    placeholder={t('auth.enterEmailOrPhone')}
                     value={emailOrPhone}
                     onChange={(e) => setEmailOrPhone(e.target.value)}
                     className="pl-10"
@@ -144,7 +146,7 @@ export default function ForgotPassword() {
                   </div>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Enter the email or phone number associated with your account
+                  {t('auth.emailPhoneDescription')}
                 </p>
               </div>
 
@@ -154,13 +156,13 @@ export default function ForgotPassword() {
                 disabled={isPending}
                 data-testid="button-submit"
               >
-                {isPending ? 'Sending...' : requestType === 'password' ? 'Send Reset Link' : 'Send Username'}
+                {isPending ? t('auth.sending') : requestType === 'password' ? t('auth.sendResetLink') : t('auth.sendUsername')}
               </Button>
 
               <div className="text-center">
                 <Link href="/login">
                   <a className="text-sm text-red-600 hover:text-red-700 hover:underline" data-testid="link-login">
-                    Back to Login
+                    {t('auth.backToLogin')}
                   </a>
                 </Link>
               </div>
@@ -171,14 +173,14 @@ export default function ForgotPassword() {
                 <Mail className="h-8 w-8 text-green-600" />
               </div>
               <div className="space-y-2">
-                <h3 className="font-semibold text-lg">Request Submitted</h3>
+                <h3 className="font-semibold text-lg">{t('auth.requestSubmitted')}</h3>
                 <p className="text-sm text-gray-600">
                   {requestType === 'password'
-                    ? 'If an account exists with that email or phone, you will receive a password reset link shortly.'
-                    : 'If an account exists with that email or phone, you will receive your username shortly.'}
+                    ? t('auth.passwordResetInfo')
+                    : t('auth.usernameInfo')}
                 </p>
                 <p className="text-xs text-gray-500 mt-4">
-                  Didn't receive anything? Check your spam folder or try again.
+                  {t('auth.didntReceive')}
                 </p>
               </div>
 
@@ -191,11 +193,11 @@ export default function ForgotPassword() {
                   }}
                   data-testid="button-try-again"
                 >
-                  Try Again
+                  {t('auth.tryAgain')}
                 </Button>
                 <Link href="/login">
                   <Button variant="ghost" className="w-full" data-testid="button-back-to-login">
-                    Back to Login
+                    {t('auth.backToLogin')}
                   </Button>
                 </Link>
               </div>

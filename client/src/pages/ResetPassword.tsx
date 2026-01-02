@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useSearch } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -10,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, CheckCircle, XCircle, Loader2, KeyRound } from 'lucide-react';
 
 export function ResetPassword() {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const searchParams = new URLSearchParams(useSearch());
   const token = searchParams.get('token');
@@ -19,7 +21,6 @@ export function ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isResetSuccess, setIsResetSuccess] = useState(false);
 
-  // Verify token on mount
   const { data: tokenVerification, isLoading: isVerifying } = useQuery({
     queryKey: ['/api/auth/verify-reset-token', token],
     queryFn: async () => {
@@ -40,14 +41,14 @@ export function ResetPassword() {
     onSuccess: () => {
       setIsResetSuccess(true);
       toast({
-        title: 'Success',
-        description: 'Password reset successfully. You can now log in with your new password.',
+        title: t('common.success'),
+        description: t('auth.passwordResetSuccessLogin'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to reset password. Please try again.',
+        title: t('common.error'),
+        description: error.message || t('auth.failedResetPassword'),
         variant: 'destructive',
       });
     },
@@ -58,8 +59,8 @@ export function ResetPassword() {
 
     if (!token) {
       toast({
-        title: 'Error',
-        description: 'Invalid reset link',
+        title: t('common.error'),
+        description: t('auth.resetLinkInvalid'),
         variant: 'destructive',
       });
       return;
@@ -67,8 +68,8 @@ export function ResetPassword() {
 
     if (newPassword.length < 6) {
       toast({
-        title: 'Validation Error',
-        description: 'Password must be at least 6 characters',
+        title: t('common.error'),
+        description: t('auth.passwordMinChars'),
         variant: 'destructive',
       });
       return;
@@ -76,8 +77,8 @@ export function ResetPassword() {
 
     if (newPassword !== confirmPassword) {
       toast({
-        title: 'Validation Error',
-        description: 'Passwords do not match',
+        title: t('common.error'),
+        description: t('auth.passwordMismatch'),
         variant: 'destructive',
       });
       return;
@@ -86,19 +87,18 @@ export function ResetPassword() {
     await resetPasswordMutation.mutateAsync({ token, newPassword });
   };
 
-  // No token provided
   if (!token) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Invalid Reset Link</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">{t('auth.invalidResetLink')}</CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <XCircle className="h-16 w-16 mx-auto text-red-500" />
-            <p className="text-gray-600">This password reset link is invalid.</p>
+            <p className="text-gray-600">{t('auth.resetLinkInvalid')}</p>
             <Link href="/forgot-password">
-              <Button className="w-full" data-testid="button-request-new">Request New Reset Link</Button>
+              <Button className="w-full" data-testid="button-request-new">{t('auth.requestNewResetLink')}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -106,36 +106,34 @@ export function ResetPassword() {
     );
   }
 
-  // Verifying token
   if (isVerifying) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardContent className="text-center py-12">
             <Loader2 className="h-12 w-12 mx-auto animate-spin text-red-600" />
-            <p className="mt-4 text-gray-600">Verifying reset link...</p>
+            <p className="mt-4 text-gray-600">{t('auth.verifyingResetLink')}</p>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Token expired or invalid
   if (!tokenVerification?.valid) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Reset Link Expired</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">{t('auth.resetLinkExpired')}</CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <XCircle className="h-16 w-16 mx-auto text-orange-500" />
             <div className="space-y-2">
-              <p className="text-gray-600">{tokenVerification?.message || 'This password reset link has expired or is invalid.'}</p>
-              <p className="text-sm text-gray-500">Reset links expire after 1 hour for security.</p>
+              <p className="text-gray-600">{tokenVerification?.message || t('auth.resetLinkExpiredMessage')}</p>
+              <p className="text-sm text-gray-500">{t('auth.resetLinksExpireInfo')}</p>
             </div>
             <Link href="/forgot-password">
-              <Button className="w-full" data-testid="button-request-new">Request New Reset Link</Button>
+              <Button className="w-full" data-testid="button-request-new">{t('auth.requestNewResetLink')}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -143,22 +141,21 @@ export function ResetPassword() {
     );
   }
 
-  // Success state
   if (isResetSuccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Password Reset Complete</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">{t('auth.passwordResetComplete')}</CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4" data-testid="success-message">
             <CheckCircle className="h-16 w-16 mx-auto text-green-500" />
             <div className="space-y-2">
-              <p className="text-gray-600">Your password has been successfully reset.</p>
-              <p className="text-sm text-gray-500">You can now log in with your new password.</p>
+              <p className="text-gray-600">{t('auth.passwordResetSuccess')}</p>
+              <p className="text-sm text-gray-500">{t('auth.canNowLogin')}</p>
             </div>
             <Link href="/login">
-              <Button className="w-full" data-testid="button-go-to-login">Go to Login</Button>
+              <Button className="w-full" data-testid="button-go-to-login">{t('auth.goToLogin')}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -166,7 +163,6 @@ export function ResetPassword() {
     );
   }
 
-  // Reset password form
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -177,21 +173,20 @@ export function ResetPassword() {
                 <ArrowLeft className="h-5 w-5" />
               </a>
             </Link>
-            <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
+            <CardTitle className="text-2xl font-bold">{t('auth.resetPassword')}</CardTitle>
           </div>
-          <CardDescription>Enter your new password below</CardDescription>
+          <CardDescription>{t('auth.enterNewPasswordBelow')}</CardDescription>
         </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4" data-testid="form-reset-password">
-            {/* New Password */}
             <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword">{t('auth.newPassword')}</Label>
               <div className="relative">
                 <Input
                   id="newPassword"
                   type="password"
-                  placeholder="Enter new password"
+                  placeholder={t('auth.enterNewPassword')}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="pl-10"
@@ -203,17 +198,16 @@ export function ResetPassword() {
                   <KeyRound className="h-4 w-4" />
                 </div>
               </div>
-              <p className="text-xs text-gray-500">Minimum 6 characters</p>
+              <p className="text-xs text-gray-500">{t('auth.minPasswordLength')}</p>
             </div>
 
-            {/* Confirm Password */}
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
                   type="password"
-                  placeholder="Confirm new password"
+                  placeholder={t('auth.confirmNewPassword')}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="pl-10"
@@ -227,14 +221,13 @@ export function ResetPassword() {
               </div>
             </div>
 
-            {/* Submit Button */}
             <Button
               type="submit"
               className="w-full"
               disabled={resetPasswordMutation.isPending}
               data-testid="button-reset-password"
             >
-              {resetPasswordMutation.isPending ? 'Resetting...' : 'Reset Password'}
+              {resetPasswordMutation.isPending ? t('auth.resetting') : t('auth.resetPassword')}
             </Button>
           </form>
         </CardContent>
