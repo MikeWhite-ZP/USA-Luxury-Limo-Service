@@ -1433,16 +1433,15 @@ function SquareInvoicePaymentForm({
         <p className="text-2xl font-bold text-brand-accent">${parseFloat(amount).toFixed(2)}</p>
       </div>
       
-      {!isSquareLoaded ? (
+      {!isSquareLoaded && (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full" />
           <span className="ml-3 text-sm text-muted-foreground">Loading payment form...</span>
         </div>
-      ) : (
-        <div className="border border-border rounded-lg p-3">
-          <div id="square-card-container-dashboard" style={{ minHeight: '89px' }} />
-        </div>
       )}
+      <div className={`border border-border rounded-lg p-3 ${!isSquareLoaded ? 'hidden' : ''}`}>
+        <div id="square-card-container-dashboard" style={{ minHeight: '89px' }} />
+      </div>
       
       {error && (
         <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
