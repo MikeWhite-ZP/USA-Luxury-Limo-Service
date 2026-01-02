@@ -1,4 +1,11 @@
 {
+  "hero": {
+    "premium": "Premium",
+    "luxury": "Lüks",
+    "transportation": "Ulaşım",
+    "description": "Profesyonel şoför hizmetlerimizle eşsiz konfor ve güvenilirliği deneyimleyin. Tüm ulaşım ihtiyaçlarınız için 7/24 hizmetinizdeyiz.",
+    "viewFleet": "Filoyu Görüntüle"
+  },
   "nav": {
     "home": "Ana Sayfa",
     "book": "Yolculuk Rezervasyonu",

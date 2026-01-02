@@ -1,4 +1,11 @@
 {
+  "hero": {
+    "premium": "Premium",
+    "luxury": "Lujo",
+    "transportation": "Transporte",
+    "description": "Experimente una comodidad y confiabilidad incomparables con nuestros servicios profesionales de chófer. Disponible 24/7 para todas sus necesidades de transporte.",
+    "viewFleet": "Ver Flota"
+  },
   "nav": {
     "home": "Inicio",
     "book": "Reservar un Viaje",

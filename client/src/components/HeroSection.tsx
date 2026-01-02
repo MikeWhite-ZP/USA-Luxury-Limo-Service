@@ -1,6 +1,7 @@
 import BookingForm from "@/components/BookingForm";
 import PWAInstall from "@/components/PWAInstall";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 const heroBackground = '/images/khalid_1759128435991.webp';
 
@@ -14,6 +15,7 @@ interface HeroResponse {
 }
 
 export default function HeroSection() {
+  const { t } = useTranslation();
   const { data: heroData } = useQuery<HeroResponse>({
     queryKey: ['/api/site-hero'],
     retry: false,
@@ -38,13 +40,12 @@ export default function HeroSection() {
           {/* Hero Content */}
           <div className="text-white">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight" data-testid="hero-title">
-              Premium 
-              <span className="text-accent"> Luxury</span>
-              <br />Transportation
+              {t('hero.premium')} 
+              <span className="text-accent"> {t('hero.luxury')}</span>
+              <br />{t('hero.transportation')}
             </h1>
             <p className="text-xl mb-8 text-gray-200 max-w-lg" data-testid="hero-description">
-              Experience unparalleled comfort and reliability with our professional chauffeur services. 
-              Available 24/7 for all your transportation needs.
+              {t('hero.description')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <PWAInstall />
@@ -53,7 +54,7 @@ export default function HeroSection() {
                 onClick={() => document.getElementById('fleet')?.scrollIntoView({ behavior: 'smooth' })}
                 data-testid="button-view-fleet"
               >
-                View Fleet
+                {t('hero.viewFleet')}
               </button>
             </div>
           </div>

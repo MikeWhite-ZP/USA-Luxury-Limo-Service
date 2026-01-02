@@ -1,4 +1,11 @@
 {
+  "hero": {
+    "premium": "Premium",
+    "luxury": "Luxe",
+    "transportation": "Transport",
+    "description": "Découvrez un confort et une fiabilité inégalés avec nos services de chauffeur professionnel. Disponible 24h/24 et 7j/7 pour tous vos besoins de transport.",
+    "viewFleet": "Voir la Flotte"
+  },
   "nav": {
     "home": "Accueil",
     "book": "Réserver un Trajet",

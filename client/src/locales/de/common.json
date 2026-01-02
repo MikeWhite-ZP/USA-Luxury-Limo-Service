@@ -1,4 +1,11 @@
 {
+  "hero": {
+    "premium": "Premium",
+    "luxury": "Luxus",
+    "transportation": "Transport",
+    "description": "Erleben Sie unvergleichlichen Komfort und Zuverlässigkeit mit unseren professionellen Chauffeur-Services. 24/7 für alle Ihre Transportbedürfnisse verfügbar.",
+    "viewFleet": "Flotte ansehen"
+  },
   "nav": {
     "home": "Startseite",
     "book": "Fahrt Buchen",

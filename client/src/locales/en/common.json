@@ -1,4 +1,11 @@
 {
+  "hero": {
+    "premium": "Premium",
+    "luxury": "Luxury",
+    "transportation": "Transportation",
+    "description": "Experience unparalleled comfort and reliability with our professional chauffeur services. Available 24/7 for all your transportation needs.",
+    "viewFleet": "View Fleet"
+  },
   "nav": {
     "home": "Home",
     "book": "Book a Ride",
