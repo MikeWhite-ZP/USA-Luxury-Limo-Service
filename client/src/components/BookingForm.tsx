@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +48,7 @@ interface BookingFormProps {
 }
 
 export default function BookingForm({ isQuickBooking = false }: BookingFormProps = {}) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { isAuthenticated, user } = useAuth();
   const [, setLocation] = useLocation();
@@ -2384,7 +2386,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           }`}
           data-testid="tab-transfer"
         >
-          Transfer Only
+          {t('booking.tabs.transfer')}
         </button>
         <button
           onClick={() => setActiveTab('hourly')}
@@ -2395,17 +2397,17 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           }`}
           data-testid="tab-hourly"
         >
-          Hourly
+          {t('booking.tabs.hourly')}
         </button>
       </div>
       {/* Transfer Form */}
       {activeTab === 'transfer' && (
         <div className="space-y-4">
-          <h3 className="text-lg font-bold text-primary mb-4">Book Your Transfer</h3>
+          <h3 className="text-lg font-bold text-primary mb-4">{t('booking.transfer.title')}</h3>
           
           {/* From Address */}
           <div className="relative">
-            <Label htmlFor="from" className="text-base font-semibold text-muted-foreground">From *</Label>
+            <Label htmlFor="from" className="text-base font-semibold text-muted-foreground">{t('booking.fields.from')} *</Label>
             <Input
               id="from"
               value={fromAddress}
@@ -2413,7 +2415,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 setFromAddress(e.target.value);
                 handleAddressInput('from', e.target.value);
               }}
-              placeholder="Pickup location"
+              placeholder={t('booking.placeholders.pickupLocation')}
               autoComplete="off"
               className="mt-2 p-3 text-base border-2 border-border rounded-lg focus:border-primary"
               data-testid="input-from"
@@ -2461,7 +2463,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           {/* Via Points Section */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <Label className="text-base font-semibold text-muted-foreground">+ Via Point (Optional)</Label>
+              <Label className="text-base font-semibold text-muted-foreground">{t('booking.fields.viaPoint')}</Label>
               <Button
                 type="button"
                 onClick={addViaPoint}
@@ -2469,7 +2471,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:bg-gray-400"
                 data-testid="button-add-via"
               >
-                Add
+                {t('booking.buttons.add')}
               </Button>
             </div>
             
@@ -2479,7 +2481,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   <Input
                     value={viaPoint}
                     onChange={(e) => updateViaPoint(index, e.target.value)}
-                    placeholder={`Via point ${index + 1}`}
+                    placeholder={t('booking.placeholders.viaPoint', { number: index + 1 })}
                     autoComplete="off"
                     className="p-3 text-base border-2 border-border rounded-lg focus:border-primary"
                     data-testid={`input-via-${index}`}
@@ -2529,7 +2531,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   className="px-3 py-2 bg-red-50 dark:bg-red-900/200 text-white rounded-lg hover:bg-red-600"
                   data-testid={`button-remove-via-${index}`}
                 >
-                  Remove
+                  {t('booking.buttons.remove')}
                 </Button>
               </div>
             ))}
@@ -2537,7 +2539,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
           {/* To Address */}
           <div className="relative">
-            <Label htmlFor="to" className="text-base font-semibold text-muted-foreground">To *</Label>
+            <Label htmlFor="to" className="text-base font-semibold text-muted-foreground">{t('booking.fields.to')} *</Label>
             <Input
               id="to"
               value={toAddress}
@@ -2545,7 +2547,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 setToAddress(e.target.value);
                 handleAddressInput('to', e.target.value);
               }}
-              placeholder="Destination"
+              placeholder={t('booking.placeholders.destination')}
               autoComplete="off"
               className="mt-2 p-3 text-base border-2 border-border rounded-lg focus:border-primary"
               data-testid="input-to"
@@ -2593,7 +2595,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           {/* Date and Time Row */}
           <div className="grid grid-cols-[2fr_3fr] gap-4">
             <div>
-              <Label htmlFor="date" className="text-base font-semibold text-muted-foreground">Date *</Label>
+              <Label htmlFor="date" className="text-base font-semibold text-muted-foreground">{t('booking.fields.date')} *</Label>
               <Input
                 id="date"
                 type="date"
@@ -2605,11 +2607,11 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               />
             </div>
             <div>
-              <Label className="text-base font-semibold text-muted-foreground">Time *</Label>
+              <Label className="text-base font-semibold text-muted-foreground">{t('booking.fields.time')} *</Label>
               <div className="grid grid-cols-3 gap-2 mt-2">
                 <Select value={hour} onValueChange={setHour}>
                   <SelectTrigger className="p-3 text-base border-2 border-border rounded-lg" data-testid="select-hour">
-                    <SelectValue placeholder="Hour" />
+                    <SelectValue placeholder={t('booking.placeholders.hour')} />
                   </SelectTrigger>
                   <SelectContent>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
@@ -2621,7 +2623,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 </Select>
                 <Select value={minute} onValueChange={setMinute}>
                   <SelectTrigger className="border-2 border-border rounded-lg ml-[0px] mr-[0px] text-[12px] pl-[8px] pr-[8px] pt-[8px] pb-[8px]" data-testid="select-minute">
-                    <SelectValue placeholder="Min" />
+                    <SelectValue placeholder={t('booking.placeholders.minute')} />
                   </SelectTrigger>
                   <SelectContent>
                     {Array.from({ length: 12 }, (_, i) => i * 5).map((m) => (
@@ -2651,18 +2653,18 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             className="w-full py-3 px-6 text-lg font-bold bg-accent hover:bg-accent/90 active:bg-accent/80 text-accent-foreground rounded-xl transition-all duration-300 hover:shadow-lg active:transform active:scale-95 shadow-md mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
             data-testid="button-get-quote"
           >
-            {quoteMutation.isPending ? 'Calculating Quote...' : 'Get a Quote'}
+            {quoteMutation.isPending ? t('booking.buttons.calculatingQuote') : t('booking.buttons.getQuote')}
           </Button>
         </div>
       )}
       {/* Hourly Form */}
       {activeTab === 'hourly' && (
         <div className="space-y-4">
-          <h3 className="text-lg font-bold text-primary mb-4">Book Hourly Service</h3>
+          <h3 className="text-lg font-bold text-primary mb-4">{t('booking.hourly.title')}</h3>
           
           {/* Pickup Address */}
           <div className="relative">
-            <Label htmlFor="pickup" className="text-base font-semibold text-muted-foreground">Pickup Address *</Label>
+            <Label htmlFor="pickup" className="text-base font-semibold text-muted-foreground">{t('booking.fields.pickupAddress')} *</Label>
             <Input
               id="pickup"
               value={pickupAddress}
@@ -2670,7 +2672,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 setPickupAddress(e.target.value);
                 handleAddressInput('pickup', e.target.value);
               }}
-              placeholder="Enter pickup location"
+              placeholder={t('booking.placeholders.enterPickupLocation')}
               autoComplete="off"
               className="mt-2 p-3 text-base border-2 border-border rounded-lg focus:border-primary"
               data-testid="input-pickup"
@@ -2717,15 +2719,15 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
 
           {/* Duration */}
           <div>
-            <Label htmlFor="duration" className="text-base font-semibold text-muted-foreground">Duration (2-24 hours) *</Label>
+            <Label htmlFor="duration" className="text-base font-semibold text-muted-foreground">{t('booking.fields.duration')} *</Label>
             <Select value={duration} onValueChange={setDuration}>
               <SelectTrigger className="mt-2 p-3 text-base border-2 border-border rounded-lg" data-testid="select-duration">
-                <SelectValue placeholder="Select duration" />
+                <SelectValue placeholder={t('booking.placeholders.selectDuration')} />
               </SelectTrigger>
               <SelectContent>
                 {Array.from({ length: 23 }, (_, i) => i + 2).map((hours) => (
                   <SelectItem key={hours} value={hours.toString()}>
-                    {hours} hours
+                    {t('booking.hourly.hoursCount', { count: hours })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -2735,7 +2737,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
           {/* Date and Time Row */}
           <div className="grid grid-cols-[2fr_3fr] gap-4">
             <div>
-              <Label htmlFor="date" className="text-base font-semibold text-muted-foreground">Date *</Label>
+              <Label htmlFor="date" className="text-base font-semibold text-muted-foreground">{t('booking.fields.date')} *</Label>
               <Input
                 id="date"
                 type="date"
@@ -2747,11 +2749,11 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
               />
             </div>
             <div>
-              <Label className="text-base font-semibold text-muted-foreground">Time *</Label>
+              <Label className="text-base font-semibold text-muted-foreground">{t('booking.fields.time')} *</Label>
               <div className="grid grid-cols-3 gap-2 mt-2">
                 <Select value={hour} onValueChange={setHour}>
                   <SelectTrigger className="border-2 border-border rounded-lg text-[12px] pl-[8px] pr-[8px] pt-[8px] pb-[8px]" data-testid="select-hour">
-                    <SelectValue placeholder="Hour" />
+                    <SelectValue placeholder={t('booking.placeholders.hour')} />
                   </SelectTrigger>
                   <SelectContent>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
@@ -2763,7 +2765,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 </Select>
                 <Select value={minute} onValueChange={setMinute}>
                   <SelectTrigger className="border-2 border-border rounded-lg text-[12px] pl-[8px] pr-[8px] pt-[8px] pb-[8px]" data-testid="select-minute">
-                    <SelectValue placeholder="Min" />
+                    <SelectValue placeholder={t('booking.placeholders.minute')} />
                   </SelectTrigger>
                   <SelectContent>
                     {Array.from({ length: 12 }, (_, i) => i * 5).map((m) => (
@@ -2775,7 +2777,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 </Select>
                 <Select value={period} onValueChange={(value) => setPeriod(value as 'AM' | 'PM')}>
                   <SelectTrigger className="border-2 border-border rounded-lg text-[12px] pl-[8px] pr-[8px] pt-[8px] pb-[8px]" data-testid="select-period">
-                    <SelectValue placeholder="AM/PM" />
+                    <SelectValue placeholder={t('booking.placeholders.ampm')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="AM">AM</SelectItem>
@@ -2793,7 +2795,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
             className="w-full py-3 px-6 text-lg font-bold bg-accent hover:bg-accent/90 active:bg-accent/80 text-accent-foreground rounded-xl transition-all duration-300 hover:shadow-lg active:transform active:scale-95 shadow-md mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
             data-testid="button-get-quote"
           >
-            {quoteMutation.isPending ? 'Calculating Quote...' : 'Get a Quote'}
+            {quoteMutation.isPending ? t('booking.buttons.calculatingQuote') : t('booking.buttons.getQuote')}
           </Button>
         </div>
       )}
@@ -2801,11 +2803,11 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       <Dialog open={showFlightDialog} onOpenChange={setShowFlightDialog}>
         <DialogContent className="sm:max-w-3xl bg-background max-h-[90vh] overflow-y-auto" data-testid="flight-selection-dialog">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Flight Detail</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">{t('booking.flight.dialogTitle')}</DialogTitle>
             <DialogDescription>
               {flightResults.length > 1 
-                ? `We found ${flightResults.length} flights matching "${flightSearchInput}". Select your flight to add it to your booking.`
-                : `Select your flight to add it to your booking.`
+                ? t('booking.flight.multipleFlightsFound', { count: flightResults.length, searchTerm: flightSearchInput })
+                : t('booking.flight.selectFlight')
               }
             </DialogDescription>
           </DialogHeader>
@@ -2847,8 +2849,8 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     setSelectedFlight(flight);
                     setShowFlightDialog(false);
                     toast({
-                      title: "Flight Selected",
-                      description: `${flight.airline} ${flight.flightNumber} has been added to your booking`,
+                      title: t('booking.flight.selectedTitle'),
+                      description: t('booking.flight.selectedDescription', { airline: flight.airline, flightNumber: flight.flightNumber }),
                     });
                   }}
                   className="w-full p-6 border-2 border-border rounded-xl hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 dark:bg-green-900/20/30 transition-all text-left group"
@@ -2886,13 +2888,13 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   <div className="grid grid-cols-2 gap-6 border-t pt-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-muted-foreground text-sm mb-1">Departed</p>
+                        <p className="text-muted-foreground text-sm mb-1">{t('booking.flight.departed')}</p>
                         <p className="text-2xl md:text-3xl font-bold text-green-600">
                           {formatFlightTime(flight.departureTime)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-sm mb-1">Terminal</p>
+                        <p className="text-muted-foreground text-sm mb-1">{t('booking.flight.terminal')}</p>
                         <p className="text-2xl md:text-3xl font-bold text-foreground">
                           {flight.departureTerminal || '-'}
                         </p>
@@ -2900,13 +2902,13 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-muted-foreground text-sm mb-1">Arrival</p>
+                        <p className="text-muted-foreground text-sm mb-1">{t('booking.flight.arrival')}</p>
                         <p className="text-2xl md:text-3xl font-bold text-green-600">
                           {formatFlightTime(flight.arrivalTime)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-sm mb-1">Terminal</p>
+                        <p className="text-muted-foreground text-sm mb-1">{t('booking.flight.terminal')}</p>
                         <p className="text-2xl md:text-3xl font-bold text-foreground">
                           {flight.arrivalTerminal || '-'}
                         </p>
@@ -2917,21 +2919,21 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                   {/* Flight Info Footer */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t">
                     <div className="bg-muted p-2 rounded-lg">
-                      <p className="text-xs text-muted-foreground">Flight Number</p>
+                      <p className="text-xs text-muted-foreground">{t('booking.flight.flightNumber')}</p>
                       <p className="text-sm font-bold text-foreground">{flight.flightNumber}</p>
                     </div>
                     <div className="bg-muted p-2 rounded-lg">
-                      <p className="text-xs text-muted-foreground">Airline</p>
+                      <p className="text-xs text-muted-foreground">{t('booking.flight.airline')}</p>
                       <p className="text-sm font-bold text-foreground">{flight.airline}</p>
                     </div>
                     {flight.aircraft && (
                       <div className="bg-muted p-2 rounded-lg">
-                        <p className="text-xs text-muted-foreground">Aircraft</p>
+                        <p className="text-xs text-muted-foreground">{t('booking.flight.aircraft')}</p>
                         <p className="text-sm font-bold text-foreground">{flight.aircraft}</p>
                       </div>
                     )}
                     <div className="bg-muted p-2 rounded-lg">
-                      <p className="text-xs text-muted-foreground">Status</p>
+                      <p className="text-xs text-muted-foreground">{t('booking.flight.status')}</p>
                       <p className="text-sm font-bold text-green-600">{flight.status}</p>
                     </div>
                   </div>
@@ -2945,20 +2947,19 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
       <Dialog open={showPaymentMethodRequired} onOpenChange={setShowPaymentMethodRequired}>
         <DialogContent className="sm:max-w-md bg-background" data-testid="payment-method-required-dialog">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-amber-600">Payment Method Required</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-amber-600">{t('booking.payment.requiredTitle')}</DialogTitle>
             <DialogDescription>
-              To complete your booking with "Pay Later" option, you need to add a payment method to your account.
+              {t('booking.payment.requiredDescription')}
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 mt-4">
             <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
               <p className="text-sm text-muted-foreground">
-                <strong>Why is this required?</strong>
+                <strong>{t('booking.payment.whyRequired')}</strong>
               </p>
               <p className="text-sm text-muted-foreground mt-2">
-                Adding a payment method ensures seamless payment processing after your trip is completed. 
-                Your card will be securely stored and charged only after you've enjoyed your luxury transportation service.
+                {t('booking.payment.whyRequiredDescription')}
               </p>
             </div>
             
@@ -2972,7 +2973,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 data-testid="button-add-payment-method"
               >
                 <CreditCard className="w-5 h-5 mr-2" />
-                Add Payment Method in Account Settings
+                {t('booking.payment.addPaymentMethod')}
               </Button>
               
               <Button
@@ -2983,12 +2984,12 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
                 className="w-full py-6"
                 data-testid="button-cancel-payment-method"
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             </div>
             
             <p className="text-xs text-muted-foreground text-center mt-2">
-              Alternatively, you can choose "Pay Now" to complete payment immediately.
+              {t('booking.payment.payNowAlternative')}
             </p>
           </div>
         </DialogContent>

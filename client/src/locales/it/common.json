@@ -37,6 +37,66 @@
       "description": "WiFi gratuito, rinfreschi e comfort di lusso in ogni veicolo."
     }
   },
+  "booking": {
+    "tabs": {
+      "transfer": "Solo Trasferimento",
+      "hourly": "A Ore"
+    },
+    "transfer": {
+      "title": "Prenota il Tuo Trasferimento"
+    },
+    "hourly": {
+      "title": "Prenota Servizio Orario",
+      "hoursCount": "{{count}} ore"
+    },
+    "fields": {
+      "from": "Da",
+      "to": "A",
+      "date": "Data",
+      "time": "Ora",
+      "viaPoint": "+ Punto Intermedio (Opzionale)",
+      "pickupAddress": "Indirizzo di Prelievo",
+      "duration": "Durata (2-24 ore)"
+    },
+    "placeholders": {
+      "pickupLocation": "Luogo di prelievo",
+      "destination": "Destinazione",
+      "enterPickupLocation": "Inserisci luogo di prelievo",
+      "viaPoint": "Punto intermedio {{number}}",
+      "selectDuration": "Seleziona durata",
+      "hour": "Ora",
+      "minute": "Min",
+      "ampm": "AM/PM"
+    },
+    "buttons": {
+      "add": "Aggiungi",
+      "remove": "Rimuovi",
+      "getQuote": "Richiedi Preventivo",
+      "calculatingQuote": "Calcolo Preventivo..."
+    },
+    "flight": {
+      "dialogTitle": "Dettaglio Volo",
+      "multipleFlightsFound": "Abbiamo trovato {{count}} voli corrispondenti a \"{{searchTerm}}\". Seleziona il tuo volo per aggiungerlo alla prenotazione.",
+      "selectFlight": "Seleziona il tuo volo per aggiungerlo alla prenotazione.",
+      "selectedTitle": "Volo Selezionato",
+      "selectedDescription": "{{airline}} {{flightNumber}} è stato aggiunto alla tua prenotazione",
+      "departed": "Partenza",
+      "arrival": "Arrivo",
+      "terminal": "Terminal",
+      "flightNumber": "Numero Volo",
+      "airline": "Compagnia Aerea",
+      "aircraft": "Aeromobile",
+      "status": "Stato"
+    },
+    "payment": {
+      "requiredTitle": "Metodo di Pagamento Richiesto",
+      "requiredDescription": "Per completare la prenotazione con l'opzione \"Paga Dopo\", devi aggiungere un metodo di pagamento al tuo account.",
+      "whyRequired": "Perché è richiesto?",
+      "whyRequiredDescription": "Aggiungere un metodo di pagamento garantisce un'elaborazione del pagamento fluida dopo il completamento del viaggio. La tua carta sarà conservata in modo sicuro e addebitata solo dopo aver usufruito del servizio di trasporto di lusso.",
+      "addPaymentMethod": "Aggiungi Metodo di Pagamento nelle Impostazioni",
+      "payNowAlternative": "In alternativa, puoi scegliere \"Paga Ora\" per completare il pagamento immediatamente."
+    }
+  },
   "pwa": {
     "downloadButton": "Scarica l'App Mobile",
     "dialogTitle": "Installa {{companyName}}",

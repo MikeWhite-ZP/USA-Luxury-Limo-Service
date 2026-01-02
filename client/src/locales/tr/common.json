@@ -37,6 +37,66 @@
       "description": "Her araçta ücretsiz WiFi, içecekler ve lüks olanaklar."
     }
   },
+  "booking": {
+    "tabs": {
+      "transfer": "Sadece Transfer",
+      "hourly": "Saatlik"
+    },
+    "transfer": {
+      "title": "Transfer Rezervasyonu"
+    },
+    "hourly": {
+      "title": "Saatlik Hizmet Rezervasyonu",
+      "hoursCount": "{{count}} saat"
+    },
+    "fields": {
+      "from": "Nereden",
+      "to": "Nereye",
+      "date": "Tarih",
+      "time": "Saat",
+      "viaPoint": "+ Ara Nokta (Opsiyonel)",
+      "pickupAddress": "Alış Adresi",
+      "duration": "Süre (2-24 saat)"
+    },
+    "placeholders": {
+      "pickupLocation": "Alış noktası",
+      "destination": "Varış noktası",
+      "enterPickupLocation": "Alış noktasını girin",
+      "viaPoint": "Ara nokta {{number}}",
+      "selectDuration": "Süre seçin",
+      "hour": "Saat",
+      "minute": "Dk",
+      "ampm": "ÖÖ/ÖS"
+    },
+    "buttons": {
+      "add": "Ekle",
+      "remove": "Kaldır",
+      "getQuote": "Fiyat Al",
+      "calculatingQuote": "Fiyat Hesaplanıyor..."
+    },
+    "flight": {
+      "dialogTitle": "Uçuş Detayı",
+      "multipleFlightsFound": "\"{{searchTerm}}\" ile eşleşen {{count}} uçuş bulduk. Rezervasyonunuza eklemek için uçuşunuzu seçin.",
+      "selectFlight": "Rezervasyonunuza eklemek için uçuşunuzu seçin.",
+      "selectedTitle": "Uçuş Seçildi",
+      "selectedDescription": "{{airline}} {{flightNumber}} rezervasyonunuza eklendi",
+      "departed": "Kalkış",
+      "arrival": "Varış",
+      "terminal": "Terminal",
+      "flightNumber": "Uçuş Numarası",
+      "airline": "Havayolu",
+      "aircraft": "Uçak",
+      "status": "Durum"
+    },
+    "payment": {
+      "requiredTitle": "Ödeme Yöntemi Gerekli",
+      "requiredDescription": "\"Sonra Öde\" seçeneğiyle rezervasyonunuzu tamamlamak için hesabınıza bir ödeme yöntemi eklemeniz gerekiyor.",
+      "whyRequired": "Bu neden gerekli?",
+      "whyRequiredDescription": "Ödeme yöntemi eklemek, yolculuğunuz tamamlandıktan sonra sorunsuz ödeme işlemi sağlar. Kartınız güvenli bir şekilde saklanacak ve yalnızca lüks ulaşım hizmetinizin keyfini çıkardıktan sonra ücretlendirilecektir.",
+      "addPaymentMethod": "Hesap Ayarlarında Ödeme Yöntemi Ekle",
+      "payNowAlternative": "Alternatif olarak, ödemeyi hemen tamamlamak için \"Şimdi Öde\" seçeneğini seçebilirsiniz."
+    }
+  },
   "pwa": {
     "downloadButton": "Mobil Uygulamayı İndir",
     "dialogTitle": "{{companyName}} Uygulamasını Kur",

@@ -37,6 +37,66 @@
       "description": "Kostenloses WLAN, Erfrischungen und Luxus-Annehmlichkeiten in jedem Fahrzeug."
     }
   },
+  "booking": {
+    "tabs": {
+      "transfer": "Nur Transfer",
+      "hourly": "Stundenweise"
+    },
+    "transfer": {
+      "title": "Ihren Transfer Buchen"
+    },
+    "hourly": {
+      "title": "Stundenservice Buchen",
+      "hoursCount": "{{count}} Stunden"
+    },
+    "fields": {
+      "from": "Von",
+      "to": "Nach",
+      "date": "Datum",
+      "time": "Uhrzeit",
+      "viaPoint": "+ Zwischenstopp (Optional)",
+      "pickupAddress": "Abholadresse",
+      "duration": "Dauer (2-24 Stunden)"
+    },
+    "placeholders": {
+      "pickupLocation": "Abholort",
+      "destination": "Zielort",
+      "enterPickupLocation": "Abholort eingeben",
+      "viaPoint": "Zwischenstopp {{number}}",
+      "selectDuration": "Dauer auswählen",
+      "hour": "Stunde",
+      "minute": "Min",
+      "ampm": "AM/PM"
+    },
+    "buttons": {
+      "add": "Hinzufügen",
+      "remove": "Entfernen",
+      "getQuote": "Angebot Einholen",
+      "calculatingQuote": "Angebot wird berechnet..."
+    },
+    "flight": {
+      "dialogTitle": "Flugdetails",
+      "multipleFlightsFound": "Wir haben {{count}} Flüge gefunden, die \"{{searchTerm}}\" entsprechen. Wählen Sie Ihren Flug, um ihn zu Ihrer Buchung hinzuzufügen.",
+      "selectFlight": "Wählen Sie Ihren Flug, um ihn zu Ihrer Buchung hinzuzufügen.",
+      "selectedTitle": "Flug Ausgewählt",
+      "selectedDescription": "{{airline}} {{flightNumber}} wurde zu Ihrer Buchung hinzugefügt",
+      "departed": "Abflug",
+      "arrival": "Ankunft",
+      "terminal": "Terminal",
+      "flightNumber": "Flugnummer",
+      "airline": "Fluggesellschaft",
+      "aircraft": "Flugzeug",
+      "status": "Status"
+    },
+    "payment": {
+      "requiredTitle": "Zahlungsmethode Erforderlich",
+      "requiredDescription": "Um Ihre Buchung mit der Option \"Später Bezahlen\" abzuschließen, müssen Sie eine Zahlungsmethode zu Ihrem Konto hinzufügen.",
+      "whyRequired": "Warum ist das erforderlich?",
+      "whyRequiredDescription": "Das Hinzufügen einer Zahlungsmethode gewährleistet eine reibungslose Zahlungsabwicklung nach Abschluss Ihrer Fahrt. Ihre Karte wird sicher gespeichert und erst nach Ihrem Luxus-Transportservice belastet.",
+      "addPaymentMethod": "Zahlungsmethode in den Kontoeinstellungen Hinzufügen",
+      "payNowAlternative": "Alternativ können Sie \"Jetzt Bezahlen\" wählen, um die Zahlung sofort abzuschließen."
+    }
+  },
   "pwa": {
     "downloadButton": "Mobile App herunterladen",
     "dialogTitle": "{{companyName}} App installieren",

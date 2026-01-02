@@ -37,6 +37,66 @@
       "description": "Complimentary WiFi, refreshments, and luxury amenities in every vehicle."
     }
   },
+  "booking": {
+    "tabs": {
+      "transfer": "Transfer Only",
+      "hourly": "Hourly"
+    },
+    "transfer": {
+      "title": "Book Your Transfer"
+    },
+    "hourly": {
+      "title": "Book Hourly Service",
+      "hoursCount": "{{count}} hours"
+    },
+    "fields": {
+      "from": "From",
+      "to": "To",
+      "date": "Date",
+      "time": "Time",
+      "viaPoint": "+ Via Point (Optional)",
+      "pickupAddress": "Pickup Address",
+      "duration": "Duration (2-24 hours)"
+    },
+    "placeholders": {
+      "pickupLocation": "Pickup location",
+      "destination": "Destination",
+      "enterPickupLocation": "Enter pickup location",
+      "viaPoint": "Via point {{number}}",
+      "selectDuration": "Select duration",
+      "hour": "Hour",
+      "minute": "Min",
+      "ampm": "AM/PM"
+    },
+    "buttons": {
+      "add": "Add",
+      "remove": "Remove",
+      "getQuote": "Get a Quote",
+      "calculatingQuote": "Calculating Quote..."
+    },
+    "flight": {
+      "dialogTitle": "Flight Detail",
+      "multipleFlightsFound": "We found {{count}} flights matching \"{{searchTerm}}\". Select your flight to add it to your booking.",
+      "selectFlight": "Select your flight to add it to your booking.",
+      "selectedTitle": "Flight Selected",
+      "selectedDescription": "{{airline}} {{flightNumber}} has been added to your booking",
+      "departed": "Departed",
+      "arrival": "Arrival",
+      "terminal": "Terminal",
+      "flightNumber": "Flight Number",
+      "airline": "Airline",
+      "aircraft": "Aircraft",
+      "status": "Status"
+    },
+    "payment": {
+      "requiredTitle": "Payment Method Required",
+      "requiredDescription": "To complete your booking with \"Pay Later\" option, you need to add a payment method to your account.",
+      "whyRequired": "Why is this required?",
+      "whyRequiredDescription": "Adding a payment method ensures seamless payment processing after your trip is completed. Your card will be securely stored and charged only after you've enjoyed your luxury transportation service.",
+      "addPaymentMethod": "Add Payment Method in Account Settings",
+      "payNowAlternative": "Alternatively, you can choose \"Pay Now\" to complete payment immediately."
+    }
+  },
   "pwa": {
     "downloadButton": "Download Mobile App",
     "dialogTitle": "Install {{companyName}} App",
