@@ -33,6 +33,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageSwitcherCompact } from "@/components/LanguageSwitcher";
 
 interface AdminNavProps {
   onCredentialsClick?: (section: 'api' | 'payment' | 'minio') => void;
@@ -86,6 +87,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
           </div>
           
           <div className="flex items-center gap-2">
+            <LanguageSwitcherCompact />
             <ThemeToggle variant="outline" className="text-muted-foreground hover:text-foreground hover:bg-muted border-border" />
             <Button 
               variant="outline"
@@ -96,7 +98,7 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
               data-testid="nav-logout"
             >
               <LogOut className="w-4 h-4 mr-2" />
-              {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
+              <span className="hidden sm:inline">{logoutMutation.isPending ? '...' : 'Logout'}</span>
             </Button>
           </div>
         </div>

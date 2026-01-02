@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
+import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, ChevronDown, LayoutDashboard } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageSwitcherCompact } from "@/components/LanguageSwitcher";
 
 function formatImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -26,6 +28,7 @@ export default function Header() {
   const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
   const [location, setLocation] = useLocation();
   const { logoUrl, logoAltText } = useSiteLogo();
+  const { t } = useTranslation();
 
   const handleNavClick = (href: string) => {
     // If we're not on the home page (root "/"), navigate to home first then scroll
@@ -72,54 +75,55 @@ export default function Header() {
               className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
               data-testid="nav-home"
             >
-              Home
+              {t('nav.home')}
             </button>
             <button 
               onClick={() => setLocation('/about-us')} 
               className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
               data-testid="nav-about"
             >
-              About
+              {t('nav.about')}
             </button>
             <button 
               onClick={() => setLocation('/locations')} 
               className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
               data-testid="nav-locations"
             >
-              Locations
+              {t('nav.services')}
             </button>
             <button 
               onClick={() => setLocation('/hotels')} 
               className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
               data-testid="nav-hotels"
             >
-              Hotels
+              {t('nav.fleet')}
             </button>
             <button 
               onClick={() => handleNavClick('#services')} 
               className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
               data-testid="nav-services"
             >
-              Services
+              {t('nav.services')}
             </button>
             <button 
               onClick={() => handleNavClick('#fleet')} 
               className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
               data-testid="nav-fleet"
             >
-              Fleet
+              {t('nav.fleet')}
             </button>
             <button 
               onClick={() => handleNavClick('#contact')} 
               className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
               data-testid="nav-contact"
             >
-              Contact
+              {t('nav.contact')}
             </button>
           </nav>
 
           {/* Auth Buttons */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <LanguageSwitcherCompact />
             <ThemeToggle variant="ghost" className="text-muted-foreground hover:text-foreground" />
             {isAuthenticated && user ? (
               <DropdownMenu>
@@ -178,7 +182,7 @@ export default function Header() {
                     data-testid="menu-dashboard"
                   >
                     <LayoutDashboard className="w-4 h-4 mr-2" />
-                    Dashboard
+                    {t('nav.dashboard')}
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => setLocation('/account')}
@@ -186,7 +190,7 @@ export default function Header() {
                     data-testid="menu-account"
                   >
                     <User className="w-4 h-4 mr-2" />
-                    Account Settings
+                    {t('nav.settings')}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
@@ -195,7 +199,7 @@ export default function Header() {
                     data-testid="menu-logout"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
+                    {t('auth.signOut')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -206,14 +210,14 @@ export default function Header() {
                   className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
                   data-testid="button-signin"
                 >
-                  Sign In
+                  {t('auth.signIn')}
                 </button>
                 <Button 
                   onClick={() => setLocation('/booking')}
                   className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition-all duration-200 shadow-sm"
                   data-testid="button-book-now"
                 >
-                  Book Now
+                  {t('booking.bookNow')}
                 </Button>
               </>
             )}
