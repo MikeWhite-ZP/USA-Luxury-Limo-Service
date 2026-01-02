@@ -28,6 +28,7 @@ import {
   CreditCard,
   Clock,
   Bell,
+  Calculator,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
@@ -42,9 +43,10 @@ interface AdminNavProps {
   onSettingsClick?: (section: 'commission' | 'email' | 'sms' | 'database' | 'branding' | 'stripe' | 'timezone' | 'surcharge' | 'email-notifications' | 'sms-notifications') => void;
   onCMSClick?: (section: 'pages' | 'media' | 'services') => void;
   onPricingClick?: () => void;
+  onAccountingClick?: (section: 'passengers' | 'drivers') => void;
 }
 
-export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onVehicleTypesClick, onSettingsClick, onCMSClick, onPricingClick }: AdminNavProps) {
+export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsClick, onInvoicesClick, onVehicleTypesClick, onSettingsClick, onCMSClick, onPricingClick, onAccountingClick }: AdminNavProps) {
   const [location, setLocation] = useLocation();
   const { logoutMutation } = useAuth();
   const { logoUrl, logoAltText } = useSiteLogo();
@@ -470,6 +472,52 @@ export function AdminNav({ onCredentialsClick, onUserManagerClick, onBookingsCli
                 >
                   <FileText className="w-4 h-4 mr-3 text-muted-foreground" />
                   <span className="font-medium">Services</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className={navButtonClass}
+                  data-testid="nav-accounting"
+                >
+                  <Calculator className="w-4 h-4 mr-2 text-muted-foreground" />
+                  Accounting
+                  <ChevronDown className="w-3.5 h-3.5 ml-1.5 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className={dropdownContentClass}>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onAccountingClick?.('passengers');
+                    } else {
+                      setLocation('/admin#accounting-passengers');
+                    }
+                  }}
+                  className={dropdownItemClass}
+                  data-testid="nav-accounting-passengers"
+                >
+                  <Users className="w-4 h-4 mr-3 text-blue-500" />
+                  <span className="font-medium">Passengers Accounts</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuItem 
+                  onClick={() => {
+                    if (location === '/admin' || location === '/admin-dashboard') {
+                      onAccountingClick?.('drivers');
+                    } else {
+                      setLocation('/admin#accounting-drivers');
+                    }
+                  }}
+                  className={dropdownItemClass}
+                  data-testid="nav-accounting-drivers"
+                >
+                  <Car className="w-4 h-4 mr-3 text-green-500" />
+                  <span className="font-medium">Drivers Accounts</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

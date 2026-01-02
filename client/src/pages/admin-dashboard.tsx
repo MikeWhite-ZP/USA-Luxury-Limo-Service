@@ -79,6 +79,9 @@ import {
   Download,
   Shield,
   MoreVertical,
+  Calculator,
+  Calendar,
+  Filter,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -3869,6 +3872,10 @@ export default function AdminDashboard() {
   const [showBookings, setShowBookings] = useState(false);
   const [showInvoices, setShowInvoices] = useState(false);
   const [showVehicleTypes, setShowVehicleTypes] = useState(false);
+  const [showAccounting, setShowAccounting] = useState(false);
+  const [accountingSection, setAccountingSection] = useState<"passengers" | "drivers">("drivers");
+  const [accountingTab, setAccountingTab] = useState<"paid" | "unpaid">("unpaid");
+  const [accountingPeriod, setAccountingPeriod] = useState<"weekly" | "monthly" | "yearly" | "all">("monthly");
   const [selectedUserType, setSelectedUserType] = useState<
     "all" | "passenger" | "driver" | "dispatcher" | "admin"
   >("all");
@@ -4062,6 +4069,8 @@ export default function AdminDashboard() {
         setShowUserManager(false);
         setShowBookings(false);
         setShowInvoices(false);
+        setShowAccounting(false);
+        setShowVehicleTypes(false);
         setTimeout(() => {
           const targetId = 
             subsection === 'api' ? 'credentials-section' : 
@@ -4077,6 +4086,8 @@ export default function AdminDashboard() {
         setVisibleCMSSection(null);
         setShowBookings(false);
         setShowInvoices(false);
+        setShowAccounting(false);
+        setShowVehicleTypes(false);
         setTimeout(() => {
           document.getElementById('user-manager-section')?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
@@ -4087,6 +4098,8 @@ export default function AdminDashboard() {
         setShowUserManager(false);
         setShowBookings(false);
         setShowInvoices(false);
+        setShowAccounting(false);
+        setShowVehicleTypes(false);
         setTimeout(() => {
           document.getElementById('settings-section')?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
@@ -4097,6 +4110,8 @@ export default function AdminDashboard() {
         setShowUserManager(false);
         setShowBookings(false);
         setShowInvoices(false);
+        setShowAccounting(false);
+        setShowVehicleTypes(false);
         setTimeout(() => {
           document.getElementById('cms-section')?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
@@ -4107,6 +4122,8 @@ export default function AdminDashboard() {
         setVisibleCMSSection(null);
         setShowUserManager(false);
         setShowInvoices(false);
+        setShowAccounting(false);
+        setShowVehicleTypes(false);
         setTimeout(() => {
           document.getElementById('bookings-section')?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
@@ -4117,8 +4134,22 @@ export default function AdminDashboard() {
         setVisibleCMSSection(null);
         setShowUserManager(false);
         setShowBookings(false);
+        setShowAccounting(false);
         setTimeout(() => {
           document.getElementById('invoices-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else if (section === 'accounting') {
+        setAccountingSection(subsection as 'passengers' | 'drivers');
+        setShowAccounting(true);
+        setVisibleCredentialsSection(null);
+        setVisibleSettingsSection(null);
+        setVisibleCMSSection(null);
+        setShowUserManager(false);
+        setShowBookings(false);
+        setShowInvoices(false);
+        setShowVehicleTypes(false);
+        setTimeout(() => {
+          document.getElementById('accounting-section')?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       }
 
@@ -6514,6 +6545,22 @@ export default function AdminDashboard() {
         onPricingClick={() => {
           window.location.href = '/admin-pricing';
         }}
+        onAccountingClick={(section) => {
+          setAccountingSection(section);
+          setShowAccounting(true);
+          setVisibleCredentialsSection(null);
+          setVisibleSettingsSection(null);
+          setVisibleCMSSection(null);
+          setShowUserManager(false);
+          setShowBookings(false);
+          setShowInvoices(false);
+          setShowVehicleTypes(false);
+          setTimeout(() => {
+            document
+              .getElementById("accounting-section")
+              ?.scrollIntoView({ behavior: "smooth" });
+          }, 100);
+        }}
       />
       <div className="max-w-7xl mx-auto p-6 space-y-8">
         {/* Dashboard Stats - Compact Professional Design */}
@@ -7616,6 +7663,284 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent className="pt-6">
               <ServiceCMS />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Accounting Section */}
+        {showAccounting && (
+          <Card
+            id="accounting-section"
+            data-testid="accounting-section"
+            className="border-border shadow-sm hover:shadow-md transition-shadow bg-background"
+          >
+            <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50/30 dark:from-emerald-950/50 dark:to-teal-950/30 border-b border-border">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <CardTitle className="flex items-center gap-3 text-foreground">
+                  <div className="bg-emerald-600 p-2 rounded-lg">
+                    <Calculator className="w-5 h-5 text-white" />
+                  </div>
+                  <span>{accountingSection === "drivers" ? "Drivers Accounts" : "Passengers Accounts"}</span>
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <Select value={accountingSection} onValueChange={(v) => setAccountingSection(v as "passengers" | "drivers")}>
+                    <SelectTrigger className="w-[160px] h-9">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="passengers">
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4 text-blue-500" />
+                          Passengers
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="drivers">
+                        <div className="flex items-center gap-2">
+                          <Car className="w-4 h-4 text-green-500" />
+                          Drivers
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+              {accountingSection === "drivers" ? (
+                <div className="space-y-4">
+                  {/* Period Filter & Tabs */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <Tabs value={accountingTab} onValueChange={(v) => setAccountingTab(v as "paid" | "unpaid")} className="w-full sm:w-auto">
+                      <TabsList className="grid w-full sm:w-auto grid-cols-2 h-9">
+                        <TabsTrigger value="unpaid" className="text-sm px-6">
+                          <span className="flex items-center gap-2">
+                            <Clock className="w-3.5 h-3.5" />
+                            Unpaid Rides
+                          </span>
+                        </TabsTrigger>
+                        <TabsTrigger value="paid" className="text-sm px-6">
+                          <span className="flex items-center gap-2">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Paid Rides
+                          </span>
+                        </TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                    <div className="flex items-center gap-2">
+                      <Filter className="w-4 h-4 text-muted-foreground" />
+                      <Select value={accountingPeriod} onValueChange={(v) => setAccountingPeriod(v as "weekly" | "monthly" | "yearly" | "all")}>
+                        <SelectTrigger className="w-[130px] h-9">
+                          <SelectValue placeholder="Period" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="weekly">This Week</SelectItem>
+                          <SelectItem value="monthly">This Month</SelectItem>
+                          <SelectItem value="yearly">This Year</SelectItem>
+                          <SelectItem value="all">All Time</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Driver Accounts Table */}
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted/50">
+                          <tr>
+                            <th className="text-left py-3 px-4 font-medium text-muted-foreground">Driver</th>
+                            <th className="text-left py-3 px-4 font-medium text-muted-foreground">Booking ID</th>
+                            <th className="text-left py-3 px-4 font-medium text-muted-foreground">Route</th>
+                            <th className="text-left py-3 px-4 font-medium text-muted-foreground">Date</th>
+                            <th className="text-right py-3 px-4 font-medium text-muted-foreground">Amount</th>
+                            <th className="text-center py-3 px-4 font-medium text-muted-foreground">Status</th>
+                            <th className="text-center py-3 px-4 font-medium text-muted-foreground">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {(() => {
+                            const now = new Date();
+                            const startOfWeek = new Date(now);
+                            startOfWeek.setDate(now.getDate() - now.getDay());
+                            startOfWeek.setHours(0, 0, 0, 0);
+                            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                            const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+                            const filteredBookings = bookings?.filter((b: any) => {
+                              if (b.status !== 'completed' || !b.driverId || !b.driverPayment) return false;
+                              const isPaid = b.driverPaymentPaid === true;
+                              if (accountingTab === "paid" && !isPaid) return false;
+                              if (accountingTab === "unpaid" && isPaid) return false;
+
+                              const bookingDate = new Date(b.scheduledDateTime);
+                              if (accountingPeriod === "weekly" && bookingDate < startOfWeek) return false;
+                              if (accountingPeriod === "monthly" && bookingDate < startOfMonth) return false;
+                              if (accountingPeriod === "yearly" && bookingDate < startOfYear) return false;
+                              return true;
+                            }) || [];
+
+                            if (filteredBookings.length === 0) {
+                              return (
+                                <tr>
+                                  <td colSpan={7} className="text-center py-12">
+                                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                                      <DollarSign className="w-10 h-10 opacity-50" />
+                                      <p className="font-medium">No {accountingTab} rides found</p>
+                                      <p className="text-sm">Try adjusting the time period filter</p>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            }
+
+                            return filteredBookings.map((booking: any) => (
+                              <tr key={booking.id} className="hover:bg-muted/30 transition-colors">
+                                <td className="py-3 px-4">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                      <Car className="w-4 h-4 text-green-600" />
+                                    </div>
+                                    <div>
+                                      <p className="font-medium text-foreground">
+                                        {booking.driverFirstName} {booking.driverLastName}
+                                      </p>
+                                      {booking.driverVehiclePlate && (
+                                        <p className="text-xs text-muted-foreground">{booking.driverVehiclePlate}</p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="py-3 px-4">
+                                  <button
+                                    className="text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
+                                    onClick={() => {
+                                      setViewingCompletedBooking(booking);
+                                      setCompletedRideSummaryOpen(true);
+                                    }}
+                                  >
+                                    #{booking.id.substring(0, 8)}
+                                  </button>
+                                </td>
+                                <td className="py-3 px-4">
+                                  <p className="text-sm text-foreground truncate max-w-[200px]">
+                                    {extractCityState(booking.pickupAddress)} → {extractCityState(booking.destinationAddress)}
+                                  </p>
+                                </td>
+                                <td className="py-3 px-4 text-sm text-muted-foreground">
+                                  {new Date(booking.scheduledDateTime).toLocaleDateString()}
+                                </td>
+                                <td className="py-3 px-4 text-right">
+                                  <span className="font-semibold text-foreground">
+                                    ${parseFloat(booking.driverPayment || '0').toFixed(2)}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                  {booking.driverPaymentPaid ? (
+                                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800">
+                                      Paid
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800">
+                                      Unpaid
+                                    </Badge>
+                                  )}
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                  <Button
+                                    size="sm"
+                                    variant={booking.driverPaymentPaid ? "outline" : "default"}
+                                    className={booking.driverPaymentPaid ? "h-8" : "h-8 bg-emerald-600 hover:bg-emerald-700"}
+                                    onClick={() => markDriverPaymentPaidMutation.mutate({
+                                      bookingId: booking.id,
+                                      paid: !booking.driverPaymentPaid
+                                    })}
+                                    disabled={markDriverPaymentPaidMutation.isPending}
+                                  >
+                                    {booking.driverPaymentPaid ? 'Unmark' : 'Mark Paid'}
+                                  </Button>
+                                </td>
+                              </tr>
+                            ));
+                          })()}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Summary Stats */}
+                  {(() => {
+                    const now = new Date();
+                    const startOfWeek = new Date(now);
+                    startOfWeek.setDate(now.getDate() - now.getDay());
+                    startOfWeek.setHours(0, 0, 0, 0);
+                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+                    const relevantBookings = bookings?.filter((b: any) => {
+                      if (b.status !== 'completed' || !b.driverId || !b.driverPayment) return false;
+                      const bookingDate = new Date(b.scheduledDateTime);
+                      if (accountingPeriod === "weekly" && bookingDate < startOfWeek) return false;
+                      if (accountingPeriod === "monthly" && bookingDate < startOfMonth) return false;
+                      if (accountingPeriod === "yearly" && bookingDate < startOfYear) return false;
+                      return true;
+                    }) || [];
+
+                    const totalPaid = relevantBookings
+                      .filter((b: any) => b.driverPaymentPaid)
+                      .reduce((sum: number, b: any) => sum + parseFloat(b.driverPayment || '0'), 0);
+                    const totalUnpaid = relevantBookings
+                      .filter((b: any) => !b.driverPaymentPaid)
+                      .reduce((sum: number, b: any) => sum + parseFloat(b.driverPayment || '0'), 0);
+                    const paidCount = relevantBookings.filter((b: any) => b.driverPaymentPaid).length;
+                    const unpaidCount = relevantBookings.filter((b: any) => !b.driverPaymentPaid).length;
+
+                    return (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                        <div className="bg-emerald-50 dark:bg-emerald-950/30 rounded-lg p-4 border border-emerald-200 dark:border-emerald-800">
+                          <div className="flex items-center gap-2 mb-1">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Total Paid</span>
+                          </div>
+                          <p className="text-2xl font-bold text-emerald-800 dark:text-emerald-300">${totalPaid.toFixed(2)}</p>
+                          <p className="text-xs text-emerald-600 dark:text-emerald-500">{paidCount} rides</p>
+                        </div>
+                        <div className="bg-amber-50 dark:bg-amber-950/30 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Clock className="w-4 h-4 text-amber-600" />
+                            <span className="text-sm font-medium text-amber-700 dark:text-amber-400">Total Unpaid</span>
+                          </div>
+                          <p className="text-2xl font-bold text-amber-800 dark:text-amber-300">${totalUnpaid.toFixed(2)}</p>
+                          <p className="text-xs text-amber-600 dark:text-amber-500">{unpaidCount} rides</p>
+                        </div>
+                        <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center gap-2 mb-1">
+                            <DollarSign className="w-4 h-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-700 dark:text-blue-400">Grand Total</span>
+                          </div>
+                          <p className="text-2xl font-bold text-blue-800 dark:text-blue-300">${(totalPaid + totalUnpaid).toFixed(2)}</p>
+                          <p className="text-xs text-blue-600 dark:text-blue-500">{paidCount + unpaidCount} rides</p>
+                        </div>
+                        <div className="bg-purple-50 dark:bg-purple-950/30 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Car className="w-4 h-4 text-purple-600" />
+                            <span className="text-sm font-medium text-purple-700 dark:text-purple-400">Avg per Ride</span>
+                          </div>
+                          <p className="text-2xl font-bold text-purple-800 dark:text-purple-300">
+                            ${(paidCount + unpaidCount > 0 ? (totalPaid + totalUnpaid) / (paidCount + unpaidCount) : 0).toFixed(2)}
+                          </p>
+                          <p className="text-xs text-purple-600 dark:text-purple-500">driver payment</p>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4 opacity-50" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">Passengers Accounts</h3>
+                  <p className="text-muted-foreground">Coming soon - Track passenger payment history and balances</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
