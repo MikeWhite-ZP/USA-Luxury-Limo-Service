@@ -1433,6 +1433,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       console.log('[BOOKING] Request body:', JSON.stringify(req.body, null, 2));
       
+      // Check if user is a Partner and set sourcePartnerId for attribution
+      const currentUser = await storage.getUser(userId);
+      const isPartnerBooking = currentUser && (currentUser as any).isPartner;
+      
       let bookingData;
       try {
         bookingData = insertBookingSchema.parse({
@@ -1440,6 +1444,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           passengerId: userId,
           bookedBy: 'passenger',
           bookedAt: new Date(),
+          sourcePartnerId: isPartnerBooking ? userId : null,
         });
       } catch (parseError: any) {
         console.error('[BOOKING] Schema validation error:', parseError);
@@ -6381,13 +6386,17 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
       }
 
       const { id } = req.params;
-      const { role, isActive, payLaterEnabled, cashPaymentEnabled, discountType, discountValue, firstName, lastName, email, phone, vehiclePlate, username } = req.body;
+      const { role, isActive, payLaterEnabled, cashPaymentEnabled, discountType, discountValue, firstName, lastName, email, phone, vehiclePlate, username, isPartner, partnerCompanyName, partnerCommissionRate, partnerNotes } = req.body;
       
       const updates: Partial<User> = {};
       if (role !== undefined) updates.role = role;
       if (isActive !== undefined) updates.isActive = isActive;
       if (payLaterEnabled !== undefined) updates.payLaterEnabled = payLaterEnabled;
       if (cashPaymentEnabled !== undefined) updates.cashPaymentEnabled = cashPaymentEnabled;
+      if (isPartner !== undefined) (updates as any).isPartner = isPartner;
+      if (partnerCompanyName !== undefined) (updates as any).partnerCompanyName = partnerCompanyName || null;
+      if (partnerCommissionRate !== undefined) (updates as any).partnerCommissionRate = partnerCommissionRate || '0';
+      if (partnerNotes !== undefined) (updates as any).partnerNotes = partnerNotes || null;
       if (discountType !== undefined) updates.discountType = discountType;
       if (discountValue !== undefined) {
         // Validate discount value
@@ -6465,7 +6474,7 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
         return res.status(403).json({ message: 'Admin access required' });
       }
 
-      const { firstName, lastName, email, phone, role, isActive, payLaterEnabled, cashPaymentEnabled, vehiclePlate, password, companyName, username, discountType, discountValue } = req.body;
+      const { firstName, lastName, email, phone, role, isActive, payLaterEnabled, cashPaymentEnabled, vehiclePlate, password, companyName, username, discountType, discountValue, isPartner, partnerCompanyName, partnerCommissionRate, partnerNotes } = req.body;
       
       if (!firstName || !email) {
         return res.status(400).json({ message: 'First name and email are required' });
@@ -6514,6 +6523,10 @@ ${wasConfirmedOrInProgress ? 'IMPORTANT: The booking status has been reset to PE
         username: username?.trim() || undefined,
         discountType: discountType || null,
         discountValue: discountValue || '0',
+        isPartner: isPartner || false,
+        partnerCompanyName: partnerCompanyName || null,
+        partnerCommissionRate: partnerCommissionRate || '0',
+        partnerNotes: partnerNotes || null,
       });
 
       // If creating a user with 'driver' role, create driver record

@@ -82,6 +82,7 @@ import {
   Calculator,
   Calendar,
   Filter,
+  Building2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -3904,6 +3905,11 @@ export default function AdminDashboard() {
     discountValue: "0",
     vehiclePlate: "", // For drivers
     temporaryPassword: "", // For setting temp password when editing
+    // Partner fields (job sources like Uber, Sixt, Blacklane)
+    isPartner: false,
+    partnerCompanyName: "",
+    partnerCommissionRate: "0",
+    partnerNotes: "",
   });
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [userDialogTab, setUserDialogTab] = useState<'profile' | 'credits' | 'transactions' | 'earnings' | 'documents' | 'oldinvoices'>('profile');
@@ -5901,6 +5907,10 @@ export default function AdminDashboard() {
       discountValue: "0",
       vehiclePlate: "",
       temporaryPassword: "",
+      isPartner: false,
+      partnerCompanyName: "",
+      partnerCommissionRate: "0",
+      partnerNotes: "",
     });
     setUserDialogOpen(true);
   };
@@ -5923,6 +5933,10 @@ export default function AdminDashboard() {
       discountValue: user.discountValue || "0",
       vehiclePlate: (user as any).driverInfo?.vehiclePlate || "",
       temporaryPassword: "",
+      isPartner: (user as any).isPartner || false,
+      partnerCompanyName: (user as any).partnerCompanyName || "",
+      partnerCommissionRate: (user as any).partnerCommissionRate || "0",
+      partnerNotes: (user as any).partnerNotes || "",
     });
     setUserDialogOpen(true);
   };
@@ -8693,6 +8707,16 @@ export default function AdminDashboard() {
                                 </p>
                               </div>
                             )}
+                            
+                            {/* Partner Source Badge */}
+                            {booking.sourcePartnerCompanyName && (
+                              <div className="flex items-center gap-1.5 text-xs">
+                                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/50 dark:text-purple-400 px-1.5 py-0.5">
+                                  <Building2 className="w-3 h-3 mr-1" />
+                                  Partner: {booking.sourcePartnerCompanyName}
+                                </Badge>
+                              </div>
+                            )}
                           </div>
 
                           {/* Right: Driver & Actions */}
@@ -10932,6 +10956,82 @@ export default function AdminDashboard() {
                       </div>
                     )}
                   </div>
+
+                  {/* Partner Account Section - Admin Only */}
+                  {userFormData.role === "passenger" && (
+                    <div className="space-y-3 pt-4 border-t border-border">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <Label htmlFor="user-partner" className="text-sm font-medium">Partner Account</Label>
+                          <p className="text-xs text-muted-foreground">Mark as job source (Uber, Sixt, Blacklane, etc.)</p>
+                        </div>
+                        <Switch
+                          id="user-partner"
+                          checked={userFormData.isPartner}
+                          onCheckedChange={(checked) =>
+                            setUserFormData({
+                              ...userFormData,
+                              isPartner: checked,
+                              partnerCompanyName: checked ? userFormData.partnerCompanyName : "",
+                              partnerCommissionRate: checked ? userFormData.partnerCommissionRate : "0",
+                              partnerNotes: checked ? userFormData.partnerNotes : "",
+                            })
+                          }
+                        />
+                      </div>
+                      {userFormData.isPartner && (
+                        <div className="space-y-3 pl-2 border-l-2 border-blue-200 dark:border-blue-800">
+                          <div className="space-y-1">
+                            <Label htmlFor="partner-company" className="text-xs">Partner Company Name</Label>
+                            <Input
+                              id="partner-company"
+                              placeholder="e.g., Uber, Sixt, Blacklane"
+                              value={userFormData.partnerCompanyName}
+                              onChange={(e) =>
+                                setUserFormData({
+                                  ...userFormData,
+                                  partnerCompanyName: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label htmlFor="partner-commission" className="text-xs">Commission Rate (%)</Label>
+                            <Input
+                              id="partner-commission"
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                              placeholder="0.00"
+                              value={userFormData.partnerCommissionRate}
+                              onChange={(e) =>
+                                setUserFormData({
+                                  ...userFormData,
+                                  partnerCommissionRate: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label htmlFor="partner-notes" className="text-xs">Notes</Label>
+                            <Textarea
+                              id="partner-notes"
+                              placeholder="Additional notes about this partner..."
+                              rows={2}
+                              value={userFormData.partnerNotes}
+                              onChange={(e) =>
+                                setUserFormData({
+                                  ...userFormData,
+                                  partnerNotes: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {editingUser && editingUser.id !== user?.id && (
                     <div className="space-y-2 pt-4 border-t border-border">

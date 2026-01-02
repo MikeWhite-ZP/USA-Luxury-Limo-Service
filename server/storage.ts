@@ -2158,6 +2158,7 @@ export class DatabaseStorage implements IStorage {
         noShow: bookings.noShow,
         refundInvoiceSent: bookings.refundInvoiceSent,
         markedCompletedAt: bookings.markedCompletedAt,
+        sourcePartnerId: bookings.sourcePartnerId,
       })
       .from(bookings)
       .leftJoin(users, eq(bookings.passengerId, users.id))
@@ -2188,6 +2189,16 @@ export class DatabaseStorage implements IStorage {
           }
         }
         
+        // Get partner info if this booking was sourced by a Partner
+        let sourcePartnerCompanyName = null;
+        if (booking.sourcePartnerId) {
+          const partnerUser = await this.getUser(booking.sourcePartnerId);
+          if (partnerUser) {
+            sourcePartnerCompanyName = (partnerUser as any).partnerCompanyName || 
+              `${partnerUser.firstName || ''} ${partnerUser.lastName || ''}`.trim();
+          }
+        }
+        
         return {
           ...booking,
           passengerName: `${booking.passengerFirstName || ''} ${booking.passengerLastName || ''}`.trim(),
@@ -2196,6 +2207,7 @@ export class DatabaseStorage implements IStorage {
           driverPhone,
           driverProfileImageUrl,
           driverVehiclePlate,
+          sourcePartnerCompanyName,
         };
       })
     );

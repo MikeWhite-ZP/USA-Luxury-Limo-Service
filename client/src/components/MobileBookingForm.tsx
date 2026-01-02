@@ -157,6 +157,13 @@ export default function MobileBookingForm() {
     setTime(formattedTime);
   }, [hour, minute, period]);
 
+  // Auto-set "booking for someone else" when user is a Partner (job source like Uber, Sixt, Blacklane)
+  useEffect(() => {
+    if (user && (user as any).isPartner) {
+      setBookingFor('someone_else');
+    }
+  }, [user]);
+
   // Set minimum date to today
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];

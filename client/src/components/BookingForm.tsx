@@ -142,6 +142,13 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
     setTime(formattedTime);
   }, [hour, minute, period]);
 
+  // Auto-set "booking for someone else" when user is a Partner (job source like Uber, Sixt, Blacklane)
+  useEffect(() => {
+    if (user && (user as any).isPartner) {
+      setBookingFor('someone_else');
+    }
+  }, [user]);
+
   // Set minimum date to today and restore saved booking data
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
