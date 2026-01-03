@@ -749,12 +749,18 @@
       "invoicesAppear": "Faturalar tamamlanan yolculuklardan sonra görünür",
       "viewAndManage": "Yolculuk faturalarınızı görüntüleyin ve yönetin",
       "currentInvoices": "Güncel Faturalar",
-      "oldInvoices": "Eski Faturalar"
+      "oldInvoices": "Eski Faturalar",
+      "viewDetails": "Fatura detaylarını görüntüle"
     },
     "paymentMethods": {
       "title": "Ödeme Yöntemleri",
       "addCard": "Kart Ekle",
+      "addPaymentMethod": "Ödeme Yöntemi Ekle",
+      "addNewPaymentMethod": "Yeni Ödeme Yöntemi Ekle",
       "noCards": "Kayıtlı ödeme yöntemi yok",
+      "noCardsMessage": "Henüz kayıtlı ödeme yöntemi yok. Başlamak için bir ödeme yöntemi ekleyin.",
+      "remove": "Kaldır",
+      "removing": "Kaldırılıyor...",
       "addFirstCard": "Sonra Öde seçeneğini etkinleştirmek için ödeme yöntemi ekleyin.",
       "expires": "Sona Eriyor",
       "default": "Varsayılan"

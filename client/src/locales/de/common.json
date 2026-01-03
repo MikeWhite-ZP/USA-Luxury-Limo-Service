@@ -749,12 +749,18 @@
       "invoicesAppear": "Rechnungen erscheinen nach abgeschlossenen Fahrten",
       "viewAndManage": "Ihre Fahrt-Rechnungen ansehen und verwalten",
       "currentInvoices": "Aktuelle Rechnungen",
-      "oldInvoices": "Alte Rechnungen"
+      "oldInvoices": "Alte Rechnungen",
+      "viewDetails": "Rechnungsdetails anzeigen"
     },
     "paymentMethods": {
       "title": "Zahlungsmethoden",
       "addCard": "Karte Hinzufügen",
+      "addPaymentMethod": "Zahlungsmethode Hinzufügen",
+      "addNewPaymentMethod": "Neue Zahlungsmethode Hinzufügen",
       "noCards": "Keine Zahlungsmethoden gespeichert",
+      "noCardsMessage": "Noch keine Zahlungsmethoden gespeichert. Fügen Sie eine Zahlungsmethode hinzu, um zu beginnen.",
+      "remove": "Entfernen",
+      "removing": "Wird entfernt...",
       "addFirstCard": "Fügen Sie eine Zahlungsmethode hinzu, um Später Bezahlen zu aktivieren.",
       "expires": "Läuft ab",
       "default": "Standard"

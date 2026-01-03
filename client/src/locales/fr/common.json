@@ -749,12 +749,18 @@
       "invoicesAppear": "Les factures apparaissent après les trajets terminés",
       "viewAndManage": "Voir et gérer vos factures de trajet",
       "currentInvoices": "Factures Actuelles",
-      "oldInvoices": "Anciennes Factures"
+      "oldInvoices": "Anciennes Factures",
+      "viewDetails": "Voir les détails de la facture"
     },
     "paymentMethods": {
       "title": "Moyens de Paiement",
       "addCard": "Ajouter une Carte",
+      "addPaymentMethod": "Ajouter un Moyen de Paiement",
+      "addNewPaymentMethod": "Ajouter un Nouveau Moyen de Paiement",
       "noCards": "Aucun moyen de paiement enregistré",
+      "noCardsMessage": "Aucun moyen de paiement enregistré. Ajoutez un moyen de paiement pour commencer.",
+      "remove": "Supprimer",
+      "removing": "Suppression...",
       "addFirstCard": "Ajoutez un moyen de paiement pour activer l'option Payer Plus Tard.",
       "expires": "Expire",
       "default": "Par Défaut"

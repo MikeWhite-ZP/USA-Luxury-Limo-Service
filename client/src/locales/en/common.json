@@ -832,12 +832,18 @@
       "invoicesAppear": "Invoices appear after completed rides",
       "viewAndManage": "View and manage your ride invoices",
       "currentInvoices": "Current Invoices",
-      "oldInvoices": "Old Invoices"
+      "oldInvoices": "Old Invoices",
+      "viewDetails": "View invoice details"
     },
     "paymentMethods": {
       "title": "Payment Methods",
       "addCard": "Add Card",
+      "addPaymentMethod": "Add Payment Method",
+      "addNewPaymentMethod": "Add New Payment Method",
       "noCards": "No payment methods saved",
+      "noCardsMessage": "No payment methods saved yet. Add a payment method to get started.",
+      "remove": "Remove",
+      "removing": "Removing...",
       "addFirstCard": "Add a payment method to enable Pay Later option.",
       "expires": "Expires",
       "default": "Default"

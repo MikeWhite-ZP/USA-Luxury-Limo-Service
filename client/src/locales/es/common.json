@@ -749,12 +749,18 @@
       "invoicesAppear": "Las facturas aparecen después de viajes completados",
       "viewAndManage": "Ver y gestionar tus facturas de viaje",
       "currentInvoices": "Facturas Actuales",
-      "oldInvoices": "Facturas Antiguas"
+      "oldInvoices": "Facturas Antiguas",
+      "viewDetails": "Ver detalles de la factura"
     },
     "paymentMethods": {
       "title": "Métodos de Pago",
       "addCard": "Agregar Tarjeta",
+      "addPaymentMethod": "Agregar Método de Pago",
+      "addNewPaymentMethod": "Agregar Nuevo Método de Pago",
       "noCards": "No hay métodos de pago guardados",
+      "noCardsMessage": "Aún no hay métodos de pago guardados. Agrega un método de pago para comenzar.",
+      "remove": "Eliminar",
+      "removing": "Eliminando...",
       "addFirstCard": "Agrega un método de pago para habilitar Pagar Después.",
       "expires": "Expira",
       "default": "Predeterminado"

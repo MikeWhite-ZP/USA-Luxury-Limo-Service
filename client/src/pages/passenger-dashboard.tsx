@@ -176,6 +176,7 @@ function AddPaymentMethodForm({ onSuccess }: { onSuccess: () => void }) {
 }
 
 function PaymentMethodsList() {
+  const { t } = useTranslation('common');
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [addPaymentOpen, setAddPaymentOpen] = useState(false);
@@ -256,7 +257,7 @@ function PaymentMethodsList() {
                     •••• •••• •••• {pm.card.last4}
                   </p>
                   <p className="text-sm text-muted-foreground" data-testid={`card-expiry-${pm.id}`}>
-                    Expires {pm.card.exp_month}/{pm.card.exp_year}
+                    {t('passengerDashboard.paymentMethods.expires')} {pm.card.exp_month}/{pm.card.exp_year}
                   </p>
                 </div>
               </div>
@@ -267,14 +268,14 @@ function PaymentMethodsList() {
                 disabled={removePaymentMutation.isPending}
                 data-testid={`button-remove-card-${pm.id}`}
               >
-                {removePaymentMutation.isPending ? 'Removing...' : 'Remove'}
+                {removePaymentMutation.isPending ? t('passengerDashboard.paymentMethods.removing') : t('passengerDashboard.paymentMethods.remove')}
               </Button>
             </div>
           ))}
         </div>
       ) : (
         <div className="text-center p-8 text-muted-foreground" data-testid="no-payment-methods">
-          No payment methods saved yet. Add a payment method to get started.
+          {t('passengerDashboard.paymentMethods.noCardsMessage')}
         </div>
       )}
 
@@ -285,12 +286,12 @@ function PaymentMethodsList() {
             data-testid="button-add-payment"
           >
             <Plus className="w-5 h-5 mx-auto mb-2" />
-            Add New Payment Method
+            {t('passengerDashboard.paymentMethods.addNewPaymentMethod')}
           </button>
         </DialogTrigger>
         <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg sm:max-w-md bg-[#ffffff]">
           <DialogHeader>
-            <DialogTitle>Add Payment Method</DialogTitle>
+            <DialogTitle>{t('passengerDashboard.paymentMethods.addPaymentMethod')}</DialogTitle>
           </DialogHeader>
           <Elements stripe={stripePromise}>
             <AddPaymentMethodForm
@@ -307,6 +308,7 @@ function PaymentMethodsList() {
 }
 
 function InvoicesList() {
+  const { t } = useTranslation('common');
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { companyName, logoUrl, isFetched: isBrandingFetched } = useBranding();
@@ -899,7 +901,7 @@ function InvoicesList() {
               <button
                 onClick={() => handleView(invoice)}
                 className="flex-1 min-w-0 text-left hover:bg-muted/50 rounded p-1 -m-1 transition-colors"
-                title="View invoice details"
+                title={t('passengerDashboard.invoices.viewDetails')}
               >
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="font-semibold text-sm text-brand-accent hover:underline" data-testid={`invoice-number-${invoice.id}`}>
