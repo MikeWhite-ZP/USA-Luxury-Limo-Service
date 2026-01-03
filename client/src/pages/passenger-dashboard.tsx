@@ -1316,11 +1316,48 @@ function SquareInvoicePaymentForm({
   const [error, setError] = useState<string | null>(null);
   const cardRef = useRef<any>(null);
   const paymentsRef = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const initAttemptedRef = useRef(false);
 
   useEffect(() => {
+    let isMounted = true;
+    
+    const waitForContainer = (): Promise<void> => {
+      return new Promise((resolve) => {
+        const check = () => {
+          if (containerRef.current && document.getElementById('square-card-container-dashboard')) {
+            resolve();
+          } else {
+            requestAnimationFrame(check);
+          }
+        };
+        requestAnimationFrame(check);
+      });
+    };
+
     const loadSquareSDK = async () => {
+      // Wait for container to be in DOM first
+      await waitForContainer();
+      
+      if (!isMounted) return;
+
       if ((window as any).Square) {
         await initializeSquarePayments();
+        return;
+      }
+
+      // Check if script is already being loaded
+      const existingScript = document.querySelector('script[src*="squarecdn.com"]');
+      if (existingScript) {
+        // Wait for existing script to load
+        const waitForSquare = () => {
+          if ((window as any).Square) {
+            initializeSquarePayments();
+          } else {
+            setTimeout(waitForSquare, 100);
+          }
+        };
+        waitForSquare();
         return;
       }
 
@@ -1330,19 +1367,31 @@ function SquareInvoicePaymentForm({
         : 'https://sandbox.web.squarecdn.com/v1/square.js';
       script.async = true;
       script.onload = async () => {
-        await initializeSquarePayments();
+        if (isMounted) {
+          await initializeSquarePayments();
+        }
       };
       script.onerror = () => {
-        setError('Failed to load payment system. Please try again.');
+        if (isMounted) {
+          setError('Failed to load payment system. Please try again.');
+        }
       };
       document.body.appendChild(script);
     };
 
     const initializeSquarePayments = async () => {
+      if (initAttemptedRef.current || !isMounted) return;
+      initAttemptedRef.current = true;
+      
       try {
         const Square = (window as any).Square;
         if (!Square) {
           throw new Error('Square SDK not loaded');
+        }
+
+        const container = document.getElementById('square-card-container-dashboard');
+        if (!container) {
+          throw new Error('Payment container not found');
         }
 
         const payments = Square.payments(applicationId, locationId);
@@ -1351,16 +1400,21 @@ function SquareInvoicePaymentForm({
         const card = await payments.card();
         await card.attach('#square-card-container-dashboard');
         cardRef.current = card;
-        setIsSquareLoaded(true);
+        if (isMounted) {
+          setIsSquareLoaded(true);
+        }
       } catch (err: any) {
         console.error('Square initialization error:', err);
-        setError(err.message || 'Failed to initialize payment form.');
+        if (isMounted) {
+          setError(err.message || 'Failed to initialize payment form.');
+        }
       }
     };
 
     loadSquareSDK();
 
     return () => {
+      isMounted = false;
       if (cardRef.current) {
         cardRef.current.destroy?.();
       }
@@ -1443,7 +1497,7 @@ function SquareInvoicePaymentForm({
           </div>
         )}
         <div className="border border-border rounded-lg p-3">
-          <div id="square-card-container-dashboard" style={{ minHeight: '89px' }} />
+          <div ref={containerRef} id="square-card-container-dashboard" style={{ minHeight: '89px' }} />
         </div>
       </div>
       
@@ -1606,11 +1660,48 @@ function SquareBookingPaymentForm({
   const [error, setError] = useState<string | null>(null);
   const cardRef = useRef<any>(null);
   const paymentsRef = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const initAttemptedRef = useRef(false);
 
   useEffect(() => {
+    let isMounted = true;
+    
+    const waitForContainer = (): Promise<void> => {
+      return new Promise((resolve) => {
+        const check = () => {
+          if (containerRef.current && document.getElementById('square-card-container-booking')) {
+            resolve();
+          } else {
+            requestAnimationFrame(check);
+          }
+        };
+        requestAnimationFrame(check);
+      });
+    };
+
     const loadSquareSDK = async () => {
+      // Wait for container to be in DOM first
+      await waitForContainer();
+      
+      if (!isMounted) return;
+
       if ((window as any).Square) {
         await initializeSquarePayments();
+        return;
+      }
+
+      // Check if script is already being loaded
+      const existingScript = document.querySelector('script[src*="squarecdn.com"]');
+      if (existingScript) {
+        // Wait for existing script to load
+        const waitForSquare = () => {
+          if ((window as any).Square) {
+            initializeSquarePayments();
+          } else {
+            setTimeout(waitForSquare, 100);
+          }
+        };
+        waitForSquare();
         return;
       }
 
@@ -1620,19 +1711,31 @@ function SquareBookingPaymentForm({
         : 'https://sandbox.web.squarecdn.com/v1/square.js';
       script.async = true;
       script.onload = async () => {
-        await initializeSquarePayments();
+        if (isMounted) {
+          await initializeSquarePayments();
+        }
       };
       script.onerror = () => {
-        setError('Failed to load payment system. Please try again.');
+        if (isMounted) {
+          setError('Failed to load payment system. Please try again.');
+        }
       };
       document.body.appendChild(script);
     };
 
     const initializeSquarePayments = async () => {
+      if (initAttemptedRef.current || !isMounted) return;
+      initAttemptedRef.current = true;
+      
       try {
         const Square = (window as any).Square;
         if (!Square) {
           throw new Error('Square SDK not loaded');
+        }
+
+        const container = document.getElementById('square-card-container-booking');
+        if (!container) {
+          throw new Error('Payment container not found');
         }
 
         const payments = Square.payments(applicationId, locationId);
@@ -1641,16 +1744,21 @@ function SquareBookingPaymentForm({
         const card = await payments.card();
         await card.attach('#square-card-container-booking');
         cardRef.current = card;
-        setIsSquareLoaded(true);
+        if (isMounted) {
+          setIsSquareLoaded(true);
+        }
       } catch (err: any) {
         console.error('Square initialization error:', err);
-        setError(err.message || 'Failed to initialize payment form.');
+        if (isMounted) {
+          setError(err.message || 'Failed to initialize payment form.');
+        }
       }
     };
 
     loadSquareSDK();
 
     return () => {
+      isMounted = false;
       if (cardRef.current) {
         cardRef.current.destroy?.();
       }
@@ -1734,7 +1842,7 @@ function SquareBookingPaymentForm({
           </div>
         )}
         <div className="border border-border rounded-lg p-3">
-          <div id="square-card-container-booking" style={{ minHeight: '89px' }} />
+          <div ref={containerRef} id="square-card-container-booking" style={{ minHeight: '89px' }} />
         </div>
       </div>
       
