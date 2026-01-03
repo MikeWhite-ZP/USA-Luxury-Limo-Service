@@ -1404,6 +1404,10 @@ function SquareInvoicePaymentForm({
         const card = await payments.card();
         await card.attach('#square-card-container-dashboard');
         cardRef.current = card;
+        
+        // Wait for the card form to be fully interactive before enabling the button
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         if (isMounted) {
           setIsSquareLoaded(true);
         }
@@ -1748,6 +1752,10 @@ function SquareBookingPaymentForm({
         const card = await payments.card();
         await card.attach('#square-card-container-booking');
         cardRef.current = card;
+        
+        // Wait for the card form to be fully interactive before enabling the button
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         if (isMounted) {
           setIsSquareLoaded(true);
         }
