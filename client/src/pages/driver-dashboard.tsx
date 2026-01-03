@@ -809,9 +809,17 @@ export default function DriverDashboard() {
 
   const getStatusBadge = (status: string) => {
     const variant = getStatusBadgeVariant(status);
+    const statusKeyMap: Record<string, string> = {
+      'approved': 'approved',
+      'pending': 'pending',
+      'rejected': 'rejected',
+      'missing': 'missing',
+      'notUploaded': 'notUploaded'
+    };
+    const statusKey = statusKeyMap[status] || status;
     return (
       <Badge variant={variant as any} className="capitalize">
-        {status}
+        {t(`driverDashboard.documents.status.${statusKey}`)}
       </Badge>
     );
   };
@@ -1868,7 +1876,7 @@ export default function DriverDashboard() {
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
                     <FileText className={`w-5 h-5 ${selectedDocumentPreview ? getDocumentTypeColor(selectedDocumentPreview.documentType) : 'text-red-600'}`} />
-                    {selectedDocumentPreview?.documentType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                    {selectedDocumentPreview ? t(`driverDashboard.documents.types.${selectedDocumentPreview.documentType}`) : ''}
                   </DialogTitle>
                 </DialogHeader>
                 {selectedDocumentPreview && (
@@ -1876,7 +1884,7 @@ export default function DriverDashboard() {
                     <div className="flex items-center gap-2">
                       {getStatusBadge(selectedDocumentPreview.status)}
                       <span className="text-xs text-muted-foreground">
-                        Uploaded {new Date(selectedDocumentPreview.uploadedAt).toLocaleDateString()}
+                        {t('driverDashboard.documents.labels.uploaded')} {new Date(selectedDocumentPreview.uploadedAt).toLocaleDateString()}
                       </span>
                     </div>
                     
@@ -1884,8 +1892,8 @@ export default function DriverDashboard() {
                       {selectedDocumentPreview.documentUrl?.toLowerCase().endsWith('.pdf') ? (
                         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                           <FileText className="w-20 h-20 mb-4" />
-                          <p className="text-base font-medium">PDF Document</p>
-                          <p className="text-sm mt-1">Click download to view</p>
+                          <p className="text-base font-medium">{t('driverDashboard.documents.preview.pdfDocument')}</p>
+                          <p className="text-sm mt-1">{t('driverDashboard.documents.preview.clickToView')}</p>
                         </div>
                       ) : (
                         <img
@@ -1902,19 +1910,19 @@ export default function DriverDashboard() {
                     <div className="grid grid-cols-2 gap-3 text-sm bg-muted/20 rounded-lg p-3">
                       {selectedDocumentPreview.expirationDate && (
                         <div>
-                          <span className="text-muted-foreground text-xs">Expires</span>
+                          <span className="text-muted-foreground text-xs">{t('driverDashboard.documents.labels.expires')}</span>
                           <p className="font-medium">{new Date(selectedDocumentPreview.expirationDate).toLocaleDateString()}</p>
                         </div>
                       )}
                       {selectedDocumentPreview.vehiclePlate && (
                         <div>
-                          <span className="text-muted-foreground text-xs">Vehicle Plate</span>
+                          <span className="text-muted-foreground text-xs">{t('driverDashboard.documents.labels.vehiclePlate')}</span>
                           <p className="font-medium">{selectedDocumentPreview.vehiclePlate}</p>
                         </div>
                       )}
                       {selectedDocumentPreview.whatsappNumber && (
                         <div>
-                          <span className="text-muted-foreground text-xs">WhatsApp</span>
+                          <span className="text-muted-foreground text-xs">{t('driverDashboard.documents.labels.whatsapp')}</span>
                           <p className="font-medium">{selectedDocumentPreview.whatsappNumber}</p>
                         </div>
                       )}
@@ -1923,7 +1931,7 @@ export default function DriverDashboard() {
                     {selectedDocumentPreview.rejectionReason && (
                       <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg">
                         <p className="text-sm text-red-700 dark:text-red-300">
-                          <strong>Rejection Reason:</strong> {selectedDocumentPreview.rejectionReason}
+                          <strong>{t('driverDashboard.documents.labels.rejectionReason')}</strong> {selectedDocumentPreview.rejectionReason}
                         </p>
                       </div>
                     )}
@@ -1947,7 +1955,7 @@ export default function DriverDashboard() {
                       data-testid="button-download-document"
                     >
                       <Download className="w-4 h-4 mr-2" />
-                      Download Document
+                      {t('driverDashboard.documents.preview.downloadDocument')}
                     </Button>
                   </div>
                 )}
@@ -1966,14 +1974,14 @@ export default function DriverDashboard() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-sm text-foreground">Driver License</h3>
+                          <h3 className="font-semibold text-sm text-foreground">{t('driverDashboard.documents.types.driver_license')}</h3>
                           {renderSaveStatus('driver_license')}
                         </div>
-                        <p className="text-[10px] text-muted-foreground">Required</p>
+                        <p className="text-[10px] text-muted-foreground">{t('driverDashboard.documents.requirement.required')}</p>
                       </div>
                     </div>
                     {getDocumentByType('driver_license') ? getStatusBadge(getDocumentByType('driver_license')!.status) : (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">Missing</Badge>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">{t('driverDashboard.documents.status.missing')}</Badge>
                     )}
                   </div>
                   
@@ -1982,7 +1990,7 @@ export default function DriverDashboard() {
                       <div className="space-y-0.5">
                         {driver?.licenseNumber && <p className="font-mono text-foreground">{driver.licenseNumber}</p>}
                         {getDocumentByType('driver_license')!.expirationDate && (
-                          <p className="text-muted-foreground">Exp: {new Date(getDocumentByType('driver_license')!.expirationDate!).toLocaleDateString()}</p>
+                          <p className="text-muted-foreground">{t('driverDashboard.documents.labels.expiry')} {new Date(getDocumentByType('driver_license')!.expirationDate!).toLocaleDateString()}</p>
                         )}
                       </div>
                       <Button
@@ -2001,7 +2009,7 @@ export default function DriverDashboard() {
                     <div className="grid grid-cols-2 gap-2">
                       <Input
                         type="text"
-                        placeholder="License #"
+                        placeholder={t('driverDashboard.documents.placeholders.licenseNumber')}
                         value={formData.driverLicense.licenseNumber}
                         onChange={(e) => {
                           const value = e.target.value;
@@ -2056,14 +2064,14 @@ export default function DriverDashboard() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-sm text-foreground">Limo License</h3>
+                          <h3 className="font-semibold text-sm text-foreground">{t('driverDashboard.documents.types.limo_license')}</h3>
                           {renderSaveStatus('limo_license')}
                         </div>
-                        <p className="text-[10px] text-muted-foreground">Required</p>
+                        <p className="text-[10px] text-muted-foreground">{t('driverDashboard.documents.requirement.required')}</p>
                       </div>
                     </div>
                     {getDocumentByType('limo_license') ? getStatusBadge(getDocumentByType('limo_license')!.status) : (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">Missing</Badge>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">{t('driverDashboard.documents.status.missing')}</Badge>
                     )}
                   </div>
                   
@@ -2072,7 +2080,7 @@ export default function DriverDashboard() {
                       <div className="space-y-0.5">
                         {driver?.limoLicenseNumber && <p className="font-mono text-foreground">{driver.limoLicenseNumber}</p>}
                         {getDocumentByType('limo_license')!.expirationDate && (
-                          <p className="text-muted-foreground">Exp: {new Date(getDocumentByType('limo_license')!.expirationDate!).toLocaleDateString()}</p>
+                          <p className="text-muted-foreground">{t('driverDashboard.documents.labels.expiry')} {new Date(getDocumentByType('limo_license')!.expirationDate!).toLocaleDateString()}</p>
                         )}
                       </div>
                       <Button
@@ -2091,7 +2099,7 @@ export default function DriverDashboard() {
                     <div className="grid grid-cols-2 gap-2">
                       <Input
                         type="text"
-                        placeholder="License #"
+                        placeholder={t('driverDashboard.documents.placeholders.licenseNumber')}
                         value={formData.limoLicense.licenseNumber}
                         onChange={(e) => {
                           const value = e.target.value;
@@ -2146,14 +2154,14 @@ export default function DriverDashboard() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-sm text-foreground">Insurance</h3>
+                          <h3 className="font-semibold text-sm text-foreground">{t('driverDashboard.documents.types.insurance_certificate')}</h3>
                           {renderSaveStatus('insurance_certificate')}
                         </div>
-                        <p className="text-[10px] text-muted-foreground">Required</p>
+                        <p className="text-[10px] text-muted-foreground">{t('driverDashboard.documents.requirement.required')}</p>
                       </div>
                     </div>
                     {getDocumentByType('insurance_certificate') ? getStatusBadge(getDocumentByType('insurance_certificate')!.status) : (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">Missing</Badge>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">{t('driverDashboard.documents.status.missing')}</Badge>
                     )}
                   </div>
                   
@@ -2161,7 +2169,7 @@ export default function DriverDashboard() {
                     <div className="flex items-center justify-between text-xs mb-3 py-2 px-2.5 bg-muted/50 rounded-lg">
                       <div className="space-y-0.5">
                         {getDocumentByType('insurance_certificate')!.expirationDate && (
-                          <p className="text-muted-foreground">Exp: {new Date(getDocumentByType('insurance_certificate')!.expirationDate!).toLocaleDateString()}</p>
+                          <p className="text-muted-foreground">{t('driverDashboard.documents.labels.expiry')} {new Date(getDocumentByType('insurance_certificate')!.expirationDate!).toLocaleDateString()}</p>
                         )}
                       </div>
                       <Button
@@ -2221,14 +2229,14 @@ export default function DriverDashboard() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-sm text-foreground">Vehicle Photo</h3>
+                          <h3 className="font-semibold text-sm text-foreground">{t('driverDashboard.documents.types.vehicle_image')}</h3>
                           {renderSaveStatus('vehicle_image')}
                         </div>
-                        <p className="text-[10px] text-muted-foreground">Optional</p>
+                        <p className="text-[10px] text-muted-foreground">{t('driverDashboard.documents.requirement.optional')}</p>
                       </div>
                     </div>
                     {getDocumentByType('vehicle_image') ? getStatusBadge(getDocumentByType('vehicle_image')!.status) : (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">Not uploaded</Badge>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">{t('driverDashboard.documents.status.notUploaded')}</Badge>
                     )}
                   </div>
                   
@@ -2254,7 +2262,7 @@ export default function DriverDashboard() {
                   <div className="space-y-2">
                     <Input
                       type="text"
-                      placeholder="Plate number"
+                      placeholder={t('driverDashboard.documents.placeholders.plateNumber')}
                       value={formData.vehicleImage.vehiclePlate}
                       onChange={(e) => {
                         const value = e.target.value;
@@ -2308,14 +2316,14 @@ export default function DriverDashboard() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-sm text-foreground">Profile Photo</h3>
+                          <h3 className="font-semibold text-sm text-foreground">{t('driverDashboard.documents.types.profile_photo')}</h3>
                           {renderSaveStatus('profile_photo')}
                         </div>
-                        <p className="text-[10px] text-muted-foreground">Optional</p>
+                        <p className="text-[10px] text-muted-foreground">{t('driverDashboard.documents.requirement.optional')}</p>
                       </div>
                     </div>
                     {getDocumentByType('profile_photo') ? getStatusBadge(getDocumentByType('profile_photo')!.status) : (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">Not uploaded</Badge>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">{t('driverDashboard.documents.status.notUploaded')}</Badge>
                     )}
                   </div>
                   
@@ -2341,7 +2349,7 @@ export default function DriverDashboard() {
                   <div className="space-y-2">
                     <Input
                       type="tel"
-                      placeholder="WhatsApp (optional)"
+                      placeholder={t('driverDashboard.documents.placeholders.whatsappOptional')}
                       value={formData.whatsappNumber}
                       onChange={(e) => {
                         const value = e.target.value;

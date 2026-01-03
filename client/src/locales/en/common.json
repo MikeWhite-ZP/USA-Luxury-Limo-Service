@@ -1007,6 +1007,44 @@
     "details": {
       "flightInfo": "Flight Information",
       "specialInstructions": "Special Instructions"
+    },
+    "documents": {
+      "types": {
+        "driver_license": "Driver License",
+        "limo_license": "Limo License",
+        "insurance_certificate": "Insurance",
+        "vehicle_image": "Vehicle Photo",
+        "profile_photo": "Profile Photo"
+      },
+      "requirement": {
+        "required": "Required",
+        "optional": "Optional"
+      },
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "missing": "Missing",
+        "notUploaded": "Not uploaded"
+      },
+      "labels": {
+        "expiry": "Exp:",
+        "expires": "Expires",
+        "uploaded": "Uploaded",
+        "vehiclePlate": "Vehicle Plate",
+        "whatsapp": "WhatsApp",
+        "rejectionReason": "Rejection Reason:"
+      },
+      "placeholders": {
+        "licenseNumber": "License #",
+        "plateNumber": "Plate number",
+        "whatsappOptional": "WhatsApp (optional)"
+      },
+      "preview": {
+        "pdfDocument": "PDF Document",
+        "clickToView": "Click download to view",
+        "downloadDocument": "Download Document"
+      }
     }
   }
 }

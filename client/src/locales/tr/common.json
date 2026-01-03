@@ -950,6 +950,44 @@
     "details": {
       "flightInfo": "Uçuş Bilgileri",
       "specialInstructions": "Özel Talimatlar"
+    },
+    "documents": {
+      "types": {
+        "driver_license": "Sürücü Belgesi",
+        "limo_license": "Limuzin Lisansı",
+        "insurance_certificate": "Sigorta",
+        "vehicle_image": "Araç Fotoğrafı",
+        "profile_photo": "Profil Fotoğrafı"
+      },
+      "requirement": {
+        "required": "Gerekli",
+        "optional": "İsteğe Bağlı"
+      },
+      "status": {
+        "pending": "Beklemede",
+        "approved": "Onaylandı",
+        "rejected": "Reddedildi",
+        "missing": "Eksik",
+        "notUploaded": "Yüklenmedi"
+      },
+      "labels": {
+        "expiry": "Son:",
+        "expires": "Son Kullanma",
+        "uploaded": "Yüklendi",
+        "vehiclePlate": "Araç Plakası",
+        "whatsapp": "WhatsApp",
+        "rejectionReason": "Red Nedeni:"
+      },
+      "placeholders": {
+        "licenseNumber": "Lisans #",
+        "plateNumber": "Plaka numarası",
+        "whatsappOptional": "WhatsApp (isteğe bağlı)"
+      },
+      "preview": {
+        "pdfDocument": "PDF Belgesi",
+        "clickToView": "Görüntülemek için indir'e tıklayın",
+        "downloadDocument": "Belgeyi İndir"
+      }
     }
   }
 }

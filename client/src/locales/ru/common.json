@@ -950,6 +950,44 @@
     "details": {
       "flightInfo": "Информация о Рейсе",
       "specialInstructions": "Специальные Инструкции"
+    },
+    "documents": {
+      "types": {
+        "driver_license": "Водительские Права",
+        "limo_license": "Лицензия на Лимузин",
+        "insurance_certificate": "Страховка",
+        "vehicle_image": "Фото Транспорта",
+        "profile_photo": "Фото Профиля"
+      },
+      "requirement": {
+        "required": "Обязательно",
+        "optional": "Необязательно"
+      },
+      "status": {
+        "pending": "На рассмотрении",
+        "approved": "Одобрено",
+        "rejected": "Отклонено",
+        "missing": "Отсутствует",
+        "notUploaded": "Не загружено"
+      },
+      "labels": {
+        "expiry": "Срок:",
+        "expires": "Истекает",
+        "uploaded": "Загружено",
+        "vehiclePlate": "Номер Транспорта",
+        "whatsapp": "WhatsApp",
+        "rejectionReason": "Причина Отклонения:"
+      },
+      "placeholders": {
+        "licenseNumber": "№ Лицензии",
+        "plateNumber": "Номер госзнака",
+        "whatsappOptional": "WhatsApp (необязательно)"
+      },
+      "preview": {
+        "pdfDocument": "PDF Документ",
+        "clickToView": "Нажмите скачать для просмотра",
+        "downloadDocument": "Скачать Документ"
+      }
     }
   }
 }

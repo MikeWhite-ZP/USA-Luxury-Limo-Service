@@ -950,6 +950,44 @@
     "details": {
       "flightInfo": "Informations de Vol",
       "specialInstructions": "Instructions Spéciales"
+    },
+    "documents": {
+      "types": {
+        "driver_license": "Permis de Conduire",
+        "limo_license": "Licence Limousine",
+        "insurance_certificate": "Assurance",
+        "vehicle_image": "Photo du Véhicule",
+        "profile_photo": "Photo de Profil"
+      },
+      "requirement": {
+        "required": "Obligatoire",
+        "optional": "Optionnel"
+      },
+      "status": {
+        "pending": "En attente",
+        "approved": "Approuvé",
+        "rejected": "Rejeté",
+        "missing": "Manquant",
+        "notUploaded": "Non téléchargé"
+      },
+      "labels": {
+        "expiry": "Exp :",
+        "expires": "Expire",
+        "uploaded": "Téléchargé",
+        "vehiclePlate": "Plaque du Véhicule",
+        "whatsapp": "WhatsApp",
+        "rejectionReason": "Raison du Rejet :"
+      },
+      "placeholders": {
+        "licenseNumber": "N° de Permis",
+        "plateNumber": "Numéro de plaque",
+        "whatsappOptional": "WhatsApp (optionnel)"
+      },
+      "preview": {
+        "pdfDocument": "Document PDF",
+        "clickToView": "Cliquez sur télécharger pour voir",
+        "downloadDocument": "Télécharger le Document"
+      }
     }
   }
 }
