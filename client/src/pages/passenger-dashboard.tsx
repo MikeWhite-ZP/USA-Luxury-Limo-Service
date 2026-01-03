@@ -3174,20 +3174,6 @@ export default function PassengerDashboard() {
                         </Badge>
                       </div>
                     </div>
-                    {/* Payment section - show Pay button if not paid */}
-                    {canPayBooking(booking) && (
-                      <div className="mt-3 pt-3 border-t border-border">
-                        <Button
-                          size="sm"
-                          className="btn-brand-primary"
-                          onClick={() => handlePayBooking(booking)}
-                          data-testid={`button-pay-${booking.id}`}
-                        >
-                          <DollarSign className="w-3 h-3 mr-1" />
-                          Pay Now
-                        </Button>
-                      </div>
-                    )}
                     {booking.driverId && (booking.driverFirstName || booking.driverLastName) && (
                       <div className="mt-3 pt-3 border-t border-border">
                         <div className="flex items-start space-x-3">
@@ -3233,6 +3219,17 @@ export default function PassengerDashboard() {
                           <span>Editing allowed up to 3 hours before booking time</span>
                         </div>
                         <div className="flex gap-2">
+                          {canPayBooking(booking) && (
+                            <Button
+                              size="sm"
+                              className="btn-brand-primary"
+                              onClick={() => handlePayBooking(booking)}
+                              data-testid={`button-pay-${booking.id}`}
+                            >
+                              <DollarSign className="w-3 h-3 mr-1" />
+                              Pay Now
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="outline"
