@@ -1325,25 +1325,43 @@ function SquareInvoicePaymentForm({
 
   useEffect(() => {
     let isMounted = true;
+    let retryCount = 0;
+    const maxRetries = 3;
     
-    const waitForContainer = (): Promise<void> => {
+    const waitForContainer = (): Promise<boolean> => {
       return new Promise((resolve) => {
+        let attempts = 0;
+        const maxAttempts = 50; // 50 * 50ms = 2.5 seconds max wait
         const check = () => {
+          attempts++;
           if (containerRef.current && document.getElementById('square-card-container-dashboard')) {
-            resolve();
+            resolve(true);
+          } else if (attempts >= maxAttempts) {
+            resolve(false);
           } else {
-            requestAnimationFrame(check);
+            setTimeout(check, 50);
           }
         };
-        requestAnimationFrame(check);
+        setTimeout(check, 100); // Initial delay to let dialog fully render
       });
     };
 
     const loadSquareSDK = async () => {
       // Wait for container to be in DOM first
-      await waitForContainer();
+      const containerReady = await waitForContainer();
       
       if (!isMounted) return;
+      
+      if (!containerReady) {
+        console.warn('Square: Container not ready after timeout');
+        if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(() => loadSquareSDK(), 200);
+        } else {
+          setError('Payment form failed to load. Please close and try again.');
+        }
+        return;
+      }
 
       if ((window as any).Square) {
         await initializeSquarePayments();
@@ -1355,6 +1373,7 @@ function SquareInvoicePaymentForm({
       if (existingScript) {
         // Wait for existing script to load
         const waitForSquare = () => {
+          if (!isMounted) return;
           if ((window as any).Square) {
             initializeSquarePayments();
           } else {
@@ -1383,9 +1402,8 @@ function SquareInvoicePaymentForm({
       document.body.appendChild(script);
     };
 
-    const initializeSquarePayments = async () => {
+    const initializeSquarePayments = async (attemptNumber = 0) => {
       if (initAttemptedRef.current || !isMounted) return;
-      initAttemptedRef.current = true;
       
       try {
         const Square = (window as any).Square;
@@ -1397,6 +1415,9 @@ function SquareInvoicePaymentForm({
         if (!container) {
           throw new Error('Payment container not found');
         }
+
+        // Mark as attempted only after container check passes
+        initAttemptedRef.current = true;
 
         const payments = Square.payments(applicationId, locationId);
         paymentsRef.current = payments;
@@ -1410,11 +1431,33 @@ function SquareInvoicePaymentForm({
         
         if (isMounted) {
           setIsSquareLoaded(true);
+          setError(null);
         }
       } catch (err: any) {
         console.error('Square initialization error:', err);
+        
+        // Check if this is a retryable error (UnexpectedError or container issues)
+        const isRetryableError = 
+          err.name === 'UnexpectedError' || 
+          err.message?.includes('container') || 
+          err.message?.includes('not found') ||
+          (err.errors && Array.isArray(err.errors));
+        
+        if (isRetryableError && attemptNumber < 3 && isMounted) {
+          // Reset flag and retry after a delay
+          initAttemptedRef.current = false;
+          const delay = (attemptNumber + 1) * 300; // 300ms, 600ms, 900ms
+          console.log(`Square: Retrying initialization in ${delay}ms (attempt ${attemptNumber + 1}/3)`);
+          setTimeout(() => {
+            if (isMounted) {
+              initializeSquarePayments(attemptNumber + 1);
+            }
+          }, delay);
+          return;
+        }
+        
         if (isMounted) {
-          setError(err.message || 'Failed to initialize payment form.');
+          setError('Failed to load payment form. Please close and try again.');
         }
       }
     };
@@ -1423,8 +1466,11 @@ function SquareInvoicePaymentForm({
 
     return () => {
       isMounted = false;
+      // Reset the init flag on unmount so it can retry on next mount
+      initAttemptedRef.current = false;
       if (cardRef.current) {
         cardRef.current.destroy?.();
+        cardRef.current = null;
       }
     };
   }, [applicationId, locationId, environment]);
@@ -1673,25 +1719,43 @@ function SquareBookingPaymentForm({
 
   useEffect(() => {
     let isMounted = true;
+    let retryCount = 0;
+    const maxRetries = 3;
     
-    const waitForContainer = (): Promise<void> => {
+    const waitForContainer = (): Promise<boolean> => {
       return new Promise((resolve) => {
+        let attempts = 0;
+        const maxAttempts = 50; // 50 * 50ms = 2.5 seconds max wait
         const check = () => {
+          attempts++;
           if (containerRef.current && document.getElementById('square-card-container-booking')) {
-            resolve();
+            resolve(true);
+          } else if (attempts >= maxAttempts) {
+            resolve(false);
           } else {
-            requestAnimationFrame(check);
+            setTimeout(check, 50);
           }
         };
-        requestAnimationFrame(check);
+        setTimeout(check, 100); // Initial delay to let dialog fully render
       });
     };
 
     const loadSquareSDK = async () => {
       // Wait for container to be in DOM first
-      await waitForContainer();
+      const containerReady = await waitForContainer();
       
       if (!isMounted) return;
+      
+      if (!containerReady) {
+        console.warn('Square: Container not ready after timeout');
+        if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(() => loadSquareSDK(), 200);
+        } else {
+          setError('Payment form failed to load. Please close and try again.');
+        }
+        return;
+      }
 
       if ((window as any).Square) {
         await initializeSquarePayments();
@@ -1703,6 +1767,7 @@ function SquareBookingPaymentForm({
       if (existingScript) {
         // Wait for existing script to load
         const waitForSquare = () => {
+          if (!isMounted) return;
           if ((window as any).Square) {
             initializeSquarePayments();
           } else {
@@ -1731,9 +1796,8 @@ function SquareBookingPaymentForm({
       document.body.appendChild(script);
     };
 
-    const initializeSquarePayments = async () => {
+    const initializeSquarePayments = async (attemptNumber = 0) => {
       if (initAttemptedRef.current || !isMounted) return;
-      initAttemptedRef.current = true;
       
       try {
         const Square = (window as any).Square;
@@ -1745,6 +1809,9 @@ function SquareBookingPaymentForm({
         if (!container) {
           throw new Error('Payment container not found');
         }
+
+        // Mark as attempted only after container check passes
+        initAttemptedRef.current = true;
 
         const payments = Square.payments(applicationId, locationId);
         paymentsRef.current = payments;
@@ -1758,11 +1825,33 @@ function SquareBookingPaymentForm({
         
         if (isMounted) {
           setIsSquareLoaded(true);
+          setError(null);
         }
       } catch (err: any) {
         console.error('Square initialization error:', err);
+        
+        // Check if this is a retryable error (UnexpectedError or container issues)
+        const isRetryableError = 
+          err.name === 'UnexpectedError' || 
+          err.message?.includes('container') || 
+          err.message?.includes('not found') ||
+          (err.errors && Array.isArray(err.errors));
+        
+        if (isRetryableError && attemptNumber < 3 && isMounted) {
+          // Reset flag and retry after a delay
+          initAttemptedRef.current = false;
+          const delay = (attemptNumber + 1) * 300; // 300ms, 600ms, 900ms
+          console.log(`Square: Retrying initialization in ${delay}ms (attempt ${attemptNumber + 1}/3)`);
+          setTimeout(() => {
+            if (isMounted) {
+              initializeSquarePayments(attemptNumber + 1);
+            }
+          }, delay);
+          return;
+        }
+        
         if (isMounted) {
-          setError(err.message || 'Failed to initialize payment form.');
+          setError('Failed to load payment form. Please close and try again.');
         }
       }
     };
@@ -1771,8 +1860,11 @@ function SquareBookingPaymentForm({
 
     return () => {
       isMounted = false;
+      // Reset the init flag on unmount so it can retry on next mount
+      initAttemptedRef.current = false;
       if (cardRef.current) {
         cardRef.current.destroy?.();
+        cardRef.current = null;
       }
     };
   }, [applicationId, locationId, environment]);
