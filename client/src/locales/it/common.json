@@ -679,5 +679,115 @@
     "german": "Tedesco",
     "italian": "Italiano",
     "russian": "Russo"
+  },
+  "passengerDashboard": {
+    "title": "Dashboard Passeggero",
+    "welcomeBack": "Bentornato",
+    "mainSite": "Sito Principale",
+    "nav": {
+      "home": "Home",
+      "savedLocations": "Indirizzi Salvati",
+      "saved": "Salvati",
+      "bookings": "Prenotazioni",
+      "futureBookings": "Prenotazioni Future",
+      "pastBookings": "Prenotazioni Passate",
+      "invoices": "Fatture",
+      "paymentMethods": "Metodi di Pagamento",
+      "payment": "Pagamento",
+      "accountDetails": "Dettagli Account",
+      "account": "Account",
+      "support": "Supporto"
+    },
+    "quickActions": {
+      "title": "Azioni Rapide:",
+      "bookRide": "Prenota un Viaggio",
+      "history": "Cronologia",
+      "savedPlaces": "Luoghi Salvati",
+      "support": "Supporto"
+    },
+    "recentBookings": {
+      "title": "Prenotazioni Recenti",
+      "noBookings": "Nessuna prenotazione ancora",
+      "startFirstRide": "Inizia il tuo primo viaggio con noi!",
+      "hourlyService": "Servizio Orario",
+      "driver": "Autista",
+      "editingAllowed": "Modifica consentita fino a 3 ore prima del ritiro",
+      "canEdit": "Puoi modificare questa prenotazione (ritiro tra {{hours}}h {{minutes}}m)",
+      "editingDisabled": "Modifica disabilitata - deve essere 3+ ore prima"
+    },
+    "savedLocations": {
+      "title": "Indirizzi Salvati",
+      "addLocation": "Aggiungi Indirizzo",
+      "noLocations": "Nessun indirizzo salvato ancora",
+      "addFirstLocation": "Aggiungi il tuo primo indirizzo per prenotare velocemente!",
+      "labelPlaceholder": "Etichetta (es., Casa, Lavoro)",
+      "addressPlaceholder": "Cerca indirizzo...",
+      "label": "Etichetta",
+      "address": "Indirizzo"
+    },
+    "futureBookings": {
+      "title": "Prenotazioni Future",
+      "noBookings": "Nessuna prenotazione in arrivo",
+      "bookNow": "Prenota il tuo prossimo viaggio ora!"
+    },
+    "pastBookings": {
+      "title": "Prenotazioni Passate",
+      "noBookings": "Nessuna prenotazione passata",
+      "firstRide": "Completa il tuo primo viaggio con noi!"
+    },
+    "invoices": {
+      "title": "Fatture",
+      "noInvoices": "Nessuna fattura ancora",
+      "invoicesAppear": "Le tue fatture appariranno qui dopo i viaggi completati."
+    },
+    "paymentMethods": {
+      "title": "Metodi di Pagamento",
+      "addCard": "Aggiungi Carta",
+      "noCards": "Nessun metodo di pagamento salvato",
+      "addFirstCard": "Aggiungi un metodo di pagamento per abilitare Paga Dopo.",
+      "expires": "Scade",
+      "default": "Predefinito"
+    },
+    "accountDetails": {
+      "title": "Dettagli Account",
+      "profileInfo": "Informazioni Profilo",
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "email": "Email",
+      "phone": "Telefono",
+      "saveChanges": "Salva Modifiche",
+      "saving": "Salvataggio...",
+      "changePassword": "Cambia Password",
+      "currentPassword": "Password Attuale",
+      "newPassword": "Nuova Password",
+      "confirmPassword": "Conferma Nuova Password",
+      "updatePassword": "Aggiorna Password",
+      "updating": "Aggiornamento..."
+    },
+    "support": {
+      "title": "Contatta Supporto",
+      "description": "Hai una domanda o hai bisogno di assistenza? Compila il modulo qui sotto e il nostro team ti risponderà al più presto.",
+      "subject": "Oggetto (Opzionale)",
+      "subjectPlaceholder": "es., Richiesta prenotazione, Problema pagamento",
+      "message": "Messaggio",
+      "messagePlaceholder": "Descrivi la tua domanda o preoccupazione...",
+      "sendMessage": "Invia Messaggio",
+      "sending": "Invio..."
+    },
+    "actions": {
+      "payNow": "Paga Ora",
+      "edit": "Modifica",
+      "delete": "Elimina",
+      "cancel": "Annulla",
+      "cancelBooking": "Annulla Prenotazione",
+      "rateTrip": "Valuta Viaggio",
+      "view": "Visualizza",
+      "print": "Stampa",
+      "download": "Scarica"
+    },
+    "status": {
+      "paid": "Pagato",
+      "unpaid": "Non Pagato"
+    }
   }
 }

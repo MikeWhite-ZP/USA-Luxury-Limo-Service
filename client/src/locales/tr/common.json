@@ -679,5 +679,115 @@
     "german": "Almanca",
     "italian": "İtalyanca",
     "russian": "Rusça"
+  },
+  "passengerDashboard": {
+    "title": "Yolcu Paneli",
+    "welcomeBack": "Tekrar hoş geldiniz",
+    "mainSite": "Ana Site",
+    "nav": {
+      "home": "Ana Sayfa",
+      "savedLocations": "Kayıtlı Konumlar",
+      "saved": "Kayıtlı",
+      "bookings": "Rezervasyonlar",
+      "futureBookings": "Gelecek Rezervasyonlar",
+      "pastBookings": "Geçmiş Rezervasyonlar",
+      "invoices": "Faturalar",
+      "paymentMethods": "Ödeme Yöntemleri",
+      "payment": "Ödeme",
+      "accountDetails": "Hesap Bilgileri",
+      "account": "Hesap",
+      "support": "Destek"
+    },
+    "quickActions": {
+      "title": "Hızlı İşlemler:",
+      "bookRide": "Yolculuk Rezerve Et",
+      "history": "Geçmiş",
+      "savedPlaces": "Kayıtlı Yerler",
+      "support": "Destek"
+    },
+    "recentBookings": {
+      "title": "Son Rezervasyonlar",
+      "noBookings": "Henüz rezervasyon yok",
+      "startFirstRide": "Bizimle ilk yolculuğunuza başlayın!",
+      "hourlyService": "Saatlik Hizmet",
+      "driver": "Sürücü",
+      "editingAllowed": "Alma saatinden 3 saat öncesine kadar düzenleme yapılabilir",
+      "canEdit": "Bu rezervasyonu düzenleyebilirsiniz (alma: {{hours}}s {{minutes}}d sonra)",
+      "editingDisabled": "Düzenleme devre dışı - alma saatinden 3+ saat önce olmalı"
+    },
+    "savedLocations": {
+      "title": "Kayıtlı Konumlar",
+      "addLocation": "Konum Ekle",
+      "noLocations": "Henüz kayıtlı konum yok",
+      "addFirstLocation": "Hızlı rezervasyon için ilk konumunuzu ekleyin!",
+      "labelPlaceholder": "Etiket (örn., Ev, İş)",
+      "addressPlaceholder": "Adres ara...",
+      "label": "Etiket",
+      "address": "Adres"
+    },
+    "futureBookings": {
+      "title": "Gelecek Rezervasyonlar",
+      "noBookings": "Yaklaşan rezervasyon yok",
+      "bookNow": "Şimdi bir sonraki yolculuğunuzu rezerve edin!"
+    },
+    "pastBookings": {
+      "title": "Geçmiş Rezervasyonlar",
+      "noBookings": "Geçmiş rezervasyon yok",
+      "firstRide": "Bizimle ilk yolculuğunuzu tamamlayın!"
+    },
+    "invoices": {
+      "title": "Faturalar",
+      "noInvoices": "Henüz fatura yok",
+      "invoicesAppear": "Tamamlanan yolculuklardan sonra faturalarınız burada görünecek."
+    },
+    "paymentMethods": {
+      "title": "Ödeme Yöntemleri",
+      "addCard": "Kart Ekle",
+      "noCards": "Kayıtlı ödeme yöntemi yok",
+      "addFirstCard": "Sonra Öde seçeneğini etkinleştirmek için ödeme yöntemi ekleyin.",
+      "expires": "Sona Eriyor",
+      "default": "Varsayılan"
+    },
+    "accountDetails": {
+      "title": "Hesap Bilgileri",
+      "profileInfo": "Profil Bilgileri",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "email": "E-posta",
+      "phone": "Telefon",
+      "saveChanges": "Değişiklikleri Kaydet",
+      "saving": "Kaydediliyor...",
+      "changePassword": "Şifre Değiştir",
+      "currentPassword": "Mevcut Şifre",
+      "newPassword": "Yeni Şifre",
+      "confirmPassword": "Yeni Şifreyi Onayla",
+      "updatePassword": "Şifreyi Güncelle",
+      "updating": "Güncelleniyor..."
+    },
+    "support": {
+      "title": "Destek İletişimi",
+      "description": "Bir sorunuz mu var veya yardıma mı ihtiyacınız var? Formu doldurun, destek ekibimiz size en kısa sürede yanıt verecek.",
+      "subject": "Konu (Opsiyonel)",
+      "subjectPlaceholder": "örn., Rezervasyon sorusu, Ödeme sorunu",
+      "message": "Mesaj",
+      "messagePlaceholder": "Sorunuzu veya endişenizi açıklayın...",
+      "sendMessage": "Mesaj Gönder",
+      "sending": "Gönderiliyor..."
+    },
+    "actions": {
+      "payNow": "Şimdi Öde",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "cancel": "İptal",
+      "cancelBooking": "Rezervasyonu İptal Et",
+      "rateTrip": "Yolculuğu Değerlendir",
+      "view": "Görüntüle",
+      "print": "Yazdır",
+      "download": "İndir"
+    },
+    "status": {
+      "paid": "Ödendi",
+      "unpaid": "Ödenmedi"
+    }
   }
 }

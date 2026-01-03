@@ -762,5 +762,115 @@
     "german": "German",
     "italian": "Italian",
     "russian": "Russian"
+  },
+  "passengerDashboard": {
+    "title": "Passenger Dashboard",
+    "welcomeBack": "Welcome back",
+    "mainSite": "Main Site",
+    "nav": {
+      "home": "Home",
+      "savedLocations": "Saved Locations",
+      "saved": "Saved",
+      "bookings": "Bookings",
+      "futureBookings": "Future Bookings",
+      "pastBookings": "Past Bookings",
+      "invoices": "Invoices",
+      "paymentMethods": "Payment Methods",
+      "payment": "Payment",
+      "accountDetails": "Account Details",
+      "account": "Account",
+      "support": "Support"
+    },
+    "quickActions": {
+      "title": "Quick Actions:",
+      "bookRide": "Book a Ride",
+      "history": "History",
+      "savedPlaces": "Saved Places",
+      "support": "Support"
+    },
+    "recentBookings": {
+      "title": "Recent Bookings",
+      "noBookings": "No bookings yet",
+      "startFirstRide": "Start your first ride with us!",
+      "hourlyService": "Hourly Service",
+      "driver": "Driver",
+      "editingAllowed": "Editing allowed up to 3 hours before booking time",
+      "canEdit": "You can edit this booking (pickup in {{hours}}h {{minutes}}m)",
+      "editingDisabled": "Editing disabled - must be 3+ hours before pickup"
+    },
+    "savedLocations": {
+      "title": "Saved Locations",
+      "addLocation": "Add Location",
+      "noLocations": "No saved locations yet",
+      "addFirstLocation": "Add your first location for quick booking!",
+      "labelPlaceholder": "Label (e.g., Home, Work)",
+      "addressPlaceholder": "Search for address...",
+      "label": "Label",
+      "address": "Address"
+    },
+    "futureBookings": {
+      "title": "Future Bookings",
+      "noBookings": "No upcoming bookings",
+      "bookNow": "Book your next ride now!"
+    },
+    "pastBookings": {
+      "title": "Past Bookings",
+      "noBookings": "No past bookings",
+      "firstRide": "Complete your first ride with us!"
+    },
+    "invoices": {
+      "title": "Invoices",
+      "noInvoices": "No invoices yet",
+      "invoicesAppear": "Your invoices will appear here after completed trips."
+    },
+    "paymentMethods": {
+      "title": "Payment Methods",
+      "addCard": "Add Card",
+      "noCards": "No payment methods saved",
+      "addFirstCard": "Add a payment method to enable Pay Later option.",
+      "expires": "Expires",
+      "default": "Default"
+    },
+    "accountDetails": {
+      "title": "Account Details",
+      "profileInfo": "Profile Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "updatePassword": "Update Password",
+      "updating": "Updating..."
+    },
+    "support": {
+      "title": "Contact Support",
+      "description": "Have a question or need assistance? Fill out the form below and our support team will get back to you as soon as possible.",
+      "subject": "Subject (Optional)",
+      "subjectPlaceholder": "e.g., Booking inquiry, Payment issue, etc.",
+      "message": "Message",
+      "messagePlaceholder": "Please describe your question or concern...",
+      "sendMessage": "Send Message",
+      "sending": "Sending..."
+    },
+    "actions": {
+      "payNow": "Pay Now",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "cancelBooking": "Cancel Booking",
+      "rateTrip": "Rate Trip",
+      "view": "View",
+      "print": "Print",
+      "download": "Download"
+    },
+    "status": {
+      "paid": "Paid",
+      "unpaid": "Unpaid"
+    }
   }
 }

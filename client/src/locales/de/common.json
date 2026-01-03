@@ -679,5 +679,115 @@
     "german": "Deutsch",
     "italian": "Italienisch",
     "russian": "Russisch"
+  },
+  "passengerDashboard": {
+    "title": "Fahrgast-Dashboard",
+    "welcomeBack": "Willkommen zurück",
+    "mainSite": "Hauptseite",
+    "nav": {
+      "home": "Startseite",
+      "savedLocations": "Gespeicherte Orte",
+      "saved": "Gespeichert",
+      "bookings": "Buchungen",
+      "futureBookings": "Zukünftige Buchungen",
+      "pastBookings": "Vergangene Buchungen",
+      "invoices": "Rechnungen",
+      "paymentMethods": "Zahlungsmethoden",
+      "payment": "Zahlung",
+      "accountDetails": "Kontodetails",
+      "account": "Konto",
+      "support": "Support"
+    },
+    "quickActions": {
+      "title": "Schnellaktionen:",
+      "bookRide": "Fahrt Buchen",
+      "history": "Verlauf",
+      "savedPlaces": "Gespeicherte Orte",
+      "support": "Support"
+    },
+    "recentBookings": {
+      "title": "Aktuelle Buchungen",
+      "noBookings": "Noch keine Buchungen",
+      "startFirstRide": "Starten Sie Ihre erste Fahrt mit uns!",
+      "hourlyService": "Stündlicher Service",
+      "driver": "Fahrer",
+      "editingAllowed": "Bearbeitung bis 3 Stunden vor Abholung erlaubt",
+      "canEdit": "Sie können diese Buchung bearbeiten (Abholung in {{hours}}h {{minutes}}m)",
+      "editingDisabled": "Bearbeitung deaktiviert - muss 3+ Stunden vorher sein"
+    },
+    "savedLocations": {
+      "title": "Gespeicherte Orte",
+      "addLocation": "Ort Hinzufügen",
+      "noLocations": "Noch keine gespeicherten Orte",
+      "addFirstLocation": "Fügen Sie Ihren ersten Ort für schnelle Buchung hinzu!",
+      "labelPlaceholder": "Bezeichnung (z.B., Zuhause, Arbeit)",
+      "addressPlaceholder": "Adresse suchen...",
+      "label": "Bezeichnung",
+      "address": "Adresse"
+    },
+    "futureBookings": {
+      "title": "Zukünftige Buchungen",
+      "noBookings": "Keine kommenden Buchungen",
+      "bookNow": "Buchen Sie jetzt Ihre nächste Fahrt!"
+    },
+    "pastBookings": {
+      "title": "Vergangene Buchungen",
+      "noBookings": "Keine vergangenen Buchungen",
+      "firstRide": "Absolvieren Sie Ihre erste Fahrt mit uns!"
+    },
+    "invoices": {
+      "title": "Rechnungen",
+      "noInvoices": "Noch keine Rechnungen",
+      "invoicesAppear": "Ihre Rechnungen erscheinen hier nach abgeschlossenen Fahrten."
+    },
+    "paymentMethods": {
+      "title": "Zahlungsmethoden",
+      "addCard": "Karte Hinzufügen",
+      "noCards": "Keine Zahlungsmethoden gespeichert",
+      "addFirstCard": "Fügen Sie eine Zahlungsmethode hinzu, um Später Bezahlen zu aktivieren.",
+      "expires": "Läuft ab",
+      "default": "Standard"
+    },
+    "accountDetails": {
+      "title": "Kontodetails",
+      "profileInfo": "Profilinformationen",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "saveChanges": "Änderungen Speichern",
+      "saving": "Wird gespeichert...",
+      "changePassword": "Passwort Ändern",
+      "currentPassword": "Aktuelles Passwort",
+      "newPassword": "Neues Passwort",
+      "confirmPassword": "Neues Passwort Bestätigen",
+      "updatePassword": "Passwort Aktualisieren",
+      "updating": "Wird aktualisiert..."
+    },
+    "support": {
+      "title": "Support Kontaktieren",
+      "description": "Haben Sie eine Frage oder brauchen Sie Hilfe? Füllen Sie das Formular aus und unser Support-Team wird sich schnellstmöglich bei Ihnen melden.",
+      "subject": "Betreff (Optional)",
+      "subjectPlaceholder": "z.B., Buchungsanfrage, Zahlungsproblem",
+      "message": "Nachricht",
+      "messagePlaceholder": "Beschreiben Sie Ihre Frage oder Ihr Anliegen...",
+      "sendMessage": "Nachricht Senden",
+      "sending": "Wird gesendet..."
+    },
+    "actions": {
+      "payNow": "Jetzt Bezahlen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "cancel": "Abbrechen",
+      "cancelBooking": "Buchung Stornieren",
+      "rateTrip": "Fahrt Bewerten",
+      "view": "Ansehen",
+      "print": "Drucken",
+      "download": "Herunterladen"
+    },
+    "status": {
+      "paid": "Bezahlt",
+      "unpaid": "Unbezahlt"
+    }
   }
 }

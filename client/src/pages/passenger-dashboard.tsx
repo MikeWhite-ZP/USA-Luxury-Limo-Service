@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useBranding } from "@/hooks/useBranding";
@@ -27,6 +28,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Textarea } from "@/components/ui/textarea";
 import BookingForm from "@/components/BookingForm";
 import EditBookingDialog from "@/components/EditBookingDialog";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Clock, Info } from "lucide-react";
 
 const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
@@ -2071,6 +2073,7 @@ function ContactSupportForm({ user }: { user: any }) {
 }
 
 export default function PassengerDashboard() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
@@ -3000,14 +3003,15 @@ export default function PassengerDashboard() {
               )}
               <div>
                 <h1 className="text-3xl font-bold text-black" data-testid="passenger-title">
-                  Passenger Dashboard
+                  {t('passengerDashboard.title')}
                 </h1>
                 <p className="text-muted-foreground text-lg mt-1" data-testid="passenger-subtitle">
-                  Welcome back, <span className="font-medium" style={{ color: 'var(--brand-accent-hex)' }}>{user?.firstName || user?.email}</span>
+                  {t('passengerDashboard.welcomeBack')}, <span className="font-medium" style={{ color: 'var(--brand-accent-hex)' }}>{user?.firstName || user?.email}</span>
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <LanguageSwitcher variant="outline" size="sm" showFlag={true} showLabel={false} />
               <Button 
                 onClick={() => window.location.href = '/'}
                 variant="outline"
@@ -3015,7 +3019,7 @@ export default function PassengerDashboard() {
                 data-testid="button-main-site"
               >
                 <Home className="w-4 h-4 mr-2" />
-                Main Site
+                {t('passengerDashboard.mainSite')}
               </Button>
               <Button 
                 onClick={() => window.location.href = '/api/logout'}
@@ -3023,7 +3027,7 @@ export default function PassengerDashboard() {
                 style={{ borderColor: 'var(--brand-accent-hex)' }}
                 data-testid="button-logout"
               >
-                Sign Out
+                {t('auth.signOut')}
               </Button>
             </div>
           </div>
@@ -3047,8 +3051,8 @@ export default function PassengerDashboard() {
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
               )}
               <Home className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline">Home</span>
-              <span className="sm:hidden text-[10px]">Home</span>
+              <span className="hidden sm:inline">{t('passengerDashboard.nav.home')}</span>
+              <span className="sm:hidden text-[10px]">{t('passengerDashboard.nav.home')}</span>
             </button>
             <button
               onClick={() => setActiveSection('saved-locations')}
@@ -3063,8 +3067,8 @@ export default function PassengerDashboard() {
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
               )}
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline">Saved Locations</span>
-              <span className="sm:hidden text-[10px]">Saved</span>
+              <span className="hidden sm:inline">{t('passengerDashboard.nav.savedLocations')}</span>
+              <span className="sm:hidden text-[10px]">{t('passengerDashboard.nav.saved')}</span>
             </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -3080,8 +3084,8 @@ export default function PassengerDashboard() {
                     <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
                   )}
                   <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="hidden sm:inline">Bookings</span>
-                  <span className="sm:hidden text-[10px]">Bookings</span>
+                  <span className="hidden sm:inline">{t('passengerDashboard.nav.bookings')}</span>
+                  <span className="sm:hidden text-[10px]">{t('passengerDashboard.nav.bookings')}</span>
                   <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 ml-0.5" />
                 </button>
               </DropdownMenuTrigger>
@@ -3096,7 +3100,7 @@ export default function PassengerDashboard() {
                   data-testid="nav-future-bookings"
                 >
                   <Calendar className="w-4 h-4 mr-2" />
-                  <span>Future Bookings</span>
+                  <span>{t('passengerDashboard.nav.futureBookings')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setActiveSection('past-bookings')}
@@ -3104,7 +3108,7 @@ export default function PassengerDashboard() {
                   data-testid="nav-past-bookings"
                 >
                   <History className="w-4 h-4 mr-2" />
-                  <span>Past Bookings</span>
+                  <span>{t('passengerDashboard.nav.pastBookings')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -3121,8 +3125,8 @@ export default function PassengerDashboard() {
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
               )}
               <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline">Invoices</span>
-              <span className="sm:hidden text-[10px]">Invoices</span>
+              <span className="hidden sm:inline">{t('passengerDashboard.nav.invoices')}</span>
+              <span className="sm:hidden text-[10px]">{t('passengerDashboard.nav.invoices')}</span>
             </button>
             <button
               onClick={() => setActiveSection('payment-methods')}
@@ -3137,8 +3141,8 @@ export default function PassengerDashboard() {
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
               )}
               <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline">Payment Methods</span>
-              <span className="sm:hidden text-[10px]">Payment</span>
+              <span className="hidden sm:inline">{t('passengerDashboard.nav.paymentMethods')}</span>
+              <span className="sm:hidden text-[10px]">{t('passengerDashboard.nav.payment')}</span>
             </button>
             <button
               onClick={() => setActiveSection('account-details')}
@@ -3153,8 +3157,8 @@ export default function PassengerDashboard() {
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
               )}
               <User className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline">Account Details</span>
-              <span className="sm:hidden text-[10px]">Account</span>
+              <span className="hidden sm:inline">{t('passengerDashboard.nav.accountDetails')}</span>
+              <span className="sm:hidden text-[10px]">{t('passengerDashboard.nav.account')}</span>
             </button>
             <button
               onClick={() => setActiveSection('support')}
@@ -3169,8 +3173,8 @@ export default function PassengerDashboard() {
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 nav-tab-indicator" />
               )}
               <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline">Support</span>
-              <span className="sm:hidden text-[10px]">Support</span>
+              <span className="hidden sm:inline">{t('passengerDashboard.nav.support')}</span>
+              <span className="sm:hidden text-[10px]">{t('passengerDashboard.nav.support')}</span>
             </button>
           </nav>
         </div>
@@ -3183,7 +3187,7 @@ export default function PassengerDashboard() {
             {/* Quick Actions - Compact Professional Design */}
             <div className="bg-card border border-border rounded-xl p-4 shadow-sm" data-testid="quick-actions">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="text-sm font-medium text-muted-foreground mr-1">Quick Actions:</span>
+                <span className="text-sm font-medium text-muted-foreground mr-1">{t('passengerDashboard.quickActions.title')}</span>
                 <Button
                   onClick={() => setActiveSection('booking')}
                   size="sm"
@@ -3191,7 +3195,7 @@ export default function PassengerDashboard() {
                   data-testid="button-book-ride"
                 >
                   <MapPin className="w-4 h-4" />
-                  Book a Ride
+                  {t('passengerDashboard.quickActions.bookRide')}
                 </Button>
                 <Button
                   onClick={() => setActiveSection('past-bookings')}
@@ -3201,7 +3205,7 @@ export default function PassengerDashboard() {
                   data-testid="button-view-history"
                 >
                   <History className="w-4 h-4" />
-                  History
+                  {t('passengerDashboard.quickActions.history')}
                 </Button>
                 <Button
                   onClick={() => setActiveSection('saved-locations')}
@@ -3211,7 +3215,7 @@ export default function PassengerDashboard() {
                   data-testid="button-saved-locations"
                 >
                   <MapPin className="w-4 h-4" />
-                  Saved Places
+                  {t('passengerDashboard.quickActions.savedPlaces')}
                 </Button>
                 <Button
                   onClick={() => setActiveSection('support')}
@@ -3221,7 +3225,7 @@ export default function PassengerDashboard() {
                   data-testid="button-support"
                 >
                   <HelpCircle className="w-4 h-4" />
-                  Support
+                  {t('passengerDashboard.quickActions.support')}
                 </Button>
               </div>
             </div>

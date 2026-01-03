@@ -679,5 +679,115 @@
     "german": "Allemand",
     "italian": "Italien",
     "russian": "Russe"
+  },
+  "passengerDashboard": {
+    "title": "Tableau de Bord Passager",
+    "welcomeBack": "Bon retour",
+    "mainSite": "Site Principal",
+    "nav": {
+      "home": "Accueil",
+      "savedLocations": "Adresses Enregistrées",
+      "saved": "Enregistrées",
+      "bookings": "Réservations",
+      "futureBookings": "Réservations Futures",
+      "pastBookings": "Réservations Passées",
+      "invoices": "Factures",
+      "paymentMethods": "Moyens de Paiement",
+      "payment": "Paiement",
+      "accountDetails": "Détails du Compte",
+      "account": "Compte",
+      "support": "Support"
+    },
+    "quickActions": {
+      "title": "Actions Rapides:",
+      "bookRide": "Réserver un Trajet",
+      "history": "Historique",
+      "savedPlaces": "Lieux Enregistrés",
+      "support": "Support"
+    },
+    "recentBookings": {
+      "title": "Réservations Récentes",
+      "noBookings": "Pas encore de réservations",
+      "startFirstRide": "Commencez votre premier trajet avec nous!",
+      "hourlyService": "Service Horaire",
+      "driver": "Chauffeur",
+      "editingAllowed": "Modification autorisée jusqu'à 3 heures avant la prise en charge",
+      "canEdit": "Vous pouvez modifier cette réservation (prise en charge dans {{hours}}h {{minutes}}m)",
+      "editingDisabled": "Modification désactivée - doit être 3+ heures avant"
+    },
+    "savedLocations": {
+      "title": "Adresses Enregistrées",
+      "addLocation": "Ajouter une Adresse",
+      "noLocations": "Pas encore d'adresses enregistrées",
+      "addFirstLocation": "Ajoutez votre première adresse pour réserver rapidement!",
+      "labelPlaceholder": "Libellé (ex., Maison, Travail)",
+      "addressPlaceholder": "Rechercher une adresse...",
+      "label": "Libellé",
+      "address": "Adresse"
+    },
+    "futureBookings": {
+      "title": "Réservations Futures",
+      "noBookings": "Pas de réservations à venir",
+      "bookNow": "Réservez votre prochain trajet maintenant!"
+    },
+    "pastBookings": {
+      "title": "Réservations Passées",
+      "noBookings": "Pas de réservations passées",
+      "firstRide": "Complétez votre premier trajet avec nous!"
+    },
+    "invoices": {
+      "title": "Factures",
+      "noInvoices": "Pas encore de factures",
+      "invoicesAppear": "Vos factures apparaîtront ici après les trajets terminés."
+    },
+    "paymentMethods": {
+      "title": "Moyens de Paiement",
+      "addCard": "Ajouter une Carte",
+      "noCards": "Aucun moyen de paiement enregistré",
+      "addFirstCard": "Ajoutez un moyen de paiement pour activer l'option Payer Plus Tard.",
+      "expires": "Expire",
+      "default": "Par Défaut"
+    },
+    "accountDetails": {
+      "title": "Détails du Compte",
+      "profileInfo": "Informations du Profil",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "saveChanges": "Enregistrer les Modifications",
+      "saving": "Enregistrement...",
+      "changePassword": "Changer le Mot de Passe",
+      "currentPassword": "Mot de Passe Actuel",
+      "newPassword": "Nouveau Mot de Passe",
+      "confirmPassword": "Confirmer le Nouveau Mot de Passe",
+      "updatePassword": "Mettre à Jour le Mot de Passe",
+      "updating": "Mise à jour..."
+    },
+    "support": {
+      "title": "Contacter le Support",
+      "description": "Vous avez une question ou besoin d'aide? Remplissez le formulaire ci-dessous et notre équipe vous répondra dès que possible.",
+      "subject": "Sujet (Optionnel)",
+      "subjectPlaceholder": "ex., Demande de réservation, Problème de paiement",
+      "message": "Message",
+      "messagePlaceholder": "Décrivez votre question ou préoccupation...",
+      "sendMessage": "Envoyer le Message",
+      "sending": "Envoi..."
+    },
+    "actions": {
+      "payNow": "Payer Maintenant",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "cancelBooking": "Annuler la Réservation",
+      "rateTrip": "Noter le Trajet",
+      "view": "Voir",
+      "print": "Imprimer",
+      "download": "Télécharger"
+    },
+    "status": {
+      "paid": "Payé",
+      "unpaid": "Non Payé"
+    }
   }
 }
