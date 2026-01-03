@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,17 +34,18 @@ const US_STATES = [
   "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC"
 ];
 
-const TAX_CLASSIFICATIONS = [
-  { value: "individual", label: "Individual / Sole Proprietor" },
-  { value: "sole_proprietor", label: "Sole Proprietor (Schedule C)" },
-  { value: "llc", label: "Limited Liability Company (LLC)" },
-  { value: "corporation", label: "Corporation (S-Corp or C-Corp)" },
-  { value: "partnership", label: "Partnership" },
-];
-
 export default function DriverTaxInfoSection() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const TAX_CLASSIFICATIONS = [
+    { value: "individual", label: t("driverDashboard.settings.taxInfo.classifications.individual") },
+    { value: "sole_proprietor", label: t("driverDashboard.settings.taxInfo.classifications.sole_proprietor") },
+    { value: "llc", label: t("driverDashboard.settings.taxInfo.classifications.llc") },
+    { value: "corporation", label: t("driverDashboard.settings.taxInfo.classifications.corporation") },
+    { value: "partnership", label: t("driverDashboard.settings.taxInfo.classifications.partnership") },
+  ];
 
   const [formData, setFormData] = useState({
     taxLegalFirstName: "",
@@ -88,7 +90,7 @@ export default function DriverTaxInfoSection() {
       const response = await apiRequest("PATCH", "/api/driver/tax-info", payload);
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || "Failed to save tax information");
+        throw new Error(error.message || t("driverDashboard.settings.taxInfo.toast.errorDescription"));
       }
       return await response.json();
     },
@@ -96,16 +98,16 @@ export default function DriverTaxInfoSection() {
       queryClient.invalidateQueries({ queryKey: ["/api/driver/tax-info"] });
       setShowSsnInput(false);
       toast({
-        title: "Tax Information Saved",
+        title: t("driverDashboard.settings.taxInfo.toast.successTitle"),
         description: result.taxInfoComplete 
-          ? "Your tax information is complete and ready for 1099 generation."
-          : "Your tax information has been saved. Please complete all required fields.",
+          ? t("driverDashboard.settings.taxInfo.toast.successComplete")
+          : t("driverDashboard.settings.taxInfo.toast.successIncomplete"),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to save tax information",
+        title: t("driverDashboard.settings.taxInfo.toast.errorTitle"),
+        description: error.message || t("driverDashboard.settings.taxInfo.toast.errorDescription"),
         variant: "destructive",
       });
     },
@@ -147,9 +149,9 @@ export default function DriverTaxInfoSection() {
       {!taxInfo?.taxInfoComplete && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Tax Information Required</AlertTitle>
+          <AlertTitle>{t("driverDashboard.settings.taxInfo.requiredAlert.title")}</AlertTitle>
           <AlertDescription>
-            Please complete your tax information. This is required for 1099 generation when your yearly earnings exceed $600.
+            {t("driverDashboard.settings.taxInfo.requiredAlert.description")}
           </AlertDescription>
         </Alert>
       )}
@@ -157,9 +159,9 @@ export default function DriverTaxInfoSection() {
       {taxInfo?.taxInfoComplete && (
         <Alert className="border-green-200 bg-green-50">
           <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <AlertTitle className="text-green-800">Tax Information Complete</AlertTitle>
+          <AlertTitle className="text-green-800">{t("driverDashboard.settings.taxInfo.completeAlert.title")}</AlertTitle>
           <AlertDescription className="text-green-700">
-            Your tax information is on file and will be used for 1099 generation.
+            {t("driverDashboard.settings.taxInfo.completeAlert.description")}
           </AlertDescription>
         </Alert>
       )}
@@ -171,9 +173,9 @@ export default function DriverTaxInfoSection() {
               <FileText className="w-5 h-5 text-white" />
             </div>
             <div>
-              <CardTitle className="text-lg text-red-800">1099 Tax Information</CardTitle>
+              <CardTitle className="text-lg text-red-800">{t("driverDashboard.settings.taxInfo.title")}</CardTitle>
               <CardDescription className="text-red-600">
-                Required for tax reporting when earnings exceed $600/year
+                {t("driverDashboard.settings.taxInfo.description")}
               </CardDescription>
             </div>
           </div>
@@ -182,14 +184,14 @@ export default function DriverTaxInfoSection() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="taxLegalFirstName" className="font-medium text-foreground">Legal First Name *</Label>
+                <Label htmlFor="taxLegalFirstName" className="font-medium text-foreground">{t("driverDashboard.settings.taxInfo.labels.legalFirstName")} *</Label>
                 <Input
                   id="taxLegalFirstName"
                   name="taxLegalFirstName"
                   type="text"
                   value={formData.taxLegalFirstName}
                   onChange={(e) => handleInputChange("taxLegalFirstName", e.target.value)}
-                  placeholder="As it appears on your tax documents"
+                  placeholder={t("driverDashboard.settings.taxInfo.placeholders.firstName")}
                   required
                   autoComplete="given-name"
                   className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors"
@@ -197,14 +199,14 @@ export default function DriverTaxInfoSection() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taxLegalLastName" className="font-medium text-foreground">Legal Last Name *</Label>
+                <Label htmlFor="taxLegalLastName" className="font-medium text-foreground">{t("driverDashboard.settings.taxInfo.labels.legalLastName")} *</Label>
                 <Input
                   id="taxLegalLastName"
                   name="taxLegalLastName"
                   type="text"
                   value={formData.taxLegalLastName}
                   onChange={(e) => handleInputChange("taxLegalLastName", e.target.value)}
-                  placeholder="As it appears on your tax documents"
+                  placeholder={t("driverDashboard.settings.taxInfo.placeholders.lastName")}
                   required
                   autoComplete="family-name"
                   className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors"
@@ -214,7 +216,7 @@ export default function DriverTaxInfoSection() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="ssn" className="font-medium text-foreground">Social Security Number (SSN) *</Label>
+                <Label htmlFor="ssn" className="font-medium text-foreground">{t("driverDashboard.settings.taxInfo.labels.ssn")} *</Label>
                 {taxInfo?.hasSsn && !showSsnInput ? (
                   <div className="flex items-center gap-2">
                     <div className="flex-1 p-2 bg-green-50 border border-green-200 rounded-md text-sm font-mono flex items-center gap-2">
@@ -228,7 +230,7 @@ export default function DriverTaxInfoSection() {
                       onClick={() => setShowSsnInput(true)}
                       className="border-red-200 text-red-600 hover:bg-red-50"
                     >
-                      Update
+                      {t("driverDashboard.settings.taxInfo.update")}
                     </Button>
                   </div>
                 ) : (
@@ -238,18 +240,18 @@ export default function DriverTaxInfoSection() {
                     type="text"
                     value={formData.ssn}
                     onChange={(e) => handleInputChange("ssn", formatSSN(e.target.value))}
-                    placeholder="XXX-XX-XXXX"
+                    placeholder={t("driverDashboard.settings.taxInfo.placeholders.ssn")}
                     maxLength={11}
                     required={!taxInfo?.hasSsn}
                     autoComplete="off"
                     className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors"
                   />
                 )}
-                <p className="text-xs text-muted-foreground">Your SSN is encrypted and stored securely</p>
+                <p className="text-xs text-muted-foreground">{t("driverDashboard.settings.taxInfo.ssnHelper")}</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taxDateOfBirth" className="font-medium text-foreground">Date of Birth *</Label>
+                <Label htmlFor="taxDateOfBirth" className="font-medium text-foreground">{t("driverDashboard.settings.taxInfo.labels.dateOfBirth")} *</Label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-red-500 pointer-events-none z-10" />
                   <Input
@@ -267,14 +269,14 @@ export default function DriverTaxInfoSection() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="taxAddressStreet" className="font-medium text-foreground">Street Address *</Label>
+              <Label htmlFor="taxAddressStreet" className="font-medium text-foreground">{t("driverDashboard.settings.taxInfo.labels.streetAddress")} *</Label>
               <Input
                 id="taxAddressStreet"
                 name="taxAddressStreet"
                 type="text"
                 value={formData.taxAddressStreet}
                 onChange={(e) => handleInputChange("taxAddressStreet", e.target.value)}
-                placeholder="123 Main Street, Apt 4"
+                placeholder={t("driverDashboard.settings.taxInfo.placeholders.streetAddress")}
                 required
                 autoComplete="street-address"
                 className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors"
@@ -283,14 +285,14 @@ export default function DriverTaxInfoSection() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="taxAddressCity" className="font-medium text-foreground">City *</Label>
+                <Label htmlFor="taxAddressCity" className="font-medium text-foreground">{t("driverDashboard.settings.taxInfo.labels.city")} *</Label>
                 <Input
                   id="taxAddressCity"
                   name="taxAddressCity"
                   type="text"
                   value={formData.taxAddressCity}
                   onChange={(e) => handleInputChange("taxAddressCity", e.target.value)}
-                  placeholder="New York"
+                  placeholder={t("driverDashboard.settings.taxInfo.placeholders.city")}
                   required
                   autoComplete="address-level2"
                   className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors"
@@ -298,13 +300,13 @@ export default function DriverTaxInfoSection() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taxAddressState" className="font-medium text-foreground">State *</Label>
+                <Label htmlFor="taxAddressState" className="font-medium text-foreground">{t("driverDashboard.settings.taxInfo.labels.state")} *</Label>
                 <Select 
                   value={formData.taxAddressState} 
                   onValueChange={(value) => handleInputChange("taxAddressState", value)}
                 >
                   <SelectTrigger className="bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 hover:border-gray-300 transition-colors">
-                    <SelectValue placeholder="Select" />
+                    <SelectValue placeholder={t("driverDashboard.settings.taxInfo.placeholders.selectState")} />
                   </SelectTrigger>
                   <SelectContent>
                     {US_STATES.map((state) => (
@@ -315,14 +317,14 @@ export default function DriverTaxInfoSection() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taxAddressZip" className="font-medium text-foreground">ZIP Code *</Label>
+                <Label htmlFor="taxAddressZip" className="font-medium text-foreground">{t("driverDashboard.settings.taxInfo.labels.zipCode")} *</Label>
                 <Input
                   id="taxAddressZip"
                   name="taxAddressZip"
                   type="text"
                   value={formData.taxAddressZip}
                   onChange={(e) => handleInputChange("taxAddressZip", e.target.value)}
-                  placeholder="10001"
+                  placeholder={t("driverDashboard.settings.taxInfo.placeholders.zipCode")}
                   maxLength={10}
                   required
                   autoComplete="postal-code"
@@ -332,7 +334,7 @@ export default function DriverTaxInfoSection() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="taxClassification" className="font-medium text-foreground">Tax Classification</Label>
+              <Label htmlFor="taxClassification" className="font-medium text-foreground">{t("driverDashboard.settings.taxInfo.labels.taxClassification")}</Label>
               <Select 
                 value={formData.taxClassification} 
                 onValueChange={(value) => handleInputChange("taxClassification", value)}
@@ -355,7 +357,7 @@ export default function DriverTaxInfoSection() {
                 disabled={saveMutation.isPending}
               >
                 <Save className="w-4 h-4 mr-2" />
-                {saveMutation.isPending ? "Saving..." : "Save Tax Information"}
+                {saveMutation.isPending ? t("driverDashboard.settings.taxInfo.saving") : t("driverDashboard.settings.taxInfo.save")}
               </Button>
             </div>
           </form>
