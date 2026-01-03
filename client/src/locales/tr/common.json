@@ -711,6 +711,7 @@
       "startFirstRide": "Bizimle ilk yolculuğunuza başlayın!",
       "hourlyService": "Saatlik Hizmet",
       "driver": "Sürücü",
+      "plate": "Plaka",
       "editingAllowed": "Alma saatinden 3 saat öncesine kadar düzenleme yapılabilir",
       "canEdit": "Bu rezervasyonu düzenleyebilirsiniz (alma: {{hours}}s {{minutes}}d sonra)",
       "editingDisabled": "Düzenleme devre dışı - alma saatinden 3+ saat önce olmalı"
@@ -718,12 +719,16 @@
     "savedLocations": {
       "title": "Kayıtlı Konumlar",
       "addLocation": "Konum Ekle",
+      "addNewAddress": "Yeni Adres Ekle",
       "noLocations": "Henüz kayıtlı konum yok",
       "addFirstLocation": "Hızlı rezervasyon için ilk konumunuzu ekleyin!",
+      "addLocationsForQuickBooking": "Hızlı rezervasyon için konum ekleyin",
       "labelPlaceholder": "Etiket (örn., Ev, İş)",
       "addressPlaceholder": "Adres ara...",
       "label": "Etiket",
-      "address": "Adres"
+      "address": "Adres",
+      "updateLocation": "Konumu Güncelle",
+      "updating": "Güncelleniyor..."
     },
     "futureBookings": {
       "title": "Gelecek Rezervasyonlar",
@@ -733,7 +738,8 @@
     "pastBookings": {
       "title": "Geçmiş Rezervasyonlar",
       "noBookings": "Geçmiş rezervasyon yok",
-      "firstRide": "Bizimle ilk yolculuğunuzu tamamlayın!"
+      "firstRide": "Bizimle ilk yolculuğunuzu tamamlayın!",
+      "cancellationReason": "İptal nedeni"
     },
     "invoices": {
       "title": "Faturalar",

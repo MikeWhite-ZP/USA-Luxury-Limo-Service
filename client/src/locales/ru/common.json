@@ -711,6 +711,7 @@
       "startFirstRide": "Начните свою первую поездку с нами!",
       "hourlyService": "Почасовая Услуга",
       "driver": "Водитель",
+      "plate": "Номер",
       "editingAllowed": "Редактирование разрешено до 3 часов до подачи",
       "canEdit": "Вы можете редактировать это бронирование (подача через {{hours}}ч {{minutes}}м)",
       "editingDisabled": "Редактирование отключено - должно быть 3+ часа до подачи"
@@ -718,12 +719,16 @@
     "savedLocations": {
       "title": "Сохранённые Адреса",
       "addLocation": "Добавить Адрес",
+      "addNewAddress": "Добавить Новый Адрес",
       "noLocations": "Пока нет сохранённых адресов",
       "addFirstLocation": "Добавьте первый адрес для быстрого бронирования!",
+      "addLocationsForQuickBooking": "Добавьте адреса для быстрого бронирования",
       "labelPlaceholder": "Название (напр., Дом, Работа)",
       "addressPlaceholder": "Поиск адреса...",
       "label": "Название",
-      "address": "Адрес"
+      "address": "Адрес",
+      "updateLocation": "Обновить Адрес",
+      "updating": "Обновление..."
     },
     "futureBookings": {
       "title": "Будущие Бронирования",
@@ -733,7 +738,8 @@
     "pastBookings": {
       "title": "Прошлые Бронирования",
       "noBookings": "Нет прошлых бронирований",
-      "firstRide": "Совершите свою первую поездку с нами!"
+      "firstRide": "Совершите свою первую поездку с нами!",
+      "cancellationReason": "Причина отмены"
     },
     "invoices": {
       "title": "Счета",

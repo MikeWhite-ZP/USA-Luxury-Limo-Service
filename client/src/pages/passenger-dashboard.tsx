@@ -3239,7 +3239,7 @@ export default function PassengerDashboard() {
               <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
                 <Calendar className="w-5 h-5 text-white" />
               </div>
-              Recent Bookings
+              {t('passengerDashboard.recentBookings.title')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -3258,7 +3258,7 @@ export default function PassengerDashboard() {
                     <div className="flex justify-between items-start">
                       <div className="space-y-1 flex-1">
                         <p className="font-semibold text-foreground" data-testid={`booking-route-${booking.id}`}>
-                          {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
+                          {booking.pickupAddress} → {booking.destinationAddress || t('passengerDashboard.recentBookings.hourlyService')}
                         </p>
                         <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                           <span data-testid={`booking-date-${booking.id}`}>
@@ -3277,11 +3277,11 @@ export default function PassengerDashboard() {
                           {booking.paymentStatus === 'paid' ? (
                             <Badge className="bg-green-100 text-green-700 border-green-200" data-testid={`booking-payment-status-${booking.id}`}>
                               <CheckCircle2 className="w-3 h-3 mr-1" />
-                              Paid
+                              {t('passengerDashboard.status.paid')}
                             </Badge>
                           ) : (
                             <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200" data-testid={`booking-payment-status-${booking.id}`}>
-                              Unpaid
+                              {t('passengerDashboard.status.unpaid')}
                             </Badge>
                           )}
                         </div>
@@ -3307,7 +3307,7 @@ export default function PassengerDashboard() {
                           </Avatar>
                           <div className="flex-1 space-y-1">
                             <p className="text-sm font-medium" data-testid={`booking-driver-name-${booking.id}`}>
-                              Driver: {booking.driverFirstName} {booking.driverLastName}
+                              {t('passengerDashboard.recentBookings.driver')}: {booking.driverFirstName} {booking.driverLastName}
                             </p>
                             {booking.driverPhone && (
                               <p className="text-xs text-muted-foreground" data-testid={`booking-driver-phone-${booking.id}`}>
@@ -3316,7 +3316,7 @@ export default function PassengerDashboard() {
                             )}
                             {booking.driverVehiclePlate && (
                               <p className="text-xs text-muted-foreground" data-testid={`booking-driver-plate-${booking.id}`}>
-                                🚗 Plate: {booking.driverVehiclePlate}
+                                🚗 {t('passengerDashboard.recentBookings.plate')}: {booking.driverVehiclePlate}
                               </p>
                             )}
                             {booking.driverCredentials && (
@@ -3332,7 +3332,7 @@ export default function PassengerDashboard() {
                       <div className="mt-3 pt-3 border-t border-border space-y-2">
                         <div className="flex items-center gap-2 text-xs text-muted-foreground bg-blue-50 dark:bg-blue-950/30 rounded-md px-2 py-1.5">
                           <Info className="w-3 h-3 flex-shrink-0 text-blue-500" />
-                          <span>Editing allowed up to 3 hours before booking time</span>
+                          <span>{t('passengerDashboard.recentBookings.editingAllowed')}</span>
                         </div>
                         <div className="flex gap-2">
                           {canPayBooking(booking) && (
@@ -3343,7 +3343,7 @@ export default function PassengerDashboard() {
                               data-testid={`button-pay-${booking.id}`}
                             >
                               <DollarSign className="w-3 h-3 mr-1" />
-                              Pay Now
+                              {t('passengerDashboard.actions.payNow')}
                             </Button>
                           )}
                           <Button
@@ -3426,8 +3426,8 @@ export default function PassengerDashboard() {
             ) : (
               <div className="text-center p-12" data-testid="no-bookings">
                 <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground text-lg font-medium">No bookings yet</p>
-                <p className="text-muted-foreground text-sm mt-2">Start your first ride with us!</p>
+                <p className="text-muted-foreground text-lg font-medium">{t('passengerDashboard.recentBookings.noBookings')}</p>
+                <p className="text-muted-foreground text-sm mt-2">{t('passengerDashboard.recentBookings.startFirstRide')}</p>
               </div>
             )}
           </CardContent>
@@ -3472,18 +3472,18 @@ export default function PassengerDashboard() {
                 <div className="w-10 h-10 rounded-xl icon-brand-bg flex items-center justify-center shadow-md">
                   <MapPin className="w-5 h-5 text-white" />
                 </div>
-                Saved Locations
+                {t('passengerDashboard.savedLocations.title')}
               </CardTitle>
               <Dialog open={addAddressOpen} onOpenChange={setAddAddressOpen}>
                 <DialogTrigger asChild>
                   <Button size="sm" className="btn-brand-primary" data-testid="button-add-address">
                     <Plus className="w-4 h-4 mr-2" />
-                    Add Location
+                    {t('passengerDashboard.savedLocations.addLocation')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg sm:max-w-md bg-[#ffffff]" data-testid="add-address-dialog">
                   <DialogHeader>
-                    <DialogTitle>Add New Address</DialogTitle>
+                    <DialogTitle>{t('passengerDashboard.savedLocations.addNewAddress')}</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
@@ -3697,8 +3697,8 @@ export default function PassengerDashboard() {
                 <div className="w-12 h-12 rounded-full bg-muted mx-auto mb-3 flex items-center justify-center">
                   <MapPin className="w-6 h-6 text-muted-foreground" />
                 </div>
-                <p className="text-muted-foreground font-medium">No saved locations</p>
-                <p className="text-sm text-muted-foreground mt-1">Add locations for quick booking</p>
+                <p className="text-muted-foreground font-medium">{t('passengerDashboard.savedLocations.noLocations')}</p>
+                <p className="text-sm text-muted-foreground mt-1">{t('passengerDashboard.savedLocations.addLocationsForQuickBooking')}</p>
               </div>
             )}
           </CardContent>
@@ -3793,7 +3793,7 @@ export default function PassengerDashboard() {
                 className="w-full bg-red-600 hover:bg-red-700 text-white"
                 data-testid="button-update-address"
               >
-                {editAddressMutation.isPending ? 'Updating...' : 'Update Location'}
+                {editAddressMutation.isPending ? t('passengerDashboard.savedLocations.updating') : t('passengerDashboard.savedLocations.updateLocation')}
               </Button>
             </div>
           </DialogContent>
@@ -3811,7 +3811,7 @@ export default function PassengerDashboard() {
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center shadow-md">
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
-                Future Bookings
+                {t('passengerDashboard.futureBookings.title')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -3830,7 +3830,7 @@ export default function PassengerDashboard() {
                       <div className="flex justify-between items-start">
                         <div className="space-y-1 flex-1">
                           <p className="font-medium" data-testid={`future-booking-route-${booking.id}`}>
-                            {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
+                            {booking.pickupAddress} → {booking.destinationAddress || t('passengerDashboard.recentBookings.hourlyService')}
                           </p>
                           <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                             <span data-testid={`future-booking-date-${booking.id}`}>
@@ -3854,7 +3854,7 @@ export default function PassengerDashboard() {
                         <div className="mt-3 pt-3 border-t border-border space-y-2">
                           <div className="flex items-center gap-2 text-xs text-muted-foreground bg-blue-50 dark:bg-blue-950/30 rounded-md px-2 py-1.5">
                             <Info className="w-3 h-3 flex-shrink-0 text-blue-500" />
-                            <span>Editing allowed up to 3 hours before booking time</span>
+                            <span>{t('passengerDashboard.recentBookings.editingAllowed')}</span>
                           </div>
                           <div className="flex gap-2">
                             <Button
@@ -3864,7 +3864,7 @@ export default function PassengerDashboard() {
                               data-testid={`button-edit-future-${booking.id}`}
                             >
                               <Edit className="w-3 h-3 mr-1" />
-                              Edit
+                              {t('passengerDashboard.actions.edit')}
                             </Button>
                             <Button
                               size="sm"
@@ -3874,7 +3874,7 @@ export default function PassengerDashboard() {
                               data-testid={`button-delete-future-${booking.id}`}
                             >
                               <Trash2 className="w-3 h-3 mr-1" />
-                              Delete
+                              {t('passengerDashboard.actions.delete')}
                             </Button>
                           </div>
                         </div>
@@ -3926,7 +3926,7 @@ export default function PassengerDashboard() {
                               data-testid={`button-cancel-future-${booking.id}`}
                             >
                               <AlertTriangle className="w-3 h-3 mr-1" />
-                              Cancel Booking
+                              {t('passengerDashboard.actions.cancelBooking')}
                             </Button>
                           </div>
                         </div>
@@ -3937,8 +3937,8 @@ export default function PassengerDashboard() {
               ) : (
                 <div className="text-center p-12" data-testid="no-future-bookings">
                   <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground text-lg font-medium">No upcoming bookings</p>
-                  <p className="text-muted-foreground text-sm mt-2">Book your next ride with us!</p>
+                  <p className="text-muted-foreground text-lg font-medium">{t('passengerDashboard.futureBookings.noBookings')}</p>
+                  <p className="text-muted-foreground text-sm mt-2">{t('passengerDashboard.futureBookings.bookNow')}</p>
                 </div>
               )}
             </CardContent>
@@ -3954,7 +3954,7 @@ export default function PassengerDashboard() {
                 <div className="w-8 h-8 rounded-lg icon-brand-bg flex items-center justify-center">
                   <History className="w-4 h-4 text-white" />
                 </div>
-                Past Bookings
+                {t('passengerDashboard.pastBookings.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
@@ -3973,7 +3973,7 @@ export default function PassengerDashboard() {
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm text-foreground truncate" data-testid={`past-booking-route-${booking.id}`}>
-                            {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
+                            {booking.pickupAddress} → {booking.destinationAddress || t('passengerDashboard.recentBookings.hourlyService')}
                           </p>
                           <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                             <span data-testid={`past-booking-date-${booking.id}`}>
@@ -4000,7 +4000,7 @@ export default function PassengerDashboard() {
                       {booking.status === 'cancelled' && (booking as any).cancelReason && (
                         <div className="mt-2 px-3 py-2 bg-red-50 border border-red-200 rounded-md">
                           <p className="text-xs text-red-700">
-                            <span className="font-medium">Cancellation reason:</span> {(booking as any).cancelReason}
+                            <span className="font-medium">{t('passengerDashboard.pastBookings.cancellationReason')}:</span> {(booking as any).cancelReason}
                           </p>
                         </div>
                       )}
@@ -4182,7 +4182,7 @@ export default function PassengerDashboard() {
                     <div className="flex justify-between items-start">
                       <div className="space-y-1 flex-1">
                         <p className="font-medium" data-testid={`history-booking-route-${booking.id}`}>
-                          {booking.pickupAddress} → {booking.destinationAddress || 'Hourly Service'}
+                          {booking.pickupAddress} → {booking.destinationAddress || t('passengerDashboard.recentBookings.hourlyService')}
                         </p>
                         <div className="flex items-center space-x-4 text-sm text-muted-foreground flex-wrap gap-2">
                           <span data-testid={`history-booking-date-${booking.id}`}>
@@ -4387,7 +4387,7 @@ export default function PassengerDashboard() {
           {selectedBooking && (
             <div className="bg-muted rounded-lg p-4 my-4">
               <p className="text-sm font-medium mb-1">
-                {selectedBooking.pickupAddress} → {selectedBooking.destinationAddress || 'Hourly Service'}
+                {selectedBooking.pickupAddress} → {selectedBooking.destinationAddress || t('passengerDashboard.recentBookings.hourlyService')}
               </p>
               <p className="text-sm text-muted-foreground">
                 {new Date(selectedBooking.scheduledDateTime).toLocaleDateString()} • {new Date(selectedBooking.scheduledDateTime).toLocaleTimeString()}
@@ -4436,7 +4436,7 @@ export default function PassengerDashboard() {
           {selectedBooking && (
             <div className="bg-muted rounded-lg p-4 border border-border">
               <p className="text-sm font-medium mb-1 text-foreground">
-                {selectedBooking.pickupAddress} → {selectedBooking.destinationAddress || 'Hourly Service'}
+                {selectedBooking.pickupAddress} → {selectedBooking.destinationAddress || t('passengerDashboard.recentBookings.hourlyService')}
               </p>
               <p className="text-sm text-muted-foreground">
                 {new Date(selectedBooking.scheduledDateTime).toLocaleDateString()} • {new Date(selectedBooking.scheduledDateTime).toLocaleTimeString()}

@@ -794,6 +794,7 @@
       "startFirstRide": "Start your first ride with us!",
       "hourlyService": "Hourly Service",
       "driver": "Driver",
+      "plate": "Plate",
       "editingAllowed": "Editing allowed up to 3 hours before booking time",
       "canEdit": "You can edit this booking (pickup in {{hours}}h {{minutes}}m)",
       "editingDisabled": "Editing disabled - must be 3+ hours before pickup"
@@ -801,12 +802,16 @@
     "savedLocations": {
       "title": "Saved Locations",
       "addLocation": "Add Location",
+      "addNewAddress": "Add New Address",
       "noLocations": "No saved locations yet",
       "addFirstLocation": "Add your first location for quick booking!",
+      "addLocationsForQuickBooking": "Add locations for quick booking",
       "labelPlaceholder": "Label (e.g., Home, Work)",
       "addressPlaceholder": "Search for address...",
       "label": "Label",
-      "address": "Address"
+      "address": "Address",
+      "updateLocation": "Update Location",
+      "updating": "Updating..."
     },
     "futureBookings": {
       "title": "Future Bookings",
@@ -816,7 +821,8 @@
     "pastBookings": {
       "title": "Past Bookings",
       "noBookings": "No past bookings",
-      "firstRide": "Complete your first ride with us!"
+      "firstRide": "Complete your first ride with us!",
+      "cancellationReason": "Cancellation reason"
     },
     "invoices": {
       "title": "Invoices",

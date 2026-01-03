@@ -711,6 +711,7 @@
       "startFirstRide": "Inizia il tuo primo viaggio con noi!",
       "hourlyService": "Servizio Orario",
       "driver": "Autista",
+      "plate": "Targa",
       "editingAllowed": "Modifica consentita fino a 3 ore prima del ritiro",
       "canEdit": "Puoi modificare questa prenotazione (ritiro tra {{hours}}h {{minutes}}m)",
       "editingDisabled": "Modifica disabilitata - deve essere 3+ ore prima"
@@ -718,12 +719,16 @@
     "savedLocations": {
       "title": "Indirizzi Salvati",
       "addLocation": "Aggiungi Indirizzo",
+      "addNewAddress": "Aggiungi Nuovo Indirizzo",
       "noLocations": "Nessun indirizzo salvato ancora",
       "addFirstLocation": "Aggiungi il tuo primo indirizzo per prenotare velocemente!",
+      "addLocationsForQuickBooking": "Aggiungi indirizzi per prenotare velocemente",
       "labelPlaceholder": "Etichetta (es., Casa, Lavoro)",
       "addressPlaceholder": "Cerca indirizzo...",
       "label": "Etichetta",
-      "address": "Indirizzo"
+      "address": "Indirizzo",
+      "updateLocation": "Aggiorna Indirizzo",
+      "updating": "Aggiornamento..."
     },
     "futureBookings": {
       "title": "Prenotazioni Future",
@@ -733,7 +738,8 @@
     "pastBookings": {
       "title": "Prenotazioni Passate",
       "noBookings": "Nessuna prenotazione passata",
-      "firstRide": "Completa il tuo primo viaggio con noi!"
+      "firstRide": "Completa il tuo primo viaggio con noi!",
+      "cancellationReason": "Motivo della cancellazione"
     },
     "invoices": {
       "title": "Fatture",

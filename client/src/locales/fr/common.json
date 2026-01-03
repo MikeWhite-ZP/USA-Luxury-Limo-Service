@@ -711,6 +711,7 @@
       "startFirstRide": "Commencez votre premier trajet avec nous!",
       "hourlyService": "Service Horaire",
       "driver": "Chauffeur",
+      "plate": "Plaque",
       "editingAllowed": "Modification autorisée jusqu'à 3 heures avant la prise en charge",
       "canEdit": "Vous pouvez modifier cette réservation (prise en charge dans {{hours}}h {{minutes}}m)",
       "editingDisabled": "Modification désactivée - doit être 3+ heures avant"
@@ -718,12 +719,16 @@
     "savedLocations": {
       "title": "Adresses Enregistrées",
       "addLocation": "Ajouter une Adresse",
+      "addNewAddress": "Ajouter une Nouvelle Adresse",
       "noLocations": "Pas encore d'adresses enregistrées",
       "addFirstLocation": "Ajoutez votre première adresse pour réserver rapidement!",
+      "addLocationsForQuickBooking": "Ajoutez des adresses pour réserver rapidement",
       "labelPlaceholder": "Libellé (ex., Maison, Travail)",
       "addressPlaceholder": "Rechercher une adresse...",
       "label": "Libellé",
-      "address": "Adresse"
+      "address": "Adresse",
+      "updateLocation": "Mettre à Jour l'Adresse",
+      "updating": "Mise à jour..."
     },
     "futureBookings": {
       "title": "Réservations Futures",
@@ -733,7 +738,8 @@
     "pastBookings": {
       "title": "Réservations Passées",
       "noBookings": "Pas de réservations passées",
-      "firstRide": "Complétez votre premier trajet avec nous!"
+      "firstRide": "Complétez votre premier trajet avec nous!",
+      "cancellationReason": "Motif d'annulation"
     },
     "invoices": {
       "title": "Factures",
