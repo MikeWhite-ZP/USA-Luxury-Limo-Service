@@ -381,8 +381,8 @@ export default function DriverDashboard() {
       queryClient.invalidateQueries({ queryKey: ["/api/driver/documents"] });
       queryClient.invalidateQueries({ queryKey: ["/api/driver/profile"] });
       toast({
-        title: "Document Uploaded",
-        description: `Your ${variables.documentType.replace(/_/g, " ")} has been uploaded successfully.`,
+        title: t('driverDashboard.documents.toast.uploadSuccess'),
+        description: t('driverDashboard.documents.toast.uploadSuccessDesc'),
       });
       setUploadingDoc(null);
       setUploading(null);
@@ -415,8 +415,8 @@ export default function DriverDashboard() {
     },
     onError: (error: Error) => {
       toast({
-        title: "Upload Failed",
-        description: error.message,
+        title: t('driverDashboard.documents.toast.uploadError'),
+        description: t('driverDashboard.documents.toast.uploadErrorDesc'),
         variant: "destructive",
       });
       setUploadingDoc(null);
@@ -853,7 +853,7 @@ export default function DriverDashboard() {
         'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
       }`}>
         {status === 'saving' && <span className="animate-spin">⟳</span>}
-        {status === 'saving' ? 'Saving...' : status === 'saved' ? '✓ Saved' : '✕ Error'}
+        {status === 'saving' ? t('driverDashboard.documents.saveStatus.saving') : status === 'saved' ? `✓ ${t('driverDashboard.documents.saveStatus.saved')}` : `✕ ${t('driverDashboard.documents.saveStatus.error')}`}
       </span>
     );
   };
@@ -870,8 +870,8 @@ export default function DriverDashboard() {
 
     if (!form.file) {
       toast({
-        title: "Missing File",
-        description: "Please select a file to upload",
+        title: t('driverDashboard.documents.toast.missingFile'),
+        description: t('driverDashboard.documents.toast.selectFile'),
         variant: "destructive",
       });
       return;
@@ -879,8 +879,8 @@ export default function DriverDashboard() {
 
     if (!form.expirationDate && documentType !== "vehicle_image") {
       toast({
-        title: "Missing Expiration Date",
-        description: "Please provide an expiration date",
+        title: t('driverDashboard.documents.toast.missingExpiration'),
+        description: t('driverDashboard.documents.toast.provideExpiration'),
         variant: "destructive",
       });
       return;
@@ -928,8 +928,8 @@ export default function DriverDashboard() {
 
     if (!file) {
       toast({
-        title: "Missing File",
-        description: "Please select a file to upload",
+        title: t('driverDashboard.documents.toast.missingFile'),
+        description: t('driverDashboard.documents.toast.selectFile'),
         variant: "destructive",
       });
       return;
@@ -937,8 +937,8 @@ export default function DriverDashboard() {
 
     if (!expirationDate && documentType !== "vehicle_image" && documentType !== "profile_photo") {
       toast({
-        title: "Missing Expiration Date",
-        description: "Please provide an expiration date",
+        title: t('driverDashboard.documents.toast.missingExpiration'),
+        description: t('driverDashboard.documents.toast.provideExpiration'),
         variant: "destructive",
       });
       return;

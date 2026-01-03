@@ -987,6 +987,21 @@
         "pdfDocument": "Documento PDF",
         "clickToView": "Clicca scarica per visualizzare",
         "downloadDocument": "Scarica Documento"
+      },
+      "saveStatus": {
+        "saving": "Salvataggio...",
+        "saved": "Salvato",
+        "error": "Errore"
+      },
+      "toast": {
+        "missingFile": "File Mancante",
+        "selectFile": "Seleziona un file da caricare",
+        "missingExpiration": "Data di Scadenza Mancante",
+        "provideExpiration": "Fornisci una data di scadenza",
+        "uploadSuccess": "Documento Caricato",
+        "uploadSuccessDesc": "Il tuo documento è stato caricato con successo",
+        "uploadError": "Caricamento Fallito",
+        "uploadErrorDesc": "Impossibile caricare il documento. Riprova."
       }
     }
   }

@@ -1044,6 +1044,21 @@
         "pdfDocument": "PDF Document",
         "clickToView": "Click download to view",
         "downloadDocument": "Download Document"
+      },
+      "saveStatus": {
+        "saving": "Saving...",
+        "saved": "Saved",
+        "error": "Error"
+      },
+      "toast": {
+        "missingFile": "Missing File",
+        "selectFile": "Please select a file to upload",
+        "missingExpiration": "Missing Expiration Date",
+        "provideExpiration": "Please provide an expiration date",
+        "uploadSuccess": "Document Uploaded",
+        "uploadSuccessDesc": "Your document has been uploaded successfully",
+        "uploadError": "Upload Failed",
+        "uploadErrorDesc": "Failed to upload document. Please try again."
       }
     }
   }

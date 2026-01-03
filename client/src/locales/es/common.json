@@ -987,6 +987,21 @@
         "pdfDocument": "Documento PDF",
         "clickToView": "Haga clic en descargar para ver",
         "downloadDocument": "Descargar Documento"
+      },
+      "saveStatus": {
+        "saving": "Guardando...",
+        "saved": "Guardado",
+        "error": "Error"
+      },
+      "toast": {
+        "missingFile": "Archivo Faltante",
+        "selectFile": "Por favor seleccione un archivo para subir",
+        "missingExpiration": "Fecha de Vencimiento Faltante",
+        "provideExpiration": "Por favor proporcione una fecha de vencimiento",
+        "uploadSuccess": "Documento Subido",
+        "uploadSuccessDesc": "Su documento ha sido subido exitosamente",
+        "uploadError": "Error al Subir",
+        "uploadErrorDesc": "Error al subir el documento. Por favor intente de nuevo."
       }
     }
   }

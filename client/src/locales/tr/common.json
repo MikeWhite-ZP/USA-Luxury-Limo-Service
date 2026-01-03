@@ -987,6 +987,21 @@
         "pdfDocument": "PDF Belgesi",
         "clickToView": "Görüntülemek için indir'e tıklayın",
         "downloadDocument": "Belgeyi İndir"
+      },
+      "saveStatus": {
+        "saving": "Kaydediliyor...",
+        "saved": "Kaydedildi",
+        "error": "Hata"
+      },
+      "toast": {
+        "missingFile": "Dosya Eksik",
+        "selectFile": "Lütfen yüklemek için bir dosya seçin",
+        "missingExpiration": "Son Kullanma Tarihi Eksik",
+        "provideExpiration": "Lütfen bir son kullanma tarihi girin",
+        "uploadSuccess": "Belge Yüklendi",
+        "uploadSuccessDesc": "Belgeniz başarıyla yüklendi",
+        "uploadError": "Yükleme Başarısız",
+        "uploadErrorDesc": "Belge yüklenemedi. Lütfen tekrar deneyin."
       }
     }
   }

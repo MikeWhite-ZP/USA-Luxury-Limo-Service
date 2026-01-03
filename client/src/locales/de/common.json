@@ -987,6 +987,21 @@
         "pdfDocument": "PDF-Dokument",
         "clickToView": "Zum Anzeigen herunterladen",
         "downloadDocument": "Dokument Herunterladen"
+      },
+      "saveStatus": {
+        "saving": "Speichern...",
+        "saved": "Gespeichert",
+        "error": "Fehler"
+      },
+      "toast": {
+        "missingFile": "Datei Fehlt",
+        "selectFile": "Bitte wählen Sie eine Datei zum Hochladen",
+        "missingExpiration": "Ablaufdatum Fehlt",
+        "provideExpiration": "Bitte geben Sie ein Ablaufdatum an",
+        "uploadSuccess": "Dokument Hochgeladen",
+        "uploadSuccessDesc": "Ihr Dokument wurde erfolgreich hochgeladen",
+        "uploadError": "Hochladen Fehlgeschlagen",
+        "uploadErrorDesc": "Dokument konnte nicht hochgeladen werden. Bitte versuchen Sie es erneut."
       }
     }
   }

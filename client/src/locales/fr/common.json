@@ -987,6 +987,21 @@
         "pdfDocument": "Document PDF",
         "clickToView": "Cliquez sur télécharger pour voir",
         "downloadDocument": "Télécharger le Document"
+      },
+      "saveStatus": {
+        "saving": "Enregistrement...",
+        "saved": "Enregistré",
+        "error": "Erreur"
+      },
+      "toast": {
+        "missingFile": "Fichier Manquant",
+        "selectFile": "Veuillez sélectionner un fichier à télécharger",
+        "missingExpiration": "Date d'Expiration Manquante",
+        "provideExpiration": "Veuillez fournir une date d'expiration",
+        "uploadSuccess": "Document Téléchargé",
+        "uploadSuccessDesc": "Votre document a été téléchargé avec succès",
+        "uploadError": "Échec du Téléchargement",
+        "uploadErrorDesc": "Échec du téléchargement du document. Veuillez réessayer."
       }
     }
   }
