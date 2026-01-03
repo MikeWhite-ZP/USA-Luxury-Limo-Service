@@ -799,7 +799,11 @@
       "message": "Mensaje",
       "messagePlaceholder": "Describe tu pregunta o inquietud...",
       "sendMessage": "Enviar Mensaje",
-      "sending": "Enviando..."
+      "sending": "Enviando...",
+      "successTitle": "¡Mensaje enviado!",
+      "successDescription": "Hemos recibido tu mensaje y te responderemos pronto.",
+      "errorTitle": "Error",
+      "errorDescription": "No se pudo enviar el mensaje. Inténtalo de nuevo."
     },
     "actions": {
       "payNow": "Pagar Ahora",

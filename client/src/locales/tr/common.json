@@ -799,7 +799,11 @@
       "message": "Mesaj",
       "messagePlaceholder": "Sorunuzu veya endişenizi açıklayın...",
       "sendMessage": "Mesaj Gönder",
-      "sending": "Gönderiliyor..."
+      "sending": "Gönderiliyor...",
+      "successTitle": "Mesaj gönderildi!",
+      "successDescription": "Mesajınızı aldık ve en kısa sürede size döneceğiz.",
+      "errorTitle": "Hata",
+      "errorDescription": "Mesaj gönderilemedi. Lütfen tekrar deneyin."
     },
     "actions": {
       "payNow": "Şimdi Öde",

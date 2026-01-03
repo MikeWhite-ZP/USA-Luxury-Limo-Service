@@ -1986,6 +1986,7 @@ function SquareBookingPaymentForm({
 }
 
 function ContactSupportForm({ user }: { user: any }) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -2005,15 +2006,15 @@ function ContactSupportForm({ user }: { user: any }) {
     mutationFn: async (data: z.infer<typeof insertContactSchema>) => {
       const response = await apiRequest('POST', '/api/contact', data);
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: 'Failed to send message' }));
-        throw new Error(error.message || 'Failed to send message');
+        const error = await response.json().catch(() => ({ message: t('passengerDashboard.support.errorDescription') }));
+        throw new Error(error.message || t('passengerDashboard.support.errorDescription'));
       }
       return response.json();
     },
     onSuccess: () => {
       toast({
-        title: "Message sent!",
-        description: "We've received your message and will get back to you soon.",
+        title: t('passengerDashboard.support.successTitle'),
+        description: t('passengerDashboard.support.successDescription'),
       });
       form.reset({
         firstName: user?.firstName || '',
@@ -2026,8 +2027,8 @@ function ContactSupportForm({ user }: { user: any }) {
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to send message. Please try again.",
+        title: t('passengerDashboard.support.errorTitle'),
+        description: error.message || t('passengerDashboard.support.errorDescription'),
         variant: "destructive",
       });
     },
@@ -2042,13 +2043,13 @@ function ContactSupportForm({ user }: { user: any }) {
       <CardHeader>
         <CardTitle className="flex items-center space-x-2 text-red-600">
           <HelpCircle className="w-5 h-5" />
-          <span>Contact Support</span>
+          <span>{t('passengerDashboard.support.title')}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="mb-6">
           <p className="text-muted-foreground">
-            Have a question or need assistance? Fill out the form below and our support team will get back to you as soon as possible.
+            {t('passengerDashboard.support.description')}
           </p>
         </div>
 
@@ -2060,7 +2061,7 @@ function ContactSupportForm({ user }: { user: any }) {
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel>{t('passengerDashboard.support.firstName')}</FormLabel>
                     <FormControl>
                       <Input {...field} data-testid="input-contact-firstname" />
                     </FormControl>
@@ -2074,7 +2075,7 @@ function ContactSupportForm({ user }: { user: any }) {
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name</FormLabel>
+                    <FormLabel>{t('passengerDashboard.support.lastName')}</FormLabel>
                     <FormControl>
                       <Input {...field} data-testid="input-contact-lastname" />
                     </FormControl>
@@ -2090,7 +2091,7 @@ function ContactSupportForm({ user }: { user: any }) {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t('passengerDashboard.support.email')}</FormLabel>
                     <FormControl>
                       <Input type="email" {...field} data-testid="input-contact-email" />
                     </FormControl>
@@ -2104,7 +2105,7 @@ function ContactSupportForm({ user }: { user: any }) {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone (Optional)</FormLabel>
+                    <FormLabel>{t('passengerDashboard.support.phone')}</FormLabel>
                     <FormControl>
                       <Input {...field} value={field.value || ''} data-testid="input-contact-phone" />
                     </FormControl>
@@ -2119,9 +2120,9 @@ function ContactSupportForm({ user }: { user: any }) {
               name="serviceType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Subject (Optional)</FormLabel>
+                  <FormLabel>{t('passengerDashboard.support.subject')}</FormLabel>
                   <FormControl>
-                    <Input {...field} value={field.value || ''} placeholder="e.g., Booking inquiry, Payment issue, etc." data-testid="input-contact-subject" />
+                    <Input {...field} value={field.value || ''} placeholder={t('passengerDashboard.support.subjectPlaceholder')} data-testid="input-contact-subject" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -2133,12 +2134,12 @@ function ContactSupportForm({ user }: { user: any }) {
               name="message"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Message</FormLabel>
+                  <FormLabel>{t('passengerDashboard.support.message')}</FormLabel>
                   <FormControl>
                     <Textarea 
                       {...field} 
                       rows={5}
-                      placeholder="Please describe your question or concern..."
+                      placeholder={t('passengerDashboard.support.messagePlaceholder')}
                       data-testid="input-contact-message"
                     />
                   </FormControl>
@@ -2157,12 +2158,12 @@ function ContactSupportForm({ user }: { user: any }) {
                 {submitContactMutation.isPending ? (
                   <>
                     <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                    Sending...
+                    {t('passengerDashboard.support.sending')}
                   </>
                 ) : (
                   <>
                     <Send className="w-4 h-4 mr-2" />
-                    Send Message
+                    {t('passengerDashboard.support.sendMessage')}
                   </>
                 )}
               </Button>

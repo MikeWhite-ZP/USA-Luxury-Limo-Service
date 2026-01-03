@@ -799,7 +799,11 @@
       "message": "Nachricht",
       "messagePlaceholder": "Beschreiben Sie Ihre Frage oder Ihr Anliegen...",
       "sendMessage": "Nachricht Senden",
-      "sending": "Wird gesendet..."
+      "sending": "Wird gesendet...",
+      "successTitle": "Nachricht gesendet!",
+      "successDescription": "Wir haben Ihre Nachricht erhalten und werden uns bald bei Ihnen melden.",
+      "errorTitle": "Fehler",
+      "errorDescription": "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
     },
     "actions": {
       "payNow": "Jetzt Bezahlen",
