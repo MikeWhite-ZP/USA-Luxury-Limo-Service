@@ -187,6 +187,11 @@
     "step2": "Vehicle",
     "step3": "Details",
     "step4": "Payment",
+    "bookNewRide": "Book New Ride",
+    "myRides": "My Rides",
+    "noUpcomingRides": "No upcoming rides",
+    "bookFirstRide": "Book your first ride",
+    "noPastRides": "No past rides",
     "tabs": {
       "transfer": "Transfer Only",
       "hourly": "Hourly"
@@ -360,6 +365,26 @@
       "at": "at"
     }
   },
+  "locations": {
+    "saved": "Saved",
+    "savedLocations": "Saved Locations",
+    "favoritePlaces": "Your favorite places",
+    "noSavedLocations": "No saved locations",
+    "saveLocationsDuringBooking": "Save locations during booking",
+    "addNewLocation": "Add New Location",
+    "saveLocationDescription": "Save locations for quick booking",
+    "label": "Label",
+    "labelPlaceholder": "Home, Work, Gym, etc.",
+    "address": "Address",
+    "saveLocation": "Save Location",
+    "editLocation": "Edit Location",
+    "updateSavedLocation": "Update saved location",
+    "from": "From",
+    "to": "To"
+  },
+  "invoices": {
+    "title": "Invoices"
+  },
   "pwa": {
     "downloadButton": "Download Mobile App",
     "dialogTitle": "Install {{companyName}} App",
@@ -438,7 +463,8 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "myBookings": "My Bookings",
-    "settings": "Settings"
+    "settings": "Settings",
+    "account": "Account"
   },
   "common": {
     "loading": "Loading...",
@@ -497,7 +523,9 @@
     "country": "Country",
     "zipCode": "Zip Code",
     "createdAt": "Created At",
-    "updatedAt": "Updated At"
+    "updatedAt": "Updated At",
+    "welcomeBack": "Welcome back,",
+    "default": "Default"
   },
   "auth": {
     "login": "Login",
@@ -617,6 +645,8 @@
   },
   "payment": {
     "title": "Payment",
+    "payment": "Payment",
+    "credits": "Credits",
     "paymentMethod": "Payment Method",
     "payNow": "Pay Now",
     "payLater": "Pay Later",
@@ -688,7 +718,9 @@
     "driverDeclined": "Driver Declined",
     "noShow": "No Show",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "upcoming": "Upcoming",
+    "past": "Past"
   },
   "admin": {
     "title": "Admin Dashboard",
