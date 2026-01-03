@@ -714,7 +714,8 @@
       "plate": "Kennzeichen",
       "editingAllowed": "Bearbeitung bis 3 Stunden vor Abholung erlaubt",
       "canEdit": "Sie können diese Buchung bearbeiten (Abholung in {{hours}}h {{minutes}}m)",
-      "editingDisabled": "Bearbeitung deaktiviert - muss 3+ Stunden vorher sein"
+      "editingDisabled": "Bearbeitung deaktiviert - muss 3+ Stunden vorher sein",
+      "completeHistory": "Vollständiger Fahrtverlauf"
     },
     "savedLocations": {
       "title": "Gespeicherte Orte",
@@ -739,12 +740,16 @@
       "title": "Vergangene Buchungen",
       "noBookings": "Keine vergangenen Buchungen",
       "firstRide": "Absolvieren Sie Ihre erste Fahrt mit uns!",
-      "cancellationReason": "Stornierungsgrund"
+      "cancellationReason": "Stornierungsgrund",
+      "completedRidesAppear": "Abgeschlossene Fahrten erscheinen hier"
     },
     "invoices": {
-      "title": "Rechnungen",
-      "noInvoices": "Noch keine Rechnungen",
-      "invoicesAppear": "Ihre Rechnungen erscheinen hier nach abgeschlossenen Fahrten."
+      "title": "Meine Rechnungen",
+      "noInvoices": "Keine Rechnungen gefunden",
+      "invoicesAppear": "Rechnungen erscheinen nach abgeschlossenen Fahrten",
+      "viewAndManage": "Ihre Fahrt-Rechnungen ansehen und verwalten",
+      "currentInvoices": "Aktuelle Rechnungen",
+      "oldInvoices": "Alte Rechnungen"
     },
     "paymentMethods": {
       "title": "Zahlungsmethoden",
@@ -762,13 +767,19 @@
       "email": "E-Mail",
       "phone": "Telefon",
       "saveChanges": "Änderungen Speichern",
+      "saveProfile": "Profil Speichern",
       "saving": "Wird gespeichert...",
       "changePassword": "Passwort Ändern",
+      "password": "Passwort",
       "currentPassword": "Aktuelles Passwort",
       "newPassword": "Neues Passwort",
       "confirmPassword": "Neues Passwort Bestätigen",
       "updatePassword": "Passwort Aktualisieren",
-      "updating": "Wird aktualisiert..."
+      "updating": "Wird aktualisiert...",
+      "type": "Typ",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "profile": "Profil"
     },
     "support": {
       "title": "Support Kontaktieren",

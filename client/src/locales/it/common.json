@@ -714,7 +714,8 @@
       "plate": "Targa",
       "editingAllowed": "Modifica consentita fino a 3 ore prima del ritiro",
       "canEdit": "Puoi modificare questa prenotazione (ritiro tra {{hours}}h {{minutes}}m)",
-      "editingDisabled": "Modifica disabilitata - deve essere 3+ ore prima"
+      "editingDisabled": "Modifica disabilitata - deve essere 3+ ore prima",
+      "completeHistory": "Cronologia Completa dei Viaggi"
     },
     "savedLocations": {
       "title": "Indirizzi Salvati",
@@ -739,12 +740,16 @@
       "title": "Prenotazioni Passate",
       "noBookings": "Nessuna prenotazione passata",
       "firstRide": "Completa il tuo primo viaggio con noi!",
-      "cancellationReason": "Motivo della cancellazione"
+      "cancellationReason": "Motivo della cancellazione",
+      "completedRidesAppear": "I viaggi completati appariranno qui"
     },
     "invoices": {
-      "title": "Fatture",
-      "noInvoices": "Nessuna fattura ancora",
-      "invoicesAppear": "Le tue fatture appariranno qui dopo i viaggi completati."
+      "title": "Le Mie Fatture",
+      "noInvoices": "Nessuna fattura trovata",
+      "invoicesAppear": "Le fatture appaiono dopo i viaggi completati",
+      "viewAndManage": "Visualizza e gestisci le tue fatture di viaggio",
+      "currentInvoices": "Fatture Attuali",
+      "oldInvoices": "Fatture Vecchie"
     },
     "paymentMethods": {
       "title": "Metodi di Pagamento",
@@ -762,13 +767,19 @@
       "email": "Email",
       "phone": "Telefono",
       "saveChanges": "Salva Modifiche",
+      "saveProfile": "Salva Profilo",
       "saving": "Salvataggio...",
       "changePassword": "Cambia Password",
+      "password": "Password",
       "currentPassword": "Password Attuale",
       "newPassword": "Nuova Password",
       "confirmPassword": "Conferma Nuova Password",
       "updatePassword": "Aggiorna Password",
-      "updating": "Aggiornamento..."
+      "updating": "Aggiornamento...",
+      "type": "Tipo",
+      "active": "Attivo",
+      "inactive": "Inattivo",
+      "profile": "Profilo"
     },
     "support": {
       "title": "Contatta Supporto",

@@ -714,7 +714,8 @@
       "plate": "Plaque",
       "editingAllowed": "Modification autorisée jusqu'à 3 heures avant la prise en charge",
       "canEdit": "Vous pouvez modifier cette réservation (prise en charge dans {{hours}}h {{minutes}}m)",
-      "editingDisabled": "Modification désactivée - doit être 3+ heures avant"
+      "editingDisabled": "Modification désactivée - doit être 3+ heures avant",
+      "completeHistory": "Historique Complet des Trajets"
     },
     "savedLocations": {
       "title": "Adresses Enregistrées",
@@ -739,12 +740,16 @@
       "title": "Réservations Passées",
       "noBookings": "Pas de réservations passées",
       "firstRide": "Complétez votre premier trajet avec nous!",
-      "cancellationReason": "Motif d'annulation"
+      "cancellationReason": "Motif d'annulation",
+      "completedRidesAppear": "Les trajets terminés apparaîtront ici"
     },
     "invoices": {
-      "title": "Factures",
-      "noInvoices": "Pas encore de factures",
-      "invoicesAppear": "Vos factures apparaîtront ici après les trajets terminés."
+      "title": "Mes Factures",
+      "noInvoices": "Aucune facture trouvée",
+      "invoicesAppear": "Les factures apparaissent après les trajets terminés",
+      "viewAndManage": "Voir et gérer vos factures de trajet",
+      "currentInvoices": "Factures Actuelles",
+      "oldInvoices": "Anciennes Factures"
     },
     "paymentMethods": {
       "title": "Moyens de Paiement",
@@ -762,13 +767,19 @@
       "email": "E-mail",
       "phone": "Téléphone",
       "saveChanges": "Enregistrer les Modifications",
+      "saveProfile": "Enregistrer le Profil",
       "saving": "Enregistrement...",
       "changePassword": "Changer le Mot de Passe",
+      "password": "Mot de Passe",
       "currentPassword": "Mot de Passe Actuel",
       "newPassword": "Nouveau Mot de Passe",
       "confirmPassword": "Confirmer le Nouveau Mot de Passe",
       "updatePassword": "Mettre à Jour le Mot de Passe",
-      "updating": "Mise à jour..."
+      "updating": "Mise à jour...",
+      "type": "Type",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "profile": "Profil"
     },
     "support": {
       "title": "Contacter le Support",

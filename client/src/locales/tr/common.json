@@ -714,7 +714,8 @@
       "plate": "Plaka",
       "editingAllowed": "Alma saatinden 3 saat öncesine kadar düzenleme yapılabilir",
       "canEdit": "Bu rezervasyonu düzenleyebilirsiniz (alma: {{hours}}s {{minutes}}d sonra)",
-      "editingDisabled": "Düzenleme devre dışı - alma saatinden 3+ saat önce olmalı"
+      "editingDisabled": "Düzenleme devre dışı - alma saatinden 3+ saat önce olmalı",
+      "completeHistory": "Tam Yolculuk Geçmişi"
     },
     "savedLocations": {
       "title": "Kayıtlı Konumlar",
@@ -739,12 +740,16 @@
       "title": "Geçmiş Rezervasyonlar",
       "noBookings": "Geçmiş rezervasyon yok",
       "firstRide": "Bizimle ilk yolculuğunuzu tamamlayın!",
-      "cancellationReason": "İptal nedeni"
+      "cancellationReason": "İptal nedeni",
+      "completedRidesAppear": "Tamamlanan yolculuklar burada görünecek"
     },
     "invoices": {
-      "title": "Faturalar",
-      "noInvoices": "Henüz fatura yok",
-      "invoicesAppear": "Tamamlanan yolculuklardan sonra faturalarınız burada görünecek."
+      "title": "Faturalarım",
+      "noInvoices": "Fatura bulunamadı",
+      "invoicesAppear": "Faturalar tamamlanan yolculuklardan sonra görünür",
+      "viewAndManage": "Yolculuk faturalarınızı görüntüleyin ve yönetin",
+      "currentInvoices": "Güncel Faturalar",
+      "oldInvoices": "Eski Faturalar"
     },
     "paymentMethods": {
       "title": "Ödeme Yöntemleri",
@@ -762,13 +767,19 @@
       "email": "E-posta",
       "phone": "Telefon",
       "saveChanges": "Değişiklikleri Kaydet",
+      "saveProfile": "Profili Kaydet",
       "saving": "Kaydediliyor...",
       "changePassword": "Şifre Değiştir",
+      "password": "Şifre",
       "currentPassword": "Mevcut Şifre",
       "newPassword": "Yeni Şifre",
       "confirmPassword": "Yeni Şifreyi Onayla",
       "updatePassword": "Şifreyi Güncelle",
-      "updating": "Güncelleniyor..."
+      "updating": "Güncelleniyor...",
+      "type": "Tür",
+      "active": "Aktif",
+      "inactive": "Pasif",
+      "profile": "Profil"
     },
     "support": {
       "title": "Destek İletişimi",

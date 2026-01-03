@@ -714,7 +714,8 @@
       "plate": "Номер",
       "editingAllowed": "Редактирование разрешено до 3 часов до подачи",
       "canEdit": "Вы можете редактировать это бронирование (подача через {{hours}}ч {{minutes}}м)",
-      "editingDisabled": "Редактирование отключено - должно быть 3+ часа до подачи"
+      "editingDisabled": "Редактирование отключено - должно быть 3+ часа до подачи",
+      "completeHistory": "Полная История Поездок"
     },
     "savedLocations": {
       "title": "Сохранённые Адреса",
@@ -739,12 +740,16 @@
       "title": "Прошлые Бронирования",
       "noBookings": "Нет прошлых бронирований",
       "firstRide": "Совершите свою первую поездку с нами!",
-      "cancellationReason": "Причина отмены"
+      "cancellationReason": "Причина отмены",
+      "completedRidesAppear": "Завершённые поездки появятся здесь"
     },
     "invoices": {
-      "title": "Счета",
-      "noInvoices": "Пока нет счетов",
-      "invoicesAppear": "Ваши счета появятся здесь после завершённых поездок."
+      "title": "Мои Счета",
+      "noInvoices": "Счета не найдены",
+      "invoicesAppear": "Счета появляются после завершённых поездок",
+      "viewAndManage": "Просмотр и управление счетами за поездки",
+      "currentInvoices": "Текущие Счета",
+      "oldInvoices": "Старые Счета"
     },
     "paymentMethods": {
       "title": "Способы Оплаты",
@@ -762,13 +767,19 @@
       "email": "Email",
       "phone": "Телефон",
       "saveChanges": "Сохранить Изменения",
+      "saveProfile": "Сохранить Профиль",
       "saving": "Сохранение...",
       "changePassword": "Изменить Пароль",
+      "password": "Пароль",
       "currentPassword": "Текущий Пароль",
       "newPassword": "Новый Пароль",
       "confirmPassword": "Подтвердить Новый Пароль",
       "updatePassword": "Обновить Пароль",
-      "updating": "Обновление..."
+      "updating": "Обновление...",
+      "type": "Тип",
+      "active": "Активен",
+      "inactive": "Неактивен",
+      "profile": "Профиль"
     },
     "support": {
       "title": "Связаться с Поддержкой",

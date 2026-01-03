@@ -875,8 +875,8 @@ function InvoicesList() {
         <div className="w-10 h-10 rounded-full bg-muted mx-auto mb-2 flex items-center justify-center">
           <FileText className="w-5 h-5 text-muted-foreground" />
         </div>
-        <p className="text-muted-foreground text-sm font-medium">No invoices found</p>
-        <p className="text-muted-foreground text-xs mt-1">Invoices appear after completed rides</p>
+        <p className="text-muted-foreground text-sm font-medium">{t('passengerDashboard.invoices.noInvoices')}</p>
+        <p className="text-muted-foreground text-xs mt-1">{t('passengerDashboard.invoices.invoicesAppear')}</p>
       </div>
     );
   }
@@ -4030,7 +4030,7 @@ export default function PassengerDashboard() {
                             data-testid={`button-rate-driver-past-${booking.id}`}
                           >
                             <Star className="w-3 h-3 mr-1" />
-                            Rate Driver
+                            {t('passengerDashboard.actions.rateTrip')}
                           </Button>
                         </div>
                       )}
@@ -4042,8 +4042,8 @@ export default function PassengerDashboard() {
                   <div className="w-12 h-12 rounded-full bg-muted mx-auto mb-3 flex items-center justify-center">
                     <History className="w-6 h-6 text-muted-foreground" />
                   </div>
-                  <p className="text-muted-foreground font-medium">No past bookings</p>
-                  <p className="text-sm text-muted-foreground mt-1">Completed rides will appear here</p>
+                  <p className="text-muted-foreground font-medium">{t('passengerDashboard.pastBookings.noBookings')}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{t('passengerDashboard.pastBookings.completedRidesAppear')}</p>
                 </div>
               )}
             </CardContent>
@@ -4058,15 +4058,15 @@ export default function PassengerDashboard() {
                 <div className="w-8 h-8 rounded-lg icon-brand-bg flex items-center justify-center">
                   <FileText className="w-4 h-4 text-white" />
                 </div>
-                My Invoices
+                {t('passengerDashboard.invoices.title')}
               </CardTitle>
-              <p className="text-xs text-muted-foreground">View and manage your ride invoices</p>
+              <p className="text-xs text-muted-foreground">{t('passengerDashboard.invoices.viewAndManage')}</p>
             </CardHeader>
             <CardContent className="pt-0">
               <Tabs defaultValue="current" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-4">
-                  <TabsTrigger value="current" data-testid="tab-current-invoices">Current Invoices</TabsTrigger>
-                  <TabsTrigger value="old" data-testid="tab-old-invoices">Old Invoices</TabsTrigger>
+                  <TabsTrigger value="current" data-testid="tab-current-invoices">{t('passengerDashboard.invoices.currentInvoices')}</TabsTrigger>
+                  <TabsTrigger value="old" data-testid="tab-old-invoices">{t('passengerDashboard.invoices.oldInvoices')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="current">
                   <InvoicesList />
@@ -4087,7 +4087,7 @@ export default function PassengerDashboard() {
                 <div className="w-8 h-8 rounded-lg icon-brand-bg flex items-center justify-center">
                   <CreditCard className="w-4 h-4 text-white" />
                 </div>
-                Payment Methods
+                {t('passengerDashboard.paymentMethods.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-4">
@@ -4103,12 +4103,12 @@ export default function PassengerDashboard() {
               {/* Status Row */}
               <div className="flex items-center justify-between gap-2 pb-3 border-b border-border">
                 <div className="flex items-center gap-4">
-                  <span className="text-xs text-muted-foreground">Type: <span className="font-medium text-foreground capitalize" data-testid="text-role">{user?.role || 'N/A'}</span></span>
+                  <span className="text-xs text-muted-foreground">{t('passengerDashboard.accountDetails.type')}: <span className="font-medium text-foreground capitalize" data-testid="text-role">{user?.role || 'N/A'}</span></span>
                   <span className="text-xs" data-testid="text-status">
                     {user?.isActive ? (
-                      <span className="text-green-600 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-600 rounded-full" />Active</span>
+                      <span className="text-green-600 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-600 rounded-full" />{t('passengerDashboard.accountDetails.active')}</span>
                     ) : (
-                      <span className="text-red-600 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-red-600 rounded-full" />Inactive</span>
+                      <span className="text-red-600 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-red-600 rounded-full" />{t('passengerDashboard.accountDetails.inactive')}</span>
                     )}
                   </span>
                   <span className={`text-xs ${paymentCardStatus.color}`} data-testid="text-payment-status">{paymentCardStatus.status}</span>
@@ -4128,7 +4128,7 @@ export default function PassengerDashboard() {
 
               {/* Profile Form */}
               <form onSubmit={handleProfileSubmit} className="space-y-2" data-testid="profile-card">
-                <p className="text-xs font-medium text-muted-foreground">Profile</p>
+                <p className="text-xs font-medium text-muted-foreground">{t('passengerDashboard.accountDetails.profile')}</p>
                 <div className="grid grid-cols-4 gap-2">
                   <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First name *" className="h-8 text-xs" data-testid="input-first-name" />
                   <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last name *" className="h-8 text-xs" data-testid="input-last-name" />
@@ -4136,20 +4136,20 @@ export default function PassengerDashboard() {
                   <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="h-8 text-xs" data-testid="input-phone" />
                 </div>
                 <Button type="submit" disabled={updateProfileMutation.isPending} size="sm" className="h-7 px-3 text-xs btn-brand-primary border-0" data-testid="button-save">
-                  {updateProfileMutation.isPending ? 'Saving...' : 'Save Profile'}
+                  {updateProfileMutation.isPending ? t('passengerDashboard.accountDetails.saving') : t('passengerDashboard.accountDetails.saveProfile')}
                 </Button>
               </form>
 
               {/* Password Form */}
               <form onSubmit={handlePasswordSubmit} className="space-y-2 pt-2 border-t border-border" data-testid="password-card">
-                <p className="text-xs font-medium text-muted-foreground">Password</p>
+                <p className="text-xs font-medium text-muted-foreground">{t('passengerDashboard.accountDetails.password')}</p>
                 <div className="grid grid-cols-3 gap-2">
                   <Input id="currentPassword" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Current *" className="h-8 text-xs" data-testid="input-current-password" />
                   <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New *" className="h-8 text-xs" data-testid="input-new-password" />
                   <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm *" className="h-8 text-xs" data-testid="input-confirm-password" />
                 </div>
                 <Button type="submit" disabled={updatePasswordMutation.isPending} size="sm" className="h-7 px-3 text-xs btn-brand-primary border-0" data-testid="button-update-password">
-                  {updatePasswordMutation.isPending ? 'Updating...' : 'Update Password'}
+                  {updatePasswordMutation.isPending ? t('passengerDashboard.accountDetails.updating') : t('passengerDashboard.accountDetails.updatePassword')}
                 </Button>
               </form>
             </CardContent>
@@ -4164,7 +4164,7 @@ export default function PassengerDashboard() {
       <Dialog open={showAllBookings} onOpenChange={setShowAllBookings}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-[#ffffff]">
           <DialogHeader>
-            <DialogTitle>Complete Ride History</DialogTitle>
+            <DialogTitle>{t('passengerDashboard.recentBookings.completeHistory')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {bookingsLoading ? (

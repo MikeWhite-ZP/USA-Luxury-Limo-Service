@@ -797,7 +797,8 @@
       "plate": "Plate",
       "editingAllowed": "Editing allowed up to 3 hours before booking time",
       "canEdit": "You can edit this booking (pickup in {{hours}}h {{minutes}}m)",
-      "editingDisabled": "Editing disabled - must be 3+ hours before pickup"
+      "editingDisabled": "Editing disabled - must be 3+ hours before pickup",
+      "completeHistory": "Complete Ride History"
     },
     "savedLocations": {
       "title": "Saved Locations",
@@ -822,12 +823,16 @@
       "title": "Past Bookings",
       "noBookings": "No past bookings",
       "firstRide": "Complete your first ride with us!",
-      "cancellationReason": "Cancellation reason"
+      "cancellationReason": "Cancellation reason",
+      "completedRidesAppear": "Completed rides will appear here"
     },
     "invoices": {
-      "title": "Invoices",
-      "noInvoices": "No invoices yet",
-      "invoicesAppear": "Your invoices will appear here after completed trips."
+      "title": "My Invoices",
+      "noInvoices": "No invoices found",
+      "invoicesAppear": "Invoices appear after completed rides",
+      "viewAndManage": "View and manage your ride invoices",
+      "currentInvoices": "Current Invoices",
+      "oldInvoices": "Old Invoices"
     },
     "paymentMethods": {
       "title": "Payment Methods",
@@ -845,13 +850,19 @@
       "email": "Email",
       "phone": "Phone",
       "saveChanges": "Save Changes",
+      "saveProfile": "Save Profile",
       "saving": "Saving...",
       "changePassword": "Change Password",
+      "password": "Password",
       "currentPassword": "Current Password",
       "newPassword": "New Password",
       "confirmPassword": "Confirm New Password",
       "updatePassword": "Update Password",
-      "updating": "Updating..."
+      "updating": "Updating...",
+      "type": "Type",
+      "active": "Active",
+      "inactive": "Inactive",
+      "profile": "Profile"
     },
     "support": {
       "title": "Contact Support",
