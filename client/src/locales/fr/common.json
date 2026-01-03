@@ -1,4 +1,71 @@
 {
+  "accountSettings": {
+    "backToHome": "Retour à l'Accueil",
+    "title": "Paramètres du Compte",
+    "description": "Gérez vos informations personnelles et vos préférences de sécurité",
+    "overview": {
+      "title": "Aperçu du Compte",
+      "description": "Vos informations de compte et votre statut",
+      "accountType": "Type de Compte",
+      "accountStatus": "Statut du Compte",
+      "memberSince": "Membre Depuis",
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "personalInfo": {
+      "title": "Informations Personnelles",
+      "description": "Mettez à jour vos informations personnelles et vos coordonnées",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "emailAddress": "Adresse E-mail",
+      "phoneNumber": "Numéro de Téléphone",
+      "username": "Nom d'Utilisateur",
+      "placeholders": {
+        "firstName": "Entrez votre prénom",
+        "lastName": "Entrez votre nom",
+        "email": "Entrez votre e-mail",
+        "phone": "Entrez votre numéro de téléphone",
+        "username": "Choisissez un nom d'utilisateur"
+      },
+      "usernameValidation": {
+        "checking": "Vérification de la disponibilité...",
+        "available": "Nom d'utilisateur disponible",
+        "taken": "Nom d'utilisateur déjà pris",
+        "requirements": "Le nom d'utilisateur doit contenir 3-30 caractères (lettres, chiffres, -, _)"
+      }
+    },
+    "security": {
+      "title": "Paramètres de Sécurité",
+      "description": "Mettez à jour votre mot de passe pour sécuriser votre compte",
+      "currentPassword": "Mot de Passe Actuel",
+      "newPassword": "Nouveau Mot de Passe",
+      "confirmPassword": "Confirmer le Nouveau Mot de Passe",
+      "passwordRequirements": "Minimum 8 caractères avec majuscules, minuscules et chiffres",
+      "placeholders": {
+        "currentPassword": "Entrez votre mot de passe actuel",
+        "newPassword": "Entrez votre nouveau mot de passe",
+        "confirmPassword": "Confirmez votre nouveau mot de passe"
+      }
+    },
+    "buttons": {
+      "cancel": "Annuler",
+      "save": "Enregistrer les Modifications",
+      "saving": "Enregistrement...",
+      "clear": "Effacer",
+      "updatePassword": "Mettre à Jour le Mot de Passe",
+      "updating": "Mise à jour..."
+    },
+    "toast": {
+      "profileUpdated": "Profil Mis à Jour",
+      "profileUpdatedDesc": "Vos informations de profil ont été enregistrées avec succès.",
+      "passwordUpdated": "Mot de Passe Mis à Jour",
+      "passwordUpdatedDesc": "Votre mot de passe a été modifié avec succès.",
+      "error": "Erreur",
+      "fillRequired": "Veuillez remplir tous les champs requis",
+      "passwordsMismatch": "Les mots de passe ne correspondent pas",
+      "passwordRequirements": "Le mot de passe doit contenir au moins 8 caractères avec majuscules, minuscules et chiffres"
+    }
+  },
   "hero": {
     "premium": "Premium",
     "luxury": "Luxe",

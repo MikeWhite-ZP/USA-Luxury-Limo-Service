@@ -1,4 +1,71 @@
 {
+  "accountSettings": {
+    "backToHome": "Back to Home",
+    "title": "Account Settings",
+    "description": "Manage your personal information and security preferences",
+    "overview": {
+      "title": "Account Overview",
+      "description": "Your account information and status",
+      "accountType": "Account Type",
+      "accountStatus": "Account Status",
+      "memberSince": "Member Since",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "personalInfo": {
+      "title": "Personal Information",
+      "description": "Update your personal information and contact details",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "emailAddress": "Email Address",
+      "phoneNumber": "Phone Number",
+      "username": "Username",
+      "placeholders": {
+        "firstName": "Enter your first name",
+        "lastName": "Enter your last name",
+        "email": "Enter your email",
+        "phone": "Enter your phone number",
+        "username": "Choose a username"
+      },
+      "usernameValidation": {
+        "checking": "Checking availability...",
+        "available": "Username is available",
+        "taken": "Username is already taken",
+        "requirements": "Username must be 3-30 characters (letters, numbers, -, _)"
+      }
+    },
+    "security": {
+      "title": "Security Settings",
+      "description": "Update your password to keep your account secure",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "passwordRequirements": "Minimum 8 characters with uppercase, lowercase, and numbers",
+      "placeholders": {
+        "currentPassword": "Enter your current password",
+        "newPassword": "Enter your new password",
+        "confirmPassword": "Confirm your new password"
+      }
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "clear": "Clear",
+      "updatePassword": "Update Password",
+      "updating": "Updating..."
+    },
+    "toast": {
+      "profileUpdated": "Profile Updated",
+      "profileUpdatedDesc": "Your profile information has been saved successfully.",
+      "passwordUpdated": "Password Updated",
+      "passwordUpdatedDesc": "Your password has been changed successfully.",
+      "error": "Error",
+      "fillRequired": "Please fill in all required fields",
+      "passwordsMismatch": "Passwords don't match",
+      "passwordRequirements": "Password must be at least 8 characters with uppercase, lowercase, and numbers"
+    }
+  },
   "hero": {
     "premium": "Premium",
     "luxury": "Luxury",

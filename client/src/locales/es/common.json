@@ -1,4 +1,71 @@
 {
+  "accountSettings": {
+    "backToHome": "Volver al Inicio",
+    "title": "Configuración de Cuenta",
+    "description": "Administra tu información personal y preferencias de seguridad",
+    "overview": {
+      "title": "Resumen de Cuenta",
+      "description": "Tu información de cuenta y estado",
+      "accountType": "Tipo de Cuenta",
+      "accountStatus": "Estado de Cuenta",
+      "memberSince": "Miembro Desde",
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "personalInfo": {
+      "title": "Información Personal",
+      "description": "Actualiza tu información personal y detalles de contacto",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "emailAddress": "Correo Electrónico",
+      "phoneNumber": "Número de Teléfono",
+      "username": "Nombre de Usuario",
+      "placeholders": {
+        "firstName": "Ingresa tu nombre",
+        "lastName": "Ingresa tu apellido",
+        "email": "Ingresa tu correo electrónico",
+        "phone": "Ingresa tu número de teléfono",
+        "username": "Elige un nombre de usuario"
+      },
+      "usernameValidation": {
+        "checking": "Verificando disponibilidad...",
+        "available": "Nombre de usuario disponible",
+        "taken": "Nombre de usuario ya está en uso",
+        "requirements": "El nombre de usuario debe tener 3-30 caracteres (letras, números, -, _)"
+      }
+    },
+    "security": {
+      "title": "Configuración de Seguridad",
+      "description": "Actualiza tu contraseña para mantener tu cuenta segura",
+      "currentPassword": "Contraseña Actual",
+      "newPassword": "Nueva Contraseña",
+      "confirmPassword": "Confirmar Nueva Contraseña",
+      "passwordRequirements": "Mínimo 8 caracteres con mayúsculas, minúsculas y números",
+      "placeholders": {
+        "currentPassword": "Ingresa tu contraseña actual",
+        "newPassword": "Ingresa tu nueva contraseña",
+        "confirmPassword": "Confirma tu nueva contraseña"
+      }
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "save": "Guardar Cambios",
+      "saving": "Guardando...",
+      "clear": "Limpiar",
+      "updatePassword": "Actualizar Contraseña",
+      "updating": "Actualizando..."
+    },
+    "toast": {
+      "profileUpdated": "Perfil Actualizado",
+      "profileUpdatedDesc": "Tu información de perfil se ha guardado exitosamente.",
+      "passwordUpdated": "Contraseña Actualizada",
+      "passwordUpdatedDesc": "Tu contraseña ha sido cambiada exitosamente.",
+      "error": "Error",
+      "fillRequired": "Por favor completa todos los campos requeridos",
+      "passwordsMismatch": "Las contraseñas no coinciden",
+      "passwordRequirements": "La contraseña debe tener al menos 8 caracteres con mayúsculas, minúsculas y números"
+    }
+  },
   "hero": {
     "premium": "Premium",
     "luxury": "Lujo",

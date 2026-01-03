@@ -1,4 +1,71 @@
 {
+  "accountSettings": {
+    "backToHome": "Zurück zur Startseite",
+    "title": "Kontoeinstellungen",
+    "description": "Verwalten Sie Ihre persönlichen Daten und Sicherheitseinstellungen",
+    "overview": {
+      "title": "Kontoübersicht",
+      "description": "Ihre Kontoinformationen und Status",
+      "accountType": "Kontotyp",
+      "accountStatus": "Kontostatus",
+      "memberSince": "Mitglied Seit",
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "personalInfo": {
+      "title": "Persönliche Informationen",
+      "description": "Aktualisieren Sie Ihre persönlichen Daten und Kontaktdaten",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "emailAddress": "E-Mail-Adresse",
+      "phoneNumber": "Telefonnummer",
+      "username": "Benutzername",
+      "placeholders": {
+        "firstName": "Geben Sie Ihren Vornamen ein",
+        "lastName": "Geben Sie Ihren Nachnamen ein",
+        "email": "Geben Sie Ihre E-Mail ein",
+        "phone": "Geben Sie Ihre Telefonnummer ein",
+        "username": "Wählen Sie einen Benutzernamen"
+      },
+      "usernameValidation": {
+        "checking": "Verfügbarkeit wird geprüft...",
+        "available": "Benutzername ist verfügbar",
+        "taken": "Benutzername ist bereits vergeben",
+        "requirements": "Benutzername muss 3-30 Zeichen haben (Buchstaben, Zahlen, -, _)"
+      }
+    },
+    "security": {
+      "title": "Sicherheitseinstellungen",
+      "description": "Aktualisieren Sie Ihr Passwort, um Ihr Konto zu schützen",
+      "currentPassword": "Aktuelles Passwort",
+      "newPassword": "Neues Passwort",
+      "confirmPassword": "Neues Passwort Bestätigen",
+      "passwordRequirements": "Mindestens 8 Zeichen mit Groß-, Kleinbuchstaben und Zahlen",
+      "placeholders": {
+        "currentPassword": "Geben Sie Ihr aktuelles Passwort ein",
+        "newPassword": "Geben Sie Ihr neues Passwort ein",
+        "confirmPassword": "Bestätigen Sie Ihr neues Passwort"
+      }
+    },
+    "buttons": {
+      "cancel": "Abbrechen",
+      "save": "Änderungen Speichern",
+      "saving": "Speichern...",
+      "clear": "Löschen",
+      "updatePassword": "Passwort Aktualisieren",
+      "updating": "Aktualisieren..."
+    },
+    "toast": {
+      "profileUpdated": "Profil Aktualisiert",
+      "profileUpdatedDesc": "Ihre Profilinformationen wurden erfolgreich gespeichert.",
+      "passwordUpdated": "Passwort Aktualisiert",
+      "passwordUpdatedDesc": "Ihr Passwort wurde erfolgreich geändert.",
+      "error": "Fehler",
+      "fillRequired": "Bitte füllen Sie alle erforderlichen Felder aus",
+      "passwordsMismatch": "Passwörter stimmen nicht überein",
+      "passwordRequirements": "Passwort muss mindestens 8 Zeichen mit Groß-, Kleinbuchstaben und Zahlen haben"
+    }
+  },
   "hero": {
     "premium": "Premium",
     "luxury": "Luxus",

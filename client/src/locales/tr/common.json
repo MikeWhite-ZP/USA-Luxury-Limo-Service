@@ -1,4 +1,71 @@
 {
+  "accountSettings": {
+    "backToHome": "Ana Sayfaya Dön",
+    "title": "Hesap Ayarları",
+    "description": "Kişisel bilgilerinizi ve güvenlik tercihlerinizi yönetin",
+    "overview": {
+      "title": "Hesap Özeti",
+      "description": "Hesap bilgileriniz ve durumunuz",
+      "accountType": "Hesap Türü",
+      "accountStatus": "Hesap Durumu",
+      "memberSince": "Üyelik Tarihi",
+      "active": "Aktif",
+      "inactive": "Pasif"
+    },
+    "personalInfo": {
+      "title": "Kişisel Bilgiler",
+      "description": "Kişisel bilgilerinizi ve iletişim detaylarınızı güncelleyin",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "emailAddress": "E-posta Adresi",
+      "phoneNumber": "Telefon Numarası",
+      "username": "Kullanıcı Adı",
+      "placeholders": {
+        "firstName": "Adınızı girin",
+        "lastName": "Soyadınızı girin",
+        "email": "E-postanızı girin",
+        "phone": "Telefon numaranızı girin",
+        "username": "Bir kullanıcı adı seçin"
+      },
+      "usernameValidation": {
+        "checking": "Uygunluk kontrol ediliyor...",
+        "available": "Kullanıcı adı müsait",
+        "taken": "Kullanıcı adı zaten alınmış",
+        "requirements": "Kullanıcı adı 3-30 karakter olmalı (harf, rakam, -, _)"
+      }
+    },
+    "security": {
+      "title": "Güvenlik Ayarları",
+      "description": "Hesabınızı güvende tutmak için şifrenizi güncelleyin",
+      "currentPassword": "Mevcut Şifre",
+      "newPassword": "Yeni Şifre",
+      "confirmPassword": "Yeni Şifreyi Onayla",
+      "passwordRequirements": "En az 8 karakter, büyük harf, küçük harf ve rakam içermeli",
+      "placeholders": {
+        "currentPassword": "Mevcut şifrenizi girin",
+        "newPassword": "Yeni şifrenizi girin",
+        "confirmPassword": "Yeni şifrenizi onaylayın"
+      }
+    },
+    "buttons": {
+      "cancel": "İptal",
+      "save": "Değişiklikleri Kaydet",
+      "saving": "Kaydediliyor...",
+      "clear": "Temizle",
+      "updatePassword": "Şifreyi Güncelle",
+      "updating": "Güncelleniyor..."
+    },
+    "toast": {
+      "profileUpdated": "Profil Güncellendi",
+      "profileUpdatedDesc": "Profil bilgileriniz başarıyla kaydedildi.",
+      "passwordUpdated": "Şifre Güncellendi",
+      "passwordUpdatedDesc": "Şifreniz başarıyla değiştirildi.",
+      "error": "Hata",
+      "fillRequired": "Lütfen tüm gerekli alanları doldurun",
+      "passwordsMismatch": "Şifreler eşleşmiyor",
+      "passwordRequirements": "Şifre en az 8 karakter, büyük harf, küçük harf ve rakam içermelidir"
+    }
+  },
   "hero": {
     "premium": "Premium",
     "luxury": "Lüks",
