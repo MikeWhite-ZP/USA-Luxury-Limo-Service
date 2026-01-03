@@ -1220,6 +1220,21 @@
       "callPassenger": "Позвонить",
       "messagePassenger": "Сообщение"
     },
+    "mobileDriver": {
+      "upcoming": "Предстоящие",
+      "rides": "Поездки",
+      "stats": "Статистика",
+      "earned": "Заработано",
+      "noUpcomingRides": "Нет предстоящих поездок",
+      "waitingForAssignments": "Ожидание новых назначений...",
+      "goOnlineToReceive": "Включите режим онлайн для получения поездок",
+      "pickup": "Посадка",
+      "via": "Через",
+      "dropoff": "Высадка",
+      "hour": "Час",
+      "hours": "Часов",
+      "noCompletedRidesYet": "Пока нет завершённых поездок"
+    },
     "details": {
       "flightInfo": "Информация о Рейсе",
       "specialInstructions": "Специальные Инструкции"

@@ -1277,6 +1277,21 @@
       "callPassenger": "Call",
       "messagePassenger": "Message"
     },
+    "mobileDriver": {
+      "upcoming": "Upcoming",
+      "rides": "Rides",
+      "stats": "Stats",
+      "earned": "Earned",
+      "noUpcomingRides": "No upcoming rides",
+      "waitingForAssignments": "Waiting for new assignments...",
+      "goOnlineToReceive": "Go online to receive rides",
+      "pickup": "Pickup",
+      "via": "Via",
+      "dropoff": "Dropoff",
+      "hour": "Hour",
+      "hours": "Hours",
+      "noCompletedRidesYet": "No completed rides yet"
+    },
     "details": {
       "flightInfo": "Flight Information",
       "specialInstructions": "Special Instructions"

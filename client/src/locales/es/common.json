@@ -1220,6 +1220,21 @@
       "callPassenger": "Llamar",
       "messagePassenger": "Mensaje"
     },
+    "mobileDriver": {
+      "upcoming": "Próximos",
+      "rides": "Viajes",
+      "stats": "Estadísticas",
+      "earned": "Ganado",
+      "noUpcomingRides": "Sin viajes próximos",
+      "waitingForAssignments": "Esperando nuevas asignaciones...",
+      "goOnlineToReceive": "Conéctese para recibir viajes",
+      "pickup": "Recogida",
+      "via": "Vía",
+      "dropoff": "Destino",
+      "hour": "Hora",
+      "hours": "Horas",
+      "noCompletedRidesYet": "Sin viajes completados aún"
+    },
     "details": {
       "flightInfo": "Información de Vuelo",
       "specialInstructions": "Instrucciones Especiales"

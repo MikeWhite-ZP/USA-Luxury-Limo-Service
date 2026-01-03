@@ -1220,6 +1220,21 @@
       "callPassenger": "Ara",
       "messagePassenger": "Mesaj"
     },
+    "mobileDriver": {
+      "upcoming": "Yaklaşan",
+      "rides": "Yolculuklar",
+      "stats": "İstatistikler",
+      "earned": "Kazanılan",
+      "noUpcomingRides": "Yaklaşan yolculuk yok",
+      "waitingForAssignments": "Yeni atamalar bekleniyor...",
+      "goOnlineToReceive": "Yolculuk almak için çevrimiçi olun",
+      "pickup": "Alış",
+      "via": "Ara Durak",
+      "dropoff": "İniş",
+      "hour": "Saat",
+      "hours": "Saat",
+      "noCompletedRidesYet": "Henüz tamamlanmış yolculuk yok"
+    },
     "details": {
       "flightInfo": "Uçuş Bilgileri",
       "specialInstructions": "Özel Talimatlar"

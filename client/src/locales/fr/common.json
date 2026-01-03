@@ -1220,6 +1220,21 @@
       "callPassenger": "Appeler",
       "messagePassenger": "Message"
     },
+    "mobileDriver": {
+      "upcoming": "À venir",
+      "rides": "Courses",
+      "stats": "Statistiques",
+      "earned": "Gagné",
+      "noUpcomingRides": "Aucune course à venir",
+      "waitingForAssignments": "En attente de nouvelles missions...",
+      "goOnlineToReceive": "Connectez-vous pour recevoir des courses",
+      "pickup": "Prise en charge",
+      "via": "Via",
+      "dropoff": "Dépose",
+      "hour": "Heure",
+      "hours": "Heures",
+      "noCompletedRidesYet": "Aucune course terminée pour le moment"
+    },
     "details": {
       "flightInfo": "Informations de Vol",
       "specialInstructions": "Instructions Spéciales"

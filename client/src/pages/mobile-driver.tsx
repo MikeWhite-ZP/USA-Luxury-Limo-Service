@@ -886,20 +886,20 @@ export default function MobileDriver() {
           <div className="p-2 bg-muted/50 rounded border border-border">
             <div className="flex items-center gap-1.5 mb-1">
               <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-              <span className="text-[10px] font-semibold text-foreground">Stats</span>
+              <span className="text-[10px] font-semibold text-foreground">{t('driverDashboard.mobileDriver.stats')}</span>
             </div>
             <div className="grid grid-cols-3 gap-1">
               <div className="text-center p-1 bg-amber-50 rounded">
                 <p className="text-xs font-bold text-amber-700">{driver.rating || '0'}</p>
-                <p className="text-[7px] text-amber-600 uppercase">Rating</p>
+                <p className="text-[7px] text-amber-600 uppercase">{t('driverDashboard.stats.rating')}</p>
               </div>
               <div className="text-center p-1 bg-blue-50 rounded">
                 <p className="text-xs font-bold text-blue-700">{driver.totalRides || '0'}</p>
-                <p className="text-[7px] text-blue-600 uppercase">Rides</p>
+                <p className="text-[7px] text-blue-600 uppercase">{t('driverDashboard.mobileDriver.rides')}</p>
               </div>
               <div className="text-center p-1 bg-emerald-50 rounded">
                 <p className="text-xs font-bold text-emerald-700">${driver.totalEarnings || '0'}</p>
-                <p className="text-[7px] text-emerald-600 uppercase">Earned</p>
+                <p className="text-[7px] text-emerald-600 uppercase">{t('driverDashboard.mobileDriver.earned')}</p>
               </div>
             </div>
           </div>

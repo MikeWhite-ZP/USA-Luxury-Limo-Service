@@ -1220,6 +1220,21 @@
       "callPassenger": "Chiama",
       "messagePassenger": "Messaggio"
     },
+    "mobileDriver": {
+      "upcoming": "In arrivo",
+      "rides": "Corse",
+      "stats": "Statistiche",
+      "earned": "Guadagnato",
+      "noUpcomingRides": "Nessuna corsa in arrivo",
+      "waitingForAssignments": "In attesa di nuove assegnazioni...",
+      "goOnlineToReceive": "Vai online per ricevere corse",
+      "pickup": "Partenza",
+      "via": "Via",
+      "dropoff": "Arrivo",
+      "hour": "Ora",
+      "hours": "Ore",
+      "noCompletedRidesYet": "Ancora nessuna corsa completata"
+    },
     "details": {
       "flightInfo": "Informazioni Volo",
       "specialInstructions": "Istruzioni Speciali"
