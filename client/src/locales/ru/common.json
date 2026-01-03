@@ -1002,6 +1002,11 @@
         "uploadSuccessDesc": "Ваш документ был успешно загружен",
         "uploadError": "Ошибка Загрузки",
         "uploadErrorDesc": "Не удалось загрузить документ. Пожалуйста, попробуйте снова."
+      },
+      "fileInput": {
+        "selectFile": "Выбрать Файл",
+        "noFileSelected": "Файл не выбран",
+        "clearFile": "Удалить файл"
       }
     },
     "settings": {

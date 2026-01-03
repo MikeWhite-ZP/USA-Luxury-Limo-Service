@@ -1002,6 +1002,11 @@
         "uploadSuccessDesc": "Su documento ha sido subido exitosamente",
         "uploadError": "Error al Subir",
         "uploadErrorDesc": "Error al subir el documento. Por favor intente de nuevo."
+      },
+      "fileInput": {
+        "selectFile": "Seleccionar Archivo",
+        "noFileSelected": "Ningún archivo seleccionado",
+        "clearFile": "Borrar archivo"
       }
     },
     "settings": {

@@ -1002,6 +1002,11 @@
         "uploadSuccessDesc": "Votre document a été téléchargé avec succès",
         "uploadError": "Échec du Téléchargement",
         "uploadErrorDesc": "Échec du téléchargement du document. Veuillez réessayer."
+      },
+      "fileInput": {
+        "selectFile": "Choisir un Fichier",
+        "noFileSelected": "Aucun fichier sélectionné",
+        "clearFile": "Effacer le fichier"
       }
     },
     "settings": {

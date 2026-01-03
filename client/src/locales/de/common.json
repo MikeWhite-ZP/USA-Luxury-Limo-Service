@@ -1002,6 +1002,11 @@
         "uploadSuccessDesc": "Ihr Dokument wurde erfolgreich hochgeladen",
         "uploadError": "Hochladen Fehlgeschlagen",
         "uploadErrorDesc": "Dokument konnte nicht hochgeladen werden. Bitte versuchen Sie es erneut."
+      },
+      "fileInput": {
+        "selectFile": "Datei Auswählen",
+        "noFileSelected": "Keine Datei ausgewählt",
+        "clearFile": "Datei löschen"
       }
     },
     "settings": {

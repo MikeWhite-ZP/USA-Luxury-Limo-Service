@@ -1002,6 +1002,11 @@
         "uploadSuccessDesc": "Il tuo documento è stato caricato con successo",
         "uploadError": "Caricamento Fallito",
         "uploadErrorDesc": "Impossibile caricare il documento. Riprova."
+      },
+      "fileInput": {
+        "selectFile": "Seleziona File",
+        "noFileSelected": "Nessun file selezionato",
+        "clearFile": "Cancella file"
       }
     },
     "settings": {

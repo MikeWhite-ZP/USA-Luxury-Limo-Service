@@ -1059,6 +1059,11 @@
         "uploadSuccessDesc": "Your document has been uploaded successfully",
         "uploadError": "Upload Failed",
         "uploadErrorDesc": "Failed to upload document. Please try again."
+      },
+      "fileInput": {
+        "selectFile": "Select File",
+        "noFileSelected": "No file selected",
+        "clearFile": "Clear file"
       }
     },
     "settings": {

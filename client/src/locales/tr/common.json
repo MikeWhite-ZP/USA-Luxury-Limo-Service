@@ -1002,6 +1002,11 @@
         "uploadSuccessDesc": "Belgeniz başarıyla yüklendi",
         "uploadError": "Yükleme Başarısız",
         "uploadErrorDesc": "Belge yüklenemedi. Lütfen tekrar deneyin."
+      },
+      "fileInput": {
+        "selectFile": "Dosya Seç",
+        "noFileSelected": "Dosya seçilmedi",
+        "clearFile": "Dosyayı temizle"
       }
     },
     "settings": {
