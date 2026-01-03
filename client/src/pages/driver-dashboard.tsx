@@ -2431,14 +2431,14 @@ export default function DriverDashboard() {
                         <div className="flex flex-wrap justify-center md:justify-start gap-3">
                           <Badge className="bg-white/10 text-white border-0 px-3 py-1">
                             <Star className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
-                            {driver?.rating || "0"}/5 Rating
+                            {driver?.rating || "0"}/5 {t('driverDashboard.settings.profile.rating')}
                           </Badge>
                           <Badge className="bg-white/10 text-white border-0 px-3 py-1">
                             <Car className="w-3.5 h-3.5 mr-1.5 text-blue-400" />
-                            {driver?.totalRides || 0} Rides
+                            {driver?.totalRides || 0} {t('driverDashboard.settings.profile.rides')}
                           </Badge>
                           <Badge className={`border-0 px-3 py-1 ${user?.isActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                            {user?.isActive ? 'Active Driver' : 'Pending Activation'}
+                            {user?.isActive ? t('driverDashboard.settings.profile.activeDriver') : t('driverDashboard.settings.profile.pendingActivation')}
                           </Badge>
                         </div>
                       </div>
@@ -2447,11 +2447,11 @@ export default function DriverDashboard() {
                       <div className="hidden lg:flex gap-4">
                         <div className="text-center px-6 py-3 bg-white/5 rounded-xl">
                           <p className="text-2xl font-bold text-white">${earnings?.month?.toFixed(0) || '0'}</p>
-                          <p className="text-xs text-slate-400">This Month</p>
+                          <p className="text-xs text-slate-400">{t('driverDashboard.settings.profile.thisMonth')}</p>
                         </div>
                         <div className="text-center px-6 py-3 bg-white/5 rounded-xl">
                           <p className="text-2xl font-bold text-white">${earnings?.allTime?.toFixed(0) || '0'}</p>
-                          <p className="text-xs text-slate-400">All Time</p>
+                          <p className="text-xs text-slate-400">{t('driverDashboard.settings.profile.allTime')}</p>
                         </div>
                       </div>
                     </div>
@@ -2469,7 +2469,7 @@ export default function DriverDashboard() {
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md">
                       <User className="w-5 h-5 text-white" />
                     </div>
-                    Account Information
+                    {t('driverDashboard.settings.accountInfo.title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -2480,9 +2480,9 @@ export default function DriverDashboard() {
                           <span className="text-xs font-bold text-slate-600 dark:text-slate-300">#</span>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Driver ID</p>
+                          <p className="text-xs text-muted-foreground">{t('driverDashboard.settings.accountInfo.driverId')}</p>
                           <p className="text-sm font-mono font-medium text-foreground" data-testid="setting-driver-id" title={driver?.id || ""}>
-                            {driver?.id || "N/A"}
+                            {driver?.id || t('driverDashboard.settings.accountInfo.na')}
                           </p>
                         </div>
                       </div>
@@ -2494,9 +2494,9 @@ export default function DriverDashboard() {
                           <User className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Full Name</p>
+                          <p className="text-xs text-muted-foreground">{t('driverDashboard.settings.accountInfo.fullName')}</p>
                           <p className="text-sm font-medium text-foreground" data-testid="setting-name">
-                            {`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "N/A"}
+                            {`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || t('driverDashboard.settings.accountInfo.na')}
                           </p>
                         </div>
                       </div>
@@ -2508,9 +2508,9 @@ export default function DriverDashboard() {
                           <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400">@</span>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Email Address</p>
+                          <p className="text-xs text-muted-foreground">{t('driverDashboard.settings.accountInfo.emailAddress')}</p>
                           <p className="text-sm font-medium text-foreground" data-testid="setting-email">
-                            {user?.email || "N/A"}
+                            {user?.email || t('driverDashboard.settings.accountInfo.na')}
                           </p>
                         </div>
                       </div>
@@ -2523,9 +2523,9 @@ export default function DriverDashboard() {
                             <FileText className="w-4 h-4 text-red-600 dark:text-red-400" />
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Driver License #</p>
+                            <p className="text-xs text-muted-foreground">{t('driverDashboard.settings.accountInfo.driverLicenseNum')}</p>
                             <p className="text-sm font-mono font-medium text-foreground" data-testid="setting-driver-license">
-                              {driver?.licenseNumber || "Not provided"}
+                              {driver?.licenseNumber || t('driverDashboard.settings.accountInfo.notProvided')}
                             </p>
                           </div>
                         </div>
@@ -2536,9 +2536,9 @@ export default function DriverDashboard() {
                             <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Limo License #</p>
+                            <p className="text-xs text-muted-foreground">{t('driverDashboard.settings.accountInfo.limoLicenseNum')}</p>
                             <p className="text-sm font-mono font-medium text-foreground" data-testid="setting-limo-license">
-                              {driver?.limoLicenseNumber || "Not provided"}
+                              {driver?.limoLicenseNumber || t('driverDashboard.settings.accountInfo.notProvided')}
                             </p>
                           </div>
                         </div>
@@ -2551,7 +2551,7 @@ export default function DriverDashboard() {
                           <Star className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Current Rating</p>
+                          <p className="text-xs text-muted-foreground">{t('driverDashboard.settings.accountInfo.currentRating')}</p>
                           <p className="text-sm font-medium text-foreground" data-testid="setting-rating">
                             {driver?.rating || "0"} / 5.0
                           </p>
@@ -2565,9 +2565,9 @@ export default function DriverDashboard() {
                           <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Total Rides</p>
+                          <p className="text-xs text-muted-foreground">{t('driverDashboard.settings.accountInfo.totalRides')}</p>
                           <p className="text-sm font-medium text-foreground" data-testid="setting-total-rides">
-                            {driver?.totalRides || 0} completed
+                            {driver?.totalRides || 0} {t('driverDashboard.settings.accountInfo.completed')}
                           </p>
                         </div>
                       </div>
@@ -2583,7 +2583,7 @@ export default function DriverDashboard() {
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center shadow-md">
                       <Car className="w-5 h-5 text-white" />
                     </div>
-                    Vehicle Information
+                    {t('driverDashboard.settings.vehicleInfo.title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -2593,7 +2593,7 @@ export default function DriverDashboard() {
                         <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                           <Car className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                         </div>
-                        <Label className="text-sm font-medium">Vehicle Plate Number</Label>
+                        <Label className="text-sm font-medium">{t('driverDashboard.settings.vehicleInfo.plateNumber')}</Label>
                       </div>
                       {!editingVehiclePlate ? (
                         <Button
@@ -2604,7 +2604,7 @@ export default function DriverDashboard() {
                           data-testid="button-edit-vehicle-plate"
                         >
                           <Pencil className="w-3.5 h-3.5 mr-1.5" />
-                          Edit
+                          {t('driverDashboard.settings.vehicleInfo.edit')}
                         </Button>
                       ) : (
                         <div className="flex gap-2">
@@ -2618,7 +2618,7 @@ export default function DriverDashboard() {
                             className="h-8 px-3"
                             data-testid="button-cancel-vehicle-plate"
                           >
-                            Cancel
+                            {t('driverDashboard.settings.vehicleInfo.cancel')}
                           </Button>
                           <Button
                             size="sm"
@@ -2627,7 +2627,7 @@ export default function DriverDashboard() {
                             className="h-8 px-4 bg-emerald-600 hover:bg-emerald-700"
                             data-testid="button-save-vehicle-plate"
                           >
-                            {updateVehiclePlateMutation.isPending ? "Saving..." : "Save"}
+                            {updateVehiclePlateMutation.isPending ? t('driverDashboard.settings.vehicleInfo.saving') : t('driverDashboard.settings.vehicleInfo.save')}
                           </Button>
                         </div>
                       )}
@@ -2637,19 +2637,19 @@ export default function DriverDashboard() {
                         id="vehicle-plate"
                         value={vehiclePlateValue}
                         onChange={(e) => setVehiclePlateValue(e.target.value.toUpperCase())}
-                        placeholder="Enter plate (e.g., ABC1234)"
+                        placeholder={t('driverDashboard.settings.vehicleInfo.placeholder')}
                         className="font-mono text-lg tracking-wider bg-background"
                         data-testid="input-vehicle-plate"
                       />
                     ) : (
                       <div className="flex items-center gap-3 p-3 bg-background rounded-lg border border-border">
                         <span className="text-lg font-mono font-bold tracking-wider text-foreground" data-testid="text-vehicle-plate">
-                          {driver?.vehiclePlate || "Not Set"}
+                          {driver?.vehiclePlate || t('driverDashboard.settings.vehicleInfo.notSet')}
                         </span>
                       </div>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      Shared with passengers when assigned to their booking
+                      {t('driverDashboard.settings.vehicleInfo.sharedWithPassengers')}
                     </p>
                   </div>
                 </CardContent>
@@ -2664,7 +2664,7 @@ export default function DriverDashboard() {
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center shadow-md">
                       <FileText className="w-5 h-5 text-white" />
                     </div>
-                    Driver Credentials
+                    {t('driverDashboard.settings.credentials.title')}
                   </CardTitle>
                   {!editingCredentials ? (
                     <Button
@@ -2675,7 +2675,7 @@ export default function DriverDashboard() {
                       data-testid="button-edit-credentials"
                     >
                       <Pencil className="w-3.5 h-3.5 mr-1.5" />
-                      Edit
+                      {t('driverDashboard.settings.credentials.edit')}
                     </Button>
                   ) : (
                     <div className="flex gap-2">
@@ -2688,7 +2688,7 @@ export default function DriverDashboard() {
                         }}
                         data-testid="button-cancel-credentials"
                       >
-                        Cancel
+                        {t('driverDashboard.settings.credentials.cancel')}
                       </Button>
                       <Button
                         size="sm"
@@ -2697,7 +2697,7 @@ export default function DriverDashboard() {
                         className="bg-emerald-600 hover:bg-emerald-700"
                         data-testid="button-save-credentials"
                       >
-                        {updateCredentialsMutation.isPending ? "Saving..." : "Save Changes"}
+                        {updateCredentialsMutation.isPending ? t('driverDashboard.settings.credentials.saving') : t('driverDashboard.settings.credentials.saveChanges')}
                       </Button>
                     </div>
                   )}
@@ -2710,7 +2710,7 @@ export default function DriverDashboard() {
                     className="w-full min-h-[120px] p-4 border border-border bg-background rounded-xl text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     value={credentialsValue}
                     onChange={(e) => setCredentialsValue(e.target.value)}
-                    placeholder="Enter your credentials (e.g., CDL License #, TLC License #, certifications, years of experience, languages spoken, etc.)"
+                    placeholder={t('driverDashboard.settings.credentials.placeholder')}
                     data-testid="input-credentials"
                   />
                 ) : (
@@ -2718,7 +2718,7 @@ export default function DriverDashboard() {
                     <p className="text-sm text-foreground whitespace-pre-wrap" data-testid="text-credentials">
                       {driver?.driverCredentials || (
                         <span className="text-muted-foreground italic">
-                          No credentials added yet. Click Edit to add your professional qualifications.
+                          {t('driverDashboard.settings.credentials.noCredentials')}
                         </span>
                       )}
                     </p>
@@ -2726,7 +2726,7 @@ export default function DriverDashboard() {
                 )}
                 <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1.5">
                   <Info className="w-3.5 h-3.5" />
-                  These credentials are shared with passengers when you're assigned to their booking
+                  {t('driverDashboard.settings.credentials.sharedWithPassengers')}
                 </p>
               </CardContent>
             </Card>
@@ -2743,8 +2743,8 @@ export default function DriverDashboard() {
                       <DollarSign className="w-7 h-7" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold">View Your Earnings</h3>
-                      <p className="text-emerald-100">Access detailed earnings reports and download 1099 forms</p>
+                      <h3 className="text-xl font-bold">{t('driverDashboard.settings.quickActions.viewEarnings')}</h3>
+                      <p className="text-emerald-100">{t('driverDashboard.settings.quickActions.earningsDescription')}</p>
                     </div>
                   </div>
                   <Button 
@@ -2753,7 +2753,7 @@ export default function DriverDashboard() {
                     className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold px-6 shadow-lg"
                   >
                     <DollarSign className="w-5 h-5 mr-2" />
-                    View Earnings
+                    {t('driverDashboard.settings.quickActions.viewEarningsButton')}
                   </Button>
                 </div>
               </CardContent>
