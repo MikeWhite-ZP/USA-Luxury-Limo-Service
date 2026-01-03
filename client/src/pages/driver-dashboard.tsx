@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ObjectUploader } from "../components/ObjectUploader";
 import DriverTaxInfoSection from "@/components/DriverTaxInfoSection";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const defaultUserImage = '/images/default-user_1762118764894.png';
 
@@ -1021,6 +1022,8 @@ export default function DriverDashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              {/* Language Switcher */}
+              <LanguageSwitcher />
               {/* Driver Profile Picture */}
               <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-red-100 shadow-md bg-background">
                 <img
