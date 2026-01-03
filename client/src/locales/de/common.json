@@ -447,7 +447,20 @@
     "emailInUse": "E-Mail wird bereits verwendet",
     "loginWithReplit": "Mit Replit anmelden",
     "continueWithReplit": "Mit Replit fortfahren",
-    "orContinueWith": "Oder fortfahren mit"
+    "orContinueWith": "Oder fortfahren mit",
+    "selectRoleDescription": "Wählen Sie Ihre Rolle für Ihr personalisiertes Dashboard",
+    "accessAccount": "Greifen Sie auf Ihr Konto zu, um fortzufahren",
+    "signingIn": "Anmeldung läuft...",
+    "signingUp": "Konto wird erstellt...",
+    "signInOrCreateAccount": "Melden Sie sich an oder erstellen Sie ein neues Konto",
+    "backToRoleSelection": "Zurück zur Rollenauswahl",
+    "continueAs": "Weiter als {{role}}",
+    "portalTitle": "{{role}}-Portal",
+    "accountTitle": "{{role}}-Konto",
+    "forgotPasswordOrUsername": "Passwort oder Benutzername vergessen?",
+    "minPasswordLength": "Mindestens 6 Zeichen",
+    "missingInformation": "Fehlende Informationen",
+    "enterUsernamePassword": "Bitte geben Sie Ihren Benutzernamen und Ihr Passwort ein"
   },
   "roles": {
     "passenger": "Fahrgast",

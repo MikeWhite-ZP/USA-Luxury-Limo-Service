@@ -447,7 +447,20 @@
     "emailInUse": "E-posta zaten kullanılıyor",
     "loginWithReplit": "Replit ile Giriş Yap",
     "continueWithReplit": "Replit ile Devam Et",
-    "orContinueWith": "Veya şununla devam et"
+    "orContinueWith": "Veya şununla devam et",
+    "selectRoleDescription": "Kişiselleştirilmiş panelinize erişmek için rolünüzü seçin",
+    "accessAccount": "Devam etmek için hesabınıza erişin",
+    "signingIn": "Giriş yapılıyor...",
+    "signingUp": "Hesap oluşturuluyor...",
+    "signInOrCreateAccount": "Devam etmek için giriş yapın veya yeni hesap oluşturun",
+    "backToRoleSelection": "Rol seçimine dön",
+    "continueAs": "{{role}} olarak devam et",
+    "portalTitle": "{{role}} Portalı",
+    "accountTitle": "{{role}} Hesabı",
+    "forgotPasswordOrUsername": "Şifre veya Kullanıcı Adınızı mı Unuttunuz?",
+    "minPasswordLength": "En az 6 karakter",
+    "missingInformation": "Eksik bilgi",
+    "enterUsernamePassword": "Lütfen kullanıcı adınızı ve şifrenizi girin"
   },
   "roles": {
     "passenger": "Yolcu",

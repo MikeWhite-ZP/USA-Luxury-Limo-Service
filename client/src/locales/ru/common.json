@@ -447,7 +447,20 @@
     "emailInUse": "Email уже используется",
     "loginWithReplit": "Войти через Replit",
     "continueWithReplit": "Продолжить с Replit",
-    "orContinueWith": "Или продолжить с"
+    "orContinueWith": "Или продолжить с",
+    "selectRoleDescription": "Выберите свою роль для доступа к персональной панели",
+    "accessAccount": "Войдите в свой аккаунт для продолжения",
+    "signingIn": "Вход...",
+    "signingUp": "Создание аккаунта...",
+    "signInOrCreateAccount": "Войдите или создайте новый аккаунт для продолжения",
+    "backToRoleSelection": "Вернуться к выбору роли",
+    "continueAs": "Продолжить как {{role}}",
+    "portalTitle": "Портал {{role}}",
+    "accountTitle": "Аккаунт {{role}}",
+    "forgotPasswordOrUsername": "Забыли пароль или имя пользователя?",
+    "minPasswordLength": "Минимум 6 символов",
+    "missingInformation": "Недостающая информация",
+    "enterUsernamePassword": "Пожалуйста, введите имя пользователя и пароль"
   },
   "roles": {
     "passenger": "Пассажир",

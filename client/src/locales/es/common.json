@@ -447,7 +447,20 @@
     "emailInUse": "El correo electrónico ya está en uso",
     "loginWithReplit": "Iniciar sesión con Replit",
     "continueWithReplit": "Continuar con Replit",
-    "orContinueWith": "O continuar con"
+    "orContinueWith": "O continuar con",
+    "selectRoleDescription": "Seleccione su rol para acceder a su panel personalizado",
+    "accessAccount": "Acceda a su cuenta para continuar",
+    "signingIn": "Iniciando sesión...",
+    "signingUp": "Creando cuenta...",
+    "signInOrCreateAccount": "Inicie sesión o cree una cuenta nueva para continuar",
+    "backToRoleSelection": "Volver a selección de rol",
+    "continueAs": "Continuar como {{role}}",
+    "portalTitle": "Portal de {{role}}",
+    "accountTitle": "Cuenta de {{role}}",
+    "forgotPasswordOrUsername": "¿Olvidaste tu contraseña o nombre de usuario?",
+    "minPasswordLength": "Mínimo 6 caracteres",
+    "missingInformation": "Información faltante",
+    "enterUsernamePassword": "Por favor ingrese su nombre de usuario y contraseña"
   },
   "roles": {
     "passenger": "Pasajero",

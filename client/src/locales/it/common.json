@@ -447,7 +447,20 @@
     "emailInUse": "L'email è già in uso",
     "loginWithReplit": "Accedi con Replit",
     "continueWithReplit": "Continua con Replit",
-    "orContinueWith": "Oppure continua con"
+    "orContinueWith": "Oppure continua con",
+    "selectRoleDescription": "Seleziona il tuo ruolo per accedere alla tua dashboard personalizzata",
+    "accessAccount": "Accedi al tuo account per continuare",
+    "signingIn": "Accesso in corso...",
+    "signingUp": "Creazione account...",
+    "signInOrCreateAccount": "Accedi o crea un nuovo account per continuare",
+    "backToRoleSelection": "Torna alla selezione del ruolo",
+    "continueAs": "Continua come {{role}}",
+    "portalTitle": "Portale {{role}}",
+    "accountTitle": "Account {{role}}",
+    "forgotPasswordOrUsername": "Password o nome utente dimenticato?",
+    "minPasswordLength": "Minimo 6 caratteri",
+    "missingInformation": "Informazioni mancanti",
+    "enterUsernamePassword": "Inserisci il tuo nome utente e password"
   },
   "roles": {
     "passenger": "Passeggero",
