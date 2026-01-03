@@ -873,6 +873,10 @@
     "support": {
       "title": "Contact Support",
       "description": "Have a question or need assistance? Fill out the form below and our support team will get back to you as soon as possible.",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone (Optional)",
       "subject": "Subject (Optional)",
       "subjectPlaceholder": "e.g., Booking inquiry, Payment issue, etc.",
       "message": "Message",

@@ -790,6 +790,10 @@
     "support": {
       "title": "Support Kontaktieren",
       "description": "Haben Sie eine Frage oder brauchen Sie Hilfe? Füllen Sie das Formular aus und unser Support-Team wird sich schnellstmöglich bei Ihnen melden.",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "email": "E-Mail",
+      "phone": "Telefon (Optional)",
       "subject": "Betreff (Optional)",
       "subjectPlaceholder": "z.B., Buchungsanfrage, Zahlungsproblem",
       "message": "Nachricht",

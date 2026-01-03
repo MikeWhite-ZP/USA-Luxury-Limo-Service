@@ -790,6 +790,10 @@
     "support": {
       "title": "Contatta Supporto",
       "description": "Hai una domanda o hai bisogno di assistenza? Compila il modulo qui sotto e il nostro team ti risponderà al più presto.",
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "email": "Email",
+      "phone": "Telefono (Opzionale)",
       "subject": "Oggetto (Opzionale)",
       "subjectPlaceholder": "es., Richiesta prenotazione, Problema pagamento",
       "message": "Messaggio",

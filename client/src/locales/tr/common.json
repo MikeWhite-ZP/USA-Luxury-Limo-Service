@@ -790,6 +790,10 @@
     "support": {
       "title": "Destek İletişimi",
       "description": "Bir sorunuz mu var veya yardıma mı ihtiyacınız var? Formu doldurun, destek ekibimiz size en kısa sürede yanıt verecek.",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "email": "E-posta",
+      "phone": "Telefon (Opsiyonel)",
       "subject": "Konu (Opsiyonel)",
       "subjectPlaceholder": "örn., Rezervasyon sorusu, Ödeme sorunu",
       "message": "Mesaj",
