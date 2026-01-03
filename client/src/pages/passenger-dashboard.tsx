@@ -16,7 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, Edit2, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone, FileText, Eye, Printer, ChevronDown, Building2, Plane, Hotel, Utensils, ShoppingBag, Car, Coffee, Hospital, School, Landmark, Download } from "lucide-react";
+import { Home, Building, MapPin, Plus, Trash2, CreditCard, Star, Edit, Edit2, AlertTriangle, Calendar, History, HelpCircle, Send, User, Save, Mail, Phone, FileText, Eye, Printer, ChevronDown, Building2, Plane, Hotel, Utensils, ShoppingBag, Car, Coffee, Hospital, School, Landmark, Download, CheckCircle2, DollarSign } from "lucide-react";
 import { Elements, CardElement, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useForm } from "react-hook-form";
@@ -71,6 +71,8 @@ interface Booking {
   passengerPhone?: string;
   passengerEmail?: string;
   bookingFor?: 'self' | 'someone_else';
+  paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded';
+  paymentId?: string;
 }
 
 interface PaymentMethod {
@@ -1478,6 +1480,295 @@ function SquareInvoicePaymentForm({
   );
 }
 
+// Stripe Payment Form for Booking
+function BookingPaymentForm({ 
+  bookingId, 
+  amount, 
+  onSuccess, 
+  onCancel 
+}: { 
+  bookingId?: string;
+  amount?: string;
+  onSuccess: () => void;
+  onCancel: () => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      const { error: submitError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: window.location.href,
+        },
+        redirect: 'if_required',
+      });
+
+      if (submitError) {
+        setError(submitError.message || 'Payment failed');
+        toast({
+          title: 'Payment Failed',
+          description: submitError.message || 'Please try again',
+          variant: 'destructive',
+        });
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        onSuccess();
+      }
+    } catch (err: any) {
+      setError(err.message || 'Payment failed');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="bg-muted/50 p-3 rounded-lg border border-border">
+        <p className="text-xs text-muted-foreground mb-1">Amount to Pay</p>
+        <p className="text-2xl font-bold text-brand-accent">${parseFloat(amount || '0').toFixed(2)}</p>
+      </div>
+      
+      <div className="border border-border rounded-lg p-3">
+        <PaymentElement />
+      </div>
+      
+      {error && (
+        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+          {error}
+        </div>
+      )}
+      
+      <div className="flex gap-3 pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isProcessing}
+          className="flex-1"
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={!stripe || isProcessing}
+          className="flex-1 btn-brand-primary"
+        >
+          {isProcessing ? (
+            <>
+              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+              Processing...
+            </>
+          ) : (
+            'Pay Now'
+          )}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+// Square Payment Form for Booking
+function SquareBookingPaymentForm({ 
+  bookingId, 
+  amount, 
+  applicationId,
+  locationId,
+  environment,
+  onSuccess, 
+  onCancel 
+}: { 
+  bookingId?: string;
+  amount?: string;
+  applicationId: string;
+  locationId: string;
+  environment: string;
+  onSuccess: () => void;
+  onCancel: () => void;
+}) {
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isSquareLoaded, setIsSquareLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const cardRef = useRef<any>(null);
+  const paymentsRef = useRef<any>(null);
+
+  useEffect(() => {
+    const loadSquareSDK = async () => {
+      if ((window as any).Square) {
+        await initializeSquarePayments();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = environment === 'production' 
+        ? 'https://web.squarecdn.com/v1/square.js'
+        : 'https://sandbox.web.squarecdn.com/v1/square.js';
+      script.async = true;
+      script.onload = async () => {
+        await initializeSquarePayments();
+      };
+      script.onerror = () => {
+        setError('Failed to load payment system. Please try again.');
+      };
+      document.body.appendChild(script);
+    };
+
+    const initializeSquarePayments = async () => {
+      try {
+        const Square = (window as any).Square;
+        if (!Square) {
+          throw new Error('Square SDK not loaded');
+        }
+
+        const payments = Square.payments(applicationId, locationId);
+        paymentsRef.current = payments;
+
+        const card = await payments.card();
+        await card.attach('#square-card-container-booking');
+        cardRef.current = card;
+        setIsSquareLoaded(true);
+      } catch (err: any) {
+        console.error('Square initialization error:', err);
+        setError(err.message || 'Failed to initialize payment form.');
+      }
+    };
+
+    loadSquareSDK();
+
+    return () => {
+      if (cardRef.current) {
+        cardRef.current.destroy?.();
+      }
+    };
+  }, [applicationId, locationId, environment]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!cardRef.current || !isSquareLoaded) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      const tokenResult = await cardRef.current.tokenize();
+      
+      if (tokenResult.status === 'OK') {
+        const response = await fetch('/api/square-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            sourceId: tokenResult.token,
+            amount: parseFloat(amount || '0'),
+            bookingId,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          toast({
+            title: 'Payment Successful',
+            description: 'Your booking has been paid successfully.',
+          });
+          onSuccess();
+        } else {
+          setError(result.message || 'Payment failed');
+          toast({
+            title: 'Payment Failed',
+            description: result.message || 'Please try again',
+            variant: 'destructive',
+          });
+        }
+      } else {
+        const errorMessage = tokenResult.errors?.[0]?.message || 'Failed to process card';
+        setError(errorMessage);
+        toast({
+          title: 'Card Error',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
+    } catch (err: any) {
+      setError(err.message || 'Payment failed');
+      toast({
+        title: 'Payment Error',
+        description: err.message || 'An unexpected error occurred',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="bg-muted/50 p-3 rounded-lg border border-border">
+        <p className="text-xs text-muted-foreground mb-1">Amount to Pay</p>
+        <p className="text-2xl font-bold text-brand-accent">${parseFloat(amount || '0').toFixed(2)}</p>
+      </div>
+      
+      {!isSquareLoaded && (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full" />
+          <span className="ml-3 text-sm text-muted-foreground">Loading payment form...</span>
+        </div>
+      )}
+      <div className={`border border-border rounded-lg p-3 ${!isSquareLoaded ? 'hidden' : ''}`}>
+        <div id="square-card-container-booking" style={{ minHeight: '89px' }} />
+      </div>
+      
+      {error && (
+        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+          {error}
+        </div>
+      )}
+      
+      <div className="flex gap-3 pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isProcessing}
+          className="flex-1"
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={!isSquareLoaded || isProcessing}
+          className="flex-1 btn-brand-primary"
+        >
+          {isProcessing ? (
+            <>
+              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+              Processing...
+            </>
+          ) : (
+            'Pay Now'
+          )}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 function ContactSupportForm({ user }: { user: any }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -1731,6 +2022,17 @@ export default function PassengerDashboard() {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [cancelReason, setCancelReason] = useState('');
+
+  // Booking payment state
+  const [bookingPaymentDialogOpen, setBookingPaymentDialogOpen] = useState(false);
+  const [paymentBooking, setPaymentBooking] = useState<Booking | null>(null);
+  const [bookingClientSecret, setBookingClientSecret] = useState<string | null>(null);
+  const [bookingPaymentProvider, setBookingPaymentProvider] = useState<'stripe' | 'square' | null>(null);
+  const [bookingSquareConfig, setBookingSquareConfig] = useState<{
+    applicationId: string;
+    locationId: string;
+    environment: string;
+  } | null>(null);
   
   // Cancellation reason options
   const cancellationReasons = [
@@ -2062,6 +2364,66 @@ export default function PassengerDashboard() {
       });
     },
   });
+
+  // Create booking payment intent mutation
+  const createBookingPaymentMutation = useMutation({
+    mutationFn: async ({ bookingId, amount }: { bookingId: string; amount: number }) => {
+      const response = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ bookingId, amount }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create payment');
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setBookingPaymentProvider(data.provider);
+      if (data.provider === 'stripe') {
+        setBookingClientSecret(data.clientSecret);
+        setBookingSquareConfig(null);
+      } else if (data.provider === 'square') {
+        setBookingClientSecret(null);
+        setBookingSquareConfig({
+          applicationId: data.applicationId,
+          locationId: data.locationId,
+          environment: data.environment,
+        });
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Payment Error',
+        description: error.message || 'Failed to initiate payment',
+        variant: 'destructive',
+      });
+      setBookingPaymentDialogOpen(false);
+      setPaymentBooking(null);
+      setBookingPaymentProvider(null);
+      setBookingSquareConfig(null);
+    },
+  });
+
+  // Handle booking payment
+  const handlePayBooking = (booking: Booking) => {
+    setPaymentBooking(booking);
+    setBookingPaymentDialogOpen(true);
+    createBookingPaymentMutation.mutate({ 
+      bookingId: booking.id, 
+      amount: parseFloat(booking.totalAmount) 
+    });
+  };
+
+  // Check if booking can be paid
+  const canPayBooking = (booking: Booking): boolean => {
+    // Can pay if: not paid AND not cancelled AND amount > 0
+    return booking.paymentStatus !== 'paid' && 
+           booking.status !== 'cancelled' && 
+           parseFloat(booking.totalAmount) > 0;
+  };
 
   // POI category helper function
   const getPOICategoryInfo = (poi: any): { icon: string; label: string } => {
@@ -2792,14 +3154,40 @@ export default function PassengerDashboard() {
                         </div>
                       </div>
                       <div className="text-right space-y-1 flex flex-col items-end ml-4">
-                        <p className="font-bold text-[#29b24a]" data-testid={`booking-total-${booking.id}`}>
-                          ${booking.totalAmount}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-[#29b24a]" data-testid={`booking-total-${booking.id}`}>
+                            ${booking.totalAmount}
+                          </p>
+                          {booking.paymentStatus === 'paid' ? (
+                            <Badge className="bg-green-100 text-green-700 border-green-200" data-testid={`booking-payment-status-${booking.id}`}>
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Paid
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200" data-testid={`booking-payment-status-${booking.id}`}>
+                              Unpaid
+                            </Badge>
+                          )}
+                        </div>
                         <Badge variant={getStatusColor(booking.status)} data-testid={`booking-status-${booking.id}`}>
                           {booking.status}
                         </Badge>
                       </div>
                     </div>
+                    {/* Payment section - show Pay button if not paid */}
+                    {canPayBooking(booking) && (
+                      <div className="mt-3 pt-3 border-t border-border">
+                        <Button
+                          size="sm"
+                          className="btn-brand-primary"
+                          onClick={() => handlePayBooking(booking)}
+                          data-testid={`button-pay-${booking.id}`}
+                        >
+                          <DollarSign className="w-3 h-3 mr-1" />
+                          Pay Now
+                        </Button>
+                      </div>
+                    )}
                     {booking.driverId && (booking.driverFirstName || booking.driverLastName) && (
                       <div className="mt-3 pt-3 border-t border-border">
                         <div className="flex items-start space-x-3">
@@ -4003,6 +4391,80 @@ export default function PassengerDashboard() {
           queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
         }}
       />
+
+      {/* Booking Payment Dialog */}
+      <Dialog open={bookingPaymentDialogOpen} onOpenChange={(open) => {
+        if (!open) {
+          setBookingPaymentDialogOpen(false);
+          setPaymentBooking(null);
+          setBookingClientSecret(null);
+          setBookingPaymentProvider(null);
+          setBookingSquareConfig(null);
+        }
+      }}>
+        <DialogContent className="sm:max-w-[450px] bg-card p-5">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="text-lg font-semibold text-foreground">Pay for Booking</DialogTitle>
+            {paymentBooking && (
+              <p className="text-sm text-muted-foreground">
+                {paymentBooking.pickupAddress?.slice(0, 30)}... - ${parseFloat(paymentBooking.totalAmount).toFixed(2)}
+              </p>
+            )}
+          </DialogHeader>
+          
+          {createBookingPaymentMutation.isPending ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full" />
+              <span className="ml-3 text-sm text-muted-foreground">Preparing payment...</span>
+            </div>
+          ) : bookingPaymentProvider === 'stripe' && bookingClientSecret ? (
+            <Elements stripe={stripePromise} options={{ clientSecret: bookingClientSecret }}>
+              <BookingPaymentForm 
+                bookingId={paymentBooking?.id}
+                amount={paymentBooking?.totalAmount}
+                onSuccess={() => {
+                  queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+                  setBookingPaymentDialogOpen(false);
+                  setPaymentBooking(null);
+                  setBookingClientSecret(null);
+                  setBookingPaymentProvider(null);
+                  toast({
+                    title: "Payment Successful",
+                    description: "Your booking has been paid successfully.",
+                  });
+                }}
+                onCancel={() => {
+                  setBookingPaymentDialogOpen(false);
+                  setPaymentBooking(null);
+                  setBookingClientSecret(null);
+                  setBookingPaymentProvider(null);
+                }}
+              />
+            </Elements>
+          ) : bookingPaymentProvider === 'square' && bookingSquareConfig ? (
+            <SquareBookingPaymentForm 
+              bookingId={paymentBooking?.id}
+              amount={paymentBooking?.totalAmount}
+              applicationId={bookingSquareConfig.applicationId}
+              locationId={bookingSquareConfig.locationId}
+              environment={bookingSquareConfig.environment}
+              onSuccess={() => {
+                queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+                setBookingPaymentDialogOpen(false);
+                setPaymentBooking(null);
+                setBookingSquareConfig(null);
+                setBookingPaymentProvider(null);
+              }}
+              onCancel={() => {
+                setBookingPaymentDialogOpen(false);
+                setPaymentBooking(null);
+                setBookingSquareConfig(null);
+                setBookingPaymentProvider(null);
+              }}
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
