@@ -358,7 +358,32 @@
     "step1": "Güzergah",
     "step2": "Araç",
     "step3": "Detaylar",
-    "step4": "Ödeme"
+    "step4": "Ödeme",
+    "bookNewRide": "Yeni Yolculuk Rezerve Et",
+    "myRides": "Yolculuklarım",
+    "noUpcomingRides": "Yaklaşan yolculuk yok",
+    "bookFirstRide": "İlk yolculuğunuzu rezerve edin",
+    "noPastRides": "Geçmiş yolculuk yok"
+  },
+  "locations": {
+    "saved": "Kayıtlı",
+    "savedLocations": "Kayıtlı Konumlar",
+    "favoritePlaces": "Favori yerleriniz",
+    "noSavedLocations": "Kayıtlı konum yok",
+    "saveLocationsDuringBooking": "Rezervasyon sırasında konum kaydedin",
+    "addNewLocation": "Yeni Konum Ekle",
+    "saveLocationDescription": "Hızlı rezervasyon için konum kaydedin",
+    "label": "Etiket",
+    "labelPlaceholder": "Ev, İş, Spor Salonu vb.",
+    "address": "Adres",
+    "saveLocation": "Konumu Kaydet",
+    "editLocation": "Konumu Düzenle",
+    "updateSavedLocation": "Kayıtlı konumu güncelle",
+    "from": "Nereden",
+    "to": "Nereye"
+  },
+  "invoices": {
+    "title": "Faturalar"
   },
   "pwa": {
     "downloadButton": "Mobil Uygulamayı İndir",
@@ -438,7 +463,8 @@
     "dashboard": "Kontrol Paneli",
     "profile": "Profil",
     "myBookings": "Rezervasyonlarım",
-    "settings": "Ayarlar"
+    "settings": "Ayarlar",
+    "account": "Hesap"
   },
   "common": {
     "loading": "Yükleniyor...",
@@ -497,7 +523,9 @@
     "country": "Ülke",
     "zipCode": "Posta Kodu",
     "createdAt": "Oluşturulma Tarihi",
-    "updatedAt": "Güncellenme Tarihi"
+    "updatedAt": "Güncellenme Tarihi",
+    "welcomeBack": "Hoş Geldiniz",
+    "default": "Varsayılan"
   },
   "auth": {
     "login": "Giriş Yap",
@@ -560,6 +588,8 @@
   },
   "payment": {
     "title": "Ödeme",
+    "payment": "Ödeme",
+    "credits": "Kredi",
     "paymentMethod": "Ödeme Yöntemi",
     "payNow": "Şimdi Öde",
     "payLater": "Sonra Öde",
@@ -631,7 +661,9 @@
     "driverDeclined": "Sürücü Reddetti",
     "noShow": "Gelmedi",
     "active": "Aktif",
-    "inactive": "Pasif"
+    "inactive": "Pasif",
+    "upcoming": "Yaklaşan",
+    "past": "Geçmiş"
   },
   "admin": {
     "title": "Yönetici Paneli",
