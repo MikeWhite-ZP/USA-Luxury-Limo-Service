@@ -1003,6 +1003,55 @@
         "uploadError": "Yükleme Başarısız",
         "uploadErrorDesc": "Belge yüklenemedi. Lütfen tekrar deneyin."
       }
+    },
+    "settings": {
+      "profile": {
+        "rating": "Puan",
+        "rides": "Yolculuk",
+        "activeDriver": "Aktif Sürücü",
+        "pendingActivation": "Aktivasyon Bekliyor",
+        "thisMonth": "Bu Ay",
+        "allTime": "Tüm Zamanlar"
+      },
+      "accountInfo": {
+        "title": "Hesap Bilgileri",
+        "driverId": "Sürücü ID",
+        "fullName": "Ad Soyad",
+        "emailAddress": "E-posta Adresi",
+        "driverLicenseNum": "Sürücü Belgesi #",
+        "limoLicenseNum": "Limuzin Lisansı #",
+        "currentRating": "Mevcut Puan",
+        "totalRides": "Toplam Yolculuk",
+        "completed": "tamamlandı",
+        "notProvided": "Sağlanmadı",
+        "na": "Yok"
+      },
+      "vehicleInfo": {
+        "title": "Araç Bilgileri",
+        "plateNumber": "Araç Plaka Numarası",
+        "edit": "Düzenle",
+        "cancel": "İptal",
+        "save": "Kaydet",
+        "saving": "Kaydediliyor...",
+        "placeholder": "Plaka girin (örn., ABC1234)",
+        "notSet": "Ayarlanmadı",
+        "sharedWithPassengers": "Rezervasyonlarına atandığınızda yolcularla paylaşılır"
+      },
+      "credentials": {
+        "title": "Sürücü Kimlik Bilgileri",
+        "edit": "Düzenle",
+        "cancel": "İptal",
+        "saveChanges": "Değişiklikleri Kaydet",
+        "saving": "Kaydediliyor...",
+        "placeholder": "Kimlik bilgilerinizi girin (örn., CDL Lisans #, TLC Lisans #, sertifikalar, deneyim yılları, konuşulan diller, vb.)",
+        "noCredentials": "Henüz kimlik bilgisi eklenmedi. Profesyonel niteliklerinizi eklemek için Düzenle'ye tıklayın.",
+        "sharedWithPassengers": "Bu kimlik bilgileri, rezervasyonlarına atandığınızda yolcularla paylaşılır"
+      },
+      "quickActions": {
+        "viewEarnings": "Kazançlarınızı Görüntüleyin",
+        "earningsDescription": "Detaylı kazanç raporlarına erişin ve 1099 formlarını indirin",
+        "viewEarningsButton": "Kazançları Görüntüle"
+      }
     }
   }
 }

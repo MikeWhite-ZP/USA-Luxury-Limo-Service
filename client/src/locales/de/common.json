@@ -1003,6 +1003,55 @@
         "uploadError": "Hochladen Fehlgeschlagen",
         "uploadErrorDesc": "Dokument konnte nicht hochgeladen werden. Bitte versuchen Sie es erneut."
       }
+    },
+    "settings": {
+      "profile": {
+        "rating": "Bewertung",
+        "rides": "Fahrten",
+        "activeDriver": "Aktiver Fahrer",
+        "pendingActivation": "Aktivierung Ausstehend",
+        "thisMonth": "Diesen Monat",
+        "allTime": "Gesamt"
+      },
+      "accountInfo": {
+        "title": "Kontoinformationen",
+        "driverId": "Fahrer-ID",
+        "fullName": "Vollständiger Name",
+        "emailAddress": "E-Mail-Adresse",
+        "driverLicenseNum": "Führerschein-Nr.",
+        "limoLicenseNum": "Limousinen-Lizenz-Nr.",
+        "currentRating": "Aktuelle Bewertung",
+        "totalRides": "Gesamte Fahrten",
+        "completed": "abgeschlossen",
+        "notProvided": "Nicht angegeben",
+        "na": "K.A."
+      },
+      "vehicleInfo": {
+        "title": "Fahrzeuginformationen",
+        "plateNumber": "Fahrzeugkennzeichen",
+        "edit": "Bearbeiten",
+        "cancel": "Abbrechen",
+        "save": "Speichern",
+        "saving": "Speichern...",
+        "placeholder": "Kennzeichen eingeben (z.B., ABC1234)",
+        "notSet": "Nicht Festgelegt",
+        "sharedWithPassengers": "Wird mit Fahrgästen geteilt, wenn Sie ihrer Buchung zugewiesen werden"
+      },
+      "credentials": {
+        "title": "Fahrer-Qualifikationen",
+        "edit": "Bearbeiten",
+        "cancel": "Abbrechen",
+        "saveChanges": "Änderungen Speichern",
+        "saving": "Speichern...",
+        "placeholder": "Geben Sie Ihre Qualifikationen ein (z.B., CDL-Lizenz-Nr., TLC-Lizenz-Nr., Zertifizierungen, Erfahrungsjahre, gesprochene Sprachen, usw.)",
+        "noCredentials": "Noch keine Qualifikationen hinzugefügt. Klicken Sie auf Bearbeiten, um Ihre beruflichen Qualifikationen hinzuzufügen.",
+        "sharedWithPassengers": "Diese Qualifikationen werden mit Fahrgästen geteilt, wenn Sie ihrer Buchung zugewiesen werden"
+      },
+      "quickActions": {
+        "viewEarnings": "Ihre Einnahmen Ansehen",
+        "earningsDescription": "Zugang zu detaillierten Einnahmenberichten und Download von 1099-Formularen",
+        "viewEarningsButton": "Einnahmen Ansehen"
+      }
     }
   }
 }

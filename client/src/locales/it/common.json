@@ -1003,6 +1003,55 @@
         "uploadError": "Caricamento Fallito",
         "uploadErrorDesc": "Impossibile caricare il documento. Riprova."
       }
+    },
+    "settings": {
+      "profile": {
+        "rating": "Valutazione",
+        "rides": "Corse",
+        "activeDriver": "Autista Attivo",
+        "pendingActivation": "Attivazione in Sospeso",
+        "thisMonth": "Questo Mese",
+        "allTime": "Totale"
+      },
+      "accountInfo": {
+        "title": "Informazioni Account",
+        "driverId": "ID Autista",
+        "fullName": "Nome Completo",
+        "emailAddress": "Indirizzo E-mail",
+        "driverLicenseNum": "N° Patente di Guida",
+        "limoLicenseNum": "N° Licenza Limousine",
+        "currentRating": "Valutazione Attuale",
+        "totalRides": "Corse Totali",
+        "completed": "completate",
+        "notProvided": "Non fornito",
+        "na": "N/D"
+      },
+      "vehicleInfo": {
+        "title": "Informazioni Veicolo",
+        "plateNumber": "Numero Targa Veicolo",
+        "edit": "Modifica",
+        "cancel": "Annulla",
+        "save": "Salva",
+        "saving": "Salvataggio...",
+        "placeholder": "Inserisci targa (es., ABC1234)",
+        "notSet": "Non Impostato",
+        "sharedWithPassengers": "Condiviso con i passeggeri quando assegnato alla loro prenotazione"
+      },
+      "credentials": {
+        "title": "Credenziali Autista",
+        "edit": "Modifica",
+        "cancel": "Annulla",
+        "saveChanges": "Salva Modifiche",
+        "saving": "Salvataggio...",
+        "placeholder": "Inserisci le tue credenziali (es., N° Patente CDL, N° Licenza TLC, certificazioni, anni di esperienza, lingue parlate, ecc.)",
+        "noCredentials": "Nessuna credenziale aggiunta. Clicca Modifica per aggiungere le tue qualifiche professionali.",
+        "sharedWithPassengers": "Queste credenziali vengono condivise con i passeggeri quando vieni assegnato alla loro prenotazione"
+      },
+      "quickActions": {
+        "viewEarnings": "Visualizza i Tuoi Guadagni",
+        "earningsDescription": "Accedi a report dettagliati sui guadagni e scarica i moduli 1099",
+        "viewEarningsButton": "Visualizza Guadagni"
+      }
     }
   }
 }

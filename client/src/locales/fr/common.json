@@ -1003,6 +1003,55 @@
         "uploadError": "Échec du Téléchargement",
         "uploadErrorDesc": "Échec du téléchargement du document. Veuillez réessayer."
       }
+    },
+    "settings": {
+      "profile": {
+        "rating": "Note",
+        "rides": "Courses",
+        "activeDriver": "Chauffeur Actif",
+        "pendingActivation": "Activation en Attente",
+        "thisMonth": "Ce Mois",
+        "allTime": "Tout le Temps"
+      },
+      "accountInfo": {
+        "title": "Informations du Compte",
+        "driverId": "ID du Chauffeur",
+        "fullName": "Nom Complet",
+        "emailAddress": "Adresse E-mail",
+        "driverLicenseNum": "N° Permis de Conduire",
+        "limoLicenseNum": "N° Licence Limousine",
+        "currentRating": "Note Actuelle",
+        "totalRides": "Total des Courses",
+        "completed": "complétées",
+        "notProvided": "Non fourni",
+        "na": "N/D"
+      },
+      "vehicleInfo": {
+        "title": "Informations du Véhicule",
+        "plateNumber": "Numéro de Plaque",
+        "edit": "Modifier",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "saving": "Enregistrement...",
+        "placeholder": "Entrez la plaque (ex., ABC1234)",
+        "notSet": "Non Défini",
+        "sharedWithPassengers": "Partagé avec les passagers lors de l'attribution de leur réservation"
+      },
+      "credentials": {
+        "title": "Qualifications du Chauffeur",
+        "edit": "Modifier",
+        "cancel": "Annuler",
+        "saveChanges": "Enregistrer les Modifications",
+        "saving": "Enregistrement...",
+        "placeholder": "Entrez vos qualifications (ex., N° Permis CDL, N° Licence TLC, certifications, années d'expérience, langues parlées, etc.)",
+        "noCredentials": "Aucune qualification ajoutée. Cliquez sur Modifier pour ajouter vos qualifications professionnelles.",
+        "sharedWithPassengers": "Ces qualifications sont partagées avec les passagers lors de l'attribution de leur réservation"
+      },
+      "quickActions": {
+        "viewEarnings": "Voir Vos Revenus",
+        "earningsDescription": "Accédez aux rapports de revenus détaillés et téléchargez les formulaires 1099",
+        "viewEarningsButton": "Voir les Revenus"
+      }
     }
   }
 }

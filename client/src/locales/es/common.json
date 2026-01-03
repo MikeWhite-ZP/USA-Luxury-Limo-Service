@@ -1003,6 +1003,55 @@
         "uploadError": "Error al Subir",
         "uploadErrorDesc": "Error al subir el documento. Por favor intente de nuevo."
       }
+    },
+    "settings": {
+      "profile": {
+        "rating": "Calificación",
+        "rides": "Viajes",
+        "activeDriver": "Conductor Activo",
+        "pendingActivation": "Activación Pendiente",
+        "thisMonth": "Este Mes",
+        "allTime": "Todo el Tiempo"
+      },
+      "accountInfo": {
+        "title": "Información de Cuenta",
+        "driverId": "ID del Conductor",
+        "fullName": "Nombre Completo",
+        "emailAddress": "Correo Electrónico",
+        "driverLicenseNum": "N° Licencia de Conducir",
+        "limoLicenseNum": "N° Licencia de Limusina",
+        "currentRating": "Calificación Actual",
+        "totalRides": "Total de Viajes",
+        "completed": "completados",
+        "notProvided": "No proporcionado",
+        "na": "N/D"
+      },
+      "vehicleInfo": {
+        "title": "Información del Vehículo",
+        "plateNumber": "Número de Placa",
+        "edit": "Editar",
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "saving": "Guardando...",
+        "placeholder": "Ingrese placa (ej., ABC1234)",
+        "notSet": "No Establecido",
+        "sharedWithPassengers": "Compartido con pasajeros cuando se asigna a su reserva"
+      },
+      "credentials": {
+        "title": "Credenciales del Conductor",
+        "edit": "Editar",
+        "cancel": "Cancelar",
+        "saveChanges": "Guardar Cambios",
+        "saving": "Guardando...",
+        "placeholder": "Ingrese sus credenciales (ej., N° Licencia CDL, N° Licencia TLC, certificaciones, años de experiencia, idiomas hablados, etc.)",
+        "noCredentials": "Aún no hay credenciales. Haga clic en Editar para agregar sus calificaciones profesionales.",
+        "sharedWithPassengers": "Estas credenciales se comparten con los pasajeros cuando se le asigna su reserva"
+      },
+      "quickActions": {
+        "viewEarnings": "Ver Sus Ganancias",
+        "earningsDescription": "Acceda a informes detallados de ganancias y descargue formularios 1099",
+        "viewEarningsButton": "Ver Ganancias"
+      }
     }
   }
 }
