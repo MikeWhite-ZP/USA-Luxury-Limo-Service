@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { ObjectUploader } from "../components/ObjectUploader";
 import DriverTaxInfoSection from "@/components/DriverTaxInfoSection";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { CustomFileInput } from "@/components/CustomFileInput";
 
 const defaultUserImage = '/images/default-user_1762118764894.png';
 
@@ -2032,12 +2033,11 @@ export default function DriverDashboard() {
                       />
                     </div>
                     <div className="flex gap-2">
-                      <Input
-                        type="file"
+                      <CustomFileInput
                         accept="image/*,application/pdf"
                         capture="environment"
-                        onChange={(e) => setFormData(prev => ({ ...prev, driverLicense: { ...prev.driverLicense, file: e.target.files?.[0] || null } }))}
-                        className="h-8 text-xs flex-1"
+                        file={formData.driverLicense.file}
+                        onFileChange={(file) => setFormData(prev => ({ ...prev, driverLicense: { ...prev.driverLicense, file } }))}
                         data-testid="input-driver-license-file"
                       />
                       <Button
@@ -2122,12 +2122,11 @@ export default function DriverDashboard() {
                       />
                     </div>
                     <div className="flex gap-2">
-                      <Input
-                        type="file"
+                      <CustomFileInput
                         accept="image/*,application/pdf"
                         capture="environment"
-                        onChange={(e) => setFormData(prev => ({ ...prev, limoLicense: { ...prev.limoLicense, file: e.target.files?.[0] || null } }))}
-                        className="h-8 text-xs flex-1"
+                        file={formData.limoLicense.file}
+                        onFileChange={(file) => setFormData(prev => ({ ...prev, limoLicense: { ...prev.limoLicense, file } }))}
                         data-testid="input-limo-license-file"
                       />
                       <Button
@@ -2197,12 +2196,11 @@ export default function DriverDashboard() {
                       data-testid="input-insurance-certificate-expiry"
                     />
                     <div className="flex gap-2">
-                      <Input
-                        type="file"
+                      <CustomFileInput
                         accept="image/*,application/pdf"
                         capture="environment"
-                        onChange={(e) => setFormData(prev => ({ ...prev, insuranceCertificate: { ...prev.insuranceCertificate, file: e.target.files?.[0] || null } }))}
-                        className="h-8 text-xs flex-1"
+                        file={formData.insuranceCertificate.file}
+                        onFileChange={(file) => setFormData(prev => ({ ...prev, insuranceCertificate: { ...prev.insuranceCertificate, file } }))}
                         data-testid="input-insurance-certificate-file"
                       />
                       <Button
@@ -2273,12 +2271,11 @@ export default function DriverDashboard() {
                       data-testid="input-vehicle-plate"
                     />
                     <div className="flex gap-2">
-                      <Input
-                        type="file"
+                      <CustomFileInput
                         accept="image/*"
                         capture="environment"
-                        onChange={(e) => setFormData(prev => ({ ...prev, vehicleImage: { ...prev.vehicleImage, file: e.target.files?.[0] || null } }))}
-                        className="h-8 text-xs flex-1"
+                        file={formData.vehicleImage.file}
+                        onFileChange={(file) => setFormData(prev => ({ ...prev, vehicleImage: { ...prev.vehicleImage, file } }))}
                         data-testid="input-vehicle-image-file"
                       />
                       <Button
@@ -2360,12 +2357,11 @@ export default function DriverDashboard() {
                       data-testid="input-whatsapp-number"
                     />
                     <div className="flex gap-2">
-                      <Input
-                        type="file"
+                      <CustomFileInput
                         accept="image/*"
                         capture="user"
-                        onChange={(e) => setFormData(prev => ({ ...prev, profilePhoto: { file: e.target.files?.[0] || null } }))}
-                        className="h-8 text-xs flex-1"
+                        file={formData.profilePhoto.file}
+                        onFileChange={(file) => setFormData(prev => ({ ...prev, profilePhoto: { file } }))}
                         data-testid="input-profile-photo-file"
                       />
                       <Button
