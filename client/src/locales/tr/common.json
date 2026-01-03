@@ -1056,6 +1056,56 @@
         "viewEarnings": "Kazançlarınızı Görüntüleyin",
         "earningsDescription": "Detaylı kazanç raporlarına erişin ve 1099 formlarını indirin",
         "viewEarningsButton": "Kazançları Görüntüle"
+      },
+      "taxInfo": {
+        "title": "1099 Vergi Bilgileri",
+        "description": "Kazançlar yılda $600'ı aştığında vergi raporlaması için gereklidir",
+        "requiredAlert": {
+          "title": "Vergi Bilgileri Gerekli",
+          "description": "Lütfen vergi bilgilerinizi tamamlayın. Yıllık kazançlarınız $600'ı aştığında 1099 oluşturma için bu gereklidir."
+        },
+        "completeAlert": {
+          "title": "Vergi Bilgileri Tamamlandı",
+          "description": "Vergi bilgileriniz dosyada ve 1099 oluşturma için kullanılacak."
+        },
+        "labels": {
+          "legalFirstName": "Yasal Ad",
+          "legalLastName": "Yasal Soyad",
+          "ssn": "Sosyal Güvenlik Numarası (SSN)",
+          "dateOfBirth": "Doğum Tarihi",
+          "streetAddress": "Sokak Adresi",
+          "city": "Şehir",
+          "state": "Eyalet",
+          "zipCode": "Posta Kodu",
+          "taxClassification": "Vergi Sınıflandırması"
+        },
+        "placeholders": {
+          "firstName": "Vergi belgelerinizde göründüğü gibi",
+          "lastName": "Vergi belgelerinizde göründüğü gibi",
+          "ssn": "XXX-XX-XXXX",
+          "streetAddress": "123 Ana Sokak, Daire 4",
+          "city": "New York",
+          "zipCode": "10001",
+          "selectState": "Seçin"
+        },
+        "ssnHelper": "SSN'niz şifrelenerek güvenli bir şekilde saklanır",
+        "update": "Güncelle",
+        "save": "Vergi Bilgilerini Kaydet",
+        "saving": "Kaydediliyor...",
+        "classifications": {
+          "individual": "Bireysel / Tek Malik",
+          "sole_proprietor": "Tek Malik (Çizelge C)",
+          "llc": "Sınırlı Sorumlu Şirket (LLC)",
+          "corporation": "Şirket (S-Corp veya C-Corp)",
+          "partnership": "Ortaklık"
+        },
+        "toast": {
+          "successTitle": "Vergi Bilgileri Kaydedildi",
+          "successComplete": "Vergi bilgileriniz tamamlandı ve 1099 oluşturma için hazır.",
+          "successIncomplete": "Vergi bilgileriniz kaydedildi. Lütfen tüm gerekli alanları doldurun.",
+          "errorTitle": "Hata",
+          "errorDescription": "Vergi bilgileri kaydedilemedi"
+        }
       }
     }
   }

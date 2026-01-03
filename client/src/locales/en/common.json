@@ -1113,6 +1113,56 @@
         "viewEarnings": "View Your Earnings",
         "earningsDescription": "Access detailed earnings reports and download 1099 forms",
         "viewEarningsButton": "View Earnings"
+      },
+      "taxInfo": {
+        "title": "1099 Tax Information",
+        "description": "Required for tax reporting when earnings exceed $600/year",
+        "requiredAlert": {
+          "title": "Tax Information Required",
+          "description": "Please complete your tax information. This is required for 1099 generation when your yearly earnings exceed $600."
+        },
+        "completeAlert": {
+          "title": "Tax Information Complete",
+          "description": "Your tax information is on file and will be used for 1099 generation."
+        },
+        "labels": {
+          "legalFirstName": "Legal First Name",
+          "legalLastName": "Legal Last Name",
+          "ssn": "Social Security Number (SSN)",
+          "dateOfBirth": "Date of Birth",
+          "streetAddress": "Street Address",
+          "city": "City",
+          "state": "State",
+          "zipCode": "ZIP Code",
+          "taxClassification": "Tax Classification"
+        },
+        "placeholders": {
+          "firstName": "As it appears on your tax documents",
+          "lastName": "As it appears on your tax documents",
+          "ssn": "XXX-XX-XXXX",
+          "streetAddress": "123 Main Street, Apt 4",
+          "city": "New York",
+          "zipCode": "10001",
+          "selectState": "Select"
+        },
+        "ssnHelper": "Your SSN is encrypted and stored securely",
+        "update": "Update",
+        "save": "Save Tax Information",
+        "saving": "Saving...",
+        "classifications": {
+          "individual": "Individual / Sole Proprietor",
+          "sole_proprietor": "Sole Proprietor (Schedule C)",
+          "llc": "Limited Liability Company (LLC)",
+          "corporation": "Corporation (S-Corp or C-Corp)",
+          "partnership": "Partnership"
+        },
+        "toast": {
+          "successTitle": "Tax Information Saved",
+          "successComplete": "Your tax information is complete and ready for 1099 generation.",
+          "successIncomplete": "Your tax information has been saved. Please complete all required fields.",
+          "errorTitle": "Error",
+          "errorDescription": "Failed to save tax information"
+        }
       }
     }
   }

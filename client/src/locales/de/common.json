@@ -1056,6 +1056,56 @@
         "viewEarnings": "Ihre Einnahmen Ansehen",
         "earningsDescription": "Zugang zu detaillierten Einnahmenberichten und Download von 1099-Formularen",
         "viewEarningsButton": "Einnahmen Ansehen"
+      },
+      "taxInfo": {
+        "title": "1099 Steuerinformationen",
+        "description": "Erforderlich für die Steuererklärung bei Einnahmen über $600/Jahr",
+        "requiredAlert": {
+          "title": "Steuerinformationen Erforderlich",
+          "description": "Bitte vervollständigen Sie Ihre Steuerinformationen. Dies ist für die 1099-Erstellung erforderlich, wenn Ihre jährlichen Einnahmen $600 übersteigen."
+        },
+        "completeAlert": {
+          "title": "Steuerinformationen Vollständig",
+          "description": "Ihre Steuerinformationen sind gespeichert und werden für die 1099-Erstellung verwendet."
+        },
+        "labels": {
+          "legalFirstName": "Rechtlicher Vorname",
+          "legalLastName": "Rechtlicher Nachname",
+          "ssn": "Sozialversicherungsnummer (SSN)",
+          "dateOfBirth": "Geburtsdatum",
+          "streetAddress": "Straßenadresse",
+          "city": "Stadt",
+          "state": "Bundesstaat",
+          "zipCode": "Postleitzahl",
+          "taxClassification": "Steuerklassifizierung"
+        },
+        "placeholders": {
+          "firstName": "Wie es auf Ihren Steuerdokumenten erscheint",
+          "lastName": "Wie es auf Ihren Steuerdokumenten erscheint",
+          "ssn": "XXX-XX-XXXX",
+          "streetAddress": "123 Hauptstraße, Apt 4",
+          "city": "New York",
+          "zipCode": "10001",
+          "selectState": "Auswählen"
+        },
+        "ssnHelper": "Ihre SSN wird verschlüsselt und sicher gespeichert",
+        "update": "Aktualisieren",
+        "save": "Steuerinformationen Speichern",
+        "saving": "Speichern...",
+        "classifications": {
+          "individual": "Einzelperson / Einzelunternehmer",
+          "sole_proprietor": "Einzelunternehmer (Anlage C)",
+          "llc": "Gesellschaft mit beschränkter Haftung (LLC)",
+          "corporation": "Körperschaft (S-Corp oder C-Corp)",
+          "partnership": "Personengesellschaft"
+        },
+        "toast": {
+          "successTitle": "Steuerinformationen Gespeichert",
+          "successComplete": "Ihre Steuerinformationen sind vollständig und bereit für die 1099-Erstellung.",
+          "successIncomplete": "Ihre Steuerinformationen wurden gespeichert. Bitte füllen Sie alle erforderlichen Felder aus.",
+          "errorTitle": "Fehler",
+          "errorDescription": "Steuerinformationen konnten nicht gespeichert werden"
+        }
       }
     }
   }

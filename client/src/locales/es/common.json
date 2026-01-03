@@ -1056,6 +1056,56 @@
         "viewEarnings": "Ver Sus Ganancias",
         "earningsDescription": "Acceda a informes detallados de ganancias y descargue formularios 1099",
         "viewEarningsButton": "Ver Ganancias"
+      },
+      "taxInfo": {
+        "title": "Información Fiscal 1099",
+        "description": "Requerido para reportes fiscales cuando las ganancias superan $600/año",
+        "requiredAlert": {
+          "title": "Información Fiscal Requerida",
+          "description": "Por favor complete su información fiscal. Esto es requerido para la generación del 1099 cuando sus ganancias anuales superan $600."
+        },
+        "completeAlert": {
+          "title": "Información Fiscal Completa",
+          "description": "Su información fiscal está archivada y será usada para la generación del 1099."
+        },
+        "labels": {
+          "legalFirstName": "Nombre Legal",
+          "legalLastName": "Apellido Legal",
+          "ssn": "Número de Seguro Social (SSN)",
+          "dateOfBirth": "Fecha de Nacimiento",
+          "streetAddress": "Dirección",
+          "city": "Ciudad",
+          "state": "Estado",
+          "zipCode": "Código Postal",
+          "taxClassification": "Clasificación Fiscal"
+        },
+        "placeholders": {
+          "firstName": "Como aparece en sus documentos fiscales",
+          "lastName": "Como aparece en sus documentos fiscales",
+          "ssn": "XXX-XX-XXXX",
+          "streetAddress": "123 Calle Principal, Apt 4",
+          "city": "Nueva York",
+          "zipCode": "10001",
+          "selectState": "Seleccionar"
+        },
+        "ssnHelper": "Su SSN está encriptado y almacenado de forma segura",
+        "update": "Actualizar",
+        "save": "Guardar Información Fiscal",
+        "saving": "Guardando...",
+        "classifications": {
+          "individual": "Individual / Propietario Único",
+          "sole_proprietor": "Propietario Único (Anexo C)",
+          "llc": "Compañía de Responsabilidad Limitada (LLC)",
+          "corporation": "Corporación (S-Corp o C-Corp)",
+          "partnership": "Sociedad"
+        },
+        "toast": {
+          "successTitle": "Información Fiscal Guardada",
+          "successComplete": "Su información fiscal está completa y lista para la generación del 1099.",
+          "successIncomplete": "Su información fiscal ha sido guardada. Por favor complete todos los campos requeridos.",
+          "errorTitle": "Error",
+          "errorDescription": "Error al guardar la información fiscal"
+        }
       }
     }
   }

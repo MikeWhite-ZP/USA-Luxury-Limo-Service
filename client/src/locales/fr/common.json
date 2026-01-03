@@ -1056,6 +1056,56 @@
         "viewEarnings": "Voir Vos Revenus",
         "earningsDescription": "Accédez aux rapports de revenus détaillés et téléchargez les formulaires 1099",
         "viewEarningsButton": "Voir les Revenus"
+      },
+      "taxInfo": {
+        "title": "Informations Fiscales 1099",
+        "description": "Requis pour la déclaration fiscale lorsque les revenus dépassent $600/an",
+        "requiredAlert": {
+          "title": "Informations Fiscales Requises",
+          "description": "Veuillez compléter vos informations fiscales. Cela est requis pour la génération du 1099 lorsque vos revenus annuels dépassent $600."
+        },
+        "completeAlert": {
+          "title": "Informations Fiscales Complètes",
+          "description": "Vos informations fiscales sont enregistrées et seront utilisées pour la génération du 1099."
+        },
+        "labels": {
+          "legalFirstName": "Prénom Légal",
+          "legalLastName": "Nom Légal",
+          "ssn": "Numéro de Sécurité Sociale (SSN)",
+          "dateOfBirth": "Date de Naissance",
+          "streetAddress": "Adresse",
+          "city": "Ville",
+          "state": "État",
+          "zipCode": "Code Postal",
+          "taxClassification": "Classification Fiscale"
+        },
+        "placeholders": {
+          "firstName": "Tel qu'il apparaît sur vos documents fiscaux",
+          "lastName": "Tel qu'il apparaît sur vos documents fiscaux",
+          "ssn": "XXX-XX-XXXX",
+          "streetAddress": "123 Rue Principale, Apt 4",
+          "city": "New York",
+          "zipCode": "10001",
+          "selectState": "Sélectionner"
+        },
+        "ssnHelper": "Votre SSN est chiffré et stocké en toute sécurité",
+        "update": "Mettre à jour",
+        "save": "Enregistrer les Informations Fiscales",
+        "saving": "Enregistrement...",
+        "classifications": {
+          "individual": "Individuel / Propriétaire Unique",
+          "sole_proprietor": "Propriétaire Unique (Annexe C)",
+          "llc": "Société à Responsabilité Limitée (LLC)",
+          "corporation": "Société (S-Corp ou C-Corp)",
+          "partnership": "Partenariat"
+        },
+        "toast": {
+          "successTitle": "Informations Fiscales Enregistrées",
+          "successComplete": "Vos informations fiscales sont complètes et prêtes pour la génération du 1099.",
+          "successIncomplete": "Vos informations fiscales ont été enregistrées. Veuillez compléter tous les champs requis.",
+          "errorTitle": "Erreur",
+          "errorDescription": "Échec de l'enregistrement des informations fiscales"
+        }
       }
     }
   }

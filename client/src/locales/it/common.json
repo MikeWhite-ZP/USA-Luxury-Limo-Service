@@ -1056,6 +1056,56 @@
         "viewEarnings": "Visualizza i Tuoi Guadagni",
         "earningsDescription": "Accedi a report dettagliati sui guadagni e scarica i moduli 1099",
         "viewEarningsButton": "Visualizza Guadagni"
+      },
+      "taxInfo": {
+        "title": "Informazioni Fiscali 1099",
+        "description": "Richiesto per la dichiarazione fiscale quando i guadagni superano $600/anno",
+        "requiredAlert": {
+          "title": "Informazioni Fiscali Richieste",
+          "description": "Completa le tue informazioni fiscali. Questo è richiesto per la generazione del 1099 quando i tuoi guadagni annuali superano $600."
+        },
+        "completeAlert": {
+          "title": "Informazioni Fiscali Complete",
+          "description": "Le tue informazioni fiscali sono archiviate e verranno utilizzate per la generazione del 1099."
+        },
+        "labels": {
+          "legalFirstName": "Nome Legale",
+          "legalLastName": "Cognome Legale",
+          "ssn": "Numero di Previdenza Sociale (SSN)",
+          "dateOfBirth": "Data di Nascita",
+          "streetAddress": "Indirizzo",
+          "city": "Città",
+          "state": "Stato",
+          "zipCode": "Codice Postale",
+          "taxClassification": "Classificazione Fiscale"
+        },
+        "placeholders": {
+          "firstName": "Come appare sui tuoi documenti fiscali",
+          "lastName": "Come appare sui tuoi documenti fiscali",
+          "ssn": "XXX-XX-XXXX",
+          "streetAddress": "123 Via Principale, Int. 4",
+          "city": "New York",
+          "zipCode": "10001",
+          "selectState": "Seleziona"
+        },
+        "ssnHelper": "Il tuo SSN è crittografato e conservato in modo sicuro",
+        "update": "Aggiorna",
+        "save": "Salva Informazioni Fiscali",
+        "saving": "Salvataggio...",
+        "classifications": {
+          "individual": "Individuale / Ditta Individuale",
+          "sole_proprietor": "Ditta Individuale (Allegato C)",
+          "llc": "Società a Responsabilità Limitata (LLC)",
+          "corporation": "Società (S-Corp o C-Corp)",
+          "partnership": "Partnership"
+        },
+        "toast": {
+          "successTitle": "Informazioni Fiscali Salvate",
+          "successComplete": "Le tue informazioni fiscali sono complete e pronte per la generazione del 1099.",
+          "successIncomplete": "Le tue informazioni fiscali sono state salvate. Completa tutti i campi obbligatori.",
+          "errorTitle": "Errore",
+          "errorDescription": "Impossibile salvare le informazioni fiscali"
+        }
       }
     }
   }
