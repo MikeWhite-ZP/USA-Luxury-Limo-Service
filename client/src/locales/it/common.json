@@ -449,6 +449,19 @@
     "continueWithReplit": "Continua con Replit",
     "orContinueWith": "Oppure continua con"
   },
+  "roles": {
+    "passenger": "Passeggero",
+    "driver": "Autista",
+    "dispatcher": "Coordinatore",
+    "admin": "Amministratore",
+    "passengerDescription": "Prenota servizi di trasporto di lusso con facilità",
+    "driverDescription": "Accedi alla tua dashboard e gestisci le corse in modo efficiente",
+    "dispatcherDescription": "Coordina le operazioni e gestisci la flotta",
+    "passengerMobileDescription": "Prenota corse di lusso",
+    "driverMobileDescription": "Unisciti al nostro team di autisti",
+    "dispatcherMobileDescription": "Gestisci le operazioni",
+    "registration": "Registrazione {{role}}"
+  },
   "payment": {
     "title": "Pagamento",
     "paymentMethod": "Metodo di Pagamento",

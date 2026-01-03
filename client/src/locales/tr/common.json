@@ -449,6 +449,19 @@
     "continueWithReplit": "Replit ile Devam Et",
     "orContinueWith": "Veya şununla devam et"
   },
+  "roles": {
+    "passenger": "Yolcu",
+    "driver": "Sürücü",
+    "dispatcher": "Dispeçer",
+    "admin": "Yönetici",
+    "passengerDescription": "Lüks ulaşım hizmetlerini kolaylıkla rezerve edin",
+    "driverDescription": "Panele erişin ve seferleri verimli yönetin",
+    "dispatcherDescription": "Operasyonları koordine edin ve filoyu yönetin",
+    "passengerMobileDescription": "Lüks seferler rezerve edin",
+    "driverMobileDescription": "Sürücü ekibimize katılın",
+    "dispatcherMobileDescription": "Operasyonları yönetin",
+    "registration": "{{role}} Kaydı"
+  },
   "payment": {
     "title": "Ödeme",
     "paymentMethod": "Ödeme Yöntemi",

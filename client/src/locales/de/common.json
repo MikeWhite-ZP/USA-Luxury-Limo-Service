@@ -449,6 +449,19 @@
     "continueWithReplit": "Mit Replit fortfahren",
     "orContinueWith": "Oder fortfahren mit"
   },
+  "roles": {
+    "passenger": "Fahrgast",
+    "driver": "Fahrer",
+    "dispatcher": "Disponent",
+    "admin": "Administrator",
+    "passengerDescription": "Buchen Sie Luxus-Transportdienste mit Leichtigkeit",
+    "driverDescription": "Greifen Sie auf Ihr Dashboard zu und verwalten Sie Fahrten effizient",
+    "dispatcherDescription": "Koordinieren Sie Abläufe und verwalten Sie die Flotte",
+    "passengerMobileDescription": "Buchen Sie Luxusfahrten",
+    "driverMobileDescription": "Treten Sie unserem Fahrerteam bei",
+    "dispatcherMobileDescription": "Verwalten Sie Abläufe",
+    "registration": "{{role}}-Registrierung"
+  },
   "payment": {
     "title": "Zahlung",
     "paymentMethod": "Zahlungsmethode",

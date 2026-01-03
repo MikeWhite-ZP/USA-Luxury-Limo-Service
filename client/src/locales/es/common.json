@@ -449,6 +449,19 @@
     "continueWithReplit": "Continuar con Replit",
     "orContinueWith": "O continuar con"
   },
+  "roles": {
+    "passenger": "Pasajero",
+    "driver": "Conductor",
+    "dispatcher": "Despachador",
+    "admin": "Administrador",
+    "passengerDescription": "Reserve servicios de transporte de lujo con facilidad",
+    "driverDescription": "Acceda a su panel y gestione viajes eficientemente",
+    "dispatcherDescription": "Coordine operaciones y gestione la flota",
+    "passengerMobileDescription": "Reserve viajes de lujo",
+    "driverMobileDescription": "Únase a nuestro equipo de conductores",
+    "dispatcherMobileDescription": "Gestione operaciones",
+    "registration": "Registro de {{role}}"
+  },
   "payment": {
     "title": "Pago",
     "paymentMethod": "Método de Pago",

@@ -449,6 +449,19 @@
     "continueWithReplit": "Продолжить с Replit",
     "orContinueWith": "Или продолжить с"
   },
+  "roles": {
+    "passenger": "Пассажир",
+    "driver": "Водитель",
+    "dispatcher": "Диспетчер",
+    "admin": "Администратор",
+    "passengerDescription": "Бронируйте услуги люкс-перевозок с лёгкостью",
+    "driverDescription": "Получите доступ к панели управления и эффективно управляйте поездками",
+    "dispatcherDescription": "Координируйте операции и управляйте автопарком",
+    "passengerMobileDescription": "Бронируйте люкс-поездки",
+    "driverMobileDescription": "Присоединяйтесь к нашей команде водителей",
+    "dispatcherMobileDescription": "Управляйте операциями",
+    "registration": "Регистрация {{role}}"
+  },
   "payment": {
     "title": "Оплата",
     "paymentMethod": "Способ Оплаты",
