@@ -955,10 +955,35 @@
       "hourly": "Hourly",
       "transfer": "Transfer",
       "notSet": "Not set",
+      "reasonLabel": "Reason:",
+      "declinedAt": "Declined:",
       "acceptJob": "Accept Job",
       "accepting": "Accepting...",
       "declineJob": "Decline",
       "declining": "Declining..."
+    },
+    "decline": {
+      "title": "Decline Job",
+      "description": "Please select a reason for declining this job. This helps us improve our matching system.",
+      "selectReason": "Select a reason",
+      "additionalNotes": "Additional notes (optional)",
+      "additionalNotesPlaceholder": "Any additional details about why you're declining...",
+      "cancel": "Cancel",
+      "confirm": "Decline Job",
+      "reasons": {
+        "timing_conflict": "Timing Conflict",
+        "timing_conflict_desc": "The job time doesn't work with my schedule",
+        "pricing_too_low": "Pricing Too Low",
+        "pricing_too_low_desc": "The offered rate is not acceptable",
+        "too_far_away": "Too Far Away",
+        "too_far_away_desc": "The distance/location is outside my preferred area",
+        "vehicle_not_suitable": "Vehicle Not Suitable",
+        "vehicle_not_suitable_desc": "My vehicle doesn't meet the job requirements",
+        "already_booked": "Already Booked",
+        "already_booked_desc": "I have another commitment at this time",
+        "personal_reasons": "Personal Reasons",
+        "personal_reasons_desc": "Other personal circumstances"
+      }
     },
     "alerts": {
       "uploadDocuments": "Upload Required Documents",
@@ -978,6 +1003,10 @@
       "completeRide": "Complete Ride",
       "callPassenger": "Call",
       "messagePassenger": "Message"
+    },
+    "details": {
+      "flightInfo": "Flight Information",
+      "specialInstructions": "Special Instructions"
     }
   }
 }

@@ -898,10 +898,35 @@
       "hourly": "Por Hora",
       "transfer": "Traslado",
       "notSet": "No establecido",
+      "reasonLabel": "Razón:",
+      "declinedAt": "Rechazado:",
       "acceptJob": "Aceptar Trabajo",
       "accepting": "Aceptando...",
       "declineJob": "Rechazar",
       "declining": "Rechazando..."
+    },
+    "decline": {
+      "title": "Rechazar Trabajo",
+      "description": "Por favor seleccione una razón para rechazar este trabajo. Esto nos ayuda a mejorar nuestro sistema de asignación.",
+      "selectReason": "Seleccione una razón",
+      "additionalNotes": "Notas adicionales (opcional)",
+      "additionalNotesPlaceholder": "Detalles adicionales sobre por qué rechaza...",
+      "cancel": "Cancelar",
+      "confirm": "Rechazar Trabajo",
+      "reasons": {
+        "timing_conflict": "Conflicto de Horario",
+        "timing_conflict_desc": "El horario del trabajo no funciona con mi agenda",
+        "pricing_too_low": "Precio Muy Bajo",
+        "pricing_too_low_desc": "La tarifa ofrecida no es aceptable",
+        "too_far_away": "Demasiado Lejos",
+        "too_far_away_desc": "La distancia/ubicación está fuera de mi área preferida",
+        "vehicle_not_suitable": "Vehículo No Adecuado",
+        "vehicle_not_suitable_desc": "Mi vehículo no cumple con los requisitos del trabajo",
+        "already_booked": "Ya Reservado",
+        "already_booked_desc": "Tengo otro compromiso a esta hora",
+        "personal_reasons": "Razones Personales",
+        "personal_reasons_desc": "Otras circunstancias personales"
+      }
     },
     "alerts": {
       "uploadDocuments": "Subir Documentos Requeridos",
@@ -921,6 +946,10 @@
       "completeRide": "Completar Viaje",
       "callPassenger": "Llamar",
       "messagePassenger": "Mensaje"
+    },
+    "details": {
+      "flightInfo": "Información de Vuelo",
+      "specialInstructions": "Instrucciones Especiales"
     }
   }
 }

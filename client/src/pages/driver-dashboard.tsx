@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -140,6 +141,7 @@ interface EarningsData {
 }
 
 export default function DriverDashboard() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
@@ -1011,10 +1013,10 @@ export default function DriverDashboard() {
               )}
               <div>
                 <h1 className="text-3xl font-bold text-foreground" data-testid="driver-title">
-                  Driver Portal
+                  {t('driverDashboard.title')}
                 </h1>
                 <p className="text-muted-foreground text-lg mt-1" data-testid="driver-subtitle">
-                  Welcome, <span className="text-red-600 font-medium">{user?.firstName || user?.email}</span>
+                  {t('driverDashboard.welcome')} <span className="text-red-600 font-medium">{user?.firstName || user?.email}</span>
                 </p>
               </div>
             </div>
@@ -1046,10 +1048,10 @@ export default function DriverDashboard() {
                 data-testid="driver-status"
               >
                 {acceptedJobs.some(b => b.status === "on_board" || b.status === "in_progress")
-                  ? "On Board"
+                  ? t('driverDashboard.status.onBoard')
                   : driver?.isAvailable
-                  ? "Online"
-                  : "Offline"}
+                  ? t('driverDashboard.status.online')
+                  : t('driverDashboard.status.offline')}
               </Badge>
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-800 rounded-xl opacity-0 group-hover:opacity-75 blur transition-opacity duration-300" />
@@ -1058,7 +1060,7 @@ export default function DriverDashboard() {
                   className="relative bg-black hover:bg-gray-900 text-white border border-gray-800 hover:border-red-600 px-6 py-3 rounded-xl font-medium transition-all duration-300"
                   data-testid="button-logout"
                 >
-                  Sign Out
+                  {t('driverDashboard.signOut')}
                 </Button>
               </div>
             </div>
@@ -1082,7 +1084,7 @@ export default function DriverDashboard() {
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
                 )}
                 <Home className="w-5 h-5" />
-                Home
+                {t('driverDashboard.nav.home')}
               </button>
               <button
                 onClick={() => setActiveTab("documents")}
@@ -1097,7 +1099,7 @@ export default function DriverDashboard() {
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
                 )}
                 <FileText className="w-5 h-5" />
-                Documents
+                {t('driverDashboard.nav.documents')}
               </button>
               <button
                 onClick={() => setActiveTab("settings")}
@@ -1112,7 +1114,7 @@ export default function DriverDashboard() {
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 to-red-800" />
                 )}
                 <Settings className="w-5 h-5" />
-                Account Settings
+                {t('driverDashboard.nav.settings')}
               </button>
             </nav>
           </div>
@@ -1127,12 +1129,12 @@ export default function DriverDashboard() {
             {!documentStatus?.documentsComplete && (
               <Alert variant="destructive" className="mb-6">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Upload Required Documents</AlertTitle>
+                <AlertTitle>{t('driverDashboard.alerts.uploadDocuments')}</AlertTitle>
                 <AlertDescription>
-                  You must upload all required documents before your account can be activated.
+                  {t('driverDashboard.alerts.uploadDocumentsDesc')}
                   {documentStatus?.missingDocuments && documentStatus.missingDocuments.length > 0 && (
                     <span className="block mt-1 text-sm">
-                      Missing: {documentStatus.missingDocuments.map(d => d.replace(/_/g, ' ')).join(', ')}
+                      {t('driverDashboard.alerts.missing')} {documentStatus.missingDocuments.map(d => d.replace(/_/g, ' ')).join(', ')}
                     </span>
                   )}
                   {" "}
@@ -1140,7 +1142,7 @@ export default function DriverDashboard() {
                     onClick={() => setActiveTab("documents")} 
                     className="underline font-medium hover:no-underline"
                   >
-                    Go to Documents
+                    {t('driverDashboard.alerts.goToDocuments')}
                   </button>
                 </AlertDescription>
               </Alert>
@@ -1150,14 +1152,14 @@ export default function DriverDashboard() {
             {documentStatus?.documentsComplete && !taxInfo?.taxInfoComplete && (
               <Alert variant="destructive" className="mb-6">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Complete Your Tax Information</AlertTitle>
+                <AlertTitle>{t('driverDashboard.alerts.completeTaxInfo')}</AlertTitle>
                 <AlertDescription>
-                  You must complete your tax information in the Settings tab before your account can be activated and you can start earning.{" "}
+                  {t('driverDashboard.alerts.completeTaxInfoDesc')}{" "}
                   <button 
                     onClick={() => setActiveTab("settings")} 
                     className="underline font-medium hover:no-underline"
                   >
-                    Go to Settings
+                    {t('driverDashboard.alerts.goToSettings')}
                   </button>
                 </AlertDescription>
               </Alert>
@@ -1167,9 +1169,9 @@ export default function DriverDashboard() {
             {documentStatus?.documentsComplete && taxInfo?.taxInfoComplete && !user?.isActive && (
               <Alert className="mb-6 border-yellow-200 bg-yellow-50">
                 <Clock className="h-4 w-4 text-yellow-600" />
-                <AlertTitle className="text-yellow-800">Pending Activation</AlertTitle>
+                <AlertTitle className="text-yellow-800">{t('driverDashboard.alerts.pendingActivation')}</AlertTitle>
                 <AlertDescription className="text-yellow-700">
-                  Your documents and tax information are complete. Please wait for an administrator to review and activate your account before you can start accepting jobs.
+                  {t('driverDashboard.alerts.pendingActivationDesc')}
                 </AlertDescription>
               </Alert>
             )}
@@ -1194,14 +1196,14 @@ export default function DriverDashboard() {
                                   day: 'numeric', 
                                   year: 'numeric' 
                                 })
-                              : "Today"}
+                              : t('driverDashboard.stats.today')}
                           </p>
                           <p
                             className="text-2xl font-bold text-red-600"
                             data-testid="today-earnings"
                           >
                             {earningsLoading ? (
-                              <span className="text-muted-foreground">Loading...</span>
+                              <span className="text-muted-foreground">{t('driverDashboard.stats.loading')}</span>
                             ) : (
                               `$${earnings?.today?.toFixed(2) || '0.00'}`
                             )}
@@ -1217,35 +1219,35 @@ export default function DriverDashboard() {
                           data-testid="button-earnings-details"
                         >
                           <Info className="w-3 h-3 mr-1" />
-                          Details
+                          {t('driverDashboard.stats.details')}
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg sm:max-w-md bg-[#ffffff]" data-testid="dialog-earnings-details">
                         <DialogHeader>
-                          <DialogTitle>Earnings Breakdown</DialogTitle>
+                          <DialogTitle>{t('driverDashboard.earnings.title')}</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
-                              <p className="text-sm text-muted-foreground">Today</p>
+                              <p className="text-sm text-muted-foreground">{t('driverDashboard.earnings.today')}</p>
                               <p className="text-2xl font-bold text-red-600" data-testid="earnings-today">
                                 ${earnings?.today?.toFixed(2) || '0.00'}
                               </p>
                             </div>
                             <div className="space-y-1">
-                              <p className="text-sm text-muted-foreground">This Week</p>
+                              <p className="text-sm text-muted-foreground">{t('driverDashboard.earnings.thisWeek')}</p>
                               <p className="text-2xl font-bold text-blue-600" data-testid="earnings-week">
                                 ${earnings?.week?.toFixed(2) || '0.00'}
                               </p>
                             </div>
                             <div className="space-y-1">
-                              <p className="text-sm text-muted-foreground">This Month</p>
+                              <p className="text-sm text-muted-foreground">{t('driverDashboard.earnings.thisMonth')}</p>
                               <p className="text-2xl font-bold text-purple-600" data-testid="earnings-month">
                                 ${earnings?.month?.toFixed(2) || '0.00'}
                               </p>
                             </div>
                             <div className="space-y-1">
-                              <p className="text-sm text-muted-foreground">This Year</p>
+                              <p className="text-sm text-muted-foreground">{t('driverDashboard.earnings.thisYear')}</p>
                               <p className="text-2xl font-bold text-orange-600" data-testid="earnings-year">
                                 ${earnings?.year?.toFixed(2) || '0.00'}
                               </p>
@@ -1253,12 +1255,12 @@ export default function DriverDashboard() {
                           </div>
                           <div className="pt-4 border-t">
                             <div className="space-y-1">
-                              <p className="text-sm text-muted-foreground">All-Time Earnings</p>
+                              <p className="text-sm text-muted-foreground">{t('driverDashboard.earnings.allTime')}</p>
                               <p className="text-3xl font-bold" data-testid="earnings-all-time">
                                 ${earnings?.allTime?.toFixed(2) || '0.00'}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                From {earnings?.completedRidesCount || 0} completed rides
+                                {t('driverDashboard.earnings.fromRides', { count: earnings?.completedRidesCount || 0 })}
                               </p>
                             </div>
                           </div>
@@ -1280,7 +1282,7 @@ export default function DriverDashboard() {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground font-medium">
-                          Completed Rides
+                          {t('driverDashboard.stats.completedRides')}
                         </p>
                         <p
                           className="text-2xl font-bold text-foreground"
@@ -1303,7 +1305,7 @@ export default function DriverDashboard() {
                         <Star className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground font-medium">Rating</p>
+                        <p className="text-sm text-muted-foreground font-medium">{t('driverDashboard.stats.rating')}</p>
                         <p
                           className="text-2xl font-bold text-foreground"
                           data-testid="driver-rating"
@@ -1326,7 +1328,7 @@ export default function DriverDashboard() {
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-md">
                       <Briefcase className="w-5 h-5 text-white" />
                     </div>
-                    My Jobs
+                    {t('driverDashboard.jobs.title')}
                   </CardTitle>
                   {/* Job List Sub-Tabs */}
                   <div className="flex gap-1 mt-4 bg-muted/50 p-1 rounded-lg">
@@ -1339,7 +1341,7 @@ export default function DriverDashboard() {
                       }`}
                       data-testid="tab-new-jobs"
                     >
-                      New Jobs ({newJobs.length})
+                      {t('driverDashboard.jobs.newJobs')} ({newJobs.length})
                     </button>
                     <button
                       onClick={() => setJobListTab("accepted")}
@@ -1350,7 +1352,7 @@ export default function DriverDashboard() {
                       }`}
                       data-testid="tab-accepted-jobs"
                     >
-                      Accepted ({acceptedJobs.length})
+                      {t('driverDashboard.jobs.accepted')} ({acceptedJobs.length})
                     </button>
                     <button
                       onClick={() => setJobListTab("completed")}
@@ -1361,7 +1363,7 @@ export default function DriverDashboard() {
                       }`}
                       data-testid="tab-completed-jobs"
                     >
-                      Completed ({completedJobs.length})
+                      {t('driverDashboard.jobs.completed')} ({completedJobs.length})
                     </button>
                     <button
                       onClick={() => setJobListTab("cancelled")}
@@ -1372,7 +1374,7 @@ export default function DriverDashboard() {
                       }`}
                       data-testid="tab-cancelled-jobs"
                     >
-                      Cancelled ({cancelledJobs.length})
+                      {t('driverDashboard.jobs.cancelled')} ({cancelledJobs.length})
                     </button>
                     <button
                       onClick={() => setJobListTab("declined")}
@@ -1383,7 +1385,7 @@ export default function DriverDashboard() {
                       }`}
                       data-testid="tab-declined-jobs"
                     >
-                      Declined ({declinedBookings?.length || 0})
+                      {t('driverDashboard.jobs.declined')} ({declinedBookings?.length || 0})
                     </button>
                   </div>
                 </CardHeader>
@@ -1404,15 +1406,15 @@ export default function DriverDashboard() {
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <span className="text-sm font-semibold text-foreground">#{booking.id.slice(0, 8)}</span>
                                     <Badge className="bg-blue-600 text-white font-medium text-xs px-2 py-0.5">
-                                      New Assignment
+                                      {t('driverDashboard.jobs.newAssignment')}
                                     </Badge>
                                     <Badge variant="outline" className="text-xs px-2 py-0.5 border-muted-foreground/30">
-                                      {booking.bookingType === 'hourly' ? 'Hourly' : 'Transfer'}
+                                      {booking.bookingType === 'hourly' ? t('driverDashboard.jobs.hourly') : t('driverDashboard.jobs.transfer')}
                                     </Badge>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span className="text-lg font-bold text-blue-600 dark:text-blue-400" data-testid={`new-amount-${booking.id}`}>
-                                      {booking.driverPayment ? `$${booking.driverPayment}` : "Not set"}
+                                      {booking.driverPayment ? `$${booking.driverPayment}` : t('driverDashboard.jobs.notSet')}
                                     </span>
                                     <Button
                                       variant="outline"
@@ -1422,7 +1424,7 @@ export default function DriverDashboard() {
                                       data-testid={`button-view-details-${booking.id}`}
                                     >
                                       <Eye className="w-3 h-3 mr-1" />
-                                      Details
+                                      {t('driverDashboard.actions.viewDetails')}
                                     </Button>
                                   </div>
                                 </div>
@@ -1476,7 +1478,7 @@ export default function DriverDashboard() {
                                     data-testid={`button-accept-${booking.id}`}
                                   >
                                     <CheckCircle className="w-4 h-4 mr-1.5" />
-                                    {acceptBookingMutation.isPending ? "Accepting..." : "Accept Job"}
+                                    {acceptBookingMutation.isPending ? t('driverDashboard.jobs.accepting') : t('driverDashboard.jobs.acceptJob')}
                                   </Button>
                                   <Button
                                     onClick={() => handleDeclineRide(booking.id)}
@@ -1486,7 +1488,7 @@ export default function DriverDashboard() {
                                     data-testid={`button-decline-${booking.id}`}
                                   >
                                     <AlertCircle className="w-4 h-4 mr-1.5" />
-                                    {declineBookingMutation.isPending ? "..." : "Decline"}
+                                    {declineBookingMutation.isPending ? "..." : t('driverDashboard.jobs.declineJob')}
                                   </Button>
                                 </div>
                               </div>
@@ -1496,8 +1498,8 @@ export default function DriverDashboard() {
                       ) : (
                         <div className="text-center p-12" data-testid="no-new-jobs">
                           <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                          <p className="text-muted-foreground text-lg font-medium">No new jobs</p>
-                          <p className="text-muted-foreground text-sm mt-2">New job assignments will appear here when dispatched to you</p>
+                          <p className="text-muted-foreground text-lg font-medium">{t('driverDashboard.jobs.noNewJobs')}</p>
+                          <p className="text-muted-foreground text-sm mt-2">{t('driverDashboard.jobs.noNewJobsDescription')}</p>
                         </div>
                       )}
                     </>
@@ -1531,7 +1533,7 @@ export default function DriverDashboard() {
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span className="text-lg font-bold text-purple-600 dark:text-purple-400" data-testid={`accepted-amount-${booking.id}`}>
-                                      {booking.driverPayment ? `$${booking.driverPayment}` : "Not set"}
+                                      {booking.driverPayment ? `$${booking.driverPayment}` : t('driverDashboard.jobs.notSet')}
                                     </span>
                                     <Button
                                       variant="outline"
@@ -1595,7 +1597,7 @@ export default function DriverDashboard() {
                                     data-testid={`button-complete-${booking.id}`}
                                   >
                                     <CheckCircle className="w-4 h-4 mr-1.5" />
-                                    Complete Ride
+                                    {t('driverDashboard.actions.completeRide')}
                                   </Button>
                                 )}
                               </div>
@@ -1605,8 +1607,8 @@ export default function DriverDashboard() {
                       ) : (
                         <div className="text-center p-12" data-testid="no-accepted-jobs">
                           <CheckCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                          <p className="text-muted-foreground text-lg font-medium">No accepted jobs</p>
-                          <p className="text-muted-foreground text-sm mt-2">Jobs you've accepted will appear here</p>
+                          <p className="text-muted-foreground text-lg font-medium">{t('driverDashboard.jobs.noAcceptedJobs')}</p>
+                          <p className="text-muted-foreground text-sm mt-2">{t('driverDashboard.jobs.noAcceptedJobsDescription')}</p>
                         </div>
                       )}
                     </>
@@ -1627,10 +1629,10 @@ export default function DriverDashboard() {
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="text-sm font-semibold text-foreground">#{booking.id.slice(0, 8)}</span>
                                   <Badge className="bg-emerald-600 text-white font-medium text-xs px-2 py-0.5">
-                                    Completed
+                                    {t('driverDashboard.jobs.completed')}
                                   </Badge>
                                   <Badge variant="outline" className="text-xs px-2 py-0.5 border-muted-foreground/30">
-                                    {booking.bookingType === 'hourly' ? 'Hourly' : 'Transfer'}
+                                    {booking.bookingType === 'hourly' ? t('driverDashboard.jobs.hourly') : t('driverDashboard.jobs.transfer')}
                                   </Badge>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -1679,8 +1681,8 @@ export default function DriverDashboard() {
                       ) : (
                         <div className="text-center p-12" data-testid="no-completed-jobs">
                           <CheckCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                          <p className="text-muted-foreground text-lg font-medium">No completed jobs</p>
-                          <p className="text-muted-foreground text-sm mt-2">Your completed rides will appear here</p>
+                          <p className="text-muted-foreground text-lg font-medium">{t('driverDashboard.jobs.noCompletedJobs')}</p>
+                          <p className="text-muted-foreground text-sm mt-2">{t('driverDashboard.jobs.noCompletedJobsDescription')}</p>
                         </div>
                       )}
                     </>
@@ -1701,10 +1703,10 @@ export default function DriverDashboard() {
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="text-sm font-semibold text-foreground">#{booking.id.slice(0, 8)}</span>
                                   <Badge className="bg-red-600 text-white font-medium text-xs px-2 py-0.5">
-                                    Cancelled
+                                    {t('driverDashboard.jobs.cancelled')}
                                   </Badge>
                                   <Badge variant="outline" className="text-xs px-2 py-0.5 border-muted-foreground/30">
-                                    {booking.bookingType === 'hourly' ? 'Hourly' : 'Transfer'}
+                                    {booking.bookingType === 'hourly' ? t('driverDashboard.jobs.hourly') : t('driverDashboard.jobs.transfer')}
                                   </Badge>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -1744,7 +1746,7 @@ export default function DriverDashboard() {
                               {(booking as any).cancelReason && (
                                 <div className="bg-red-50 dark:bg-red-950/20 rounded-lg p-2.5 mb-2">
                                   <p className="text-xs text-red-600 dark:text-red-400">
-                                    <span className="font-medium">Reason:</span> {(booking as any).cancelReason}
+                                    <span className="font-medium">{t('driverDashboard.jobs.reasonLabel')}</span> {(booking as any).cancelReason}
                                   </p>
                                 </div>
                               )}
@@ -1760,8 +1762,8 @@ export default function DriverDashboard() {
                       ) : (
                         <div className="text-center p-12" data-testid="no-cancelled-jobs">
                           <AlertCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                          <p className="text-muted-foreground text-lg font-medium">No cancelled jobs</p>
-                          <p className="text-muted-foreground text-sm mt-2">Cancelled rides will appear here</p>
+                          <p className="text-muted-foreground text-lg font-medium">{t('driverDashboard.jobs.noCancelledJobs')}</p>
+                          <p className="text-muted-foreground text-sm mt-2">{t('driverDashboard.jobs.noCancelledJobsDescription')}</p>
                         </div>
                       )}
                     </>
@@ -1782,14 +1784,14 @@ export default function DriverDashboard() {
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="text-sm font-semibold text-foreground">#{declined.bookingId.slice(0, 8)}</span>
                                   <Badge className="bg-amber-600 text-white font-medium text-xs px-2 py-0.5">
-                                    Declined
+                                    {t('driverDashboard.jobs.declined')}
                                   </Badge>
                                   <Badge variant="outline" className="text-xs px-2 py-0.5 border-muted-foreground/30">
-                                    {declined.bookingType === 'hourly' ? 'Hourly' : 'Transfer'}
+                                    {declined.bookingType === 'hourly' ? t('driverDashboard.jobs.hourly') : t('driverDashboard.jobs.transfer')}
                                   </Badge>
                                 </div>
                                 <span className="text-lg font-bold text-muted-foreground line-through">
-                                  {declined.driverPayment ? `$${declined.driverPayment}` : "Not set"}
+                                  {declined.driverPayment ? `$${declined.driverPayment}` : t('driverDashboard.jobs.notSet')}
                                 </span>
                               </div>
                               <div className="flex items-center gap-4 text-sm mb-2">
@@ -1813,7 +1815,7 @@ export default function DriverDashboard() {
                               </div>
                               <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-2.5 mb-2">
                                 <p className="text-xs text-amber-700 dark:text-amber-400">
-                                  <span className="font-medium">Reason: </span>
+                                  <span className="font-medium">{t('driverDashboard.jobs.reasonLabel')} </span>
                                   {declined.reasonDisplay}
                                 </p>
                                 {declined.additionalNotes && (
@@ -1822,7 +1824,7 @@ export default function DriverDashboard() {
                                   </p>
                                 )}
                                 <p className="text-xs text-amber-500 dark:text-amber-600 mt-1">
-                                  Declined: {new Date(declined.declinedAt).toLocaleString('en-US', {
+                                  {t('driverDashboard.jobs.declinedAt')} {new Date(declined.declinedAt).toLocaleString('en-US', {
                                     month: 'short',
                                     day: 'numeric',
                                     hour: 'numeric',
@@ -1842,8 +1844,8 @@ export default function DriverDashboard() {
                       ) : (
                         <div className="text-center p-12" data-testid="no-declined-jobs">
                           <AlertCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                          <p className="text-muted-foreground text-lg font-medium">No declined jobs</p>
-                          <p className="text-muted-foreground text-sm mt-2">Jobs you've declined will appear here</p>
+                          <p className="text-muted-foreground text-lg font-medium">{t('driverDashboard.jobs.noDeclinedJobs')}</p>
+                          <p className="text-muted-foreground text-sm mt-2">{t('driverDashboard.jobs.noDeclinedJobsDescription')}</p>
                         </div>
                       )}
                     </>
@@ -2876,7 +2878,7 @@ export default function DriverDashboard() {
                 <div className="border-t border-border pt-3">
                   <div className="flex items-center gap-2 mb-2">
                     <Plane className="w-4 h-4 text-sky-600" />
-                    <span className="font-medium text-foreground">Flight Information</span>
+                    <span className="font-medium text-foreground">{t('driverDashboard.details.flightInfo')}</span>
                   </div>
                   <div className="pl-6">
                     <p className="text-sm text-foreground">
@@ -2891,7 +2893,7 @@ export default function DriverDashboard() {
                 <div className="border-t border-border pt-3">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertCircle className="w-4 h-4 text-amber-600" />
-                    <span className="font-medium text-foreground">Special Instructions</span>
+                    <span className="font-medium text-foreground">{t('driverDashboard.details.specialInstructions')}</span>
                   </div>
                   <p className="pl-6 text-sm text-muted-foreground">
                     {selectedBookingForDetails.specialInstructions}
@@ -2914,9 +2916,9 @@ export default function DriverDashboard() {
       }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-red-600">Decline Job</DialogTitle>
+            <DialogTitle className="text-red-600">{t('driverDashboard.decline.title')}</DialogTitle>
             <DialogDescription>
-              Please select a reason for declining this job. This helps us improve future assignments.
+              {t('driverDashboard.decline.description')}
             </DialogDescription>
           </DialogHeader>
           
@@ -2938,8 +2940,8 @@ export default function DriverDashboard() {
                 >
                   <RadioGroupItem value={reason.value} id={`decline-${reason.value}`} className="mt-0.5" />
                   <Label htmlFor={`decline-${reason.value}`} className="flex-1 cursor-pointer">
-                    <span className="font-medium block text-foreground">{reason.label}</span>
-                    <span className="text-sm text-muted-foreground">{reason.description}</span>
+                    <span className="font-medium block text-foreground">{t(`driverDashboard.decline.reasons.${reason.value}`)}</span>
+                    <span className="text-sm text-muted-foreground">{t(`driverDashboard.decline.reasons.${reason.value}_desc`)}</span>
                   </Label>
                 </div>
               ))}
@@ -2947,10 +2949,10 @@ export default function DriverDashboard() {
 
             {/* Always show notes field for additional comments */}
             <div className="space-y-2">
-              <Label htmlFor="decline-notes">Additional Notes (optional)</Label>
+              <Label htmlFor="decline-notes">{t('driverDashboard.decline.additionalNotes')}</Label>
               <Textarea
                 id="decline-notes"
-                placeholder="Provide any additional details..."
+                placeholder={t('driverDashboard.decline.additionalNotesPlaceholder')}
                 value={declineNotes}
                 onChange={(e) => setDeclineNotes(e.target.value)}
                 className="resize-none"
@@ -2969,14 +2971,14 @@ export default function DriverDashboard() {
                 setDeclineNotes('');
               }}
             >
-              Cancel
+              {t('driverDashboard.decline.cancel')}
             </Button>
             <Button
               onClick={handleDeclineSubmit}
               disabled={!selectedDeclineReason || declineBookingMutation.isPending}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              {declineBookingMutation.isPending ? 'Declining...' : 'Confirm Decline'}
+              {declineBookingMutation.isPending ? t('driverDashboard.jobs.declining') : t('driverDashboard.decline.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

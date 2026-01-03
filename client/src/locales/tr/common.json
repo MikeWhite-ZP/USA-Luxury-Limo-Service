@@ -898,10 +898,35 @@
       "hourly": "Saatlik",
       "transfer": "Transfer",
       "notSet": "Belirlenmedi",
+      "reasonLabel": "Sebep:",
+      "declinedAt": "Reddedildi:",
       "acceptJob": "İşi Kabul Et",
       "accepting": "Kabul ediliyor...",
       "declineJob": "Reddet",
       "declining": "Reddediliyor..."
+    },
+    "decline": {
+      "title": "İşi Reddet",
+      "description": "Lütfen bu işi reddetme nedeninizi seçin. Bu, eşleştirme sistemimizi geliştirmemize yardımcı olur.",
+      "selectReason": "Bir neden seçin",
+      "additionalNotes": "Ek notlar (isteğe bağlı)",
+      "additionalNotesPlaceholder": "Neden reddettiğinize dair ek detaylar...",
+      "cancel": "İptal",
+      "confirm": "İşi Reddet",
+      "reasons": {
+        "timing_conflict": "Zamanlama Çakışması",
+        "timing_conflict_desc": "İş zamanı programımla uyuşmuyor",
+        "pricing_too_low": "Fiyat Çok Düşük",
+        "pricing_too_low_desc": "Teklif edilen ücret kabul edilebilir değil",
+        "too_far_away": "Çok Uzak",
+        "too_far_away_desc": "Mesafe/konum tercih ettiğim alanın dışında",
+        "vehicle_not_suitable": "Araç Uygun Değil",
+        "vehicle_not_suitable_desc": "Aracım iş gereksinimlerini karşılamıyor",
+        "already_booked": "Zaten Rezerveli",
+        "already_booked_desc": "Bu saatte başka bir taahhüdüm var",
+        "personal_reasons": "Kişisel Nedenler",
+        "personal_reasons_desc": "Diğer kişisel durumlar"
+      }
     },
     "alerts": {
       "uploadDocuments": "Gerekli Belgeleri Yükleyin",
@@ -921,6 +946,10 @@
       "completeRide": "Yolculuğu Tamamla",
       "callPassenger": "Ara",
       "messagePassenger": "Mesaj"
+    },
+    "details": {
+      "flightInfo": "Uçuş Bilgileri",
+      "specialInstructions": "Özel Talimatlar"
     }
   }
 }

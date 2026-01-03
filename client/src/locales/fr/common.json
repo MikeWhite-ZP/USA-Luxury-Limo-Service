@@ -898,10 +898,35 @@
       "hourly": "Horaire",
       "transfer": "Transfert",
       "notSet": "Non défini",
+      "reasonLabel": "Raison :",
+      "declinedAt": "Refusé :",
       "acceptJob": "Accepter la Mission",
       "accepting": "Acceptation...",
       "declineJob": "Refuser",
       "declining": "Refus..."
+    },
+    "decline": {
+      "title": "Refuser la Mission",
+      "description": "Veuillez sélectionner une raison pour refuser cette mission. Cela nous aide à améliorer notre système d'attribution.",
+      "selectReason": "Sélectionnez une raison",
+      "additionalNotes": "Notes supplémentaires (optionnel)",
+      "additionalNotesPlaceholder": "Détails supplémentaires sur la raison du refus...",
+      "cancel": "Annuler",
+      "confirm": "Refuser la Mission",
+      "reasons": {
+        "timing_conflict": "Conflit d'Horaire",
+        "timing_conflict_desc": "L'horaire de la mission ne correspond pas à mon emploi du temps",
+        "pricing_too_low": "Prix Trop Bas",
+        "pricing_too_low_desc": "Le tarif proposé n'est pas acceptable",
+        "too_far_away": "Trop Loin",
+        "too_far_away_desc": "La distance/localisation est en dehors de ma zone préférée",
+        "vehicle_not_suitable": "Véhicule Non Adapté",
+        "vehicle_not_suitable_desc": "Mon véhicule ne répond pas aux exigences de la mission",
+        "already_booked": "Déjà Réservé",
+        "already_booked_desc": "J'ai un autre engagement à cette heure",
+        "personal_reasons": "Raisons Personnelles",
+        "personal_reasons_desc": "Autres circonstances personnelles"
+      }
     },
     "alerts": {
       "uploadDocuments": "Télécharger les Documents Requis",
@@ -921,6 +946,10 @@
       "completeRide": "Terminer la Course",
       "callPassenger": "Appeler",
       "messagePassenger": "Message"
+    },
+    "details": {
+      "flightInfo": "Informations de Vol",
+      "specialInstructions": "Instructions Spéciales"
     }
   }
 }

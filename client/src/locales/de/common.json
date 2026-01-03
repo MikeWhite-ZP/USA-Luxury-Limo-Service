@@ -898,10 +898,35 @@
       "hourly": "Stündlich",
       "transfer": "Transfer",
       "notSet": "Nicht festgelegt",
+      "reasonLabel": "Grund:",
+      "declinedAt": "Abgelehnt:",
       "acceptJob": "Auftrag Annehmen",
       "accepting": "Wird angenommen...",
       "declineJob": "Ablehnen",
       "declining": "Wird abgelehnt..."
+    },
+    "decline": {
+      "title": "Auftrag Ablehnen",
+      "description": "Bitte wählen Sie einen Grund für die Ablehnung dieses Auftrags. Dies hilft uns, unser Zuweisungssystem zu verbessern.",
+      "selectReason": "Grund auswählen",
+      "additionalNotes": "Zusätzliche Anmerkungen (optional)",
+      "additionalNotesPlaceholder": "Weitere Details zur Ablehnung...",
+      "cancel": "Abbrechen",
+      "confirm": "Auftrag Ablehnen",
+      "reasons": {
+        "timing_conflict": "Terminkonflikt",
+        "timing_conflict_desc": "Die Auftragszeit passt nicht in meinen Zeitplan",
+        "pricing_too_low": "Preis Zu Niedrig",
+        "pricing_too_low_desc": "Der angebotene Tarif ist nicht akzeptabel",
+        "too_far_away": "Zu Weit Entfernt",
+        "too_far_away_desc": "Die Entfernung/Lage liegt außerhalb meines bevorzugten Gebiets",
+        "vehicle_not_suitable": "Fahrzeug Nicht Geeignet",
+        "vehicle_not_suitable_desc": "Mein Fahrzeug erfüllt die Auftragsanforderungen nicht",
+        "already_booked": "Bereits Gebucht",
+        "already_booked_desc": "Ich habe eine andere Verpflichtung zu dieser Zeit",
+        "personal_reasons": "Persönliche Gründe",
+        "personal_reasons_desc": "Andere persönliche Umstände"
+      }
     },
     "alerts": {
       "uploadDocuments": "Erforderliche Dokumente Hochladen",
@@ -921,6 +946,10 @@
       "completeRide": "Fahrt Abschließen",
       "callPassenger": "Anrufen",
       "messagePassenger": "Nachricht"
+    },
+    "details": {
+      "flightInfo": "Fluginformationen",
+      "specialInstructions": "Besondere Anweisungen"
     }
   }
 }

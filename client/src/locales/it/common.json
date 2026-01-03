@@ -898,10 +898,35 @@
       "hourly": "Orario",
       "transfer": "Trasferimento",
       "notSet": "Non impostato",
+      "reasonLabel": "Motivo:",
+      "declinedAt": "Rifiutato:",
       "acceptJob": "Accetta Lavoro",
       "accepting": "Accettazione...",
       "declineJob": "Rifiuta",
       "declining": "Rifiuto..."
+    },
+    "decline": {
+      "title": "Rifiuta Lavoro",
+      "description": "Seleziona un motivo per rifiutare questo lavoro. Questo ci aiuta a migliorare il nostro sistema di assegnazione.",
+      "selectReason": "Seleziona un motivo",
+      "additionalNotes": "Note aggiuntive (opzionale)",
+      "additionalNotesPlaceholder": "Ulteriori dettagli sul motivo del rifiuto...",
+      "cancel": "Annulla",
+      "confirm": "Rifiuta Lavoro",
+      "reasons": {
+        "timing_conflict": "Conflitto di Orario",
+        "timing_conflict_desc": "L'orario del lavoro non si adatta al mio programma",
+        "pricing_too_low": "Prezzo Troppo Basso",
+        "pricing_too_low_desc": "La tariffa offerta non è accettabile",
+        "too_far_away": "Troppo Lontano",
+        "too_far_away_desc": "La distanza/posizione è al di fuori della mia area preferita",
+        "vehicle_not_suitable": "Veicolo Non Adatto",
+        "vehicle_not_suitable_desc": "Il mio veicolo non soddisfa i requisiti del lavoro",
+        "already_booked": "Già Prenotato",
+        "already_booked_desc": "Ho un altro impegno a quest'ora",
+        "personal_reasons": "Motivi Personali",
+        "personal_reasons_desc": "Altre circostanze personali"
+      }
     },
     "alerts": {
       "uploadDocuments": "Carica Documenti Richiesti",
@@ -921,6 +946,10 @@
       "completeRide": "Completa Corsa",
       "callPassenger": "Chiama",
       "messagePassenger": "Messaggio"
+    },
+    "details": {
+      "flightInfo": "Informazioni Volo",
+      "specialInstructions": "Istruzioni Speciali"
     }
   }
 }

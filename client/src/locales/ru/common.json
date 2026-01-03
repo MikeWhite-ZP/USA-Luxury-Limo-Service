@@ -898,10 +898,35 @@
       "hourly": "Почасовой",
       "transfer": "Трансфер",
       "notSet": "Не установлено",
+      "reasonLabel": "Причина:",
+      "declinedAt": "Отклонено:",
       "acceptJob": "Принять Заказ",
       "accepting": "Принятие...",
       "declineJob": "Отклонить",
       "declining": "Отклонение..."
+    },
+    "decline": {
+      "title": "Отклонить Заказ",
+      "description": "Пожалуйста, выберите причину отклонения этого заказа. Это помогает нам улучшить систему назначения.",
+      "selectReason": "Выберите причину",
+      "additionalNotes": "Дополнительные заметки (необязательно)",
+      "additionalNotesPlaceholder": "Дополнительные детали о причине отклонения...",
+      "cancel": "Отмена",
+      "confirm": "Отклонить Заказ",
+      "reasons": {
+        "timing_conflict": "Конфликт Времени",
+        "timing_conflict_desc": "Время заказа не соответствует моему расписанию",
+        "pricing_too_low": "Цена Слишком Низкая",
+        "pricing_too_low_desc": "Предложенный тариф неприемлем",
+        "too_far_away": "Слишком Далеко",
+        "too_far_away_desc": "Расстояние/местоположение находится за пределами моей предпочтительной зоны",
+        "vehicle_not_suitable": "Транспорт Не Подходит",
+        "vehicle_not_suitable_desc": "Мой транспорт не соответствует требованиям заказа",
+        "already_booked": "Уже Забронировано",
+        "already_booked_desc": "У меня есть другое обязательство в это время",
+        "personal_reasons": "Личные Причины",
+        "personal_reasons_desc": "Другие личные обстоятельства"
+      }
     },
     "alerts": {
       "uploadDocuments": "Загрузите Необходимые Документы",
@@ -921,6 +946,10 @@
       "completeRide": "Завершить Поездку",
       "callPassenger": "Позвонить",
       "messagePassenger": "Сообщение"
+    },
+    "details": {
+      "flightInfo": "Информация о Рейсе",
+      "specialInstructions": "Специальные Инструкции"
     }
   }
 }
