@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeToggleMobile } from '@/components/ThemeToggle';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useAuth } from '@/hooks/useAuth';
 
 interface DashboardStats {
@@ -187,6 +188,13 @@ export default function MobileDispatcher() {
             <p className="text-xs text-blue-200">{t('admin.fleetManagement')}</p>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher 
+              variant="ghost" 
+              size="sm" 
+              showFlag={true} 
+              showLabel={false}
+              className="bg-white/10 hover:bg-white/20 text-white"
+            />
             <ThemeToggleMobile className="bg-white/10 hover:bg-white/20" />
             <Button
               onClick={() => setFleetDialogOpen(true)}
