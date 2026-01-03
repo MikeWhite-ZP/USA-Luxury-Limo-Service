@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { format } from 'date-fns';
 import { ThemeToggleMobile } from '@/components/ThemeToggle';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface DriverDocument {
   id: string;
@@ -501,6 +502,12 @@ export default function MobileDriver() {
         <div className="flex items-center justify-between mb-4">
           <h1 className="font-bold text-foreground text-[22px]" data-testid="header-title">{t('roles.driver')}</h1>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher 
+              variant="ghost" 
+              size="sm" 
+              showFlag={true} 
+              showLabel={false}
+            />
             <ThemeToggleMobile />
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
