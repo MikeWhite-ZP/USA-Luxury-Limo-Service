@@ -919,7 +919,7 @@ export default function MobileDriver() {
             <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-1.5">
               <DollarSign className="w-4 h-4 text-emerald-600" />
             </div>
-            <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide mb-0.5">Today</p>
+            <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide mb-0.5">{t('driverDashboard.stats.today')}</p>
             <p className="text-sm font-bold text-emerald-900" data-testid="text-today-earnings">
               ${todayEarnings.toFixed(2)}
             </p>
@@ -935,7 +935,7 @@ export default function MobileDriver() {
             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-1.5">
               <MapPin className="w-4 h-4 text-blue-600" />
             </div>
-            <p className="text-[10px] font-bold text-blue-800 uppercase tracking-wide mb-0.5">Rides</p>
+            <p className="text-[10px] font-bold text-blue-800 uppercase tracking-wide mb-0.5">{t('driverDashboard.mobileDriver.rides')}</p>
             <p className="text-sm font-bold text-blue-900" data-testid="text-completed-today">
               {completedToday}
             </p>
@@ -951,7 +951,7 @@ export default function MobileDriver() {
             <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-1.5">
               <Star className="w-4 h-4 text-amber-600 fill-amber-600" />
             </div>
-            <p className="text-[10px] font-bold text-amber-800 uppercase tracking-wide mb-0.5">Rating</p>
+            <p className="text-[10px] font-bold text-amber-800 uppercase tracking-wide mb-0.5">{t('driverDashboard.stats.rating')}</p>
             <p className="text-sm font-bold text-amber-900" data-testid="text-rating">
               {driver.rating || '0'}/5
             </p>
@@ -967,7 +967,7 @@ export default function MobileDriver() {
               data-testid="tab-upcoming"
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md font-medium transition-all text-muted-foreground relative"
             >
-              Upcoming ({upcomingBookings.length})
+              {t('driverDashboard.mobileDriver.upcoming')} ({upcomingBookings.length})
               {newJobAlert && (
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -980,7 +980,7 @@ export default function MobileDriver() {
               data-testid="tab-completed"
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md font-medium transition-all text-muted-foreground"
             >
-              Completed ({completedBookings.length})
+              {t('driverDashboard.jobs.completed')} ({completedBookings.length})
             </TabsTrigger>
           </TabsList>
 
@@ -989,10 +989,10 @@ export default function MobileDriver() {
               <div className="bg-background rounded-xl border border-border p-8 text-center shadow-sm">
                 <Car className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-foreground font-medium mb-1" data-testid="text-no-upcoming">
-                  No upcoming rides
+                  {t('driverDashboard.mobileDriver.noUpcomingRides')}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {driver.isAvailable ? 'Waiting for new assignments...' : 'Go online to receive rides'}
+                  {driver.isAvailable ? t('driverDashboard.mobileDriver.waitingForAssignments') : t('driverDashboard.mobileDriver.goOnlineToReceive')}
                 </p>
               </div>
             ) : (
@@ -1080,7 +1080,7 @@ export default function MobileDriver() {
                         <div className="flex items-start gap-2.5">
                           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1 flex-shrink-0"></div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">Pickup</p>
+                            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">{t('driverDashboard.mobileDriver.pickup')}</p>
                             <p className="text-sm font-medium text-foreground line-clamp-2">{booking.pickupAddress}</p>
                           </div>
                           {isTripActive(booking.status) && (
@@ -1114,7 +1114,7 @@ export default function MobileDriver() {
                           <div className="flex items-start gap-2.5">
                             <div className="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1 flex-shrink-0"></div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">Via</p>
+                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">{t('driverDashboard.mobileDriver.via')}</p>
                               <p className="text-sm font-medium text-foreground line-clamp-2">{booking.viaAddress}</p>
                             </div>
                             {isTripActive(booking.status) && (
@@ -1149,10 +1149,10 @@ export default function MobileDriver() {
                           <div className="w-2.5 h-2.5 rounded-full bg-primary mt-1 flex-shrink-0"></div>
                           <div className="flex-1 min-w-0">
                             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
-                              Dropoff
+                              {t('driverDashboard.mobileDriver.dropoff')}
                               {(booking as any).bookingType === 'hourly' && (booking as any).requestedHours && (
                                 <span className="ml-2 text-primary font-bold">
-                                  ({(booking as any).requestedHours} {(booking as any).requestedHours === 1 ? 'Hour' : 'Hours'})
+                                  ({(booking as any).requestedHours} {(booking as any).requestedHours === 1 ? t('driverDashboard.mobileDriver.hour') : t('driverDashboard.mobileDriver.hours')})
                                 </span>
                               )}
                             </p>
@@ -1228,7 +1228,7 @@ export default function MobileDriver() {
               <div className="bg-background rounded-xl border border-border p-8 text-center shadow-sm">
                 <CheckCircle2 className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-foreground font-medium" data-testid="text-no-completed">
-                  No completed rides yet
+                  {t('driverDashboard.mobileDriver.noCompletedRidesYet')}
                 </p>
               </div>
             ) : (
@@ -1244,7 +1244,7 @@ export default function MobileDriver() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium text-xs px-2.5 py-1">
-                            Completed
+                            {t('driverDashboard.jobs.completed')}
                           </Badge>
                           <span className="text-base font-bold text-emerald-700">
                             ${booking.driverPayment && Number.isFinite(parseFloat(booking.driverPayment)) ? parseFloat(booking.driverPayment).toFixed(2) : '0.00'}
