@@ -623,7 +623,8 @@ export default function MobilePassenger() {
               <h1 className="text-xl font-bold text-foreground">{t('common.welcomeBack')}</h1>
               <p className="text-muted-foreground mt-1.5 text-sm">{user.firstName || ''} {user.lastName || ''}</p>
             </div>
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-2 items-center">
+              <LanguageSwitcherCompact />
               <ThemeToggleMobile />
               <Button
                 variant="ghost"
