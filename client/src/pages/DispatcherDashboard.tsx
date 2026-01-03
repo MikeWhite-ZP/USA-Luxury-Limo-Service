@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -39,6 +40,7 @@ import {
 import { rankDrivers, formatMatchInfo, getBestDriver, type DriverWithExtras, type RankedDriver } from "@/lib/driverMatching";
 
 export default function DispatcherDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -201,16 +203,16 @@ export default function DispatcherDashboard() {
       setSelectedBookingId(null);
       setSelectedDriverId("");
       toast({
-        title: result.isReassignment ? "Driver Reassigned" : "Driver Assigned",
+        title: result.isReassignment ? t('dispatcherDashboard.toast.driverReassigned') : t('dispatcherDashboard.toast.driverAssigned'),
         description: result.isReassignment 
-          ? "The driver has been successfully changed for this ride."
-          : "The driver has been successfully assigned to the ride.",
+          ? t('dispatcherDashboard.toast.driverReassignedDesc')
+          : t('dispatcherDashboard.toast.driverAssignedDesc'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Assignment Failed",
-        description: error.message || "Failed to assign driver to ride",
+        title: t('dispatcherDashboard.toast.assignmentFailed'),
+        description: error.message || t('dispatcherDashboard.toast.failedToAssign'),
         variant: "destructive",
       });
     },
@@ -244,20 +246,20 @@ export default function DispatcherDashboard() {
       setDeliveryMethod('both');
       
       toast({
-        title: "Message Sent",
+        title: t('dispatcherDashboard.toast.messageSent'),
         description: result.smsSent && result.emailSent 
-          ? "Message sent via SMS and email"
+          ? t('dispatcherDashboard.toast.messageSentSmsEmail')
           : result.smsSent 
-          ? "Message sent via SMS"
+          ? t('dispatcherDashboard.toast.messageSentSms')
           : result.emailSent
-          ? "Message sent via email"
-          : "Message queued for delivery",
+          ? t('dispatcherDashboard.toast.messageSentEmail')
+          : t('dispatcherDashboard.toast.messageQueued'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Failed to Send Message",
-        description: error.message || "Could not send message to driver(s)",
+        title: t('dispatcherDashboard.toast.failedToSendMessage'),
+        description: error.message || t('dispatcherDashboard.toast.couldNotSendMessage'),
         variant: "destructive",
       });
     },
@@ -289,14 +291,14 @@ export default function DispatcherDashboard() {
       setActiveTab('active');
       
       toast({
-        title: "Incident Reported",
-        description: "Emergency incident has been created and logged",
+        title: t('dispatcherDashboard.toast.incidentReported'),
+        description: t('dispatcherDashboard.toast.incidentCreated'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Failed to Report Incident",
-        description: error.message || "Could not create emergency incident",
+        title: t('dispatcherDashboard.toast.failedToReportIncident'),
+        description: error.message || t('dispatcherDashboard.toast.couldNotCreateIncident'),
         variant: "destructive",
       });
     },
@@ -315,14 +317,14 @@ export default function DispatcherDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/emergency-incidents'] });
       toast({
-        title: "Incident Updated",
-        description: "Emergency incident status has been updated",
+        title: t('dispatcherDashboard.toast.incidentUpdated'),
+        description: t('dispatcherDashboard.toast.incidentStatusUpdated'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Update Failed",
-        description: error.message || "Could not update incident",
+        title: t('dispatcherDashboard.toast.updateFailed'),
+        description: error.message || t('dispatcherDashboard.toast.couldNotUpdateIncident'),
         variant: "destructive",
       });
     },
@@ -338,8 +340,8 @@ export default function DispatcherDashboard() {
   const handleSendMessage = () => {
     if (!messageText.trim()) {
       toast({
-        title: "Message Required",
-        description: "Please enter a message to send",
+        title: t('dispatcherDashboard.toast.messageRequired'),
+        description: t('dispatcherDashboard.toast.enterMessageToSend'),
         variant: "destructive",
       });
       return;
@@ -347,8 +349,8 @@ export default function DispatcherDashboard() {
 
     if (messageType === 'individual' && !selectedDriverForMessage) {
       toast({
-        title: "Driver Required",
-        description: "Please select a driver to send the message to",
+        title: t('dispatcherDashboard.toast.driverRequired'),
+        description: t('dispatcherDashboard.toast.selectDriverToSend'),
         variant: "destructive",
       });
       return;
@@ -367,8 +369,8 @@ export default function DispatcherDashboard() {
   const handleCreateIncident = () => {
     if (!incidentLocation.trim() || !incidentDescription.trim()) {
       toast({
-        title: "Missing Information",
-        description: "Please provide location and description for the incident",
+        title: t('dispatcherDashboard.toast.missingInformation'),
+        description: t('dispatcherDashboard.toast.provideLocationDescription'),
         variant: "destructive",
       });
       return;
@@ -386,8 +388,8 @@ export default function DispatcherDashboard() {
   const handleAssignSubmit = () => {
     if (!selectedBookingId || !selectedDriverId) {
       toast({
-        title: "Selection Required",
-        description: "Please select both a booking and a driver",
+        title: t('dispatcherDashboard.toast.selectionRequired'),
+        description: t('dispatcherDashboard.toast.selectBookingAndDriver'),
         variant: "destructive",
       });
       return;
@@ -403,8 +405,8 @@ export default function DispatcherDashboard() {
   const handleAutoAssign = () => {
     if (!selectedBookingId || !enhancedDrivers) {
       toast({
-        title: "Selection Required",
-        description: "Please select a booking first",
+        title: t('dispatcherDashboard.toast.selectionRequired'),
+        description: t('dispatcherDashboard.toast.selectBookingFirst'),
         variant: "destructive",
       });
       return;
@@ -414,8 +416,8 @@ export default function DispatcherDashboard() {
     
     if (!bestDriver) {
       toast({
-        title: "No Drivers Available",
-        description: "There are no suitable drivers available for this booking",
+        title: t('dispatcherDashboard.toast.noDriversAvailable'),
+        description: t('dispatcherDashboard.toast.noSuitableDrivers'),
         variant: "destructive",
       });
       return;
@@ -423,8 +425,8 @@ export default function DispatcherDashboard() {
 
     if (bestDriver.matchScore < 40) {
       toast({
-        title: "Low Match Score",
-        description: `Best available driver has a low match score (${bestDriver.matchScore}/100). Consider manual selection.`,
+        title: t('dispatcherDashboard.toast.lowMatchScore'),
+        description: t('dispatcherDashboard.toast.lowMatchScoreDesc', { score: bestDriver.matchScore }),
         variant: "destructive",
       });
       return;
@@ -443,7 +445,7 @@ export default function DispatcherDashboard() {
       {
         onSuccess: () => {
           toast({
-            title: "Auto-Assigned Successfully",
+            title: t('dispatcherDashboard.toast.autoAssignedSuccess'),
             description: `${bestDriver.firstName} ${bestDriver.lastName} (${matchInfo.badge}: ${bestDriver.matchScore}/100${distanceInfo})`,
           });
         }
@@ -453,45 +455,45 @@ export default function DispatcherDashboard() {
 
   // Determine button text based on selected booking
   const getButtonText = () => {
-    if (assignDriverMutation.isPending) return 'Processing...';
-    if (!selectedBookingId) return 'Select Booking & Driver';
+    if (assignDriverMutation.isPending) return t('dispatcherDashboard.assignDialog.processing');
+    if (!selectedBookingId) return t('dispatcherDashboard.assignDialog.selectBookingDriver');
     const selectedBooking = allBookings?.find((b: any) => b.id === selectedBookingId);
-    return selectedBooking?.driverId ? 'Reassign Driver' : 'Assign Driver';
+    return selectedBooking?.driverId ? t('dispatcherDashboard.assignDialog.reassignDriver') : t('dispatcherDashboard.assignDialog.assignDriver');
   };
 
   const statsCards = [
     {
-      title: "Active Drivers",
+      title: t('dispatcherDashboard.stats.activeDrivers'),
       value: (dashboardStats as any)?.activeDrivers?.toString() || "0",
-      change: "Verified & available",
+      change: t('dispatcherDashboard.stats.verifiedAvailable'),
       icon: <Car className="w-5 h-5" />,
       color: "text-green-600"
     },
     {
-      title: "Active Rides",
+      title: t('dispatcherDashboard.stats.activeRides'),
       value: (dashboardStats as any)?.activeRides?.toString() || "0",
-      change: "In progress",
+      change: t('dispatcherDashboard.stats.inProgress'),
       icon: <Activity className="w-5 h-5" />,
       color: "text-blue-600"
     },
     {
-      title: "Pending Requests",
+      title: t('dispatcherDashboard.stats.pendingRequests'),
       value: (dashboardStats as any)?.pendingRequests?.toString() || "0",
-      change: "Awaiting assignment",
+      change: t('dispatcherDashboard.stats.awaitingAssignment'),
       icon: <Clock className="w-5 h-5" />,
       color: "text-orange-600"
     },
     {
-      title: "Pending Approvals",
+      title: t('dispatcherDashboard.stats.pendingApprovals'),
       value: (dashboardStats as any)?.pendingApprovals?.toString() || "0",
-      change: "Need verification",
+      change: t('dispatcherDashboard.stats.needVerification'),
       icon: <UserCheck className="w-5 h-5" />,
       color: "text-amber-600"
     },
     {
-      title: "Fleet Utilization",
+      title: t('dispatcherDashboard.stats.fleetUtilization'),
       value: (dashboardStats as any)?.fleetUtilization || "0%",
-      change: "Vehicles in use",
+      change: t('dispatcherDashboard.stats.vehiclesInUse'),
       icon: <BarChart3 className="w-5 h-5" />,
       color: "text-purple-600"
     }
@@ -499,29 +501,29 @@ export default function DispatcherDashboard() {
 
   const quickActions = [
     {
-      title: "Assign Ride",
-      description: "Manually assign pending rides to available drivers",
+      title: t('dispatcherDashboard.quickActions.assignRide'),
+      description: t('dispatcherDashboard.quickActions.assignRideDesc'),
       icon: <UserCheck className="w-6 h-6" />,
       action: handleAssignClick,
       color: "bg-blue-500"
     },
     {
-      title: "Fleet Monitor",
-      description: "Real-time location and status of all vehicles",
+      title: t('dispatcherDashboard.quickActions.fleetMonitor'),
+      description: t('dispatcherDashboard.quickActions.fleetMonitorDesc'),
       icon: <MapPin className="w-6 h-6" />,
       action: () => setFleetMonitorOpen(true),
       color: "bg-green-500"
     },
     {
-      title: "Driver Communication",
-      description: "Send messages or alerts to drivers",
+      title: t('dispatcherDashboard.quickActions.driverCommunication'),
+      description: t('dispatcherDashboard.quickActions.driverCommunicationDesc'),
       icon: <MessageSquare className="w-6 h-6" />,
       action: () => setCommunicationDialogOpen(true),
       color: "bg-purple-500"
     },
     {
-      title: "Emergency Support",
-      description: "Handle urgent requests and incidents",
+      title: t('dispatcherDashboard.quickActions.emergencySupport'),
+      description: t('dispatcherDashboard.quickActions.emergencySupportDesc'),
       icon: <AlertTriangle className="w-6 h-6" />,
       action: () => setEmergencySupportOpen(true),
       color: "bg-red-500"
@@ -543,10 +545,10 @@ export default function DispatcherDashboard() {
                 </div>
                 <div>
                   <h1 className="text-3xl md:text-4xl font-bold tracking-tight" data-testid="dispatcher-welcome">
-                    Dispatcher Control Center
+                    {t('dispatcherDashboard.title')}
                   </h1>
                   <p className="text-slate-300 text-lg mt-1">
-                    Welcome back, <span className="font-semibold text-white">{user?.firstName || user?.email}</span>
+                    {t('dispatcherDashboard.welcomeBack')} <span className="font-semibold text-white">{user?.firstName || user?.email}</span>
                   </p>
                 </div>
               </div>
@@ -606,7 +608,7 @@ export default function DispatcherDashboard() {
           {/* Quick Actions */}
           <div className="my-10">
             <h2 className="text-2xl font-bold mb-6 text-foreground" data-testid="quick-actions-title">
-              Quick Actions
+              {t('dispatcherDashboard.quickActions.title')}
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {quickActions.map((action, index) => (
@@ -640,10 +642,10 @@ export default function DispatcherDashboard() {
                   <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
                     <Activity className="w-5 h-5 text-blue-600" />
                   </div>
-                  <span>Recent Activity</span>
+                  <span>{t('dispatcherDashboard.recentActivity.title')}</span>
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
-                  Latest fleet operations and ride assignments
+                  {t('dispatcherDashboard.recentActivity.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -680,10 +682,10 @@ export default function DispatcherDashboard() {
                   <div className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg">
                     <AlertTriangle className="w-5 h-5 text-orange-600" />
                   </div>
-                  <span>System Alerts</span>
+                  <span>{t('dispatcherDashboard.systemAlerts.title')}</span>
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
-                  Important notifications and warnings
+                  {t('dispatcherDashboard.systemAlerts.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -724,10 +726,10 @@ export default function DispatcherDashboard() {
           <DialogHeader className="bg-background px-6 py-5 border-b border-border">
             <DialogTitle className="text-2xl font-semibold text-foreground flex items-center gap-3">
               <UserCheck className="w-6 h-6 text-blue-600" />
-              Assign/Reassign Ride to Driver
+              {t('dispatcherDashboard.assignDialog.title')}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-sm mt-2">
-              Select a pending ride to assign or an assigned ride to change the driver
+              {t('dispatcherDashboard.assignDialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-muted">
@@ -738,7 +740,7 @@ export default function DispatcherDashboard() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search bookings by passenger, location, ID..."
+                  placeholder={t('dispatcherDashboard.assignDialog.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -748,10 +750,10 @@ export default function DispatcherDashboard() {
             </div>
             <Select value={vehicleTypeFilter} onValueChange={setVehicleTypeFilter}>
               <SelectTrigger className="w-[200px]" data-testid="select-vehicle-filter">
-                <SelectValue placeholder="Filter by vehicle" />
+                <SelectValue placeholder={t('dispatcherDashboard.assignDialog.filterByVehicle')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Vehicle Types</SelectItem>
+                <SelectItem value="all">{t('dispatcherDashboard.assignDialog.allVehicleTypes')}</SelectItem>
                 {vehicleTypes.map((type) => (
                   <SelectItem key={type} value={type}>{type}</SelectItem>
                 ))}
@@ -762,8 +764,8 @@ export default function DispatcherDashboard() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="match">Sort by Match</SelectItem>
-                <SelectItem value="time">Sort by Time</SelectItem>
+                <SelectItem value="match">{t('dispatcherDashboard.assignDialog.sortByMatch')}</SelectItem>
+                <SelectItem value="time">{t('dispatcherDashboard.assignDialog.sortByTime')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -776,7 +778,7 @@ export default function DispatcherDashboard() {
                   <div className="bg-blue-100 p-1.5 rounded-lg">
                     <Clock className="w-4 h-4 text-blue-600" />
                   </div>
-                  All Bookings ({filteredBookings.length})
+                  {t('dispatcherDashboard.assignDialog.allBookings')} ({filteredBookings.length})
                 </h3>
                 {selectedBookingId && (
                   <Button
@@ -787,7 +789,7 @@ export default function DispatcherDashboard() {
                     data-testid="button-auto-assign"
                   >
                     <Zap className="w-4 h-4" />
-                    Auto-Assign Best Driver
+                    {t('dispatcherDashboard.assignDialog.autoAssign')}
                   </Button>
                 )}
               </div>
@@ -795,7 +797,7 @@ export default function DispatcherDashboard() {
                 <div className="text-center p-6 border rounded-lg bg-muted/50">
                   <Clock className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">
-                    {searchQuery || vehicleTypeFilter !== "all" ? "No bookings match your filters" : "No bookings available"}
+                    {searchQuery || vehicleTypeFilter !== "all" ? t('dispatcherDashboard.assignDialog.noBookingsMatch') : t('dispatcherDashboard.assignDialog.noBookingsAvailable')}
                   </p>
                 </div>
               ) : (
@@ -829,7 +831,7 @@ export default function DispatcherDashboard() {
                                   {isUrgent && (
                                     <Badge variant="destructive" className="text-xs">
                                       <Clock className="w-3 h-3 mr-1" />
-                                      Urgent
+                                      {t('dispatcherDashboard.assignDialog.urgent')}
                                     </Badge>
                                   )}
                                 </div>
@@ -841,7 +843,7 @@ export default function DispatcherDashboard() {
                             {!isPending && (
                               <div className="bg-orange-50 border border-orange-200 rounded p-2">
                                 <p className="text-xs font-medium text-orange-800">
-                                  Currently: {booking.driverFirstName} {booking.driverLastName}
+                                  {t('dispatcherDashboard.assignDialog.currently')} {booking.driverFirstName} {booking.driverLastName}
                                 </p>
                               </div>
                             )}
@@ -863,7 +865,7 @@ export default function DispatcherDashboard() {
                             </div>
                             <div className="flex items-center justify-between pt-2 border-t">
                               <span className="text-xs text-muted-foreground">
-                                {booking.passengerCount} passenger{booking.passengerCount > 1 ? 's' : ''}
+                                {booking.passengerCount} {booking.passengerCount > 1 ? t('dispatcherDashboard.assignDialog.passengers') : t('dispatcherDashboard.assignDialog.passenger')}
                               </span>
                               <span className="font-semibold text-sm">
                                 ${booking.totalAmount}
@@ -884,17 +886,17 @@ export default function DispatcherDashboard() {
                 <div className="bg-green-100 p-1.5 rounded-lg">
                   <Car className="w-4 h-4 text-green-600" />
                 </div>
-                Available Drivers ({rankedDrivers.length})
+                {t('dispatcherDashboard.assignDialog.availableDrivers')} ({rankedDrivers.length})
               </h3>
               {!selectedBookingId ? (
                 <div className="text-center p-6 border rounded-lg bg-muted/50">
                   <Car className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Select a booking to see ranked drivers</p>
+                  <p className="text-sm text-muted-foreground">{t('dispatcherDashboard.assignDialog.selectBookingForDrivers')}</p>
                 </div>
               ) : rankedDrivers.length === 0 ? (
                 <div className="text-center p-6 border rounded-lg bg-muted/50">
                   <Car className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">No drivers available</p>
+                  <p className="text-sm text-muted-foreground">{t('dispatcherDashboard.assignDialog.noDriversAvailable')}</p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
@@ -931,7 +933,7 @@ export default function DispatcherDashboard() {
                                     {driver.rating || 'N/A'}
                                   </span>
                                   <span className="text-xs text-muted-foreground">
-                                    • {driver.totalRides || 0} rides
+                                    • {driver.totalRides || 0} {t('dispatcherDashboard.assignDialog.rides')}
                                   </span>
                                 </div>
                               </div>
@@ -940,7 +942,7 @@ export default function DispatcherDashboard() {
                                   {driver.matchScore}/100
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                  Match Score
+                                  {t('dispatcherDashboard.assignDialog.matchScore')}
                                 </div>
                               </div>
                             </div>
@@ -950,7 +952,7 @@ export default function DispatcherDashboard() {
                               <div className="flex items-center gap-1 text-xs bg-blue-50 p-2 rounded">
                                 <Navigation className="w-3 h-3 text-blue-600" />
                                 <span className="text-blue-800 font-medium">
-                                  {driver.distanceMiles.toFixed(1)} mi away
+                                  {driver.distanceMiles.toFixed(1)} {t('dispatcherDashboard.assignDialog.miAway')}
                                 </span>
                               </div>
                             )}
@@ -973,7 +975,7 @@ export default function DispatcherDashboard() {
                             {/* Conflict Details */}
                             {driver.hasConflict && driver.conflictingBooking && (
                               <div className="text-xs text-red-700 bg-red-50 border border-red-200 p-2 rounded">
-                                <div className="font-medium mb-1">⚠️ Schedule Conflict</div>
+                                <div className="font-medium mb-1">⚠️ {t('dispatcherDashboard.assignDialog.scheduleConflict')}</div>
                                 <div>
                                   {new Date(driver.conflictingBooking.scheduledDateTime).toLocaleTimeString()} - {driver.conflictingBooking.passengerName}
                                 </div>
@@ -983,14 +985,14 @@ export default function DispatcherDashboard() {
                             {/* Additional Driver Info */}
                             <div className="text-xs space-y-1 text-muted-foreground pt-2 border-t">
                               <div className="flex items-center justify-between">
-                                <span>Status:</span>
+                                <span>{t('dispatcherDashboard.assignDialog.status')}:</span>
                                 <Badge variant={driver.isAvailable ? "default" : "secondary"} className="text-xs">
-                                  {driver.isAvailable ? 'Available' : 'Busy'}
+                                  {driver.isAvailable ? t('dispatcherDashboard.assignDialog.available') : t('dispatcherDashboard.assignDialog.busy')}
                                 </Badge>
                               </div>
                               {driver.vehiclePlate && (
                                 <div className="flex items-center justify-between">
-                                  <span>Vehicle:</span>
+                                  <span>{t('dispatcherDashboard.assignDialog.vehicle')}:</span>
                                   <span className="font-mono font-medium bg-muted px-2 py-0.5 rounded">{driver.vehiclePlate}</span>
                                 </div>
                               )}
@@ -1016,7 +1018,7 @@ export default function DispatcherDashboard() {
               className="px-6 border-border hover:bg-muted text-muted-foreground"
               data-testid="button-cancel-assign"
             >
-              Cancel
+              {t('dispatcherDashboard.assignDialog.cancel')}
             </Button>
             <Button
               onClick={handleAssignSubmit}
@@ -1037,10 +1039,10 @@ export default function DispatcherDashboard() {
           <DialogHeader className="bg-background px-6 py-5 border-b border-border">
             <DialogTitle className="text-2xl font-semibold text-foreground flex items-center gap-3">
               <MapPin className="w-6 h-6 text-green-600" />
-              Fleet Monitor - Live Status
+              {t('dispatcherDashboard.fleetMonitor.title')}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-sm mt-2">
-              Real-time overview of all drivers and vehicles in the fleet
+              {t('dispatcherDashboard.fleetMonitor.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-muted">
@@ -1050,7 +1052,7 @@ export default function DispatcherDashboard() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-muted-foreground">Available</p>
+                      <p className="text-xs text-muted-foreground">{t('dispatcherDashboard.fleetMonitor.available')}</p>
                       <p className="text-2xl font-bold text-green-600" data-testid="stat-available">
                         {allDrivers?.filter((d: any) => d.isAvailable).length || 0}
                       </p>
@@ -1063,7 +1065,7 @@ export default function DispatcherDashboard() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-muted-foreground">On Ride</p>
+                      <p className="text-xs text-muted-foreground">{t('dispatcherDashboard.fleetMonitor.onRide')}</p>
                       <p className="text-2xl font-bold text-blue-600" data-testid="stat-on-ride">
                         {allDrivers?.filter((d: any) => {
                           const hasCurrentRide = allBookings?.some(
@@ -1081,7 +1083,7 @@ export default function DispatcherDashboard() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-muted-foreground">Offline</p>
+                      <p className="text-xs text-muted-foreground">{t('dispatcherDashboard.fleetMonitor.offline')}</p>
                       <p className="text-2xl font-bold text-orange-600" data-testid="stat-offline">
                         {allDrivers?.filter((d: any) => {
                           const hasCurrentRide = allBookings?.some(
@@ -1099,7 +1101,7 @@ export default function DispatcherDashboard() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-muted-foreground">Total Fleet</p>
+                      <p className="text-xs text-muted-foreground">{t('dispatcherDashboard.fleetMonitor.totalFleet')}</p>
                       <p className="text-2xl font-bold text-purple-600" data-testid="stat-total">
                         {allDrivers?.length || 0}
                       </p>
@@ -1115,7 +1117,7 @@ export default function DispatcherDashboard() {
               {!allDrivers || allDrivers.length === 0 ? (
                 <div className="text-center p-12 border rounded-lg bg-muted/50">
                   <Car className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">No drivers in fleet</p>
+                  <p className="text-muted-foreground">{t('dispatcherDashboard.fleetMonitor.noDriversInFleet')}</p>
                 </div>
               ) : (
                 allDrivers.map((driver: any) => {
@@ -1124,7 +1126,7 @@ export default function DispatcherDashboard() {
                   );
                   const isOnRide = !!currentRide;
                   const statusColor = driver.isAvailable ? 'green' : isOnRide ? 'blue' : 'orange';
-                  const statusText = driver.isAvailable ? 'Available' : isOnRide ? 'On Ride' : 'Offline';
+                  const statusText = driver.isAvailable ? t('dispatcherDashboard.fleetMonitor.available') : isOnRide ? t('dispatcherDashboard.fleetMonitor.onRide') : t('dispatcherDashboard.fleetMonitor.offline');
 
                   return (
                     <Card key={driver.id} className="hover:shadow-md transition-shadow" data-testid={`fleet-driver-${driver.id}`}>
@@ -1155,16 +1157,16 @@ export default function DispatcherDashboard() {
                               </div>
                               <div className="text-sm text-muted-foreground space-y-1">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-xs">Email:</span>
+                                  <span className="text-xs">{t('dispatcherDashboard.fleetMonitor.email')}:</span>
                                   <span className="text-xs">{driver.email}</span>
                                 </div>
                                 <div className="flex items-center gap-4">
                                   <div className="flex items-center gap-1">
-                                    <span className="text-xs">Rating:</span>
+                                    <span className="text-xs">{t('dispatcherDashboard.fleetMonitor.rating')}:</span>
                                     <span className="text-xs font-medium">⭐ {driver.rating || 'N/A'}</span>
                                   </div>
                                   <div className="flex items-center gap-1">
-                                    <span className="text-xs">Total Rides:</span>
+                                    <span className="text-xs">{t('dispatcherDashboard.fleetMonitor.totalRides')}:</span>
                                     <span className="text-xs font-medium">{driver.totalRides || 0}</span>
                                   </div>
                                 </div>
@@ -1173,7 +1175,7 @@ export default function DispatcherDashboard() {
                               {/* Current Ride Info */}
                               {currentRide && (
                                 <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                  <p className="text-xs font-medium text-blue-900 mb-2">Current Ride:</p>
+                                  <p className="text-xs font-medium text-blue-900 mb-2">{t('dispatcherDashboard.fleetMonitor.currentRide')}:</p>
                                   <div className="space-y-1 text-xs">
                                     <div className="flex items-center gap-1">
                                       <Users className="w-3 h-3" />
@@ -1218,7 +1220,7 @@ export default function DispatcherDashboard() {
                               data-testid={`button-view-location-${driver.id}`}
                             >
                               <MapPin className="w-3 h-3" />
-                              View Location
+                              {t('dispatcherDashboard.fleetMonitor.viewLocation')}
                             </Button>
                           </div>
                         </div>
@@ -1236,7 +1238,7 @@ export default function DispatcherDashboard() {
               className="px-6 border-border hover:bg-muted text-muted-foreground"
               data-testid="button-close-fleet-monitor"
             >
-              Close
+              {t('dispatcherDashboard.fleetMonitor.close')}
             </Button>
           </div>
           </div>
@@ -1249,24 +1251,24 @@ export default function DispatcherDashboard() {
           <DialogHeader className="bg-background px-6 py-5 border-b border-border">
             <DialogTitle className="text-2xl font-semibold text-foreground flex items-center gap-3">
               <MessageSquare className="w-6 h-6 text-purple-600" />
-              Driver Communication
+              {t('dispatcherDashboard.communication.title')}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-sm mt-2">
-              Send messages or alerts to your driver team
+              {t('dispatcherDashboard.communication.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 py-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-muted">
             <div className="space-y-5">
               {/* Message Type */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">Message Type</Label>
+                <Label className="text-sm font-medium text-muted-foreground">{t('dispatcherDashboard.communication.messageType')}</Label>
                 <Select value={messageType} onValueChange={(v) => setMessageType(v as "individual" | "broadcast")}>
                   <SelectTrigger className="w-full bg-background" data-testid="select-message-type">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="individual">Individual Driver</SelectItem>
-                    <SelectItem value="broadcast">Broadcast to All Drivers</SelectItem>
+                    <SelectItem value="individual">{t('dispatcherDashboard.communication.individualDriver')}</SelectItem>
+                    <SelectItem value="broadcast">{t('dispatcherDashboard.communication.broadcastAll')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1274,10 +1276,10 @@ export default function DispatcherDashboard() {
               {/* Driver Selection (only for individual messages) */}
               {messageType === 'individual' && (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Select Driver</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">{t('dispatcherDashboard.communication.selectDriver')}</Label>
                   <Select value={selectedDriverForMessage} onValueChange={setSelectedDriverForMessage}>
                     <SelectTrigger className="w-full bg-background" data-testid="select-driver">
-                      <SelectValue placeholder="Choose a driver..." />
+                      <SelectValue placeholder={t('dispatcherDashboard.communication.chooseDriver')} />
                     </SelectTrigger>
                     <SelectContent>
                       {activeDrivers.map((driver: any) => (
@@ -1292,9 +1294,9 @@ export default function DispatcherDashboard() {
 
               {/* Subject */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">Subject (optional)</Label>
+                <Label className="text-sm font-medium text-muted-foreground">{t('dispatcherDashboard.communication.subject')}</Label>
                 <Input
-                  placeholder="Message subject..."
+                  placeholder={t('dispatcherDashboard.communication.subjectPlaceholder')}
                   value={messageSubject}
                   onChange={(e) => setMessageSubject(e.target.value)}
                   className="bg-background"
@@ -1304,9 +1306,9 @@ export default function DispatcherDashboard() {
 
               {/* Message */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">Message *</Label>
+                <Label className="text-sm font-medium text-muted-foreground">{t('dispatcherDashboard.communication.message')} *</Label>
                 <Textarea
-                  placeholder="Type your message here..."
+                  placeholder={t('dispatcherDashboard.communication.messagePlaceholder')}
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
                   className="min-h-[120px] bg-background"
@@ -1316,22 +1318,22 @@ export default function DispatcherDashboard() {
 
               {/* Priority */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
+                <Label className="text-sm font-medium text-muted-foreground">{t('dispatcherDashboard.communication.priority')}</Label>
                 <Select value={messagePriority} onValueChange={(v) => setMessagePriority(v as "normal" | "high" | "urgent")}>
                   <SelectTrigger className="w-full bg-background" data-testid="select-priority">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
+                    <SelectItem value="normal">{t('dispatcherDashboard.communication.priorityNormal')}</SelectItem>
+                    <SelectItem value="high">{t('dispatcherDashboard.communication.priorityHigh')}</SelectItem>
+                    <SelectItem value="urgent">{t('dispatcherDashboard.communication.priorityUrgent')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Delivery Method */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">Delivery Method</Label>
+                <Label className="text-sm font-medium text-muted-foreground">{t('dispatcherDashboard.communication.deliveryMethod')}</Label>
                 <Select value={deliveryMethod} onValueChange={(v) => setDeliveryMethod(v as "sms" | "email" | "both")}>
                   <SelectTrigger className="w-full bg-background" data-testid="select-delivery-method">
                     <SelectValue />
@@ -1341,19 +1343,19 @@ export default function DispatcherDashboard() {
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4" />
                         <Phone className="w-4 h-4" />
-                        <span>Email & SMS</span>
+                        <span>{t('dispatcherDashboard.communication.emailAndSms')}</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="email">
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4" />
-                        <span>Email Only</span>
+                        <span>{t('dispatcherDashboard.communication.emailOnly')}</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="sms">
                       <div className="flex items-center gap-2">
                         <Phone className="w-4 h-4" />
-                        <span>SMS Only</span>
+                        <span>{t('dispatcherDashboard.communication.smsOnly')}</span>
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -1365,13 +1367,13 @@ export default function DispatcherDashboard() {
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-blue-900">
-                    <p className="font-medium mb-1">Sending to:</p>
+                    <p className="font-medium mb-1">{t('dispatcherDashboard.communication.sendingTo')}:</p>
                     <p>
                       {messageType === 'broadcast' 
-                        ? `All active drivers (${activeDrivers.length} drivers)` 
+                        ? t('dispatcherDashboard.communication.allActiveDrivers', { count: activeDrivers.length })
                         : selectedDriverForMessage 
                         ? activeDrivers.find((d: any) => d.userId === selectedDriverForMessage)?.firstName + ' ' + activeDrivers.find((d: any) => d.userId === selectedDriverForMessage)?.lastName
-                        : 'No driver selected'
+                        : t('dispatcherDashboard.communication.noDriverSelected')
                       }
                     </p>
                   </div>
@@ -1380,12 +1382,12 @@ export default function DispatcherDashboard() {
 
               {/* Message History */}
               <div className="mt-8 pt-6 border-t border-border">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Recent Messages</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-4">{t('dispatcherDashboard.communication.recentMessages')}</h3>
                 <div className="space-y-3 max-h-[300px] overflow-y-auto">
                   {!driverMessages || driverMessages.length === 0 ? (
                     <div className="text-center p-8 border rounded-lg bg-background">
                       <MessageSquare className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">No messages sent yet</p>
+                      <p className="text-sm text-muted-foreground">{t('dispatcherDashboard.communication.noMessagesSent')}</p>
                     </div>
                   ) : (
                     driverMessages.map((msg: any) => (
@@ -1456,7 +1458,7 @@ export default function DispatcherDashboard() {
               className="px-6 border-border hover:bg-muted text-muted-foreground"
               data-testid="button-cancel-communication"
             >
-              Cancel
+              {t('dispatcherDashboard.communication.cancel')}
             </Button>
             <Button
               onClick={handleSendMessage}
@@ -1465,7 +1467,7 @@ export default function DispatcherDashboard() {
               data-testid="button-send-message"
             >
               <Send className="w-4 h-4" />
-              {sendMessageMutation.isPending ? 'Sending...' : 'Send Message'}
+              {sendMessageMutation.isPending ? t('dispatcherDashboard.communication.sending') : t('dispatcherDashboard.communication.sendMessage')}
             </Button>
           </div>
         </DialogContent>
@@ -1477,10 +1479,10 @@ export default function DispatcherDashboard() {
           <DialogHeader className="bg-background px-6 py-5 border-b border-border">
             <DialogTitle className="text-2xl font-semibold text-foreground flex items-center gap-3">
               <AlertTriangle className="w-6 h-6 text-red-600" />
-              Emergency Support
+              {t('dispatcherDashboard.emergency.title')}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-sm mt-2">
-              Report and manage emergency incidents and urgent situations
+              {t('dispatcherDashboard.emergency.description')}
             </DialogDescription>
           </DialogHeader>
 
@@ -1494,7 +1496,7 @@ export default function DispatcherDashboard() {
                 data-testid="button-tab-create"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Report Incident
+                {t('dispatcherDashboard.emergency.reportIncident')}
               </Button>
               <Button
                 variant={activeTab === 'active' ? 'default' : 'outline'}
@@ -1503,7 +1505,7 @@ export default function DispatcherDashboard() {
                 data-testid="button-tab-active"
               >
                 <Activity className="w-4 h-4 mr-2" />
-                Active Incidents ({emergencyIncidents?.filter((i: any) => i.status === 'open' || i.status === 'in_progress').length || 0})
+                {t('dispatcherDashboard.emergency.activeIncidents')} ({emergencyIncidents?.filter((i: any) => i.status === 'open' || i.status === 'in_progress').length || 0})
               </Button>
             </div>
 
@@ -1515,45 +1517,45 @@ export default function DispatcherDashboard() {
                     <div className="grid gap-6">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label className="text-muted-foreground font-medium mb-2 block">Incident Type</Label>
+                          <Label className="text-muted-foreground font-medium mb-2 block">{t('dispatcherDashboard.emergency.incidentType')}</Label>
                           <Select value={incidentType} onValueChange={(value: any) => setIncidentType(value)}>
                             <SelectTrigger className="bg-background border-border" data-testid="select-incident-type">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent className="bg-background border-border">
-                              <SelectItem value="accident">Accident</SelectItem>
-                              <SelectItem value="breakdown">Vehicle Breakdown</SelectItem>
-                              <SelectItem value="medical">Medical Emergency</SelectItem>
-                              <SelectItem value="safety">Safety Issue</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
+                              <SelectItem value="accident">{t('dispatcherDashboard.emergency.typeAccident')}</SelectItem>
+                              <SelectItem value="breakdown">{t('dispatcherDashboard.emergency.typeBreakdown')}</SelectItem>
+                              <SelectItem value="medical">{t('dispatcherDashboard.emergency.typeMedical')}</SelectItem>
+                              <SelectItem value="safety">{t('dispatcherDashboard.emergency.typeSafety')}</SelectItem>
+                              <SelectItem value="other">{t('dispatcherDashboard.emergency.typeOther')}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
                         <div>
-                          <Label className="text-muted-foreground font-medium mb-2 block">Severity Level</Label>
+                          <Label className="text-muted-foreground font-medium mb-2 block">{t('dispatcherDashboard.emergency.severityLevel')}</Label>
                           <Select value={incidentSeverity} onValueChange={(value: any) => setIncidentSeverity(value)}>
                             <SelectTrigger className="bg-background border-border" data-testid="select-severity">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent className="bg-background border-border">
-                              <SelectItem value="low">Low</SelectItem>
-                              <SelectItem value="medium">Medium</SelectItem>
-                              <SelectItem value="high">High</SelectItem>
-                              <SelectItem value="critical">Critical</SelectItem>
+                              <SelectItem value="low">{t('dispatcherDashboard.emergency.severityLow')}</SelectItem>
+                              <SelectItem value="medium">{t('dispatcherDashboard.emergency.severityMedium')}</SelectItem>
+                              <SelectItem value="high">{t('dispatcherDashboard.emergency.severityHigh')}</SelectItem>
+                              <SelectItem value="critical">{t('dispatcherDashboard.emergency.severityCritical')}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                       </div>
 
                       <div>
-                        <Label className="text-muted-foreground font-medium mb-2 block">Driver (Optional)</Label>
+                        <Label className="text-muted-foreground font-medium mb-2 block">{t('dispatcherDashboard.emergency.driver')}</Label>
                         <Select value={incidentDriverId} onValueChange={setIncidentDriverId}>
                           <SelectTrigger className="bg-background border-border" data-testid="select-driver">
-                            <SelectValue placeholder="Select driver if applicable" />
+                            <SelectValue placeholder={t('dispatcherDashboard.emergency.selectDriverIfApplicable')} />
                           </SelectTrigger>
                           <SelectContent className="bg-background border-border">
-                            <SelectItem value="none">No driver selected</SelectItem>
+                            <SelectItem value="none">{t('dispatcherDashboard.emergency.noDriverSelected')}</SelectItem>
                             {activeDrivers?.map((driver: any) => (
                               <SelectItem key={driver.userId} value={driver.userId}>
                                 {driver.firstName} {driver.lastName} - {driver.vehicleModel}
@@ -1564,22 +1566,22 @@ export default function DispatcherDashboard() {
                       </div>
 
                       <div>
-                        <Label className="text-muted-foreground font-medium mb-2 block">Location</Label>
+                        <Label className="text-muted-foreground font-medium mb-2 block">{t('dispatcherDashboard.emergency.location')}</Label>
                         <Input
                           value={incidentLocation}
                           onChange={(e) => setIncidentLocation(e.target.value)}
-                          placeholder="Enter incident location"
+                          placeholder={t('dispatcherDashboard.emergency.locationPlaceholder')}
                           className="bg-background border-border"
                           data-testid="input-location"
                         />
                       </div>
 
                       <div>
-                        <Label className="text-muted-foreground font-medium mb-2 block">Description</Label>
+                        <Label className="text-muted-foreground font-medium mb-2 block">{t('dispatcherDashboard.emergency.descriptionLabel')}</Label>
                         <Textarea
                           value={incidentDescription}
                           onChange={(e) => setIncidentDescription(e.target.value)}
-                          placeholder="Provide detailed description of the incident"
+                          placeholder={t('dispatcherDashboard.emergency.descriptionPlaceholder')}
                           rows={4}
                           className="bg-background border-border"
                           data-testid="textarea-description"
@@ -1598,7 +1600,7 @@ export default function DispatcherDashboard() {
                   <Card className="bg-background border-border">
                     <CardContent className="p-8 text-center">
                       <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                      <p className="text-muted-foreground">No emergency incidents reported</p>
+                      <p className="text-muted-foreground">{t('dispatcherDashboard.emergency.noIncidentsReported')}</p>
                     </CardContent>
                   </Card>
                 ) : (
@@ -1640,19 +1642,19 @@ export default function DispatcherDashboard() {
                             </div>
                             <div className="grid grid-cols-2 gap-3 text-sm mb-3">
                               <div>
-                                <span className="text-muted-foreground">Location:</span>
+                                <span className="text-muted-foreground">{t('dispatcherDashboard.emergency.location')}:</span>
                                 <p className="text-foreground font-medium">{incident.location}</p>
                               </div>
                               {incident.driverName && (
                                 <div>
-                                  <span className="text-muted-foreground">Driver:</span>
+                                  <span className="text-muted-foreground">{t('dispatcherDashboard.emergency.driver')}:</span>
                                   <p className="text-foreground font-medium">{incident.driverName}</p>
                                 </div>
                               )}
                             </div>
                             <p className="text-sm text-muted-foreground">{incident.description}</p>
                             <div className="flex items-center gap-4 text-xs text-muted-foreground mt-3">
-                              <span>Reported by: {incident.reporterName}</span>
+                              <span>{t('dispatcherDashboard.emergency.reportedBy')}: {incident.reporterName}</span>
                               <span>•</span>
                               <span>{new Date(incident.createdAt).toLocaleString()}</span>
                             </div>
@@ -1668,7 +1670,7 @@ export default function DispatcherDashboard() {
                                 className="bg-blue-600 hover:bg-blue-700 text-white"
                                 data-testid={`button-progress-${incident.id}`}
                               >
-                                In Progress
+                                {t('dispatcherDashboard.emergency.inProgress')}
                               </Button>
                             )}
                             {(incident.status === 'open' || incident.status === 'in_progress') && (
@@ -1681,7 +1683,7 @@ export default function DispatcherDashboard() {
                                 className="bg-green-600 hover:bg-green-700 text-white"
                                 data-testid={`button-resolve-${incident.id}`}
                               >
-                                Resolve
+                                {t('dispatcherDashboard.emergency.resolve')}
                               </Button>
                             )}
                           </div>
@@ -1701,7 +1703,7 @@ export default function DispatcherDashboard() {
               className="px-6 border-border hover:bg-muted text-muted-foreground"
               data-testid="button-cancel-emergency"
             >
-              Close
+              {t('dispatcherDashboard.emergency.close')}
             </Button>
             {activeTab === 'create' && (
               <Button
@@ -1711,7 +1713,7 @@ export default function DispatcherDashboard() {
                 data-testid="button-submit-incident"
               >
                 <AlertTriangle className="w-4 h-4" />
-                {createIncidentMutation.isPending ? 'Reporting...' : 'Report Incident'}
+                {createIncidentMutation.isPending ? t('dispatcherDashboard.emergency.reporting') : t('dispatcherDashboard.emergency.reportIncident')}
               </Button>
             )}
           </div>
