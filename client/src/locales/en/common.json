@@ -1060,6 +1060,55 @@
         "uploadError": "Upload Failed",
         "uploadErrorDesc": "Failed to upload document. Please try again."
       }
+    },
+    "settings": {
+      "profile": {
+        "rating": "Rating",
+        "rides": "Rides",
+        "activeDriver": "Active Driver",
+        "pendingActivation": "Pending Activation",
+        "thisMonth": "This Month",
+        "allTime": "All Time"
+      },
+      "accountInfo": {
+        "title": "Account Information",
+        "driverId": "Driver ID",
+        "fullName": "Full Name",
+        "emailAddress": "Email Address",
+        "driverLicenseNum": "Driver License #",
+        "limoLicenseNum": "Limo License #",
+        "currentRating": "Current Rating",
+        "totalRides": "Total Rides",
+        "completed": "completed",
+        "notProvided": "Not provided",
+        "na": "N/A"
+      },
+      "vehicleInfo": {
+        "title": "Vehicle Information",
+        "plateNumber": "Vehicle Plate Number",
+        "edit": "Edit",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving...",
+        "placeholder": "Enter plate (e.g., ABC1234)",
+        "notSet": "Not Set",
+        "sharedWithPassengers": "Shared with passengers when assigned to their booking"
+      },
+      "credentials": {
+        "title": "Driver Credentials",
+        "edit": "Edit",
+        "cancel": "Cancel",
+        "saveChanges": "Save Changes",
+        "saving": "Saving...",
+        "placeholder": "Enter your credentials (e.g., CDL License #, TLC License #, certifications, years of experience, languages spoken, etc.)",
+        "noCredentials": "No credentials added yet. Click Edit to add your professional qualifications.",
+        "sharedWithPassengers": "These credentials are shared with passengers when you're assigned to their booking"
+      },
+      "quickActions": {
+        "viewEarnings": "View Your Earnings",
+        "earningsDescription": "Access detailed earnings reports and download 1099 forms",
+        "viewEarningsButton": "View Earnings"
+      }
     }
   }
 }
