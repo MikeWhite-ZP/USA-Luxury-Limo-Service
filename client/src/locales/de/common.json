@@ -846,5 +846,81 @@
       "paid": "Bezahlt",
       "unpaid": "Unbezahlt"
     }
+  },
+  "driverDashboard": {
+    "title": "Fahrer-Portal",
+    "welcome": "Willkommen,",
+    "signOut": "Abmelden",
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "onBoard": "Unterwegs"
+    },
+    "nav": {
+      "home": "Startseite",
+      "documents": "Dokumente",
+      "settings": "Kontoeinstellungen"
+    },
+    "stats": {
+      "today": "Heute",
+      "completedRides": "Abgeschlossene Fahrten",
+      "rating": "Bewertung",
+      "details": "Details",
+      "loading": "Wird geladen..."
+    },
+    "earnings": {
+      "title": "Verdienst-Übersicht",
+      "today": "Heute",
+      "thisWeek": "Diese Woche",
+      "thisMonth": "Dieser Monat",
+      "thisYear": "Dieses Jahr",
+      "allTime": "Gesamtverdienst",
+      "fromRides": "Aus {{count}} abgeschlossenen Fahrten"
+    },
+    "jobs": {
+      "title": "Meine Aufträge",
+      "newJobs": "Neue Aufträge",
+      "accepted": "Angenommen",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert",
+      "declined": "Abgelehnt",
+      "noNewJobs": "Keine neuen Aufträge",
+      "noNewJobsDescription": "Neue Auftragszuweisungen erscheinen hier, wenn sie Ihnen zugeteilt werden",
+      "noAcceptedJobs": "Keine angenommenen Aufträge",
+      "noAcceptedJobsDescription": "Nehmen Sie neue Auftragszuweisungen an, um sie hier zu sehen",
+      "noCompletedJobs": "Noch keine abgeschlossenen Aufträge",
+      "noCompletedJobsDescription": "Abgeschlossene Fahrten erscheinen hier",
+      "noCancelledJobs": "Keine stornierten Aufträge",
+      "noCancelledJobsDescription": "Stornierte Fahrten erscheinen hier",
+      "noDeclinedJobs": "Keine abgelehnten Aufträge",
+      "noDeclinedJobsDescription": "Abgelehnte Auftragszuweisungen erscheinen hier",
+      "newAssignment": "Neue Zuweisung",
+      "hourly": "Stündlich",
+      "transfer": "Transfer",
+      "notSet": "Nicht festgelegt",
+      "acceptJob": "Auftrag Annehmen",
+      "accepting": "Wird angenommen...",
+      "declineJob": "Ablehnen",
+      "declining": "Wird abgelehnt..."
+    },
+    "alerts": {
+      "uploadDocuments": "Erforderliche Dokumente Hochladen",
+      "uploadDocumentsDesc": "Sie müssen alle erforderlichen Dokumente hochladen, bevor Ihr Konto aktiviert werden kann.",
+      "missing": "Fehlend:",
+      "goToDocuments": "Zu Dokumenten",
+      "completeTaxInfo": "Vervollständigen Sie Ihre Steuerinformationen",
+      "completeTaxInfoDesc": "Sie müssen Ihre Steuerinformationen im Einstellungen-Tab vervollständigen, bevor Ihr Konto aktiviert werden kann und Sie anfangen können zu verdienen.",
+      "goToSettings": "Zu Einstellungen",
+      "pendingActivation": "Aktivierung Ausstehend",
+      "pendingActivationDesc": "Ihre Dokumente und Steuerinformationen sind vollständig. Bitte warten Sie, bis ein Administrator Ihr Konto überprüft und aktiviert, bevor Sie Aufträge annehmen können."
+    },
+    "actions": {
+      "viewDetails": "Details",
+      "startNavigation": "Navigation Starten",
+      "startRide": "Fahrt Starten",
+      "completeRide": "Fahrt Abschließen",
+      "callPassenger": "Anrufen",
+      "messagePassenger": "Nachricht"
+    }
   }
 }

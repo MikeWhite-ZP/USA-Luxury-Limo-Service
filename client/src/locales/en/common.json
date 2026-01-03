@@ -903,5 +903,81 @@
       "paid": "Paid",
       "unpaid": "Unpaid"
     }
+  },
+  "driverDashboard": {
+    "title": "Driver Portal",
+    "welcome": "Welcome,",
+    "signOut": "Sign Out",
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "onBoard": "On Board"
+    },
+    "nav": {
+      "home": "Home",
+      "documents": "Documents",
+      "settings": "Account Settings"
+    },
+    "stats": {
+      "today": "Today",
+      "completedRides": "Completed Rides",
+      "rating": "Rating",
+      "details": "Details",
+      "loading": "Loading..."
+    },
+    "earnings": {
+      "title": "Earnings Breakdown",
+      "today": "Today",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "thisYear": "This Year",
+      "allTime": "All-Time Earnings",
+      "fromRides": "From {{count}} completed rides"
+    },
+    "jobs": {
+      "title": "My Jobs",
+      "newJobs": "New Jobs",
+      "accepted": "Accepted",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "declined": "Declined",
+      "noNewJobs": "No new jobs",
+      "noNewJobsDescription": "New job assignments will appear here when dispatched to you",
+      "noAcceptedJobs": "No accepted jobs",
+      "noAcceptedJobsDescription": "Accept new job assignments to see them here",
+      "noCompletedJobs": "No completed jobs yet",
+      "noCompletedJobsDescription": "Completed rides will appear here",
+      "noCancelledJobs": "No cancelled jobs",
+      "noCancelledJobsDescription": "Cancelled rides will appear here",
+      "noDeclinedJobs": "No declined jobs",
+      "noDeclinedJobsDescription": "Declined job assignments will appear here",
+      "newAssignment": "New Assignment",
+      "hourly": "Hourly",
+      "transfer": "Transfer",
+      "notSet": "Not set",
+      "acceptJob": "Accept Job",
+      "accepting": "Accepting...",
+      "declineJob": "Decline",
+      "declining": "Declining..."
+    },
+    "alerts": {
+      "uploadDocuments": "Upload Required Documents",
+      "uploadDocumentsDesc": "You must upload all required documents before your account can be activated.",
+      "missing": "Missing:",
+      "goToDocuments": "Go to Documents",
+      "completeTaxInfo": "Complete Your Tax Information",
+      "completeTaxInfoDesc": "You must complete your tax information in the Settings tab before your account can be activated and you can start earning.",
+      "goToSettings": "Go to Settings",
+      "pendingActivation": "Pending Activation",
+      "pendingActivationDesc": "Your documents and tax information are complete. Please wait for an administrator to review and activate your account before you can start accepting jobs."
+    },
+    "actions": {
+      "viewDetails": "Details",
+      "startNavigation": "Start Navigation",
+      "startRide": "Start Ride",
+      "completeRide": "Complete Ride",
+      "callPassenger": "Call",
+      "messagePassenger": "Message"
+    }
   }
 }

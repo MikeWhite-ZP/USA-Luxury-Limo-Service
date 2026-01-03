@@ -846,5 +846,81 @@
       "paid": "Pagado",
       "unpaid": "Sin Pagar"
     }
+  },
+  "driverDashboard": {
+    "title": "Portal del Conductor",
+    "welcome": "Bienvenido,",
+    "signOut": "Cerrar Sesión",
+    "status": {
+      "online": "En Línea",
+      "offline": "Fuera de Línea",
+      "onBoard": "A Bordo"
+    },
+    "nav": {
+      "home": "Inicio",
+      "documents": "Documentos",
+      "settings": "Configuración de Cuenta"
+    },
+    "stats": {
+      "today": "Hoy",
+      "completedRides": "Viajes Completados",
+      "rating": "Calificación",
+      "details": "Detalles",
+      "loading": "Cargando..."
+    },
+    "earnings": {
+      "title": "Desglose de Ganancias",
+      "today": "Hoy",
+      "thisWeek": "Esta Semana",
+      "thisMonth": "Este Mes",
+      "thisYear": "Este Año",
+      "allTime": "Ganancias Totales",
+      "fromRides": "De {{count}} viajes completados"
+    },
+    "jobs": {
+      "title": "Mis Trabajos",
+      "newJobs": "Nuevos Trabajos",
+      "accepted": "Aceptados",
+      "completed": "Completados",
+      "cancelled": "Cancelados",
+      "declined": "Rechazados",
+      "noNewJobs": "Sin trabajos nuevos",
+      "noNewJobsDescription": "Las nuevas asignaciones de trabajo aparecerán aquí cuando te sean despachadas",
+      "noAcceptedJobs": "Sin trabajos aceptados",
+      "noAcceptedJobsDescription": "Acepta nuevas asignaciones de trabajo para verlas aquí",
+      "noCompletedJobs": "Sin trabajos completados aún",
+      "noCompletedJobsDescription": "Los viajes completados aparecerán aquí",
+      "noCancelledJobs": "Sin trabajos cancelados",
+      "noCancelledJobsDescription": "Los viajes cancelados aparecerán aquí",
+      "noDeclinedJobs": "Sin trabajos rechazados",
+      "noDeclinedJobsDescription": "Las asignaciones de trabajo rechazadas aparecerán aquí",
+      "newAssignment": "Nueva Asignación",
+      "hourly": "Por Hora",
+      "transfer": "Traslado",
+      "notSet": "No establecido",
+      "acceptJob": "Aceptar Trabajo",
+      "accepting": "Aceptando...",
+      "declineJob": "Rechazar",
+      "declining": "Rechazando..."
+    },
+    "alerts": {
+      "uploadDocuments": "Subir Documentos Requeridos",
+      "uploadDocumentsDesc": "Debe subir todos los documentos requeridos antes de que su cuenta pueda ser activada.",
+      "missing": "Faltantes:",
+      "goToDocuments": "Ir a Documentos",
+      "completeTaxInfo": "Complete Su Información Fiscal",
+      "completeTaxInfoDesc": "Debe completar su información fiscal en la pestaña de Configuración antes de que su cuenta pueda ser activada y pueda comenzar a ganar.",
+      "goToSettings": "Ir a Configuración",
+      "pendingActivation": "Activación Pendiente",
+      "pendingActivationDesc": "Sus documentos e información fiscal están completos. Por favor espere a que un administrador revise y active su cuenta antes de poder aceptar trabajos."
+    },
+    "actions": {
+      "viewDetails": "Detalles",
+      "startNavigation": "Iniciar Navegación",
+      "startRide": "Iniciar Viaje",
+      "completeRide": "Completar Viaje",
+      "callPassenger": "Llamar",
+      "messagePassenger": "Mensaje"
+    }
   }
 }

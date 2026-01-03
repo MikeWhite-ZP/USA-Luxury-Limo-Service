@@ -846,5 +846,81 @@
       "paid": "Ödendi",
       "unpaid": "Ödenmedi"
     }
+  },
+  "driverDashboard": {
+    "title": "Sürücü Portalı",
+    "welcome": "Hoş geldiniz,",
+    "signOut": "Çıkış Yap",
+    "status": {
+      "online": "Çevrimiçi",
+      "offline": "Çevrimdışı",
+      "onBoard": "Yolculukta"
+    },
+    "nav": {
+      "home": "Ana Sayfa",
+      "documents": "Belgeler",
+      "settings": "Hesap Ayarları"
+    },
+    "stats": {
+      "today": "Bugün",
+      "completedRides": "Tamamlanan Yolculuklar",
+      "rating": "Puan",
+      "details": "Detaylar",
+      "loading": "Yükleniyor..."
+    },
+    "earnings": {
+      "title": "Kazanç Dökümü",
+      "today": "Bugün",
+      "thisWeek": "Bu Hafta",
+      "thisMonth": "Bu Ay",
+      "thisYear": "Bu Yıl",
+      "allTime": "Toplam Kazanç",
+      "fromRides": "{{count}} tamamlanan yolculuktan"
+    },
+    "jobs": {
+      "title": "İşlerim",
+      "newJobs": "Yeni İşler",
+      "accepted": "Kabul Edilenler",
+      "completed": "Tamamlananlar",
+      "cancelled": "İptal Edilenler",
+      "declined": "Reddedilenler",
+      "noNewJobs": "Yeni iş yok",
+      "noNewJobsDescription": "Size gönderilen yeni iş atamaları burada görünecek",
+      "noAcceptedJobs": "Kabul edilmiş iş yok",
+      "noAcceptedJobsDescription": "Yeni iş atamalarını kabul edin, burada görünsün",
+      "noCompletedJobs": "Henüz tamamlanmış iş yok",
+      "noCompletedJobsDescription": "Tamamlanan yolculuklar burada görünecek",
+      "noCancelledJobs": "İptal edilmiş iş yok",
+      "noCancelledJobsDescription": "İptal edilen yolculuklar burada görünecek",
+      "noDeclinedJobs": "Reddedilmiş iş yok",
+      "noDeclinedJobsDescription": "Reddedilen iş atamaları burada görünecek",
+      "newAssignment": "Yeni Atama",
+      "hourly": "Saatlik",
+      "transfer": "Transfer",
+      "notSet": "Belirlenmedi",
+      "acceptJob": "İşi Kabul Et",
+      "accepting": "Kabul ediliyor...",
+      "declineJob": "Reddet",
+      "declining": "Reddediliyor..."
+    },
+    "alerts": {
+      "uploadDocuments": "Gerekli Belgeleri Yükleyin",
+      "uploadDocumentsDesc": "Hesabınız etkinleştirilmeden önce tüm gerekli belgeleri yüklemelisiniz.",
+      "missing": "Eksik:",
+      "goToDocuments": "Belgelere Git",
+      "completeTaxInfo": "Vergi Bilgilerinizi Tamamlayın",
+      "completeTaxInfoDesc": "Hesabınız etkinleştirilmeden ve kazanmaya başlamadan önce Ayarlar sekmesinde vergi bilgilerinizi tamamlamalısınız.",
+      "goToSettings": "Ayarlara Git",
+      "pendingActivation": "Aktivasyon Bekliyor",
+      "pendingActivationDesc": "Belgeleriniz ve vergi bilgileriniz tamamlandı. İş kabul etmeye başlamadan önce lütfen bir yöneticinin hesabınızı incelemesini ve etkinleştirmesini bekleyin."
+    },
+    "actions": {
+      "viewDetails": "Detaylar",
+      "startNavigation": "Navigasyonu Başlat",
+      "startRide": "Yolculuğu Başlat",
+      "completeRide": "Yolculuğu Tamamla",
+      "callPassenger": "Ara",
+      "messagePassenger": "Mesaj"
+    }
   }
 }

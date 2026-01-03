@@ -846,5 +846,81 @@
       "paid": "Pagato",
       "unpaid": "Non Pagato"
     }
+  },
+  "driverDashboard": {
+    "title": "Portale Autista",
+    "welcome": "Benvenuto,",
+    "signOut": "Esci",
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "onBoard": "In Corsa"
+    },
+    "nav": {
+      "home": "Home",
+      "documents": "Documenti",
+      "settings": "Impostazioni Account"
+    },
+    "stats": {
+      "today": "Oggi",
+      "completedRides": "Corse Completate",
+      "rating": "Valutazione",
+      "details": "Dettagli",
+      "loading": "Caricamento..."
+    },
+    "earnings": {
+      "title": "Riepilogo Guadagni",
+      "today": "Oggi",
+      "thisWeek": "Questa Settimana",
+      "thisMonth": "Questo Mese",
+      "thisYear": "Quest'Anno",
+      "allTime": "Guadagni Totali",
+      "fromRides": "Da {{count}} corse completate"
+    },
+    "jobs": {
+      "title": "I Miei Lavori",
+      "newJobs": "Nuovi Lavori",
+      "accepted": "Accettati",
+      "completed": "Completati",
+      "cancelled": "Cancellati",
+      "declined": "Rifiutati",
+      "noNewJobs": "Nessun nuovo lavoro",
+      "noNewJobsDescription": "Le nuove assegnazioni di lavoro appariranno qui quando ti verranno inviate",
+      "noAcceptedJobs": "Nessun lavoro accettato",
+      "noAcceptedJobsDescription": "Accetta nuove assegnazioni di lavoro per vederle qui",
+      "noCompletedJobs": "Nessun lavoro completato ancora",
+      "noCompletedJobsDescription": "Le corse completate appariranno qui",
+      "noCancelledJobs": "Nessun lavoro cancellato",
+      "noCancelledJobsDescription": "Le corse cancellate appariranno qui",
+      "noDeclinedJobs": "Nessun lavoro rifiutato",
+      "noDeclinedJobsDescription": "Le assegnazioni di lavoro rifiutate appariranno qui",
+      "newAssignment": "Nuova Assegnazione",
+      "hourly": "Orario",
+      "transfer": "Trasferimento",
+      "notSet": "Non impostato",
+      "acceptJob": "Accetta Lavoro",
+      "accepting": "Accettazione...",
+      "declineJob": "Rifiuta",
+      "declining": "Rifiuto..."
+    },
+    "alerts": {
+      "uploadDocuments": "Carica Documenti Richiesti",
+      "uploadDocumentsDesc": "Devi caricare tutti i documenti richiesti prima che il tuo account possa essere attivato.",
+      "missing": "Mancanti:",
+      "goToDocuments": "Vai ai Documenti",
+      "completeTaxInfo": "Completa le Tue Informazioni Fiscali",
+      "completeTaxInfoDesc": "Devi completare le tue informazioni fiscali nella scheda Impostazioni prima che il tuo account possa essere attivato e tu possa iniziare a guadagnare.",
+      "goToSettings": "Vai alle Impostazioni",
+      "pendingActivation": "Attivazione in Attesa",
+      "pendingActivationDesc": "I tuoi documenti e le informazioni fiscali sono completi. Attendi che un amministratore esamini e attivi il tuo account prima di poter accettare lavori."
+    },
+    "actions": {
+      "viewDetails": "Dettagli",
+      "startNavigation": "Avvia Navigazione",
+      "startRide": "Inizia Corsa",
+      "completeRide": "Completa Corsa",
+      "callPassenger": "Chiama",
+      "messagePassenger": "Messaggio"
+    }
   }
 }

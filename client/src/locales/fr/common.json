@@ -846,5 +846,81 @@
       "paid": "Payé",
       "unpaid": "Non Payé"
     }
+  },
+  "driverDashboard": {
+    "title": "Portail Chauffeur",
+    "welcome": "Bienvenue,",
+    "signOut": "Déconnexion",
+    "status": {
+      "online": "En Ligne",
+      "offline": "Hors Ligne",
+      "onBoard": "En Course"
+    },
+    "nav": {
+      "home": "Accueil",
+      "documents": "Documents",
+      "settings": "Paramètres du Compte"
+    },
+    "stats": {
+      "today": "Aujourd'hui",
+      "completedRides": "Courses Terminées",
+      "rating": "Note",
+      "details": "Détails",
+      "loading": "Chargement..."
+    },
+    "earnings": {
+      "title": "Détail des Gains",
+      "today": "Aujourd'hui",
+      "thisWeek": "Cette Semaine",
+      "thisMonth": "Ce Mois",
+      "thisYear": "Cette Année",
+      "allTime": "Gains Totaux",
+      "fromRides": "De {{count}} courses terminées"
+    },
+    "jobs": {
+      "title": "Mes Missions",
+      "newJobs": "Nouvelles Missions",
+      "accepted": "Acceptées",
+      "completed": "Terminées",
+      "cancelled": "Annulées",
+      "declined": "Refusées",
+      "noNewJobs": "Aucune nouvelle mission",
+      "noNewJobsDescription": "Les nouvelles attributions de mission apparaîtront ici lorsqu'elles vous seront envoyées",
+      "noAcceptedJobs": "Aucune mission acceptée",
+      "noAcceptedJobsDescription": "Acceptez de nouvelles attributions de mission pour les voir ici",
+      "noCompletedJobs": "Aucune mission terminée pour l'instant",
+      "noCompletedJobsDescription": "Les courses terminées apparaîtront ici",
+      "noCancelledJobs": "Aucune mission annulée",
+      "noCancelledJobsDescription": "Les courses annulées apparaîtront ici",
+      "noDeclinedJobs": "Aucune mission refusée",
+      "noDeclinedJobsDescription": "Les attributions de mission refusées apparaîtront ici",
+      "newAssignment": "Nouvelle Attribution",
+      "hourly": "Horaire",
+      "transfer": "Transfert",
+      "notSet": "Non défini",
+      "acceptJob": "Accepter la Mission",
+      "accepting": "Acceptation...",
+      "declineJob": "Refuser",
+      "declining": "Refus..."
+    },
+    "alerts": {
+      "uploadDocuments": "Télécharger les Documents Requis",
+      "uploadDocumentsDesc": "Vous devez télécharger tous les documents requis avant que votre compte puisse être activé.",
+      "missing": "Manquants :",
+      "goToDocuments": "Aller aux Documents",
+      "completeTaxInfo": "Complétez Vos Informations Fiscales",
+      "completeTaxInfoDesc": "Vous devez compléter vos informations fiscales dans l'onglet Paramètres avant que votre compte puisse être activé et que vous puissiez commencer à gagner.",
+      "goToSettings": "Aller aux Paramètres",
+      "pendingActivation": "Activation en Attente",
+      "pendingActivationDesc": "Vos documents et informations fiscales sont complets. Veuillez attendre qu'un administrateur examine et active votre compte avant de pouvoir accepter des missions."
+    },
+    "actions": {
+      "viewDetails": "Détails",
+      "startNavigation": "Démarrer la Navigation",
+      "startRide": "Démarrer la Course",
+      "completeRide": "Terminer la Course",
+      "callPassenger": "Appeler",
+      "messagePassenger": "Message"
+    }
   }
 }
