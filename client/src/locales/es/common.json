@@ -358,7 +358,32 @@
     "step1": "Ruta",
     "step2": "Vehículo",
     "step3": "Detalles",
-    "step4": "Pago"
+    "step4": "Pago",
+    "bookNewRide": "Reservar Nuevo Viaje",
+    "myRides": "Mis Viajes",
+    "noUpcomingRides": "No hay viajes próximos",
+    "bookFirstRide": "Reserva tu primer viaje",
+    "noPastRides": "No hay viajes pasados"
+  },
+  "locations": {
+    "saved": "Guardadas",
+    "savedLocations": "Ubicaciones Guardadas",
+    "favoritePlaces": "Tus lugares favoritos",
+    "noSavedLocations": "No hay ubicaciones guardadas",
+    "saveLocationsDuringBooking": "Guarda ubicaciones durante la reserva",
+    "addNewLocation": "Agregar Nueva Ubicación",
+    "saveLocationDescription": "Guarda ubicaciones para reservas rápidas",
+    "label": "Etiqueta",
+    "labelPlaceholder": "Casa, Trabajo, Gimnasio, etc.",
+    "address": "Dirección",
+    "saveLocation": "Guardar Ubicación",
+    "editLocation": "Editar Ubicación",
+    "updateSavedLocation": "Actualizar ubicación guardada",
+    "from": "Desde",
+    "to": "Hasta"
+  },
+  "invoices": {
+    "title": "Facturas"
   },
   "pwa": {
     "downloadButton": "Descargar Aplicación Móvil",
@@ -438,7 +463,8 @@
     "dashboard": "Panel de Control",
     "profile": "Perfil",
     "myBookings": "Mis Reservas",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "account": "Cuenta"
   },
   "common": {
     "loading": "Cargando...",
@@ -497,7 +523,9 @@
     "country": "País",
     "zipCode": "Código Postal",
     "createdAt": "Creado En",
-    "updatedAt": "Actualizado En"
+    "updatedAt": "Actualizado En",
+    "welcomeBack": "Bienvenido de Nuevo",
+    "default": "Predeterminado"
   },
   "auth": {
     "login": "Iniciar Sesión",
@@ -560,6 +588,8 @@
   },
   "payment": {
     "title": "Pago",
+    "payment": "Pago",
+    "credits": "Créditos",
     "paymentMethod": "Método de Pago",
     "payNow": "Pagar Ahora",
     "payLater": "Pagar Después",
@@ -631,7 +661,9 @@
     "driverDeclined": "Conductor Rechazó",
     "noShow": "No Se Presentó",
     "active": "Activo",
-    "inactive": "Inactivo"
+    "inactive": "Inactivo",
+    "upcoming": "Próximos",
+    "past": "Pasados"
   },
   "admin": {
     "title": "Panel de Administración",

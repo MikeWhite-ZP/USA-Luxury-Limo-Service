@@ -358,7 +358,32 @@
     "step1": "Route",
     "step2": "Fahrzeug",
     "step3": "Details",
-    "step4": "Zahlung"
+    "step4": "Zahlung",
+    "bookNewRide": "Neue Fahrt Buchen",
+    "myRides": "Meine Fahrten",
+    "noUpcomingRides": "Keine bevorstehenden Fahrten",
+    "bookFirstRide": "Buchen Sie Ihre erste Fahrt",
+    "noPastRides": "Keine vergangenen Fahrten"
+  },
+  "locations": {
+    "saved": "Gespeichert",
+    "savedLocations": "Gespeicherte Orte",
+    "favoritePlaces": "Ihre Lieblingsorte",
+    "noSavedLocations": "Keine gespeicherten Orte",
+    "saveLocationsDuringBooking": "Speichern Sie Orte während der Buchung",
+    "addNewLocation": "Neuen Ort Hinzufügen",
+    "saveLocationDescription": "Speichern Sie Orte für schnelle Buchungen",
+    "label": "Bezeichnung",
+    "labelPlaceholder": "Zuhause, Arbeit, Fitnessstudio, etc.",
+    "address": "Adresse",
+    "saveLocation": "Ort Speichern",
+    "editLocation": "Ort Bearbeiten",
+    "updateSavedLocation": "Gespeicherten Ort aktualisieren",
+    "from": "Von",
+    "to": "Nach"
+  },
+  "invoices": {
+    "title": "Rechnungen"
   },
   "pwa": {
     "downloadButton": "Mobile App herunterladen",
@@ -438,7 +463,8 @@
     "dashboard": "Dashboard",
     "profile": "Profil",
     "myBookings": "Meine Buchungen",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "account": "Konto"
   },
   "common": {
     "loading": "Laden...",
@@ -497,7 +523,9 @@
     "country": "Land",
     "zipCode": "Postleitzahl",
     "createdAt": "Erstellt am",
-    "updatedAt": "Aktualisiert am"
+    "updatedAt": "Aktualisiert am",
+    "welcomeBack": "Willkommen Zurück",
+    "default": "Standard"
   },
   "auth": {
     "login": "Anmelden",
@@ -560,6 +588,8 @@
   },
   "payment": {
     "title": "Zahlung",
+    "payment": "Zahlung",
+    "credits": "Guthaben",
     "paymentMethod": "Zahlungsmethode",
     "payNow": "Jetzt Bezahlen",
     "payLater": "Später Bezahlen",
@@ -631,7 +661,9 @@
     "driverDeclined": "Fahrer Abgelehnt",
     "noShow": "Nicht Erschienen",
     "active": "Aktiv",
-    "inactive": "Inaktiv"
+    "inactive": "Inaktiv",
+    "upcoming": "Bevorstehend",
+    "past": "Vergangen"
   },
   "admin": {
     "title": "Admin Dashboard",

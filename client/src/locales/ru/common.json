@@ -358,7 +358,32 @@
     "step1": "Маршрут",
     "step2": "Автомобиль",
     "step3": "Детали",
-    "step4": "Оплата"
+    "step4": "Оплата",
+    "bookNewRide": "Забронировать Новую Поездку",
+    "myRides": "Мои Поездки",
+    "noUpcomingRides": "Нет предстоящих поездок",
+    "bookFirstRide": "Забронируйте свою первую поездку",
+    "noPastRides": "Нет прошедших поездок"
+  },
+  "locations": {
+    "saved": "Сохранённые",
+    "savedLocations": "Сохранённые Адреса",
+    "favoritePlaces": "Ваши любимые места",
+    "noSavedLocations": "Нет сохранённых адресов",
+    "saveLocationsDuringBooking": "Сохраняйте адреса во время бронирования",
+    "addNewLocation": "Добавить Новый Адрес",
+    "saveLocationDescription": "Сохраняйте адреса для быстрого бронирования",
+    "label": "Название",
+    "labelPlaceholder": "Дом, Работа, Спортзал и т.д.",
+    "address": "Адрес",
+    "saveLocation": "Сохранить Адрес",
+    "editLocation": "Редактировать Адрес",
+    "updateSavedLocation": "Обновить сохранённый адрес",
+    "from": "Откуда",
+    "to": "Куда"
+  },
+  "invoices": {
+    "title": "Счета"
   },
   "pwa": {
     "downloadButton": "Скачать мобильное приложение",
@@ -438,7 +463,8 @@
     "dashboard": "Панель Управления",
     "profile": "Профиль",
     "myBookings": "Мои Бронирования",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "account": "Аккаунт"
   },
   "common": {
     "loading": "Загрузка...",
@@ -497,7 +523,9 @@
     "country": "Страна",
     "zipCode": "Индекс",
     "createdAt": "Создано",
-    "updatedAt": "Обновлено"
+    "updatedAt": "Обновлено",
+    "welcomeBack": "С Возвращением",
+    "default": "По Умолчанию"
   },
   "auth": {
     "login": "Войти",
@@ -560,6 +588,8 @@
   },
   "payment": {
     "title": "Оплата",
+    "payment": "Оплата",
+    "credits": "Кредиты",
     "paymentMethod": "Способ Оплаты",
     "payNow": "Оплатить Сейчас",
     "payLater": "Оплатить Позже",
@@ -631,7 +661,9 @@
     "driverDeclined": "Водитель Отклонил",
     "noShow": "Не Явился",
     "active": "Активен",
-    "inactive": "Неактивен"
+    "inactive": "Неактивен",
+    "upcoming": "Предстоящие",
+    "past": "Прошедшие"
   },
   "admin": {
     "title": "Панель Администратора",

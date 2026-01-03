@@ -358,7 +358,32 @@
     "step1": "Percorso",
     "step2": "Veicolo",
     "step3": "Dettagli",
-    "step4": "Pagamento"
+    "step4": "Pagamento",
+    "bookNewRide": "Prenota Nuova Corsa",
+    "myRides": "Le Mie Corse",
+    "noUpcomingRides": "Nessuna corsa in programma",
+    "bookFirstRide": "Prenota la tua prima corsa",
+    "noPastRides": "Nessuna corsa passata"
+  },
+  "locations": {
+    "saved": "Salvati",
+    "savedLocations": "Indirizzi Salvati",
+    "favoritePlaces": "I tuoi luoghi preferiti",
+    "noSavedLocations": "Nessun indirizzo salvato",
+    "saveLocationsDuringBooking": "Salva indirizzi durante la prenotazione",
+    "addNewLocation": "Aggiungi Nuovo Indirizzo",
+    "saveLocationDescription": "Salva indirizzi per prenotazioni veloci",
+    "label": "Etichetta",
+    "labelPlaceholder": "Casa, Lavoro, Palestra, ecc.",
+    "address": "Indirizzo",
+    "saveLocation": "Salva Indirizzo",
+    "editLocation": "Modifica Indirizzo",
+    "updateSavedLocation": "Aggiorna indirizzo salvato",
+    "from": "Da",
+    "to": "A"
+  },
+  "invoices": {
+    "title": "Fatture"
   },
   "pwa": {
     "downloadButton": "Scarica l'App Mobile",
@@ -438,7 +463,8 @@
     "dashboard": "Dashboard",
     "profile": "Profilo",
     "myBookings": "Le Mie Prenotazioni",
-    "settings": "Impostazioni"
+    "settings": "Impostazioni",
+    "account": "Account"
   },
   "common": {
     "loading": "Caricamento...",
@@ -497,7 +523,9 @@
     "country": "Paese",
     "zipCode": "CAP",
     "createdAt": "Creato il",
-    "updatedAt": "Aggiornato il"
+    "updatedAt": "Aggiornato il",
+    "welcomeBack": "Bentornato",
+    "default": "Predefinito"
   },
   "auth": {
     "login": "Accedi",
@@ -560,6 +588,8 @@
   },
   "payment": {
     "title": "Pagamento",
+    "payment": "Pagamento",
+    "credits": "Crediti",
     "paymentMethod": "Metodo di Pagamento",
     "payNow": "Paga Ora",
     "payLater": "Paga Dopo",
@@ -631,7 +661,9 @@
     "driverDeclined": "Autista Rifiutato",
     "noShow": "Non Presentato",
     "active": "Attivo",
-    "inactive": "Inattivo"
+    "inactive": "Inattivo",
+    "upcoming": "In Arrivo",
+    "past": "Passato"
   },
   "admin": {
     "title": "Pannello Admin",

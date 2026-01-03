@@ -358,7 +358,32 @@
     "step1": "Itinéraire",
     "step2": "Véhicule",
     "step3": "Détails",
-    "step4": "Paiement"
+    "step4": "Paiement",
+    "bookNewRide": "Réserver une Nouvelle Course",
+    "myRides": "Mes Courses",
+    "noUpcomingRides": "Aucune course à venir",
+    "bookFirstRide": "Réservez votre première course",
+    "noPastRides": "Aucune course passée"
+  },
+  "locations": {
+    "saved": "Enregistrées",
+    "savedLocations": "Adresses Enregistrées",
+    "favoritePlaces": "Vos endroits favoris",
+    "noSavedLocations": "Aucune adresse enregistrée",
+    "saveLocationsDuringBooking": "Enregistrez des adresses lors de la réservation",
+    "addNewLocation": "Ajouter une Nouvelle Adresse",
+    "saveLocationDescription": "Enregistrez des adresses pour des réservations rapides",
+    "label": "Étiquette",
+    "labelPlaceholder": "Maison, Travail, Salle de Sport, etc.",
+    "address": "Adresse",
+    "saveLocation": "Enregistrer l'Adresse",
+    "editLocation": "Modifier l'Adresse",
+    "updateSavedLocation": "Mettre à jour l'adresse enregistrée",
+    "from": "De",
+    "to": "À"
+  },
+  "invoices": {
+    "title": "Factures"
   },
   "pwa": {
     "downloadButton": "Télécharger l'Application Mobile",
@@ -438,7 +463,8 @@
     "dashboard": "Tableau de Bord",
     "profile": "Profil",
     "myBookings": "Mes Réservations",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "account": "Compte"
   },
   "common": {
     "loading": "Chargement...",
@@ -497,7 +523,9 @@
     "country": "Pays",
     "zipCode": "Code Postal",
     "createdAt": "Créé le",
-    "updatedAt": "Mis à jour le"
+    "updatedAt": "Mis à jour le",
+    "welcomeBack": "Bienvenue",
+    "default": "Par Défaut"
   },
   "auth": {
     "login": "Connexion",
@@ -560,6 +588,8 @@
   },
   "payment": {
     "title": "Paiement",
+    "payment": "Paiement",
+    "credits": "Crédits",
     "paymentMethod": "Mode de Paiement",
     "payNow": "Payer Maintenant",
     "payLater": "Payer Plus Tard",
@@ -631,7 +661,9 @@
     "driverDeclined": "Chauffeur Refusé",
     "noShow": "Absent",
     "active": "Actif",
-    "inactive": "Inactif"
+    "inactive": "Inactif",
+    "upcoming": "À Venir",
+    "past": "Passé"
   },
   "admin": {
     "title": "Tableau de Bord Admin",
