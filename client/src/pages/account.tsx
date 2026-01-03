@@ -12,8 +12,10 @@ import { useLocation } from "wouter";
 import { User, Mail, Phone, ArrowLeft, Save, Lock, Eye, EyeOff, Shield, Calendar, CheckCircle2, Camera, Upload } from "lucide-react";
 import Header from "@/components/Header";
 import { isMobileDevice } from "@/lib/deviceDetection";
+import { useTranslation } from "react-i18next";
 
 export default function AccountPage() {
+  const { t } = useTranslation();
   const { user, isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -43,7 +45,7 @@ export default function AccountPage() {
       const response = await apiRequest('PATCH', '/api/user/profile', data);
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to update profile');
+        throw new Error(error.message || t("accountSettings.toast.profileUpdateFailed"));
       }
       return await response.json();
     },
@@ -51,14 +53,14 @@ export default function AccountPage() {
       queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
       queryClient.setQueryData(['/api/auth/user'], updatedUser);
       toast({
-        title: "Profile Updated",
-        description: "Your profile has been updated successfully",
+        title: t("accountSettings.toast.profileUpdated"),
+        description: t("accountSettings.toast.profileUpdatedDesc"),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to update profile",
+        title: t("accountSettings.toast.error"),
+        description: error.message || t("accountSettings.toast.profileUpdateFailed"),
         variant: "destructive",
       });
     },
@@ -69,7 +71,7 @@ export default function AccountPage() {
       const response = await apiRequest('PATCH', '/api/user/password', data);
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to update password');
+        throw new Error(error.message || t("accountSettings.toast.passwordUpdateFailed"));
       }
       return await response.json();
     },
@@ -78,14 +80,14 @@ export default function AccountPage() {
       setNewPassword('');
       setConfirmPassword('');
       toast({
-        title: "Password Updated",
-        description: "Your password has been updated successfully",
+        title: t("accountSettings.toast.passwordUpdated"),
+        description: t("accountSettings.toast.passwordUpdatedDesc"),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to update password",
+        title: t("accountSettings.toast.error"),
+        description: error.message || t("accountSettings.toast.passwordUpdateFailed"),
         variant: "destructive",
       });
     },
@@ -104,7 +106,7 @@ export default function AccountPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Upload failed');
+        throw new Error(error.message || t("accountSettings.toast.uploadFailedGeneric"));
       }
 
       return await response.json();
@@ -115,14 +117,14 @@ export default function AccountPage() {
       setProfilePicture(null);
       setPreviewUrl(updatedUser.profileImageUrl);
       toast({
-        title: "Profile Picture Updated",
-        description: "Your profile picture has been updated successfully",
+        title: t("accountSettings.toast.profilePictureUpdated"),
+        description: t("accountSettings.toast.profilePictureUpdatedDesc"),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Upload Failed",
-        description: error.message,
+        title: t("accountSettings.toast.uploadFailed"),
+        description: error.message || t("accountSettings.toast.uploadFailedGeneric"),
         variant: "destructive",
       });
     },
@@ -133,8 +135,8 @@ export default function AccountPage() {
     
     if (!firstName.trim() || !lastName.trim()) {
       toast({
-        title: "Validation Error",
-        description: "First name and last name are required",
+        title: t("accountSettings.toast.validationError"),
+        description: t("accountSettings.toast.nameRequired"),
         variant: "destructive",
       });
       return;
@@ -142,8 +144,8 @@ export default function AccountPage() {
 
     if (!email.trim()) {
       toast({
-        title: "Validation Error",
-        description: "Email is required",
+        title: t("accountSettings.toast.validationError"),
+        description: t("accountSettings.toast.emailRequired"),
         variant: "destructive",
       });
       return;
@@ -194,8 +196,8 @@ export default function AccountPage() {
 
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast({
-        title: "Validation Error",
-        description: "All password fields are required",
+        title: t("accountSettings.toast.error"),
+        description: t("accountSettings.toast.fillRequired"),
         variant: "destructive",
       });
       return;
@@ -203,44 +205,17 @@ export default function AccountPage() {
 
     if (newPassword !== confirmPassword) {
       toast({
-        title: "Validation Error",
-        description: "New passwords do not match",
+        title: t("accountSettings.toast.error"),
+        description: t("accountSettings.toast.passwordsMismatch"),
         variant: "destructive",
       });
       return;
     }
 
-    if (newPassword.length < 8) {
+    if (newPassword.length < 8 || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
       toast({
-        title: "Validation Error",
-        description: "Password must be at least 8 characters long",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!/[A-Z]/.test(newPassword)) {
-      toast({
-        title: "Validation Error",
-        description: "Password must contain at least one uppercase letter",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!/[a-z]/.test(newPassword)) {
-      toast({
-        title: "Validation Error",
-        description: "Password must contain at least one lowercase letter",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!/[0-9]/.test(newPassword)) {
-      toast({
-        title: "Validation Error",
-        description: "Password must contain at least one number",
+        title: t("accountSettings.toast.error"),
+        description: t("accountSettings.toast.passwordRequirements"),
         variant: "destructive",
       });
       return;
@@ -259,8 +234,8 @@ export default function AccountPage() {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
-        title: "Invalid File Type",
-        description: "Please select an image file",
+        title: t("accountSettings.toast.invalidFileType"),
+        description: t("accountSettings.toast.invalidFileTypeDesc"),
         variant: "destructive",
       });
       return;
@@ -269,8 +244,8 @@ export default function AccountPage() {
     // Validate file size (2MB max)
     if (file.size > 2 * 1024 * 1024) {
       toast({
-        title: "File Too Large",
-        description: "Image size must be less than 2MB",
+        title: t("accountSettings.toast.fileTooLarge"),
+        description: t("accountSettings.toast.fileTooLargeDesc"),
         variant: "destructive",
       });
       return;
@@ -289,8 +264,8 @@ export default function AccountPage() {
   const handleUploadProfilePicture = () => {
     if (!profilePicture) {
       toast({
-        title: "No File Selected",
-        description: "Please select a profile picture to upload",
+        title: t("accountSettings.toast.noFileSelected"),
+        description: t("accountSettings.toast.noFileSelectedDesc"),
         variant: "destructive",
       });
       return;
@@ -310,7 +285,7 @@ export default function AccountPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
+          <p className="mt-4 text-muted-foreground">{t("accountSettings.loading")}</p>
         </div>
       </div>
     );
@@ -347,13 +322,13 @@ export default function AccountPage() {
           data-testid="button-back"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Home
+          {t("accountSettings.backToHome")}
         </Button>
 
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Account Settings</h1>
-          <p className="text-muted-foreground">Manage your personal information and security preferences</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">{t("accountSettings.title")}</h1>
+          <p className="text-muted-foreground">{t("accountSettings.description")}</p>
         </div>
 
         <div className="grid gap-6">
@@ -366,8 +341,8 @@ export default function AccountPage() {
                     <Shield className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-foreground text-xl">Account Overview</CardTitle>
-                    <CardDescription className="text-muted-foreground mt-1">Your account information and status</CardDescription>
+                    <CardTitle className="text-foreground text-xl">{t("accountSettings.overview.title")}</CardTitle>
+                    <CardDescription className="text-muted-foreground mt-1">{t("accountSettings.overview.description")}</CardDescription>
                   </div>
                 </div>
               </div>
@@ -379,7 +354,7 @@ export default function AccountPage() {
                     <div className="bg-blue-100 p-1.5 rounded-lg">
                       <User className="w-4 h-4 text-blue-600" />
                     </div>
-                    <p className="text-xs font-medium text-muted-foreground">Account Type</p>
+                    <p className="text-xs font-medium text-muted-foreground">{t("accountSettings.overview.accountType")}</p>
                   </div>
                   <Badge className="bg-blue-600 hover:bg-blue-700 text-white" data-testid="text-role">
                     {user?.role || 'N/A'}
@@ -390,16 +365,16 @@ export default function AccountPage() {
                     <div className="bg-green-100 p-1.5 rounded-lg">
                       <CheckCircle2 className="w-4 h-4 text-green-600" />
                     </div>
-                    <p className="text-xs font-medium text-muted-foreground">Account Status</p>
+                    <p className="text-xs font-medium text-muted-foreground">{t("accountSettings.overview.accountStatus")}</p>
                   </div>
                   <div data-testid="text-status">
                     {user?.isActive ? (
                       <Badge className="bg-green-600 hover:bg-green-700 text-white">
                         <CheckCircle2 className="w-3 h-3 mr-1" />
-                        Active
+                        {t("accountSettings.overview.active")}
                       </Badge>
                     ) : (
-                      <Badge variant="destructive">Inactive</Badge>
+                      <Badge variant="destructive">{t("accountSettings.overview.inactive")}</Badge>
                     )}
                   </div>
                 </div>
@@ -409,7 +384,7 @@ export default function AccountPage() {
                       <div className="bg-purple-100 p-1.5 rounded-lg">
                         <Calendar className="w-4 h-4 text-purple-600" />
                       </div>
-                      <p className="text-xs font-medium text-muted-foreground">Member Since</p>
+                      <p className="text-xs font-medium text-muted-foreground">{t("accountSettings.overview.memberSince")}</p>
                     </div>
                     <p className="font-semibold text-foreground" data-testid="text-created-at">
                       {new Date(user.createdAt).toLocaleDateString('en-US', {
@@ -432,9 +407,9 @@ export default function AccountPage() {
                   <User className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-foreground text-xl">Personal Information</CardTitle>
+                  <CardTitle className="text-foreground text-xl">{t("accountSettings.personalInfo.title")}</CardTitle>
                   <CardDescription className="text-muted-foreground mt-1">
-                    Update your personal information and contact details
+                    {t("accountSettings.personalInfo.description")}
                   </CardDescription>
                 </div>
               </div>
@@ -444,26 +419,26 @@ export default function AccountPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <Label htmlFor="firstName" className="text-sm font-semibold text-muted-foreground mb-2 block">
-                      First Name *
+                      {t("accountSettings.personalInfo.firstName")} *
                     </Label>
                     <Input
                       id="firstName"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Enter your first name"
+                      placeholder={t("accountSettings.personalInfo.placeholders.firstName")}
                       className="border-border bg-background text-foreground focus:border-blue-500 focus:ring-blue-500"
                       data-testid="input-first-name"
                     />
                   </div>
                   <div>
                     <Label htmlFor="lastName" className="text-sm font-semibold text-muted-foreground mb-2 block">
-                      Last Name *
+                      {t("accountSettings.personalInfo.lastName")} *
                     </Label>
                     <Input
                       id="lastName"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Enter your last name"
+                      placeholder={t("accountSettings.personalInfo.placeholders.lastName")}
                       className="border-border bg-background text-foreground focus:border-blue-500 focus:ring-blue-500"
                       data-testid="input-last-name"
                     />
@@ -475,14 +450,14 @@ export default function AccountPage() {
                     <div className="bg-blue-100 p-1 rounded">
                       <Mail className="w-3.5 h-3.5 text-blue-600" />
                     </div>
-                    Email Address *
+                    {t("accountSettings.personalInfo.emailAddress")} *
                   </Label>
                   <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
+                    placeholder={t("accountSettings.personalInfo.placeholders.email")}
                     className="border-border focus:border-blue-500 focus:ring-blue-500"
                     data-testid="input-email"
                   />
@@ -493,14 +468,14 @@ export default function AccountPage() {
                     <div className="bg-green-100 p-1 rounded">
                       <Phone className="w-3.5 h-3.5 text-green-600" />
                     </div>
-                    Phone Number
+                    {t("accountSettings.personalInfo.phoneNumber")}
                   </Label>
                   <Input
                     id="phone"
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Enter your phone number"
+                    placeholder={t("accountSettings.personalInfo.placeholders.phone")}
                     className="border-border focus:border-blue-500 focus:ring-blue-500"
                     data-testid="input-phone"
                   />
@@ -511,14 +486,14 @@ export default function AccountPage() {
                     <div className="bg-purple-100 p-1 rounded">
                       <User className="w-3.5 h-3.5 text-purple-600" />
                     </div>
-                    Username
+                    {t("accountSettings.personalInfo.username")}
                   </Label>
                   <Input
                     id="username"
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Choose a username"
+                    placeholder={t("accountSettings.personalInfo.placeholders.username")}
                     className="border-border focus:border-blue-500 focus:ring-blue-500"
                     data-testid="input-username"
                   />
@@ -529,10 +504,10 @@ export default function AccountPage() {
                       usernameStatus === 'taken' ? 'text-red-600' :
                       'text-muted-foreground'
                     }`}>
-                      {usernameStatus === 'checking' && '⏳ Checking availability...'}
-                      {usernameStatus === 'available' && '✓ Username is available'}
-                      {usernameStatus === 'taken' && '✗ Username is already taken'}
-                      {usernameStatus === 'idle' && 'Username must be 3-30 characters (letters, numbers, -, _)'}
+                      {usernameStatus === 'checking' && `⏳ ${t("accountSettings.personalInfo.usernameValidation.checking")}`}
+                      {usernameStatus === 'available' && `✓ ${t("accountSettings.personalInfo.usernameValidation.available")}`}
+                      {usernameStatus === 'taken' && `✗ ${t("accountSettings.personalInfo.usernameValidation.taken")}`}
+                      {usernameStatus === 'idle' && t("accountSettings.personalInfo.usernameValidation.requirements")}
                     </p>
                   )}
                 </div>
@@ -560,7 +535,7 @@ export default function AccountPage() {
                     className="flex-1 border-border hover:bg-muted"
                     data-testid="button-cancel"
                   >
-                    Cancel
+                    {t("accountSettings.buttons.cancel")}
                   </Button>
                   <Button
                     type="submit"
@@ -569,11 +544,11 @@ export default function AccountPage() {
                     data-testid="button-save"
                   >
                     {updateProfileMutation.isPending ? (
-                      <>Saving...</>
+                      <>{t("accountSettings.buttons.saving")}</>
                     ) : (
                       <>
                         <Save className="w-4 h-4 mr-2" />
-                        Save Changes
+                        {t("accountSettings.buttons.save")}
                       </>
                     )}
                   </Button>
@@ -590,9 +565,9 @@ export default function AccountPage() {
                   <Lock className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-foreground text-xl">Security Settings</CardTitle>
+                  <CardTitle className="text-foreground text-xl">{t("accountSettings.security.title")}</CardTitle>
                   <CardDescription className="text-muted-foreground mt-1">
-                    Update your password to keep your account secure
+                    {t("accountSettings.security.description")}
                   </CardDescription>
                 </div>
               </div>
@@ -601,7 +576,7 @@ export default function AccountPage() {
               <form onSubmit={handlePasswordSubmit} className="space-y-5">
                 <div>
                   <Label htmlFor="currentPassword" className="text-sm font-semibold text-muted-foreground mb-2 block">
-                    Current Password *
+                    {t("accountSettings.security.currentPassword")} *
                   </Label>
                   <div className="relative">
                     <Input
@@ -609,7 +584,7 @@ export default function AccountPage() {
                       type={showCurrentPassword ? "text" : "password"}
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      placeholder="Enter your current password"
+                      placeholder={t("accountSettings.security.placeholders.currentPassword")}
                       className="border-border focus:border-amber-500 focus:ring-amber-500 pr-10"
                       data-testid="input-current-password"
                     />
@@ -630,7 +605,7 @@ export default function AccountPage() {
 
                 <div>
                   <Label htmlFor="newPassword" className="text-sm font-semibold text-muted-foreground mb-2 block">
-                    New Password *
+                    {t("accountSettings.security.newPassword")} *
                   </Label>
                   <div className="relative">
                     <Input
@@ -638,7 +613,7 @@ export default function AccountPage() {
                       type={showNewPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter your new password"
+                      placeholder={t("accountSettings.security.placeholders.newPassword")}
                       className="border-border focus:border-amber-500 focus:ring-amber-500 pr-10"
                       data-testid="input-new-password"
                     />
@@ -656,13 +631,13 @@ export default function AccountPage() {
                     </button>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2 bg-amber-50 p-2 rounded border border-amber-200">
-                    Minimum 8 characters with uppercase, lowercase, and numbers
+                    {t("accountSettings.security.passwordRequirements")}
                   </p>
                 </div>
 
                 <div>
                   <Label htmlFor="confirmPassword" className="text-sm font-semibold text-muted-foreground mb-2 block">
-                    Confirm New Password *
+                    {t("accountSettings.security.confirmPassword")} *
                   </Label>
                   <div className="relative">
                     <Input
@@ -670,7 +645,7 @@ export default function AccountPage() {
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirm your new password"
+                      placeholder={t("accountSettings.security.placeholders.confirmPassword")}
                       className="border-border focus:border-amber-500 focus:ring-amber-500 pr-10"
                       data-testid="input-confirm-password"
                     />
@@ -701,7 +676,7 @@ export default function AccountPage() {
                     className="flex-1 border-border hover:bg-muted"
                     data-testid="button-cancel-password"
                   >
-                    Clear
+                    {t("accountSettings.buttons.clear")}
                   </Button>
                   <Button
                     type="submit"
@@ -710,11 +685,11 @@ export default function AccountPage() {
                     data-testid="button-update-password"
                   >
                     {updatePasswordMutation.isPending ? (
-                      <>Updating...</>
+                      <>{t("accountSettings.buttons.updating")}</>
                     ) : (
                       <>
                         <Lock className="w-4 h-4 mr-2" />
-                        Update Password
+                        {t("accountSettings.buttons.updatePassword")}
                       </>
                     )}
                   </Button>

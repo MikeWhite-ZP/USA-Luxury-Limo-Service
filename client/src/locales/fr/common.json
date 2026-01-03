@@ -60,11 +60,27 @@
       "profileUpdatedDesc": "Vos informations de profil ont été enregistrées avec succès.",
       "passwordUpdated": "Mot de Passe Mis à Jour",
       "passwordUpdatedDesc": "Votre mot de passe a été modifié avec succès.",
+      "profilePictureUpdated": "Photo de Profil Mise à Jour",
+      "profilePictureUpdatedDesc": "Votre photo de profil a été mise à jour avec succès.",
+      "uploadFailed": "Échec du Téléchargement",
       "error": "Erreur",
+      "validationError": "Erreur de Validation",
+      "nameRequired": "Le prénom et le nom sont requis",
+      "emailRequired": "L'adresse e-mail est requise",
       "fillRequired": "Veuillez remplir tous les champs requis",
       "passwordsMismatch": "Les mots de passe ne correspondent pas",
-      "passwordRequirements": "Le mot de passe doit contenir au moins 8 caractères avec majuscules, minuscules et chiffres"
-    }
+      "passwordRequirements": "Le mot de passe doit contenir au moins 8 caractères avec majuscules, minuscules et chiffres",
+      "invalidFileType": "Type de Fichier Invalide",
+      "invalidFileTypeDesc": "Veuillez sélectionner un fichier image",
+      "fileTooLarge": "Fichier Trop Volumineux",
+      "fileTooLargeDesc": "La taille de l'image doit être inférieure à 2 Mo",
+      "noFileSelected": "Aucun Fichier Sélectionné",
+      "noFileSelectedDesc": "Veuillez sélectionner une photo de profil à télécharger",
+      "profileUpdateFailed": "Échec de la mise à jour du profil",
+      "passwordUpdateFailed": "Échec de la mise à jour du mot de passe",
+      "uploadFailedGeneric": "Échec du téléchargement"
+    },
+    "loading": "Chargement..."
   },
   "hero": {
     "premium": "Premium",

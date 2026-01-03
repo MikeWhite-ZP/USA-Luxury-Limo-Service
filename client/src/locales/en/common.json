@@ -60,11 +60,27 @@
       "profileUpdatedDesc": "Your profile information has been saved successfully.",
       "passwordUpdated": "Password Updated",
       "passwordUpdatedDesc": "Your password has been changed successfully.",
+      "profilePictureUpdated": "Profile Picture Updated",
+      "profilePictureUpdatedDesc": "Your profile picture has been updated successfully.",
+      "uploadFailed": "Upload Failed",
       "error": "Error",
+      "validationError": "Validation Error",
+      "nameRequired": "First name and last name are required",
+      "emailRequired": "Email is required",
       "fillRequired": "Please fill in all required fields",
       "passwordsMismatch": "Passwords don't match",
-      "passwordRequirements": "Password must be at least 8 characters with uppercase, lowercase, and numbers"
-    }
+      "passwordRequirements": "Password must be at least 8 characters with uppercase, lowercase, and numbers",
+      "invalidFileType": "Invalid File Type",
+      "invalidFileTypeDesc": "Please select an image file",
+      "fileTooLarge": "File Too Large",
+      "fileTooLargeDesc": "Image size must be less than 2MB",
+      "noFileSelected": "No File Selected",
+      "noFileSelectedDesc": "Please select a profile picture to upload",
+      "profileUpdateFailed": "Failed to update profile",
+      "passwordUpdateFailed": "Failed to update password",
+      "uploadFailedGeneric": "Upload failed"
+    },
+    "loading": "Loading..."
   },
   "hero": {
     "premium": "Premium",

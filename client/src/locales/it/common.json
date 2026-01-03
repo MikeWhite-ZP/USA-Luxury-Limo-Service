@@ -60,11 +60,27 @@
       "profileUpdatedDesc": "Le tue informazioni profilo sono state salvate con successo.",
       "passwordUpdated": "Password Aggiornata",
       "passwordUpdatedDesc": "La tua password è stata cambiata con successo.",
+      "profilePictureUpdated": "Foto Profilo Aggiornata",
+      "profilePictureUpdatedDesc": "La tua foto profilo è stata aggiornata con successo.",
+      "uploadFailed": "Caricamento Fallito",
       "error": "Errore",
+      "validationError": "Errore di Validazione",
+      "nameRequired": "Nome e cognome sono obbligatori",
+      "emailRequired": "L'e-mail è obbligatoria",
       "fillRequired": "Compila tutti i campi obbligatori",
       "passwordsMismatch": "Le password non corrispondono",
-      "passwordRequirements": "La password deve avere almeno 8 caratteri con maiuscole, minuscole e numeri"
-    }
+      "passwordRequirements": "La password deve avere almeno 8 caratteri con maiuscole, minuscole e numeri",
+      "invalidFileType": "Tipo di File Non Valido",
+      "invalidFileTypeDesc": "Seleziona un file immagine",
+      "fileTooLarge": "File Troppo Grande",
+      "fileTooLargeDesc": "La dimensione dell'immagine deve essere inferiore a 2 MB",
+      "noFileSelected": "Nessun File Selezionato",
+      "noFileSelectedDesc": "Seleziona una foto profilo da caricare",
+      "profileUpdateFailed": "Impossibile aggiornare il profilo",
+      "passwordUpdateFailed": "Impossibile aggiornare la password",
+      "uploadFailedGeneric": "Caricamento fallito"
+    },
+    "loading": "Caricamento..."
   },
   "hero": {
     "premium": "Premium",

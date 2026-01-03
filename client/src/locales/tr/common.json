@@ -60,11 +60,27 @@
       "profileUpdatedDesc": "Profil bilgileriniz başarıyla kaydedildi.",
       "passwordUpdated": "Şifre Güncellendi",
       "passwordUpdatedDesc": "Şifreniz başarıyla değiştirildi.",
+      "profilePictureUpdated": "Profil Fotoğrafı Güncellendi",
+      "profilePictureUpdatedDesc": "Profil fotoğrafınız başarıyla güncellendi.",
+      "uploadFailed": "Yükleme Başarısız",
       "error": "Hata",
+      "validationError": "Doğrulama Hatası",
+      "nameRequired": "Ad ve soyad gereklidir",
+      "emailRequired": "E-posta gereklidir",
       "fillRequired": "Lütfen tüm gerekli alanları doldurun",
       "passwordsMismatch": "Şifreler eşleşmiyor",
-      "passwordRequirements": "Şifre en az 8 karakter, büyük harf, küçük harf ve rakam içermelidir"
-    }
+      "passwordRequirements": "Şifre en az 8 karakter, büyük harf, küçük harf ve rakam içermelidir",
+      "invalidFileType": "Geçersiz Dosya Türü",
+      "invalidFileTypeDesc": "Lütfen bir resim dosyası seçin",
+      "fileTooLarge": "Dosya Çok Büyük",
+      "fileTooLargeDesc": "Resim boyutu 2MB'dan küçük olmalıdır",
+      "noFileSelected": "Dosya Seçilmedi",
+      "noFileSelectedDesc": "Lütfen yüklemek için bir profil fotoğrafı seçin",
+      "profileUpdateFailed": "Profil güncellenemedi",
+      "passwordUpdateFailed": "Şifre güncellenemedi",
+      "uploadFailedGeneric": "Yükleme başarısız"
+    },
+    "loading": "Yükleniyor..."
   },
   "hero": {
     "premium": "Premium",

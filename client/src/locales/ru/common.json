@@ -60,11 +60,27 @@
       "profileUpdatedDesc": "Ваша информация профиля успешно сохранена.",
       "passwordUpdated": "Пароль Обновлён",
       "passwordUpdatedDesc": "Ваш пароль успешно изменён.",
+      "profilePictureUpdated": "Фото Профиля Обновлено",
+      "profilePictureUpdatedDesc": "Ваше фото профиля успешно обновлено.",
+      "uploadFailed": "Ошибка Загрузки",
       "error": "Ошибка",
+      "validationError": "Ошибка Валидации",
+      "nameRequired": "Имя и фамилия обязательны",
+      "emailRequired": "E-mail обязателен",
       "fillRequired": "Пожалуйста, заполните все обязательные поля",
       "passwordsMismatch": "Пароли не совпадают",
-      "passwordRequirements": "Пароль должен содержать не менее 8 символов с заглавными, строчными буквами и цифрами"
-    }
+      "passwordRequirements": "Пароль должен содержать не менее 8 символов с заглавными, строчными буквами и цифрами",
+      "invalidFileType": "Неверный Тип Файла",
+      "invalidFileTypeDesc": "Пожалуйста, выберите файл изображения",
+      "fileTooLarge": "Файл Слишком Большой",
+      "fileTooLargeDesc": "Размер изображения должен быть менее 2 МБ",
+      "noFileSelected": "Файл Не Выбран",
+      "noFileSelectedDesc": "Пожалуйста, выберите фото профиля для загрузки",
+      "profileUpdateFailed": "Не удалось обновить профиль",
+      "passwordUpdateFailed": "Не удалось обновить пароль",
+      "uploadFailedGeneric": "Ошибка загрузки"
+    },
+    "loading": "Загрузка..."
   },
   "hero": {
     "premium": "Премиум",
