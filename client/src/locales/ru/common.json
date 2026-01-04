@@ -464,7 +464,8 @@
     "profile": "Профиль",
     "myBookings": "Мои Бронирования",
     "settings": "Настройки",
-    "account": "Аккаунт"
+    "account": "Аккаунт",
+    "locations": "Локации"
   },
   "common": {
     "loading": "Загрузка...",

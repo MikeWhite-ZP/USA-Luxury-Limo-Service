@@ -464,7 +464,8 @@
     "profile": "Profil",
     "myBookings": "Meine Buchungen",
     "settings": "Einstellungen",
-    "account": "Konto"
+    "account": "Konto",
+    "locations": "Standorte"
   },
   "common": {
     "loading": "Laden...",

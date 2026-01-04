@@ -464,7 +464,8 @@
     "profile": "Profil",
     "myBookings": "Rezervasyonlarım",
     "settings": "Ayarlar",
-    "account": "Hesap"
+    "account": "Hesap",
+    "locations": "Lokasyonlar"
   },
   "common": {
     "loading": "Yükleniyor...",
