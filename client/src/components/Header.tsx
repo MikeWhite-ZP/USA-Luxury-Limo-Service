@@ -89,7 +89,7 @@ export default function Header() {
               className="text-muted-foreground hover:text-primary font-medium transition-colors duration-200"
               data-testid="nav-locations"
             >
-              {t('nav.services')}
+              {t('nav.locations')}
             </button>
             <button 
               onClick={() => setLocation('/hotels')} 
