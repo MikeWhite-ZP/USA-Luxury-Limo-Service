@@ -2374,7 +2374,7 @@ export default function BookingForm({ isQuickBooking = false }: BookingFormProps
   }
 
   return (
-    <div className="backdrop-blur-sm rounded-2xl shadow-2xl bg-background w-full max-w-full p-4 sm:p-6 lg:p-8">
+    <div className="backdrop-blur-sm rounded-2xl shadow-2xl bg-background w-full max-w-full p-4 sm:p-6 lg:p-8 pl-[10px] pr-[10px] pt-[10px] pb-[10px]">
       {/* Enhanced Service Type Tabs */}
       <div className="flex mb-6 border-b-2 border-border">
         <button
